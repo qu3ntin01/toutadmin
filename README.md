@@ -13,7 +13,7 @@ Plateforme de gestion du personnel et des outils qui leur sont affectés — des
 - **Espace personnel**
   - Page de connexion dédiée (email + mot de passe)
   - Liste des outils actuellement affectés au salarié connecté
-- **Thème clair / sombre / système** — bouton à trois positions (soleil / lune / écran) dans l'en-tête. Le choix est mémorisé dans le navigateur (`localStorage`) et appliqué sans flash au chargement.
+- **Thème clair / sombre / système** — bouton à trois positions (soleil / lune / écran) dans l'en-tête. Clair par défaut. Le choix est mémorisé dans le navigateur (`localStorage`) et appliqué sans flash au chargement.
 
 ## Sécurité
 
@@ -41,7 +41,7 @@ Aucun système n'est protégé « contre toutes les failles » de façon absolue
 - SQLite (via `better-sqlite3`) — base de données locale, aucun service externe requis
 - EJS pour le rendu des pages, sessions via `express-session`
 - `helmet` (en-têtes de sécurité / CSP) + `express-rate-limit` (anti brute-force)
-- CSS sur-mesure (police `Cormorant Garamond` + `Manrope`), thème clair/sombre/système
+- CSS sur-mesure (police `Fraunces` + `Inter`), design premium clair/sombre/système
 
 ## Démarrage
 

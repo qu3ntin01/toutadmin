@@ -12,8 +12,11 @@
     <div class="topbar-user">
       <%- include('partials/theme-toggle') %>
       <div class="user-chip">
-        <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
-        <span class="user-grade"><%= currentUser.grade %></span>
+        <span class="user-avatar"><%= currentUser.firstName.charAt(0) %><%= currentUser.lastName.charAt(0) %></span>
+        <div class="user-meta">
+          <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+          <span class="user-grade"><%= currentUser.grade %></span>
+        </div>
       </div>
       <form method="POST" action="/deconnexion">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

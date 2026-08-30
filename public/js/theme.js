@@ -27,7 +27,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    apply(getStored() || 'dark');
+    apply(getStored() || 'light');
     document.querySelectorAll('[data-theme-option]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var theme = btn.dataset.themeOption;

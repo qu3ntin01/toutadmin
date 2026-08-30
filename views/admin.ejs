@@ -12,8 +12,11 @@
     <div class="topbar-user">
       <%- include('partials/theme-toggle') %>
       <div class="user-chip">
-        <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
-        <span class="user-grade">Administration</span>
+        <span class="user-avatar"><%= currentUser.firstName.charAt(0) %><%= currentUser.lastName.charAt(0) %></span>
+        <div class="user-meta">
+          <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+          <span class="user-grade">Administration</span>
+        </div>
       </div>
       <form method="POST" action="/deconnexion">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -35,20 +38,40 @@
 
     <section class="stats-grid">
       <div class="stat-card">
-        <span class="stat-value"><%= stats.employeeCount %></span>
-        <span class="stat-label">Membres du personnel</span>
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 5 18.5V20" /><circle cx="9.5" cy="8" r="3.5" /><path d="M19 20v-1.5a3.5 3.5 0 0 0-2.5-3.35" /><path d="M15 4.6a3.5 3.5 0 0 1 0 6.8" /></svg>
+        </span>
+        <div class="stat-body">
+          <span class="stat-value"><%= stats.employeeCount %></span>
+          <span class="stat-label">Membres du personnel</span>
+        </div>
       </div>
       <div class="stat-card">
-        <span class="stat-value"><%= stats.toolCount %></span>
-        <span class="stat-label">Outils au catalogue</span>
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 3.5 2 2L6 16 3 17l1-3Z" /><path d="m13 5 2 2" /><path d="M17.5 13.5 20 16l-4 4-2.5-2.5" /></svg>
+        </span>
+        <div class="stat-body">
+          <span class="stat-value"><%= stats.toolCount %></span>
+          <span class="stat-label">Outils au catalogue</span>
+        </div>
       </div>
       <div class="stat-card">
-        <span class="stat-value"><%= stats.assignedCount %></span>
-        <span class="stat-label">Affectations actives</span>
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
+        </span>
+        <div class="stat-body">
+          <span class="stat-value"><%= stats.assignedCount %></span>
+          <span class="stat-label">Affectations actives</span>
+        </div>
       </div>
       <div class="stat-card">
-        <span class="stat-value"><%= stats.availableCount %></span>
-        <span class="stat-label">Outils disponibles</span>
+        <span class="stat-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="4" /><path d="M8 12h8M12 8v8" /></svg>
+        </span>
+        <div class="stat-body">
+          <span class="stat-value"><%= stats.availableCount %></span>
+          <span class="stat-label">Outils disponibles</span>
+        </div>
       </div>
     </section>
 
