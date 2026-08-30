@@ -41,7 +41,7 @@ Aucun système n'est protégé « contre toutes les failles » de façon absolue
 - SQLite (via `better-sqlite3`) — base de données locale, aucun service externe requis
 - EJS pour le rendu des pages, sessions via `express-session`
 - `helmet` (en-têtes de sécurité / CSP) + `express-rate-limit` (anti brute-force)
-- CSS sur-mesure (police `Fraunces` + `Inter`), design premium clair/sombre/système
+- CSS sur-mesure, police système (San Francisco / Segoe UI selon l'OS), design inspiré d'Apple : carte centrée, gris neutre, noir quasi pur, accent bronze/or unique — clair/sombre/système
 
 ## Démarrage
 

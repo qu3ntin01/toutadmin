@@ -4,56 +4,40 @@
   <%- include('partials/head', { title: 'Connexion — Private Member' }) %>
 </head>
 <body class="auth-body">
-  <div class="auth-shell">
-    <div class="auth-visual">
-      <div class="auth-visual-inner">
-        <span class="brand-mark">PM</span>
-        <h1>Private<br />Member</h1>
-        <p>La gestion du personnel et des outils, avec la rigueur d'une maison privée.</p>
-      </div>
-      <div class="auth-visual-foot">
-        <div>
-          <span class="stat-n">Chiffré</span>
-          <span class="stat-l">Sessions &amp; mots de passe</span>
-        </div>
-        <div>
-          <span class="stat-n">Verrouillage</span>
-          <span class="stat-l">Anti brute-force</span>
-        </div>
-        <div>
-          <span class="stat-n">Admin</span>
-          <span class="stat-l">Seul habilité</span>
-        </div>
-      </div>
+  <header class="auth-header">
+    <div class="auth-header-brand">
+      <span class="brand-mark small">PM</span>
+      <span class="brand-name">Private Member</span>
     </div>
-    <div class="auth-panel">
-      <div class="auth-form-wrap">
-        <div class="auth-top-row">
-          <span class="eyebrow">Espace privé</span>
-          <%- include('partials/theme-toggle') %>
-        </div>
-        <h2>Connexion</h2>
-        <p class="auth-sub">Accédez à votre espace administrateur ou personnel.</p>
+    <%- include('partials/theme-toggle') %>
+  </header>
 
-        <% if (flash) { %>
-          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
-        <% } %>
+  <div class="auth-center">
+    <div class="auth-card">
+      <span class="brand-mark">PM</span>
+      <h2>Connexion</h2>
+      <p class="auth-sub">Accédez à votre espace administrateur ou personnel.</p>
 
-        <form method="POST" action="/connexion" class="auth-form">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <label>
-            <span>Email</span>
-            <input type="email" name="email" placeholder="vous@entreprise.com" required autofocus autocomplete="username" />
-          </label>
-          <label>
-            <span>Mot de passe</span>
-            <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
-          </label>
-          <button type="submit" class="btn btn-gold btn-block">Se connecter</button>
-        </form>
-      </div>
+      <% if (flash) { %>
+        <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <form method="POST" action="/connexion" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" placeholder="vous@entreprise.com" required autofocus autocomplete="username" />
+        </label>
+        <label>
+          <span>Mot de passe</span>
+          <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+        </label>
+        <button type="submit" class="btn btn-gold btn-block">Se connecter</button>
+      </form>
     </div>
+    <p class="auth-footnote">Accès réservé au personnel autorisé. Les connexions sont journalisées et protégées contre les tentatives répétées.</p>
   </div>
+
   <script src="/js/theme.js"></script>
 </body>
 </html>
