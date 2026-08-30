@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <%- include('partials/head', { title: 'Connexion — Private Member' }) %>
+</head>
+<body class="auth-body">
+  <div class="auth-shell">
+    <div class="auth-visual">
+      <div class="auth-visual-inner">
+        <span class="brand-mark">PM</span>
+        <h1>Private<br />Member</h1>
+        <p>La gestion du personnel et des outils, avec la rigueur d'une maison privée.</p>
+      </div>
+    </div>
+    <div class="auth-panel">
+      <div class="auth-form-wrap">
+        <span class="eyebrow">Espace privé</span>
+        <h2>Connexion</h2>
+        <p class="auth-sub">Accédez à votre espace administrateur ou personnel.</p>
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <form method="POST" action="/connexion" class="auth-form">
+          <label>
+            <span>Email</span>
+            <input type="email" name="email" placeholder="vous@entreprise.com" required autofocus />
+          </label>
+          <label>
+            <span>Mot de passe</span>
+            <input type="password" name="password" placeholder="••••••••" required />
+          </label>
+          <button type="submit" class="btn btn-gold btn-block">Se connecter</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

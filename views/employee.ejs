@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <%- include('partials/head', { title: 'Mon espace — Private Member' }) %>
+</head>
+<body class="app-body">
+  <header class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark small">PM</span>
+      <span class="brand-name">Private Member</span>
+    </div>
+    <div class="topbar-user">
+      <div class="user-chip">
+        <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+        <span class="user-grade"><%= currentUser.grade %></span>
+      </div>
+      <form method="POST" action="/deconnexion">
+        <button type="submit" class="btn btn-ghost">Déconnexion</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="page-head">
+      <span class="eyebrow">Mon espace</span>
+      <h1>Bonjour <%= currentUser.firstName %>,</h1>
+      <p class="muted">Voici la liste des outils qui vous sont actuellement affectés.</p>
+    </section>
+
+    <% if (flash) { %>
+      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+    <% } %>
+
+    <section class="card">
+      <% if (tools.length === 0) { %>
+        <div class="empty-state">
+          <p>Aucun outil ne vous a été affecté pour le moment.</p>
+        </div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Outil</th>
+                <th>Catégorie</th>
+                <th>Référence</th>
+                <th>Affecté le</th>
+                <th>Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% tools.forEach((t) => { %>
+                <tr>
+                  <td class="cell-strong"><%= t.name %></td>
+                  <td><span class="pill"><%= t.category || '—' %></span></td>
+                  <td class="muted"><%= t.reference || '—' %></td>
+                  <td class="muted"><%= new Date(t.assigned_at).toLocaleDateString('fr-FR') %></td>
+                  <td class="muted"><%= t.note || '—' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>
