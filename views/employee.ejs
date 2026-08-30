@@ -10,11 +10,13 @@
       <span class="brand-name">Private Member</span>
     </div>
     <div class="topbar-user">
+      <%- include('partials/theme-toggle') %>
       <div class="user-chip">
         <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
         <span class="user-grade"><%= currentUser.grade %></span>
       </div>
       <form method="POST" action="/deconnexion">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <button type="submit" class="btn btn-ghost">Déconnexion</button>
       </form>
     </div>
@@ -64,5 +66,6 @@
       <% } %>
     </section>
   </main>
+  <script src="/js/theme.js"></script>
 </body>
 </html>

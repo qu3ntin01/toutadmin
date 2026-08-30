@@ -14,7 +14,10 @@
     </div>
     <div class="auth-panel">
       <div class="auth-form-wrap">
-        <span class="eyebrow">Espace privé</span>
+        <div class="auth-top-row">
+          <span class="eyebrow">Espace privé</span>
+          <%- include('partials/theme-toggle') %>
+        </div>
         <h2>Connexion</h2>
         <p class="auth-sub">Accédez à votre espace administrateur ou personnel.</p>
 
@@ -23,18 +26,20 @@
         <% } %>
 
         <form method="POST" action="/connexion" class="auth-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <label>
             <span>Email</span>
-            <input type="email" name="email" placeholder="vous@entreprise.com" required autofocus />
+            <input type="email" name="email" placeholder="vous@entreprise.com" required autofocus autocomplete="username" />
           </label>
           <label>
             <span>Mot de passe</span>
-            <input type="password" name="password" placeholder="••••••••" required />
+            <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
           </label>
           <button type="submit" class="btn btn-gold btn-block">Se connecter</button>
         </form>
       </div>
     </div>
   </div>
+  <script src="/js/theme.js"></script>
 </body>
 </html>

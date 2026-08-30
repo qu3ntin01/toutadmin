@@ -5,10 +5,12 @@
 </head>
 <body class="auth-body">
   <div class="error-shell">
+    <%- include('partials/theme-toggle') %>
     <span class="brand-mark">PM</span>
     <h1>Oups.</h1>
     <p><%= message %></p>
     <a href="/" class="btn btn-gold">Retour à l'accueil</a>
   </div>
+  <script src="/js/theme.js"></script>
 </body>
 </html>

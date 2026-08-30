@@ -10,11 +10,13 @@
       <span class="brand-name">Private Member</span>
     </div>
     <div class="topbar-user">
+      <%- include('partials/theme-toggle') %>
       <div class="user-chip">
         <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
         <span class="user-grade">Administration</span>
       </div>
       <form method="POST" action="/deconnexion">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <button type="submit" class="btn btn-ghost">Déconnexion</button>
       </form>
     </div>
@@ -62,6 +64,7 @@
         <div class="card">
           <h3>Ajouter un membre</h3>
           <form method="POST" action="/admin/employes" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label>
               <span>Prénom</span>
               <input type="text" name="first_name" required />
@@ -126,12 +129,15 @@
                       </td>
                       <td class="actions">
                         <form method="POST" action="/admin/employes/<%= e.id %>/statut">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-tiny"><%= e.active ? 'Désactiver' : 'Activer' %></button>
                         </form>
                         <form method="POST" action="/admin/employes/<%= e.id %>/reinitialiser">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-tiny">Reset mdp</button>
                         </form>
                         <form method="POST" action="/admin/employes/<%= e.id %>/supprimer" onsubmit="return confirm('Supprimer ce membre ?');">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-tiny btn-danger">Supprimer</button>
                         </form>
                       </td>
@@ -151,6 +157,7 @@
         <div class="card">
           <h3>Ajouter un outil</h3>
           <form method="POST" action="/admin/outils" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label class="span-2">
               <span>Nom de l'outil</span>
               <input type="text" name="name" required />
@@ -198,6 +205,7 @@
                       </td>
                       <td class="actions">
                         <form method="POST" action="/admin/outils/<%= t.id %>/supprimer" onsubmit="return confirm('Supprimer cet outil ?');">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-tiny btn-danger">Supprimer</button>
                         </form>
                       </td>
@@ -217,6 +225,7 @@
         <div class="card">
           <h3>Affecter un outil</h3>
           <form method="POST" action="/admin/affectations" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label class="span-2">
               <span>Membre</span>
               <select name="employee_id" required>
@@ -269,6 +278,7 @@
                       <td class="muted"><%= new Date(row.assigned_at).toLocaleDateString('fr-FR') %></td>
                       <td class="actions">
                         <form method="POST" action="/admin/affectations/<%= row.id %>/supprimer">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-tiny btn-danger">Retirer</button>
                         </form>
                       </td>
@@ -283,6 +293,7 @@
     </section>
   </main>
 
+  <script src="/js/theme.js"></script>
   <script src="/js/admin.js"></script>
 </body>
 </html>

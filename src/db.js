@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS users (
   grade TEXT NOT NULL DEFAULT '',
   department TEXT NOT NULL DEFAULT '',
   active INTEGER NOT NULL DEFAULT 1,
+  failed_attempts INTEGER NOT NULL DEFAULT 0,
+  locked_until TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -44,12 +46,26 @@ CREATE TABLE IF NOT EXISTS assignments (
 );
 `);
 
+for (const migration of [
+  "ALTER TABLE users ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN locked_until TEXT",
+]) {
+  try {
+    db.exec(migration);
+  } catch (err) {
+    if (!/duplicate column/i.test(err.message)) throw err;
+  }
+}
+
 const adminEmail = (process.env.ADMIN_EMAIL || 'admin@entreprise.com').toLowerCase().trim();
 const adminPassword = process.env.ADMIN_PASSWORD || 'change-moi-123';
 
 const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
 if (!existingAdmin) {
-  const hash = bcrypt.hashSync(adminPassword, 10);
+  if (adminPassword.length < 10) {
+    console.warn('Attention : ADMIN_PASSWORD est court. Utilisez un mot de passe fort (12+ caractères) en production.');
+  }
+  const hash = bcrypt.hashSync(adminPassword, 12);
   db.prepare(`
     INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, active)
     VALUES ('admin', ?, ?, 'Administrateur', 'Général', 'Direction', 'Administration', 1)

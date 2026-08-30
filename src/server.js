@@ -3,26 +3,77 @@ const path = require('path');
 const crypto = require('crypto');
 const express = require('express');
 const session = require('express-session');
+const helmet = require('helmet');
 const bcrypt = require('bcryptjs');
 
 const db = require('./db');
 const grades = require('./grades');
 const { requireAdmin, requireEmployee } = require('./middleware/auth');
+const security = require('./security');
+
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === 'change-moi-en-production') {
+    throw new Error('SESSION_SECRET doit être défini avec une valeur forte et unique en production.');
+  }
+  if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'change-moi-123') {
+    throw new Error('ADMIN_PASSWORD doit être défini avec un mot de passe fort en production.');
+  }
+}
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isProd = process.env.NODE_ENV === 'production';
+
+if (process.env.TRUST_PROXY) {
+  app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
+}
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '..', 'views'));
+app.disable('x-powered-by');
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, '..', 'public')));
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-non-securise',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 8 },
-}));
+app.use(security.nonceMiddleware);
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        baseUri: ["'self'"],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        formAction: ["'self'"],
+        scriptSrc: ["'self'", (req, res) => `'nonce-${res.locals.nonce}'`],
+        styleSrc: ["'self'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+        imgSrc: ["'self'", 'data:'],
+        connectSrc: ["'self'"],
+        upgradeInsecureRequests: isProd ? [] : null,
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  })
+);
+app.use(security.globalLimiter);
+
+app.use(express.urlencoded({ extended: true, limit: '20kb' }));
+app.use(express.static(path.join(__dirname, '..', 'public'), { maxAge: isProd ? '1d' : 0 }));
+
+app.use(
+  session({
+    name: 'pm.sid',
+    secret: process.env.SESSION_SECRET || 'dev-secret-non-securise',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: isProd,
+      maxAge: 1000 * 60 * 60 * 8,
+    },
+  })
+);
+
+app.use(security.csrfMiddleware);
 
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
@@ -36,7 +87,11 @@ function setFlash(req, type, message) {
 }
 
 function generatePassword() {
-  return crypto.randomBytes(6).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 10);
+  return crypto.randomBytes(9).toString('base64').replace(/[^a-zA-Z0-9]/g, '').slice(0, 12);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
 }
 
 // ---------- Authentification ----------
@@ -51,25 +106,45 @@ app.get('/connexion', (req, res) => {
   res.render('login');
 });
 
-app.post('/connexion', (req, res) => {
+app.post('/connexion', security.loginLimiter, (req, res) => {
   const email = (req.body.email || '').toLowerCase().trim();
   const password = req.body.password || '';
+  const genericError = () => {
+    setFlash(req, 'error', 'Identifiants incorrects.');
+    return res.redirect('/connexion');
+  };
 
   const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
-  if (!user || !user.active || !bcrypt.compareSync(password, user.password_hash)) {
-    setFlash(req, 'error', 'Identifiants incorrects.');
+
+  if (!user) {
+    bcrypt.compareSync(password, security.DUMMY_HASH); // constant-time: avoids leaking account existence
+    return genericError();
+  }
+
+  if (security.isLocked(user)) {
+    setFlash(req, 'error', `Compte temporairement verrouillé suite à plusieurs échecs. Réessayez dans ${security.LOCKOUT_MINUTES} minutes.`);
     return res.redirect('/connexion');
   }
 
-  req.session.user = {
-    id: user.id,
-    role: user.role,
-    email: user.email,
-    firstName: user.first_name,
-    lastName: user.last_name,
-    grade: user.grade,
-  };
-  res.redirect(user.role === 'admin' ? '/admin' : '/mon-espace');
+  if (!user.active || !bcrypt.compareSync(password, user.password_hash)) {
+    if (user.active) security.registerFailedAttempt(user);
+    return genericError();
+  }
+
+  security.resetFailedAttempts(user.id);
+
+  req.session.regenerate((err) => {
+    if (err) return genericError();
+    req.session.user = {
+      id: user.id,
+      role: user.role,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      grade: user.grade,
+    };
+    res.redirect(user.role === 'admin' ? '/admin' : '/mon-espace');
+  });
 });
 
 app.post('/deconnexion', (req, res) => {
@@ -77,6 +152,8 @@ app.post('/deconnexion', (req, res) => {
 });
 
 // ---------- Espace administrateur ----------
+// Toutes les routes /admin/* exigent le rôle 'admin' (middleware requireAdmin) :
+// seul un compte administrateur peut créer, modifier ou supprimer des membres.
 
 app.get('/admin', requireAdmin, (req, res) => {
   const employees = db.prepare("SELECT * FROM users WHERE role = 'employee' ORDER BY last_name COLLATE NOCASE, first_name COLLATE NOCASE").all();
@@ -115,14 +192,24 @@ app.get('/admin', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/employes', requireAdmin, (req, res) => {
-  const firstName = (req.body.first_name || '').trim();
-  const lastName = (req.body.last_name || '').trim();
-  const email = (req.body.email || '').toLowerCase().trim();
+  const firstName = (req.body.first_name || '').trim().slice(0, 100);
+  const lastName = (req.body.last_name || '').trim().slice(0, 100);
+  const email = (req.body.email || '').toLowerCase().trim().slice(0, 254);
   const grade = (req.body.grade || '').trim();
-  const department = (req.body.department || '').trim();
+  const department = (req.body.department || '').trim().slice(0, 100);
 
   if (!firstName || !lastName || !email || !grade) {
     setFlash(req, 'error', 'Merci de renseigner le prénom, le nom, l\'email et le grade.');
+    return res.redirect('/admin#personnel');
+  }
+
+  if (!isValidEmail(email)) {
+    setFlash(req, 'error', 'Adresse email invalide.');
+    return res.redirect('/admin#personnel');
+  }
+
+  if (!grades.includes(grade)) {
+    setFlash(req, 'error', 'Grade invalide.');
     return res.redirect('/admin#personnel');
   }
 
@@ -133,7 +220,7 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
   }
 
   const password = generatePassword();
-  const hash = bcrypt.hashSync(password, 10);
+  const hash = bcrypt.hashSync(password, 12);
 
   db.prepare(`
     INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, active)
@@ -160,7 +247,7 @@ app.post('/admin/employes/:id/reinitialiser', requireAdmin, (req, res) => {
   if (!employee) return res.redirect('/admin#personnel');
 
   const password = generatePassword();
-  db.prepare('UPDATE users SET password_hash = ? WHERE id = ?').run(bcrypt.hashSync(password, 10), id);
+  db.prepare('UPDATE users SET password_hash = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?').run(bcrypt.hashSync(password, 12), id);
   setFlash(req, 'success', `Nouveau mot de passe pour ${employee.email} : ${password}`);
   res.redirect('/admin#personnel');
 });
@@ -173,10 +260,10 @@ app.post('/admin/employes/:id/supprimer', requireAdmin, (req, res) => {
 });
 
 app.post('/admin/outils', requireAdmin, (req, res) => {
-  const name = (req.body.name || '').trim();
-  const category = (req.body.category || '').trim();
-  const reference = (req.body.reference || '').trim();
-  const description = (req.body.description || '').trim();
+  const name = (req.body.name || '').trim().slice(0, 150);
+  const category = (req.body.category || '').trim().slice(0, 100);
+  const reference = (req.body.reference || '').trim().slice(0, 100);
+  const description = (req.body.description || '').trim().slice(0, 1000);
 
   if (!name) {
     setFlash(req, 'error', "Merci de renseigner le nom de l'outil.");
@@ -202,7 +289,7 @@ app.post('/admin/outils/:id/supprimer', requireAdmin, (req, res) => {
 app.post('/admin/affectations', requireAdmin, (req, res) => {
   const employeeId = Number(req.body.employee_id);
   const toolId = Number(req.body.tool_id);
-  const note = (req.body.note || '').trim();
+  const note = (req.body.note || '').trim().slice(0, 300);
 
   const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(employeeId);
   const tool = db.prepare('SELECT * FROM tools WHERE id = ?').get(toolId);
@@ -245,6 +332,12 @@ app.get('/mon-espace', requireEmployee, (req, res) => {
 
 app.use((req, res) => {
   res.status(404).render('error', { message: 'Page introuvable.' });
+});
+
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).render('error', { message: 'Une erreur est survenue. Merci de réessayer.' });
 });
 
 app.listen(PORT, () => {
