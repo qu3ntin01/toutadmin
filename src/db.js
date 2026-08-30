@@ -20,6 +20,8 @@ CREATE TABLE IF NOT EXISTS users (
   last_name TEXT NOT NULL DEFAULT '',
   grade TEXT NOT NULL DEFAULT '',
   department TEXT NOT NULL DEFAULT '',
+  contract_type TEXT NOT NULL DEFAULT '',
+  contract_end_date TEXT,
   active INTEGER NOT NULL DEFAULT 1,
   failed_attempts INTEGER NOT NULL DEFAULT 0,
   locked_until TEXT,
@@ -32,6 +34,7 @@ CREATE TABLE IF NOT EXISTS tools (
   category TEXT NOT NULL DEFAULT '',
   reference TEXT NOT NULL DEFAULT '',
   description TEXT NOT NULL DEFAULT '',
+  login_url TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL DEFAULT 'disponible',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
@@ -42,6 +45,7 @@ CREATE TABLE IF NOT EXISTS assignments (
   tool_id INTEGER NOT NULL REFERENCES tools(id) ON DELETE CASCADE,
   assigned_at TEXT NOT NULL DEFAULT (datetime('now')),
   note TEXT NOT NULL DEFAULT '',
+  username TEXT NOT NULL DEFAULT '',
   UNIQUE(employee_id, tool_id)
 );
 `);
@@ -49,6 +53,10 @@ CREATE TABLE IF NOT EXISTS assignments (
 for (const migration of [
   "ALTER TABLE users ADD COLUMN failed_attempts INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN locked_until TEXT",
+  "ALTER TABLE users ADD COLUMN contract_type TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE users ADD COLUMN contract_end_date TEXT",
+  "ALTER TABLE tools ADD COLUMN login_url TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE assignments ADD COLUMN username TEXT NOT NULL DEFAULT ''",
 ]) {
   try {
     db.exec(migration);
@@ -73,4 +81,13 @@ if (!existingAdmin) {
   console.log(`Compte administrateur créé : ${adminEmail}`);
 }
 
+function deactivateExpiredContracts() {
+  const today = new Date().toISOString().slice(0, 10);
+  const result = db
+    .prepare("UPDATE users SET active = 0 WHERE role = 'employee' AND active = 1 AND contract_end_date IS NOT NULL AND contract_end_date != '' AND contract_end_date < ?")
+    .run(today);
+  return result.changes;
+}
+
 module.exports = db;
+module.exports.deactivateExpiredContracts = deactivateExpiredContracts;

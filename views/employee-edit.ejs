@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <%- include('partials/head', { title: 'Modifier ' + employee.first_name + ' — Private Member' }) %>
+</head>
+<body class="app-body">
+  <header class="topbar topbar-standalone">
+    <div class="topbar-brand">
+      <span class="brand-mark small">PM</span>
+      <span class="brand-name">Private Member</span>
+    </div>
+    <div class="topbar-user">
+      <%- include('partials/theme-toggle') %>
+      <a href="/admin#personnel" class="btn btn-ghost">Retour</a>
+    </div>
+  </header>
+
+  <main class="page page-narrow">
+    <section class="page-head">
+      <div>
+        <span class="eyebrow">Profil membre</span>
+        <h1><%= employee.first_name %> <%= employee.last_name %></h1>
+        <p class="muted"><%= employee.email %></p>
+      </div>
+    </section>
+
+    <% if (flash) { %>
+      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+    <% } %>
+
+    <div class="card">
+      <h3>Modifier le profil</h3>
+      <form method="POST" action="/admin/employes/<%= employee.id %>/modifier" class="form-grid">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label>
+          <span>Grade</span>
+          <select name="grade" required>
+            <% grades.forEach((g) => { %>
+              <option value="<%= g %>" <%= employee.grade === g ? 'selected' : '' %>><%= g %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          <span>Service</span>
+          <input type="text" name="department" value="<%= employee.department %>" placeholder="Ex : Maintenance" />
+        </label>
+        <label>
+          <span>Type de contrat</span>
+          <select name="contract_type" required>
+            <% contractTypes.forEach((c) => { %>
+              <option value="<%= c %>" <%= employee.contract_type === c ? 'selected' : '' %>><%= c %></option>
+            <% }) %>
+          </select>
+        </label>
+        <label>
+          <span>Fin de contrat</span>
+          <input type="date" name="contract_end_date" value="<%= employee.contract_end_date || '' %>" />
+        </label>
+        <div class="span-2 form-actions">
+          <button type="submit" class="btn btn-gold">Enregistrer</button>
+          <a href="/admin#personnel" class="btn btn-ghost">Annuler</a>
+        </div>
+      </form>
+      <p class="hint">Videz le champ « Fin de contrat » pour retirer toute échéance (durée indéterminée). Le compte se désactive automatiquement le lendemain de la date de fin.</p>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

@@ -1,19 +1,22 @@
 # Private Member
 
-Plateforme de gestion du personnel et des outils qui leur sont affectés — design luxe, bleu foncé & or.
+Plateforme de gestion du personnel et des outils qui leur sont affectés — design inspiré des dashboards fintech modernes (sidebar, indigo, cartes blanches).
 
 ## Fonctionnalités
 
 - **Espace administrateur**
-  - Ajout de membres du personnel avec choix d'un grade (Stagiaire, Employé, Technicien, Chef d'équipe, Responsable, Manager, Directeur…)
+  - Ajout de membres du personnel avec grade, service, **type de contrat** (CDI, CDD, Intérim, Stage, Alternance, Freelance) et **date de fin de contrat optionnelle**
+  - Modification du profil d'un membre (grade, service, contrat) à tout moment
   - Génération automatique d'un mot de passe temporaire pour chaque nouveau membre
   - Activation / désactivation / réinitialisation de mot de passe / suppression d'un membre
-  - Catalogue d'outils (nom, catégorie, référence, description)
-  - Affectation d'outils aux membres du personnel, avec note et historique
+  - **Désactivation automatique** : si une date de fin de contrat est renseignée, le compte se désactive tout seul dès que la date est dépassée (vérifié à la connexion, au chargement du tableau de bord, et toutes les heures en tâche de fond)
+  - Catalogue d'outils (nom, catégorie, référence, description, **URL de connexion**), modifiable après création
+  - Affectation d'outils aux membres, avec **identifiant** propre à chaque membre et note
 - **Espace personnel**
   - Page de connexion dédiée (email + mot de passe)
-  - Liste des outils actuellement affectés au salarié connecté
-- **Thème clair / sombre / système** — bouton à trois positions (soleil / lune / écran) dans l'en-tête. Clair par défaut. Le choix est mémorisé dans le navigateur (`localStorage`) et appliqué sans flash au chargement.
+  - Cartes design listant chaque outil affecté avec son identifiant et un bouton d'accès direct vers l'URL de connexion
+  - Bandeau d'alerte sur la durée de contrat restante (ou l'expiration) si une date de fin est définie
+- **Thème clair / sombre / système** — bouton à trois positions (soleil / lune / écran) dans l'en-tête. Le choix est mémorisé dans le navigateur (`localStorage`) et appliqué sans flash au chargement.
 
 ## Sécurité
 
@@ -21,14 +24,14 @@ Seul un compte de rôle **administrateur** peut créer, modifier, désactiver ou
 
 Mesures mises en place :
 
-- **Mots de passe** : hachage `bcrypt` (coût 12), jamais stockés en clair. Les mots de passe temporaires générés sont aléatoires (12 caractères) et affichés une seule fois à l'admin.
+- **Mots de passe** : hachage `bcrypt` (coût 12), jamais stockés en clair. Les mots de passe temporaires générés sont aléatoires (12 caractères) et affichés une seule fois à l'admin. Les URL/identifiants d'outils ne remplacent pas un gestionnaire de mots de passe : aucun mot de passe tiers n'est stocké par l'application, seulement l'identifiant et l'URL d'accès.
 - **Verrouillage de compte** : après 5 échecs de connexion consécutifs, le compte est verrouillé 15 minutes.
 - **Anti-brute-force réseau** : limitation à 10 tentatives de connexion / 15 min par adresse IP, et une limite globale de 300 requêtes / minute.
-- **Anti-enumération de comptes** : réponse générique et temps de réponse constant (comparaison bcrypt factice) que l'email existe ou non.
+- **Anti-énumération de comptes** : réponse générique et temps de réponse constant (comparaison bcrypt factice) que l'email existe ou non.
 - **CSRF** : jeton unique par session, vérifié en comparaison à temps constant sur chaque formulaire POST.
 - **Sessions** : cookie `httpOnly`, `sameSite=lax`, `secure` en production, régénération de l'identifiant de session à la connexion (anti session-fixation), secret dédié (`SESSION_SECRET`).
-- **En-têtes de sécurité** : `helmet` avec Content-Security-Policy stricte (scripts avec nonce, pas de `unsafe-inline`), HSTS, `X-Frame-Options`, etc.
-- **Validation des entrées** : grade contrôlé côté serveur contre une liste blanche (impossible de contourner le `<select>`), email validé, longueurs de champs bornées.
+- **En-têtes de sécurité** : `helmet` avec Content-Security-Policy stricte (scripts avec nonce, aucun style/script inline non nonce, pas de `unsafe-inline`), HSTS, `X-Frame-Options`, etc.
+- **Validation des entrées** : grade et type de contrat contrôlés côté serveur contre une liste blanche, email et URL validés, longueurs de champs bornées.
 - **Base de données** : requêtes 100 % paramétrées (`better-sqlite3`), donc pas d'injection SQL possible.
 - **Gestion des erreurs** : aucune trace technique renvoyée au client ; erreurs journalisées côté serveur uniquement.
 - **Démarrage sécurisé** : le serveur refuse de démarrer en production (`NODE_ENV=production`) si `SESSION_SECRET` ou `ADMIN_PASSWORD` sont laissés à leur valeur par défaut.
@@ -41,7 +44,7 @@ Aucun système n'est protégé « contre toutes les failles » de façon absolue
 - SQLite (via `better-sqlite3`) — base de données locale, aucun service externe requis
 - EJS pour le rendu des pages, sessions via `express-session`
 - `helmet` (en-têtes de sécurité / CSP) + `express-rate-limit` (anti brute-force)
-- CSS sur-mesure, police système (San Francisco / Segoe UI selon l'OS), design inspiré d'Apple : carte centrée, gris neutre, noir quasi pur, accent bronze/or unique — clair/sombre/système
+- CSS sur-mesure, police système, design dashboard (sidebar de navigation, accent indigo, cartes blanches à ombres douces) — clair/sombre/système
 
 ## Démarrage
 
@@ -70,11 +73,12 @@ Au premier démarrage, un compte administrateur est créé automatiquement à pa
 
 ```
 src/
-  server.js       routes & logique métier
-  db.js           connexion SQLite + schéma + création admin
-  security.js     CSRF, rate limiting, verrouillage de compte, nonce CSP
-  grades.js       liste des grades proposés
-  middleware/     protections des routes (admin / employé)
-views/            pages EJS (connexion, admin, espace employé)
-public/           CSS, thème clair/sombre/système, JS front
+  server.js         routes & logique métier
+  db.js             connexion SQLite + schéma + désactivation auto des contrats expirés
+  security.js       CSRF, rate limiting, verrouillage de compte, nonce CSP
+  grades.js         liste des grades proposés
+  contract-types.js liste des types de contrat proposés
+  middleware/       protections des routes (admin / employé)
+views/               pages EJS (connexion, admin, espace employé, édition membre/outil)
+public/              CSS, thème clair/sombre/système, JS front
 ```

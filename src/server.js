@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs');
 
 const db = require('./db');
 const grades = require('./grades');
+const contractTypes = require('./contract-types');
 const { requireAdmin, requireEmployee } = require('./middleware/auth');
 const security = require('./security');
 
@@ -94,6 +95,24 @@ function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
 }
 
+function isValidDateString(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const d = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(d.getTime());
+}
+
+function isValidUrl(value) {
+  try {
+    const u = new URL(value);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+// Désactive automatiquement les comptes dont le contrat est arrivé à échéance.
+db.deactivateExpiredContracts();
+
 // ---------- Authentification ----------
 
 app.get('/', (req, res) => {
@@ -123,6 +142,13 @@ app.post('/connexion', security.loginLimiter, (req, res) => {
 
   if (security.isLocked(user)) {
     setFlash(req, 'error', `Compte temporairement verrouillé suite à plusieurs échecs. Réessayez dans ${security.LOCKOUT_MINUTES} minutes.`);
+    return res.redirect('/connexion');
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  if (user.contract_end_date && user.contract_end_date < today) {
+    if (user.active) db.prepare('UPDATE users SET active = 0 WHERE id = ?').run(user.id);
+    setFlash(req, 'error', 'Ce compte est arrivé au terme de son contrat et a été désactivé.');
     return res.redirect('/connexion');
   }
 
@@ -156,11 +182,13 @@ app.post('/deconnexion', (req, res) => {
 // seul un compte administrateur peut créer, modifier ou supprimer des membres.
 
 app.get('/admin', requireAdmin, (req, res) => {
+  db.deactivateExpiredContracts();
+
   const employees = db.prepare("SELECT * FROM users WHERE role = 'employee' ORDER BY last_name COLLATE NOCASE, first_name COLLATE NOCASE").all();
   const tools = db.prepare('SELECT * FROM tools ORDER BY name COLLATE NOCASE').all();
 
   const assignmentRows = db.prepare(`
-    SELECT a.id, a.employee_id, a.tool_id, a.assigned_at, a.note
+    SELECT a.id, a.employee_id, a.tool_id, a.assigned_at, a.note, a.username
     FROM assignments a
   `).all();
 
@@ -178,6 +206,7 @@ app.get('/admin', requireAdmin, (req, res) => {
     employees,
     tools,
     grades,
+    contractTypes,
     toolsByEmployee,
     employeesByTool,
     toolsMap,
@@ -197,9 +226,11 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
   const email = (req.body.email || '').toLowerCase().trim().slice(0, 254);
   const grade = (req.body.grade || '').trim();
   const department = (req.body.department || '').trim().slice(0, 100);
+  const contractType = (req.body.contract_type || '').trim();
+  const contractEndDate = (req.body.contract_end_date || '').trim();
 
-  if (!firstName || !lastName || !email || !grade) {
-    setFlash(req, 'error', 'Merci de renseigner le prénom, le nom, l\'email et le grade.');
+  if (!firstName || !lastName || !email || !grade || !contractType) {
+    setFlash(req, 'error', 'Merci de renseigner le prénom, le nom, l\'email, le grade et le type de contrat.');
     return res.redirect('/admin#personnel');
   }
 
@@ -213,6 +244,16 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
     return res.redirect('/admin#personnel');
   }
 
+  if (!contractTypes.includes(contractType)) {
+    setFlash(req, 'error', 'Type de contrat invalide.');
+    return res.redirect('/admin#personnel');
+  }
+
+  if (contractEndDate && !isValidDateString(contractEndDate)) {
+    setFlash(req, 'error', 'Date de fin de contrat invalide.');
+    return res.redirect('/admin#personnel');
+  }
+
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
   if (existing) {
     setFlash(req, 'error', 'Un compte existe déjà avec cet email.');
@@ -223,11 +264,51 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
   const hash = bcrypt.hashSync(password, 12);
 
   db.prepare(`
-    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, active)
-    VALUES ('employee', ?, ?, ?, ?, ?, ?, 1)
-  `).run(email, hash, firstName, lastName, grade, department);
+    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, contract_type, contract_end_date, active)
+    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, 1)
+  `).run(email, hash, firstName, lastName, grade, department, contractType, contractEndDate || null);
 
   setFlash(req, 'success', `Membre ajouté. Identifiant : ${email} — Mot de passe temporaire : ${password}`);
+  res.redirect('/admin#personnel');
+});
+
+app.get('/admin/employes/:id/modifier', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#personnel');
+  }
+  res.render('employee-edit', { employee, grades, contractTypes });
+});
+
+app.post('/admin/employes/:id/modifier', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#personnel');
+  }
+
+  const grade = (req.body.grade || '').trim();
+  const department = (req.body.department || '').trim().slice(0, 100);
+  const contractType = (req.body.contract_type || '').trim();
+  const contractEndDate = (req.body.contract_end_date || '').trim();
+
+  if (!grade || !contractTypes.includes(contractType) || !grades.includes(grade)) {
+    setFlash(req, 'error', 'Grade ou type de contrat invalide.');
+    return res.redirect(`/admin/employes/${id}/modifier`);
+  }
+
+  if (contractEndDate && !isValidDateString(contractEndDate)) {
+    setFlash(req, 'error', 'Date de fin de contrat invalide.');
+    return res.redirect(`/admin/employes/${id}/modifier`);
+  }
+
+  db.prepare('UPDATE users SET grade = ?, department = ?, contract_type = ?, contract_end_date = ? WHERE id = ?')
+    .run(grade, department, contractType, contractEndDate || null, id);
+
+  setFlash(req, 'success', `Profil de ${employee.first_name} ${employee.last_name} mis à jour.`);
   res.redirect('/admin#personnel');
 });
 
@@ -264,18 +345,65 @@ app.post('/admin/outils', requireAdmin, (req, res) => {
   const category = (req.body.category || '').trim().slice(0, 100);
   const reference = (req.body.reference || '').trim().slice(0, 100);
   const description = (req.body.description || '').trim().slice(0, 1000);
+  const loginUrl = (req.body.login_url || '').trim().slice(0, 500);
 
   if (!name) {
     setFlash(req, 'error', "Merci de renseigner le nom de l'outil.");
     return res.redirect('/admin#outils');
   }
 
+  if (loginUrl && !isValidUrl(loginUrl)) {
+    setFlash(req, 'error', "URL de connexion invalide (http:// ou https:// requis).");
+    return res.redirect('/admin#outils');
+  }
+
   db.prepare(`
-    INSERT INTO tools (name, category, reference, description, status)
-    VALUES (?, ?, ?, ?, 'disponible')
-  `).run(name, category, reference, description);
+    INSERT INTO tools (name, category, reference, description, login_url, status)
+    VALUES (?, ?, ?, ?, ?, 'disponible')
+  `).run(name, category, reference, description, loginUrl);
 
   setFlash(req, 'success', `Outil « ${name} » ajouté au catalogue.`);
+  res.redirect('/admin#outils');
+});
+
+app.get('/admin/outils/:id/modifier', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const tool = db.prepare('SELECT * FROM tools WHERE id = ?').get(id);
+  if (!tool) {
+    setFlash(req, 'error', 'Outil introuvable.');
+    return res.redirect('/admin#outils');
+  }
+  res.render('tool-edit', { tool });
+});
+
+app.post('/admin/outils/:id/modifier', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const tool = db.prepare('SELECT * FROM tools WHERE id = ?').get(id);
+  if (!tool) {
+    setFlash(req, 'error', 'Outil introuvable.');
+    return res.redirect('/admin#outils');
+  }
+
+  const name = (req.body.name || '').trim().slice(0, 150);
+  const category = (req.body.category || '').trim().slice(0, 100);
+  const reference = (req.body.reference || '').trim().slice(0, 100);
+  const description = (req.body.description || '').trim().slice(0, 1000);
+  const loginUrl = (req.body.login_url || '').trim().slice(0, 500);
+
+  if (!name) {
+    setFlash(req, 'error', "Merci de renseigner le nom de l'outil.");
+    return res.redirect(`/admin/outils/${id}/modifier`);
+  }
+
+  if (loginUrl && !isValidUrl(loginUrl)) {
+    setFlash(req, 'error', "URL de connexion invalide (http:// ou https:// requis).");
+    return res.redirect(`/admin/outils/${id}/modifier`);
+  }
+
+  db.prepare('UPDATE tools SET name = ?, category = ?, reference = ?, description = ?, login_url = ? WHERE id = ?')
+    .run(name, category, reference, description, loginUrl, id);
+
+  setFlash(req, 'success', `Outil « ${name} » mis à jour.`);
   res.redirect('/admin#outils');
 });
 
@@ -290,6 +418,7 @@ app.post('/admin/affectations', requireAdmin, (req, res) => {
   const employeeId = Number(req.body.employee_id);
   const toolId = Number(req.body.tool_id);
   const note = (req.body.note || '').trim().slice(0, 300);
+  const username = (req.body.username || '').trim().slice(0, 150);
 
   const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(employeeId);
   const tool = db.prepare('SELECT * FROM tools WHERE id = ?').get(toolId);
@@ -300,7 +429,7 @@ app.post('/admin/affectations', requireAdmin, (req, res) => {
   }
 
   try {
-    db.prepare('INSERT INTO assignments (employee_id, tool_id, note) VALUES (?, ?, ?)').run(employeeId, toolId, note);
+    db.prepare('INSERT INTO assignments (employee_id, tool_id, note, username) VALUES (?, ?, ?, ?)').run(employeeId, toolId, note, username);
     setFlash(req, 'success', `« ${tool.name} » affecté à ${employee.first_name} ${employee.last_name}.`);
   } catch (err) {
     setFlash(req, 'error', 'Cet outil est déjà affecté à ce membre.');
@@ -319,15 +448,16 @@ app.post('/admin/affectations/:id/supprimer', requireAdmin, (req, res) => {
 
 app.get('/mon-espace', requireEmployee, (req, res) => {
   const employeeId = req.session.user.id;
+  const employee = db.prepare('SELECT * FROM users WHERE id = ?').get(employeeId);
   const tools = db.prepare(`
-    SELECT t.*, a.assigned_at, a.note
+    SELECT t.*, a.assigned_at, a.note, a.username
     FROM assignments a
     JOIN tools t ON t.id = a.tool_id
     WHERE a.employee_id = ?
     ORDER BY a.assigned_at DESC
   `).all(employeeId);
 
-  res.render('employee', { tools });
+  res.render('employee', { tools, employee });
 });
 
 app.use((req, res) => {
@@ -343,3 +473,7 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Private Member — serveur démarré sur http://localhost:${PORT}`);
 });
+
+setInterval(() => {
+  db.deactivateExpiredContracts();
+}, 60 * 60 * 1000);

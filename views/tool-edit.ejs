@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <%- include('partials/head', { title: 'Modifier ' + tool.name + ' — Private Member' }) %>
+</head>
+<body class="app-body">
+  <header class="topbar topbar-standalone">
+    <div class="topbar-brand">
+      <span class="brand-mark small">PM</span>
+      <span class="brand-name">Private Member</span>
+    </div>
+    <div class="topbar-user">
+      <%- include('partials/theme-toggle') %>
+      <a href="/admin#outils" class="btn btn-ghost">Retour</a>
+    </div>
+  </header>
+
+  <main class="page page-narrow">
+    <section class="page-head">
+      <div>
+        <span class="eyebrow">Profil outil</span>
+        <h1><%= tool.name %></h1>
+        <p class="muted">Ajouté le <%= new Date(tool.created_at).toLocaleDateString('fr-FR') %></p>
+      </div>
+    </section>
+
+    <% if (flash) { %>
+      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+    <% } %>
+
+    <div class="card">
+      <h3>Modifier l'outil</h3>
+      <form method="POST" action="/admin/outils/<%= tool.id %>/modifier" class="form-grid">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label class="span-2">
+          <span>Nom de l'outil</span>
+          <input type="text" name="name" value="<%= tool.name %>" required />
+        </label>
+        <label>
+          <span>Catégorie</span>
+          <input type="text" name="category" value="<%= tool.category %>" />
+        </label>
+        <label>
+          <span>Référence</span>
+          <input type="text" name="reference" value="<%= tool.reference %>" />
+        </label>
+        <label class="span-2">
+          <span>URL de connexion</span>
+          <input type="url" name="login_url" value="<%= tool.login_url %>" placeholder="https://outil.entreprise.com/connexion" />
+        </label>
+        <label class="span-2">
+          <span>Description</span>
+          <textarea name="description" rows="3"><%= tool.description %></textarea>
+        </label>
+        <div class="span-2 form-actions">
+          <button type="submit" class="btn btn-gold">Enregistrer</button>
+          <a href="/admin#outils" class="btn btn-ghost">Annuler</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>
