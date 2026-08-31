@@ -16,6 +16,11 @@ Plateforme de gestion du personnel et des outils qui leur sont affectés — des
   - Page de connexion dédiée (email + mot de passe)
   - Cartes design listant chaque outil affecté avec son identifiant et un bouton d'accès direct vers l'URL de connexion
   - Bandeau d'alerte sur la durée de contrat restante (ou l'expiration) si une date de fin est définie
+- **Pointage & rémunération — freelances uniquement**
+  - Un membre dont le type de contrat est « Freelance » voit apparaître un chronomètre dans son espace : bouton « Commencer / Terminer le pointage », chrono en direct, historique de toutes les sessions
+  - L'admin définit un **TJM** (taux journalier moyen, base 8h) sur le profil du membre ; le taux horaire (TJM ÷ 8) sert à estimer automatiquement la rémunération
+  - Un onglet **Rémunération** côté admin liste tous les freelances avec heures et estimation (mois en cours / total), et un lien vers le détail complet de chaque membre (historique, clôture d'un pointage oublié, suppression d'une entrée)
+  - Ce sont des estimations de pilotage, pas des bulletins de paie
 - **Thème clair / sombre / système** — bouton à trois positions (soleil / lune / écran) dans l'en-tête. Le choix est mémorisé dans le navigateur (`localStorage`) et appliqué sans flash au chargement.
 
 ## Sécurité
@@ -76,9 +81,10 @@ src/
   server.js         routes & logique métier
   db.js             connexion SQLite + schéma + désactivation auto des contrats expirés
   security.js       CSRF, rate limiting, verrouillage de compte, nonce CSP
+  timesheet.js       pointage : clock-in/out, historique, calcul des heures et de l'estimation
   grades.js         liste des grades proposés
   contract-types.js liste des types de contrat proposés
   middleware/       protections des routes (admin / employé)
-views/               pages EJS (connexion, admin, espace employé, édition membre/outil)
-public/              CSS, thème clair/sombre/système, JS front
+views/               pages EJS (connexion, admin, espace employé, édition membre/outil, pointage)
+public/              CSS, thème clair/sombre/système, JS front (thème, confirmation, chrono)
 ```

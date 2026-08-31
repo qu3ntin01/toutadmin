@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const db = require('./db');
 const grades = require('./grades');
 const contractTypes = require('./contract-types');
+const timesheet = require('./timesheet');
 const { requireAdmin, requireEmployee } = require('./middleware/auth');
 const security = require('./security');
 
@@ -110,6 +111,14 @@ function isValidUrl(value) {
   }
 }
 
+function parseDailyRate(value) {
+  const trimmed = (value || '').trim();
+  if (!trimmed) return { ok: true, value: null };
+  const n = Number(trimmed.replace(',', '.'));
+  if (!Number.isFinite(n) || n < 0 || n > 100000) return { ok: false };
+  return { ok: true, value: Math.round(n * 100) / 100 };
+}
+
 // Désactive automatiquement les comptes dont le contrat est arrivé à échéance.
 db.deactivateExpiredContracts();
 
@@ -202,6 +211,10 @@ app.get('/admin', requireAdmin, (req, res) => {
   const toolsMap = Object.fromEntries(tools.map((t) => [t.id, t]));
   const employeesMap = Object.fromEntries(employees.map((e) => [e.id, e]));
 
+  const freelancers = employees.filter((e) => e.contract_type === 'Freelance');
+  const freelanceStats = Object.fromEntries(freelancers.map((e) => [e.id, timesheet.getStats(e.id, e.daily_rate)]));
+  const openEntriesMap = Object.fromEntries(freelancers.map((e) => [e.id, Boolean(timesheet.getOpenEntry(e.id))]));
+
   res.render('admin', {
     employees,
     tools,
@@ -211,6 +224,9 @@ app.get('/admin', requireAdmin, (req, res) => {
     employeesByTool,
     toolsMap,
     employeesMap,
+    freelancers,
+    freelanceStats,
+    openEntriesMap,
     stats: {
       employeeCount: employees.length,
       toolCount: tools.length,
@@ -228,6 +244,7 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
   const department = (req.body.department || '').trim().slice(0, 100);
   const contractType = (req.body.contract_type || '').trim();
   const contractEndDate = (req.body.contract_end_date || '').trim();
+  const dailyRateResult = parseDailyRate(req.body.daily_rate);
 
   if (!firstName || !lastName || !email || !grade || !contractType) {
     setFlash(req, 'error', 'Merci de renseigner le prénom, le nom, l\'email, le grade et le type de contrat.');
@@ -254,6 +271,11 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
     return res.redirect('/admin#personnel');
   }
 
+  if (!dailyRateResult.ok) {
+    setFlash(req, 'error', 'TJM invalide.');
+    return res.redirect('/admin#personnel');
+  }
+
   const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
   if (existing) {
     setFlash(req, 'error', 'Un compte existe déjà avec cet email.');
@@ -264,9 +286,9 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
   const hash = bcrypt.hashSync(password, 12);
 
   db.prepare(`
-    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, contract_type, contract_end_date, active)
-    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, 1)
-  `).run(email, hash, firstName, lastName, grade, department, contractType, contractEndDate || null);
+    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, contract_type, contract_end_date, daily_rate, active)
+    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+  `).run(email, hash, firstName, lastName, grade, department, contractType, contractEndDate || null, dailyRateResult.value);
 
   setFlash(req, 'success', `Membre ajouté. Identifiant : ${email} — Mot de passe temporaire : ${password}`);
   res.redirect('/admin#personnel');
@@ -294,6 +316,7 @@ app.post('/admin/employes/:id/modifier', requireAdmin, (req, res) => {
   const department = (req.body.department || '').trim().slice(0, 100);
   const contractType = (req.body.contract_type || '').trim();
   const contractEndDate = (req.body.contract_end_date || '').trim();
+  const dailyRateResult = parseDailyRate(req.body.daily_rate);
 
   if (!grade || !contractTypes.includes(contractType) || !grades.includes(grade)) {
     setFlash(req, 'error', 'Grade ou type de contrat invalide.');
@@ -305,8 +328,13 @@ app.post('/admin/employes/:id/modifier', requireAdmin, (req, res) => {
     return res.redirect(`/admin/employes/${id}/modifier`);
   }
 
-  db.prepare('UPDATE users SET grade = ?, department = ?, contract_type = ?, contract_end_date = ? WHERE id = ?')
-    .run(grade, department, contractType, contractEndDate || null, id);
+  if (!dailyRateResult.ok) {
+    setFlash(req, 'error', 'TJM invalide.');
+    return res.redirect(`/admin/employes/${id}/modifier`);
+  }
+
+  db.prepare('UPDATE users SET grade = ?, department = ?, contract_type = ?, contract_end_date = ?, daily_rate = ? WHERE id = ?')
+    .run(grade, department, contractType, contractEndDate || null, dailyRateResult.value, id);
 
   setFlash(req, 'success', `Profil de ${employee.first_name} ${employee.last_name} mis à jour.`);
   res.redirect('/admin#personnel');
@@ -338,6 +366,39 @@ app.post('/admin/employes/:id/supprimer', requireAdmin, (req, res) => {
   db.prepare("DELETE FROM users WHERE id = ? AND role = 'employee'").run(id);
   setFlash(req, 'success', 'Membre supprimé.');
   res.redirect('/admin#personnel');
+});
+
+app.get('/admin/employes/:id/temps', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#remuneration');
+  }
+
+  const entries = timesheet.getEntries(id, 200);
+  const openEntry = timesheet.getOpenEntry(id);
+  const statsData = timesheet.getStats(id, employee.daily_rate);
+
+  res.render('employee-timesheet', { employee, entries, openEntry, statsData });
+});
+
+app.post('/admin/employes/:id/temps/cloturer', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee) return res.redirect('/admin#remuneration');
+
+  const result = timesheet.clockOut(id);
+  setFlash(req, result.ok ? 'success' : 'error', result.ok ? 'Pointage clôturé.' : 'Aucun pointage en cours pour ce membre.');
+  res.redirect(`/admin/employes/${id}/temps`);
+});
+
+app.post('/admin/employes/:id/temps/:entryId/supprimer', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const entryId = Number(req.params.entryId);
+  db.prepare('DELETE FROM time_entries WHERE id = ? AND employee_id = ?').run(entryId, id);
+  setFlash(req, 'success', 'Entrée supprimée.');
+  res.redirect(`/admin/employes/${id}/temps`);
 });
 
 app.post('/admin/outils', requireAdmin, (req, res) => {
@@ -457,7 +518,30 @@ app.get('/mon-espace', requireEmployee, (req, res) => {
     ORDER BY a.assigned_at DESC
   `).all(employeeId);
 
-  res.render('employee', { tools, employee });
+  const isFreelance = employee.contract_type === 'Freelance';
+  const openEntry = isFreelance ? timesheet.getOpenEntry(employeeId) : null;
+  const entries = isFreelance ? timesheet.getEntries(employeeId, 30) : [];
+  const statsData = isFreelance ? timesheet.getStats(employeeId, employee.daily_rate) : null;
+
+  res.render('employee', { tools, employee, isFreelance, openEntry, entries, statsData });
+});
+
+app.post('/mon-espace/pointage/commencer', requireEmployee, (req, res) => {
+  const employee = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  if (!employee || employee.contract_type !== 'Freelance') return res.redirect('/mon-espace');
+
+  const result = timesheet.clockIn(employee.id);
+  if (!result.ok) setFlash(req, 'error', 'Un pointage est déjà en cours.');
+  res.redirect('/mon-espace');
+});
+
+app.post('/mon-espace/pointage/terminer', requireEmployee, (req, res) => {
+  const employee = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  if (!employee || employee.contract_type !== 'Freelance') return res.redirect('/mon-espace');
+
+  const result = timesheet.clockOut(employee.id);
+  if (!result.ok) setFlash(req, 'error', 'Aucun pointage en cours.');
+  res.redirect('/mon-espace');
 });
 
 app.use((req, res) => {

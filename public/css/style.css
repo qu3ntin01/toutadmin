@@ -722,6 +722,38 @@ tbody tr:last-child td { border-bottom: none; }
 }
 .contract-banner.is-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning-text); }
 .contract-banner.is-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-text); }
+.contract-banner span { flex: 1; }
+
+.card-spaced { margin-bottom: 24px; }
+
+/* ---------- Pointage (freelance) ---------- */
+
+.timer-card { margin-bottom: 20px; }
+
+.timer-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+
+.timer-display {
+  font-variant-numeric: tabular-nums;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 2.6rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+  padding: 18px 0;
+  color: var(--text);
+}
+
+.timer-actions { margin-bottom: 18px; }
+
+.timer-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.timer-stats > div { display: flex; flex-direction: column; gap: 2px; }
+.timer-stats .stat-value { font-size: 1.05rem; }
 
 /* ---------- Responsive ---------- */
 
@@ -757,4 +789,6 @@ tbody tr:last-child td { border-bottom: none; }
   .auth-header { padding: 18px 20px; }
   .auth-card { padding: 32px 24px; }
   .page-head { flex-direction: column; }
+  .timer-stats { grid-template-columns: 1fr; gap: 10px; }
+  .timer-display { font-size: 2.1rem; }
 }

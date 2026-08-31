@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
   department TEXT NOT NULL DEFAULT '',
   contract_type TEXT NOT NULL DEFAULT '',
   contract_end_date TEXT,
+  daily_rate REAL,
   active INTEGER NOT NULL DEFAULT 1,
   failed_attempts INTEGER NOT NULL DEFAULT 0,
   locked_until TEXT,
@@ -48,6 +49,16 @@ CREATE TABLE IF NOT EXISTS assignments (
   username TEXT NOT NULL DEFAULT '',
   UNIQUE(employee_id, tool_id)
 );
+
+CREATE TABLE IF NOT EXISTS time_entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  clock_in TEXT NOT NULL,
+  clock_out TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_time_entries_employee ON time_entries(employee_id);
 `);
 
 for (const migration of [
@@ -57,6 +68,7 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN contract_end_date TEXT",
   "ALTER TABLE tools ADD COLUMN login_url TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE assignments ADD COLUMN username TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE users ADD COLUMN daily_rate REAL",
 ]) {
   try {
     db.exec(migration);

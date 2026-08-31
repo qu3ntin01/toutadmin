@@ -56,12 +56,19 @@
           <span>Fin de contrat</span>
           <input type="date" name="contract_end_date" value="<%= employee.contract_end_date || '' %>" />
         </label>
+        <label class="span-2">
+          <span>TJM — taux journalier moyen (freelance uniquement)</span>
+          <input type="number" name="daily_rate" min="0" step="0.01" value="<%= employee.daily_rate ?? '' %>" placeholder="Ex : 450" />
+        </label>
         <div class="span-2 form-actions">
           <button type="submit" class="btn btn-gold">Enregistrer</button>
           <a href="/admin#personnel" class="btn btn-ghost">Annuler</a>
+          <% if (employee.contract_type === 'Freelance') { %>
+            <a href="/admin/employes/<%= employee.id %>/temps" class="btn btn-ghost">Voir le pointage</a>
+          <% } %>
         </div>
       </form>
-      <p class="hint">Videz le champ « Fin de contrat » pour retirer toute échéance (durée indéterminée). Le compte se désactive automatiquement le lendemain de la date de fin.</p>
+      <p class="hint">Videz le champ « Fin de contrat » pour retirer toute échéance (durée indéterminée). Le compte se désactive automatiquement le lendemain de la date de fin. Le TJM sert au calcul du taux horaire (TJM ÷ 8) pour les membres en freelance.</p>
     </div>
   </main>
 

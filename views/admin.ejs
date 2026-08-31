@@ -24,6 +24,10 @@
           <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4" /><circle cx="12" cy="12" r="9" /></svg>
           Affectations
         </button>
+        <button class="side-link tab-btn" data-tab="remuneration">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.5 2" /></svg>
+          Rémunération
+        </button>
       </nav>
 
       <div class="sidebar-footer">
@@ -154,9 +158,13 @@
                   <span>Fin de contrat (optionnel)</span>
                   <input type="date" name="contract_end_date" />
                 </label>
+                <label class="span-2">
+                  <span>TJM — taux journalier moyen (optionnel, freelance uniquement)</span>
+                  <input type="number" name="daily_rate" min="0" step="0.01" placeholder="Ex : 450" />
+                </label>
                 <button type="submit" class="btn btn-gold span-2">Ajouter le membre</button>
               </form>
-              <p class="hint">Un mot de passe temporaire est généré automatiquement et affiché une seule fois. Si une date de fin est renseignée, le compte se désactive automatiquement à cette date.</p>
+              <p class="hint">Un mot de passe temporaire est généré automatiquement et affiché une seule fois. Si une date de fin est renseignée, le compte se désactive automatiquement à cette date. Le TJM n'est utilisé que pour estimer la rémunération des membres en freelance.</p>
             </div>
 
             <div class="card">
@@ -225,7 +233,7 @@
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-tiny">Reset mdp</button>
                             </form>
-                            <form method="POST" action="/admin/employes/<%= e.id %>/supprimer" onsubmit="return confirm('Supprimer ce membre ?');">
+                            <form method="POST" action="/admin/employes/<%= e.id %>/supprimer" data-confirm="Supprimer ce membre ?">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-tiny btn-danger">Supprimer</button>
                             </form>
@@ -301,7 +309,7 @@
                           </td>
                           <td class="actions">
                             <a href="/admin/outils/<%= t.id %>/modifier" class="btn btn-tiny">Modifier</a>
-                            <form method="POST" action="/admin/outils/<%= t.id %>/supprimer" onsubmit="return confirm('Supprimer cet outil ?');">
+                            <form method="POST" action="/admin/outils/<%= t.id %>/supprimer" data-confirm="Supprimer cet outil ?">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-tiny btn-danger">Supprimer</button>
                             </form>
@@ -395,11 +403,58 @@
             </div>
           </div>
         </section>
+
+        <!-- REMUNERATION -->
+        <section class="tab-panel" id="remuneration">
+          <div class="card">
+            <h3>Temps &amp; rémunération estimée — freelances</h3>
+            <% if (freelancers.length === 0) { %>
+              <div class="empty-state"><p>Aucun membre en freelance pour le moment. Passez le type de contrat d'un membre en « Freelance » pour activer son pointage.</p></div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Membre</th>
+                      <th>TJM</th>
+                      <th>Heures ce mois</th>
+                      <th>Est. ce mois</th>
+                      <th>Heures totales</th>
+                      <th>Est. totale</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% freelancers.forEach((e) => { %>
+                      <% const s = freelanceStats[e.id]; %>
+                      <tr>
+                        <td>
+                          <div class="cell-strong"><%= e.first_name %> <%= e.last_name %></div>
+                          <% if (openEntriesMap[e.id]) { %><span class="status status-on">En cours</span><% } %>
+                        </td>
+                        <td class="muted"><%= e.daily_rate ? e.daily_rate.toFixed(2) + ' €' : '—' %></td>
+                        <td class="muted"><%= s.monthHours.toFixed(1) %> h</td>
+                        <td class="cell-strong"><%= s.monthEstimate.toFixed(2) %> €</td>
+                        <td class="muted"><%= s.totalHours.toFixed(1) %> h</td>
+                        <td class="cell-strong"><%= s.totalEstimate.toFixed(2) %> €</td>
+                        <td class="actions">
+                          <a href="/admin/employes/<%= e.id %>/temps" class="btn btn-tiny">Détail</a>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+            <p class="hint">Le taux horaire est calculé sur la base du TJM divisé par 8 heures. Ces montants sont des estimations, pas des bulletins de paie.</p>
+          </div>
+        </section>
       </main>
     </div>
   </div>
 
   <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
   <script src="/js/admin.js"></script>
 </body>
 </html>
