@@ -21,11 +21,17 @@ Plateforme de gestion du personnel et des outils qui leur sont affectés — des
   - L'admin définit un **TJM** (taux journalier moyen, base 8h) sur le profil du membre ; le taux horaire (TJM ÷ 8) sert à estimer automatiquement la rémunération
   - Un onglet **Rémunération** côté admin liste tous les freelances avec heures et estimation (mois en cours / total), et un lien vers le détail complet de chaque membre (historique, clôture d'un pointage oublié, suppression d'une entrée)
   - Ce sont des estimations de pilotage, pas des bulletins de paie
+- **Ressources humaines — non-freelances uniquement**
+  - **Rôle RH** : un administrateur désigne un ou plusieurs membres comme responsables RH (onglet « RH » dans l'admin) ; ils gardent leur propre espace personnel et gagnent en plus l'accès au panneau `/rh`
+  - **Espace employé** : demande de congés/absence/télétravail (type, dates, motif — jours ouvrés calculés automatiquement), suivi du statut, solde de congés affiché en temps réel, annulation tant que la demande est en attente
+  - **Panneau RH** : vue consolidée de toutes les demandes (filtrables par statut) avec approbation/refus (motif optionnel) ou annulation d'une demande déjà approuvée (remboursement automatique du solde si nécessaire) ; gestion des soldes de congés (ajustement manuel crédit/débit avec motif) ; création et suivi des fiches de paie (période, brut, net, statut « à verser »/« payée »)
+  - Solde initial de 25 jours à la création d'un membre non-freelance (ajustable ensuite), décompté automatiquement à l'approbation d'une demande « Congés payés »
+  - Les fiches de paie sont des enregistrements de pilotage interne (montants + statut de versement), pas des bulletins de paie légaux exportables
 - **Thème clair / sombre / système** — bouton à trois positions (soleil / lune / écran) dans l'en-tête. Le choix est mémorisé dans le navigateur (`localStorage`) et appliqué sans flash au chargement.
 
 ## Sécurité
 
-Seul un compte de rôle **administrateur** peut créer, modifier, désactiver ou supprimer un membre du personnel ou un outil (middleware `requireAdmin` sur toutes les routes `/admin/*`) ; un compte employé n'a accès qu'à ses propres outils affectés.
+Seul un compte de rôle **administrateur** peut créer, modifier, désactiver ou supprimer un membre du personnel ou un outil (middleware `requireAdmin` sur toutes les routes `/admin/*`) ; un compte employé n'a accès qu'à ses propres outils affectés. L'espace RH (`/rh`) est accessible uniquement aux administrateurs et aux membres explicitement désignés RH (middleware `requireHR`) ; seul un administrateur peut accorder ou retirer ce droit.
 
 Mesures mises en place :
 
@@ -78,13 +84,15 @@ Au premier démarrage, un compte administrateur est créé automatiquement à pa
 
 ```
 src/
-  server.js         routes & logique métier
-  db.js             connexion SQLite + schéma + désactivation auto des contrats expirés
-  security.js       CSRF, rate limiting, verrouillage de compte, nonce CSP
-  timesheet.js       pointage : clock-in/out, historique, calcul des heures et de l'estimation
-  grades.js         liste des grades proposés
-  contract-types.js liste des types de contrat proposés
-  middleware/       protections des routes (admin / employé)
-views/               pages EJS (connexion, admin, espace employé, édition membre/outil, pointage)
-public/              CSS, thème clair/sombre/système, JS front (thème, confirmation, chrono)
+  server.js          routes & logique métier
+  db.js              connexion SQLite + schéma + désactivation auto des contrats expirés
+  security.js        CSRF, rate limiting, verrouillage de compte, nonce CSP
+  timesheet.js        pointage freelance : clock-in/out, historique, calcul des heures/estimation
+  hr.js              demandes RH, solde de congés, fiches de paie
+  grades.js          liste des grades proposés
+  contract-types.js  liste des types de contrat proposés
+  request-types.js   liste des types de demande RH
+  middleware/        protections des routes (admin / employé / RH)
+views/                pages EJS (connexion, admin, espace employé, RH, édition membre/outil, pointage)
+public/               CSS, thème clair/sombre/système, JS front (thème, confirmation, chrono)
 ```

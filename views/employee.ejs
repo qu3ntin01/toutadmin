@@ -18,6 +18,7 @@
           <span class="user-grade"><%= currentUser.grade %></span>
         </div>
       </div>
+      <% if (currentUser.isHr) { %><a href="/rh" class="btn btn-gold">Espace RH →</a><% } %>
       <form method="POST" action="/deconnexion">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <button type="submit" class="btn btn-ghost">Déconnexion</button>
@@ -124,6 +125,106 @@
                     <td>
                       <% if (end) { %><span class="cell-strong"><%= hrs.toFixed(2) %> h</span><% } else { %><span class="status status-on">En cours</span><% } %>
                     </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+    <% } %>
+
+    <% if (hrEligible) { %>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Nouvelle demande</h3>
+          <p class="muted small">Solde de congés disponible : <strong><%= employee.leave_balance.toFixed(1) %> jour<%= employee.leave_balance !== 1 ? 's' : '' %></strong></p>
+          <form method="POST" action="/mon-espace/demandes" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label class="span-2">
+              <span>Type de demande</span>
+              <select name="type" required>
+                <option value="" disabled selected>Choisir un type</option>
+                <% requestTypes.forEach((t) => { %><option value="<%= t %>"><%= t %></option><% }) %>
+              </select>
+            </label>
+            <label>
+              <span>Du</span>
+              <input type="date" name="start_date" required />
+            </label>
+            <label>
+              <span>Au</span>
+              <input type="date" name="end_date" required />
+            </label>
+            <label class="span-2">
+              <span>Motif (optionnel)</span>
+              <input type="text" name="reason" placeholder="Ex : vacances en famille" />
+            </label>
+            <button type="submit" class="btn btn-gold span-2">Envoyer la demande</button>
+          </form>
+          <p class="hint">Le nombre de jours ouvrés (hors week-ends) est calculé automatiquement. Seul le type « Congés payés » décompte votre solde, uniquement une fois la demande approuvée par les RH.</p>
+        </div>
+
+        <div class="card">
+          <h3>Mes demandes (<%= myRequests.length %>)</h3>
+          <% if (myRequests.length === 0) { %>
+            <div class="empty-state"><p>Aucune demande envoyée pour le moment.</p></div>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Type</th><th>Période</th><th>Jours</th><th>Statut</th><th></th></tr>
+                </thead>
+                <tbody>
+                  <% myRequests.forEach((r) => { %>
+                    <tr>
+                      <td><span class="pill"><%= r.type %></span></td>
+                      <td class="muted">
+                        <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %> →
+                        <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %>
+                      </td>
+                      <td class="muted"><%= r.days %> j</td>
+                      <td>
+                        <% if (r.status === 'En attente') { %><span class="status status-warning">En attente</span><% } %>
+                        <% if (r.status === 'Approuvée') { %><span class="status status-on">Approuvée</span><% } %>
+                        <% if (r.status === 'Refusée') { %><span class="status status-danger">Refusée</span><% } %>
+                        <% if (r.status === 'Annulée') { %><span class="status status-off">Annulée</span><% } %>
+                        <% if (r.review_note) { %><div class="muted small">« <%= r.review_note %> »</div><% } %>
+                      </td>
+                      <td class="actions">
+                        <% if (r.status === 'En attente') { %>
+                          <form method="POST" action="/mon-espace/demandes/<%= r.id %>/annuler">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-tiny btn-danger">Annuler</button>
+                          </form>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <section class="card card-spaced">
+        <h3>Mes fiches de paie (<%= myPayslips.length %>)</h3>
+        <% if (myPayslips.length === 0) { %>
+          <div class="empty-state"><p>Aucune fiche de paie disponible pour le moment.</p></div>
+        <% } else { %>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Période</th><th>Brut</th><th>Net</th><th>Statut</th></tr>
+              </thead>
+              <tbody>
+                <% myPayslips.forEach((p) => { %>
+                  <tr>
+                    <td class="cell-strong"><%= p.period %></td>
+                    <td class="muted"><%= p.gross_amount.toFixed(2) %> €</td>
+                    <td class="cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
+                    <td><span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= p.status %></span></td>
                   </tr>
                 <% }) %>
               </tbody>

@@ -15,4 +15,13 @@ function requireEmployee(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAdmin, requireEmployee };
+// Accès à l'espace RH : administrateurs (supervision) et employés désignés RH par un administrateur.
+function requireHR(req, res, next) {
+  if (!req.session.user) return res.redirect('/connexion');
+  if (req.session.user.role !== 'admin' && !req.session.user.isHr) {
+    return res.status(403).render('error', { message: "Accès réservé aux membres de l'équipe RH." });
+  }
+  next();
+}
+
+module.exports = { requireAuth, requireAdmin, requireEmployee, requireHR };

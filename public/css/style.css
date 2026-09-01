@@ -471,6 +471,21 @@ textarea { resize: vertical; font-family: var(--font-sans); }
 :root[data-theme="dark"] .side-link.is-active,
 :root:not([data-theme="light"]) .side-link.is-active { color: var(--accent-hover); }
 
+.nav-badge {
+  margin-left: auto;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .sidebar-footer { display: flex; flex-direction: column; gap: 12px; padding-top: 14px; border-top: 1px solid var(--border); margin-top: 14px; }
 .sidebar-footer .theme-toggle { align-self: flex-start; }
 
@@ -639,9 +654,28 @@ tbody tr:last-child td { border-bottom: none; }
 .status-on { color: var(--success-text); background: var(--success-bg); }
 .status-off { color: var(--text-tertiary); background: var(--surface-2); }
 .status-warning { color: var(--warning-text); background: var(--warning-bg); }
+.status-danger { color: var(--danger-text); background: var(--danger-bg); }
 
 .text-warning { color: var(--warning-text); }
 .text-danger { color: var(--danger-text); }
+
+.rh-panel-link { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 4px; }
+
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-pills .pill { cursor: pointer; text-decoration: none; }
+
+.inline-note-form, .balance-form {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.note-input {
+  width: 110px;
+  padding: 6px 8px;
+  font-size: 0.8rem;
+}
 
 .actions { display: flex; gap: 6px; flex-wrap: wrap; }
 

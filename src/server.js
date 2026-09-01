@@ -10,7 +10,9 @@ const db = require('./db');
 const grades = require('./grades');
 const contractTypes = require('./contract-types');
 const timesheet = require('./timesheet');
-const { requireAdmin, requireEmployee } = require('./middleware/auth');
+const hr = require('./hr');
+const requestTypes = require('./request-types');
+const { requireAdmin, requireEmployee, requireHR } = require('./middleware/auth');
 const security = require('./security');
 
 if (process.env.NODE_ENV === 'production') {
@@ -177,6 +179,7 @@ app.post('/connexion', security.loginLimiter, (req, res) => {
       firstName: user.first_name,
       lastName: user.last_name,
       grade: user.grade,
+      isHr: Boolean(user.is_hr),
     };
     res.redirect(user.role === 'admin' ? '/admin' : '/mon-espace');
   });
@@ -215,6 +218,10 @@ app.get('/admin', requireAdmin, (req, res) => {
   const freelanceStats = Object.fromEntries(freelancers.map((e) => [e.id, timesheet.getStats(e.id, e.daily_rate)]));
   const openEntriesMap = Object.fromEntries(freelancers.map((e) => [e.id, Boolean(timesheet.getOpenEntry(e.id))]));
 
+  const hrMembers = employees.filter((e) => e.is_hr);
+  const hrEligibleEmployees = employees.filter((e) => !e.is_hr);
+  const pendingRequestCount = db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n;
+
   res.render('admin', {
     employees,
     tools,
@@ -227,6 +234,9 @@ app.get('/admin', requireAdmin, (req, res) => {
     freelancers,
     freelanceStats,
     openEntriesMap,
+    hrMembers,
+    hrEligibleEmployees,
+    pendingRequestCount,
     stats: {
       employeeCount: employees.length,
       toolCount: tools.length,
@@ -284,11 +294,12 @@ app.post('/admin/employes', requireAdmin, (req, res) => {
 
   const password = generatePassword();
   const hash = bcrypt.hashSync(password, 12);
+  const initialLeaveBalance = contractType === 'Freelance' ? 0 : hr.DEFAULT_ANNUAL_LEAVE;
 
   db.prepare(`
-    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, contract_type, contract_end_date, daily_rate, active)
-    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
-  `).run(email, hash, firstName, lastName, grade, department, contractType, contractEndDate || null, dailyRateResult.value);
+    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, contract_type, contract_end_date, daily_rate, leave_balance, active)
+    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+  `).run(email, hash, firstName, lastName, grade, department, contractType, contractEndDate || null, dailyRateResult.value, initialLeaveBalance);
 
   setFlash(req, 'success', `Membre ajouté. Identifiant : ${email} — Mot de passe temporaire : ${password}`);
   res.redirect('/admin#personnel');
@@ -505,6 +516,32 @@ app.post('/admin/affectations/:id/supprimer', requireAdmin, (req, res) => {
   res.redirect('/admin#affectations');
 });
 
+app.post('/admin/rh/nommer', requireAdmin, (req, res) => {
+  const id = Number(req.body.employee_id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#rh');
+  }
+
+  db.prepare('UPDATE users SET is_hr = 1 WHERE id = ?').run(id);
+  setFlash(req, 'success', `${employee.first_name} ${employee.last_name} a désormais accès à l'espace RH.`);
+  res.redirect('/admin#rh');
+});
+
+app.post('/admin/rh/:id/retirer', requireAdmin, (req, res) => {
+  const id = Number(req.params.id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#rh');
+  }
+
+  db.prepare('UPDATE users SET is_hr = 0 WHERE id = ?').run(id);
+  setFlash(req, 'success', `Accès RH retiré pour ${employee.first_name} ${employee.last_name}.`);
+  res.redirect('/admin#rh');
+});
+
 // ---------- Espace employé ----------
 
 app.get('/mon-espace', requireEmployee, (req, res) => {
@@ -523,7 +560,51 @@ app.get('/mon-espace', requireEmployee, (req, res) => {
   const entries = isFreelance ? timesheet.getEntries(employeeId, 30) : [];
   const statsData = isFreelance ? timesheet.getStats(employeeId, employee.daily_rate) : null;
 
-  res.render('employee', { tools, employee, isFreelance, openEntry, entries, statsData });
+  const hrEligible = hr.isEligibleForHrFeatures(employee);
+  const myRequests = hrEligible ? hr.getRequestsForEmployee(employeeId) : [];
+  const myPayslips = hrEligible ? hr.getPayslipsForEmployee(employeeId) : [];
+
+  res.render('employee', {
+    tools, employee, isFreelance, openEntry, entries, statsData,
+    hrEligible, myRequests, myPayslips, requestTypes,
+  });
+});
+
+app.post('/mon-espace/demandes', requireEmployee, (req, res) => {
+  const employee = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  if (!employee || !hr.isEligibleForHrFeatures(employee)) return res.redirect('/mon-espace');
+
+  const type = (req.body.type || '').trim();
+  const startDate = (req.body.start_date || '').trim();
+  const endDate = (req.body.end_date || '').trim();
+  const reason = (req.body.reason || '').trim().slice(0, 500);
+
+  if (!requestTypes.includes(type)) {
+    setFlash(req, 'error', 'Type de demande invalide.');
+    return res.redirect('/mon-espace');
+  }
+
+  if (!isValidDateString(startDate) || !isValidDateString(endDate)) {
+    setFlash(req, 'error', 'Dates invalides.');
+    return res.redirect('/mon-espace');
+  }
+
+  const days = hr.countBusinessDays(startDate, endDate);
+  if (days === null || days === 0) {
+    setFlash(req, 'error', 'La période sélectionnée est invalide (la date de fin doit suivre la date de début, jours ouvrés).');
+    return res.redirect('/mon-espace');
+  }
+
+  hr.createRequest({ employeeId: employee.id, type, startDate, endDate, days, reason });
+  setFlash(req, 'success', `Demande envoyée (${days} jour${days > 1 ? 's' : ''} ouvré${days > 1 ? 's' : ''}).`);
+  res.redirect('/mon-espace');
+});
+
+app.post('/mon-espace/demandes/:id/annuler', requireEmployee, (req, res) => {
+  const id = Number(req.params.id);
+  const result = hr.cancelOwnRequest(id, req.session.user.id);
+  setFlash(req, result.ok ? 'success' : 'error', result.ok ? 'Demande annulée.' : 'Cette demande ne peut plus être annulée.');
+  res.redirect('/mon-espace');
 });
 
 app.post('/mon-espace/pointage/commencer', requireEmployee, (req, res) => {
@@ -542,6 +623,123 @@ app.post('/mon-espace/pointage/terminer', requireEmployee, (req, res) => {
   const result = timesheet.clockOut(employee.id);
   if (!result.ok) setFlash(req, 'error', 'Aucun pointage en cours.');
   res.redirect('/mon-espace');
+});
+
+// ---------- Espace RH ----------
+// Accès réservé aux administrateurs (supervision) et aux employés désignés RH (middleware requireHR).
+
+app.get('/rh', requireHR, (req, res) => {
+  const statusFilter = ['En attente', 'Approuvée', 'Refusée', 'Annulée'].includes(req.query.statut) ? req.query.statut : null;
+  const requests = hr.getAllRequests(statusFilter ? { status: statusFilter } : {});
+  const pendingCount = requests.filter((r) => r.status === 'En attente').length;
+
+  const staff = db
+    .prepare("SELECT * FROM users WHERE role = 'employee' AND contract_type != 'Freelance' ORDER BY last_name COLLATE NOCASE, first_name COLLATE NOCASE")
+    .all();
+
+  const payslips = hr.getAllPayslips();
+
+  res.render('rh', {
+    requests,
+    statusFilter,
+    pendingCount,
+    staff,
+    payslips,
+    requestTypes,
+    stats: {
+      staffCount: staff.length,
+      pendingCount,
+      payslipsDue: payslips.filter((p) => p.status !== 'Payée').length,
+      totalLeaveBalance: staff.reduce((sum, e) => sum + (e.leave_balance || 0), 0),
+    },
+  });
+});
+
+app.post('/rh/demandes/:id/approuver', requireHR, (req, res) => {
+  const id = Number(req.params.id);
+  const note = (req.body.note || '').trim().slice(0, 500);
+  const result = hr.approveRequest(id, req.session.user.id, note);
+  setFlash(req, result.ok ? 'success' : 'error', result.ok ? 'Demande approuvée.' : "Cette demande n'est plus en attente.");
+  res.redirect('/rh#demandes');
+});
+
+app.post('/rh/demandes/:id/refuser', requireHR, (req, res) => {
+  const id = Number(req.params.id);
+  const note = (req.body.note || '').trim().slice(0, 500);
+  const result = hr.rejectRequest(id, req.session.user.id, note);
+  setFlash(req, result.ok ? 'success' : 'error', result.ok ? 'Demande refusée.' : "Cette demande n'est plus en attente.");
+  res.redirect('/rh#demandes');
+});
+
+app.post('/rh/demandes/:id/annuler', requireHR, (req, res) => {
+  const id = Number(req.params.id);
+  const note = (req.body.note || '').trim().slice(0, 500);
+  const result = hr.revokeRequest(id, req.session.user.id, note);
+  setFlash(req, result.ok ? 'success' : 'error', result.ok ? 'Demande annulée, solde recrédité si nécessaire.' : 'Cette demande ne peut plus être annulée.');
+  res.redirect('/rh#demandes');
+});
+
+app.post('/rh/solde/:id/ajuster', requireHR, (req, res) => {
+  const id = Number(req.params.id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee || employee.contract_type === 'Freelance') {
+    setFlash(req, 'error', 'Membre introuvable ou non éligible.');
+    return res.redirect('/rh#personnel');
+  }
+
+  const amount = Number((req.body.amount || '').replace(',', '.'));
+  const reason = (req.body.reason || '').trim().slice(0, 300);
+
+  if (!Number.isFinite(amount) || amount === 0 || Math.abs(amount) > 365) {
+    setFlash(req, 'error', 'Ajustement invalide.');
+    return res.redirect('/rh#personnel');
+  }
+
+  hr.adjustBalance(id, amount, reason, req.session.user.id);
+  setFlash(req, 'success', `Solde de ${employee.first_name} ${employee.last_name} ajusté de ${amount > 0 ? '+' : ''}${amount} j.`);
+  res.redirect('/rh#personnel');
+});
+
+app.post('/rh/paie', requireHR, (req, res) => {
+  const employeeId = Number(req.body.employee_id);
+  const period = (req.body.period || '').trim();
+  const grossAmount = Number((req.body.gross_amount || '').replace(',', '.'));
+  const netAmount = Number((req.body.net_amount || '').replace(',', '.'));
+  const note = (req.body.note || '').trim().slice(0, 300);
+
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(employeeId);
+  if (!employee || employee.contract_type === 'Freelance') {
+    setFlash(req, 'error', 'Membre introuvable ou non éligible.');
+    return res.redirect('/rh#paie');
+  }
+
+  if (!/^\d{4}-\d{2}$/.test(period)) {
+    setFlash(req, 'error', 'Période invalide (format attendu : AAAA-MM).');
+    return res.redirect('/rh#paie');
+  }
+
+  if (!Number.isFinite(grossAmount) || !Number.isFinite(netAmount) || grossAmount < 0 || netAmount < 0 || netAmount > grossAmount) {
+    setFlash(req, 'error', 'Montants invalides (le net ne peut pas dépasser le brut).');
+    return res.redirect('/rh#paie');
+  }
+
+  hr.createPayslip({ employeeId, period, grossAmount, netAmount, note, createdBy: req.session.user.id });
+  setFlash(req, 'success', `Fiche de paie ${period} créée pour ${employee.first_name} ${employee.last_name}.`);
+  res.redirect('/rh#paie');
+});
+
+app.post('/rh/paie/:id/marquer-payee', requireHR, (req, res) => {
+  const id = Number(req.params.id);
+  hr.markPayslipPaid(id);
+  setFlash(req, 'success', 'Fiche de paie marquée comme payée.');
+  res.redirect('/rh#paie');
+});
+
+app.post('/rh/paie/:id/supprimer', requireHR, (req, res) => {
+  const id = Number(req.params.id);
+  hr.deletePayslip(id);
+  setFlash(req, 'success', 'Fiche de paie supprimée.');
+  res.redirect('/rh#paie');
 });
 
 app.use((req, res) => {

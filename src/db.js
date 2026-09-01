@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS users (
   contract_type TEXT NOT NULL DEFAULT '',
   contract_end_date TEXT,
   daily_rate REAL,
+  is_hr INTEGER NOT NULL DEFAULT 0,
+  leave_balance REAL NOT NULL DEFAULT 0,
   active INTEGER NOT NULL DEFAULT 1,
   failed_attempts INTEGER NOT NULL DEFAULT 0,
   locked_until TEXT,
@@ -59,6 +61,46 @@ CREATE TABLE IF NOT EXISTS time_entries (
 );
 
 CREATE INDEX IF NOT EXISTS idx_time_entries_employee ON time_entries(employee_id);
+
+CREATE TABLE IF NOT EXISTS hr_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type TEXT NOT NULL,
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  days REAL NOT NULL DEFAULT 0,
+  reason TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'En attente',
+  reviewed_by INTEGER REFERENCES users(id),
+  review_note TEXT NOT NULL DEFAULT '',
+  reviewed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS leave_adjustments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  amount REAL NOT NULL,
+  reason TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS payslips (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  period TEXT NOT NULL,
+  gross_amount REAL NOT NULL,
+  net_amount REAL NOT NULL,
+  status TEXT NOT NULL DEFAULT 'À verser',
+  paid_at TEXT,
+  note TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_hr_requests_employee ON hr_requests(employee_id);
+CREATE INDEX IF NOT EXISTS idx_payslips_employee ON payslips(employee_id);
 `);
 
 for (const migration of [
@@ -69,6 +111,8 @@ for (const migration of [
   "ALTER TABLE tools ADD COLUMN login_url TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE assignments ADD COLUMN username TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE users ADD COLUMN daily_rate REAL",
+  "ALTER TABLE users ADD COLUMN is_hr INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN leave_balance REAL NOT NULL DEFAULT 0",
 ]) {
   try {
     db.exec(migration);
