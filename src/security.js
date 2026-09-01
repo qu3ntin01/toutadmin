@@ -39,9 +39,14 @@ function csrfMiddleware(req, res, next) {
   next();
 }
 
+// Les plafonds restent configurables : la suite de tests joue des dizaines de
+// connexions d'affilée et doit pouvoir desserrer la limite réseau sans la désactiver.
+const LOGIN_RATE_LIMIT = Number(process.env.LOGIN_RATE_LIMIT) || 10;
+const GLOBAL_RATE_LIMIT = Number(process.env.GLOBAL_RATE_LIMIT) || 300;
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 10,
+  limit: LOGIN_RATE_LIMIT,
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Trop de tentatives de connexion depuis cette adresse. Merci de réessayer dans 15 minutes.',
@@ -49,7 +54,7 @@ const loginLimiter = rateLimit({
 
 const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
-  limit: 300,
+  limit: GLOBAL_RATE_LIMIT,
   standardHeaders: true,
   legacyHeaders: false,
 });

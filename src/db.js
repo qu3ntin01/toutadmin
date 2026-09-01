@@ -3,10 +3,12 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs');
 const Database = require('better-sqlite3');
 
-const dataDir = path.join(__dirname, '..', 'data');
+// DB_PATH permet d'isoler la base (tests, instances multiples) ; défaut : data/app.sqlite.
+const dbPath = process.env.DB_PATH || path.join(__dirname, '..', 'data', 'app.sqlite');
+const dataDir = path.dirname(dbPath);
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
 
-const db = new Database(path.join(dataDir, 'app.sqlite'));
+const db = new Database(dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 

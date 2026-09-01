@@ -4,13 +4,23 @@
   <%- include('partials/head', { title: 'Erreur — Private Member' }) %>
 </head>
 <body class="auth-body">
-  <div class="error-shell">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark">PM</span>
+      <span class="brand-text">
+        <span class="brand-name">Private Member</span>
+        <span class="brand-panel">Portail interne</span>
+      </span>
+    </div>
     <%- include('partials/theme-toggle') %>
-    <span class="brand-mark">PM</span>
-    <h1>Oups.</h1>
-    <p><%= message %></p>
-    <a href="/" class="btn btn-gold">Retour à l'accueil</a>
-  </div>
+  </header>
+
+  <main class="error-page">
+    <h1>Cette page n'est pas accessible</h1>
+    <p class="muted"><%= message %></p>
+    <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+  </main>
+
   <script src="/js/theme.js"></script>
 </body>
 </html>

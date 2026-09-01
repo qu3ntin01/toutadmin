@@ -4,35 +4,16 @@
   <%- include('partials/head', { title: 'Mon espace — Private Member' }) %>
 </head>
 <body class="app-body">
-  <header class="topbar topbar-standalone">
-    <div class="topbar-brand">
-      <span class="brand-mark small">PM</span>
-      <span class="brand-name">Private Member</span>
-    </div>
-    <div class="topbar-user">
-      <%- include('partials/theme-toggle') %>
-      <div class="user-chip">
-        <span class="user-avatar"><%= currentUser.firstName.charAt(0) %><%= currentUser.lastName.charAt(0) %></span>
-        <div class="user-meta">
-          <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
-          <span class="user-grade"><%= currentUser.grade %></span>
-        </div>
-      </div>
-      <% if (currentUser.isHr) { %><a href="/rh" class="btn btn-gold">Espace RH →</a><% } %>
-      <form method="POST" action="/deconnexion">
-        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-        <button type="submit" class="btn btn-ghost">Déconnexion</button>
-      </form>
-    </div>
-  </header>
+  <%- include('partials/page-header', {
+    headerTitle: 'Mon espace',
+    showUser: true,
+    extraLink: currentUser.isHr ? { href: '/rh', label: 'Espace RH' } : null
+  }) %>
 
   <main class="page">
-    <section class="page-head">
-      <div>
-        <span class="eyebrow">Mon espace</span>
-        <h1>Bonjour <%= currentUser.firstName %>,</h1>
-        <p class="muted">Voici les outils qui vous sont actuellement affectés, avec leurs accès.</p>
-      </div>
+    <section class="page-intro">
+      <h2>Bonjour <%= currentUser.firstName %>,</h2>
+      <p>Retrouvez vos accès aux outils<%= hrEligible ? ', vos congés et vos fiches de paie' : '' %><%= isFreelance ? ' et votre pointage' : '' %>.</p>
     </section>
 
     <% if (flash) { %>
@@ -43,33 +24,34 @@
       const todayStr = new Date().toISOString().slice(0, 10);
       const daysLeft = Math.ceil((new Date(employee.contract_end_date + 'T00:00:00Z') - new Date(todayStr + 'T00:00:00Z')) / 86400000);
       const bannerClass = daysLeft < 0 ? 'is-danger' : (daysLeft <= 30 ? 'is-warning' : '');
+      const endDate = new Date(employee.contract_end_date + 'T00:00:00Z').toLocaleDateString('fr-FR');
     %>
-      <div class="contract-banner <%= bannerClass %>">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="16" rx="2.5" /><path d="M8 3v3M16 3v3M3.5 10h17" /></svg>
+      <div class="banner <%= bannerClass %>">
+        <%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %>
         <span>
-          Contrat <%= employee.contract_type || '' %> —
+          Contrat <%= employee.contract_type %> —
           <% if (daysLeft < 0) { %>
-            arrivé à échéance le <%= new Date(employee.contract_end_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %>.
+            arrivé à échéance le <%= endDate %>.
           <% } else { %>
-            se termine le <%= new Date(employee.contract_end_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %> (dans <%= daysLeft %> jour<%= daysLeft > 1 ? 's' : '' %>).
+            se termine le <%= endDate %> (dans <%= daysLeft %> jour<%= daysLeft > 1 ? 's' : '' %>).
           <% } %>
         </span>
       </div>
     <% } %>
 
     <% if (isFreelance) { %>
-      <section class="card timer-card">
-        <div class="timer-card-top">
-          <div>
-            <h3>Pointage</h3>
-            <p class="muted small">Chronométrez votre temps de mission.</p>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3>Pointage</h3>
+              <p class="card-sub">Chronométrez votre temps de mission.</p>
+            </div>
+            <span class="status <%= openEntry ? 'status-on' : 'status-off' %>"><%= openEntry ? 'En cours' : 'Arrêté' %></span>
           </div>
-          <span class="status <%= openEntry ? 'status-on' : 'status-off' %>"><%= openEntry ? 'En cours' : 'Arrêté' %></span>
-        </div>
 
-        <div class="timer-display" id="live-timer" data-start="<%= openEntry ? openEntry.clock_in : '' %>">00:00:00</div>
+          <div class="timer-display" id="live-timer" data-start="<%= openEntry ? openEntry.clock_in : '' %>">00:00:00</div>
 
-        <div class="timer-actions">
           <% if (openEntry) { %>
             <form method="POST" action="/mon-espace/pointage/terminer">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -78,73 +60,77 @@
           <% } else { %>
             <form method="POST" action="/mon-espace/pointage/commencer">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-gold btn-block">Commencer le pointage</button>
+              <button type="submit" class="btn btn-primary btn-block">Commencer le pointage</button>
             </form>
+          <% } %>
+
+          <div class="timer-stats">
+            <div>
+              <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
+              <span class="stat-label">Ce mois-ci</span>
+            </div>
+            <div>
+              <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
+              <span class="stat-label">Estimation du mois</span>
+            </div>
+            <div>
+              <span class="stat-value"><%= statsData.hourlyRate.toFixed(2) %> €</span>
+              <span class="stat-label">Taux horaire (TJM ÷ 8 h)</span>
+            </div>
+          </div>
+          <% if (!employee.daily_rate) { %>
+            <p class="hint">Aucun TJM renseigné par l'administrateur : l'estimation n'est pas disponible.</p>
           <% } %>
         </div>
 
-        <div class="timer-stats">
-          <div>
-            <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
-            <span class="stat-label">Ce mois-ci</span>
-          </div>
-          <div>
-            <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
-            <span class="stat-label">Estimation ce mois</span>
-          </div>
-          <div>
-            <span class="stat-value"><%= statsData.hourlyRate.toFixed(2) %> €/h</span>
-            <span class="stat-label">Taux horaire (TJM ÷ 8h)</span>
-          </div>
+        <div class="card">
+          <div class="card-head"><h3>Historique des pointages</h3></div>
+          <% if (entries.length === 0) { %>
+            <div class="empty-state">Aucun pointage enregistré pour le moment.</div>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Début</th><th>Fin</th><th>Durée</th></tr></thead>
+                <tbody>
+                  <% entries.forEach((e) => {
+                    const start = new Date(e.clock_in);
+                    const end = e.clock_out ? new Date(e.clock_out) : null;
+                    const hours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
+                    const timeOpts = { hour: '2-digit', minute: '2-digit' };
+                  %>
+                    <tr>
+                      <td class="cell-strong"><%= start.toLocaleDateString('fr-FR') %></td>
+                      <td class="cell-sub"><%= start.toLocaleTimeString('fr-FR', timeOpts) %></td>
+                      <td class="cell-sub"><%= end ? end.toLocaleTimeString('fr-FR', timeOpts) : '—' %></td>
+                      <td>
+                        <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
+                        <% } else { %><span class="status status-on">En cours</span><% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
         </div>
-        <% if (!employee.daily_rate) { %>
-          <p class="hint">Aucun TJM renseigné par l'administrateur : l'estimation de rémunération n'est pas disponible pour le moment.</p>
-        <% } %>
-      </section>
-
-      <section class="card card-spaced">
-        <h3>Historique des pointages</h3>
-        <% if (entries.length === 0) { %>
-          <div class="empty-state"><p>Aucun pointage enregistré pour le moment.</p></div>
-        <% } else { %>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr><th>Date</th><th>Début</th><th>Fin</th><th>Durée</th></tr>
-              </thead>
-              <tbody>
-                <% entries.forEach((e) => {
-                  const start = new Date(e.clock_in);
-                  const end = e.clock_out ? new Date(e.clock_out) : null;
-                  const hrs = end ? (end.getTime() - start.getTime()) / 3600000 : null;
-                %>
-                  <tr>
-                    <td class="cell-strong"><%= start.toLocaleDateString('fr-FR') %></td>
-                    <td class="muted"><%= start.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) %></td>
-                    <td class="muted"><%= end ? end.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '—' %></td>
-                    <td>
-                      <% if (end) { %><span class="cell-strong"><%= hrs.toFixed(2) %> h</span><% } else { %><span class="status status-on">En cours</span><% } %>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-        <% } %>
-      </section>
+      </div>
     <% } %>
 
     <% if (hrEligible) { %>
       <div class="grid-2">
         <div class="card">
-          <h3>Nouvelle demande</h3>
-          <p class="muted small">Solde de congés disponible : <strong><%= employee.leave_balance.toFixed(1) %> jour<%= employee.leave_balance !== 1 ? 's' : '' %></strong></p>
+          <div class="card-head">
+            <div>
+              <h3>Nouvelle demande</h3>
+              <p class="card-sub">Solde disponible : <strong><%= employee.leave_balance.toFixed(1) %> jour<%= Math.abs(employee.leave_balance) === 1 ? '' : 's' %></strong></p>
+            </div>
+          </div>
           <form method="POST" action="/mon-espace/demandes" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label class="span-2">
               <span>Type de demande</span>
               <select name="type" required>
-                <option value="" disabled selected>Choisir un type</option>
+                <option value="" disabled selected>Choisir…</option>
                 <% requestTypes.forEach((t) => { %><option value="<%= t %>"><%= t %></option><% }) %>
               </select>
             </label>
@@ -157,45 +143,46 @@
               <input type="date" name="end_date" required />
             </label>
             <label class="span-2">
-              <span>Motif (optionnel)</span>
-              <input type="text" name="reason" placeholder="Ex : vacances en famille" />
+              <span>Motif</span>
+              <input type="text" name="reason" placeholder="Ex : congés d'été" />
             </label>
-            <button type="submit" class="btn btn-gold span-2">Envoyer la demande</button>
+            <div class="span-2">
+              <button type="submit" class="btn btn-primary btn-block">Envoyer la demande</button>
+            </div>
           </form>
-          <p class="hint">Le nombre de jours ouvrés (hors week-ends) est calculé automatiquement. Seul le type « Congés payés » décompte votre solde, uniquement une fois la demande approuvée par les RH.</p>
+          <p class="hint">Les jours ouvrés (hors week-ends) sont calculés automatiquement. Seul le type « Congés payés » décompte votre solde, une fois la demande approuvée.</p>
         </div>
 
         <div class="card">
-          <h3>Mes demandes (<%= myRequests.length %>)</h3>
+          <div class="card-head"><h3>Mes demandes <span class="muted">(<%= myRequests.length %>)</span></h3></div>
           <% if (myRequests.length === 0) { %>
-            <div class="empty-state"><p>Aucune demande envoyée pour le moment.</p></div>
+            <div class="empty-state">Aucune demande envoyée pour le moment.</div>
           <% } else { %>
             <div class="table-wrap">
               <table>
-                <thead>
-                  <tr><th>Type</th><th>Période</th><th>Jours</th><th>Statut</th><th></th></tr>
-                </thead>
+                <thead><tr><th>Type</th><th>Période</th><th>Jours</th><th>Statut</th><th></th></tr></thead>
                 <tbody>
-                  <% myRequests.forEach((r) => { %>
+                  <% myRequests.forEach((r) => {
+                    const statusClass = r.status === 'Approuvée' ? 'status-on'
+                      : r.status === 'En attente' ? 'status-warning'
+                      : r.status === 'Refusée' ? 'status-danger' : 'status-off';
+                  %>
                     <tr>
-                      <td><span class="pill"><%= r.type %></span></td>
-                      <td class="muted">
+                      <td><span class="tag"><%= r.type %></span></td>
+                      <td class="cell-sub">
                         <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %> →
                         <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %>
                       </td>
-                      <td class="muted"><%= r.days %> j</td>
+                      <td class="num"><%= r.days %> j</td>
                       <td>
-                        <% if (r.status === 'En attente') { %><span class="status status-warning">En attente</span><% } %>
-                        <% if (r.status === 'Approuvée') { %><span class="status status-on">Approuvée</span><% } %>
-                        <% if (r.status === 'Refusée') { %><span class="status status-danger">Refusée</span><% } %>
-                        <% if (r.status === 'Annulée') { %><span class="status status-off">Annulée</span><% } %>
-                        <% if (r.review_note) { %><div class="muted small">« <%= r.review_note %> »</div><% } %>
+                        <span class="status <%= statusClass %>"><%= r.status %></span>
+                        <% if (r.review_note) { %><div class="cell-sub">« <%= r.review_note %> »</div><% } %>
                       </td>
                       <td class="actions">
                         <% if (r.status === 'En attente') { %>
                           <form method="POST" action="/mon-espace/demandes/<%= r.id %>/annuler">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <button type="submit" class="btn btn-tiny btn-danger">Annuler</button>
+                            <button type="submit" class="btn btn-sm btn-danger">Annuler</button>
                           </form>
                         <% } %>
                       </td>
@@ -208,22 +195,20 @@
         </div>
       </div>
 
-      <section class="card card-spaced">
-        <h3>Mes fiches de paie (<%= myPayslips.length %>)</h3>
+      <div class="card">
+        <div class="card-head"><h3>Mes fiches de paie <span class="muted">(<%= myPayslips.length %>)</span></h3></div>
         <% if (myPayslips.length === 0) { %>
-          <div class="empty-state"><p>Aucune fiche de paie disponible pour le moment.</p></div>
+          <div class="empty-state">Aucune fiche de paie disponible pour le moment.</div>
         <% } else { %>
           <div class="table-wrap">
             <table>
-              <thead>
-                <tr><th>Période</th><th>Brut</th><th>Net</th><th>Statut</th></tr>
-              </thead>
+              <thead><tr><th>Période</th><th>Brut</th><th>Net</th><th>Statut</th></tr></thead>
               <tbody>
                 <% myPayslips.forEach((p) => { %>
                   <tr>
-                    <td class="cell-strong"><%= p.period %></td>
-                    <td class="muted"><%= p.gross_amount.toFixed(2) %> €</td>
-                    <td class="cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
+                    <td class="cell-strong mono"><%= p.period %></td>
+                    <td class="num cell-sub"><%= p.gross_amount.toFixed(2) %> €</td>
+                    <td class="num cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
                     <td><span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= p.status %></span></td>
                   </tr>
                 <% }) %>
@@ -231,56 +216,58 @@
             </table>
           </div>
         <% } %>
-      </section>
-    <% } %>
-
-    <% if (tools.length === 0) { %>
-      <div class="empty-state">
-        <p>Aucun outil ne vous a été affecté pour le moment.</p>
-      </div>
-    <% } else { %>
-      <div class="tool-grid">
-        <% tools.forEach((t) => { %>
-          <div class="tool-card">
-            <div class="tool-card-head">
-              <span class="tool-card-icon">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 3.5 2 2L6 16 3 17l1-3Z" /><path d="m13 5 2 2" /></svg>
-              </span>
-              <% if (t.category) { %><span class="pill"><%= t.category %></span><% } %>
-            </div>
-            <div>
-              <div class="tool-card-title"><%= t.name %></div>
-              <div class="tool-card-meta">
-                <% if (t.reference) { %><span>Réf. <%= t.reference %></span><% } %>
-              </div>
-            </div>
-
-            <% if (t.username || t.login_url) { %>
-              <div class="tool-card-creds">
-                <% if (t.username) { %>
-                  <div class="tool-card-cred-row">
-                    <span class="k">Identifiant</span>
-                    <span class="v"><%= t.username %></span>
-                  </div>
-                <% } %>
-                <% if (t.login_url) { %>
-                  <div class="tool-card-cred-row">
-                    <span class="k">Accès</span>
-                    <a href="<%= t.login_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-tiny">Ouvrir ↗</a>
-                  </div>
-                <% } %>
-              </div>
-            <% } %>
-
-            <% if (t.note) { %><p class="tool-card-note"><%= t.note %></p><% } %>
-
-            <div class="tool-card-foot">
-              <span class="tool-card-date">Affecté le <%= new Date(t.assigned_at).toLocaleDateString('fr-FR') %></span>
-            </div>
-          </div>
-        <% }) %>
       </div>
     <% } %>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h3>Mes outils <span class="muted">(<%= tools.length %>)</span></h3>
+          <p class="card-sub">Accès qui vous ont été attribués par l'administration.</p>
+        </div>
+      </div>
+
+      <% if (tools.length === 0) { %>
+        <div class="empty-state">Aucun outil ne vous a été affecté pour le moment.</div>
+      <% } else { %>
+        <div class="tool-grid">
+          <% tools.forEach((t) => { %>
+            <article class="tool-card">
+              <div class="tool-card-top">
+                <span class="tool-icon"><%- include('partials/icon', { name: 'tool', iconSize: 17 }) %></span>
+                <% if (t.category) { %><span class="tag"><%= t.category %></span><% } %>
+              </div>
+              <div>
+                <div class="tool-name"><%= t.name %></div>
+                <% if (t.reference) { %><div class="tool-ref">Réf. <%= t.reference %></div><% } %>
+              </div>
+
+              <% if (t.username || t.login_url) { %>
+                <div class="cred-box">
+                  <% if (t.username) { %>
+                    <div class="cred-row">
+                      <span class="k">Identifiant</span>
+                      <span class="v"><%= t.username %></span>
+                    </div>
+                  <% } %>
+                  <% if (t.login_url) { %>
+                    <div class="cred-row">
+                      <span class="k">Accès</span>
+                      <a href="<%= t.login_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline">
+                        Ouvrir <%- include('partials/icon', { name: 'external', iconSize: 13 }) %>
+                      </a>
+                    </div>
+                  <% } %>
+                </div>
+              <% } %>
+
+              <% if (t.note) { %><p class="tool-note"><%= t.note %></p><% } %>
+              <div class="tool-foot">Affecté le <%= new Date(t.assigned_at).toLocaleDateString('fr-FR') %></div>
+            </article>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
   </main>
 
   <script src="/js/theme.js"></script>

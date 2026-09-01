@@ -1,98 +1,128 @@
 # Private Member
 
-Plateforme de gestion du personnel et des outils qui leur sont affectés — design inspiré des dashboards fintech modernes (sidebar, indigo, cartes blanches).
+Portail interne de gestion du personnel, des outils, du temps et des ressources humaines.
+Interface inspirée de l'univers OVHcloud : navigation latérale bleu profond, contenu dense,
+angles droits, accent bleu.
+
+## Espaces
+
+| Espace | URL | Qui y accède |
+| --- | --- | --- |
+| Administration | `/admin` | Administrateurs uniquement |
+| Ressources humaines | `/rh` | Administrateurs et membres désignés RH |
+| Espace personnel | `/mon-espace` | Chaque membre, pour ses propres données |
 
 ## Fonctionnalités
 
-- **Espace administrateur**
-  - Ajout de membres du personnel avec grade, service, **type de contrat** (CDI, CDD, Intérim, Stage, Alternance, Freelance) et **date de fin de contrat optionnelle**
-  - Modification du profil d'un membre (grade, service, contrat) à tout moment
-  - Génération automatique d'un mot de passe temporaire pour chaque nouveau membre
-  - Activation / désactivation / réinitialisation de mot de passe / suppression d'un membre
-  - **Désactivation automatique** : si une date de fin de contrat est renseignée, le compte se désactive tout seul dès que la date est dépassée (vérifié à la connexion, au chargement du tableau de bord, et toutes les heures en tâche de fond)
-  - Catalogue d'outils (nom, catégorie, référence, description, **URL de connexion**), modifiable après création
-  - Affectation d'outils aux membres, avec **identifiant** propre à chaque membre et note
-- **Espace personnel**
-  - Page de connexion dédiée (email + mot de passe)
-  - Cartes design listant chaque outil affecté avec son identifiant et un bouton d'accès direct vers l'URL de connexion
-  - Bandeau d'alerte sur la durée de contrat restante (ou l'expiration) si une date de fin est définie
-- **Pointage & rémunération — freelances uniquement**
-  - Un membre dont le type de contrat est « Freelance » voit apparaître un chronomètre dans son espace : bouton « Commencer / Terminer le pointage », chrono en direct, historique de toutes les sessions
-  - L'admin définit un **TJM** (taux journalier moyen, base 8h) sur le profil du membre ; le taux horaire (TJM ÷ 8) sert à estimer automatiquement la rémunération
-  - Un onglet **Rémunération** côté admin liste tous les freelances avec heures et estimation (mois en cours / total), et un lien vers le détail complet de chaque membre (historique, clôture d'un pointage oublié, suppression d'une entrée)
-  - Ce sont des estimations de pilotage, pas des bulletins de paie
-- **Ressources humaines — non-freelances uniquement**
-  - **Rôle RH** : un administrateur désigne un ou plusieurs membres comme responsables RH (onglet « RH » dans l'admin) ; ils gardent leur propre espace personnel et gagnent en plus l'accès au panneau `/rh`
-  - **Espace employé** : demande de congés/absence/télétravail (type, dates, motif — jours ouvrés calculés automatiquement), suivi du statut, solde de congés affiché en temps réel, annulation tant que la demande est en attente
-  - **Panneau RH** : vue consolidée de toutes les demandes (filtrables par statut) avec approbation/refus (motif optionnel) ou annulation d'une demande déjà approuvée (remboursement automatique du solde si nécessaire) ; gestion des soldes de congés (ajustement manuel crédit/débit avec motif) ; création et suivi des fiches de paie (période, brut, net, statut « à verser »/« payée »)
-  - Solde initial de 25 jours à la création d'un membre non-freelance (ajustable ensuite), décompté automatiquement à l'approbation d'une demande « Congés payés »
-  - Les fiches de paie sont des enregistrements de pilotage interne (montants + statut de versement), pas des bulletins de paie légaux exportables
-- **Thème clair / sombre / système** — bouton à trois positions (soleil / lune / écran) dans l'en-tête. Le choix est mémorisé dans le navigateur (`localStorage`) et appliqué sans flash au chargement.
+### Administration
+- Création de membres avec grade, service, **type de contrat** (CDI, CDD, Intérim, Stage, Alternance, Freelance) et **date de fin optionnelle**
+- Modification du profil à tout moment, activation/désactivation, réinitialisation de mot de passe, suppression
+- **Désactivation automatique** du compte à l'échéance du contrat (vérifiée à la connexion, à l'ouverture du tableau de bord et toutes les heures)
+- Catalogue d'outils (nom, catégorie, référence, description, **URL de connexion**), modifiable après création
+- Affectation d'outils avec un **identifiant propre à chaque membre**
+- Désignation des responsables RH
+
+### Pointage et rémunération — freelances
+- Chronomètre dans l'espace du membre : démarrage/arrêt, temps écoulé en direct, historique des sessions
+- Un seul pointage ouvert à la fois, refusé côté serveur si un autre est en cours
+- **TJM** réglé par l'administration ; taux horaire = TJM ÷ 8 h, estimations mensuelle et totale
+- Vue consolidée côté admin, avec clôture d'un pointage oublié et suppression d'une entrée erronée
+
+### Ressources humaines — personnel non-freelance
+- Demandes de congés, RTT, absence, télétravail : jours ouvrés calculés automatiquement (week-ends exclus)
+- Suivi du statut, annulation possible tant que la demande est en attente
+- Panneau RH : approbation (décompte du solde), refus motivé, annulation d'une demande approuvée avec **recrédit automatique du solde**
+- Gestion des soldes de congés : ajustement manuel crédit/débit avec motif et historique
+- Fiches de paie : création (période, brut, net), suivi du versement, consultation par le membre
+- 25 jours de congés attribués à la création d'un membre non-freelance
+
+### Confort
+- Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement
+- Interface responsive : la navigation latérale se replie en bandeau horizontal, les tableaux denses défilent
 
 ## Sécurité
 
-Seul un compte de rôle **administrateur** peut créer, modifier, désactiver ou supprimer un membre du personnel ou un outil (middleware `requireAdmin` sur toutes les routes `/admin/*`) ; un compte employé n'a accès qu'à ses propres outils affectés. L'espace RH (`/rh`) est accessible uniquement aux administrateurs et aux membres explicitement désignés RH (middleware `requireHR`) ; seul un administrateur peut accorder ou retirer ce droit.
+Le contrôle d'accès repose sur trois garde-fous serveur : `requireAdmin` sur `/admin/*`,
+`requireHR` sur `/rh/*`, `requireEmployee` sur `/mon-espace/*`. Seul un administrateur peut
+accorder ou retirer l'accès RH.
 
-Mesures mises en place :
+- **Mots de passe** : hachage `bcrypt` (coût 12). Les mots de passe temporaires sont aléatoires et affichés une seule fois. Aucun mot de passe d'outil tiers n'est stocké, seulement l'identifiant et l'URL.
+- **Verrouillage de compte** : 5 échecs consécutifs verrouillent le compte 15 minutes.
+- **Limitation de débit** : 10 tentatives de connexion / 15 min par IP, 300 requêtes / minute au global (ajustables par variables d'environnement).
+- **Anti-énumération** : message et temps de réponse identiques que le compte existe ou non.
+- **CSRF** : jeton par session vérifié en comparaison à temps constant sur chaque POST.
+- **Sessions** : cookie `httpOnly`, `sameSite=lax`, `secure` en production, identifiant régénéré à la connexion.
+- **En-têtes** : `helmet` avec CSP stricte (scripts par nonce, aucun style ni gestionnaire d'événement en ligne).
+- **Validation** : grades, types de contrat et de demande contrôlés contre des listes blanches ; emails, URL, dates et montants validés ; longueurs bornées.
+- **Base** : requêtes intégralement paramétrées (`better-sqlite3`).
+- **Erreurs** : aucune trace technique renvoyée au client.
+- **Démarrage** : refus de démarrer en production si `SESSION_SECRET` ou `ADMIN_PASSWORD` sont restés à leur valeur par défaut.
 
-- **Mots de passe** : hachage `bcrypt` (coût 12), jamais stockés en clair. Les mots de passe temporaires générés sont aléatoires (12 caractères) et affichés une seule fois à l'admin. Les URL/identifiants d'outils ne remplacent pas un gestionnaire de mots de passe : aucun mot de passe tiers n'est stocké par l'application, seulement l'identifiant et l'URL d'accès.
-- **Verrouillage de compte** : après 5 échecs de connexion consécutifs, le compte est verrouillé 15 minutes.
-- **Anti-brute-force réseau** : limitation à 10 tentatives de connexion / 15 min par adresse IP, et une limite globale de 300 requêtes / minute.
-- **Anti-énumération de comptes** : réponse générique et temps de réponse constant (comparaison bcrypt factice) que l'email existe ou non.
-- **CSRF** : jeton unique par session, vérifié en comparaison à temps constant sur chaque formulaire POST.
-- **Sessions** : cookie `httpOnly`, `sameSite=lax`, `secure` en production, régénération de l'identifiant de session à la connexion (anti session-fixation), secret dédié (`SESSION_SECRET`).
-- **En-têtes de sécurité** : `helmet` avec Content-Security-Policy stricte (scripts avec nonce, aucun style/script inline non nonce, pas de `unsafe-inline`), HSTS, `X-Frame-Options`, etc.
-- **Validation des entrées** : grade et type de contrat contrôlés côté serveur contre une liste blanche, email et URL validés, longueurs de champs bornées.
-- **Base de données** : requêtes 100 % paramétrées (`better-sqlite3`), donc pas d'injection SQL possible.
-- **Gestion des erreurs** : aucune trace technique renvoyée au client ; erreurs journalisées côté serveur uniquement.
-- **Démarrage sécurisé** : le serveur refuse de démarrer en production (`NODE_ENV=production`) si `SESSION_SECRET` ou `ADMIN_PASSWORD` sont laissés à leur valeur par défaut.
-
-Aucun système n'est protégé « contre toutes les failles » de façon absolue — mais ces mesures couvrent les risques standards (OWASP Top 10 applicables : injection, authentification, XSS, CSRF, contrôle d'accès, mauvaise configuration).
-
-## Stack
-
-- Node.js / Express
-- SQLite (via `better-sqlite3`) — base de données locale, aucun service externe requis
-- EJS pour le rendu des pages, sessions via `express-session`
-- `helmet` (en-têtes de sécurité / CSP) + `express-rate-limit` (anti brute-force)
-- CSS sur-mesure, police système, design dashboard (sidebar de navigation, accent indigo, cartes blanches à ombres douces) — clair/sombre/système
+Aucun système n'est protégé de façon absolue, mais ces mesures couvrent les risques
+standards (injection, authentification, XSS, CSRF, contrôle d'accès, mauvaise configuration).
 
 ## Démarrage
 
 ```bash
 npm install
-cp .env.example .env   # puis personnaliser ADMIN_EMAIL / ADMIN_PASSWORD / SESSION_SECRET
-npm start
+cp .env.example .env      # personnaliser ADMIN_EMAIL / ADMIN_PASSWORD / SESSION_SECRET
+npm start                 # http://localhost:3000
 ```
 
-Le serveur démarre sur `http://localhost:3000` (variable `PORT`).
+Au premier démarrage, le compte administrateur est créé à partir du fichier `.env`.
 
-Au premier démarrage, un compte administrateur est créé automatiquement à partir de `ADMIN_EMAIL` / `ADMIN_PASSWORD` défini dans `.env`.
+Pour explorer l'application avec des données réalistes :
+
+```bash
+node scripts/seed-demo.js   # 5 membres, outils, demandes, fiches de paie, pointages
+```
+
+Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
+`claire.moreau@entreprise.com` (responsable RH) et `lucas.petit@entreprise.com` (freelance).
+
+## Tests
+
+```bash
+npm test
+```
+
+45 tests d'intégration couvrent l'authentification (mauvais mot de passe, verrouillage,
+rejet CSRF), le cloisonnement des trois espaces, la création de membres et ses validations,
+la désactivation automatique en fin de contrat, les outils et affectations, le pointage
+freelance, le cycle RH complet (demande → approbation → décompte du solde → annulation →
+recrédit) et les fiches de paie. Ils tournent sur une base SQLite temporaire isolée.
 
 ## Variables d'environnement
 
 | Variable | Description |
 | --- | --- |
-| `PORT` | Port d'écoute du serveur (défaut `3000`) |
-| `SESSION_SECRET` | Secret utilisé pour signer les cookies de session — obligatoire et unique en production |
+| `PORT` | Port d'écoute (défaut `3000`) |
+| `SESSION_SECRET` | Secret de signature des sessions — obligatoire et unique en production |
 | `ADMIN_EMAIL` | Email du compte administrateur créé au démarrage |
-| `ADMIN_PASSWORD` | Mot de passe du compte administrateur créé au démarrage — fort et obligatoire en production |
-| `NODE_ENV` | `production` active les cookies sécurisés (HTTPS obligatoire), les vérifications de secrets au démarrage et le cache statique |
-| `TRUST_PROXY` | À définir (ex. `1`) uniquement si l'app tourne derrière un reverse proxy (Nginx, Render, Railway…), pour que la limitation de débit identifie la bonne IP |
+| `ADMIN_PASSWORD` | Mot de passe de ce compte — fort et obligatoire en production |
+| `NODE_ENV` | `production` active les cookies sécurisés, les vérifications de secrets et le cache statique |
+| `TRUST_PROXY` | À définir (ex. `1`) derrière un reverse proxy, pour que la limitation de débit voie la bonne IP |
+| `DB_PATH` | Emplacement de la base SQLite (défaut `data/app.sqlite`) |
+| `LOGIN_RATE_LIMIT` / `GLOBAL_RATE_LIMIT` | Plafonds de requêtes, ajustables pour les tests ou un usage interne intensif |
 
 ## Structure
 
 ```
 src/
-  server.js          routes & logique métier
-  db.js              connexion SQLite + schéma + désactivation auto des contrats expirés
-  security.js        CSRF, rate limiting, verrouillage de compte, nonce CSP
-  timesheet.js        pointage freelance : clock-in/out, historique, calcul des heures/estimation
-  hr.js              demandes RH, solde de congés, fiches de paie
-  grades.js          liste des grades proposés
-  contract-types.js  liste des types de contrat proposés
-  request-types.js   liste des types de demande RH
-  middleware/        protections des routes (admin / employé / RH)
-views/                pages EJS (connexion, admin, espace employé, RH, édition membre/outil, pointage)
-public/               CSS, thème clair/sombre/système, JS front (thème, confirmation, chrono)
+  app.js             assemblage de l'application Express (middlewares, montage des routeurs)
+  server.js          démarrage du serveur et balayage périodique des contrats échus
+  db.js              base SQLite, schéma, migrations, désactivation des contrats expirés
+  security.js        CSRF, limitation de débit, verrouillage de compte, nonce CSP
+  utils.js           helpers partagés (flash, validation, génération de mot de passe)
+  timesheet.js       pointage : entrées, heures cumulées, estimation de rémunération
+  hr.js              demandes, soldes de congés, fiches de paie
+  grades.js · contract-types.js · request-types.js   listes blanches métier
+  middleware/auth.js contrôle d'accès admin / employé / RH
+  routes/            auth.js · admin.js · employee.js · rh.js
+views/
+  partials/          head, sidebar, en-têtes, icônes, sélecteur de thème
+  login · error · admin · rh · employee · employee-edit · employee-timesheet · tool-edit
+public/              feuille de style, thème, chronomètre, confirmations
+scripts/seed-demo.js jeu de données de démonstration
+tests/               suite d'intégration (node --test)
 ```

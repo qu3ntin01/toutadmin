@@ -1,0 +1,77 @@
+const express = require('express');
+const bcrypt = require('bcryptjs');
+
+const db = require('../db');
+const security = require('../security');
+const { setFlash } = require('../utils');
+
+const router = express.Router();
+
+function homeFor(user) {
+  return user.role === 'admin' ? '/admin' : '/mon-espace';
+}
+
+router.get('/', (req, res) => {
+  if (!req.session.user) return res.redirect('/connexion');
+  return res.redirect(homeFor(req.session.user));
+});
+
+router.get('/connexion', (req, res) => {
+  if (req.session.user) return res.redirect(homeFor(req.session.user));
+  res.render('login');
+});
+
+router.post('/connexion', security.loginLimiter, (req, res) => {
+  const email = (req.body.email || '').toLowerCase().trim();
+  const password = req.body.password || '';
+  const genericError = () => {
+    setFlash(req, 'error', 'Identifiants incorrects.');
+    return res.redirect('/connexion');
+  };
+
+  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+
+  if (!user) {
+    bcrypt.compareSync(password, security.DUMMY_HASH); // temps constant : ne révèle pas l'existence du compte
+    return genericError();
+  }
+
+  if (security.isLocked(user)) {
+    setFlash(req, 'error', `Compte temporairement verrouillé suite à plusieurs échecs. Réessayez dans ${security.LOCKOUT_MINUTES} minutes.`);
+    return res.redirect('/connexion');
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  if (user.contract_end_date && user.contract_end_date < today) {
+    if (user.active) db.prepare('UPDATE users SET active = 0 WHERE id = ?').run(user.id);
+    setFlash(req, 'error', 'Ce compte est arrivé au terme de son contrat et a été désactivé.');
+    return res.redirect('/connexion');
+  }
+
+  if (!user.active || !bcrypt.compareSync(password, user.password_hash)) {
+    if (user.active) security.registerFailedAttempt(user);
+    return genericError();
+  }
+
+  security.resetFailedAttempts(user.id);
+
+  req.session.regenerate((err) => {
+    if (err) return genericError();
+    req.session.user = {
+      id: user.id,
+      role: user.role,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      grade: user.grade,
+      isHr: Boolean(user.is_hr),
+    };
+    res.redirect(homeFor(user));
+  });
+});
+
+router.post('/deconnexion', (req, res) => {
+  req.session.destroy(() => res.redirect('/connexion'));
+});
+
+module.exports = router;

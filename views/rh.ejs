@@ -5,158 +5,118 @@
 </head>
 <body class="app-body">
   <div class="app-shell">
-    <aside class="sidebar">
-      <div class="sidebar-brand">
-        <span class="brand-mark small">PM</span>
-        <span class="brand-name">Espace RH</span>
-      </div>
-
-      <nav class="sidebar-nav" id="tabs">
-        <button class="side-link tab-btn is-active" data-tab="demandes">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="17" rx="2" /><path d="M8 8h8M8 12h8M8 16h5" /></svg>
-          Demandes
-          <% if (stats.pendingCount > 0) { %><span class="nav-badge"><%= stats.pendingCount %></span><% } %>
-        </button>
-        <button class="side-link tab-btn" data-tab="personnel">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 20v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 5 18.5V20" /><circle cx="9.5" cy="8" r="3.5" /></svg>
-          Personnel &amp; congés
-        </button>
-        <button class="side-link tab-btn" data-tab="paie">
-          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2" /><path d="M3.5 9.5h17" /><path d="M7 14h4" /></svg>
-          Paie
-        </button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <%- include('partials/theme-toggle') %>
-        <div class="user-chip">
-          <span class="user-avatar"><%= currentUser.firstName.charAt(0) %><%= currentUser.lastName.charAt(0) %></span>
-          <div class="user-meta">
-            <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
-            <span class="user-grade"><%= currentUser.role === 'admin' ? 'Administration' : 'Responsable RH' %></span>
-          </div>
-        </div>
-        <a href="<%= currentUser.role === 'admin' ? '/admin' : '/mon-espace' %>" class="btn btn-ghost btn-block">← Mon espace</a>
-        <form method="POST" action="/deconnexion">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <button type="submit" class="btn btn-ghost btn-block">Déconnexion</button>
-        </form>
-      </div>
-    </aside>
+    <%- include('partials/sidebar', {
+      panelLabel: 'Ressources humaines',
+      navItems: [
+        { tab: 'demandes', label: 'Demandes', icon: 'inbox', badge: stats.pendingCount },
+        { tab: 'personnel', label: 'Personnel & congés', icon: 'users' },
+        { tab: 'paie', label: 'Paie', icon: 'card' }
+      ],
+      sidebarLink: { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: 'Mon espace', icon: 'back' }
+    }) %>
 
     <div class="app-main">
-      <header class="topbar">
-        <div class="topbar-brand">
-          <span class="brand-mark small">PM</span>
-          <span class="brand-name">Espace RH</span>
-        </div>
-        <div class="topbar-user">
-          <%- include('partials/theme-toggle') %>
-          <a href="<%= currentUser.role === 'admin' ? '/admin' : '/mon-espace' %>" class="btn btn-ghost">← Mon espace</a>
-          <form method="POST" action="/deconnexion">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <button type="submit" class="btn btn-ghost">Déconnexion</button>
-          </form>
-        </div>
-      </header>
+      <%- include('partials/app-header', {
+        headerTitle: 'Gestion RH',
+        headerSubtitle: 'Demandes du personnel, soldes de congés et fiches de paie',
+        userRoleLabel: currentUser.role === 'admin' ? 'Administration' : 'Responsable RH'
+      }) %>
 
       <main class="page">
-        <section class="page-head">
-          <div>
-            <span class="eyebrow">Ressources humaines</span>
-            <h1>Demandes, congés &amp; paie</h1>
-            <p class="muted">Gérez les demandes du personnel, les soldes de congés et les fiches de paie.</p>
-          </div>
-        </section>
-
         <% if (flash) { %>
           <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
         <% } %>
 
         <section class="stats-grid">
           <div class="stat-card">
-            <div class="stat-body">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 17 }) %></span>
+            <span class="stat-body">
               <span class="stat-value"><%= stats.staffCount %></span>
               <span class="stat-label">Membres suivis</span>
-            </div>
+            </span>
           </div>
           <div class="stat-card">
-            <div class="stat-body">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 17 }) %></span>
+            <span class="stat-body">
               <span class="stat-value"><%= stats.pendingCount %></span>
               <span class="stat-label">Demandes en attente</span>
-            </div>
+            </span>
           </div>
           <div class="stat-card">
-            <div class="stat-body">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 17 }) %></span>
+            <span class="stat-body">
               <span class="stat-value"><%= stats.payslipsDue %></span>
               <span class="stat-label">Fiches de paie à verser</span>
-            </div>
+            </span>
           </div>
           <div class="stat-card">
-            <div class="stat-body">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %></span>
+            <span class="stat-body">
               <span class="stat-value"><%= stats.totalLeaveBalance.toFixed(1) %> j</span>
               <span class="stat-label">Solde de congés cumulé</span>
-            </div>
+            </span>
           </div>
         </section>
 
         <!-- DEMANDES -->
         <section class="tab-panel is-active" id="demandes">
           <div class="card">
-            <div class="rh-panel-link">
-              <h3>Demandes (<%= requests.length %>)</h3>
+            <div class="card-head">
+              <div>
+                <h3>Demandes <span class="muted">(<%= requests.length %>)</span></h3>
+                <p class="card-sub">Congés, absences et télétravail déposés par le personnel.</p>
+              </div>
               <div class="filter-pills">
-                <a href="/rh#demandes" class="pill <%= !statusFilter ? 'pill-gold' : '' %>">Toutes</a>
-                <a href="/rh?statut=En+attente#demandes" class="pill <%= statusFilter === 'En attente' ? 'pill-gold' : '' %>">En attente</a>
-                <a href="/rh?statut=Approuvée#demandes" class="pill <%= statusFilter === 'Approuvée' ? 'pill-gold' : '' %>">Approuvées</a>
-                <a href="/rh?statut=Refusée#demandes" class="pill <%= statusFilter === 'Refusée' ? 'pill-gold' : '' %>">Refusées</a>
-                <a href="/rh?statut=Annulée#demandes" class="pill <%= statusFilter === 'Annulée' ? 'pill-gold' : '' %>">Annulées</a>
+                <a href="/rh#demandes" class="tag <%= !statusFilter ? 'tag-accent' : '' %>">Toutes</a>
+                <a href="/rh?statut=En+attente#demandes" class="tag <%= statusFilter === 'En attente' ? 'tag-accent' : '' %>">En attente</a>
+                <a href="/rh?statut=Approuvée#demandes" class="tag <%= statusFilter === 'Approuvée' ? 'tag-accent' : '' %>">Approuvées</a>
+                <a href="/rh?statut=Refusée#demandes" class="tag <%= statusFilter === 'Refusée' ? 'tag-accent' : '' %>">Refusées</a>
+                <a href="/rh?statut=Annulée#demandes" class="tag <%= statusFilter === 'Annulée' ? 'tag-accent' : '' %>">Annulées</a>
               </div>
             </div>
 
             <% if (requests.length === 0) { %>
-              <div class="empty-state"><p>Aucune demande pour le moment.</p></div>
+              <div class="empty-state">Aucune demande à afficher pour ce filtre.</div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
                   <thead>
-                    <tr>
-                      <th>Membre</th><th>Type</th><th>Période</th><th>Jours</th><th>Motif</th><th>Statut</th><th></th>
-                    </tr>
+                    <tr><th>Membre</th><th>Type</th><th>Période</th><th>Jours</th><th>Motif</th><th>Statut</th><th></th></tr>
                   </thead>
                   <tbody>
-                    <% requests.forEach((r) => { %>
+                    <% requests.forEach((r) => {
+                      const statusClass = r.status === 'Approuvée' ? 'status-on'
+                        : r.status === 'En attente' ? 'status-warning'
+                        : r.status === 'Refusée' ? 'status-danger' : 'status-off';
+                    %>
                       <tr>
                         <td class="cell-strong"><%= r.first_name %> <%= r.last_name %></td>
-                        <td><span class="pill"><%= r.type %></span></td>
-                        <td class="muted">
+                        <td><span class="tag"><%= r.type %></span></td>
+                        <td class="cell-sub">
                           <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %> →
                           <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %>
                         </td>
-                        <td class="muted"><%= r.days %> j</td>
-                        <td class="muted small"><%= r.reason || '—' %></td>
+                        <td class="num"><%= r.days %> j</td>
+                        <td class="cell-sub"><%= r.reason || '—' %></td>
                         <td>
-                          <% if (r.status === 'En attente') { %><span class="status status-warning">En attente</span><% } %>
-                          <% if (r.status === 'Approuvée') { %><span class="status status-on">Approuvée</span><% } %>
-                          <% if (r.status === 'Refusée') { %><span class="status status-danger">Refusée</span><% } %>
-                          <% if (r.status === 'Annulée') { %><span class="status status-off">Annulée</span><% } %>
-                          <% if (r.review_note) { %><div class="muted small">« <%= r.review_note %> »</div><% } %>
+                          <span class="status <%= statusClass %>"><%= r.status %></span>
+                          <% if (r.review_note) { %><div class="cell-sub">« <%= r.review_note %> »</div><% } %>
                         </td>
                         <td class="actions">
                           <% if (r.status === 'En attente') { %>
                             <form method="POST" action="/rh/demandes/<%= r.id %>/approuver">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-tiny">Approuver</button>
+                              <button type="submit" class="btn btn-sm btn-outline">Approuver</button>
                             </form>
-                            <form method="POST" action="/rh/demandes/<%= r.id %>/refuser" class="inline-note-form">
+                            <form method="POST" action="/rh/demandes/<%= r.id %>/refuser" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <input type="text" name="note" placeholder="Motif" class="note-input" />
-                              <button type="submit" class="btn btn-tiny btn-danger">Refuser</button>
+                              <input type="text" name="note" class="input-sm" placeholder="Motif" />
+                              <button type="submit" class="btn btn-sm btn-danger">Refuser</button>
                             </form>
                           <% } else if (r.status === 'Approuvée') { %>
                             <form method="POST" action="/rh/demandes/<%= r.id %>/annuler" data-confirm="Annuler cette demande approuvée ? Le solde sera recrédité si nécessaire.">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-tiny btn-danger">Annuler</button>
+                              <button type="submit" class="btn btn-sm btn-danger">Annuler</button>
                             </form>
                           <% } %>
                         </td>
@@ -172,30 +132,33 @@
         <!-- PERSONNEL & CONGES -->
         <section class="tab-panel" id="personnel">
           <div class="card">
-            <h3>Soldes de congés (<%= staff.length %>)</h3>
+            <div class="card-head">
+              <div>
+                <h3>Soldes de congés <span class="muted">(<%= staff.length %>)</span></h3>
+                <p class="card-sub">Un ajustement positif crédite des jours, un ajustement négatif en retire.</p>
+              </div>
+            </div>
             <% if (staff.length === 0) { %>
-              <div class="empty-state"><p>Aucun membre non-freelance pour le moment.</p></div>
+              <div class="empty-state">Aucun membre non-freelance à suivre pour le moment.</div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead>
-                    <tr><th>Membre</th><th>Contrat</th><th>Solde</th><th>Ajustement</th></tr>
-                  </thead>
+                  <thead><tr><th>Membre</th><th>Contrat</th><th>Solde</th><th>Ajustement</th></tr></thead>
                   <tbody>
                     <% staff.forEach((e) => { %>
                       <tr>
                         <td>
                           <div class="cell-strong"><%= e.first_name %> <%= e.last_name %></div>
-                          <div class="muted small"><%= e.email %></div>
+                          <div class="cell-sub"><%= e.email %></div>
                         </td>
-                        <td><span class="pill"><%= e.contract_type || '—' %></span></td>
-                        <td class="cell-strong"><%= e.leave_balance.toFixed(1) %> j</td>
+                        <td><span class="tag"><%= e.contract_type || '—' %></span></td>
+                        <td class="num cell-strong <%= e.leave_balance < 0 ? 'text-danger' : '' %>"><%= e.leave_balance.toFixed(1) %> j</td>
                         <td>
-                          <form method="POST" action="/rh/solde/<%= e.id %>/ajuster" class="balance-form">
+                          <form method="POST" action="/rh/solde/<%= e.id %>/ajuster" class="inline-form">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <input type="number" name="amount" step="0.5" placeholder="+/- j" class="note-input" required />
-                            <input type="text" name="reason" placeholder="Motif" class="note-input" />
-                            <button type="submit" class="btn btn-tiny">Appliquer</button>
+                            <input type="number" name="amount" step="0.5" class="input-sm" placeholder="+/- j" required />
+                            <input type="text" name="reason" class="input-sm" placeholder="Motif" />
+                            <button type="submit" class="btn btn-sm">Appliquer</button>
                           </form>
                         </td>
                       </tr>
@@ -204,7 +167,7 @@
                 </table>
               </div>
             <% } %>
-            <p class="hint">Un ajustement positif crédite des jours (ex : report, prime), négatif en retire (ex : correction). Chaque approbation d'une demande « Congés payés » décompte automatiquement le solde.</p>
+            <p class="hint">L'approbation d'une demande « Congés payés » décompte automatiquement le solde ; son annulation le recrédite.</p>
           </div>
         </section>
 
@@ -212,16 +175,16 @@
         <section class="tab-panel" id="paie">
           <div class="grid-2">
             <div class="card">
-              <h3>Créer une fiche de paie</h3>
+              <div class="card-head"><h3>Créer une fiche de paie</h3></div>
               <% if (staff.length === 0) { %>
-                <div class="empty-state"><p>Aucun membre éligible.</p></div>
+                <div class="empty-state">Aucun membre éligible.</div>
               <% } else { %>
                 <form method="POST" action="/rh/paie" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label class="span-2">
                     <span>Membre</span>
                     <select name="employee_id" required>
-                      <option value="" disabled selected>Choisir un membre</option>
+                      <option value="" disabled selected>Choisir…</option>
                       <% staff.forEach((e) => { %>
                         <option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option>
                       <% }) %>
@@ -232,50 +195,50 @@
                     <input type="month" name="period" required />
                   </label>
                   <label>
-                    <span>Montant brut (€)</span>
+                    <span>Brut (€)</span>
                     <input type="number" name="gross_amount" min="0" step="0.01" required />
                   </label>
                   <label class="span-2">
-                    <span>Montant net (€)</span>
+                    <span>Net (€)</span>
                     <input type="number" name="net_amount" min="0" step="0.01" required />
                   </label>
                   <label class="span-2">
-                    <span>Note (optionnel)</span>
+                    <span>Note</span>
                     <input type="text" name="note" placeholder="Ex : prime incluse" />
                   </label>
-                  <button type="submit" class="btn btn-gold span-2">Créer la fiche</button>
+                  <div class="span-2">
+                    <button type="submit" class="btn btn-primary btn-block">Créer la fiche</button>
+                  </div>
                 </form>
               <% } %>
             </div>
 
             <div class="card">
-              <h3>Fiches de paie (<%= payslips.length %>)</h3>
+              <div class="card-head"><h3>Fiches de paie <span class="muted">(<%= payslips.length %>)</span></h3></div>
               <% if (payslips.length === 0) { %>
-                <div class="empty-state"><p>Aucune fiche de paie pour le moment.</p></div>
+                <div class="empty-state">Aucune fiche de paie enregistrée.</div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead>
-                      <tr><th>Membre</th><th>Période</th><th>Brut</th><th>Net</th><th>Statut</th><th></th></tr>
-                    </thead>
+                    <thead><tr><th>Membre</th><th>Période</th><th>Brut</th><th>Net</th><th>Statut</th><th></th></tr></thead>
                     <tbody>
                       <% payslips.forEach((p) => { %>
                         <tr>
                           <td class="cell-strong"><%= p.first_name %> <%= p.last_name %></td>
-                          <td class="muted"><%= p.period %></td>
-                          <td class="muted"><%= p.gross_amount.toFixed(2) %> €</td>
-                          <td class="cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
+                          <td class="mono"><%= p.period %></td>
+                          <td class="num cell-sub"><%= p.gross_amount.toFixed(2) %> €</td>
+                          <td class="num cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
                           <td><span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= p.status %></span></td>
                           <td class="actions">
                             <% if (p.status !== 'Payée') { %>
                               <form method="POST" action="/rh/paie/<%= p.id %>/marquer-payee">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button type="submit" class="btn btn-tiny">Marquer payée</button>
+                                <button type="submit" class="btn btn-sm btn-outline">Marquer payée</button>
                               </form>
                             <% } %>
                             <form method="POST" action="/rh/paie/<%= p.id %>/supprimer" data-confirm="Supprimer cette fiche de paie ?">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-tiny btn-danger">Supprimer</button>
+                              <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
                             </form>
                           </td>
                         </tr>
@@ -284,7 +247,7 @@
                   </table>
                 </div>
               <% } %>
-              <p class="hint">Ces fiches sont des enregistrements internes de pilotage (montants et statut de versement), pas des bulletins de paie légaux exportables.</p>
+              <p class="hint">Enregistrements internes de pilotage (montants et statut de versement), pas des bulletins de paie légaux.</p>
             </div>
           </div>
         </section>

@@ -1,0 +1,32 @@
+<%
+/* Bandeau blanc en haut de la colonne de contenu (titre + compte connecté).
+   Attend : headerTitle, headerSubtitle?, userRoleLabel? */
+const roleLabel = typeof userRoleLabel !== 'undefined' && userRoleLabel
+  ? userRoleLabel
+  : (currentUser.role === 'admin' ? 'Administration' : currentUser.grade);
+%>
+<header class="app-header">
+  <div class="app-header-title">
+    <h1><%= headerTitle %></h1>
+    <% if (typeof headerSubtitle !== 'undefined' && headerSubtitle) { %>
+      <p class="app-header-sub"><%= headerSubtitle %></p>
+    <% } %>
+  </div>
+
+  <div class="app-header-side">
+    <div class="user-chip">
+      <span class="user-avatar"><%= currentUser.firstName.charAt(0) %><%= currentUser.lastName.charAt(0) %></span>
+      <span class="user-meta">
+        <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+        <span class="user-role"><%= roleLabel %></span>
+      </span>
+    </div>
+    <form method="POST" action="/deconnexion">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button type="submit" class="btn btn-quiet" title="Se déconnecter">
+        <%- include('icon', { name: 'logout', iconSize: 16 }) %>
+        <span class="btn-label">Déconnexion</span>
+      </button>
+    </form>
+  </div>
+</header>

@@ -4,24 +4,12 @@
   <%- include('partials/head', { title: 'Modifier ' + employee.first_name + ' — Private Member' }) %>
 </head>
 <body class="app-body">
-  <header class="topbar topbar-standalone">
-    <div class="topbar-brand">
-      <span class="brand-mark small">PM</span>
-      <span class="brand-name">Private Member</span>
-    </div>
-    <div class="topbar-user">
-      <%- include('partials/theme-toggle') %>
-      <a href="/admin#personnel" class="btn btn-ghost">Retour</a>
-    </div>
-  </header>
+  <%- include('partials/page-header', { headerTitle: 'Administration', backHref: '/admin#personnel' }) %>
 
-  <main class="page page-narrow">
-    <section class="page-head">
-      <div>
-        <span class="eyebrow">Profil membre</span>
-        <h1><%= employee.first_name %> <%= employee.last_name %></h1>
-        <p class="muted"><%= employee.email %></p>
-      </div>
+  <main class="page">
+    <section class="page-intro">
+      <h2><%= employee.first_name %> <%= employee.last_name %></h2>
+      <p><%= employee.email %> · <%= employee.contract_type || 'contrat non renseigné' %></p>
     </section>
 
     <% if (flash) { %>
@@ -29,7 +17,7 @@
     <% } %>
 
     <div class="card">
-      <h3>Modifier le profil</h3>
+      <div class="card-head"><h3>Profil du membre</h3></div>
       <form method="POST" action="/admin/employes/<%= employee.id %>/modifier" class="form-grid">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <label>
@@ -57,18 +45,21 @@
           <input type="date" name="contract_end_date" value="<%= employee.contract_end_date || '' %>" />
         </label>
         <label class="span-2">
-          <span>TJM — taux journalier moyen (freelance uniquement)</span>
+          <span>TJM en € (freelance uniquement)</span>
           <input type="number" name="daily_rate" min="0" step="0.01" value="<%= employee.daily_rate ?? '' %>" placeholder="Ex : 450" />
         </label>
         <div class="span-2 form-actions">
-          <button type="submit" class="btn btn-gold">Enregistrer</button>
-          <a href="/admin#personnel" class="btn btn-ghost">Annuler</a>
+          <button type="submit" class="btn btn-primary">Enregistrer</button>
+          <a href="/admin#personnel" class="btn btn-quiet">Annuler</a>
           <% if (employee.contract_type === 'Freelance') { %>
-            <a href="/admin/employes/<%= employee.id %>/temps" class="btn btn-ghost">Voir le pointage</a>
+            <a href="/admin/employes/<%= employee.id %>/temps" class="btn">Voir le pointage</a>
           <% } %>
         </div>
       </form>
-      <p class="hint">Videz le champ « Fin de contrat » pour retirer toute échéance (durée indéterminée). Le compte se désactive automatiquement le lendemain de la date de fin. Le TJM sert au calcul du taux horaire (TJM ÷ 8) pour les membres en freelance.</p>
+      <p class="hint">
+        Videz le champ « Fin de contrat » pour repasser en durée indéterminée. Le compte se désactive
+        automatiquement le lendemain de la date de fin. Le TJM sert au calcul du taux horaire (TJM ÷ 8 h).
+      </p>
     </div>
   </main>
 
