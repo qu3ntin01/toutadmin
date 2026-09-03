@@ -1,0 +1,29 @@
+<%
+/* Sections de la console d'administration, en un seul endroit.
+   Sur /admin elles pilotent les onglets ; sur les pages d'édition elles y ramènent.
+   Attend : asLinks? (booléen), active? (nom de section) */
+const adminSections = [
+  { tab: 'personnel', label: t('nav.personnel'), icon: 'users' },
+  { tab: 'organisation', label: 'Organisation', icon: 'network' },
+  { tab: 'outils', label: t('nav.tools'), icon: 'tool' },
+  { tab: 'affectations', label: t('nav.assignments'), icon: 'link' },
+  { tab: 'actualites', label: t('nav.news'), icon: 'megaphone' },
+  {
+    tab: 'rh',
+    label: t('nav.hr'),
+    icon: 'shield',
+    // Le compteur n'est calculé que sur la console elle-même.
+    badge: typeof pendingRequestCount !== 'undefined' ? pendingRequestCount : 0,
+  },
+];
+const adminAsLinks = typeof asLinks !== 'undefined' && asLinks;
+const adminActive = typeof active !== 'undefined' ? active : null;
+%>
+<%- include('sidebar', {
+  panelLabel: 'Administration',
+  navItems: adminAsLinks
+    ? adminSections.map((s) => ({ href: '/admin#' + s.tab, label: s.label, icon: s.icon, badge: s.badge, active: s.tab === adminActive }))
+    : adminSections,
+  // Un administrateur n'a pas d'espace membre : /mon-espace le renverrait ici.
+  footLinks: [{ href: '/rh', label: t('nav.openHrSpace'), icon: 'external' }]
+}) %>

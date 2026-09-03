@@ -221,8 +221,7 @@ a:hover { text-decoration: underline; }
 
 /* ---------- Bandeau de contenu ---------- */
 
-.app-header,
-.page-topbar {
+.app-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -237,9 +236,7 @@ a:hover { text-decoration: underline; }
 
 .app-header-title h1 { font-size: 1.15rem; }
 .app-header-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 1px; }
-.app-header-side,
-.page-topbar-side { display: flex; align-items: center; gap: 12px; }
-.page-topbar-brand { display: flex; align-items: center; gap: 10px; }
+.app-header-side { display: flex; align-items: center; gap: 12px; }
 
 .user-chip { display: flex; align-items: center; gap: 9px; padding-right: 12px; border-right: 1px solid var(--border); }
 .user-avatar {
@@ -714,56 +711,6 @@ td.actions { min-width: 196px; }
 .summary-list dt { font-size: 0.8rem; color: var(--text-secondary); margin: 0; }
 .summary-list dd { font-size: 0.85rem; font-weight: 600; margin: 0; text-align: end; }
 
-/* ---------- Navigation de l'espace membre ---------- */
-
-.member-nav {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 0 24px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  flex-wrap: wrap;
-}
-
-.member-nav-brand { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
-.member-nav-links { display: flex; align-items: center; gap: 2px; flex: 1; overflow-x: auto; }
-
-.member-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 16px 12px;
-  border-bottom: 2px solid transparent;
-  color: var(--text-secondary);
-  font-size: 0.86rem;
-  font-weight: 500;
-  white-space: nowrap;
-  text-decoration: none;
-}
-.member-link:hover { color: var(--text); text-decoration: none; }
-.member-link.is-active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
-.member-link svg { flex-shrink: 0; opacity: 0.9; }
-
-.member-nav-side { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
-
-.count-badge {
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 9px;
-  background: var(--danger);
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
 /* ---------- Avatars ---------- */
 
 .user-avatar img,
@@ -923,7 +870,7 @@ td.actions { min-width: 196px; }
   .form-grid { grid-template-columns: 1fr; }
   .form-grid .span-2 { grid-column: auto; }
   .page { padding: 16px 14px 48px; }
-  .app-header, .page-topbar { padding: 10px 14px; flex-wrap: wrap; }
+  .app-header { padding: 10px 14px; flex-wrap: wrap; }
   .user-meta, .btn-label { display: none; }
   .user-chip { padding-right: 0; border-right: none; }
   .timer-stats { grid-template-columns: 1fr; }
@@ -934,9 +881,8 @@ td.actions { min-width: 196px; }
   .install-step-label { display: none; }
   .install-step.is-current .install-step-label { display: inline; }
   .install-body { padding: 22px 18px; }
-  .member-nav { padding: 0 14px; gap: 10px; }
-  .member-link { padding: 12px 8px; }
-  .member-link .member-link-label { display: none; }
-  .member-nav-brand .brand-text { display: none; }
   .people-grid { grid-template-columns: 1fr; }
+  /* Sur téléphone, la barre se réduit aux icônes : seule la section courante est nommée. */
+  .sidebar-nav .side-link-label { display: none; }
+  .sidebar-nav .side-link.is-active .side-link-label { display: inline; }
 }

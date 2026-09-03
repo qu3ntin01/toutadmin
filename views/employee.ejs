@@ -4,329 +4,334 @@
   <%- include('partials/head', { title: t('nav.mySpace') + ' — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
-  <%- include('partials/member-nav', { active: 'espace' }) %>
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'espace' }) %>
 
-  <main class="page">
-    <section class="page-intro">
-      <h2><%= t('home.greeting', { name: currentUser.firstName }) %></h2>
-      <p><%= t('home.subtitle') %></p>
-    </section>
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('home.greeting', { name: currentUser.firstName }),
+        headerSubtitle: t('home.subtitle')
+      }) %>
 
-    <% if (flash) { %>
-      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
-    <% } %>
+      <main class="page">
 
-    <% if (employee.contract_end_date) {
-      const todayStr = new Date().toISOString().slice(0, 10);
-      const daysLeft = Math.ceil((new Date(employee.contract_end_date + 'T00:00:00Z') - new Date(todayStr + 'T00:00:00Z')) / 86400000);
-      const bannerClass = daysLeft < 0 ? 'is-danger' : (daysLeft <= 30 ? 'is-warning' : '');
-      const endDate = new Date(employee.contract_end_date + 'T00:00:00Z').toLocaleDateString(locale);
-    %>
-      <div class="banner <%= bannerClass %>">
-        <%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %>
-        <span>
-          <%= t('common.contract') %> <%= employee.contract_type %> —
-          <% if (daysLeft < 0) { %><%= endDate %><% } else { %><%= endDate %> (<%= daysLeft %> j)<% } %>
-        </span>
-      </div>
-    <% } %>
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-head"><h3><%= t('home.yourManager') %></h3></div>
-        <% if (manager) { %>
-          <div class="manager-card">
-            <%- include('partials/avatar', { person: manager }) %>
-            <div>
-              <div class="manager-name"><%= manager.first_name %> <%= manager.last_name %></div>
-              <div class="manager-role"><%= manager.grade %></div>
-              <div class="person-line"><%= manager.email %></div>
-            </div>
-          </div>
-          <div class="form-actions">
-            <a href="/messagerie" class="btn btn-sm"><%= t('messages.compose') %></a>
-          </div>
-        <% } else { %>
-          <div class="empty-state"><%= t('home.noManager') %></div>
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
         <% } %>
-      </div>
 
-      <div class="card">
-        <div class="card-head">
-          <h3><%= t('home.news') %></h3>
-        </div>
-        <% if (news.length === 0) { %>
-          <div class="empty-state"><%= t('home.noNews') %></div>
-        <% } else { %>
-          <% news.forEach((n) => { %>
-            <div class="news-item">
-              <div class="news-head">
-                <span class="news-title"><%= n.title %></span>
-                <span class="tag <%= n.scope === 'company' ? 'tag-accent' : '' %>">
-                  <%= n.scope === 'company' ? t('home.companyNews') : t('home.teamNews') %>
-                </span>
-                <span class="news-meta">
-                  <%= n.first_name ? n.first_name + ' ' + n.last_name + ' · ' : '' %><%= new Date(n.created_at).toLocaleDateString(locale) %>
-                </span>
-              </div>
-              <% if (n.body) { %><p class="news-body"><%= n.body %></p><% } %>
-            </div>
-          <% }) %>
-        <% } %>
-      </div>
-    </div>
-
-    <% if (isFreelance) { %>
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <h3><%= t('timer.title') %></h3>
-              <p class="card-sub"><%= t('timer.subtitle') %></p>
-            </div>
-            <span class="status <%= openEntry ? 'status-on' : 'status-off' %>">
-              <%= openEntry ? t('status.running') : t('status.stopped') %>
+        <% if (employee.contract_end_date) {
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const daysLeft = Math.ceil((new Date(employee.contract_end_date + 'T00:00:00Z') - new Date(todayStr + 'T00:00:00Z')) / 86400000);
+          const bannerClass = daysLeft < 0 ? 'is-danger' : (daysLeft <= 30 ? 'is-warning' : '');
+          const endDate = new Date(employee.contract_end_date + 'T00:00:00Z').toLocaleDateString(locale);
+        %>
+          <div class="banner <%= bannerClass %>">
+            <%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %>
+            <span>
+              <%= t('common.contract') %> <%= employee.contract_type %> —
+              <% if (daysLeft < 0) { %><%= endDate %><% } else { %><%= endDate %> (<%= daysLeft %> j)<% } %>
             </span>
           </div>
+        <% } %>
 
-          <div class="timer-display" id="live-timer" data-start="<%= openEntry ? openEntry.clock_in : '' %>">00:00:00</div>
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3><%= t('home.yourManager') %></h3></div>
+            <% if (manager) { %>
+              <div class="manager-card">
+                <%- include('partials/avatar', { person: manager }) %>
+                <div>
+                  <div class="manager-name"><%= manager.first_name %> <%= manager.last_name %></div>
+                  <div class="manager-role"><%= manager.grade %></div>
+                  <div class="person-line"><%= manager.email %></div>
+                </div>
+              </div>
+              <div class="form-actions">
+                <a href="/messagerie" class="btn btn-sm"><%= t('messages.compose') %></a>
+              </div>
+            <% } else { %>
+              <div class="empty-state"><%= t('home.noManager') %></div>
+            <% } %>
+          </div>
 
-          <% if (openEntry) { %>
-            <form method="POST" action="/mon-espace/pointage/terminer">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-danger btn-block"><%= t('timer.stop') %></button>
-            </form>
-          <% } else { %>
-            <form method="POST" action="/mon-espace/pointage/commencer">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-primary btn-block"><%= t('timer.start') %></button>
-            </form>
-          <% } %>
-
-          <div class="timer-stats">
-            <div>
-              <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
-              <span class="stat-label"><%= t('timer.thisMonth') %></span>
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('home.news') %></h3>
             </div>
-            <div>
-              <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
-              <span class="stat-label"><%= t('timer.monthEstimate') %></span>
-            </div>
-            <div>
-              <span class="stat-value"><%= statsData.hourlyRate.toFixed(2) %> €</span>
-              <span class="stat-label"><%= t('timer.hourlyRate') %></span>
-            </div>
+            <% if (news.length === 0) { %>
+              <div class="empty-state"><%= t('home.noNews') %></div>
+            <% } else { %>
+              <% news.forEach((n) => { %>
+                <div class="news-item">
+                  <div class="news-head">
+                    <span class="news-title"><%= n.title %></span>
+                    <span class="tag <%= n.scope === 'company' ? 'tag-accent' : '' %>">
+                      <%= n.scope === 'company' ? t('home.companyNews') : t('home.teamNews') %>
+                    </span>
+                    <span class="news-meta">
+                      <%= n.first_name ? n.first_name + ' ' + n.last_name + ' · ' : '' %><%= new Date(n.created_at).toLocaleDateString(locale) %>
+                    </span>
+                  </div>
+                  <% if (n.body) { %><p class="news-body"><%= n.body %></p><% } %>
+                </div>
+              <% }) %>
+            <% } %>
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-head"><h3><%= t('timer.history') %></h3></div>
-          <% if (entries.length === 0) { %>
-            <div class="empty-state"><%= t('messages.empty') %></div>
-          <% } else { %>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th><%= t('common.date') %></th><th><%= t('timer.start_label') %></th>
-                    <th><%= t('timer.end_label') %></th><th><%= t('timer.duration') %></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% entries.forEach((e) => {
-                    const start = new Date(e.clock_in);
-                    const end = e.clock_out ? new Date(e.clock_out) : null;
-                    const hours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
-                    const timeOpts = { hour: '2-digit', minute: '2-digit' };
-                  %>
-                    <tr>
-                      <td class="cell-strong"><%= start.toLocaleDateString(locale) %></td>
-                      <td class="cell-sub"><%= start.toLocaleTimeString(locale, timeOpts) %></td>
-                      <td class="cell-sub"><%= end ? end.toLocaleTimeString(locale, timeOpts) : '—' %></td>
-                      <td>
-                        <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
-                        <% } else { %><span class="status status-on"><%= t('status.running') %></span><% } %>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
-            </div>
-          <% } %>
-        </div>
-      </div>
-    <% } %>
+        <% if (isFreelance) { %>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= t('timer.title') %></h3>
+                  <p class="card-sub"><%= t('timer.subtitle') %></p>
+                </div>
+                <span class="status <%= openEntry ? 'status-on' : 'status-off' %>">
+                  <%= openEntry ? t('status.running') : t('status.stopped') %>
+                </span>
+              </div>
 
-    <% if (hrEligible) { %>
-      <div class="grid-2">
+              <div class="timer-display" id="live-timer" data-start="<%= openEntry ? openEntry.clock_in : '' %>">00:00:00</div>
+
+              <% if (openEntry) { %>
+                <form method="POST" action="/mon-espace/pointage/terminer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-block"><%= t('timer.stop') %></button>
+                </form>
+              <% } else { %>
+                <form method="POST" action="/mon-espace/pointage/commencer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('timer.start') %></button>
+                </form>
+              <% } %>
+
+              <div class="timer-stats">
+                <div>
+                  <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
+                  <span class="stat-label"><%= t('timer.thisMonth') %></span>
+                </div>
+                <div>
+                  <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
+                  <span class="stat-label"><%= t('timer.monthEstimate') %></span>
+                </div>
+                <div>
+                  <span class="stat-value"><%= statsData.hourlyRate.toFixed(2) %> €</span>
+                  <span class="stat-label"><%= t('timer.hourlyRate') %></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('timer.history') %></h3></div>
+              <% if (entries.length === 0) { %>
+                <div class="empty-state"><%= t('messages.empty') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th><%= t('common.date') %></th><th><%= t('timer.start_label') %></th>
+                        <th><%= t('timer.end_label') %></th><th><%= t('timer.duration') %></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% entries.forEach((e) => {
+                        const start = new Date(e.clock_in);
+                        const end = e.clock_out ? new Date(e.clock_out) : null;
+                        const hours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
+                        const timeOpts = { hour: '2-digit', minute: '2-digit' };
+                      %>
+                        <tr>
+                          <td class="cell-strong"><%= start.toLocaleDateString(locale) %></td>
+                          <td class="cell-sub"><%= start.toLocaleTimeString(locale, timeOpts) %></td>
+                          <td class="cell-sub"><%= end ? end.toLocaleTimeString(locale, timeOpts) : '—' %></td>
+                          <td>
+                            <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
+                            <% } else { %><span class="status status-on"><%= t('status.running') %></span><% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (hrEligible) { %>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= t('leave.newRequest') %></h3>
+                  <p class="card-sub"><%= t('leave.available', { days: employee.leave_balance.toFixed(1) }) %></p>
+                </div>
+              </div>
+              <form method="POST" action="/mon-espace/demandes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('common.type') %></span>
+                  <select name="type" required>
+                    <option value="" disabled selected>—</option>
+                    <% requestTypes.forEach((rt) => { %><option value="<%= rt %>"><%= rt %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('leave.from') %></span>
+                  <input type="date" name="start_date" required />
+                </label>
+                <label>
+                  <span><%= t('leave.to') %></span>
+                  <input type="date" name="end_date" required />
+                </label>
+                <label class="span-2">
+                  <span><%= t('common.reason') %></span>
+                  <input type="text" name="reason" />
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('leave.send') %></button>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('leave.myRequests') %> <span class="muted">(<%= myRequests.length %>)</span></h3></div>
+              <% if (myRequests.length === 0) { %>
+                <div class="empty-state"><%= t('leave.noRequests') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th><%= t('common.type') %></th><th><%= t('common.period') %></th>
+                        <th><%= t('common.days') %></th><th><%= t('common.status') %></th><th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% myRequests.forEach((r) => {
+                        const statusClass = r.status === 'Approuvée' ? 'status-on'
+                          : r.status === 'En attente' ? 'status-warning'
+                          : r.status === 'Refusée' ? 'status-danger' : 'status-off';
+                      %>
+                        <tr>
+                          <td><span class="tag"><%= r.type %></span></td>
+                          <td class="cell-sub">
+                            <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale) %> →
+                            <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString(locale) %>
+                          </td>
+                          <td class="num"><%= r.days %></td>
+                          <td>
+                            <span class="status <%= statusClass %>"><%= r.status %></span>
+                            <% if (r.review_note) { %><div class="cell-sub">« <%= r.review_note %> »</div><% } %>
+                          </td>
+                          <td class="actions">
+                            <% if (r.status === 'En attente') { %>
+                              <form method="POST" action="/mon-espace/demandes/<%= r.id %>/annuler">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-sm btn-danger"><%= t('common.cancel') %></button>
+                              </form>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('payslip.mine') %> <span class="muted">(<%= myPayslips.length %>)</span></h3></div>
+            <% if (myPayslips.length === 0) { %>
+              <div class="empty-state"><%= t('payslip.none') %></div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th><%= t('common.period') %></th><th><%= t('payslip.gross') %></th>
+                      <th><%= t('payslip.net') %></th><th><%= t('common.status') %></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% myPayslips.forEach((p) => { %>
+                      <tr>
+                        <td class="cell-strong mono"><%= p.period %></td>
+                        <td class="num cell-sub"><%= p.gross_amount.toFixed(2) %> €</td>
+                        <td class="num cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
+                        <td>
+                          <span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>">
+                            <%= p.status === 'Payée' ? t('status.paid') : t('status.due') %>
+                          </span>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+
         <div class="card">
           <div class="card-head">
             <div>
-              <h3><%= t('leave.newRequest') %></h3>
-              <p class="card-sub"><%= t('leave.available', { days: employee.leave_balance.toFixed(1) }) %></p>
+              <h3><%= t('tools.mine') %> <span class="muted">(<%= tools.length %>)</span></h3>
+              <p class="card-sub"><%= t('tools.subtitle') %></p>
             </div>
           </div>
-          <form method="POST" action="/mon-espace/demandes" class="form-grid">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <label class="span-2">
-              <span><%= t('common.type') %></span>
-              <select name="type" required>
-                <option value="" disabled selected>—</option>
-                <% requestTypes.forEach((rt) => { %><option value="<%= rt %>"><%= rt %></option><% }) %>
-              </select>
-            </label>
-            <label>
-              <span><%= t('leave.from') %></span>
-              <input type="date" name="start_date" required />
-            </label>
-            <label>
-              <span><%= t('leave.to') %></span>
-              <input type="date" name="end_date" required />
-            </label>
-            <label class="span-2">
-              <span><%= t('common.reason') %></span>
-              <input type="text" name="reason" />
-            </label>
-            <div class="span-2">
-              <button type="submit" class="btn btn-primary btn-block"><%= t('leave.send') %></button>
-            </div>
-          </form>
-        </div>
 
-        <div class="card">
-          <div class="card-head"><h3><%= t('leave.myRequests') %> <span class="muted">(<%= myRequests.length %>)</span></h3></div>
-          <% if (myRequests.length === 0) { %>
-            <div class="empty-state"><%= t('leave.noRequests') %></div>
+          <% if (tools.length === 0) { %>
+            <div class="empty-state"><%= t('tools.none') %></div>
           <% } else { %>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th><%= t('common.type') %></th><th><%= t('common.period') %></th>
-                    <th><%= t('common.days') %></th><th><%= t('common.status') %></th><th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% myRequests.forEach((r) => {
-                    const statusClass = r.status === 'Approuvée' ? 'status-on'
-                      : r.status === 'En attente' ? 'status-warning'
-                      : r.status === 'Refusée' ? 'status-danger' : 'status-off';
-                  %>
-                    <tr>
-                      <td><span class="tag"><%= r.type %></span></td>
-                      <td class="cell-sub">
-                        <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale) %> →
-                        <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString(locale) %>
-                      </td>
-                      <td class="num"><%= r.days %></td>
-                      <td>
-                        <span class="status <%= statusClass %>"><%= r.status %></span>
-                        <% if (r.review_note) { %><div class="cell-sub">« <%= r.review_note %> »</div><% } %>
-                      </td>
-                      <td class="actions">
-                        <% if (r.status === 'En attente') { %>
-                          <form method="POST" action="/mon-espace/demandes/<%= r.id %>/annuler">
-                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <button type="submit" class="btn btn-sm btn-danger"><%= t('common.cancel') %></button>
-                          </form>
-                        <% } %>
-                      </td>
-                    </tr>
-                  <% }) %>
-                </tbody>
-              </table>
+            <div class="tool-grid">
+              <% tools.forEach((tool) => { %>
+                <article class="tool-card">
+                  <div class="tool-card-top">
+                    <span class="tool-icon"><%- include('partials/icon', { name: 'tool', iconSize: 17 }) %></span>
+                    <% if (tool.category) { %><span class="tag"><%= tool.category %></span><% } %>
+                  </div>
+                  <div>
+                    <div class="tool-name"><%= tool.name %></div>
+                    <% if (tool.reference) { %>
+                      <div class="tool-ref"><%= t('tools.reference', { reference: tool.reference }) %></div>
+                    <% } %>
+                  </div>
+
+                  <% if (tool.username || tool.login_url) { %>
+                    <div class="cred-box">
+                      <% if (tool.username) { %>
+                        <div class="cred-row">
+                          <span class="k"><%= t('tools.credentials') %></span>
+                          <span class="v"><%= tool.username %></span>
+                        </div>
+                      <% } %>
+                      <% if (tool.login_url) { %>
+                        <div class="cred-row">
+                          <span class="k"><%= t('tools.access') %></span>
+                          <a href="<%= tool.login_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline">
+                            <%= t('common.open') %> <%- include('partials/icon', { name: 'external', iconSize: 13 }) %>
+                          </a>
+                        </div>
+                      <% } %>
+                    </div>
+                  <% } %>
+
+                  <% if (tool.note) { %><p class="tool-note"><%= tool.note %></p><% } %>
+                  <div class="tool-foot">
+                    <%= t('tools.assignedOn', { date: new Date(tool.assigned_at).toLocaleDateString(locale) }) %>
+                  </div>
+                </article>
+              <% }) %>
             </div>
           <% } %>
         </div>
-      </div>
-
-      <div class="card">
-        <div class="card-head"><h3><%= t('payslip.mine') %> <span class="muted">(<%= myPayslips.length %>)</span></h3></div>
-        <% if (myPayslips.length === 0) { %>
-          <div class="empty-state"><%= t('payslip.none') %></div>
-        <% } else { %>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th><%= t('common.period') %></th><th><%= t('payslip.gross') %></th>
-                  <th><%= t('payslip.net') %></th><th><%= t('common.status') %></th>
-                </tr>
-              </thead>
-              <tbody>
-                <% myPayslips.forEach((p) => { %>
-                  <tr>
-                    <td class="cell-strong mono"><%= p.period %></td>
-                    <td class="num cell-sub"><%= p.gross_amount.toFixed(2) %> €</td>
-                    <td class="num cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
-                    <td>
-                      <span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>">
-                        <%= p.status === 'Payée' ? t('status.paid') : t('status.due') %>
-                      </span>
-                    </td>
-                  </tr>
-                <% }) %>
-              </tbody>
-            </table>
-          </div>
-        <% } %>
-      </div>
-    <% } %>
-
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <h3><%= t('tools.mine') %> <span class="muted">(<%= tools.length %>)</span></h3>
-          <p class="card-sub"><%= t('tools.subtitle') %></p>
-        </div>
-      </div>
-
-      <% if (tools.length === 0) { %>
-        <div class="empty-state"><%= t('tools.none') %></div>
-      <% } else { %>
-        <div class="tool-grid">
-          <% tools.forEach((tool) => { %>
-            <article class="tool-card">
-              <div class="tool-card-top">
-                <span class="tool-icon"><%- include('partials/icon', { name: 'tool', iconSize: 17 }) %></span>
-                <% if (tool.category) { %><span class="tag"><%= tool.category %></span><% } %>
-              </div>
-              <div>
-                <div class="tool-name"><%= tool.name %></div>
-                <% if (tool.reference) { %>
-                  <div class="tool-ref"><%= t('tools.reference', { reference: tool.reference }) %></div>
-                <% } %>
-              </div>
-
-              <% if (tool.username || tool.login_url) { %>
-                <div class="cred-box">
-                  <% if (tool.username) { %>
-                    <div class="cred-row">
-                      <span class="k"><%= t('tools.credentials') %></span>
-                      <span class="v"><%= tool.username %></span>
-                    </div>
-                  <% } %>
-                  <% if (tool.login_url) { %>
-                    <div class="cred-row">
-                      <span class="k"><%= t('tools.access') %></span>
-                      <a href="<%= tool.login_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline">
-                        <%= t('common.open') %> <%- include('partials/icon', { name: 'external', iconSize: 13 }) %>
-                      </a>
-                    </div>
-                  <% } %>
-                </div>
-              <% } %>
-
-              <% if (tool.note) { %><p class="tool-note"><%= tool.note %></p><% } %>
-              <div class="tool-foot">
-                <%= t('tools.assignedOn', { date: new Date(tool.assigned_at).toLocaleDateString(locale) }) %>
-              </div>
-            </article>
-          <% }) %>
-        </div>
-      <% } %>
+      </main>
     </div>
-  </main>
+  </div>
 
   <script src="/js/theme.js"></script>
   <script src="/js/timer.js"></script>

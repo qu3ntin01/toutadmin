@@ -4,120 +4,125 @@
   <%- include('partials/head', { title: t('profile.title') + ' — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
-  <%- include('partials/member-nav', { active: 'profil' }) %>
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'profil' }) %>
 
-  <main class="page">
-    <section class="page-intro">
-      <h2><%= t('profile.title') %></h2>
-      <p><%= t('profile.subtitle') %></p>
-    </section>
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('profile.title'),
+        headerSubtitle: t('profile.subtitle')
+      }) %>
 
-    <% if (flash) { %>
-      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
-    <% } %>
+      <main class="page">
 
-    <div class="grid-2">
-      <div class="stack">
-        <div class="card">
-          <div class="card-head"><h3><%= t('profile.photo') %></h3></div>
-          <div class="manager-card">
-            <%- include('partials/avatar', { person: profile, size: 'lg' }) %>
-            <div>
-              <div class="manager-name"><%= profile.first_name %> <%= profile.last_name %></div>
-              <div class="manager-role"><%= profile.grade %><%= profile.department ? ' · ' + profile.department : '' %></div>
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <div class="grid-2">
+          <div class="stack">
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.photo') %></h3></div>
+              <div class="manager-card">
+                <%- include('partials/avatar', { person: profile, size: 'lg' }) %>
+                <div>
+                  <div class="manager-name"><%= profile.first_name %> <%= profile.last_name %></div>
+                  <div class="manager-role"><%= profile.grade %><%= profile.department ? ' · ' + profile.department : '' %></div>
+                </div>
+              </div>
+
+              <form method="POST" action="/mon-profil/photo" enctype="multipart/form-data" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('profile.photo') %></span>
+                  <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required />
+                </label>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary"><%= t('profile.upload') %></button>
+                </div>
+              </form>
+
+              <% if (profile.avatar_file) { %>
+                <form method="POST" action="/mon-profil/photo/supprimer" class="form-actions" data-confirm="<%= t('profile.removePhoto') %> ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-danger"><%= t('profile.removePhoto') %></button>
+                </form>
+              <% } %>
+              <p class="hint"><%= t('profile.photoHelp') %></p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.details') %></h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub"><%= t('common.email') %></td><td class="cell-strong"><%= profile.email %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.grade') %></td><td><%= profile.grade %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.department') %></td><td><%= profile.department || '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.contract') %></td><td><%= profile.contract_type || '—' %></td></tr>
+                  <tr>
+                    <td class="cell-sub"><%= t('common.manager') %></td>
+                    <td><%= manager ? manager.first_name + ' ' + manager.last_name : t('home.noManager') %></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="hint"><%= t('profile.managedByAdmin') %></p>
             </div>
           </div>
 
-          <form method="POST" action="/mon-profil/photo" enctype="multipart/form-data" class="stack">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <label>
-              <span><%= t('profile.photo') %></span>
-              <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required />
-            </label>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary"><%= t('profile.upload') %></button>
+          <div class="stack">
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.about') %></h3></div>
+              <form method="POST" action="/mon-profil/informations" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('profile.about') %></span>
+                  <textarea name="bio" rows="4" placeholder="<%= t('profile.aboutPlaceholder') %>"><%= profile.bio %></textarea>
+                </label>
+                <label class="span-2">
+                  <span><%= t('common.phone') %></span>
+                  <input type="text" name="phone" value="<%= profile.phone %>" placeholder="+33 6 12 34 56 78" />
+                </label>
+                <label class="span-2">
+                  <span><%= t('common.language') %></span>
+                  <select name="locale">
+                    <% locales.forEach((l) => { %>
+                      <option value="<%= l.code %>" <%= l.code === locale ? 'selected' : '' %>><%= l.flag %> <%= l.label %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
+                </div>
+              </form>
             </div>
-          </form>
 
-          <% if (profile.avatar_file) { %>
-            <form method="POST" action="/mon-profil/photo/supprimer" class="form-actions" data-confirm="<%= t('profile.removePhoto') %> ?">
-              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-sm btn-danger"><%= t('profile.removePhoto') %></button>
-            </form>
-          <% } %>
-          <p class="hint"><%= t('profile.photoHelp') %></p>
-        </div>
-
-        <div class="card">
-          <div class="card-head"><h3><%= t('profile.details') %></h3></div>
-          <table>
-            <tbody>
-              <tr><td class="cell-sub"><%= t('common.email') %></td><td class="cell-strong"><%= profile.email %></td></tr>
-              <tr><td class="cell-sub"><%= t('common.grade') %></td><td><%= profile.grade %></td></tr>
-              <tr><td class="cell-sub"><%= t('common.department') %></td><td><%= profile.department || '—' %></td></tr>
-              <tr><td class="cell-sub"><%= t('common.contract') %></td><td><%= profile.contract_type || '—' %></td></tr>
-              <tr>
-                <td class="cell-sub"><%= t('common.manager') %></td>
-                <td><%= manager ? manager.first_name + ' ' + manager.last_name : t('home.noManager') %></td>
-              </tr>
-            </tbody>
-          </table>
-          <p class="hint"><%= t('profile.managedByAdmin') %></p>
-        </div>
-      </div>
-
-      <div class="stack">
-        <div class="card">
-          <div class="card-head"><h3><%= t('profile.about') %></h3></div>
-          <form method="POST" action="/mon-profil/informations" class="form-grid">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <label class="span-2">
-              <span><%= t('profile.about') %></span>
-              <textarea name="bio" rows="4" placeholder="<%= t('profile.aboutPlaceholder') %>"><%= profile.bio %></textarea>
-            </label>
-            <label class="span-2">
-              <span><%= t('common.phone') %></span>
-              <input type="text" name="phone" value="<%= profile.phone %>" placeholder="+33 6 12 34 56 78" />
-            </label>
-            <label class="span-2">
-              <span><%= t('common.language') %></span>
-              <select name="locale">
-                <% locales.forEach((l) => { %>
-                  <option value="<%= l.code %>" <%= l.code === locale ? 'selected' : '' %>><%= l.flag %> <%= l.label %></option>
-                <% }) %>
-              </select>
-            </label>
-            <div class="span-2">
-              <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.password') %></h3></div>
+              <form method="POST" action="/mon-profil/mot-de-passe" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('profile.currentPassword') %></span>
+                  <input type="password" name="current_password" required autocomplete="current-password" />
+                </label>
+                <label>
+                  <span><%= t('profile.newPassword') %></span>
+                  <input type="password" name="new_password" required minlength="12" autocomplete="new-password" />
+                </label>
+                <label>
+                  <span><%= t('profile.confirmPassword') %></span>
+                  <input type="password" name="confirm_password" required minlength="12" autocomplete="new-password" />
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('profile.password') %></button>
+                </div>
+              </form>
+              <p class="hint"><%= t('profile.passwordHelp') %></p>
             </div>
-          </form>
+          </div>
         </div>
-
-        <div class="card">
-          <div class="card-head"><h3><%= t('profile.password') %></h3></div>
-          <form method="POST" action="/mon-profil/mot-de-passe" class="form-grid">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <label class="span-2">
-              <span><%= t('profile.currentPassword') %></span>
-              <input type="password" name="current_password" required autocomplete="current-password" />
-            </label>
-            <label>
-              <span><%= t('profile.newPassword') %></span>
-              <input type="password" name="new_password" required minlength="12" autocomplete="new-password" />
-            </label>
-            <label>
-              <span><%= t('profile.confirmPassword') %></span>
-              <input type="password" name="confirm_password" required minlength="12" autocomplete="new-password" />
-            </label>
-            <div class="span-2">
-              <button type="submit" class="btn btn-primary btn-block"><%= t('profile.password') %></button>
-            </div>
-          </form>
-          <p class="hint"><%= t('profile.passwordHelp') %></p>
-        </div>
-      </div>
+      </main>
     </div>
-  </main>
+  </div>
 
   <script src="/js/theme.js"></script>
   <script src="/js/confirm.js"></script>

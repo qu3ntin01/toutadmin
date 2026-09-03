@@ -1,6 +1,8 @@
 <%
-/* Navigation latérale partagée par l'espace admin et l'espace RH.
-   Attend : panelLabel, navItems [{ tab, label, icon, badge? }], sidebarLink? { href, label } */
+/* Navigation latérale, unique pour tous les espaces (admin, RH, manager, membre).
+   Attend : panelLabel, navItems, footLinks?
+   Un élément de navItems est soit un onglet de la page courante ({ tab }),
+   soit un lien vers une autre page ({ href, active? }). */
 %>
 <aside class="sidebar">
   <div class="sidebar-brand">
@@ -13,21 +15,29 @@
 
   <nav class="sidebar-nav" id="tabs" aria-label="Sections">
     <% navItems.forEach((item, index) => { %>
-      <button type="button" class="side-link tab-btn<%= index === 0 ? ' is-active' : '' %>" data-tab="<%= item.tab %>">
-        <%- include('icon', { name: item.icon, iconSize: 17 }) %>
-        <span class="side-link-label"><%= item.label %></span>
-        <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
-      </button>
+      <% if (item.href) { %>
+        <a href="<%= item.href %>" class="side-link<%= item.active ? ' is-active' : '' %>" title="<%= item.label %>"<%= item.active ? ' aria-current="page"' : '' %>>
+          <%- include('icon', { name: item.icon, iconSize: 17 }) %>
+          <span class="side-link-label"><%= item.label %></span>
+          <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+        </a>
+      <% } else { %>
+        <button type="button" class="side-link tab-btn<%= index === 0 ? ' is-active' : '' %>" data-tab="<%= item.tab %>" title="<%= item.label %>">
+          <%- include('icon', { name: item.icon, iconSize: 17 }) %>
+          <span class="side-link-label"><%= item.label %></span>
+          <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+        </button>
+      <% } %>
     <% }) %>
   </nav>
 
   <div class="sidebar-foot">
-    <% if (typeof sidebarLink !== 'undefined' && sidebarLink) { %>
-      <a href="<%= sidebarLink.href %>" class="side-link side-link-quiet">
-        <%- include('icon', { name: sidebarLink.icon || 'external', iconSize: 17 }) %>
-        <span class="side-link-label"><%= sidebarLink.label %></span>
+    <% (typeof footLinks !== 'undefined' && footLinks ? footLinks : []).forEach((link) => { %>
+      <a href="<%= link.href %>" class="side-link side-link-quiet">
+        <%- include('icon', { name: link.icon || 'external', iconSize: 17 }) %>
+        <span class="side-link-label"><%= link.label %></span>
       </a>
-    <% } %>
+    <% }) %>
     <%- include('theme-toggle') %>
   </div>
 </aside>

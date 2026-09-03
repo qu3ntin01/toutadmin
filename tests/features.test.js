@@ -198,7 +198,7 @@ test('messagerie interne', async (t) => {
     assert.equal(message.read_at, null);
 
     const { body } = await bob.client.html('/mon-espace');
-    assert.match(body, /count-badge/);
+    assert.match(body, /nav-badge/);
   });
 
   await t.test("marque le message lu à l'ouverture par son destinataire", async () => {

@@ -4,99 +4,105 @@
   <%- include('partials/head', { title: 'Pointage ' + employee.first_name + ' — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
-  <%- include('partials/page-header', { headerTitle: 'Administration', backHref: "/rh#remuneration" }) %>
+  <div class="app-shell">
+    <%- include('partials/rh-sidebar', { asLinks: true, active: 'remuneration' }) %>
 
-  <main class="page">
-    <section class="page-intro">
-      <h2><%= employee.first_name %> <%= employee.last_name %></h2>
-      <p>Freelance · TJM <%= employee.daily_rate ? employee.daily_rate.toFixed(2) + ' €' : 'non renseigné' %></p>
-    </section>
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: employee.first_name + ' ' + employee.last_name,
+        headerSubtitle: 'Freelance · TJM ' + (employee.daily_rate ? employee.daily_rate.toFixed(2) + ' €' : 'non renseigné'),
+        backHref: '/rh#remuneration'
+      }) %>
 
-    <% if (flash) { %>
-      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
-    <% } %>
+      <main class="page">
 
-    <section class="stats-grid">
-      <div class="stat-card">
-        <span class="stat-body">
-          <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
-          <span class="stat-label">Heures ce mois</span>
-        </span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-body">
-          <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
-          <span class="stat-label">Estimation ce mois</span>
-        </span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-body">
-          <span class="stat-value"><%= statsData.totalHours.toFixed(1) %> h</span>
-          <span class="stat-label">Heures totales</span>
-        </span>
-      </div>
-      <div class="stat-card">
-        <span class="stat-body">
-          <span class="stat-value"><%= statsData.totalEstimate.toFixed(2) %> €</span>
-          <span class="stat-label">Estimation totale</span>
-        </span>
-      </div>
-    </section>
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
 
-    <% if (openEntry) { %>
-      <div class="banner is-warning">
-        <%- include('partials/icon', { name: 'clock', iconSize: 17 }) %>
-        <span>Pointage en cours depuis le <%= new Date(openEntry.clock_in).toLocaleString('fr-FR') %>.</span>
-        <form method="POST" action="/rh/temps/<%= employee.id %>/cloturer">
-          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <button type="submit" class="btn btn-sm">Clôturer maintenant</button>
-        </form>
-      </div>
-    <% } %>
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
+              <span class="stat-label">Heures ce mois</span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
+              <span class="stat-label">Estimation ce mois</span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.totalHours.toFixed(1) %> h</span>
+              <span class="stat-label">Heures totales</span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.totalEstimate.toFixed(2) %> €</span>
+              <span class="stat-label">Estimation totale</span>
+            </span>
+          </div>
+        </section>
 
-    <div class="card">
-      <div class="card-head">
-        <div>
-          <h3>Historique des pointages <span class="muted">(<%= entries.length %>)</span></h3>
-          <p class="card-sub">Taux horaire calculé sur la base du TJM ÷ 8 h.</p>
+        <% if (openEntry) { %>
+          <div class="banner is-warning">
+            <%- include('partials/icon', { name: 'clock', iconSize: 17 }) %>
+            <span>Pointage en cours depuis le <%= new Date(openEntry.clock_in).toLocaleString('fr-FR') %>.</span>
+            <form method="POST" action="/rh/temps/<%= employee.id %>/cloturer">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-sm">Clôturer maintenant</button>
+            </form>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3>Historique des pointages <span class="muted">(<%= entries.length %>)</span></h3>
+              <p class="card-sub">Taux horaire calculé sur la base du TJM ÷ 8 h.</p>
+            </div>
+          </div>
+
+          <% if (entries.length === 0) { %>
+            <div class="empty-state">Aucun pointage enregistré pour ce membre.</div>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Début</th><th>Fin</th><th>Durée</th><th></th></tr></thead>
+                <tbody>
+                  <% entries.forEach((e) => {
+                    const start = new Date(e.clock_in);
+                    const end = e.clock_out ? new Date(e.clock_out) : null;
+                    const hours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
+                    const timeOpts = { hour: '2-digit', minute: '2-digit' };
+                  %>
+                    <tr>
+                      <td class="cell-strong"><%= start.toLocaleDateString('fr-FR') %></td>
+                      <td class="cell-sub"><%= start.toLocaleTimeString('fr-FR', timeOpts) %></td>
+                      <td class="cell-sub"><%= end ? end.toLocaleTimeString('fr-FR', timeOpts) : '—' %></td>
+                      <td>
+                        <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
+                        <% } else { %><span class="status status-on">En cours</span><% } %>
+                      </td>
+                      <td class="actions">
+                        <form method="POST" action="/rh/temps/<%= employee.id %>/<%= e.id %>/supprimer" data-confirm="Supprimer cette entrée de pointage ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
         </div>
-      </div>
-
-      <% if (entries.length === 0) { %>
-        <div class="empty-state">Aucun pointage enregistré pour ce membre.</div>
-      <% } else { %>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Date</th><th>Début</th><th>Fin</th><th>Durée</th><th></th></tr></thead>
-            <tbody>
-              <% entries.forEach((e) => {
-                const start = new Date(e.clock_in);
-                const end = e.clock_out ? new Date(e.clock_out) : null;
-                const hours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
-                const timeOpts = { hour: '2-digit', minute: '2-digit' };
-              %>
-                <tr>
-                  <td class="cell-strong"><%= start.toLocaleDateString('fr-FR') %></td>
-                  <td class="cell-sub"><%= start.toLocaleTimeString('fr-FR', timeOpts) %></td>
-                  <td class="cell-sub"><%= end ? end.toLocaleTimeString('fr-FR', timeOpts) : '—' %></td>
-                  <td>
-                    <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
-                    <% } else { %><span class="status status-on">En cours</span><% } %>
-                  </td>
-                  <td class="actions">
-                    <form method="POST" action="/rh/temps/<%= employee.id %>/<%= e.id %>/supprimer" data-confirm="Supprimer cette entrée de pointage ?">
-                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                      <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
-                    </form>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
-      <% } %>
+      </main>
     </div>
-  </main>
+  </div>
 
   <script src="/js/theme.js"></script>
   <script src="/js/confirm.js"></script>

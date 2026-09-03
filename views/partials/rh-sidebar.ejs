@@ -1,0 +1,29 @@
+<%
+/* Sections de l'espace RH, en un seul endroit (onglets sur /rh, liens ailleurs).
+   Attend : asLinks? (booléen), active? (nom de section) */
+const rhSections = [
+  {
+    tab: 'demandes',
+    label: t('nav.requests'),
+    icon: 'inbox',
+    // Le compteur n'est calculé que sur l'espace RH lui-même.
+    badge: typeof stats !== 'undefined' && stats ? stats.pendingCount : 0,
+  },
+  { tab: 'personnel', label: t('nav.leave'), icon: 'users' },
+  { tab: 'paie', label: t('nav.payroll'), icon: 'card' },
+  { tab: 'remuneration', label: t('nav.remuneration'), icon: 'clock' },
+];
+const rhAsLinks = typeof asLinks !== 'undefined' && asLinks;
+const rhActive = typeof active !== 'undefined' ? active : null;
+// L'administrateur n'a pas d'espace membre : il retourne à sa console.
+const rhFootLinks = currentUser.role === 'admin'
+  ? [{ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }]
+  : [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }];
+%>
+<%- include('sidebar', {
+  panelLabel: 'Ressources humaines',
+  navItems: rhAsLinks
+    ? rhSections.map((s) => ({ href: '/rh#' + s.tab, label: s.label, icon: s.icon, badge: s.badge, active: s.tab === rhActive }))
+    : rhSections,
+  footLinks: rhFootLinks
+}) %>

@@ -4,123 +4,128 @@
   <%- include('partials/head', { title: t('messages.title') + ' — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
-  <%- include('partials/member-nav', { active: 'messagerie' }) %>
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'messagerie' }) %>
 
-  <main class="page">
-    <section class="page-intro">
-      <h2><%= t('messages.title') %></h2>
-      <p><%= t('messages.subtitle') %></p>
-    </section>
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('messages.title'),
+        headerSubtitle: t('messages.subtitle')
+      }) %>
 
-    <% if (flash) { %>
-      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
-    <% } %>
+      <main class="page">
 
-    <div class="banner">
-      <%- include('partials/icon', { name: 'card', iconSize: 17 }) %>
-      <span>
-        <strong><%= t('messages.mailbox') %> :</strong>
-        <% if (account && account.mail_address) { %>
-          <%= account.mail_address %>
-          <% if (account.mail_imap_host) { %> · IMAP <%= account.mail_imap_host %><% } %>
-          <% if (account.mail_smtp_host) { %> · SMTP <%= account.mail_smtp_host %><% } %>
-          — <%= t('messages.externalNote') %>
-        <% } else { %>
-          <%= t('messages.mailboxNotSet') %>
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
         <% } %>
-      </span>
-    </div>
 
-    <div class="mail-layout">
-      <div class="stack">
-        <div class="card">
-          <div class="mail-tabs">
-            <a href="/messagerie?boite=reception" class="mail-tab<%= box === 'reception' ? ' is-active' : '' %>">
-              <%= t('messages.inbox') %><% if (unread) { %> (<%= unread %>)<% } %>
-            </a>
-            <a href="/messagerie?boite=envoyes" class="mail-tab<%= box === 'envoyes' ? ' is-active' : '' %>"><%= t('messages.sent') %></a>
+        <div class="banner">
+          <%- include('partials/icon', { name: 'card', iconSize: 17 }) %>
+          <span>
+            <strong><%= t('messages.mailbox') %> :</strong>
+            <% if (account && account.mail_address) { %>
+              <%= account.mail_address %>
+              <% if (account.mail_imap_host) { %> · IMAP <%= account.mail_imap_host %><% } %>
+              <% if (account.mail_smtp_host) { %> · SMTP <%= account.mail_smtp_host %><% } %>
+              — <%= t('messages.externalNote') %>
+            <% } else { %>
+              <%= t('messages.mailboxNotSet') %>
+            <% } %>
+          </span>
+        </div>
+
+        <div class="mail-layout">
+          <div class="stack">
+            <div class="card">
+              <div class="mail-tabs">
+                <a href="/messagerie?boite=reception" class="mail-tab<%= box === 'reception' ? ' is-active' : '' %>">
+                  <%= t('messages.inbox') %><% if (unread) { %> (<%= unread %>)<% } %>
+                </a>
+                <a href="/messagerie?boite=envoyes" class="mail-tab<%= box === 'envoyes' ? ' is-active' : '' %>"><%= t('messages.sent') %></a>
+              </div>
+
+              <% const rows = box === 'envoyes' ? sent : inbox; %>
+              <% if (rows.length === 0) { %>
+                <div class="empty-state"><%= t('messages.empty') %></div>
+              <% } else { %>
+                <div class="mail-list">
+                  <% rows.forEach((m) => {
+                    const isUnread = box === 'reception' && !m.read_at;
+                    const isOpen = opened && opened.id === m.id;
+                    const preview = m.body.length > 70 ? m.body.slice(0, 70) + '…' : m.body;
+                  %>
+                    <a class="mail-row<%= isUnread ? ' is-unread' : '' %><%= isOpen ? ' is-open' : '' %>"
+                       href="/messagerie?boite=<%= box %>&message=<%= m.id %>">
+                      <%- include('partials/avatar', { person: m, size: 'sm' }) %>
+                      <span class="mail-row-body">
+                        <span class="mail-row-top">
+                          <span class="mail-from"><%= m.first_name %> <%= m.last_name %></span>
+                          <span class="mail-date"><%= new Date(m.created_at).toLocaleDateString(locale) %></span>
+                        </span>
+                        <span class="mail-subject"><%= m.subject %></span>
+                        <span class="mail-preview"><%= preview %></span>
+                      </span>
+                    </a>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
           </div>
 
-          <% const rows = box === 'envoyes' ? sent : inbox; %>
-          <% if (rows.length === 0) { %>
-            <div class="empty-state"><%= t('messages.empty') %></div>
-          <% } else { %>
-            <div class="mail-list">
-              <% rows.forEach((m) => {
-                const isUnread = box === 'reception' && !m.read_at;
-                const isOpen = opened && opened.id === m.id;
-                const preview = m.body.length > 70 ? m.body.slice(0, 70) + '…' : m.body;
-              %>
-                <a class="mail-row<%= isUnread ? ' is-unread' : '' %><%= isOpen ? ' is-open' : '' %>"
-                   href="/messagerie?boite=<%= box %>&message=<%= m.id %>">
-                  <%- include('partials/avatar', { person: m, size: 'sm' }) %>
-                  <span class="mail-row-body">
-                    <span class="mail-row-top">
-                      <span class="mail-from"><%= m.first_name %> <%= m.last_name %></span>
-                      <span class="mail-date"><%= new Date(m.created_at).toLocaleDateString(locale) %></span>
-                    </span>
-                    <span class="mail-subject"><%= m.subject %></span>
-                    <span class="mail-preview"><%= preview %></span>
-                  </span>
-                </a>
-              <% }) %>
-            </div>
-          <% } %>
-        </div>
-      </div>
-
-      <div class="stack">
-        <% if (opened) { %>
-          <div class="card">
-            <div class="mail-reader-head">
-              <div>
-                <h3><%= opened.subject %></h3>
-                <p class="card-sub">
-                  <%= t('messages.from') %> <%= opened.sender_first %> <%= opened.sender_last %>
-                  · <%= new Date(opened.created_at).toLocaleString(locale) %>
-                </p>
+          <div class="stack">
+            <% if (opened) { %>
+              <div class="card">
+                <div class="mail-reader-head">
+                  <div>
+                    <h3><%= opened.subject %></h3>
+                    <p class="card-sub">
+                      <%= t('messages.from') %> <%= opened.sender_first %> <%= opened.sender_last %>
+                      · <%= new Date(opened.created_at).toLocaleString(locale) %>
+                    </p>
+                  </div>
+                  <form method="POST" action="/messagerie/<%= opened.id %>/supprimer" data-confirm="<%= t('common.delete') %> ?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                  </form>
+                </div>
+                <div class="mail-reader-body"><%= opened.body %></div>
               </div>
-              <form method="POST" action="/messagerie/<%= opened.id %>/supprimer" data-confirm="<%= t('common.delete') %> ?">
+            <% } %>
+
+            <div class="card">
+              <div class="card-head"><h3><%= opened ? t('common.reply') : t('messages.compose') %></h3></div>
+              <form method="POST" action="/messagerie" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                <% if (opened) { %><input type="hidden" name="parent_id" value="<%= opened.id %>" /><% } %>
+                <label class="span-2">
+                  <span><%= t('messages.to') %></span>
+                  <select name="recipient_id" required>
+                    <option value="" disabled <%= opened ? '' : 'selected' %>>—</option>
+                    <% contacts.forEach((c) => {
+                      const preselect = opened && opened.sender_id === c.id;
+                    %>
+                      <option value="<%= c.id %>" <%= preselect ? 'selected' : '' %>><%= c.first_name %> <%= c.last_name %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label class="span-2">
+                  <span><%= t('messages.subject') %></span>
+                  <input type="text" name="subject" required value="<%= opened ? 'Re: ' + opened.subject : '' %>" />
+                </label>
+                <label class="span-2">
+                  <span><%= t('messages.body') %></span>
+                  <textarea name="body" rows="7" required></textarea>
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('messages.send') %></button>
+                </div>
               </form>
             </div>
-            <div class="mail-reader-body"><%= opened.body %></div>
           </div>
-        <% } %>
-
-        <div class="card">
-          <div class="card-head"><h3><%= opened ? t('common.reply') : t('messages.compose') %></h3></div>
-          <form method="POST" action="/messagerie" class="form-grid">
-            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <% if (opened) { %><input type="hidden" name="parent_id" value="<%= opened.id %>" /><% } %>
-            <label class="span-2">
-              <span><%= t('messages.to') %></span>
-              <select name="recipient_id" required>
-                <option value="" disabled <%= opened ? '' : 'selected' %>>—</option>
-                <% contacts.forEach((c) => {
-                  const preselect = opened && opened.sender_id === c.id;
-                %>
-                  <option value="<%= c.id %>" <%= preselect ? 'selected' : '' %>><%= c.first_name %> <%= c.last_name %></option>
-                <% }) %>
-              </select>
-            </label>
-            <label class="span-2">
-              <span><%= t('messages.subject') %></span>
-              <input type="text" name="subject" required value="<%= opened ? 'Re: ' + opened.subject : '' %>" />
-            </label>
-            <label class="span-2">
-              <span><%= t('messages.body') %></span>
-              <textarea name="body" rows="7" required></textarea>
-            </label>
-            <div class="span-2">
-              <button type="submit" class="btn btn-primary btn-block"><%= t('messages.send') %></button>
-            </div>
-          </form>
         </div>
-      </div>
+      </main>
     </div>
-  </main>
+  </div>
 
   <script src="/js/theme.js"></script>
   <script src="/js/confirm.js"></script>

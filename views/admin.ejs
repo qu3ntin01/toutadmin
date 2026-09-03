@@ -5,18 +5,7 @@
 </head>
 <body class="app-body">
   <div class="app-shell">
-    <%- include('partials/sidebar', {
-      panelLabel: 'Administration',
-      navItems: [
-        { tab: 'personnel', label: t('nav.personnel'), icon: 'users' },
-        { tab: 'organisation', label: 'Organisation', icon: 'network' },
-        { tab: 'outils', label: t('nav.tools'), icon: 'tool' },
-        { tab: 'affectations', label: t('nav.assignments'), icon: 'link' },
-        { tab: 'actualites', label: t('nav.news'), icon: 'megaphone' },
-        { tab: 'rh', label: t('nav.hr'), icon: 'shield', badge: pendingRequestCount }
-      ],
-      sidebarLink: { href: '/rh', label: t('nav.openHrSpace'), icon: 'external' }
-    }) %>
+    <%- include('partials/admin-sidebar') %>
 
     <div class="app-main">
       <%- include('partials/app-header', {

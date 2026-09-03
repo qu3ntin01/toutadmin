@@ -5,16 +5,7 @@
 </head>
 <body class="app-body">
   <div class="app-shell">
-    <%- include('partials/sidebar', {
-      panelLabel: 'Ressources humaines',
-      navItems: [
-        { tab: 'demandes', label: t('nav.requests'), icon: 'inbox', badge: stats.pendingCount },
-        { tab: 'personnel', label: t('nav.leave'), icon: 'users' },
-        { tab: 'paie', label: t('nav.payroll'), icon: 'card' },
-        { tab: 'remuneration', label: t('nav.remuneration'), icon: 'clock' }
-      ],
-      sidebarLink: { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('nav.mySpace'), icon: 'back' }
-    }) %>
+    <%- include('partials/rh-sidebar') %>
 
     <div class="app-main">
       <%- include('partials/app-header', {

@@ -1,6 +1,6 @@
 <%
 /* Bandeau blanc en haut de la colonne de contenu (titre + compte connecté).
-   Attend : headerTitle, headerSubtitle?, userRoleLabel? */
+   Attend : headerTitle, headerSubtitle?, userRoleLabel?, backHref?, backLabel? */
 const roleLabel = typeof userRoleLabel !== 'undefined' && userRoleLabel
   ? userRoleLabel
   : (currentUser.role === 'admin' ? 'Administration' : currentUser.grade);
@@ -14,6 +14,12 @@ const roleLabel = typeof userRoleLabel !== 'undefined' && userRoleLabel
   </div>
 
   <div class="app-header-side">
+    <% if (typeof backHref !== 'undefined' && backHref) { %>
+      <a href="<%= backHref %>" class="btn btn-quiet">
+        <%- include('icon', { name: 'back', iconSize: 16 }) %>
+        <span class="btn-label"><%= typeof backLabel !== 'undefined' && backLabel ? backLabel : t('common.back') %></span>
+      </a>
+    <% } %>
     <div class="user-chip">
       <span class="user-avatar"><%= currentUser.firstName.charAt(0) %><%= currentUser.lastName.charAt(0) %></span>
       <span class="user-meta">
