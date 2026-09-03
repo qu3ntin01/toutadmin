@@ -1,5 +1,5 @@
 /* =========================================================================
-   Private Member — thème inspiré de l'univers OVHcloud
+   Salarié Member — thème inspiré de l'univers OVHcloud
    Bleu profond en navigation, contenu blanc dense, angles droits, accent bleu.
    Deux palettes seulement : claire par défaut, sombre sous [data-theme="dark"].
    Le script de thème résout toujours "système" en une valeur concrète,
@@ -638,6 +638,82 @@ td.actions { min-width: 196px; }
 .timer-stats > div { display: flex; flex-direction: column; gap: 2px; }
 .timer-stats .stat-value { font-size: 1.05rem; }
 
+/* ---------- Assistant d'installation ---------- */
+
+.install-card {
+  width: 100%;
+  max-width: 780px;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--brand-deep);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.install-steps {
+  margin: 0;
+  padding: 22px 18px;
+  list-style: none;
+  background: var(--surface-2);
+  border-inline-end: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.install-step { display: flex; align-items: center; gap: 10px; padding: 8px 6px; color: var(--text-tertiary); font-size: 0.83rem; }
+.install-step-num {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--border-strong);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.74rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.install-step.is-current { color: var(--text); font-weight: 600; }
+.install-step.is-current .install-step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+.install-step.is-done { color: var(--success); }
+.install-step.is-done .install-step-num { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+
+.install-body { padding: 28px 30px; }
+.install-body h1 { font-size: 1.25rem; margin-bottom: 5px; }
+.install-form { display: flex; flex-direction: column; gap: 14px; margin-top: 18px; }
+.install-actions { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; }
+
+.check-list { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.check-item { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.check-item:last-child { border-bottom: none; }
+.check-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.check-mark.is-ok { background: var(--success-bg); color: var(--success); }
+.check-mark.is-fail { background: var(--danger-bg); color: var(--danger); }
+.check-mark.is-warn { background: var(--warning-bg); color: var(--warning); }
+.check-body { display: flex; flex-direction: column; min-width: 0; }
+.check-label { font-size: 0.85rem; font-weight: 500; }
+.check-detail { font-size: 0.76rem; color: var(--text-tertiary); overflow-wrap: anywhere; }
+
+.summary-list { margin: 18px 0 0; display: flex; flex-direction: column; gap: 2px; }
+.summary-list > div { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.summary-list > div:last-child { border-bottom: none; }
+.summary-list dt { font-size: 0.8rem; color: var(--text-secondary); margin: 0; }
+.summary-list dd { font-size: 0.85rem; font-weight: 600; margin: 0; text-align: end; }
+
 /* ---------- Navigation de l'espace membre ---------- */
 
 .member-nav {
@@ -853,6 +929,11 @@ td.actions { min-width: 196px; }
   .timer-stats { grid-template-columns: 1fr; }
   .table-wrap { margin: 0 -20px -18px; }
   .auth-card { padding: 26px 20px; }
+  .install-card { grid-template-columns: 1fr; }
+  .install-steps { flex-direction: row; overflow-x: auto; padding: 12px; border-inline-end: none; border-bottom: 1px solid var(--border); }
+  .install-step-label { display: none; }
+  .install-step.is-current .install-step-label { display: inline; }
+  .install-body { padding: 22px 18px; }
   .member-nav { padding: 0 14px; gap: 10px; }
   .member-link { padding: 12px 8px; }
   .member-link .member-link-label { display: none; }

@@ -5,6 +5,7 @@ const db = require('../db');
 const grades = require('../grades');
 const contractTypes = require('../contract-types');
 const hr = require('../hr');
+const settings = require('../settings');
 const announcements = require('../announcements');
 const { requireAdmin } = require('../middleware/auth');
 const { setFlash, generatePassword, isValidEmail, isValidDateString, isValidUrl, parseDailyRate } = require('../utils');
@@ -59,6 +60,7 @@ router.get('/', (req, res) => {
     hrMembers: employees.filter((e) => e.is_hr),
     hrEligibleEmployees: employees.filter((e) => !e.is_hr),
     companyNews: announcements.companyWide(),
+    annualLeaveDays: annualLeaveDays(),
     pendingRequestCount: db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n,
     stats: {
       employeeCount: employees.length,
@@ -183,6 +185,12 @@ router.post('/actualites/:id/supprimer', (req, res) => {
 
 // ---------- Personnel ----------
 
+// Quota annuel posé à l'installation, avec repli sur la valeur par défaut du module RH.
+function annualLeaveDays() {
+  const configured = Number(settings.get('annual_leave_days'));
+  return Number.isFinite(configured) ? configured : hr.DEFAULT_ANNUAL_LEAVE;
+}
+
 router.post('/employes', (req, res) => {
   const firstName = (req.body.first_name || '').trim().slice(0, 100);
   const lastName = (req.body.last_name || '').trim().slice(0, 100);
@@ -209,7 +217,7 @@ router.post('/employes', (req, res) => {
   if (db.prepare('SELECT id FROM users WHERE email = ?').get(email)) return fail('Un compte existe déjà avec cet email.');
 
   const password = generatePassword();
-  const initialLeaveBalance = contractType === 'Freelance' ? 0 : hr.DEFAULT_ANNUAL_LEAVE;
+  const initialLeaveBalance = contractType === 'Freelance' ? 0 : annualLeaveDays();
 
   db.prepare(`
     INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, contract_type, contract_end_date, daily_rate, leave_balance, active)

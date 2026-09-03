@@ -112,6 +112,12 @@ CREATE TABLE IF NOT EXISTS payslips (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS settings (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS announcements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
@@ -169,19 +175,20 @@ for (const migration of [
   }
 }
 
-const adminEmail = (process.env.ADMIN_EMAIL || 'admin@entreprise.com').toLowerCase().trim();
-const adminPassword = process.env.ADMIN_PASSWORD || 'change-moi-123';
+// Installation sans interface (conteneur, CI, déploiement automatisé) : renseigner
+// ADMIN_EMAIL et ADMIN_PASSWORD crée le compte au démarrage. Sans ces variables,
+// aucun compte n'est créé et l'assistant d'installation prend le relais.
+const adminEmail = (process.env.ADMIN_EMAIL || '').toLowerCase().trim();
+const adminPassword = process.env.ADMIN_PASSWORD || '';
 
-const existingAdmin = db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail);
-if (!existingAdmin) {
+if (adminEmail && adminPassword && !db.prepare('SELECT id FROM users WHERE email = ?').get(adminEmail)) {
   if (adminPassword.length < 10) {
     console.warn('Attention : ADMIN_PASSWORD est court. Utilisez un mot de passe fort (12+ caractères) en production.');
   }
-  const hash = bcrypt.hashSync(adminPassword, 12);
   db.prepare(`
     INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, active)
     VALUES ('admin', ?, ?, 'Administrateur', 'Général', 'Direction', 'Administration', 1)
-  `).run(adminEmail, hash);
+  `).run(adminEmail, bcrypt.hashSync(adminPassword, 12));
   console.log(`Compte administrateur créé : ${adminEmail}`);
 }
 

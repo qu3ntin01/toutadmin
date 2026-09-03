@@ -7,6 +7,9 @@ const cookieParser = require('cookie-parser');
 const db = require('./db');
 const security = require('./security');
 const i18n = require('./i18n');
+const install = require('./install');
+const settings = require('./settings');
+const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
 const messageRoutes = require('./routes/messages');
 const authRoutes = require('./routes/auth');
@@ -20,10 +23,9 @@ const directoryRoutes = require('./routes/directory');
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
 
-  if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET === 'change-moi-en-production') {
-    throw new Error('SESSION_SECRET doit être défini avec une valeur forte et unique en production.');
-  }
-  if (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'change-moi-123') {
+  // Un ADMIN_PASSWORD par défaut reste inacceptable ; son absence, elle, est
+  // désormais normale : l'assistant d'installation crée le compte.
+  if (process.env.ADMIN_PASSWORD === 'change-moi-123') {
     throw new Error('ADMIN_PASSWORD doit être défini avec un mot de passe fort en production.');
   }
 }
@@ -74,7 +76,8 @@ function createApp() {
   app.use(
     session({
       name: 'pm.sid',
-      secret: process.env.SESSION_SECRET || 'dev-secret-non-securise',
+      // Fourni par l'environnement, sinon généré et conservé dans data/session.key.
+      secret: install.sessionSecret(),
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -86,16 +89,21 @@ function createApp() {
     })
   );
 
-  // L'i18n doit précéder le contrôle CSRF : ce dernier rend une page d'erreur
-  // traduite quand un jeton manque, et aurait besoin de t() avant de l'avoir.
+  // L'i18n et les variables de marque doivent précéder le contrôle CSRF : ce
+  // dernier rend une page d'erreur traduite et brandée quand un jeton manque,
+  // et aurait besoin de t()/companyName avant de les avoir.
   app.use(i18n.middleware);
-  app.use(security.csrfMiddleware);
 
   app.use((req, res, next) => {
     const user = req.session.user || null;
     res.locals.currentUser = user;
     res.locals.flash = req.session.flash || null;
     delete req.session.flash;
+
+    // Marque de l'instance, posée à l'installation.
+    const companyName = settings.get('company_name');
+    res.locals.companyName = companyName;
+    res.locals.brandInitials = settings.brandInitials(companyName);
 
     // Compteurs et droits affichés dans la navigation de chaque page.
     if (user) {
@@ -109,6 +117,16 @@ function createApp() {
     next();
   });
 
+  app.use(security.csrfMiddleware);
+
+  // Tant que l'instance n'est pas installée, tout mène à l'assistant ; une fois
+  // installée, l'assistant est définitivement fermé (voir routes/install.js).
+  app.use((req, res, next) => {
+    if (req.path.startsWith('/installation') || install.isInstalled()) return next();
+    res.redirect('/installation');
+  });
+
+  app.use('/installation', installRoutes);
   app.use('/', authRoutes);
   app.use('/admin', adminRoutes);
   app.use('/mon-espace', employeeRoutes);

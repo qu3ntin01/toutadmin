@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: t('install.title') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark">SM</span>
+      <span class="brand-text">
+        <span class="brand-name">Salarié Member</span>
+        <span class="brand-panel"><%= t('install.title') %> · v<%= version %></span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="auth-main">
+    <div class="install-card">
+      <ol class="install-steps">
+        <% steps.forEach((s, index) => { %>
+          <li class="install-step<%= index === stepIndex ? ' is-current' : '' %><%= index < stepIndex ? ' is-done' : '' %>">
+            <span class="install-step-num"><%= index + 1 %></span>
+            <span class="install-step-label"><%= t('install.steps.' + s) %></span>
+          </li>
+        <% }) %>
+      </ol>
+
+      <div class="install-body">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% if (step === 'langue') { %>
+          <h1><%= t('install.language.title') %></h1>
+          <p class="auth-sub"><%= t('install.language.help') %></p>
+
+          <form method="POST" action="/installation/langue">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <div class="lang-grid">
+              <% locales.forEach((l) => { %>
+                <button type="submit" name="locale" value="<%= l.code %>"
+                        class="lang-option<%= l.code === locale ? ' is-active' : '' %>" lang="<%= l.code %>">
+                  <span class="lang-flag"><%= l.flag %></span><span><%= l.label %></span>
+                </button>
+              <% }) %>
+            </div>
+          </form>
+
+        <% } else if (step === 'prerequis') { %>
+          <h1><%= t('install.checks.title') %></h1>
+          <p class="auth-sub"><%= t('install.checks.help') %></p>
+
+          <ul class="check-list">
+            <% checks.forEach((check) => { %>
+              <li class="check-item">
+<%# Trois états : satisfait, recommandation non appliquée, prérequis manquant. %>
+                <span class="check-mark is-<%= check.state %>">
+                  <%= { ok: '✓', warn: '!', fail: '✕' }[check.state] %>
+                </span>
+                <span class="check-body">
+                  <span class="check-label"><%= check.label %></span>
+                  <span class="check-detail"><%= check.detail %></span>
+                </span>
+              </li>
+            <% }) %>
+          </ul>
+
+          <form method="POST" action="/installation/prerequis" class="install-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <% if (tokenRequired) { %>
+              <label>
+                <span><%= t('install.checks.token') %></span>
+                <input type="password" name="install_token" required autocomplete="off" />
+              </label>
+            <% } %>
+            <div class="install-actions">
+              <a href="/installation/langue" class="btn btn-quiet"><%= t('install.back') %></a>
+              <button type="submit" class="btn btn-primary"><%= t('install.next') %></button>
+            </div>
+          </form>
+
+        <% } else if (step === 'entreprise') { %>
+          <h1><%= t('install.company.title') %></h1>
+          <p class="auth-sub"><%= t('install.company.help') %></p>
+
+          <form method="POST" action="/installation/entreprise" class="install-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label>
+              <span><%= t('install.company.name') %></span>
+              <input type="text" name="company_name" required maxlength="120"
+                     value="<%= draft.companyName || '' %>" placeholder="Entreprise SAS" autofocus />
+            </label>
+            <label>
+              <span><%= t('install.company.leave') %></span>
+              <input type="number" name="annual_leave_days" min="0" max="365" step="0.5"
+                     value="<%= draft.leaveDays ?? 25 %>" required />
+            </label>
+            <p class="hint"><%= t('install.company.leaveHelp') %></p>
+            <div class="install-actions">
+              <a href="/installation/prerequis" class="btn btn-quiet"><%= t('install.back') %></a>
+              <button type="submit" class="btn btn-primary"><%= t('install.next') %></button>
+            </div>
+          </form>
+
+        <% } else if (step === 'administrateur') { %>
+          <h1><%= t('install.admin.title') %></h1>
+          <p class="auth-sub"><%= t('install.admin.help') %></p>
+
+          <form method="POST" action="/installation/administrateur" class="install-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <div class="form-grid">
+              <label>
+                <span><%= t('install.admin.firstName') %></span>
+                <input type="text" name="first_name" required value="<%= draft.adminFirstName || '' %>" autofocus />
+              </label>
+              <label>
+                <span><%= t('install.admin.lastName') %></span>
+                <input type="text" name="last_name" required value="<%= draft.adminLastName || '' %>" />
+              </label>
+              <label class="span-2">
+                <span><%= t('auth.email') %></span>
+                <input type="email" name="email" required value="<%= draft.adminEmail || '' %>" autocomplete="username" />
+              </label>
+              <label>
+                <span><%= t('auth.password') %></span>
+                <input type="password" name="password" required minlength="12" autocomplete="new-password" />
+              </label>
+              <label>
+                <span><%= t('profile.confirmPassword') %></span>
+                <input type="password" name="confirm_password" required minlength="12" autocomplete="new-password" />
+              </label>
+            </div>
+            <p class="hint"><%= t('profile.passwordHelp') %></p>
+            <div class="install-actions">
+              <a href="/installation/entreprise" class="btn btn-quiet"><%= t('install.back') %></a>
+              <button type="submit" class="btn btn-primary"><%= t('install.next') %></button>
+            </div>
+          </form>
+
+        <% } else { %>
+          <h1><%= t('install.done.title') %></h1>
+          <p class="auth-sub"><%= t('install.done.help') %></p>
+
+          <dl class="summary-list">
+            <div><dt><%= t('install.company.name') %></dt><dd><%= draft.companyName %></dd></div>
+            <div><dt><%= t('common.language') %></dt><dd><%= locales.find((l) => l.code === (draft.locale || locale)).label %></dd></div>
+            <div><dt><%= t('install.done.admin') %></dt><dd><%= draft.adminFirstName %> <%= draft.adminLastName %> — <%= draft.adminEmail %></dd></div>
+            <div><dt><%= t('install.company.leave') %></dt><dd><%= draft.leaveDays ?? 25 %></dd></div>
+          </dl>
+
+          <form method="POST" action="/installation/terminer" class="install-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <div class="install-actions">
+              <a href="/installation/administrateur" class="btn btn-quiet"><%= t('install.back') %></a>
+              <button type="submit" class="btn btn-primary"><%= t('install.finish') %></button>
+            </div>
+          </form>
+          <p class="hint"><%= t('install.done.lockNote') %></p>
+        <% } %>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

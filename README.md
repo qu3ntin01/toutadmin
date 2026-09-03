@@ -80,15 +80,50 @@ de l'annuaire ou configurer une messagerie.
 Aucun système n'est protégé de façon absolue, mais ces mesures couvrent les risques
 standards (injection, authentification, XSS, CSRF, contrôle d'accès, mauvaise configuration).
 
-## Démarrage
+## Installation
 
 ```bash
 npm install
-cp .env.example .env      # personnaliser ADMIN_EMAIL / ADMIN_PASSWORD / SESSION_SECRET
 npm start                 # http://localhost:3000
 ```
 
-Au premier démarrage, le compte administrateur est créé à partir du fichier `.env`.
+Sur une instance vierge, **toute l'application redirige vers l'assistant d'installation**
+(`/installation`). Il se déroule en cinq étapes :
+
+1. **Langue** — parmi les 16 langues disponibles ; devient la langue par défaut de l'instance.
+2. **Prérequis** — version de Node, dossier de données accessible en écriture, base SQLite,
+   dossier des photos de profil, plus deux recommandations de mise en production
+   (`TRUST_PROXY`, `NODE_ENV=production`) signalées en ambre sans bloquer.
+3. **Organisation** — nom affiché partout dans l'interface, et quota de congés annuels
+   attribué à chaque nouveau salarié non-freelance.
+4. **Administrateur** — le premier compte, avec un mot de passe de 12 caractères minimum.
+5. **Récapitulatif** — vérification puis création de l'instance.
+
+Le tout est écrit en une seule transaction, puis un fichier `data/install.lock` **referme
+définitivement l'assistant** : toute visite ultérieure de `/installation` renvoie à la page de
+connexion. Le secret de session est généré automatiquement dans `data/session.key`
+(permissions `0600`) si `SESSION_SECRET` n'est pas fourni.
+
+### Protéger l'assistant
+
+Sur un serveur exposé, définissez `INSTALL_TOKEN` avant le premier démarrage : l'assistant
+réclame alors ce jeton à l'étape des prérequis, ce qui empêche un tiers d'installer
+l'instance à votre place pendant la fenêtre qui précède votre propre installation.
+
+```bash
+INSTALL_TOKEN=un-jeton-long-et-aleatoire npm start
+```
+
+### Installation sans interface
+
+Pour un déploiement automatisé, renseigner `ADMIN_EMAIL` et `ADMIN_PASSWORD` crée le compte
+administrateur au démarrage ; l'instance est alors considérée comme installée et l'assistant
+ne s'ouvre pas.
+
+```bash
+cp .env.example .env      # ADMIN_EMAIL / ADMIN_PASSWORD / SESSION_SECRET
+npm start
+```
 
 Pour explorer l'application avec des données réalistes :
 
@@ -105,7 +140,8 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-84 tests d'intégration couvrent l'authentification (mauvais mot de passe, verrouillage,
+99 tests d'intégration couvrent l'assistant d'installation (redirection d'une instance
+vierge, jeton, validations, verrouillage définitif, réglages appliqués), l'authentification (mauvais mot de passe, verrouillage,
 rejet CSRF), le cloisonnement de tous les espaces, la création de membres et ses validations,
 la désactivation automatique en fin de contrat, les outils et affectations, le pointage
 freelance, le cycle RH complet (demande → approbation → décompte du solde → annulation →
@@ -128,8 +164,9 @@ d'administration sont en place pour l'accueillir.
 | Variable | Description |
 | --- | --- |
 | `PORT` | Port d'écoute (défaut `3000`) |
-| `SESSION_SECRET` | Secret de signature des sessions — obligatoire et unique en production |
-| `ADMIN_EMAIL` | Email du compte administrateur créé au démarrage |
+| `SESSION_SECRET` | Secret de signature des sessions — généré dans `data/session.key` s'il n'est pas fourni |
+| `INSTALL_TOKEN` | Jeton exigé par l'assistant d'installation — recommandé sur un serveur exposé |
+| `ADMIN_EMAIL` | Installation sans interface : email du compte administrateur créé au démarrage |
 | `ADMIN_PASSWORD` | Mot de passe de ce compte — fort et obligatoire en production |
 | `NODE_ENV` | `production` active les cookies sécurisés, les vérifications de secrets et le cache statique |
 | `TRUST_PROXY` | À définir (ex. `1`) derrière un reverse proxy, pour que la limitation de débit voie la bonne IP |
@@ -144,6 +181,8 @@ src/
   app.js             assemblage de l'application Express (middlewares, montage des routeurs)
   server.js          démarrage du serveur et balayage périodique des contrats échus
   db.js              base SQLite, schéma, migrations, désactivation des contrats expirés
+  install.js         état d'installation, secret de session, contrôles d'environnement
+  settings.js        réglages de l'instance (nom, langue par défaut, quota de congés)
   security.js        CSRF, limitation de débit, verrouillage de compte, nonce CSP
   utils.js           helpers partagés (flash, validation, génération de mot de passe)
   timesheet.js       pointage : entrées, heures cumulées, estimation de rémunération
@@ -154,10 +193,10 @@ src/
   locales/           16 dictionnaires (fr de référence, 15 traductions)
   grades.js · contract-types.js · request-types.js   listes blanches métier
   middleware/auth.js contrôle d'accès admin / employé / RH / manager
-  routes/            auth · admin · employee · rh · manager · profile · directory · messages
+  routes/            install · auth · admin · employee · rh · manager · profile · directory · messages
 views/
   partials/          head, sidebar, navigation membre, en-têtes, avatars, icônes, langues, thème
-  login · error · admin · rh · employee · manager · profile · directory · messages
+  install · login · error · admin · rh · employee · manager · profile · directory · messages
   employee-edit · employee-timesheet · tool-edit
 public/              feuille de style, thème, chronomètre, confirmations
 scripts/seed-demo.js jeu de données de démonstration
