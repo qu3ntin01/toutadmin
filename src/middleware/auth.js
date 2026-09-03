@@ -24,4 +24,16 @@ function requireHR(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAdmin, requireEmployee, requireHR };
+// Est manager quiconque a au moins un collaborateur rattaché : aucun rôle à gérer en plus.
+function requireManager(req, res, next) {
+  if (!req.session.user) return res.redirect('/connexion');
+
+  const db = require('../db');
+  const reports = db.prepare('SELECT COUNT(*) AS n FROM users WHERE manager_id = ?').get(req.session.user.id).n;
+  if (reports === 0) {
+    return res.status(403).render('error', { message: "Cet espace est réservé aux managers ayant des collaborateurs rattachés." });
+  }
+  next();
+}
+
+module.exports = { requireAuth, requireAdmin, requireEmployee, requireHR, requireManager };

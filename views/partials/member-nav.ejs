@@ -1,0 +1,58 @@
+<%
+/* Navigation de l'espace collaborateur. Attend : active ('espace'|'annuaire'|'messagerie'|'equipe'|'profil') */
+const links = [
+  { key: 'espace', href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' },
+  { key: 'annuaire', href: '/annuaire', label: t('nav.directory'), icon: 'users' },
+  { key: 'messagerie', href: '/messagerie', label: t('nav.messages'), icon: 'inbox', badge: unreadMessages },
+];
+if (isManager) links.push({ key: 'equipe', href: '/mon-equipe', label: t('nav.team'), icon: 'shield' });
+links.push({ key: 'profil', href: '/mon-profil', label: t('nav.profile'), icon: 'user' });
+%>
+<nav class="member-nav">
+  <div class="member-nav-brand">
+    <span class="brand-mark">SM</span>
+    <span class="brand-text">
+      <span class="brand-name"><%= t('app.name') %></span>
+      <span class="brand-panel"><%= t('app.portal') %></span>
+    </span>
+  </div>
+
+  <div class="member-nav-links">
+    <% links.forEach((link) => { %>
+      <a href="<%= link.href %>" class="member-link<%= active === link.key ? ' is-active' : '' %>">
+        <%- include('icon', { name: link.icon, iconSize: 16 }) %>
+        <span class="member-link-label"><%= link.label %></span>
+        <% if (link.badge) { %><span class="count-badge"><%= link.badge %></span><% } %>
+      </a>
+    <% }) %>
+    <% if (currentUser.isHr || currentUser.role === 'admin') { %>
+      <a href="/rh" class="member-link">
+        <%- include('icon', { name: 'briefcase', iconSize: 16 }) %>
+        <span class="member-link-label"><%= t('nav.hrSpace') %></span>
+      </a>
+    <% } %>
+    <% if (currentUser.role === 'admin') { %>
+      <a href="/admin" class="member-link">
+        <%- include('icon', { name: 'settings', iconSize: 16 }) %>
+        <span class="member-link-label"><%= t('nav.adminConsole') %></span>
+      </a>
+    <% } %>
+  </div>
+
+  <div class="member-nav-side">
+    <%- include('theme-toggle') %>
+    <div class="user-chip">
+      <%- include('avatar', { person: { first_name: currentUser.firstName, last_name: currentUser.lastName, avatar_file: currentUser.avatarFile }, size: 'sm' }) %>
+      <span class="user-meta">
+        <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+        <span class="user-role"><%= currentUser.grade %></span>
+      </span>
+    </div>
+    <form method="POST" action="/deconnexion">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button type="submit" class="btn btn-quiet" title="<%= t('common.logout') %>">
+        <%- include('icon', { name: 'logout', iconSize: 16 }) %>
+      </button>
+    </form>
+  </div>
+</nav>

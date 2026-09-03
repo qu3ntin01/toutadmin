@@ -1,8 +1,8 @@
-# Private Member
+# Salarié Member
 
-Portail interne de gestion du personnel, des outils, du temps et des ressources humaines.
-Interface inspirée de l'univers OVHcloud : navigation latérale bleu profond, contenu dense,
-angles droits, accent bleu.
+Portail interne d'entreprise : personnel, outils, temps, ressources humaines, équipes,
+annuaire et messagerie. Interface inspirée de l'univers OVHcloud (navigation latérale
+bleue, contenu dense, angles droits) disponible en 16 langues.
 
 ## Espaces
 
@@ -10,7 +10,11 @@ angles droits, accent bleu.
 | --- | --- | --- |
 | Administration | `/admin` | Administrateurs uniquement |
 | Ressources humaines | `/rh` | Administrateurs et membres désignés RH |
+| Manager | `/mon-equipe` | Tout membre ayant au moins un collaborateur rattaché |
 | Espace personnel | `/mon-espace` | Chaque membre, pour ses propres données |
+| Profil | `/mon-profil` | Chaque membre, pour ses propres réglages |
+| Annuaire | `/annuaire` | Tout membre connecté |
+| Messagerie | `/messagerie` | Tout membre connecté |
 
 ## Fonctionnalités
 
@@ -36,15 +40,28 @@ angles droits, accent bleu.
 - Fiches de paie : création (période, brut, net), suivi du versement, consultation par le membre
 - 25 jours de congés attribués à la création d'un membre non-freelance
 
+### Organisation, managers et actualités
+- Chaque membre peut être **rattaché à un manager** depuis la console d'administration (auto-rattachement et boucles hiérarchiques refusés)
+- Un membre ayant au moins un collaborateur obtient automatiquement son **espace manager** : effectif, soldes, demandes en cours, absences à venir
+- **Actualités** : l'administration publie pour toute l'entreprise, le manager pour sa seule équipe ; les deux fils apparaissent sur la page d'accueil du collaborateur, à côté du nom de son manager
+
+### Profil, annuaire et messagerie
+- **Profil** : photo (JPEG/PNG/WebP, 2 Mo max), présentation, téléphone, langue et changement de mot de passe — grade, contrat et rattachement restent gérés par l'administration
+- **Annuaire** de tous les collaborateurs avec recherche ; la **visibilité dans l'annuaire est pilotée uniquement par l'administration**, un membre ne peut pas s'y soustraire ni s'y remettre
+- **Messagerie interne** : boîte de réception, envoi, réponse, compteur de non-lus, suppression. L'**adresse professionnelle et les serveurs IMAP/SMTP sont configurés par l'administration** et affichés en lecture seule au membre
+
 ### Confort
+- Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil ; l'arabe bascule l'interface en écriture de droite à gauche
 - Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement
 - Interface responsive : la navigation latérale se replie en bandeau horizontal, les tableaux denses défilent
 
 ## Sécurité
 
-Le contrôle d'accès repose sur trois garde-fous serveur : `requireAdmin` sur `/admin/*`,
-`requireHR` sur `/rh/*`, `requireEmployee` sur `/mon-espace/*`. Seul un administrateur peut
-accorder ou retirer l'accès RH.
+Le contrôle d'accès repose sur des garde-fous serveur : `requireAdmin` sur `/admin/*`,
+`requireHR` sur `/rh/*`, `requireEmployee` sur `/mon-espace/*`, `requireManager` sur
+`/mon-equipe` (recalculé à chaque requête d'après les rattachements réels). Seul un
+administrateur peut accorder ou retirer l'accès RH, rattacher un manager, masquer un membre
+de l'annuaire ou configurer une messagerie.
 
 - **Mots de passe** : hachage `bcrypt` (coût 12). Les mots de passe temporaires sont aléatoires et affichés une seule fois. Aucun mot de passe d'outil tiers n'est stocké, seulement l'identifiant et l'URL.
 - **Verrouillage de compte** : 5 échecs consécutifs verrouillent le compte 15 minutes.
@@ -55,6 +72,8 @@ accorder ou retirer l'accès RH.
 - **En-têtes** : `helmet` avec CSP stricte (scripts par nonce, aucun style ni gestionnaire d'événement en ligne).
 - **Validation** : grades, types de contrat et de demande contrôlés contre des listes blanches ; emails, URL, dates et montants validés ; longueurs bornées.
 - **Base** : requêtes intégralement paramétrées (`better-sqlite3`).
+- **Téléversement** : photos limitées à 2 Mo, types JPEG/PNG/WebP contrôlés, nom de fichier régénéré aléatoirement, stockage hors du dépôt et servi en lecture seule.
+- **Messagerie** : un message n'est lisible que par son expéditeur ou son destinataire, et n'est marqué lu que par ce dernier.
 - **Erreurs** : aucune trace technique renvoyée au client.
 - **Démarrage** : refus de démarrer en production si `SESSION_SECRET` ou `ADMIN_PASSWORD` sont restés à leur valeur par défaut.
 
@@ -74,7 +93,7 @@ Au premier démarrage, le compte administrateur est créé à partir du fichier 
 Pour explorer l'application avec des données réalistes :
 
 ```bash
-node scripts/seed-demo.js   # 5 membres, outils, demandes, fiches de paie, pointages
+node scripts/seed-demo.js   # 5 membres rattachés, outils, demandes, paie, pointages, actualités, messages
 ```
 
 Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
@@ -86,11 +105,23 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-45 tests d'intégration couvrent l'authentification (mauvais mot de passe, verrouillage,
-rejet CSRF), le cloisonnement des trois espaces, la création de membres et ses validations,
+84 tests d'intégration couvrent l'authentification (mauvais mot de passe, verrouillage,
+rejet CSRF), le cloisonnement de tous les espaces, la création de membres et ses validations,
 la désactivation automatique en fin de contrat, les outils et affectations, le pointage
 freelance, le cycle RH complet (demande → approbation → décompte du solde → annulation →
-recrédit) et les fiches de paie. Ils tournent sur une base SQLite temporaire isolée.
+recrédit), les fiches de paie, l'internationalisation (négociation de langue, bascule par
+drapeau, RTL arabe), le profil (mot de passe, présentation), l'annuaire et son masquage,
+la messagerie interne et ses règles de confidentialité, ainsi que les rattachements
+hiérarchiques et les actualités. Ils tournent sur une base SQLite temporaire isolée.
+
+## Messagerie externe (IMAP/SMTP)
+
+L'administration renseigne, pour chaque membre, son adresse professionnelle et les serveurs
+IMAP/SMTP ; le membre les voit sans pouvoir les modifier. La **messagerie interne est
+pleinement fonctionnelle**, mais la synchronisation avec la boîte externe n'est pas encore
+branchée : la relever demande un client IMAP (connexion, parsing MIME, pièces jointes,
+threads) qui ne peut pas être validé sans boîte de test. Le modèle de données et les écrans
+d'administration sont en place pour l'accueillir.
 
 ## Variables d'environnement
 
@@ -104,6 +135,7 @@ recrédit) et les fiches de paie. Ils tournent sur une base SQLite temporaire is
 | `TRUST_PROXY` | À définir (ex. `1`) derrière un reverse proxy, pour que la limitation de débit voie la bonne IP |
 | `DB_PATH` | Emplacement de la base SQLite (défaut `data/app.sqlite`) |
 | `LOGIN_RATE_LIMIT` / `GLOBAL_RATE_LIMIT` | Plafonds de requêtes, ajustables pour les tests ou un usage interne intensif |
+| `UPLOAD_DIR` | Dossier des photos de profil (défaut `data/uploads`) |
 
 ## Structure
 
@@ -116,12 +148,17 @@ src/
   utils.js           helpers partagés (flash, validation, génération de mot de passe)
   timesheet.js       pointage : entrées, heures cumulées, estimation de rémunération
   hr.js              demandes, soldes de congés, fiches de paie
+  announcements.js   actualités entreprise et équipe
+  uploads.js         photos de profil (validation, stockage, suppression)
+  i18n.js            négociation de langue, traduction, sens d'écriture
+  locales/           16 dictionnaires (fr de référence, 15 traductions)
   grades.js · contract-types.js · request-types.js   listes blanches métier
-  middleware/auth.js contrôle d'accès admin / employé / RH
-  routes/            auth.js · admin.js · employee.js · rh.js
+  middleware/auth.js contrôle d'accès admin / employé / RH / manager
+  routes/            auth · admin · employee · rh · manager · profile · directory · messages
 views/
-  partials/          head, sidebar, en-têtes, icônes, sélecteur de thème
-  login · error · admin · rh · employee · employee-edit · employee-timesheet · tool-edit
+  partials/          head, sidebar, navigation membre, en-têtes, avatars, icônes, langues, thème
+  login · error · admin · rh · employee · manager · profile · directory · messages
+  employee-edit · employee-timesheet · tool-edit
 public/              feuille de style, thème, chronomètre, confirmations
 scripts/seed-demo.js jeu de données de démonstration
 tests/               suite d'intégration (node --test)

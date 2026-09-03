@@ -29,7 +29,8 @@ function startServer(app) {
 class Client {
   constructor(baseUrl) {
     this.baseUrl = baseUrl;
-    this.cookie = null;
+    // Bocal à cookies : la session, mais aussi la langue choisie avant connexion.
+    this.cookies = new Map();
     this.csrfToken = null;
   }
 
@@ -37,12 +38,15 @@ class Client {
     const raw = res.headers.getSetCookie ? res.headers.getSetCookie() : [];
     for (const entry of raw) {
       const [pair] = entry.split(';');
-      if (pair.startsWith('pm.sid=')) this.cookie = pair;
+      const separator = pair.indexOf('=');
+      if (separator > 0) this.cookies.set(pair.slice(0, separator), pair.slice(separator + 1));
     }
   }
 
   #headers(extra = {}) {
-    return this.cookie ? { cookie: this.cookie, ...extra } : extra;
+    if (this.cookies.size === 0) return extra;
+    const cookie = [...this.cookies].map(([name, value]) => `${name}=${value}`).join('; ');
+    return { cookie, ...extra };
   }
 
   async get(pathname) {

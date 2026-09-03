@@ -1,14 +1,14 @@
 <!doctype html>
-<html lang="fr">
+<html lang="<%= locale %>" dir="<%= localeDir %>">
 <head>
-  <%- include('partials/head', { title: 'Erreur — Private Member' }) %>
+  <%- include('partials/head', { title: 'Erreur — ' + t('app.name') }) %>
 </head>
 <body class="auth-body">
   <header class="auth-top">
     <div class="auth-brand">
-      <span class="brand-mark">PM</span>
+      <span class="brand-mark">SM</span>
       <span class="brand-text">
-        <span class="brand-name">Private Member</span>
+        <span class="brand-name"><%= t('app.name') %></span>
         <span class="brand-panel">Portail interne</span>
       </span>
     </div>

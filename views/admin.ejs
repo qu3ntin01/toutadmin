@@ -1,26 +1,27 @@
 <!doctype html>
-<html lang="fr">
+<html lang="<%= locale %>" dir="<%= localeDir %>">
 <head>
-  <%- include('partials/head', { title: 'Administration — Private Member' }) %>
+  <%- include('partials/head', { title: 'Administration — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
       panelLabel: 'Administration',
       navItems: [
-        { tab: 'personnel', label: 'Personnel', icon: 'users' },
-        { tab: 'outils', label: 'Outils', icon: 'tool' },
-        { tab: 'affectations', label: 'Affectations', icon: 'link' },
-        { tab: 'remuneration', label: 'Rémunération', icon: 'clock' },
-        { tab: 'rh', label: 'Ressources humaines', icon: 'shield', badge: pendingRequestCount }
+        { tab: 'personnel', label: t('nav.personnel'), icon: 'users' },
+        { tab: 'organisation', label: 'Organisation', icon: 'network' },
+        { tab: 'outils', label: t('nav.tools'), icon: 'tool' },
+        { tab: 'affectations', label: t('nav.assignments'), icon: 'link' },
+        { tab: 'actualites', label: t('nav.news'), icon: 'megaphone' },
+        { tab: 'rh', label: t('nav.hr'), icon: 'shield', badge: pendingRequestCount }
       ],
-      sidebarLink: { href: '/rh', label: 'Ouvrir l\'espace RH', icon: 'external' }
+      sidebarLink: { href: '/rh', label: t('nav.openHrSpace'), icon: 'external' }
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Console d\'administration',
-        headerSubtitle: 'Personnel, outils, affectations et accès RH'
+        headerTitle: t('admin.title'),
+        headerSubtitle: t('admin.subtitle')
       }) %>
 
       <main class="page">
@@ -333,45 +334,107 @@
           </div>
         </section>
 
-        <!-- REMUNERATION -->
-        <section class="tab-panel" id="remuneration">
+        <!-- ORGANISATION -->
+        <section class="tab-panel" id="organisation">
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Temps &amp; rémunération estimée</h3>
-                <p class="card-sub">Membres en freelance uniquement — taux horaire calculé sur la base du TJM ÷ 8 h.</p>
+                <h3>Rattachement hiérarchique et annuaire</h3>
+                <p class="card-sub">Chaque membre peut être rattaché à un manager, qui obtient alors son espace équipe. La visibilité dans l'annuaire se pilote ici uniquement.</p>
               </div>
             </div>
-            <% if (freelancers.length === 0) { %>
-              <div class="empty-state">Aucun membre en freelance. Passez le contrat d'un membre en « Freelance » pour activer son pointage.</div>
+
+            <% if (employees.length === 0) { %>
+              <div class="empty-state">Aucun membre enregistré pour le moment.</div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
                   <thead>
-                    <tr>
-                      <th>Membre</th><th>TJM</th><th>Heures (mois)</th><th>Est. (mois)</th><th>Heures (total)</th><th>Est. (total)</th><th></th>
-                    </tr>
+                    <tr><th><%= t('common.member') %></th><th><%= t('common.manager') %></th><th>Équipe</th><th><%= t('admin.directoryVisibility') %></th><th></th></tr>
                   </thead>
                   <tbody>
-                    <% freelancers.forEach((e) => { const s = freelanceStats[e.id]; %>
+                    <% employees.forEach((e) => { %>
                       <tr>
                         <td>
                           <div class="cell-strong"><%= e.first_name %> <%= e.last_name %></div>
-                          <% if (openEntriesMap[e.id]) { %><span class="status status-on">Pointage en cours</span><% } %>
+                          <div class="cell-sub"><%= e.grade %><%= e.department ? ' · ' + e.department : '' %></div>
                         </td>
-                        <td class="num"><%= e.daily_rate ? e.daily_rate.toFixed(2) + ' €' : '—' %></td>
-                        <td class="num"><%= s.monthHours.toFixed(1) %> h</td>
-                        <td class="num cell-strong"><%= s.monthEstimate.toFixed(2) %> €</td>
-                        <td class="num"><%= s.totalHours.toFixed(1) %> h</td>
-                        <td class="num cell-strong"><%= s.totalEstimate.toFixed(2) %> €</td>
-                        <td class="actions"><a href="/admin/employes/<%= e.id %>/temps" class="btn btn-sm">Détail</a></td>
+                        <td>
+                          <form method="POST" action="/admin/employes/<%= e.id %>/manager" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="manager_id">
+                              <option value="">— <%= t('common.none') %> —</option>
+                              <% employees.forEach((m) => { if (m.id !== e.id) { %>
+                                <option value="<%= m.id %>" <%= e.manager_id === m.id ? 'selected' : '' %>><%= m.first_name %> <%= m.last_name %></option>
+                              <% } }) %>
+                            </select>
+                            <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                          </form>
+                        </td>
+                        <td class="num"><%= teamSizes[e.id] || 0 %></td>
+                        <td>
+                          <span class="status <%= e.directory_hidden ? 'status-off' : 'status-on' %>">
+                            <%= e.directory_hidden ? t('admin.hidden') : t('admin.visible') %>
+                          </span>
+                        </td>
+                        <td class="actions">
+                          <form method="POST" action="/admin/employes/<%= e.id %>/annuaire">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm"><%= e.directory_hidden ? "Afficher dans l'annuaire" : "Masquer de l'annuaire" %></button>
+                          </form>
+                        </td>
                       </tr>
                     <% }) %>
                   </tbody>
                 </table>
               </div>
             <% } %>
-            <p class="hint">Ces montants sont des estimations de pilotage, pas des bulletins de paie.</p>
+          </div>
+        </section>
+
+        <!-- ACTUALITES -->
+        <section class="tab-panel" id="actualites">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Publier une actualité</h3></div>
+              <form method="POST" action="/admin/actualites" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('team.newsTitle') %></span>
+                  <input type="text" name="title" required maxlength="150" />
+                </label>
+                <label class="span-2">
+                  <span><%= t('team.newsBody') %></span>
+                  <textarea name="body" rows="5" maxlength="2000"></textarea>
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
+                </div>
+              </form>
+              <p class="hint">Une actualité publiée ici est visible par tout le personnel sur sa page d'accueil. Les managers publient de leur côté pour leur seule équipe.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('team.publishedNews') %> <span class="muted">(<%= companyNews.length %>)</span></h3></div>
+              <% if (companyNews.length === 0) { %>
+                <div class="empty-state"><%= t('home.noNews') %></div>
+              <% } else { %>
+                <% companyNews.forEach((n) => { %>
+                  <div class="news-item">
+                    <div class="news-head">
+                      <span class="news-title"><%= n.title %></span>
+                      <span class="tag tag-accent"><%= t('home.companyNews') %></span>
+                      <span class="news-meta"><%= new Date(n.created_at).toLocaleDateString(locale) %></span>
+                      <form method="POST" action="/admin/actualites/<%= n.id %>/supprimer" data-confirm="<%= t('common.delete') %> ?">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                      </form>
+                    </div>
+                    <% if (n.body) { %><p class="news-body"><%= n.body %></p><% } %>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
           </div>
         </section>
 

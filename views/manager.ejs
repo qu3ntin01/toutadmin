@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: t('team.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <%- include('partials/member-nav', { active: 'equipe' }) %>
+
+  <main class="page">
+    <section class="page-intro">
+      <h2><%= t('team.title') %></h2>
+      <p><%= t('team.subtitle') %></p>
+    </section>
+
+    <% if (flash) { %>
+      <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+    <% } %>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 17 }) %></span>
+        <span class="stat-body">
+          <span class="stat-value"><%= stats.teamSize %></span>
+          <span class="stat-label"><%= t('team.members') %></span>
+        </span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 17 }) %></span>
+        <span class="stat-body">
+          <span class="stat-value"><%= stats.pending %></span>
+          <span class="stat-label"><%= t('hr.pendingRequests') %></span>
+        </span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %></span>
+        <span class="stat-body">
+          <span class="stat-value"><%= stats.upcoming %></span>
+          <span class="stat-label"><%= t('team.onLeave') %></span>
+        </span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 17 }) %></span>
+        <span class="stat-body">
+          <span class="stat-value"><%= stats.leaveTotal.toFixed(1) %> j</span>
+          <span class="stat-label"><%= t('hr.totalLeave') %></span>
+        </span>
+      </div>
+    </section>
+
+    <div class="card">
+      <div class="card-head"><h3><%= t('team.members') %></h3></div>
+      <% if (team.length === 0) { %>
+        <div class="empty-state"><%= t('team.empty') %></div>
+      <% } else { %>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><%= t('common.member') %></th>
+                <th><%= t('common.grade') %></th>
+                <th><%= t('common.contract') %></th>
+                <th><%= t('leave.balance') %></th>
+                <th><%= t('common.status') %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% team.forEach((m) => { %>
+                <tr>
+                  <td>
+                    <div class="cell-strong"><%= m.first_name %> <%= m.last_name %></div>
+                    <div class="cell-sub"><%= m.mail_address || m.email %></div>
+                  </td>
+                  <td><span class="tag tag-accent"><%= m.grade %></span></td>
+                  <td><span class="tag"><%= m.contract_type || '—' %></span></td>
+                  <td class="num cell-strong"><%= m.leave_balance.toFixed(1) %> j</td>
+                  <td>
+                    <span class="status <%= m.active ? 'status-on' : 'status-off' %>">
+                      <%= m.active ? t('common.active') : t('common.inactive') %>
+                    </span>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="grid-2">
+      <div class="card" id="actualites">
+        <div class="card-head"><h3><%= t('team.publishNews') %></h3></div>
+        <form method="POST" action="/mon-equipe/actualites" class="form-grid">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <label class="span-2">
+            <span><%= t('team.newsTitle') %></span>
+            <input type="text" name="title" required maxlength="150" />
+          </label>
+          <label class="span-2">
+            <span><%= t('team.newsBody') %></span>
+            <textarea name="body" rows="5" maxlength="2000"></textarea>
+          </label>
+          <div class="span-2">
+            <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><h3><%= t('team.requests') %></h3></div>
+        <% if (requests.length === 0) { %>
+          <div class="empty-state"><%= t('team.noRequests') %></div>
+        <% } else { %>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th><%= t('common.member') %></th><th><%= t('common.type') %></th><th><%= t('common.period') %></th><th><%= t('common.status') %></th></tr>
+              </thead>
+              <tbody>
+                <% requests.slice(0, 12).forEach((r) => {
+                  const statusClass = r.status === 'Approuvée' ? 'status-on'
+                    : r.status === 'En attente' ? 'status-warning'
+                    : r.status === 'Refusée' ? 'status-danger' : 'status-off';
+                %>
+                  <tr>
+                    <td class="cell-strong"><%= r.first_name %> <%= r.last_name %></td>
+                    <td><span class="tag"><%= r.type %></span></td>
+                    <td class="cell-sub">
+                      <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale) %> →
+                      <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString(locale) %>
+                    </td>
+                    <td><span class="status <%= statusClass %>"><%= r.status %></span></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+        <p class="hint">L'approbation des congés reste du ressort de l'équipe RH.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h3><%= t('team.publishedNews') %></h3></div>
+      <% if (teamNews.length === 0) { %>
+        <div class="empty-state"><%= t('home.noNews') %></div>
+      <% } else { %>
+        <% teamNews.forEach((n) => { %>
+          <div class="news-item">
+            <div class="news-head">
+              <span class="news-title"><%= n.title %></span>
+              <span class="tag"><%= t('home.teamNews') %></span>
+              <span class="news-meta"><%= new Date(n.created_at).toLocaleDateString(locale) %></span>
+              <form method="POST" action="/mon-equipe/actualites/<%= n.id %>/supprimer" data-confirm="<%= t('common.delete') %> ?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+              </form>
+            </div>
+            <% if (n.body) { %><p class="news-body"><%= n.body %></p><% } %>
+          </div>
+        <% }) %>
+      <% } %>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

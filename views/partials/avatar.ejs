@@ -1,0 +1,6 @@
+<%
+/* Photo de profil si elle existe, initiales sinon.
+   Attend : person { first_name, last_name, avatar_file }, size? ('sm' | '' | 'lg') */
+const sizeClass = typeof size !== 'undefined' && size ? ` avatar-${size}` : '';
+const initials = `${(person.first_name || '?').charAt(0)}${(person.last_name || '').charAt(0)}`;
+%><span class="avatar<%= sizeClass %>"><% if (person.avatar_file) { %><img src="/media/avatars/<%= person.avatar_file %>" alt="<%= person.first_name %> <%= person.last_name %>" /><% } else { %><%= initials %><% } %></span>

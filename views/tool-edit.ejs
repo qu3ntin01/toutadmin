@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="fr">
+<html lang="<%= locale %>" dir="<%= localeDir %>">
 <head>
-  <%- include('partials/head', { title: 'Modifier ' + tool.name + ' — Private Member' }) %>
+  <%- include('partials/head', { title: 'Modifier ' + tool.name + ' — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
   <%- include('partials/page-header', { headerTitle: 'Administration', backHref: '/admin#outils' }) %>

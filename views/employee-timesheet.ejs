@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="fr">
+<html lang="<%= locale %>" dir="<%= localeDir %>">
 <head>
-  <%- include('partials/head', { title: 'Pointage ' + employee.first_name + ' — Private Member' }) %>
+  <%- include('partials/head', { title: 'Pointage ' + employee.first_name + ' — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
-  <%- include('partials/page-header', { headerTitle: 'Administration', backHref: '/admin#remuneration' }) %>
+  <%- include('partials/page-header', { headerTitle: 'Administration', backHref: "/rh#remuneration" }) %>
 
   <main class="page">
     <section class="page-intro">
@@ -47,7 +47,7 @@
       <div class="banner is-warning">
         <%- include('partials/icon', { name: 'clock', iconSize: 17 }) %>
         <span>Pointage en cours depuis le <%= new Date(openEntry.clock_in).toLocaleString('fr-FR') %>.</span>
-        <form method="POST" action="/admin/employes/<%= employee.id %>/temps/cloturer">
+        <form method="POST" action="/rh/temps/<%= employee.id %>/cloturer">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
           <button type="submit" class="btn btn-sm">Clôturer maintenant</button>
         </form>
@@ -84,7 +84,7 @@
                     <% } else { %><span class="status status-on">En cours</span><% } %>
                   </td>
                   <td class="actions">
-                    <form method="POST" action="/admin/employes/<%= employee.id %>/temps/<%= e.id %>/supprimer" data-confirm="Supprimer cette entrée de pointage ?">
+                    <form method="POST" action="/rh/temps/<%= employee.id %>/<%= e.id %>/supprimer" data-confirm="Supprimer cette entrée de pointage ?">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                       <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
                     </form>

@@ -1,24 +1,25 @@
 <!doctype html>
-<html lang="fr">
+<html lang="<%= locale %>" dir="<%= localeDir %>">
 <head>
-  <%- include('partials/head', { title: 'Espace RH — Private Member' }) %>
+  <%- include('partials/head', { title: 'Espace RH — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
       panelLabel: 'Ressources humaines',
       navItems: [
-        { tab: 'demandes', label: 'Demandes', icon: 'inbox', badge: stats.pendingCount },
-        { tab: 'personnel', label: 'Personnel & congés', icon: 'users' },
-        { tab: 'paie', label: 'Paie', icon: 'card' }
+        { tab: 'demandes', label: t('nav.requests'), icon: 'inbox', badge: stats.pendingCount },
+        { tab: 'personnel', label: t('nav.leave'), icon: 'users' },
+        { tab: 'paie', label: t('nav.payroll'), icon: 'card' },
+        { tab: 'remuneration', label: t('nav.remuneration'), icon: 'clock' }
       ],
-      sidebarLink: { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: 'Mon espace', icon: 'back' }
+      sidebarLink: { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('nav.mySpace'), icon: 'back' }
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Gestion RH',
-        headerSubtitle: 'Demandes du personnel, soldes de congés et fiches de paie',
+        headerTitle: t('hr.title'),
+        headerSubtitle: t('hr.subtitle'),
         userRoleLabel: currentUser.role === 'admin' ? 'Administration' : 'Responsable RH'
       }) %>
 
@@ -249,6 +250,49 @@
               <% } %>
               <p class="hint">Enregistrements internes de pilotage (montants et statut de versement), pas des bulletins de paie légaux.</p>
             </div>
+          </div>
+        </section>
+
+        <!-- REMUNERATION -->
+        <section class="tab-panel" id="remuneration">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('nav.remuneration') %> — freelances</h3>
+                <p class="card-sub">Temps pointé et estimation calculée sur la base du TJM ÷ 8 h.</p>
+              </div>
+            </div>
+            <% if (freelancers.length === 0) { %>
+              <div class="empty-state">Aucun membre en freelance. Passez le contrat d'un membre en « Freelance » pour activer son pointage.</div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th><%= t('common.member') %></th><th>TJM</th><th>Heures (mois)</th><th>Est. (mois)</th>
+                      <th>Heures (total)</th><th>Est. (total)</th><th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% freelancers.forEach((e) => { const s = freelanceStats[e.id]; %>
+                      <tr>
+                        <td>
+                          <div class="cell-strong"><%= e.first_name %> <%= e.last_name %></div>
+                          <% if (openEntriesMap[e.id]) { %><span class="status status-on"><%= t('status.running') %></span><% } %>
+                        </td>
+                        <td class="num"><%= e.daily_rate ? e.daily_rate.toFixed(2) + ' €' : '—' %></td>
+                        <td class="num"><%= s.monthHours.toFixed(1) %> h</td>
+                        <td class="num cell-strong"><%= s.monthEstimate.toFixed(2) %> €</td>
+                        <td class="num"><%= s.totalHours.toFixed(1) %> h</td>
+                        <td class="num cell-strong"><%= s.totalEstimate.toFixed(2) %> €</td>
+                        <td class="actions"><a href="/rh/temps/<%= e.id %>" class="btn btn-sm">Détail</a></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+            <p class="hint">Ces montants sont des estimations de pilotage, pas des bulletins de paie.</p>
           </div>
         </section>
       </main>

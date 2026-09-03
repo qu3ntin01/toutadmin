@@ -27,6 +27,17 @@ CREATE TABLE IF NOT EXISTS users (
   daily_rate REAL,
   is_hr INTEGER NOT NULL DEFAULT 0,
   leave_balance REAL NOT NULL DEFAULT 0,
+  manager_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  avatar_file TEXT,
+  bio TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  directory_hidden INTEGER NOT NULL DEFAULT 0,
+  locale TEXT NOT NULL DEFAULT 'fr',
+  mail_address TEXT NOT NULL DEFAULT '',
+  mail_imap_host TEXT NOT NULL DEFAULT '',
+  mail_imap_port INTEGER,
+  mail_smtp_host TEXT NOT NULL DEFAULT '',
+  mail_smtp_port INTEGER,
   active INTEGER NOT NULL DEFAULT 1,
   failed_attempts INTEGER NOT NULL DEFAULT 0,
   locked_until TEXT,
@@ -101,8 +112,32 @@ CREATE TABLE IF NOT EXISTS payslips (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS announcements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  scope TEXT NOT NULL CHECK(scope IN ('company','team')),
+  team_manager_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  recipient_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject TEXT NOT NULL DEFAULT '',
+  body TEXT NOT NULL DEFAULT '',
+  parent_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
+  read_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_hr_requests_employee ON hr_requests(employee_id);
 CREATE INDEX IF NOT EXISTS idx_payslips_employee ON payslips(employee_id);
+CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);
+CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
+CREATE INDEX IF NOT EXISTS idx_users_manager ON users(manager_id);
 `);
 
 for (const migration of [
@@ -115,6 +150,17 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN daily_rate REAL",
   "ALTER TABLE users ADD COLUMN is_hr INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN leave_balance REAL NOT NULL DEFAULT 0",
+  'ALTER TABLE users ADD COLUMN manager_id INTEGER REFERENCES users(id) ON DELETE SET NULL',
+  'ALTER TABLE users ADD COLUMN avatar_file TEXT',
+  "ALTER TABLE users ADD COLUMN bio TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE users ADD COLUMN phone TEXT NOT NULL DEFAULT ''",
+  'ALTER TABLE users ADD COLUMN directory_hidden INTEGER NOT NULL DEFAULT 0',
+  "ALTER TABLE users ADD COLUMN locale TEXT NOT NULL DEFAULT 'fr'",
+  "ALTER TABLE users ADD COLUMN mail_address TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE users ADD COLUMN mail_imap_host TEXT NOT NULL DEFAULT ''",
+  'ALTER TABLE users ADD COLUMN mail_imap_port INTEGER',
+  "ALTER TABLE users ADD COLUMN mail_smtp_host TEXT NOT NULL DEFAULT ''",
+  'ALTER TABLE users ADD COLUMN mail_smtp_port INTEGER',
 ]) {
   try {
     db.exec(migration);

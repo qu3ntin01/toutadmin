@@ -1,15 +1,15 @@
 <!doctype html>
-<html lang="fr">
+<html lang="<%= locale %>" dir="<%= localeDir %>">
 <head>
-  <%- include('partials/head', { title: 'Connexion — Private Member' }) %>
+  <%- include('partials/head', { title: t('auth.title') + ' — ' + t('app.name') }) %>
 </head>
 <body class="auth-body">
   <header class="auth-top">
     <div class="auth-brand">
-      <span class="brand-mark">PM</span>
+      <span class="brand-mark">SM</span>
       <span class="brand-text">
-        <span class="brand-name">Private Member</span>
-        <span class="brand-panel">Portail interne</span>
+        <span class="brand-name"><%= t('app.name') %></span>
+        <span class="brand-panel"><%= t('app.portal') %></span>
       </span>
     </div>
     <%- include('partials/theme-toggle') %>
@@ -17,8 +17,8 @@
 
   <main class="auth-main">
     <div class="auth-card">
-      <h1>Connexion</h1>
-      <p class="auth-sub">Accédez à votre espace personnel, RH ou d'administration.</p>
+      <h1><%= t('auth.title') %></h1>
+      <p class="auth-sub"><%= t('auth.subtitle') %></p>
 
       <% if (flash) { %>
         <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
@@ -27,20 +27,21 @@
       <form method="POST" action="/connexion" class="auth-form">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <label>
-          <span>Adresse email</span>
-          <input type="email" name="email" placeholder="vous@entreprise.com" required autofocus autocomplete="username" />
+          <span><%= t('auth.email') %></span>
+          <input type="email" name="email" placeholder="nom@entreprise.com" required autofocus autocomplete="username" />
         </label>
         <label>
-          <span>Mot de passe</span>
+          <span><%= t('auth.password') %></span>
           <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
         </label>
-        <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+        <button type="submit" class="btn btn-primary btn-block"><%= t('auth.signIn') %></button>
       </form>
 
-      <p class="auth-foot">
-        Accès réservé au personnel autorisé. Les tentatives de connexion sont limitées et
-        le compte se verrouille temporairement après plusieurs échecs.
-      </p>
+      <div class="auth-foot">
+        <p><%= t('auth.note') %></p>
+        <p class="cell-sub"><%= t('common.language') %></p>
+        <%- include('partials/language-picker', { returnTo: '/connexion' }) %>
+      </div>
     </div>
   </main>
 

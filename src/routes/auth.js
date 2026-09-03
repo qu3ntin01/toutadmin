@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const db = require('../db');
 const security = require('../security');
+const i18n = require('../i18n');
 const { setFlash } = require('../utils');
 
 const router = express.Router();
@@ -65,6 +66,8 @@ router.post('/connexion', security.loginLimiter, (req, res) => {
       lastName: user.last_name,
       grade: user.grade,
       isHr: Boolean(user.is_hr),
+      locale: user.locale,
+      avatarFile: user.avatar_file,
     };
     res.redirect(homeFor(user));
   });
@@ -72,6 +75,29 @@ router.post('/connexion', security.loginLimiter, (req, res) => {
 
 router.post('/deconnexion', (req, res) => {
   req.session.destroy(() => res.redirect('/connexion'));
+});
+
+// Choix de la langue depuis l'écran de connexion : mémorisé en cookie tant qu'aucun
+// compte n'est ouvert, puis repris par la préférence du compte une fois connecté.
+router.post('/langue', (req, res) => {
+  const locale = (req.body.locale || '').trim();
+  const back = typeof req.body.retour === 'string' && req.body.retour.startsWith('/') ? req.body.retour : '/connexion';
+
+  if (i18n.isSupported(locale)) {
+    res.cookie('locale', locale, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 24 * 365,
+    });
+
+    if (req.session.user) {
+      db.prepare('UPDATE users SET locale = ? WHERE id = ?').run(locale, req.session.user.id);
+      req.session.user.locale = locale;
+    }
+  }
+
+  res.redirect(back);
 });
 
 module.exports = router;

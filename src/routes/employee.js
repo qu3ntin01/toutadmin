@@ -3,6 +3,7 @@ const express = require('express');
 const db = require('../db');
 const timesheet = require('../timesheet');
 const hr = require('../hr');
+const announcements = require('../announcements');
 const requestTypes = require('../request-types');
 const { requireEmployee } = require('../middleware/auth');
 const { setFlash, isValidDateString } = require('../utils');
@@ -30,8 +31,14 @@ router.get('/', (req, res) => {
   const isFreelance = employee.contract_type === 'Freelance';
   const hrEligible = hr.isEligibleForHrFeatures(employee);
 
+  const manager = employee.manager_id
+    ? db.prepare('SELECT id, first_name, last_name, email, grade, avatar_file FROM users WHERE id = ?').get(employee.manager_id)
+    : null;
+
   res.render('employee', {
     employee,
+    manager,
+    news: announcements.forEmployee(employee),
     tools,
     isFreelance,
     openEntry: isFreelance ? timesheet.getOpenEntry(employeeId) : null,

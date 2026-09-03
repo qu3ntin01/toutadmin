@@ -2,6 +2,7 @@ const express = require('express');
 
 const db = require('../db');
 const hr = require('../hr');
+const timesheet = require('../timesheet');
 const requestTypes = require('../request-types');
 const { requireHR } = require('../middleware/auth');
 const { setFlash, parseAmount } = require('../utils');
@@ -33,12 +34,20 @@ router.get('/', (req, res) => {
   // Le compteur d'en-attente doit rester global, même quand la liste est filtrée.
   const pendingCount = db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n;
 
+  // La rémunération des freelances est un sujet RH : elle vit ici, plus dans la console admin.
+  const freelancers = db
+    .prepare("SELECT * FROM users WHERE role = 'employee' AND contract_type = 'Freelance' ORDER BY last_name COLLATE NOCASE")
+    .all();
+
   res.render('rh', {
     requests,
     statusFilter,
     staff,
     payslips,
     requestTypes,
+    freelancers,
+    freelanceStats: Object.fromEntries(freelancers.map((e) => [e.id, timesheet.getStats(e.id, e.daily_rate)])),
+    openEntriesMap: Object.fromEntries(freelancers.map((e) => [e.id, Boolean(timesheet.getOpenEntry(e.id))])),
     stats: {
       staffCount: staff.length,
       pendingCount,
@@ -46,6 +55,38 @@ router.get('/', (req, res) => {
       totalLeaveBalance: staff.reduce((sum, e) => sum + (e.leave_balance || 0), 0),
     },
   });
+});
+
+// ---------- Pointage des freelances (supervision) ----------
+
+router.get('/temps/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const employee = db.prepare("SELECT * FROM users WHERE id = ? AND role = 'employee'").get(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/rh#remuneration');
+  }
+
+  res.render('employee-timesheet', {
+    employee,
+    entries: timesheet.getEntries(id, 200),
+    openEntry: timesheet.getOpenEntry(id),
+    statsData: timesheet.getStats(id, employee.daily_rate),
+  });
+});
+
+router.post('/temps/:id/cloturer', (req, res) => {
+  const id = Number(req.params.id);
+  const result = timesheet.clockOut(id);
+  setFlash(req, result.ok ? 'success' : 'error', result.ok ? 'Pointage clôturé.' : 'Aucun pointage en cours pour ce membre.');
+  res.redirect(`/rh/temps/${id}`);
+});
+
+router.post('/temps/:id/:entryId/supprimer', (req, res) => {
+  const id = Number(req.params.id);
+  db.prepare('DELETE FROM time_entries WHERE id = ? AND employee_id = ?').run(Number(req.params.entryId), id);
+  setFlash(req, 'success', 'Entrée supprimée.');
+  res.redirect(`/rh/temps/${id}`);
 });
 
 // ---------- Traitement des demandes ----------

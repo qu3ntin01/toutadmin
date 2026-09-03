@@ -27,23 +27,40 @@ const hash = bcrypt.hashSync(DEMO_PASSWORD, 12);
 
 const insertUser = db.prepare(`
   INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department,
-                     contract_type, contract_end_date, daily_rate, leave_balance, is_hr, active)
-  VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                     contract_type, contract_end_date, daily_rate, leave_balance, is_hr,
+                     bio, phone, mail_address, mail_imap_host, mail_imap_port, mail_smtp_host, mail_smtp_port, active)
+  VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
 `);
 
+const mail = (address) => [address, 'imap.entreprise.com', 993, 'smtp.entreprise.com', 587];
+
 const people = [
-  { email: 'claire.moreau@entreprise.com', first: 'Claire', last: 'Moreau', grade: 'Manager', dept: 'Ressources humaines', contract: 'CDI', end: null, rate: null, leave: 25, hr: 1 },
-  { email: 'marc.leroy@entreprise.com', first: 'Marc', last: 'Leroy', grade: 'Technicien confirmé', dept: 'Maintenance', contract: 'CDI', end: null, rate: null, leave: 25, hr: 0 },
-  { email: 'sofia.nadir@entreprise.com', first: 'Sofia', last: 'Nadir', grade: "Chef d'équipe", dept: 'Production', contract: 'CDD', end: '2027-03-31', rate: null, leave: 18.5, hr: 0 },
-  { email: 'lucas.petit@entreprise.com', first: 'Lucas', last: 'Petit', grade: 'Employé', dept: 'Design', contract: 'Freelance', end: null, rate: 480, leave: 0, hr: 0 },
-  { email: 'ines.garnier@entreprise.com', first: 'Inès', last: 'Garnier', grade: 'Stagiaire', dept: 'Marketing', contract: 'Stage', end: '2026-12-15', rate: null, leave: 8, hr: 0 },
+  { email: 'claire.moreau@entreprise.com', first: 'Claire', last: 'Moreau', grade: 'Manager', dept: 'Ressources humaines', contract: 'CDI', end: null, rate: null, leave: 25, hr: 1,
+    bio: "Responsable RH. Je suis vos dossiers du recrutement à la paie.", phone: '+33 6 12 34 56 78' },
+  { email: 'marc.leroy@entreprise.com', first: 'Marc', last: 'Leroy', grade: 'Technicien confirmé', dept: 'Maintenance', contract: 'CDI', end: null, rate: null, leave: 25, hr: 0,
+    bio: "Maintenance des équipements de production, astreinte une semaine sur quatre.", phone: '+33 6 22 33 44 55' },
+  { email: 'sofia.nadir@entreprise.com', first: 'Sofia', last: 'Nadir', grade: "Chef d'équipe", dept: 'Production', contract: 'CDD', end: '2027-03-31', rate: null, leave: 18.5, hr: 0,
+    bio: "J'encadre l'équipe de production sur la ligne 2.", phone: '+33 6 33 44 55 66' },
+  { email: 'lucas.petit@entreprise.com', first: 'Lucas', last: 'Petit', grade: 'Employé', dept: 'Design', contract: 'Freelance', end: null, rate: 480, leave: 0, hr: 0,
+    bio: 'Designer produit indépendant, missions au forfait.', phone: '' },
+  { email: 'ines.garnier@entreprise.com', first: 'Inès', last: 'Garnier', grade: 'Stagiaire', dept: 'Marketing', contract: 'Stage', end: '2026-12-15', rate: null, leave: 8, hr: 0,
+    bio: 'Stage de fin d’études en communication interne.', phone: '' },
 ];
 
 const ids = {};
 for (const p of people) {
-  const info = insertUser.run(p.email, hash, p.first, p.last, p.grade, p.dept, p.contract, p.end, p.rate, p.leave, p.hr);
+  const info = insertUser.run(
+    p.email, hash, p.first, p.last, p.grade, p.dept, p.contract, p.end, p.rate, p.leave, p.hr,
+    p.bio, p.phone, ...mail(p.email)
+  );
   ids[p.email] = info.lastInsertRowid;
 }
+
+// Rattachements hiérarchiques : Sofia encadre la production, Claire encadre le reste.
+const setManager = db.prepare('UPDATE users SET manager_id = ? WHERE id = ?');
+setManager.run(ids['sofia.nadir@entreprise.com'], ids['marc.leroy@entreprise.com']);
+setManager.run(ids['claire.moreau@entreprise.com'], ids['sofia.nadir@entreprise.com']);
+setManager.run(ids['claire.moreau@entreprise.com'], ids['ines.garnier@entreprise.com']);
 
 const insertTool = db.prepare(`
   INSERT INTO tools (name, category, reference, description, login_url, status)
@@ -97,6 +114,28 @@ insertEntry.run(freelanceId, day(3, 9), day(3, 17));
 insertEntry.run(freelanceId, day(2, 10), day(2, 16));
 insertEntry.run(freelanceId, day(1, 9), day(1, 18));
 insertEntry.run(freelanceId, new Date(Date.now() - 47 * 60 * 1000).toISOString(), null);
+
+// Actualités : une pour toute l'entreprise, une pour l'équipe de Sofia.
+const insertNews = db.prepare(`
+  INSERT INTO announcements (author_id, scope, team_manager_id, title, body)
+  VALUES (?, ?, ?, ?, ?)
+`);
+const adminId = db.prepare("SELECT id FROM users WHERE role = 'admin' ORDER BY id LIMIT 1").get().id;
+insertNews.run(adminId, 'company', null, 'Fermeture estivale du 3 au 17 août',
+  "Les demandes de congés sur cette période sont à déposer avant le 30 juin.");
+insertNews.run(adminId, 'company', null, 'Nouvelle mutuelle au 1er janvier',
+  "Une réunion d'information est prévue le 12 décembre à 14 h en salle Atlas.");
+insertNews.run(ids['sofia.nadir@entreprise.com'], 'team', ids['sofia.nadir@entreprise.com'],
+  'Point hebdomadaire déplacé au jeudi', 'Le point de la ligne 2 passe au jeudi 9 h à compter de cette semaine.');
+
+// Quelques messages internes, dont un non lu.
+const insertMessage = db.prepare('INSERT INTO messages (sender_id, recipient_id, subject, body, read_at) VALUES (?, ?, ?, ?, ?)');
+insertMessage.run(ids['claire.moreau@entreprise.com'], ids['marc.leroy@entreprise.com'],
+  'Votre demande de congés', "Bonjour Marc,\n\nJ'ai bien reçu votre demande pour décembre, je reviens vers vous après validation du planning.\n\nClaire", null);
+insertMessage.run(ids['sofia.nadir@entreprise.com'], ids['marc.leroy@entreprise.com'],
+  'Astreinte de la semaine 12', "Peux-tu confirmer ta disponibilité pour l'astreinte ?", new Date().toISOString());
+insertMessage.run(ids['marc.leroy@entreprise.com'], ids['sofia.nadir@entreprise.com'],
+  'Re: Astreinte de la semaine 12', 'Confirmé de mon côté.', null);
 
 console.log('Jeu de démonstration créé.');
 console.log(`  Mot de passe commun à tous les comptes de démo : ${DEMO_PASSWORD}`);

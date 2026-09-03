@@ -4,8 +4,8 @@ const bcrypt = require('bcryptjs');
 const db = require('../db');
 const grades = require('../grades');
 const contractTypes = require('../contract-types');
-const timesheet = require('../timesheet');
 const hr = require('../hr');
+const announcements = require('../announcements');
 const { requireAdmin } = require('../middleware/auth');
 const { setFlash, generatePassword, isValidEmail, isValidDateString, isValidUrl, parseDailyRate } = require('../utils');
 
@@ -39,7 +39,11 @@ router.get('/', (req, res) => {
     (employeesByTool[row.tool_id] ||= []).push(row);
   }
 
-  const freelancers = employees.filter((e) => e.contract_type === 'Freelance');
+  const employeesMap = Object.fromEntries(employees.map((e) => [e.id, e]));
+  const teamSizes = {};
+  for (const e of employees) {
+    if (e.manager_id) teamSizes[e.manager_id] = (teamSizes[e.manager_id] || 0) + 1;
+  }
 
   res.render('admin', {
     employees,
@@ -49,12 +53,12 @@ router.get('/', (req, res) => {
     toolsByEmployee,
     employeesByTool,
     toolsMap: Object.fromEntries(tools.map((t) => [t.id, t])),
-    employeesMap: Object.fromEntries(employees.map((e) => [e.id, e])),
-    freelancers,
-    freelanceStats: Object.fromEntries(freelancers.map((e) => [e.id, timesheet.getStats(e.id, e.daily_rate)])),
-    openEntriesMap: Object.fromEntries(freelancers.map((e) => [e.id, Boolean(timesheet.getOpenEntry(e.id))])),
+    employeesMap,
+    teamSizes,
+    managers: employees.filter((e) => teamSizes[e.id]),
     hrMembers: employees.filter((e) => e.is_hr),
     hrEligibleEmployees: employees.filter((e) => !e.is_hr),
+    companyNews: announcements.companyWide(),
     pendingRequestCount: db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n,
     stats: {
       employeeCount: employees.length,
@@ -63,6 +67,118 @@ router.get('/', (req, res) => {
       availableCount: tools.filter((t) => !(employeesByTool[t.id] && employeesByTool[t.id].length)).length,
     },
   });
+});
+
+// ---------- Organisation : rattachement hiérarchique et annuaire ----------
+
+router.post('/employes/:id/manager', (req, res) => {
+  const id = Number(req.params.id);
+  const employee = findEmployee(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#organisation');
+  }
+
+  const raw = (req.body.manager_id || '').trim();
+  if (!raw) {
+    db.prepare('UPDATE users SET manager_id = NULL WHERE id = ?').run(id);
+    setFlash(req, 'success', `${employee.first_name} ${employee.last_name} n'est plus rattaché(e) à un manager.`);
+    return res.redirect('/admin#organisation');
+  }
+
+  const managerId = Number(raw);
+  if (managerId === id) {
+    setFlash(req, 'error', 'Un membre ne peut pas être son propre manager.');
+    return res.redirect('/admin#organisation');
+  }
+
+  const manager = findEmployee(managerId);
+  if (!manager) {
+    setFlash(req, 'error', 'Manager introuvable.');
+    return res.redirect('/admin#organisation');
+  }
+
+  // Un rattachement circulaire priverait les deux personnes de leur espace équipe.
+  if (manager.manager_id === id) {
+    setFlash(req, 'error', 'Ce rattachement créerait une boucle hiérarchique.');
+    return res.redirect('/admin#organisation');
+  }
+
+  db.prepare('UPDATE users SET manager_id = ? WHERE id = ?').run(managerId, id);
+  setFlash(req, 'success', `${employee.first_name} ${employee.last_name} est rattaché(e) à ${manager.first_name} ${manager.last_name}.`);
+  res.redirect('/admin#organisation');
+});
+
+router.post('/employes/:id/annuaire', (req, res) => {
+  const id = Number(req.params.id);
+  const employee = findEmployee(id);
+  if (!employee) return res.redirect('/admin#organisation');
+
+  db.prepare('UPDATE users SET directory_hidden = ? WHERE id = ?').run(employee.directory_hidden ? 0 : 1, id);
+  setFlash(
+    req,
+    'success',
+    `${employee.first_name} ${employee.last_name} ${employee.directory_hidden ? 'apparaît de nouveau' : "n'apparaît plus"} dans l'annuaire.`
+  );
+  res.redirect('/admin#organisation');
+});
+
+// ---------- Messagerie : paramètres serveur, réservés à l'administration ----------
+
+router.post('/employes/:id/messagerie', (req, res) => {
+  const id = Number(req.params.id);
+  const employee = findEmployee(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#organisation');
+  }
+
+  const address = (req.body.mail_address || '').trim().slice(0, 254);
+  const imapHost = (req.body.mail_imap_host || '').trim().slice(0, 200);
+  const smtpHost = (req.body.mail_smtp_host || '').trim().slice(0, 200);
+  const imapPort = req.body.mail_imap_port ? Number(req.body.mail_imap_port) : null;
+  const smtpPort = req.body.mail_smtp_port ? Number(req.body.mail_smtp_port) : null;
+
+  const validPort = (p) => p === null || (Number.isInteger(p) && p > 0 && p <= 65535);
+
+  if (address && !isValidEmail(address)) {
+    setFlash(req, 'error', 'Adresse de messagerie invalide.');
+    return res.redirect(`/admin/employes/${id}/modifier`);
+  }
+  if (!validPort(imapPort) || !validPort(smtpPort)) {
+    setFlash(req, 'error', 'Port invalide (1 à 65535).');
+    return res.redirect(`/admin/employes/${id}/modifier`);
+  }
+
+  db.prepare(`
+    UPDATE users SET mail_address = ?, mail_imap_host = ?, mail_imap_port = ?, mail_smtp_host = ?, mail_smtp_port = ?
+    WHERE id = ?
+  `).run(address, imapHost, imapPort, smtpHost, smtpPort, id);
+
+  setFlash(req, 'success', `Messagerie de ${employee.first_name} ${employee.last_name} mise à jour.`);
+  res.redirect(`/admin/employes/${id}/modifier`);
+});
+
+// ---------- Actualités de l'entreprise ----------
+
+router.post('/actualites', (req, res) => {
+  const title = (req.body.title || '').trim().slice(0, 150);
+  const body = (req.body.body || '').trim().slice(0, 2000);
+
+  if (!title) {
+    setFlash(req, 'error', "Le titre de l'actualité est obligatoire.");
+    return res.redirect('/admin#actualites');
+  }
+
+  announcements.create({ authorId: req.session.user.id, scope: 'company', title, body });
+  setFlash(req, 'success', "Actualité publiée pour toute l'entreprise.");
+  res.redirect('/admin#actualites');
+});
+
+router.post('/actualites/:id/supprimer', (req, res) => {
+  announcements.remove(Number(req.params.id));
+  setFlash(req, 'success', 'Actualité supprimée.');
+  res.redirect('/admin#actualites');
 });
 
 // ---------- Personnel ----------
@@ -173,40 +289,6 @@ router.post('/employes/:id/supprimer', (req, res) => {
   db.prepare("DELETE FROM users WHERE id = ? AND role = 'employee'").run(Number(req.params.id));
   setFlash(req, 'success', 'Membre supprimé.');
   res.redirect('/admin#personnel');
-});
-
-// ---------- Pointage (supervision des freelances) ----------
-
-router.get('/employes/:id/temps', (req, res) => {
-  const id = Number(req.params.id);
-  const employee = findEmployee(id);
-  if (!employee) {
-    setFlash(req, 'error', 'Membre introuvable.');
-    return res.redirect('/admin#remuneration');
-  }
-
-  res.render('employee-timesheet', {
-    employee,
-    entries: timesheet.getEntries(id, 200),
-    openEntry: timesheet.getOpenEntry(id),
-    statsData: timesheet.getStats(id, employee.daily_rate),
-  });
-});
-
-router.post('/employes/:id/temps/cloturer', (req, res) => {
-  const id = Number(req.params.id);
-  if (!findEmployee(id)) return res.redirect('/admin#remuneration');
-
-  const result = timesheet.clockOut(id);
-  setFlash(req, result.ok ? 'success' : 'error', result.ok ? 'Pointage clôturé.' : 'Aucun pointage en cours pour ce membre.');
-  res.redirect(`/admin/employes/${id}/temps`);
-});
-
-router.post('/employes/:id/temps/:entryId/supprimer', (req, res) => {
-  const id = Number(req.params.id);
-  db.prepare('DELETE FROM time_entries WHERE id = ? AND employee_id = ?').run(Number(req.params.entryId), id);
-  setFlash(req, 'success', 'Entrée supprimée.');
-  res.redirect(`/admin/employes/${id}/temps`);
 });
 
 // ---------- Outils ----------

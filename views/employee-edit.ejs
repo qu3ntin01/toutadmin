@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="fr">
+<html lang="<%= locale %>" dir="<%= localeDir %>">
 <head>
-  <%- include('partials/head', { title: 'Modifier ' + employee.first_name + ' — Private Member' }) %>
+  <%- include('partials/head', { title: 'Modifier ' + employee.first_name + ' — ' + t('app.name') }) %>
 </head>
 <body class="app-body">
   <%- include('partials/page-header', { headerTitle: 'Administration', backHref: '/admin#personnel' }) %>
@@ -52,13 +52,52 @@
           <button type="submit" class="btn btn-primary">Enregistrer</button>
           <a href="/admin#personnel" class="btn btn-quiet">Annuler</a>
           <% if (employee.contract_type === 'Freelance') { %>
-            <a href="/admin/employes/<%= employee.id %>/temps" class="btn">Voir le pointage</a>
+            <a href="/rh/temps/<%= employee.id %>" class="btn">Voir le pointage</a>
           <% } %>
         </div>
       </form>
       <p class="hint">
         Videz le champ « Fin de contrat » pour repasser en durée indéterminée. Le compte se désactive
         automatiquement le lendemain de la date de fin. Le TJM sert au calcul du taux horaire (TJM ÷ 8 h).
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <h3>Messagerie professionnelle</h3>
+          <p class="card-sub">Adresse et serveurs du membre. Ces réglages ne sont modifiables que par l'administration.</p>
+        </div>
+      </div>
+      <form method="POST" action="/admin/employes/<%= employee.id %>/messagerie" class="form-grid">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label class="span-2">
+          <span>Adresse professionnelle</span>
+          <input type="email" name="mail_address" value="<%= employee.mail_address %>" placeholder="prenom.nom@entreprise.com" />
+        </label>
+        <label>
+          <span>Serveur IMAP (réception)</span>
+          <input type="text" name="mail_imap_host" value="<%= employee.mail_imap_host %>" placeholder="imap.entreprise.com" />
+        </label>
+        <label>
+          <span>Port IMAP</span>
+          <input type="number" name="mail_imap_port" min="1" max="65535" value="<%= employee.mail_imap_port ?? '' %>" placeholder="993" />
+        </label>
+        <label>
+          <span>Serveur SMTP (envoi)</span>
+          <input type="text" name="mail_smtp_host" value="<%= employee.mail_smtp_host %>" placeholder="smtp.entreprise.com" />
+        </label>
+        <label>
+          <span>Port SMTP</span>
+          <input type="number" name="mail_smtp_port" min="1" max="65535" value="<%= employee.mail_smtp_port ?? '' %>" placeholder="587" />
+        </label>
+        <div class="span-2 form-actions">
+          <button type="submit" class="btn btn-primary">Enregistrer la messagerie</button>
+        </div>
+      </form>
+      <p class="hint">
+        Le membre voit son adresse dans sa messagerie mais ne peut pas la modifier. La synchronisation
+        effective avec la boîte externe nécessite de connecter ces serveurs (voir le README).
       </p>
     </div>
   </main>
