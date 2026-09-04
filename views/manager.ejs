@@ -60,6 +60,7 @@
                 <thead>
                   <tr>
                     <th><%= t('common.member') %></th>
+                    <th><%= t('org.assignment') %></th>
                     <th><%= t('common.grade') %></th>
                     <th><%= t('common.contract') %></th>
                     <th><%= t('leave.balance') %></th>
@@ -73,6 +74,7 @@
                         <div class="cell-strong"><%= m.first_name %> <%= m.last_name %></div>
                         <div class="cell-sub"><%= m.mail_address || m.email %></div>
                       </td>
+                      <td class="cell-sub"><%= [m.team_name, m.department_name].filter(Boolean).join(' · ') || '—' %></td>
                       <td><span class="tag tag-accent"><%= m.grade %></span></td>
                       <td><span class="tag"><%= m.contract_type || '—' %></span></td>
                       <td class="num cell-strong"><%= m.leave_balance.toFixed(1) %> j</td>
@@ -102,10 +104,21 @@
                 <span><%= t('team.newsBody') %></span>
                 <textarea name="body" rows="5" maxlength="2000"></textarea>
               </label>
+              <label class="span-2">
+                <span>Destinataires</span>
+                <select name="target" required>
+                  <% managedScopes.forEach((sc) => { %>
+                    <option value="<%= sc.scope %>:<%= sc.id %>">
+                      <%= sc.scope === 'team' ? t('common.team') : t('common.department') %> · <%= sc.name %>
+                    </option>
+                  <% }) %>
+                </select>
+              </label>
               <div class="span-2">
                 <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
               </div>
             </form>
+            <p class="hint">Vous ne pouvez publier que sur les périmètres que vous encadrez.</p>
           </div>
 
           <div class="card">
@@ -151,7 +164,7 @@
               <div class="news-item">
                 <div class="news-head">
                   <span class="news-title"><%= n.title %></span>
-                  <span class="tag"><%= t('home.teamNews') %></span>
+                  <span class="tag"><%= n.scope_name || t('home.teamNews') %></span>
                   <span class="news-meta"><%= new Date(n.created_at).toLocaleDateString(locale) %></span>
                   <form method="POST" action="/mon-equipe/actualites/<%= n.id %>/supprimer" data-confirm="<%= t('common.delete') %> ?">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

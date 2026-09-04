@@ -15,8 +15,12 @@ function isEligible(user) {
 
 function mandates() {
   return db.prepare(`
-    SELECT m.*, u.first_name, u.last_name, u.email, u.grade, u.department, u.avatar_file
-    FROM cse_mandates m JOIN users u ON u.id = m.user_id
+    SELECT m.*, u.first_name, u.last_name, u.email, u.grade, u.avatar_file,
+           d.name AS department_name, t.name AS team_name
+    FROM cse_mandates m
+    JOIN users u ON u.id = m.user_id
+    LEFT JOIN departments d ON d.id = u.department_id
+    LEFT JOIN teams t ON t.id = u.team_id
     ORDER BY u.last_name COLLATE NOCASE, u.first_name COLLATE NOCASE
   `).all();
 }
@@ -93,8 +97,10 @@ function deleteElection(id) {
 function candidacies(electionId, { validatedOnly = false } = {}) {
   const where = validatedOnly ? "AND c.status = 'Validée'" : '';
   return db.prepare(`
-    SELECT c.*, u.first_name, u.last_name, u.grade, u.department, u.avatar_file
-    FROM cse_candidacies c JOIN users u ON u.id = c.user_id
+    SELECT c.*, u.first_name, u.last_name, u.grade, u.avatar_file, d.name AS department_name
+    FROM cse_candidacies c
+    JOIN users u ON u.id = c.user_id
+    LEFT JOIN departments d ON d.id = u.department_id
     WHERE c.election_id = ? ${where}
     ORDER BY u.last_name COLLATE NOCASE, u.first_name COLLATE NOCASE
   `).all(electionId);
@@ -173,9 +179,11 @@ function turnout(electionId) {
 /** Résultats : les candidats validés, du plus au moins voté. */
 function results(electionId) {
   return db.prepare(`
-    SELECT c.id, c.user_id, u.first_name, u.last_name, u.grade, u.department,
+    SELECT c.id, c.user_id, u.first_name, u.last_name, u.grade, d.name AS department_name,
            (SELECT COUNT(*) FROM cse_ballots b WHERE b.candidacy_id = c.id) AS votes
-    FROM cse_candidacies c JOIN users u ON u.id = c.user_id
+    FROM cse_candidacies c
+    JOIN users u ON u.id = c.user_id
+    LEFT JOIN departments d ON d.id = u.department_id
     WHERE c.election_id = ? AND c.status = 'Validée'
     ORDER BY votes DESC, u.last_name COLLATE NOCASE
   `).all(electionId);

@@ -10,6 +10,7 @@ const i18n = require('./i18n');
 const install = require('./install');
 const settings = require('./settings');
 const cse = require('./cse');
+const org = require('./org');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
 const messageRoutes = require('./routes/messages');
@@ -111,8 +112,7 @@ function createApp() {
     // Compteurs et droits affichés dans la navigation de chaque page.
     if (user) {
       res.locals.unreadMessages = messageRoutes.unreadCount(user.id);
-      res.locals.isManager =
-        db.prepare('SELECT COUNT(*) AS n FROM users WHERE manager_id = ?').get(user.id).n > 0;
+      res.locals.isManager = org.isManager(user.id);
       const row = db.prepare('SELECT role, contract_type FROM users WHERE id = ?').get(user.id);
       res.locals.isCseMember = Boolean(row && cse.isEligible(row));
       res.locals.isCseElected = cse.isElected(user.id);

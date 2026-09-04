@@ -333,3 +333,132 @@ test('Agenda', async (t) => {
     assert.match(body, /Réunion CSE de septembre/);
   });
 });
+
+test('Organisation et agenda partagé', async (t) => {
+  const admin = await loginAsAdmin();
+
+  await admin.post('/admin/services', { name: 'Atelier' });
+  const departmentId = db.prepare("SELECT id FROM departments WHERE name = 'Atelier'").get().id;
+  await admin.post('/admin/equipes', { name: 'Montage', department_id: String(departmentId) });
+  await admin.post('/admin/equipes', { name: 'Peinture', department_id: String(departmentId) });
+  const montage = db.prepare("SELECT id FROM teams WHERE name = 'Montage'").get().id;
+  const peinture = db.prepare("SELECT id FROM teams WHERE name = 'Peinture'").get().id;
+
+  const ana = await makeMember(admin, 'ana.montage@test.local', { first_name: 'Ana', last_name: 'Montage' });
+  const bob = await makeMember(admin, 'bob.montage@test.local', { first_name: 'Bob', last_name: 'Montage' });
+  const zoe = await makeMember(admin, 'zoe.peinture@test.local', { first_name: 'Zoé', last_name: 'Peinture' });
+  const solo = await makeMember(admin, 'solo.libre@test.local', { first_name: 'Solo', last_name: 'Libre' });
+
+  for (const [member, team] of [[ana, montage], [bob, montage], [zoe, peinture]]) {
+    await admin.refreshToken('/admin');
+    await admin.post(`/admin/employes/${member.id}/rattachement`, { team_id: String(team) });
+  }
+
+  await t.test("un événement privé ne sort pas de l'agenda de son auteur", async () => {
+    await ana.client.refreshToken('/agenda?mois=2027-03');
+    await ana.client.post('/agenda', {
+      mois: '2027-03', title: 'Rendez-vous médical', start_date: '2027-03-10', end_date: '2027-03-10',
+      all_day: 'on', visibility: 'Privé',
+    });
+
+    const mine = await ana.client.html('/agenda?mois=2027-03');
+    assert.match(mine.body, /Rendez-vous médical/);
+
+    const teammate = await bob.client.html('/agenda?mois=2027-03&vue=equipe');
+    assert.doesNotMatch(teammate.body, /Rendez-vous médical/);
+  });
+
+  await t.test("un événement d'équipe atteint ses coéquipiers, pas les autres équipes", async () => {
+    await ana.client.refreshToken('/agenda?mois=2027-03');
+    await ana.client.post('/agenda', {
+      mois: '2027-03', title: 'Revue de montage', start_date: '2027-03-12', end_date: '2027-03-12',
+      all_day: 'on', visibility: 'Équipe',
+    });
+
+    const teammate = await bob.client.html('/agenda?mois=2027-03&vue=equipe');
+    assert.match(teammate.body, /Revue de montage/);
+    assert.match(teammate.body, /Ana Montage/);
+
+    // Une autre équipe du même service ne voit pas un partage limité à l'équipe.
+    const otherTeam = await zoe.client.html('/agenda?mois=2027-03&vue=equipe');
+    assert.doesNotMatch(otherTeam.body, /Revue de montage/);
+  });
+
+  await t.test("un événement de service atteint tout le service", async () => {
+    await ana.client.refreshToken('/agenda?mois=2027-03');
+    await ana.client.post('/agenda', {
+      mois: '2027-03', title: 'Inventaire atelier', start_date: '2027-03-18', end_date: '2027-03-18',
+      all_day: 'on', visibility: 'Service',
+    });
+
+    const otherTeam = await zoe.client.html('/agenda?mois=2027-03&vue=equipe');
+    assert.match(otherTeam.body, /Inventaire atelier/);
+
+    // Un salarié sans rattachement reste hors de tout partage.
+    const nobody = await solo.client.html('/agenda?mois=2027-03&vue=equipe');
+    assert.doesNotMatch(nobody.body, /Inventaire atelier/);
+  });
+
+  await t.test("l'absence d'un coéquipier apparaît sans dire son motif", async () => {
+    await ana.client.refreshToken('/mon-espace');
+    await ana.client.post('/mon-espace/demandes', {
+      type: 'Absence maladie', start_date: '2027-04-06', end_date: '2027-04-08', reason: 'Grippe',
+    });
+    const request = db.prepare("SELECT * FROM hr_requests WHERE employee_id = ? AND type = 'Absence maladie'").get(ana.id);
+    await admin.refreshToken('/rh');
+    await admin.post(`/rh/demandes/${request.id}/approuver`, {});
+
+    const teammate = await bob.client.html('/agenda?mois=2027-04&vue=equipe');
+    assert.match(teammate.body, /Ana Montage/);
+    assert.match(teammate.body, /Absent/);
+    // Ni le type d'absence ni le motif ne franchissent le partage.
+    assert.doesNotMatch(teammate.body, /Absence maladie/);
+    assert.doesNotMatch(teammate.body, /Grippe/);
+  });
+
+  await t.test('refuse une portée de partage inventée', async () => {
+    await ana.client.refreshToken('/agenda?mois=2027-05');
+    await ana.client.post('/agenda', {
+      mois: '2027-05', title: 'Fuite', start_date: '2027-05-04', end_date: '2027-05-04', visibility: 'Entreprise',
+    });
+    assert.match((await ana.client.flash('/agenda')).message, /Portée de partage/);
+    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM calendar_events WHERE title = 'Fuite'").get().n, 0);
+  });
+
+  await t.test("on ne peut pas changer la portée de l'événement d'un autre", async () => {
+    const event = db.prepare("SELECT * FROM calendar_events WHERE title = 'Rendez-vous médical'").get();
+    await bob.client.refreshToken('/agenda');
+    await bob.client.post(`/agenda/${event.id}/partage`, { mois: '2027-03', visibility: 'Service' });
+    assert.equal(db.prepare('SELECT visibility FROM calendar_events WHERE id = ?').get(event.id).visibility, 'Privé');
+  });
+
+  await t.test("un manager ne publie que sur un périmètre qu'il encadre", async () => {
+    await admin.refreshToken('/admin');
+    await admin.post('/admin/encadrement', { scope: 'team', scope_id: String(montage), user_id: String(ana.id) });
+
+    await ana.client.refreshToken('/mon-equipe');
+    await ana.client.post('/mon-equipe/actualites', { title: 'Intrusion', body: 'x', target: `team:${peinture}` });
+    assert.match((await ana.client.flash('/mon-equipe')).message, /n'encadrez pas ce périmètre/);
+
+    await ana.client.refreshToken('/mon-equipe');
+    await ana.client.post('/mon-equipe/actualites', { title: 'Point montage', body: 'Jeudi 9 h.', target: `team:${montage}` });
+
+    const teammate = await bob.client.html('/mon-espace');
+    assert.match(teammate.body, /Point montage/);
+
+    const outsider = await zoe.client.html('/mon-espace');
+    assert.doesNotMatch(outsider.body, /Point montage/);
+  });
+
+  await t.test("une actualité de service atteint toutes ses équipes", async () => {
+    await admin.refreshToken('/admin');
+    await admin.post('/admin/actualites', { title: 'Fermeture atelier', body: 'Vendredi.', target: `department:${departmentId}` });
+
+    for (const member of [ana, bob, zoe]) {
+      const { body } = await member.client.html('/mon-espace');
+      assert.match(body, /Fermeture atelier/);
+    }
+    const outsider = await solo.client.html('/mon-espace');
+    assert.doesNotMatch(outsider.body, /Fermeture atelier/);
+  });
+});

@@ -5,6 +5,7 @@ const db = require('../db');
 const grades = require('../grades');
 const contractTypes = require('../contract-types');
 const hr = require('../hr');
+const org = require('../org');
 const settings = require('../settings');
 const announcements = require('../announcements');
 const { requireAdmin } = require('../middleware/auth');
@@ -41,10 +42,9 @@ router.get('/', (req, res) => {
   }
 
   const employeesMap = Object.fromEntries(employees.map((e) => [e.id, e]));
-  const teamSizes = {};
-  for (const e of employees) {
-    if (e.manager_id) teamSizes[e.manager_id] = (teamSizes[e.manager_id] || 0) + 1;
-  }
+
+  const departments = org.departments();
+  const teams = org.teams();
 
   res.render('admin', {
     employees,
@@ -55,11 +55,15 @@ router.get('/', (req, res) => {
     employeesByTool,
     toolsMap: Object.fromEntries(tools.map((t) => [t.id, t])),
     employeesMap,
-    teamSizes,
-    managers: employees.filter((e) => teamSizes[e.id]),
+    departments,
+    teams,
+    departmentsMap: Object.fromEntries(departments.map((d) => [d.id, d])),
+    teamsMap: Object.fromEntries(teams.map((t) => [t.id, t])),
+    departmentManagers: Object.fromEntries(departments.map((d) => [d.id, org.managersOf('department', d.id)])),
+    teamManagers: Object.fromEntries(teams.map((t) => [t.id, org.managersOf('team', t.id)])),
     hrMembers: employees.filter((e) => e.is_hr),
     hrEligibleEmployees: employees.filter((e) => !e.is_hr),
-    companyNews: announcements.companyWide(),
+    companyNews: announcements.all(),
     annualLeaveDays: annualLeaveDays(),
     pendingRequestCount: db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n,
     stats: {
@@ -71,44 +75,129 @@ router.get('/', (req, res) => {
   });
 });
 
-// ---------- Organisation : rattachement hiérarchique et annuaire ----------
+// ---------- Organisation : services, équipes, encadrement et annuaire ----------
 
-router.post('/employes/:id/manager', (req, res) => {
+const backToOrg = '/admin#organisation';
+
+function orgFail(req, res, message) {
+  setFlash(req, 'error', message);
+  return res.redirect(backToOrg);
+}
+
+router.post('/services', (req, res) => {
+  const name = (req.body.name || '').trim().slice(0, 120);
+  if (!name) return orgFail(req, res, "Le nom du service est obligatoire.");
+  if (org.departments().some((d) => d.name.toLowerCase() === name.toLowerCase())) {
+    return orgFail(req, res, 'Un service porte déjà ce nom.');
+  }
+
+  org.createDepartment({ name, description: (req.body.description || '').trim().slice(0, 500) });
+  setFlash(req, 'success', `Service « ${name} » créé.`);
+  res.redirect(backToOrg);
+});
+
+router.post('/services/:id/modifier', (req, res) => {
+  const id = Number(req.params.id);
+  if (!org.departmentById(id)) return orgFail(req, res, 'Service introuvable.');
+
+  const name = (req.body.name || '').trim().slice(0, 120);
+  if (!name) return orgFail(req, res, "Le nom du service est obligatoire.");
+  if (org.departments().some((d) => d.id !== id && d.name.toLowerCase() === name.toLowerCase())) {
+    return orgFail(req, res, 'Un autre service porte déjà ce nom.');
+  }
+
+  org.updateDepartment(id, { name, description: (req.body.description || '').trim().slice(0, 500) });
+  setFlash(req, 'success', 'Service mis à jour.');
+  res.redirect(backToOrg);
+});
+
+router.post('/services/:id/supprimer', (req, res) => {
+  const id = Number(req.params.id);
+  if (!org.departmentById(id)) return orgFail(req, res, 'Service introuvable.');
+
+  // Les membres et les équipes sont détachés, jamais supprimés avec le service.
+  org.deleteDepartment(id);
+  setFlash(req, 'success', 'Service supprimé. Ses membres et ses équipes en ont été détachés.');
+  res.redirect(backToOrg);
+});
+
+router.post('/equipes', (req, res) => {
+  const name = (req.body.name || '').trim().slice(0, 120);
+  const departmentId = Number(req.body.department_id) || null;
+
+  if (!name) return orgFail(req, res, "Le nom de l'équipe est obligatoire.");
+  if (departmentId && !org.departmentById(departmentId)) return orgFail(req, res, 'Service introuvable.');
+  if (org.teams().some((t) => t.name.toLowerCase() === name.toLowerCase() && t.department_id === departmentId)) {
+    return orgFail(req, res, 'Une équipe porte déjà ce nom dans ce service.');
+  }
+
+  org.createTeam({ name, departmentId, description: (req.body.description || '').trim().slice(0, 500) });
+  setFlash(req, 'success', `Équipe « ${name} » créée.`);
+  res.redirect(backToOrg);
+});
+
+router.post('/equipes/:id/modifier', (req, res) => {
+  const id = Number(req.params.id);
+  if (!org.teamById(id)) return orgFail(req, res, 'Équipe introuvable.');
+
+  const name = (req.body.name || '').trim().slice(0, 120);
+  const departmentId = Number(req.body.department_id) || null;
+  if (!name) return orgFail(req, res, "Le nom de l'équipe est obligatoire.");
+  if (departmentId && !org.departmentById(departmentId)) return orgFail(req, res, 'Service introuvable.');
+
+  org.updateTeam(id, { name, departmentId, description: (req.body.description || '').trim().slice(0, 500) });
+  setFlash(req, 'success', 'Équipe mise à jour.');
+  res.redirect(backToOrg);
+});
+
+router.post('/equipes/:id/supprimer', (req, res) => {
+  const id = Number(req.params.id);
+  if (!org.teamById(id)) return orgFail(req, res, 'Équipe introuvable.');
+
+  org.deleteTeam(id);
+  setFlash(req, 'success', 'Équipe supprimée. Ses membres en ont été détachés.');
+  res.redirect(backToOrg);
+});
+
+// Un service comme une équipe acceptent plusieurs managers.
+router.post('/encadrement', (req, res) => {
+  const scope = (req.body.scope || '').trim();
+  const scopeId = Number(req.body.scope_id);
+  const userId = Number(req.body.user_id);
+
+  const result = org.addManager(scope, scopeId, userId);
+  const messages = {
+    'bad-scope': 'Périmètre invalide.',
+    'not-found': 'Service ou équipe introuvable.',
+    'no-user': 'Membre introuvable.',
+  };
+  if (!result.ok) return orgFail(req, res, messages[result.reason] || 'Encadrement impossible.');
+
+  setFlash(req, 'success', `${result.user.first_name} ${result.user.last_name} encadre désormais ce périmètre.`);
+  res.redirect(backToOrg);
+});
+
+router.post('/encadrement/retirer', (req, res) => {
+  org.removeManager((req.body.scope || '').trim(), Number(req.body.scope_id), Number(req.body.user_id));
+  setFlash(req, 'success', 'Encadrement retiré.');
+  res.redirect(backToOrg);
+});
+
+router.post('/employes/:id/rattachement', (req, res) => {
   const id = Number(req.params.id);
   const employee = findEmployee(id);
-  if (!employee) {
-    setFlash(req, 'error', 'Membre introuvable.');
-    return res.redirect('/admin#organisation');
-  }
+  if (!employee) return orgFail(req, res, 'Membre introuvable.');
 
-  const raw = (req.body.manager_id || '').trim();
-  if (!raw) {
-    db.prepare('UPDATE users SET manager_id = NULL WHERE id = ?').run(id);
-    setFlash(req, 'success', `${employee.first_name} ${employee.last_name} n'est plus rattaché(e) à un manager.`);
-    return res.redirect('/admin#organisation');
-  }
+  const result = org.assignMembership(id, {
+    departmentId: Number(req.body.department_id) || null,
+    teamId: Number(req.body.team_id) || null,
+  });
 
-  const managerId = Number(raw);
-  if (managerId === id) {
-    setFlash(req, 'error', 'Un membre ne peut pas être son propre manager.');
-    return res.redirect('/admin#organisation');
-  }
+  const messages = { 'no-team': 'Équipe introuvable.', 'no-department': 'Service introuvable.' };
+  if (!result.ok) return orgFail(req, res, messages[result.reason] || 'Rattachement impossible.');
 
-  const manager = findEmployee(managerId);
-  if (!manager) {
-    setFlash(req, 'error', 'Manager introuvable.');
-    return res.redirect('/admin#organisation');
-  }
-
-  // Un rattachement circulaire priverait les deux personnes de leur espace équipe.
-  if (manager.manager_id === id) {
-    setFlash(req, 'error', 'Ce rattachement créerait une boucle hiérarchique.');
-    return res.redirect('/admin#organisation');
-  }
-
-  db.prepare('UPDATE users SET manager_id = ? WHERE id = ?').run(managerId, id);
-  setFlash(req, 'success', `${employee.first_name} ${employee.last_name} est rattaché(e) à ${manager.first_name} ${manager.last_name}.`);
-  res.redirect('/admin#organisation');
+  setFlash(req, 'success', `Rattachement de ${employee.first_name} ${employee.last_name} mis à jour.`);
+  res.redirect(backToOrg);
 });
 
 router.post('/employes/:id/annuaire', (req, res) => {
@@ -172,8 +261,28 @@ router.post('/actualites', (req, res) => {
     return res.redirect('/admin#actualites');
   }
 
-  announcements.create({ authorId: req.session.user.id, scope: 'company', title, body });
-  setFlash(req, 'success', "Actualité publiée pour toute l'entreprise.");
+  // « entreprise », ou un périmètre précis sous la forme « department:3 » / « team:7 ».
+  const target = (req.body.target || 'company').trim();
+  let scope = 'company';
+  let scopeId = null;
+
+  if (target !== 'company') {
+    const [rawScope, rawId] = target.split(':');
+    scopeId = Number(rawId);
+    if (!announcements.SCOPES.includes(rawScope) || rawScope === 'company' || !scopeId) {
+      setFlash(req, 'error', 'Destinataire invalide.');
+      return res.redirect('/admin#actualites');
+    }
+    const exists = rawScope === 'team' ? org.teamById(scopeId) : org.departmentById(scopeId);
+    if (!exists) {
+      setFlash(req, 'error', 'Service ou équipe introuvable.');
+      return res.redirect('/admin#actualites');
+    }
+    scope = rawScope;
+  }
+
+  announcements.create({ authorId: req.session.user.id, scope, scopeId, title, body });
+  setFlash(req, 'success', scope === 'company' ? "Actualité publiée pour toute l'entreprise." : 'Actualité publiée pour ce périmètre.');
   res.redirect('/admin#actualites');
 });
 
@@ -196,7 +305,8 @@ router.post('/employes', (req, res) => {
   const lastName = (req.body.last_name || '').trim().slice(0, 100);
   const email = (req.body.email || '').toLowerCase().trim().slice(0, 254);
   const grade = (req.body.grade || '').trim();
-  const department = (req.body.department || '').trim().slice(0, 100);
+  const departmentId = Number(req.body.department_id) || null;
+  const teamId = Number(req.body.team_id) || null;
   const contractType = (req.body.contract_type || '').trim();
   const contractEndDate = (req.body.contract_end_date || '').trim();
   const dailyRate = parseDailyRate(req.body.daily_rate);
@@ -214,18 +324,23 @@ router.post('/employes', (req, res) => {
   if (!contractTypes.includes(contractType)) return fail('Type de contrat invalide.');
   if (contractEndDate && !isValidDateString(contractEndDate)) return fail('Date de fin de contrat invalide.');
   if (!dailyRate.ok) return fail('TJM invalide.');
+  if (departmentId && !org.departmentById(departmentId)) return fail('Service introuvable.');
+  if (teamId && !org.teamById(teamId)) return fail('Équipe introuvable.');
   if (db.prepare('SELECT id FROM users WHERE email = ?').get(email)) return fail('Un compte existe déjà avec cet email.');
 
   const password = generatePassword();
   const initialLeaveBalance = contractType === 'Freelance' ? 0 : annualLeaveDays();
 
-  db.prepare(`
-    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, contract_type, contract_end_date, daily_rate, leave_balance, active)
-    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+  const created = db.prepare(`
+    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, contract_type, contract_end_date, daily_rate, leave_balance, active)
+    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
   `).run(
-    email, bcrypt.hashSync(password, 12), firstName, lastName, grade, department,
+    email, bcrypt.hashSync(password, 12), firstName, lastName, grade,
     contractType, contractEndDate || null, dailyRate.value, initialLeaveBalance
   );
+
+  // L'équipe porte son service : le rattachement reste cohérent quel que soit le champ rempli.
+  org.assignMembership(Number(created.lastInsertRowid), { departmentId, teamId });
 
   setFlash(req, 'success', `Membre ajouté. Identifiant : ${email} — Mot de passe temporaire : ${password}`);
   res.redirect('/admin#personnel');
@@ -237,7 +352,7 @@ router.get('/employes/:id/modifier', (req, res) => {
     setFlash(req, 'error', 'Membre introuvable.');
     return res.redirect('/admin#personnel');
   }
-  res.render('employee-edit', { employee, grades, contractTypes });
+  res.render('employee-edit', { employee, grades, contractTypes, departments: org.departments(), teams: org.teams() });
 });
 
 router.post('/employes/:id/modifier', (req, res) => {
@@ -249,7 +364,8 @@ router.post('/employes/:id/modifier', (req, res) => {
   }
 
   const grade = (req.body.grade || '').trim();
-  const department = (req.body.department || '').trim().slice(0, 100);
+  const departmentId = Number(req.body.department_id) || null;
+  const teamId = Number(req.body.team_id) || null;
   const contractType = (req.body.contract_type || '').trim();
   const contractEndDate = (req.body.contract_end_date || '').trim();
   const dailyRate = parseDailyRate(req.body.daily_rate);
@@ -262,9 +378,12 @@ router.post('/employes/:id/modifier', (req, res) => {
   if (!grades.includes(grade) || !contractTypes.includes(contractType)) return fail('Grade ou type de contrat invalide.');
   if (contractEndDate && !isValidDateString(contractEndDate)) return fail('Date de fin de contrat invalide.');
   if (!dailyRate.ok) return fail('TJM invalide.');
+  if (departmentId && !org.departmentById(departmentId)) return fail('Service introuvable.');
+  if (teamId && !org.teamById(teamId)) return fail('Équipe introuvable.');
 
-  db.prepare('UPDATE users SET grade = ?, department = ?, contract_type = ?, contract_end_date = ?, daily_rate = ? WHERE id = ?')
-    .run(grade, department, contractType, contractEndDate || null, dailyRate.value, id);
+  db.prepare('UPDATE users SET grade = ?, contract_type = ?, contract_end_date = ?, daily_rate = ? WHERE id = ?')
+    .run(grade, contractType, contractEndDate || null, dailyRate.value, id);
+  org.assignMembership(id, { departmentId, teamId });
 
   setFlash(req, 'success', `Profil de ${employee.first_name} ${employee.last_name} mis à jour.`);
   res.redirect('/admin#personnel');

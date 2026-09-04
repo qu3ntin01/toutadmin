@@ -888,6 +888,9 @@ td.actions { min-width: 196px; }
 .cal-event.is-conge { border-inline-start-color: var(--success); background: var(--success-bg); }
 .cal-event.is-cse { border-inline-start-color: var(--warning); background: var(--warning-bg); }
 .cal-event.is-contrat { border-inline-start-color: var(--danger); background: var(--danger-bg); }
+/* Ce qui vient d'un collègue se distingue de ce qui vient de soi. */
+.cal-event.is-partage { border-inline-start-color: var(--text-tertiary); background: var(--surface-2); }
+.cal-event.is-absence { border-inline-start-color: var(--text-secondary); background: var(--surface-2); font-style: italic; }
 .cal-more { font-size: 0.7rem; color: var(--text-tertiary); }
 
 .calendar-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 0.76rem; color: var(--text-secondary); }
@@ -897,12 +900,24 @@ td.actions { min-width: 196px; }
 .legend-dot.is-conge { background: var(--success); }
 .legend-dot.is-cse { background: var(--warning); }
 .legend-dot.is-contrat { background: var(--danger); }
+.legend-dot.is-partage { background: var(--text-tertiary); }
+.legend-dot.is-absence { background: var(--text-secondary); }
 
 .timeline { display: grid; gap: 10px; }
 .timeline-item { display: flex; align-items: flex-start; gap: 9px; }
 .timeline-item .legend-dot { margin-top: 5px; }
 .timeline-body { display: flex; flex-direction: column; min-width: 0; }
 .timeline-title { font-size: 0.86rem; font-weight: 600; }
+
+/* ---------- Organisation : services et équipes ---------- */
+
+.org-list { list-style: none; display: grid; gap: 10px; }
+.org-item { padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: grid; gap: 8px; }
+.org-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.org-name { display: block; font-size: 0.9rem; font-weight: 650; }
+.org-managers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* Dans un tableau qui défile, un menu déroulant écrasé devient inutilisable. */
+.table-wrap td select { min-width: 132px; }
 
 /* ---------- CSE ---------- */
 
@@ -1042,6 +1057,8 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
   .cal-event.is-conge { background: var(--success); }
   .cal-event.is-cse { background: var(--warning); }
   .cal-event.is-contrat { background: var(--danger); }
+  .cal-event.is-partage { background: var(--text-tertiary); }
+  .cal-event.is-absence { background: var(--text-secondary); }
   .cal-event-time, .cal-more { display: none; }
 
   /* Sur téléphone, la barre se réduit aux icônes : seule la section courante est nommée. */

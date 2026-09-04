@@ -88,7 +88,7 @@
                     <%- include('partials/avatar', { person: member, size: 'sm' }) %>
                     <span class="person-body">
                       <span class="person-name"><%= member.first_name %> <%= member.last_name %></span>
-                      <span class="cell-sub"><%= member.mandate_role %><%= member.department ? ' · ' + member.department : '' %></span>
+                      <span class="cell-sub"><%= member.mandate_role %><%= member.department_name ? ' · ' + member.department_name : '' %></span>
                     </span>
                     <a href="/messagerie" class="btn btn-outline btn-sm"><%= t('nav.messages') %></a>
                   </li>
@@ -191,7 +191,7 @@
                         <input type="radio" name="candidacy_id" value="<%= candidate.id %>" <%= index === 0 ? 'required' : '' %> />
                         <span class="candidate-body">
                           <span class="person-name"><%= candidate.first_name %> <%= candidate.last_name %></span>
-                          <span class="cell-sub"><%= candidate.grade %><%= candidate.department ? ' · ' + candidate.department : '' %></span>
+                          <span class="cell-sub"><%= candidate.grade %><%= candidate.department_name ? ' · ' + candidate.department_name : '' %></span>
                           <% if (candidate.statement) { %><span class="benefit-text"><%= candidate.statement %></span><% } %>
                         </span>
                       </label>
@@ -218,7 +218,7 @@
                     <%- include('partials/avatar', { person: candidate, size: 'sm' }) %>
                     <span class="person-body">
                       <span class="person-name"><%= candidate.first_name %> <%= candidate.last_name %></span>
-                      <span class="cell-sub"><%= candidate.grade %><%= candidate.department ? ' · ' + candidate.department : '' %></span>
+                      <span class="cell-sub"><%= candidate.grade %><%= candidate.department_name ? ' · ' + candidate.department_name : '' %></span>
                       <% if (candidate.statement) { %><span class="benefit-text"><%= candidate.statement %></span><% } %>
                     </span>
                     <span class="status <%= candidate.status === 'Validée' ? 'status-on' : (candidate.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= candidate.status %></span>
@@ -245,7 +245,7 @@
                         <strong><%= row.first_name %> <%= row.last_name %></strong>
                         <% if (index < lastClosed.seats) { %> <span class="tag tag-accent"><%= t('status.approved') %></span><% } %>
                       </td>
-                      <td><%= row.department || '—' %></td>
+                      <td><%= row.department_name || '—' %></td>
                       <td><strong><%= row.votes %></strong></td>
                     </tr>
                   <% }) %>

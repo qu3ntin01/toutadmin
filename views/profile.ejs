@@ -27,7 +27,7 @@
                 <%- include('partials/avatar', { person: profile, size: 'lg' }) %>
                 <div>
                   <div class="manager-name"><%= profile.first_name %> <%= profile.last_name %></div>
-                  <div class="manager-role"><%= profile.grade %><%= profile.department ? ' · ' + profile.department : '' %></div>
+                  <div class="manager-role"><%= profile.grade %><%= department ? ' · ' + department.name : '' %></div>
                 </div>
               </div>
 
@@ -57,11 +57,12 @@
                 <tbody>
                   <tr><td class="cell-sub"><%= t('common.email') %></td><td class="cell-strong"><%= profile.email %></td></tr>
                   <tr><td class="cell-sub"><%= t('common.grade') %></td><td><%= profile.grade %></td></tr>
-                  <tr><td class="cell-sub"><%= t('common.department') %></td><td><%= profile.department || '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.department') %></td><td><%= department ? department.name : '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.team') %></td><td><%= team ? team.name : '—' %></td></tr>
                   <tr><td class="cell-sub"><%= t('common.contract') %></td><td><%= profile.contract_type || '—' %></td></tr>
                   <tr>
-                    <td class="cell-sub"><%= t('common.manager') %></td>
-                    <td><%= manager ? manager.first_name + ' ' + manager.last_name : t('home.noManager') %></td>
+                    <td class="cell-sub"><%= t('common.managers') %></td>
+                    <td><%= managers.length ? managers.map((m) => m.first_name + ' ' + m.last_name).join(', ') : t('home.noManager') %></td>
                   </tr>
                 </tbody>
               </table>

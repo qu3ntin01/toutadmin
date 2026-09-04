@@ -76,8 +76,18 @@
                   </select>
                 </label>
                 <label>
-                  <span>Service</span>
-                  <input type="text" name="department" placeholder="Ex : Maintenance" />
+                  <span><%= t('common.department') %></span>
+                  <select name="department_id">
+                    <option value="">— <%= t('common.none') %> —</option>
+                    <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('common.team') %></span>
+                  <select name="team_id">
+                    <option value="">— <%= t('common.none') %> —</option>
+                    <% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %><%= tm.department_name ? ' · ' + tm.department_name : '' %></option><% }) %>
+                  </select>
                 </label>
                 <label>
                   <span>Type de contrat</span>
@@ -325,11 +335,170 @@
 
         <!-- ORGANISATION -->
         <section class="tab-panel" id="organisation">
+          <div class="grid-2">
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h3><%= t('org.newDepartment') %></h3></div>
+                <form method="POST" action="/admin/services" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label>
+                    <span>Nom</span>
+                    <input type="text" name="name" maxlength="120" placeholder="Ex : Production" required />
+                  </label>
+                  <label>
+                    <span>Description <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                    <input type="text" name="description" maxlength="500" />
+                  </label>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                </form>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3><%= t('org.newTeam') %></h3></div>
+                <form method="POST" action="/admin/equipes" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label>
+                    <span>Nom</span>
+                    <input type="text" name="name" maxlength="120" placeholder="Ex : Maintenance nord" required />
+                  </label>
+                  <label>
+                    <span><%= t('common.department') %></span>
+                    <select name="department_id">
+                      <option value="">— <%= t('common.none') %> —</option>
+                      <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Description <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                    <input type="text" name="description" maxlength="500" />
+                  </label>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                  <p class="hint">Une équipe appartient à un service : rattacher un membre à l'équipe le rattache aussi à ce service.</p>
+                </form>
+              </div>
+            </div>
+
+            <div class="stack">
+              <!-- Services et leurs managers -->
+              <div class="card">
+                <div class="card-head"><h3><%= t('org.departments') %> <span class="muted">(<%= departments.length %>)</span></h3></div>
+                <% if (departments.length === 0) { %>
+                  <div class="empty-state"><%= t('org.noDepartment') %></div>
+                <% } else { %>
+                  <ul class="org-list">
+                    <% departments.forEach((d) => { %>
+                      <li class="org-item">
+                        <div class="org-head">
+                          <div>
+                            <span class="org-name"><%= d.name %></span>
+                            <span class="cell-sub"><%= t('org.members') %> : <%= d.member_count %> · <%= t('org.teams') %> : <%= d.team_count %></span>
+                          </div>
+                          <form method="POST" action="/admin/services/<%= d.id %>/supprimer" data-confirm="Supprimer ce service ? Ses membres et ses équipes en seront détachés.">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </div>
+                        <% if (d.description) { %><p class="cell-sub"><%= d.description %></p><% } %>
+
+                        <div class="org-managers">
+                          <span class="cell-sub"><%= t('org.management') %> :</span>
+                          <% const dManagers = departmentManagers[d.id] || []; %>
+                          <% if (dManagers.length === 0) { %>
+                            <span class="cell-sub"><%= t('org.noManager') %></span>
+                          <% } else { %>
+                            <% dManagers.forEach((m) => { %>
+                              <form method="POST" action="/admin/encadrement/retirer" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <input type="hidden" name="scope" value="department" />
+                                <input type="hidden" name="scope_id" value="<%= d.id %>" />
+                                <input type="hidden" name="user_id" value="<%= m.id %>" />
+                                <span class="tag tag-accent"><%= m.first_name %> <%= m.last_name %></span>
+                                <button type="submit" class="btn btn-quiet btn-sm" title="<%= t('common.delete') %>">×</button>
+                              </form>
+                            <% }) %>
+                          <% } %>
+                        </div>
+
+                        <form method="POST" action="/admin/encadrement" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <input type="hidden" name="scope" value="department" />
+                          <input type="hidden" name="scope_id" value="<%= d.id %>" />
+                          <select name="user_id" required>
+                            <option value=""><%= t('org.addManager') %></option>
+                            <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                          </select>
+                          <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                        </form>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+              </div>
+
+              <!-- Équipes et leurs managers -->
+              <div class="card">
+                <div class="card-head"><h3><%= t('org.teams') %> <span class="muted">(<%= teams.length %>)</span></h3></div>
+                <% if (teams.length === 0) { %>
+                  <div class="empty-state"><%= t('org.noTeam') %></div>
+                <% } else { %>
+                  <ul class="org-list">
+                    <% teams.forEach((tm) => { %>
+                      <li class="org-item">
+                        <div class="org-head">
+                          <div>
+                            <span class="org-name"><%= tm.name %></span>
+                            <span class="cell-sub"><%= tm.department_name || t('common.none') %> · <%= t('org.members') %> : <%= tm.member_count %></span>
+                          </div>
+                          <form method="POST" action="/admin/equipes/<%= tm.id %>/supprimer" data-confirm="Supprimer cette équipe ? Ses membres en seront détachés.">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </div>
+                        <% if (tm.description) { %><p class="cell-sub"><%= tm.description %></p><% } %>
+
+                        <div class="org-managers">
+                          <span class="cell-sub"><%= t('org.management') %> :</span>
+                          <% const tManagers = teamManagers[tm.id] || []; %>
+                          <% if (tManagers.length === 0) { %>
+                            <span class="cell-sub"><%= t('org.noManager') %></span>
+                          <% } else { %>
+                            <% tManagers.forEach((m) => { %>
+                              <form method="POST" action="/admin/encadrement/retirer" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <input type="hidden" name="scope" value="team" />
+                                <input type="hidden" name="scope_id" value="<%= tm.id %>" />
+                                <input type="hidden" name="user_id" value="<%= m.id %>" />
+                                <span class="tag tag-accent"><%= m.first_name %> <%= m.last_name %></span>
+                                <button type="submit" class="btn btn-quiet btn-sm" title="<%= t('common.delete') %>">×</button>
+                              </form>
+                            <% }) %>
+                          <% } %>
+                        </div>
+
+                        <form method="POST" action="/admin/encadrement" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <input type="hidden" name="scope" value="team" />
+                          <input type="hidden" name="scope_id" value="<%= tm.id %>" />
+                          <select name="user_id" required>
+                            <option value=""><%= t('org.addManager') %></option>
+                            <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                          </select>
+                          <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                        </form>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rattachement de chaque membre et visibilité dans l'annuaire -->
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Rattachement hiérarchique et annuaire</h3>
-                <p class="card-sub">Chaque membre peut être rattaché à un manager, qui obtient alors son espace équipe. La visibilité dans l'annuaire se pilote ici uniquement.</p>
+                <h3><%= t('org.assignment') %></h3>
+                <p class="card-sub">Un membre appartient à une équipe et à un service. Un manager de service encadre aussi les équipes qu'il contient. La visibilité dans l'annuaire se pilote ici uniquement.</p>
               </div>
             </div>
 
@@ -339,28 +508,49 @@
               <div class="table-wrap">
                 <table>
                   <thead>
-                    <tr><th><%= t('common.member') %></th><th><%= t('common.manager') %></th><th>Équipe</th><th><%= t('admin.directoryVisibility') %></th><th></th></tr>
+                    <tr>
+                      <th><%= t('common.member') %></th>
+                      <th><%= t('org.assignment') %></th>
+                      <th><%= t('common.managers') %></th>
+                      <th><%= t('admin.directoryVisibility') %></th>
+                      <th></th>
+                    </tr>
                   </thead>
                   <tbody>
                     <% employees.forEach((e) => { %>
                       <tr>
                         <td>
                           <div class="cell-strong"><%= e.first_name %> <%= e.last_name %></div>
-                          <div class="cell-sub"><%= e.grade %><%= e.department ? ' · ' + e.department : '' %></div>
+                          <div class="cell-sub"><%= e.grade %></div>
                         </td>
                         <td>
-                          <form method="POST" action="/admin/employes/<%= e.id %>/manager" class="inline-form">
+                          <form method="POST" action="/admin/employes/<%= e.id %>/rattachement" class="inline-form">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <select name="manager_id">
-                              <option value="">— <%= t('common.none') %> —</option>
-                              <% employees.forEach((m) => { if (m.id !== e.id) { %>
-                                <option value="<%= m.id %>" <%= e.manager_id === m.id ? 'selected' : '' %>><%= m.first_name %> <%= m.last_name %></option>
-                              <% } }) %>
+                            <select name="department_id">
+                              <option value="">— <%= t('common.department') %> —</option>
+                              <% departments.forEach((d) => { %>
+                                <option value="<%= d.id %>" <%= e.department_id === d.id ? 'selected' : '' %>><%= d.name %></option>
+                              <% }) %>
+                            </select>
+                            <select name="team_id">
+                              <option value="">— <%= t('common.team') %> —</option>
+                              <% teams.forEach((tm) => { %>
+                                <option value="<%= tm.id %>" <%= e.team_id === tm.id ? 'selected' : '' %>><%= tm.name %></option>
+                              <% }) %>
                             </select>
                             <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
                           </form>
                         </td>
-                        <td class="num"><%= teamSizes[e.id] || 0 %></td>
+                        <td class="cell-sub">
+                          <%
+                            const seen = new Set();
+                            const mgrs = [
+                              ...(e.team_id ? (teamManagers[e.team_id] || []) : []),
+                              ...(e.department_id ? (departmentManagers[e.department_id] || []) : []),
+                            ].filter((m) => m.id !== e.id && !seen.has(m.id) && seen.add(m.id));
+                          %>
+                          <%= mgrs.length ? mgrs.map((m) => m.first_name + ' ' + m.last_name).join(', ') : '—' %>
+                        </td>
                         <td>
                           <span class="status <%= e.directory_hidden ? 'status-off' : 'status-on' %>">
                             <%= e.directory_hidden ? t('admin.hidden') : t('admin.visible') %>
@@ -396,11 +586,23 @@
                   <span><%= t('team.newsBody') %></span>
                   <textarea name="body" rows="5" maxlength="2000"></textarea>
                 </label>
+                <label class="span-2">
+                  <span>Destinataires</span>
+                  <select name="target">
+                    <option value="company"><%= t('home.companyNews') %></option>
+                    <% departments.forEach((d) => { %>
+                      <option value="department:<%= d.id %>"><%= t('common.department') %> · <%= d.name %></option>
+                    <% }) %>
+                    <% teams.forEach((tm) => { %>
+                      <option value="team:<%= tm.id %>"><%= t('common.team') %> · <%= tm.name %></option>
+                    <% }) %>
+                  </select>
+                </label>
                 <div class="span-2">
                   <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
                 </div>
               </form>
-              <p class="hint">Une actualité publiée ici est visible par tout le personnel sur sa page d'accueil. Les managers publient de leur côté pour leur seule équipe.</p>
+              <p class="hint">Une actualité peut viser toute l'entreprise, un service ou une seule équipe. Les managers publient de leur côté sur les périmètres qu'ils encadrent.</p>
             </div>
 
             <div class="card">
@@ -412,7 +614,7 @@
                   <div class="news-item">
                     <div class="news-head">
                       <span class="news-title"><%= n.title %></span>
-                      <span class="tag tag-accent"><%= t('home.companyNews') %></span>
+                      <span class="tag tag-accent"><%= n.scope === 'company' ? t('home.companyNews') : n.scope_name || '—' %></span>
                       <span class="news-meta"><%= new Date(n.created_at).toLocaleDateString(locale) %></span>
                       <form method="POST" action="/admin/actualites/<%= n.id %>/supprimer" data-confirm="<%= t('common.delete') %> ?">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

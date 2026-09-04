@@ -1,6 +1,7 @@
 const express = require('express');
 
 const db = require('../db');
+const org = require('../org');
 const announcements = require('../announcements');
 const { requireManager } = require('../middleware/auth');
 const { setFlash } = require('../utils');
@@ -9,15 +10,10 @@ const router = express.Router();
 
 router.use(requireManager);
 
-function teamOf(managerId) {
-  return db
-    .prepare("SELECT * FROM users WHERE manager_id = ? ORDER BY last_name COLLATE NOCASE, first_name COLLATE NOCASE")
-    .all(managerId);
-}
-
 router.get('/', (req, res) => {
   const managerId = req.session.user.id;
-  const team = teamOf(managerId);
+  const scopes = org.scopesManagedBy(managerId);
+  const team = org.membersManagedBy(managerId);
   const ids = team.map((m) => m.id);
 
   // Aucun collaborateur : pas de requête IN () invalide.
@@ -34,11 +30,18 @@ router.get('/', (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   const upcoming = requests.filter((r) => r.status === 'Approuvée' && r.end_date >= today);
 
+  // Les périmètres encadrés, nommés : ils servent aussi de destinataires d'actualité.
+  const managedScopes = [
+    ...scopes.departments.map((id) => ({ scope: 'department', id, name: (org.departmentById(id) || {}).name })),
+    ...scopes.teams.map((id) => ({ scope: 'team', id, name: (org.teamById(id) || {}).name })),
+  ].filter((s) => s.name);
+
   res.render('manager', {
     team,
     requests,
     upcoming,
-    teamNews: announcements.forTeam(managerId),
+    managedScopes,
+    teamNews: announcements.forScopes(scopes),
     stats: {
       teamSize: team.length,
       pending: requests.filter((r) => r.status === 'En attente').length,
@@ -51,27 +54,33 @@ router.get('/', (req, res) => {
 router.post('/actualites', (req, res) => {
   const title = (req.body.title || '').trim().slice(0, 150);
   const body = (req.body.body || '').trim().slice(0, 2000);
+  const [scope, rawId] = (req.body.target || '').split(':');
+  const scopeId = Number(rawId);
 
-  if (!title) {
-    setFlash(req, 'error', "Le titre de l'actualité est obligatoire.");
+  const fail = (message) => {
+    setFlash(req, 'error', message);
     return res.redirect('/mon-equipe#actualites');
-  }
+  };
 
-  announcements.create({
-    authorId: req.session.user.id,
-    scope: 'team',
-    teamManagerId: req.session.user.id,
-    title,
-    body,
-  });
+  if (!title) return fail("Le titre de l'actualité est obligatoire.");
 
-  setFlash(req, 'success', 'Actualité publiée pour votre équipe.');
+  // Un manager ne publie que sur un périmètre qu'il encadre effectivement.
+  const scopes = org.scopesManagedBy(req.session.user.id);
+  const allowed = scope === 'team' ? scopes.teams : scope === 'department' ? scopes.departments : [];
+  if (!allowed.includes(scopeId)) return fail("Vous n'encadrez pas ce périmètre.");
+
+  announcements.create({ authorId: req.session.user.id, scope, scopeId, title, body });
+  setFlash(req, 'success', 'Actualité publiée.');
   res.redirect('/mon-equipe#actualites');
 });
 
 router.post('/actualites/:id/supprimer', (req, res) => {
-  announcements.removeForManager(Number(req.params.id), req.session.user.id);
-  setFlash(req, 'success', 'Actualité supprimée.');
+  const scopes = org.scopesManagedBy(req.session.user.id);
+  if (!announcements.removeWithinScopes(Number(req.params.id), scopes)) {
+    setFlash(req, 'error', "Cette actualité ne relève pas d'un périmètre que vous encadrez.");
+  } else {
+    setFlash(req, 'success', 'Actualité supprimée.');
+  }
   res.redirect('/mon-equipe#actualites');
 });
 

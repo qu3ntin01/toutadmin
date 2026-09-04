@@ -48,14 +48,13 @@ function requireCseElected(req, res, next) {
   next();
 }
 
-// Est manager quiconque a au moins un collaborateur rattaché : aucun rôle à gérer en plus.
+// Est manager quiconque encadre au moins une équipe ou un service : aucun rôle à gérer en plus.
 function requireManager(req, res, next) {
   if (!req.session.user) return res.redirect('/connexion');
 
-  const db = require('../db');
-  const reports = db.prepare('SELECT COUNT(*) AS n FROM users WHERE manager_id = ?').get(req.session.user.id).n;
-  if (reports === 0) {
-    return res.status(403).render('error', { message: "Cet espace est réservé aux managers ayant des collaborateurs rattachés." });
+  const org = require('../org');
+  if (!org.isManager(req.session.user.id)) {
+    return res.status(403).render('error', { message: "Cet espace est réservé aux managers d'une équipe ou d'un service." });
   }
   next();
 }

@@ -249,42 +249,97 @@ test('managers, équipes et actualités', async (t) => {
   const chief = await makeMember(admin, 'chef@test.local', { first_name: 'Chloé', last_name: 'Chef', grade: 'Manager' });
   const report = await makeMember(admin, 'equipier@test.local', { first_name: 'Ravi', last_name: 'Equipier' });
 
-  await t.test("l'espace équipe est fermé tant qu'aucun collaborateur n'est rattaché", async () => {
-    const res = await chief.client.get('/mon-equipe');
-    assert.equal(res.status, 403);
+
+  let teamId;
+  let departmentId;
+
+  await t.test("l'administrateur crée un service et une équipe", async () => {
+    await admin.post('/admin/services', { name: 'Support', description: 'Assistance et maintenance.' });
+    departmentId = db.prepare("SELECT id FROM departments WHERE name = 'Support'").get().id;
+
+    await admin.post('/admin/equipes', { name: 'Astreinte', department_id: String(departmentId) });
+    teamId = db.prepare("SELECT id FROM teams WHERE name = 'Astreinte'").get().id;
+    assert.equal(db.prepare('SELECT department_id FROM teams WHERE id = ?').get(teamId).department_id, departmentId);
   });
 
-  await t.test("l'administrateur rattache un collaborateur à un manager", async () => {
-    await admin.post(`/admin/employes/${report.id}/manager`, { manager_id: String(chief.id) });
-    assert.equal(db.prepare('SELECT manager_id FROM users WHERE id = ?').get(report.id).manager_id, chief.id);
+  await t.test('refuse deux services de même nom', async () => {
+    await admin.post('/admin/services', { name: 'support' });
+    assert.match((await admin.flash('/admin')).message, /porte déjà ce nom/);
+    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM departments WHERE lower(name) = 'support'").get().n, 1);
   });
 
-  await t.test('refuse un rattachement à soi-même', async () => {
-    await admin.post(`/admin/employes/${report.id}/manager`, { manager_id: String(report.id) });
-    assert.match((await admin.flash('/admin')).message, /son propre manager/);
-    assert.equal(db.prepare('SELECT manager_id FROM users WHERE id = ?').get(report.id).manager_id, chief.id);
+  await t.test("rattacher à une équipe rattache aussi à son service", async () => {
+    await admin.post(`/admin/employes/${report.id}/rattachement`, { team_id: String(teamId) });
+    const row = db.prepare('SELECT department_id, team_id FROM users WHERE id = ?').get(report.id);
+    assert.equal(row.team_id, teamId);
+    assert.equal(row.department_id, departmentId);
   });
 
-  await t.test('refuse une boucle hiérarchique', async () => {
-    await admin.post(`/admin/employes/${chief.id}/manager`, { manager_id: String(report.id) });
-    assert.match((await admin.flash('/admin')).message, /boucle hiérarchique/);
-    assert.equal(db.prepare('SELECT manager_id FROM users WHERE id = ?').get(chief.id).manager_id, null);
+  await t.test('refuse un rattachement à une équipe inconnue', async () => {
+    await admin.post(`/admin/employes/${report.id}/rattachement`, { team_id: '99999' });
+    assert.match((await admin.flash('/admin')).message, /Équipe introuvable/);
+    assert.equal(db.prepare('SELECT team_id FROM users WHERE id = ?').get(report.id).team_id, teamId);
   });
 
-  await t.test("le manager voit son équipe une fois le rattachement fait", async () => {
-    // Les droits manager sont recalculés à chaque requête : pas besoin de se reconnecter.
-    const { res, body } = await chief.client.html('/mon-equipe');
+  await t.test("l'espace équipe reste fermé tant qu'aucun périmètre n'est encadré", async () => {
+    assert.equal((await chief.client.get('/mon-equipe')).status, 403);
+  });
+
+  await t.test('une équipe accepte plusieurs managers', async () => {
+    const second = await makeMember(admin, 'codirection@test.local', { first_name: 'Sam', last_name: 'Codir', grade: 'Manager' });
+    await admin.post('/admin/encadrement', { scope: 'team', scope_id: String(teamId), user_id: String(chief.id) });
+    await admin.post('/admin/encadrement', { scope: 'team', scope_id: String(teamId), user_id: String(second.id) });
+
+    const managers = db.prepare("SELECT user_id FROM org_managers WHERE scope = 'team' AND scope_id = ?").all(teamId);
+    assert.equal(managers.length, 2);
+
+    // Les deux voient la même équipe, sans reconnexion : les droits sont recalculés à chaque requête.
+    for (const client of [chief.client, second.client]) {
+      const { res, body } = await client.html('/mon-equipe');
+      assert.equal(res.status, 200);
+      assert.match(body, /Ravi Equipier/);
+    }
+  });
+
+  await t.test('un manager de service encadre aussi les équipes de ce service', async () => {
+    const head = await makeMember(admin, 'chefservice@test.local', { first_name: 'Nour', last_name: 'Service', grade: 'Directeur' });
+    await admin.post('/admin/encadrement', { scope: 'department', scope_id: String(departmentId), user_id: String(head.id) });
+
+    const { res, body } = await head.client.html('/mon-equipe');
     assert.equal(res.status, 200);
     assert.match(body, /Ravi Equipier/);
   });
 
-  await t.test("le nom du manager apparaît sur l'accueil du collaborateur", async () => {
+  await t.test("les managers de son équipe et de son service apparaissent sur l'accueil", async () => {
     const { body } = await report.client.html('/mon-espace');
     assert.match(body, /Chloé Chef/);
+    assert.match(body, /Nour Service/);
+  });
+
+  await t.test("retirer l'encadrement referme l'espace manager", async () => {
+    const solo = await makeMember(admin, 'ephemere@test.local', { first_name: 'Iris', last_name: 'Passage', grade: 'Manager' });
+    await admin.post('/admin/encadrement', { scope: 'team', scope_id: String(teamId), user_id: String(solo.id) });
+    assert.equal((await solo.client.get('/mon-equipe')).status, 200);
+
+    await admin.post('/admin/encadrement/retirer', { scope: 'team', scope_id: String(teamId), user_id: String(solo.id) });
+    assert.equal((await solo.client.get('/mon-equipe')).status, 403);
+  });
+
+  await t.test("supprimer une équipe en détache ses membres sans les effacer", async () => {
+    const doomed = await makeMember(admin, 'detache@test.local', { first_name: 'Léo', last_name: 'Détaché' });
+    await admin.post('/admin/equipes', { name: 'Éphémère' });
+    const doomedTeam = db.prepare("SELECT id FROM teams WHERE name = 'Éphémère'").get().id;
+    await admin.post(`/admin/employes/${doomed.id}/rattachement`, { team_id: String(doomedTeam) });
+
+    await admin.post(`/admin/equipes/${doomedTeam}/supprimer`, {});
+    assert.equal(db.prepare('SELECT id FROM teams WHERE id = ?').get(doomedTeam), undefined);
+    assert.ok(db.prepare('SELECT id FROM users WHERE id = ?').get(doomed.id), 'le membre doit survivre à son équipe');
+    assert.equal(db.prepare('SELECT team_id FROM users WHERE id = ?').get(doomed.id).team_id, null);
   });
 
   await t.test("une actualité d'équipe n'est visible que par cette équipe", async () => {
-    await chief.client.post('/mon-equipe/actualites', { title: 'Réunion hebdo déplacée', body: 'Jeudi 10 h.' });
+    await chief.client.refreshToken('/mon-equipe');
+    await chief.client.post('/mon-equipe/actualites', { title: 'Réunion hebdo déplacée', body: 'Jeudi 10 h.', target: `team:${teamId}` });
 
     const forReport = await report.client.html('/mon-espace');
     assert.match(forReport.body, /Réunion hebdo déplacée/);

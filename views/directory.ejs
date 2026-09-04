@@ -31,6 +31,18 @@
             <h3><%= t('directory.count', { count: people.length }) %></h3>
             <form method="GET" action="/annuaire" class="search-bar">
               <input type="search" name="q" value="<%= query %>" placeholder="<%= t('directory.search') %>" />
+              <select name="service">
+                <option value=""><%= t('common.department') %></option>
+                <% departments.forEach((d) => { %>
+                  <option value="<%= d.id %>" <%= departmentFilter === d.id ? 'selected' : '' %>><%= d.name %></option>
+                <% }) %>
+              </select>
+              <select name="equipe">
+                <option value=""><%= t('common.team') %></option>
+                <% teams.forEach((tm) => { %>
+                  <option value="<%= tm.id %>" <%= teamFilter === tm.id ? 'selected' : '' %>><%= tm.name %></option>
+                <% }) %>
+              </select>
               <button type="submit" class="btn"><%= t('common.search') %></button>
             </form>
           </div>
@@ -44,11 +56,14 @@
                   <%- include('partials/avatar', { person }) %>
                   <div class="person-body">
                     <div class="person-name"><%= person.first_name %> <%= person.last_name %></div>
-                    <div class="person-role"><%= person.grade %><%= person.department ? ' · ' + person.department : '' %></div>
+                    <div class="person-role"><%= person.grade %></div>
+                    <% const attachment = [person.team_name, person.department_name].filter(Boolean).join(' · '); %>
+                    <% if (attachment) { %><div class="person-line"><%= attachment %></div><% } %>
                     <div class="person-line"><%= person.mail_address || person.email %></div>
                     <% if (person.phone) { %><div class="person-line"><%= person.phone %></div><% } %>
-                    <% if (person.manager_first_name) { %>
-                      <div class="person-line"><%= t('common.manager') %> : <%= person.manager_first_name %> <%= person.manager_last_name %></div>
+                    <% const personManagers = managersFor(person); %>
+                    <% if (personManagers.length) { %>
+                      <div class="person-line"><%= t('common.managers') %> : <%= personManagers.map((m) => m.first_name + ' ' + m.last_name).join(', ') %></div>
                     <% } %>
                     <% if (person.bio) { %><p class="person-bio"><%= person.bio %></p><% } %>
                   </div>

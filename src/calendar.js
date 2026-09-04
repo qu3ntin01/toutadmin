@@ -1,8 +1,12 @@
 const db = require('./db');
+const org = require('./org');
 
 // Catégories d'un événement saisi par le membre. Les entrées venues des congés,
 // du CSE ou du contrat sont dérivées : elles portent leur propre source.
 const EVENT_CATEGORIES = ['Personnel', 'Réunion', 'Déplacement', 'Formation', 'Télétravail', 'Autre'];
+
+// Portée d'un événement : privé par défaut, partageable avec l'équipe ou le service.
+const VISIBILITIES = ['Privé', 'Équipe', 'Service'];
 
 function pad(n) {
   return String(n).padStart(2, '0');
@@ -67,12 +71,18 @@ function buildGrid(month) {
 
 // ---------- Événements personnels ----------
 
-function createEvent({ userId, title, description, location, startDate, endDate, startTime, endTime, allDay, category }) {
+function createEvent({ userId, title, description, location, startDate, endDate, startTime, endTime, allDay, category, visibility }) {
   return db.prepare(`
-    INSERT INTO calendar_events (user_id, title, description, location, start_date, end_date, start_time, end_time, all_day, category)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO calendar_events (user_id, title, description, location, start_date, end_date, start_time, end_time, all_day, category, visibility)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(userId, title, description || '', location || '', startDate, endDate, startTime || '', endTime || '',
-         allDay ? 1 : 0, category || 'Personnel').lastInsertRowid;
+         allDay ? 1 : 0, category || 'Personnel', VISIBILITIES.includes(visibility) ? visibility : 'Privé').lastInsertRowid;
+}
+
+/** Change la portée d'un de ses propres événements. */
+function setVisibility(id, userId, visibility) {
+  if (!VISIBILITIES.includes(visibility)) return false;
+  return db.prepare('UPDATE calendar_events SET visibility = ? WHERE id = ? AND user_id = ?').run(visibility, id, userId).changes > 0;
 }
 
 function deleteEvent(id, userId) {
@@ -106,11 +116,55 @@ function meetingEntries(fromISO, toISO) {
   `).all(fromISO, toISO);
 }
 
+// ---------- Agenda partagé ----------
+
+/**
+ * Les événements que des collègues ont ouverts au lecteur : ceux marqués
+ * « Équipe » dans son équipe, et ceux marqués « Service » dans son service.
+ * Rien de privé ne franchit cette requête.
+ */
+function sharedEvents(viewer, fromISO, toISO) {
+  const clauses = [];
+  const params = [];
+
+  if (viewer.team_id) {
+    clauses.push("(u.team_id = ? AND e.visibility IN ('Équipe', 'Service'))");
+    params.push(viewer.team_id);
+  }
+  if (viewer.department_id) {
+    clauses.push("(u.department_id = ? AND e.visibility = 'Service')");
+    params.push(viewer.department_id);
+  }
+  if (clauses.length === 0) return [];
+
+  return db.prepare(`
+    SELECT e.*, u.first_name, u.last_name, u.avatar_file
+    FROM calendar_events e JOIN users u ON u.id = e.user_id
+    WHERE e.user_id != ? AND e.start_date <= ? AND e.end_date >= ? AND (${clauses.join(' OR ')})
+    ORDER BY e.start_date, e.start_time
+  `).all(viewer.id, toISO, fromISO, ...params);
+}
+
+/**
+ * Les absences approuvées des collègues d'équipe. Le motif et le type restent
+ * chez leur auteur : l'agenda partagé dit qu'un collègue est absent, pas pourquoi.
+ */
+function sharedAbsences(viewer, fromISO, toISO) {
+  if (!viewer.team_id) return [];
+  return db.prepare(`
+    SELECT r.start_date, r.end_date, u.first_name, u.last_name
+    FROM hr_requests r JOIN users u ON u.id = r.employee_id
+    WHERE u.team_id = ? AND u.id != ? AND r.status = 'Approuvée'
+      AND r.start_date <= ? AND r.end_date >= ?
+    ORDER BY r.start_date
+  `).all(viewer.team_id, viewer.id, toISO, fromISO);
+}
+
 /**
  * Agenda d'un mois : chaque jour reçoit ses entrées, personnelles comme dérivées.
  * `attendsCse` ouvre les réunions du comité aux seuls salariés qu'elles concernent.
  */
-function monthAgenda(user, month, { attendsCse = false } = {}) {
+function monthAgenda(user, month, { attendsCse = false, shared = false } = {}) {
   const { firstISO, lastISO } = monthBounds(month);
   const byDay = {};
 
@@ -141,6 +195,7 @@ function monthAgenda(user, month, { attendsCse = false } = {}) {
       // La grille n'a la place que de l'heure de début ; la liste affiche la plage entière.
       time: event.all_day ? '' : [event.start_time, event.end_time].filter(Boolean).join(' – '),
       startTime: event.all_day ? '' : event.start_time,
+      visibility: event.visibility,
       removable: true,
     }));
   }
@@ -172,6 +227,36 @@ function monthAgenda(user, month, { attendsCse = false } = {}) {
 
   if (user.contract_end_date) {
     push(user.contract_end_date, { source: 'contrat', title: 'Fin de contrat', category: 'Contrat', time: '', startTime: '', removable: false });
+  }
+
+  if (shared) {
+    for (const event of sharedEvents(user, firstISO, lastISO)) {
+      const owner = `${event.first_name} ${event.last_name}`;
+      spread(event.start_date, event.end_date, () => ({
+        source: 'partage',
+        title: event.title,
+        owner,
+        visibility: event.visibility,
+        category: event.category,
+        location: event.location,
+        time: event.all_day ? '' : [event.start_time, event.end_time].filter(Boolean).join(' – '),
+        startTime: event.all_day ? '' : event.start_time,
+        removable: false,
+      }));
+    }
+
+    for (const absence of sharedAbsences(user, firstISO, lastISO)) {
+      const owner = `${absence.first_name} ${absence.last_name}`;
+      spread(absence.start_date, absence.end_date, () => ({
+        source: 'absence',
+        title: 'Absent',
+        owner,
+        category: 'Absence',
+        time: '',
+        startTime: '',
+        removable: false,
+      }));
+    }
   }
 
   return byDay;
@@ -215,6 +300,10 @@ function upcoming(user, { attendsCse = false, days = 30, limit = 8 } = {}) {
 
 module.exports = {
   EVENT_CATEGORIES,
+  VISIBILITIES,
+  setVisibility,
+  sharedEvents,
+  sharedAbsences,
   toISODate,
   normalizeMonth,
   monthBounds,

@@ -21,13 +21,13 @@ CREATE TABLE IF NOT EXISTS users (
   first_name TEXT NOT NULL DEFAULT '',
   last_name TEXT NOT NULL DEFAULT '',
   grade TEXT NOT NULL DEFAULT '',
-  department TEXT NOT NULL DEFAULT '',
   contract_type TEXT NOT NULL DEFAULT '',
   contract_end_date TEXT,
   daily_rate REAL,
   is_hr INTEGER NOT NULL DEFAULT 0,
   leave_balance REAL NOT NULL DEFAULT 0,
-  manager_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
   avatar_file TEXT,
   bio TEXT NOT NULL DEFAULT '',
   phone TEXT NOT NULL DEFAULT '',
@@ -121,8 +121,8 @@ CREATE TABLE IF NOT EXISTS settings (
 CREATE TABLE IF NOT EXISTS announcements (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
-  scope TEXT NOT NULL CHECK(scope IN ('company','team')),
-  team_manager_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  scope TEXT NOT NULL CHECK(scope IN ('company','department','team')),
+  scope_id INTEGER,
   title TEXT NOT NULL,
   body TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -137,6 +137,32 @@ CREATE TABLE IF NOT EXISTS messages (
   parent_id INTEGER REFERENCES messages(id) ON DELETE SET NULL,
   read_at TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS departments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  description TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS teams (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  description TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(name, department_id)
+);
+
+-- Un service comme une équipe peuvent avoir plusieurs managers : l'encadrement
+-- est une relation, pas une colonne sur le salarié.
+CREATE TABLE IF NOT EXISTS org_managers (
+  scope TEXT NOT NULL CHECK(scope IN ('department','team')),
+  scope_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (scope, scope_id, user_id)
 );
 
 CREATE TABLE IF NOT EXISTS cse_mandates (
@@ -231,6 +257,7 @@ CREATE TABLE IF NOT EXISTS calendar_events (
   end_time TEXT NOT NULL DEFAULT '',
   all_day INTEGER NOT NULL DEFAULT 1,
   category TEXT NOT NULL DEFAULT 'Personnel',
+  visibility TEXT NOT NULL DEFAULT 'Privé',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -242,7 +269,7 @@ CREATE INDEX IF NOT EXISTS idx_hr_requests_employee ON hr_requests(employee_id);
 CREATE INDEX IF NOT EXISTS idx_payslips_employee ON payslips(employee_id);
 CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);
 CREATE INDEX IF NOT EXISTS idx_messages_sender ON messages(sender_id);
-CREATE INDEX IF NOT EXISTS idx_users_manager ON users(manager_id);
+CREATE INDEX IF NOT EXISTS idx_org_managers_user ON org_managers(user_id);
 `);
 
 for (const migration of [
@@ -266,6 +293,10 @@ for (const migration of [
   'ALTER TABLE users ADD COLUMN mail_imap_port INTEGER',
   "ALTER TABLE users ADD COLUMN mail_smtp_host TEXT NOT NULL DEFAULT ''",
   'ALTER TABLE users ADD COLUMN mail_smtp_port INTEGER',
+  'ALTER TABLE users ADD COLUMN department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL',
+  'ALTER TABLE users ADD COLUMN team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL',
+  "ALTER TABLE calendar_events ADD COLUMN visibility TEXT NOT NULL DEFAULT 'Privé'",
+  "ALTER TABLE announcements ADD COLUMN scope_id INTEGER",
 ]) {
   try {
     db.exec(migration);
@@ -285,11 +316,102 @@ if (adminEmail && adminPassword && !db.prepare('SELECT id FROM users WHERE email
     console.warn('Attention : ADMIN_PASSWORD est court. Utilisez un mot de passe fort (12+ caractères) en production.');
   }
   db.prepare(`
-    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, active)
-    VALUES ('admin', ?, ?, 'Administrateur', 'Général', 'Direction', 'Administration', 1)
+    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, active)
+    VALUES ('admin', ?, ?, 'Administrateur', 'Général', 'Direction', 1)
   `).run(adminEmail, bcrypt.hashSync(adminPassword, 12));
   console.log(`Compte administrateur créé : ${adminEmail}`);
 }
+
+db.exec(`
+CREATE INDEX IF NOT EXISTS idx_users_team ON users(team_id);
+CREATE INDEX IF NOT EXISTS idx_users_department ON users(department_id);
+`);
+
+// ---------- Reprise de l'ancien modèle d'organisation ----------
+// Avant, un salarié portait un service en texte libre et un unique manager.
+// Services et équipes sont devenus des entités, et l'encadrement une relation
+// (plusieurs managers possibles). Cette reprise ne s'exécute qu'une fois.
+function migrateOrganisation() {
+  const done = db.prepare("SELECT value FROM settings WHERE key = 'org_model_migrated'").get();
+  if (done && done.value === '1') return;
+
+  const hasColumn = (table, column) =>
+    db.prepare(`PRAGMA table_info(${table})`).all().some((c) => c.name === column);
+
+  const run = db.transaction(() => {
+    // 1. Chaque libellé de service distinct devient un service.
+    if (hasColumn('users', 'department')) {
+      const labels = db
+        .prepare("SELECT DISTINCT department AS name FROM users WHERE department IS NOT NULL AND trim(department) != ''")
+        .all();
+      const insertDepartment = db.prepare('INSERT OR IGNORE INTO departments (name) VALUES (?)');
+      const attach = db.prepare('UPDATE users SET department_id = (SELECT id FROM departments WHERE name = ?) WHERE department = ?');
+      for (const { name } of labels) {
+        insertDepartment.run(name.trim());
+        attach.run(name.trim(), name);
+      }
+    }
+
+    // 2. Chaque encadrant devient le manager d'une équipe portant ses collaborateurs.
+    if (hasColumn('users', 'manager_id')) {
+      const managers = db
+        .prepare('SELECT DISTINCT manager_id AS id FROM users WHERE manager_id IS NOT NULL')
+        .all();
+      const managerRow = db.prepare('SELECT first_name, last_name, department_id FROM users WHERE id = ?');
+      const insertTeam = db.prepare('INSERT INTO teams (name, department_id, description) VALUES (?, ?, ?)');
+      const assign = db.prepare('UPDATE users SET team_id = ? WHERE manager_id = ?');
+      const addManager = db.prepare("INSERT OR IGNORE INTO org_managers (scope, scope_id, user_id) VALUES ('team', ?, ?)");
+
+      for (const { id } of managers) {
+        const manager = managerRow.get(id);
+        if (!manager) continue;
+        const name = `Équipe ${manager.first_name} ${manager.last_name}`.trim();
+        const existing = db.prepare('SELECT id FROM teams WHERE name = ?').get(name);
+        const teamId = existing ? existing.id : insertTeam.run(name, manager.department_id || null, "Équipe reprise de l'ancien rattachement hiérarchique.").lastInsertRowid;
+        assign.run(teamId, id);
+        addManager.run(teamId, id);
+      }
+
+      // 3. Les actualités d'équipe suivent l'équipe de leur auteur.
+      if (hasColumn('announcements', 'team_manager_id')) {
+        db.prepare(`
+          UPDATE announcements
+          SET scope_id = (SELECT om.scope_id FROM org_managers om WHERE om.scope = 'team' AND om.user_id = announcements.team_manager_id)
+          WHERE scope = 'team' AND scope_id IS NULL
+        `).run();
+      }
+    }
+
+    db.prepare("INSERT INTO settings (key, value) VALUES ('org_model_migrated', '1') ON CONFLICT(key) DO UPDATE SET value = '1'").run();
+  });
+
+  run();
+}
+
+// Une fois la reprise faite, les anciennes colonnes n'ont plus de lecteur.
+// La suppression est tentée à chaque démarrage : elle échoue sans bruit quand
+// c'est déjà fait, ou quand SQLite est trop ancien pour retirer une colonne.
+function dropLegacyOrganisationColumns() {
+  const done = db.prepare("SELECT value FROM settings WHERE key = 'org_model_migrated'").get();
+  if (!done || done.value !== '1') return;
+
+  for (const statement of [
+    // Un index survivant empêcherait de retirer la colonne qu'il porte.
+    'DROP INDEX IF EXISTS idx_users_manager',
+    'ALTER TABLE users DROP COLUMN department',
+    'ALTER TABLE users DROP COLUMN manager_id',
+    'ALTER TABLE announcements DROP COLUMN team_manager_id',
+  ]) {
+    try {
+      db.exec(statement);
+    } catch {
+      // Colonne déjà retirée, ou SQLite trop ancien : elle reste, simplement inutilisée.
+    }
+  }
+}
+
+migrateOrganisation();
+dropLegacyOrganisationColumns();
 
 function deactivateExpiredContracts() {
   const today = new Date().toISOString().slice(0, 10);

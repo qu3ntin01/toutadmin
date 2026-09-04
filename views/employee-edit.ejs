@@ -34,7 +34,21 @@
             </label>
             <label>
               <span>Service</span>
-              <input type="text" name="department" value="<%= employee.department %>" placeholder="Ex : Maintenance" />
+              <select name="department_id">
+                <option value="">— <%= t('common.none') %> —</option>
+                <% departments.forEach((d) => { %>
+                  <option value="<%= d.id %>" <%= employee.department_id === d.id ? 'selected' : '' %>><%= d.name %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label>
+              <span><%= t('common.team') %></span>
+              <select name="team_id">
+                <option value="">— <%= t('common.none') %> —</option>
+                <% teams.forEach((tm) => { %>
+                  <option value="<%= tm.id %>" <%= employee.team_id === tm.id ? 'selected' : '' %>><%= tm.name %><%= tm.department_name ? ' · ' + tm.department_name : '' %></option>
+                <% }) %>
+              </select>
             </label>
             <label>
               <span>Type de contrat</span>

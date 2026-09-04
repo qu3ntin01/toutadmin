@@ -10,7 +10,7 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 | --- | --- | --- |
 | Administration | `/admin` | Administrateurs uniquement |
 | Ressources humaines | `/rh` | Administrateurs et membres désignés RH |
-| Manager | `/mon-equipe` | Tout membre ayant au moins un collaborateur rattaché |
+| Manager | `/mon-equipe` | Tout membre encadrant au moins une équipe ou un service |
 | Espace personnel | `/mon-espace` | Chaque membre, pour ses propres données |
 | Profil | `/mon-profil` | Chaque membre, pour ses propres réglages |
 | Annuaire | `/annuaire` | Tout membre connecté |
@@ -57,14 +57,26 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - Le calendrier **reprend ce que le site sait déjà** : congés et absences approuvés, réunions du CSE, échéance de contrat — sans ressaisie, et sans possibilité de les supprimer depuis l'agenda
 - Colonne « à venir » sur 30 jours et liste détaillée du mois sous le calendrier
 
-### Organisation, managers et actualités
-- Chaque membre peut être **rattaché à un manager** depuis la console d'administration (auto-rattachement et boucles hiérarchiques refusés)
-- Un membre ayant au moins un collaborateur obtient automatiquement son **espace manager** : effectif, soldes, demandes en cours, absences à venir
-- **Actualités** : l'administration publie pour toute l'entreprise, le manager pour sa seule équipe ; les deux fils apparaissent sur la page d'accueil du collaborateur, à côté du nom de son manager
+### Agenda partagé
+- Chaque événement porte une **portée** : privé (défaut), équipe, ou service — modifiable après coup depuis la liste du mois
+- Une bascule **« Mon agenda » / « Agenda de l'équipe »** superpose les événements que les collègues ont ouverts, chacun préfixé du nom de son auteur
+- Un événement « Équipe » atteint les coéquipiers, un événement « Service » tout le service ; un événement privé ne sort jamais de son agenda
+- Les **absences approuvées des coéquipiers** apparaissent dans la vue partagée, mais seulement comme « Absent » : ni le type d'absence, ni le motif ne franchissent le partage
+- Un salarié sans rattachement n'a pas de vue partagée, et son sélecteur de portée est désactivé
+
+### Organisation : services, équipes et encadrement
+- **Services** et **équipes** sont des entités à part entière, créées et modifiées depuis la console d'administration ; une équipe appartient à un service
+- **Plusieurs managers par périmètre** : un service comme une équipe acceptent autant de managers que nécessaire. L'encadrement est une relation, pas une colonne sur le salarié
+- Un membre est rattaché à une équipe et/ou à un service. Rattacher à une équipe rattache automatiquement à son service
+- Un manager de service encadre aussi les équipes que ce service contient
+- Qui encadre au moins un périmètre obtient son **espace manager** : effectif consolidé, rattachements, soldes, demandes en cours, absences à venir. Retirer l'encadrement le referme aussitôt
+- Supprimer un service ou une équipe **détache** ses membres, ne les supprime jamais
+- **Actualités** à trois portées : toute l'entreprise (administration), un service, une équipe. Un manager ne peut publier que sur les périmètres qu'il encadre
+- L'accueil du collaborateur affiche **tous ses managers** — ceux de son équipe et ceux de son service — avec son rattachement
 
 ### Profil, annuaire et messagerie
 - **Profil** : photo (JPEG/PNG/WebP, 2 Mo max), présentation, téléphone, langue et changement de mot de passe — grade, contrat et rattachement restent gérés par l'administration
-- **Annuaire** de tous les collaborateurs avec recherche ; la **visibilité dans l'annuaire est pilotée uniquement par l'administration**, un membre ne peut pas s'y soustraire ni s'y remettre
+- **Annuaire** de tous les collaborateurs avec recherche et filtres par service et par équipe, affichant le rattachement et les managers de chacun ; la **visibilité dans l'annuaire est pilotée uniquement par l'administration**, un membre ne peut pas s'y soustraire ni s'y remettre
 - **Messagerie interne** : boîte de réception, envoi, réponse, compteur de non-lus, suppression. L'**adresse professionnelle et les serveurs IMAP/SMTP sont configurés par l'administration** et affichés en lecture seule au membre
 
 ### Confort
@@ -131,6 +143,19 @@ l'instance à votre place pendant la fenêtre qui précède votre propre install
 INSTALL_TOKEN=un-jeton-long-et-aleatoire npm start
 ```
 
+### Mise à jour depuis une version antérieure
+
+Les instances créées avant l'introduction des services et des équipes sont reprises
+automatiquement au premier démarrage, une seule fois :
+
+- chaque libellé de service saisi en texte libre devient un **service** ;
+- chaque encadrant devient le manager d'une **équipe** portant ses anciens collaborateurs ;
+- les actualités d'équipe suivent l'équipe de leur auteur.
+
+Les colonnes `users.department`, `users.manager_id` et `announcements.team_manager_id`
+sont ensuite retirées. Aucune action n'est requise ; sauvegardez simplement `data/`
+avant la mise à jour, comme pour toute migration.
+
 ### Installation sans interface
 
 Pour un déploiement automatisé, renseigner `ADMIN_EMAIL` et `ADMIN_PASSWORD` crée le compte
@@ -157,7 +182,10 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-131 tests d'intégration couvrent l'assistant d'installation (redirection d'une instance
+144 tests d'intégration couvrent l'organisation (services et équipes, encadrement
+multiple, rattachement en cascade, suppression qui détache sans effacer, portée des
+actualités), l'agenda partagé (privé jamais visible, portées équipe et service,
+absences sans motif, portée d'autrui non modifiable), l'assistant d'installation (redirection d'une instance
 vierge, jeton, validations, verrouillage définitif, réglages appliqués), le CSE
 (cloisonnement des freelances, cycle complet d'une élection, anonymat du bulletin,
 mandat échu, avantages périmés, comptes-rendus), l'agenda (grille, validations,
@@ -209,6 +237,7 @@ src/
   timesheet.js       pointage : entrées, heures cumulées, estimation de rémunération
   hr.js              demandes, soldes de congés, fiches de paie
   cse.js             mandats, élections, scrutin anonyme, réunions, avantages
+  org.js             services, équipes, encadrement multiple, rattachements
   calendar.js        grille mensuelle, événements personnels et entrées dérivées
   announcements.js   actualités entreprise et équipe
   uploads.js         photos de profil (validation, stockage, suppression)

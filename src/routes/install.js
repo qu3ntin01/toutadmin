@@ -133,8 +133,8 @@ router.post('/terminer', (req, res) => {
 
   const commit = db.transaction(() => {
     db.prepare(`
-      INSERT INTO users (role, email, password_hash, first_name, last_name, grade, department, locale, active)
-      VALUES ('admin', ?, ?, ?, ?, 'Direction', 'Administration', ?, 1)
+      INSERT INTO users (role, email, password_hash, first_name, last_name, grade, locale, active)
+      VALUES ('admin', ?, ?, ?, ?, 'Direction', ?, 1)
     `).run(data.adminEmail, passwordHash, data.adminFirstName, data.adminLastName, locale);
 
     settings.setMany({

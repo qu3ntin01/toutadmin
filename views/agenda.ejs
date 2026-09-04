@@ -24,9 +24,15 @@
             <div class="card-head calendar-head">
               <h3 class="calendar-month"><%= monthLabel %></h3>
               <div class="calendar-nav">
-                <a href="/agenda?mois=<%= previousMonth %>" class="btn btn-quiet" aria-label="<%= previousMonth %>">‹</a>
-                <a href="/agenda?mois=<%= currentMonth %>" class="btn btn-quiet"><%= t('agenda.today') %></a>
-                <a href="/agenda?mois=<%= nextMonth %>" class="btn btn-quiet" aria-label="<%= nextMonth %>">›</a>
+                <% if (canShare) { %>
+                  <span class="filter-pills">
+                    <a href="/agenda?mois=<%= month %>" class="tag <%= shared ? '' : 'tag-accent' %>"><%= t('agenda.mine') %></a>
+                    <a href="/agenda?mois=<%= month %>&vue=equipe" class="tag <%= shared ? 'tag-accent' : '' %>"><%= t('agenda.teamView') %></a>
+                  </span>
+                <% } %>
+                <a href="/agenda?mois=<%= previousMonth %><%= viewQuery %>" class="btn btn-quiet" aria-label="<%= previousMonth %>">‹</a>
+                <a href="/agenda?mois=<%= currentMonth %><%= viewQuery %>" class="btn btn-quiet"><%= t('agenda.today') %></a>
+                <a href="/agenda?mois=<%= nextMonth %><%= viewQuery %>" class="btn btn-quiet" aria-label="<%= nextMonth %>">›</a>
               </div>
             </div>
 
@@ -56,9 +62,9 @@
                         <td class="<%= classes.join(' ') %>">
                           <span class="cal-day"><%= day.day %></span>
                           <% entries.slice(0, 3).forEach((entry) => { %>
-                            <span class="cal-event is-<%= entry.source %>" title="<%= entry.title %><%= entry.time ? ' · ' + entry.time : '' %>">
+                            <span class="cal-event is-<%= entry.source %>" title="<%= entry.owner ? entry.owner + ' — ' : '' %><%= entry.title %><%= entry.time ? ' · ' + entry.time : '' %>">
                               <% if (entry.startTime) { %><span class="cal-event-time"><%= entry.startTime %></span><% } %>
-                              <%= entry.title %>
+                              <%= entry.owner ? entry.owner + ' — ' : '' %><%= entry.title %>
                             </span>
                           <% }) %>
                           <% if (entries.length > 3) { %>
@@ -77,6 +83,10 @@
               <span class="legend-item"><span class="legend-dot is-conge"></span><%= t('agenda.legendLeave') %></span>
               <span class="legend-item"><span class="legend-dot is-cse"></span><%= t('nav.cse') %></span>
               <span class="legend-item"><span class="legend-dot is-contrat"></span><%= t('common.contract') %></span>
+              <% if (shared) { %>
+                <span class="legend-item"><span class="legend-dot is-partage"></span><%= t('common.team') %></span>
+                <span class="legend-item"><span class="legend-dot is-absence"></span><%= t('agenda.away') %></span>
+              <% } %>
             </p>
           </div>
 
@@ -124,8 +134,17 @@
                   <span><%= t('agenda.location') %> <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
                   <input type="text" name="location" maxlength="140" />
                 </label>
+                <label>
+                  <span><%= t('agenda.sharedWith') %></span>
+                  <select name="visibility" <%= canShare ? '' : 'disabled' %>>
+                    <% visibilities.forEach((v) => { %><option value="<%= v %>"><%= v %></option><% }) %>
+                  </select>
+                </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                <p class="hint">Les heures ne sont prises en compte que si « <%= t('agenda.allDay') %> » est décoché.</p>
+                <p class="hint">
+                  Les heures ne sont prises en compte que si « <%= t('agenda.allDay') %> » est décoché.
+                  <% if (canShare) { %>Un événement « Équipe » est visible de vos collègues d'équipe, « Service » de tout le service.<% } else { %>Le partage demande d'être rattaché à une équipe ou à un service.<% } %>
+                </p>
               </form>
             </div>
 
@@ -166,6 +185,7 @@
                     <th><%= t('agenda.eventTitle') %></th>
                     <th><%= t('common.type') %></th>
                     <th><%= t('agenda.location') %></th>
+                    <th><%= t('agenda.sharedWith') %></th>
                     <th class="actions"><%= t('common.actions') %></th>
                   </tr>
                 </thead>
@@ -179,10 +199,28 @@
                         </td>
                         <td>
                           <%= entry.title %>
+                          <% if (entry.owner) { %><div class="cell-sub"><%= entry.owner %></div><% } %>
                           <% if (entry.description) { %><div class="cell-sub"><%= entry.description %></div><% } %>
                         </td>
                         <td><span class="tag is-<%= entry.source %>"><%= entry.category %></span></td>
                         <td><%= entry.location || '—' %></td>
+                        <td>
+                          <% if (entry.removable && canShare) { %>
+                            <form method="POST" action="/agenda/<%= entry.id %>/partage" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <input type="hidden" name="mois" value="<%= month %>" />
+                              <select name="visibility" class="input-sm">
+                                <% visibilities.forEach((v) => { %>
+                                  <option value="<%= v %>" <%= entry.visibility === v ? 'selected' : '' %>><%= v %></option>
+                                <% }) %>
+                              </select>
+                              <button type="submit" class="btn btn-sm"><%= t('agenda.share') %></button>
+                            </form>
+                          <% } else { %>
+<%# Une entrée d'un collègue affiche la portée qu'il lui a donnée, sans pouvoir la changer. %>
+                            <span class="cell-sub"><%= entry.visibility || '—' %></span>
+                          <% } %>
+                        </td>
                         <td class="actions">
                           <% if (entry.removable) { %>
                             <form method="POST" action="/agenda/<%= entry.id %>/supprimer" data-confirm="Supprimer cet événement ?">

@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 
 const db = require('../db');
 const i18n = require('../i18n');
+const org = require('../org');
 const { avatarUpload, removeAvatar } = require('../uploads');
 const { requireAuth } = require('../middleware/auth');
 const { setFlash } = require('../utils');
@@ -18,11 +19,12 @@ function currentUser(req) {
 
 router.get('/', (req, res) => {
   const user = currentUser(req);
-  const manager = user.manager_id
-    ? db.prepare('SELECT first_name, last_name, email FROM users WHERE id = ?').get(user.manager_id)
-    : null;
-
-  res.render('profile', { profile: user, manager });
+  res.render('profile', {
+    profile: user,
+    managers: org.managersFor(user),
+    team: user.team_id ? org.teamById(user.team_id) : null,
+    department: user.department_id ? org.departmentById(user.department_id) : null,
+  });
 });
 
 // Présentation, téléphone et langue : les seuls champs que le membre pilote lui-même.

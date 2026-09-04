@@ -36,21 +36,29 @@
 
         <div class="grid-2">
           <div class="card">
-            <div class="card-head"><h3><%= t('home.yourManager') %></h3></div>
-            <% if (manager) { %>
-              <div class="manager-card">
-                <%- include('partials/avatar', { person: manager }) %>
-                <div>
-                  <div class="manager-name"><%= manager.first_name %> <%= manager.last_name %></div>
-                  <div class="manager-role"><%= manager.grade %></div>
-                  <div class="person-line"><%= manager.email %></div>
-                </div>
+            <div class="card-head">
+              <div>
+                <h3><%= managers.length > 1 ? t('common.managers') : t('home.yourManager') %></h3>
+                <% const attachment = [team && team.name, department && department.name].filter(Boolean).join(' · '); %>
+                <% if (attachment) { %><p class="card-sub"><%= attachment %></p><% } %>
               </div>
+            </div>
+            <% if (managers.length === 0) { %>
+              <div class="empty-state"><%= t('home.noManager') %></div>
+            <% } else { %>
+              <% managers.forEach((manager) => { %>
+                <div class="manager-card">
+                  <%- include('partials/avatar', { person: manager }) %>
+                  <div>
+                    <div class="manager-name"><%= manager.first_name %> <%= manager.last_name %></div>
+                    <div class="manager-role"><%= manager.grade %> · <%= manager.scope === 'team' ? t('common.team') : t('common.department') %></div>
+                    <div class="person-line"><%= manager.email %></div>
+                  </div>
+                </div>
+              <% }) %>
               <div class="form-actions">
                 <a href="/messagerie" class="btn btn-sm"><%= t('messages.compose') %></a>
               </div>
-            <% } else { %>
-              <div class="empty-state"><%= t('home.noManager') %></div>
             <% } %>
           </div>
 
