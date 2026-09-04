@@ -6,6 +6,7 @@ const memberLinks = [
   { key: 'annuaire', href: '/annuaire', label: t('nav.directory'), icon: 'users' },
   { key: 'messagerie', href: '/messagerie', label: t('nav.messages'), icon: 'inbox', badge: unreadMessages },
   { key: 'agenda', href: '/agenda', label: t('nav.agenda'), icon: 'calendar' },
+  { key: 'salles', href: '/salles', label: t('nav.rooms'), icon: 'network' },
 ];
 // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
 if (isCseMember) memberLinks.push({ key: 'cse', href: '/cse', label: t('nav.cse'), icon: 'lifebuoy' });
@@ -14,9 +15,12 @@ memberLinks.push({ key: 'profil', href: '/mon-profil', label: t('nav.profile'), 
 
 // Les espaces d'encadrement restent au pied de la barre, séparés du parcours du membre.
 const memberFootLinks = [];
+if (isFinance || currentUser.role === 'admin') {
+  memberFootLinks.push({ href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' });
+}
 if (isCseElected) memberFootLinks.push({ href: '/cse/gestion', label: t('nav.cseManage'), icon: 'lifebuoy' });
-if (currentUser.isHr || currentUser.role === 'admin') {
-  memberFootLinks.push({ href: '/rh', label: t('nav.hrSpace'), icon: 'briefcase' });
+if (isHr || currentUser.role === 'admin') {
+  memberFootLinks.push({ href: '/rh', label: t('nav.hrSpace'), icon: 'shield' });
 }
 if (currentUser.role === 'admin') {
   memberFootLinks.push({ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' });

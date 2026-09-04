@@ -3,10 +3,13 @@ const express = require('express');
 const db = require('../db');
 const hr = require('../hr');
 const cse = require('../cse');
+const talent = require('../talent');
+const org = require('../org');
 const timesheet = require('../timesheet');
 const requestTypes = require('../request-types');
+const contractTypes = require('../contract-types');
 const { requireHR } = require('../middleware/auth');
-const { setFlash, parseAmount, isValidDateString } = require('../utils');
+const { setFlash, parseAmount, isValidDateString, isValidEmail, isValidUrl } = require('../utils');
 
 const router = express.Router();
 
@@ -43,8 +46,27 @@ router.get('/', (req, res) => {
   const elections = cse.elections();
   const cseMandates = cse.mandates();
 
+  const sessions = talent.sessions();
+  const openings = talent.openings();
+
   res.render('rh', {
     requests,
+    talent: {
+      documents: talent.documents(),
+      documentCategories: talent.DOCUMENT_CATEGORIES,
+      trainings: talent.trainings(),
+      sessions,
+      sessionStatuses: talent.SESSION_STATUSES,
+      registrations: talent.registrations(),
+      pendingSeats: talent.registrations().filter((r) => r.status === 'Demandée').length,
+      reviews: talent.reviews(),
+      openings,
+      openingStatuses: talent.OPENING_STATUSES,
+      candidateStages: talent.CANDIDATE_STAGES,
+      candidatesByOpening: Object.fromEntries(openings.map((o) => [o.id, talent.candidates(o.id)])),
+      departments: org.departments(),
+      teams: org.teams(),
+    },
     statusFilter,
     staff,
     payslips,
@@ -326,6 +348,240 @@ router.post('/paie/:id/supprimer', (req, res) => {
   hr.deletePayslip(Number(req.params.id));
   setFlash(req, 'success', 'Fiche de paie supprimée.');
   res.redirect('/rh#paie');
+});
+
+// ---------- Documents d'entreprise ----------
+
+const backTalent = (anchor) => `/rh#${anchor}`;
+
+function talentFail(req, res, anchor, message) {
+  setFlash(req, 'error', message);
+  return res.redirect(backTalent(anchor));
+}
+
+router.post('/documents', (req, res) => {
+  const title = (req.body.title || '').trim().slice(0, 160);
+  const category = (req.body.category || '').trim();
+  const url = (req.body.url || '').trim().slice(0, 500);
+
+  if (!title) return talentFail(req, res, 'documents', "L'intitulé du document est obligatoire.");
+  if (category && !talent.DOCUMENT_CATEGORIES.includes(category)) return talentFail(req, res, 'documents', 'Catégorie invalide.');
+  if (url && !isValidUrl(url)) return talentFail(req, res, 'documents', 'Lien invalide : une adresse http(s) est attendue.');
+
+  talent.createDocument({
+    title, category, url,
+    description: (req.body.description || '').trim().slice(0, 2000),
+    requiresAck: req.body.requires_ack === 'on',
+    createdBy: req.session.user.id,
+  });
+  setFlash(req, 'success', 'Document publié.');
+  res.redirect(backTalent('documents'));
+});
+
+router.post('/documents/:id/supprimer', (req, res) => {
+  talent.deleteDocument(Number(req.params.id));
+  setFlash(req, 'success', 'Document supprimé, avec ses accusés de réception.');
+  res.redirect(backTalent('documents'));
+});
+
+// ---------- Formation ----------
+
+router.post('/formations', (req, res) => {
+  const title = (req.body.title || '').trim().slice(0, 160);
+  const duration = req.body.duration_hours ? parseAmount(req.body.duration_hours) : null;
+  const cost = req.body.cost ? parseAmount(req.body.cost) : null;
+
+  if (!title) return talentFail(req, res, 'formations', "L'intitulé de la formation est obligatoire.");
+  if (duration !== null && (!Number.isFinite(duration) || duration < 0 || duration > 2000)) {
+    return talentFail(req, res, 'formations', 'Durée invalide.');
+  }
+  if (cost !== null && (!Number.isFinite(cost) || cost < 0)) return talentFail(req, res, 'formations', 'Coût invalide.');
+
+  talent.createTraining({
+    title,
+    category: (req.body.category || '').trim().slice(0, 80),
+    provider: (req.body.provider || '').trim().slice(0, 120),
+    description: (req.body.description || '').trim().slice(0, 2000),
+    durationHours: duration,
+    cost,
+  });
+  setFlash(req, 'success', 'Formation ajoutée au catalogue.');
+  res.redirect(backTalent('formations'));
+});
+
+router.post('/formations/:id/supprimer', (req, res) => {
+  talent.deleteTraining(Number(req.params.id));
+  setFlash(req, 'success', 'Formation supprimée, avec ses sessions.');
+  res.redirect(backTalent('formations'));
+});
+
+router.post('/sessions', (req, res) => {
+  const trainingId = Number(req.body.training_id);
+  const startDate = (req.body.start_date || '').trim();
+  const endDate = (req.body.end_date || '').trim();
+  const seats = Number(req.body.seats) || 0;
+
+  if (!talent.trainings().some((t) => t.id === trainingId)) return talentFail(req, res, 'formations', 'Formation introuvable.');
+  if (!isValidDateString(startDate)) return talentFail(req, res, 'formations', 'Date de début invalide.');
+  if (endDate && !isValidDateString(endDate)) return talentFail(req, res, 'formations', 'Date de fin invalide.');
+  if (endDate && endDate < startDate) return talentFail(req, res, 'formations', 'La fin précède le début.');
+  if (seats < 0 || seats > 1000) return talentFail(req, res, 'formations', 'Nombre de places invalide.');
+
+  talent.createSession({
+    trainingId, startDate, endDate, seats,
+    location: (req.body.location || '').trim().slice(0, 140),
+  });
+  setFlash(req, 'success', 'Session programmée.');
+  res.redirect(backTalent('formations'));
+});
+
+router.post('/sessions/:id/statut', (req, res) => {
+  if (!talent.setSessionStatus(Number(req.params.id), (req.body.status || '').trim())) {
+    return talentFail(req, res, 'formations', 'Statut invalide ou session introuvable.');
+  }
+  setFlash(req, 'success', 'Session mise à jour.');
+  res.redirect(backTalent('formations'));
+});
+
+router.post('/sessions/:id/supprimer', (req, res) => {
+  talent.deleteSession(Number(req.params.id));
+  setFlash(req, 'success', 'Session supprimée.');
+  res.redirect(backTalent('formations'));
+});
+
+router.post('/inscriptions/:id/statut', (req, res) => {
+  const result = talent.reviewRegistration(Number(req.params.id), (req.body.status || '').trim(), req.session.user.id);
+  const messages = {
+    'not-found': 'Inscription introuvable.',
+    full: 'La session est complète : libérez une place ou augmentez le quota.',
+    'bad-status': 'Décision invalide.',
+  };
+  if (!result.ok) return talentFail(req, res, 'formations', messages[result.reason] || 'Décision impossible.');
+
+  setFlash(req, 'success', 'Inscription mise à jour.');
+  res.redirect(backTalent('formations'));
+});
+
+// ---------- Entretiens annuels ----------
+
+router.post('/entretiens', (req, res) => {
+  const employeeId = Number(req.body.employee_id);
+  const period = (req.body.period || '').trim().slice(0, 40);
+  const scheduledOn = (req.body.scheduled_on || '').trim();
+  const reviewerId = Number(req.body.reviewer_id) || null;
+
+  if (!findManagedEmployee(employeeId)) return talentFail(req, res, 'entretiens', 'Membre introuvable.');
+  if (!period) return talentFail(req, res, 'entretiens', "La période de l'entretien est obligatoire.");
+  if (scheduledOn && !isValidDateString(scheduledOn)) return talentFail(req, res, 'entretiens', 'Date invalide.');
+
+  talent.createReview({ employeeId, reviewerId, period, scheduledOn });
+  setFlash(req, 'success', 'Entretien planifié.');
+  res.redirect(backTalent('entretiens'));
+});
+
+router.post('/entretiens/:id/conclure', (req, res) => {
+  const rating = req.body.rating ? Number(req.body.rating) : null;
+  const result = talent.completeReview(Number(req.params.id), {
+    strengths: (req.body.strengths || '').trim().slice(0, 2000),
+    improvements: (req.body.improvements || '').trim().slice(0, 2000),
+    objectives: (req.body.objectives || '').trim().slice(0, 2000),
+    rating,
+  });
+
+  const messages = {
+    'not-found': 'Entretien introuvable.',
+    cancelled: 'Cet entretien est annulé.',
+    'bad-rating': 'Appréciation invalide (1 à 5).',
+  };
+  if (!result.ok) return talentFail(req, res, 'entretiens', messages[result.reason] || 'Enregistrement impossible.');
+
+  setFlash(req, 'success', 'Compte-rendu d\'entretien enregistré.');
+  res.redirect(backTalent('entretiens'));
+});
+
+router.post('/entretiens/:id/annuler', (req, res) => {
+  talent.cancelReview(Number(req.params.id));
+  setFlash(req, 'success', 'Entretien annulé.');
+  res.redirect(backTalent('entretiens'));
+});
+
+router.post('/entretiens/:id/supprimer', (req, res) => {
+  talent.deleteReview(Number(req.params.id));
+  setFlash(req, 'success', 'Entretien supprimé.');
+  res.redirect(backTalent('entretiens'));
+});
+
+// ---------- Recrutement ----------
+
+router.post('/postes', (req, res) => {
+  const title = (req.body.title || '').trim().slice(0, 160);
+  const departmentId = Number(req.body.department_id) || null;
+  const teamId = Number(req.body.team_id) || null;
+  const contractType = (req.body.contract_type || '').trim();
+
+  if (!title) return talentFail(req, res, 'recrutement', "L'intitulé du poste est obligatoire.");
+  if (departmentId && !org.departmentById(departmentId)) return talentFail(req, res, 'recrutement', 'Service introuvable.');
+  if (teamId && !org.teamById(teamId)) return talentFail(req, res, 'recrutement', 'Équipe introuvable.');
+  if (contractType && !contractTypes.includes(contractType)) return talentFail(req, res, 'recrutement', 'Type de contrat invalide.');
+
+  talent.createOpening({
+    title, departmentId, teamId, contractType,
+    description: (req.body.description || '').trim().slice(0, 4000),
+    createdBy: req.session.user.id,
+  });
+  setFlash(req, 'success', 'Poste ouvert.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/postes/:id/statut', (req, res) => {
+  if (!talent.setOpeningStatus(Number(req.params.id), (req.body.status || '').trim())) {
+    return talentFail(req, res, 'recrutement', 'Statut invalide ou poste introuvable.');
+  }
+  setFlash(req, 'success', 'Poste mis à jour.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/postes/:id/supprimer', (req, res) => {
+  talent.deleteOpening(Number(req.params.id));
+  setFlash(req, 'success', 'Poste supprimé, avec ses candidatures.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/candidats', (req, res) => {
+  const firstName = (req.body.first_name || '').trim().slice(0, 100);
+  const lastName = (req.body.last_name || '').trim().slice(0, 100);
+  const email = (req.body.email || '').trim().slice(0, 254);
+
+  if (!firstName || !lastName) return talentFail(req, res, 'recrutement', 'Prénom et nom sont obligatoires.');
+  if (email && !isValidEmail(email)) return talentFail(req, res, 'recrutement', 'Adresse email invalide.');
+
+  const result = talent.createCandidate({
+    openingId: Number(req.body.opening_id),
+    firstName, lastName, email,
+    phone: (req.body.phone || '').trim().slice(0, 40),
+    source: (req.body.source || '').trim().slice(0, 80),
+    notes: (req.body.notes || '').trim().slice(0, 2000),
+  });
+
+  const messages = { 'not-found': 'Poste introuvable.', closed: "Ce poste n'accepte plus de candidature." };
+  if (!result.ok) return talentFail(req, res, 'recrutement', messages[result.reason] || 'Candidature impossible.');
+
+  setFlash(req, 'success', 'Candidature enregistrée.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/candidats/:id/etape', (req, res) => {
+  if (!talent.setCandidateStage(Number(req.params.id), (req.body.stage || '').trim())) {
+    return talentFail(req, res, 'recrutement', 'Étape invalide ou candidature introuvable.');
+  }
+  setFlash(req, 'success', 'Étape mise à jour.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/candidats/:id/supprimer', (req, res) => {
+  talent.deleteCandidate(Number(req.params.id));
+  setFlash(req, 'success', 'Candidature supprimée.');
+  res.redirect(backTalent('recrutement'));
 });
 
 module.exports = router;

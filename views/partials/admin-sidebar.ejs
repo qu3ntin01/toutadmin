@@ -25,5 +25,8 @@ const adminActive = typeof active !== 'undefined' ? active : null;
     ? adminSections.map((s) => ({ href: '/admin#' + s.tab, label: s.label, icon: s.icon, badge: s.badge, active: s.tab === adminActive }))
     : adminSections,
   // Un administrateur n'a pas d'espace membre : /mon-espace le renverrait ici.
-  footLinks: [{ href: '/rh', label: t('nav.openHrSpace'), icon: 'external' }]
+  footLinks: [
+    { href: '/rh', label: t('nav.openHrSpace'), icon: 'external' },
+    { href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' }
+  ]
 }) %>

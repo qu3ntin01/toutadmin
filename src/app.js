@@ -11,6 +11,7 @@ const install = require('./install');
 const settings = require('./settings');
 const cse = require('./cse');
 const org = require('./org');
+const talent = require('./talent');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
 const messageRoutes = require('./routes/messages');
@@ -23,6 +24,8 @@ const profileRoutes = require('./routes/profile');
 const directoryRoutes = require('./routes/directory');
 const cseRoutes = require('./routes/cse');
 const agendaRoutes = require('./routes/agenda');
+const gestionRoutes = require('./routes/gestion');
+const roomRoutes = require('./routes/salles');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -113,14 +116,21 @@ function createApp() {
     if (user) {
       res.locals.unreadMessages = messageRoutes.unreadCount(user.id);
       res.locals.isManager = org.isManager(user.id);
-      const row = db.prepare('SELECT role, contract_type FROM users WHERE id = ?').get(user.id);
+      const row = db.prepare('SELECT role, contract_type, is_hr, is_finance FROM users WHERE id = ?').get(user.id);
       res.locals.isCseMember = Boolean(row && cse.isEligible(row));
       res.locals.isCseElected = cse.isElected(user.id);
+      // Les rôles désignés sont relus ici : une désignation vaut sans reconnexion.
+      res.locals.isHr = Boolean(row && row.is_hr);
+      res.locals.isFinance = Boolean(row && row.is_finance);
+      res.locals.pendingAcks = talent.pendingAckCount(user.id);
     } else {
       res.locals.unreadMessages = 0;
       res.locals.isManager = false;
       res.locals.isCseMember = false;
       res.locals.isCseElected = false;
+      res.locals.isHr = false;
+      res.locals.isFinance = false;
+      res.locals.pendingAcks = 0;
     }
     next();
   });
@@ -142,6 +152,8 @@ function createApp() {
   app.use('/annuaire', directoryRoutes);
   app.use('/agenda', agendaRoutes);
   app.use('/cse', cseRoutes);
+  app.use('/salles', roomRoutes);
+  app.use('/gestion', gestionRoutes);
   app.use('/messagerie', messageRoutes);
   app.use('/mon-equipe', managerRoutes);
   app.use('/rh', rhRoutes);

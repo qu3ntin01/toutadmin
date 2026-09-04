@@ -18,6 +18,8 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 | Agenda | `/agenda` | Chaque membre, pour son propre calendrier |
 | CSE | `/cse` | Salariés représentés par le comité (hors freelances et administrateurs) |
 | Gestion du CSE | `/cse/gestion` | Membres élus dont le mandat court encore |
+| Gestion administrative et financière | `/gestion` | Administrateurs et membres désignés gestionnaires |
+| Salles | `/salles` | Tout membre connecté, pour réserver et voir le planning |
 
 ## Fonctionnalités
 
@@ -63,6 +65,21 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - Un événement « Équipe » atteint les coéquipiers, un événement « Service » tout le service ; un événement privé ne sort jamais de son agenda
 - Les **absences approuvées des coéquipiers** apparaissent dans la vue partagée, mais seulement comme « Absent » : ni le type d'absence, ni le motif ne franchissent le partage
 - Un salarié sans rattachement n'a pas de vue partagée, et son sélecteur de portée est désactivé
+
+### Gestion administrative et financière
+- **Tiers** : clients et fournisseurs, avec contact, identifiant d'entreprise et nombre de contrats et factures rattachés
+- **Contrats** fournisseurs et commerciaux : montant, périodicité, référent interne, et surtout **préavis** — le CMS calcule la date limite de dénonciation et alerte avant que la reconduction tacite ne soit acquise
+- **Factures** dans les deux sens : recettes clients et dépenses fournisseurs, TTC calculé, retard déduit de l'échéance sans statut à maintenir à la main
+- **Budgets par service et par exercice**, dont le consommé agrège automatiquement les factures fournisseurs du service et les notes de frais approuvées de ses membres
+- **Notes de frais** : dépôt par le salarié, approbation puis remboursement par la gestion. Un remboursement suppose une approbation préalable ; une dépense datée du futur est refusée
+- **Parc matériel** : équipements avec numéro de série, garantie et valeur, affectés à un salarié et repris. Un équipement déjà affecté ne peut pas l'être deux fois, et l'historique des détenteurs est conservé
+- **Salles** : parc de salles et planning d'occupation. Tout salarié réserve depuis `/salles` ; un créneau qui chevauche une réservation existante est refusé en nommant qui l'occupe
+
+### Cycle de vie du salarié
+- **Documents d'entreprise** : règlement intérieur, politiques, procédures, avec **accusé de réception exigible**. Un document non lu reste signalé dans l'espace du salarié
+- **Formation** : catalogue, sessions datées avec places limitées, demande par le salarié puis confirmation RH. Une session pleine refuse toute inscription de plus, et une inscription confirmée apparaît dans l'agenda
+- **Entretiens annuels** : planification, compte-rendu (points forts, axes de progrès, objectifs, appréciation de 1 à 5), et **commentaire du salarié** sur son seul entretien
+- **Recrutement** : postes ouverts rattachés à un service et une équipe, candidatures suivies par étapes (reçue → présélection → entretien → offre → recruté / refusé). Un poste pourvu n'accepte plus de candidature
 
 ### Organisation : services, équipes et encadrement
 - **Services** et **équipes** sont des entités à part entière, créées et modifiées depuis la console d'administration ; une équipe appartient à un service
@@ -182,7 +199,11 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-144 tests d'intégration couvrent l'organisation (services et équipes, encadrement
+175 tests d'intégration couvrent la gestion (rôle gestionnaire, préavis de contrat,
+TTC et retard de facture, budget agrégeant factures et notes de frais, remboursement
+conditionné à l'approbation, affectation et reprise d'équipement, chevauchement de
+réservation), le cycle RH (accusé de réception, session pleine, appréciation bornée,
+commentaire réservé à son propre entretien, poste pourvu fermé aux candidatures), l'organisation (services et équipes, encadrement
 multiple, rattachement en cascade, suppression qui détache sans effacer, portée des
 actualités), l'agenda partagé (privé jamais visible, portées équipe et service,
 absences sans motif, portée d'autrui non modifiable), l'assistant d'installation (redirection d'une instance
@@ -198,6 +219,23 @@ recrédit), les fiches de paie, l'internationalisation (négociation de langue, 
 drapeau, RTL arabe), le profil (mot de passe, présentation), l'annuaire et son masquage,
 la messagerie interne et ses règles de confidentialité, ainsi que les rattachements
 hiérarchiques et les actualités. Ils tournent sur une base SQLite temporaire isolée.
+
+## Ce que le CMS ne fait pas
+
+Le produit couvre l'administration d'une société : personnel, organisation, RH,
+CSE, tiers, contrats, facturation, budgets, frais, parc et salles. Il ne remplace
+pas, et ne prétend pas remplacer :
+
+- un **logiciel comptable** — pas de plan comptable, d'écritures, de lettrage ni de
+  liasse fiscale ; les factures ici servent au pilotage, pas à la tenue des comptes ;
+- un **moteur de paie** — les fiches de paie sont saisies, pas calculées : aucun
+  barème de cotisations, aucune DSN ;
+- la **facturation électronique réglementaire** (Factur-X, portails de dématérialisation) ;
+- la **gestion de stock** et les achats à plusieurs niveaux d'approbation ;
+- un **CRM** commercial (pipeline d'affaires, devis, relances).
+
+Ces briques demandent chacune une conformité et une validation métier qui dépassent
+ce qu'un module ajouté ici pourrait honnêtement offrir.
 
 ## Messagerie externe (IMAP/SMTP)
 
@@ -237,6 +275,9 @@ src/
   timesheet.js       pointage : entrées, heures cumulées, estimation de rémunération
   hr.js              demandes, soldes de congés, fiches de paie
   cse.js             mandats, élections, scrutin anonyme, réunions, avantages
+  finance.js         tiers, contrats et préavis, factures, budgets, notes de frais
+  resources.js       parc matériel, affectations, salles et réservations
+  talent.js          documents, formation, entretiens, recrutement
   org.js             services, équipes, encadrement multiple, rattachements
   calendar.js        grille mensuelle, événements personnels et entrées dérivées
   announcements.js   actualités entreprise et équipe
@@ -245,13 +286,14 @@ src/
   locales/           16 dictionnaires (fr de référence, 15 traductions)
   grades.js · contract-types.js · request-types.js   listes blanches métier
   middleware/auth.js contrôle d'accès admin / employé / RH / manager / CSE
-  routes/            install · auth · admin · employee · rh · manager · profile · directory · messages · cse · agenda
+  routes/            install · auth · admin · employee · rh · manager · profile · directory
+                     messages · cse · agenda · gestion · salles
 views/
   partials/          head, sidebar, navigation membre, en-têtes, avatars, icônes, langues, thème
   install · login · error · admin · rh · employee · manager · profile · directory · messages
-  cse · cse-manage · agenda
+  cse · cse-manage · agenda · gestion · rooms
   employee-edit · employee-timesheet · tool-edit
-public/              feuille de style, thème, chronomètre, agenda, confirmations
+public/              feuille de style, thème, chronomètre, agenda, jauges, confirmations
 scripts/seed-demo.js jeu de données de démonstration
 tests/               suite d'intégration (node --test)
 ```

@@ -1,0 +1,21 @@
+<%
+/* Sections de l'espace de gestion administrative et financière.
+   Attend : asLinks? (booléen), active? (nom de section) */
+const gestionSections = [
+  { tab: 'tiers', label: t('erp.partners'), icon: 'briefcase' },
+  { tab: 'contrats', label: t('erp.contracts'), icon: 'shield', badge: typeof stats !== 'undefined' && stats ? stats.renewalCount : 0 },
+  { tab: 'factures', label: t('erp.invoices'), icon: 'card' },
+  { tab: 'budgets', label: t('erp.budgets'), icon: 'network' },
+  { tab: 'frais', label: t('erp.claims'), icon: 'ticket', badge: typeof stats !== 'undefined' && stats ? stats.pendingClaims : 0 },
+  { tab: 'equipements', label: t('erp.assets'), icon: 'tool' },
+  { tab: 'salles', label: t('nav.rooms'), icon: 'calendar' },
+];
+const gestionFootLinks = currentUser.role === 'admin'
+  ? [{ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }]
+  : [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }];
+%>
+<%- include('sidebar', {
+  panelLabel: t('nav.gestion'),
+  navItems: gestionSections,
+  footLinks: gestionFootLinks
+}) %>

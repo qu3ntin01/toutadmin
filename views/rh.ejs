@@ -564,6 +564,496 @@
           </div>
         </section>
 
+
+        <!-- ---------- Documents d'entreprise ---------- -->
+        <section class="tab-panel" id="documents">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('erp.documents') %></h3></div>
+              <form method="POST" action="/rh/documents" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span>Intitulé</span>
+                  <input type="text" name="title" maxlength="160" required />
+                </label>
+                <label>
+                  <span><%= t('common.type') %></span>
+                  <select name="category">
+                    <option value="">—</option>
+                    <% talent.documentCategories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span>Lien</span>
+                  <input type="url" name="url" maxlength="500" placeholder="https://" />
+                </label>
+                <label>
+                  <span>Description</span>
+                  <textarea name="description" rows="3" maxlength="2000"></textarea>
+                </label>
+                <label class="check-row">
+                  <input type="checkbox" name="requires_ack" />
+                  <span>Exiger un accusé de réception</span>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
+                <p class="hint">Un document à accuser reste signalé dans l'espace de chaque salarié tant qu'il ne l'a pas lu.</p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('erp.documents') %> <span class="muted">(<%= talent.documents.length %>)</span></h3></div>
+              <% if (talent.documents.length === 0) { %>
+                <div class="empty-state"><%= t('erp.noDocument') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Document</th><th><%= t('common.date') %></th><th>Accusés</th><th class="actions"></th></tr></thead>
+                    <tbody>
+                      <% talent.documents.forEach((d) => { %>
+                        <tr>
+                          <td>
+                            <div class="cell-strong"><%= d.title %></div>
+                            <div class="cell-sub"><%= d.category || '—' %><%= d.requires_ack ? ' · accusé requis' : '' %></div>
+                          </td>
+                          <td><%= new Date(d.published_at + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></td>
+                          <td class="num"><%= d.requires_ack ? d.ack_count : '—' %></td>
+                          <td class="actions">
+                            <form method="POST" action="/rh/documents/<%= d.id %>/supprimer" data-confirm="Supprimer ce document et ses accusés de réception ?">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Formation ---------- -->
+        <section class="tab-panel" id="formations">
+          <div class="grid-2">
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h3>Catalogue</h3></div>
+                <form method="POST" action="/rh/formations" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label>
+                    <span>Intitulé</span>
+                    <input type="text" name="title" maxlength="160" required />
+                  </label>
+                  <div class="form-grid">
+                    <label>
+                      <span><%= t('common.type') %></span>
+                      <input type="text" name="category" maxlength="80" />
+                    </label>
+                    <label>
+                      <span>Organisme</span>
+                      <input type="text" name="provider" maxlength="120" />
+                    </label>
+                    <label>
+                      <span>Durée (h)</span>
+                      <input type="text" name="duration_hours" inputmode="decimal" />
+                    </label>
+                    <label>
+                      <span>Coût</span>
+                      <input type="text" name="cost" inputmode="decimal" />
+                    </label>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                </form>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Programmer une session</h3></div>
+                <% if (talent.trainings.length === 0) { %>
+                  <div class="empty-state"><%= t('erp.noTraining') %></div>
+                <% } else { %>
+                  <form method="POST" action="/rh/sessions" class="stack">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label>
+                      <span>Formation</span>
+                      <select name="training_id" required>
+                        <% talent.trainings.forEach((tr) => { %><option value="<%= tr.id %>"><%= tr.title %></option><% }) %>
+                      </select>
+                    </label>
+                    <div class="form-grid">
+                      <label>
+                        <span><%= t('agenda.from') %></span>
+                        <input type="date" name="start_date" required />
+                      </label>
+                      <label>
+                        <span><%= t('agenda.to') %></span>
+                        <input type="date" name="end_date" />
+                      </label>
+                      <label>
+                        <span><%= t('agenda.location') %></span>
+                        <input type="text" name="location" maxlength="140" />
+                      </label>
+                      <label>
+                        <span><%= t('erp.seats') %></span>
+                        <input type="number" name="seats" min="0" max="1000" value="10" />
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                    <p class="hint">Zéro place signifie « sans limite ». Une session pleine refuse toute inscription de plus.</p>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h3>Sessions <span class="muted">(<%= talent.sessions.length %>)</span></h3></div>
+                <% if (talent.sessions.length === 0) { %>
+                  <div class="empty-state">Aucune session programmée.</div>
+                <% } else { %>
+                  <ul class="meeting-list">
+                    <% talent.sessions.forEach((s) => { %>
+                      <li class="meeting-item">
+                        <div class="meeting-head">
+                          <span class="meeting-title"><%= s.title %></span>
+                          <span class="status <%= s.status === 'Annulée' ? 'status-danger' : (s.status === 'Terminée' ? 'status-off' : 'status-on') %>"><%= s.status %></span>
+                        </div>
+                        <p class="cell-sub">
+                          <%= new Date(s.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><%= s.end_date ? ' → ' + new Date(s.end_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '' %><%= s.location ? ' · ' + s.location : '' %>
+                          · <%= s.taken %><%= s.seats ? '/' + s.seats : '' %> <%= t('erp.seats').toLowerCase() %>
+                        </p>
+                        <div class="row-actions">
+                          <form method="POST" action="/rh/sessions/<%= s.id %>/statut" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="status" class="input-sm">
+                              <% talent.sessionStatuses.forEach((st) => { %>
+                                <option value="<%= st %>" <%= s.status === st ? 'selected' : '' %>><%= st %></option>
+                              <% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                          </form>
+                          <form method="POST" action="/rh/sessions/<%= s.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette session ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </div>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Inscriptions <span class="muted">(<%= talent.registrations.length %>)</span></h3></div>
+                <% if (talent.registrations.length === 0) { %>
+                  <div class="empty-state">Aucune inscription.</div>
+                <% } else { %>
+                  <div class="table-wrap">
+                    <table>
+                      <thead><tr><th><%= t('common.member') %></th><th>Session</th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                      <tbody>
+                        <% talent.registrations.forEach((r) => { %>
+                          <tr>
+                            <td class="cell-strong"><%= r.first_name %> <%= r.last_name %></td>
+                            <td>
+                              <%= r.title %>
+                              <div class="cell-sub"><%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></div>
+                            </td>
+                            <td>
+                              <span class="status <%= r.status === 'Inscrite' ? 'status-on' : (r.status === 'Refusée' ? 'status-danger' : (r.status === 'Terminée' ? 'status-off' : 'status-warning')) %>"><%= r.status %></span>
+                            </td>
+                            <td class="actions">
+                              <% if (r.status === 'Demandée') { %>
+                                <% ['Inscrite', 'Refusée'].forEach((decision) => { %>
+                                  <form method="POST" action="/rh/inscriptions/<%= r.id %>/statut" class="inline-form">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                    <input type="hidden" name="status" value="<%= decision %>" />
+                                    <button type="submit" class="btn btn-sm <%= decision === 'Inscrite' ? 'btn-primary' : '' %>"><%= decision === 'Inscrite' ? t('hr.approve') : t('hr.refuse') %></button>
+                                  </form>
+                                <% }) %>
+                              <% } else if (r.status === 'Inscrite') { %>
+                                <form method="POST" action="/rh/inscriptions/<%= r.id %>/statut" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <input type="hidden" name="status" value="Terminée" />
+                                  <button type="submit" class="btn btn-sm">Marquer terminée</button>
+                                </form>
+                              <% } else { %>
+                                <span class="cell-sub">—</span>
+                              <% } %>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Entretiens annuels ---------- -->
+        <section class="tab-panel" id="entretiens">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Planifier un entretien</h3></div>
+              <form method="POST" action="/rh/entretiens" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('common.member') %></span>
+                  <select name="employee_id" required>
+                    <option value="">—</option>
+                    <% staff.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                  </select>
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.period') %></span>
+                    <input type="text" name="period" maxlength="40" placeholder="Ex : 2026" required />
+                  </label>
+                  <label>
+                    <span><%= t('common.date') %></span>
+                    <input type="date" name="scheduled_on" />
+                  </label>
+                </div>
+                <label>
+                  <span>Évaluateur</span>
+                  <select name="reviewer_id">
+                    <option value="">— <%= t('common.none') %> —</option>
+                    <% staff.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                  </select>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('erp.reviews') %> <span class="muted">(<%= talent.reviews.length %>)</span></h3></div>
+              <% if (talent.reviews.length === 0) { %>
+                <div class="empty-state"><%= t('erp.noReview') %></div>
+              <% } else { %>
+                <ul class="meeting-list">
+                  <% talent.reviews.forEach((r) => { %>
+                    <li class="meeting-item">
+                      <div class="meeting-head">
+                        <span class="meeting-title"><%= r.first_name %> <%= r.last_name %> — <%= r.period %></span>
+                        <span class="status <%= r.status === 'Réalisé' ? 'status-on' : (r.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= r.status %></span>
+                      </div>
+                      <p class="cell-sub">
+                        <%= r.scheduled_on ? new Date(r.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—' %>
+                        <%= r.reviewer_first_name ? ' · ' + r.reviewer_first_name + ' ' + r.reviewer_last_name : '' %>
+                        <%= r.rating ? ' · ' + r.rating + '/5' : '' %>
+                      </p>
+                      <% if (r.employee_comment) { %>
+                        <p class="cell-sub"><strong>Commentaire du salarié :</strong> <%= r.employee_comment %></p>
+                      <% } %>
+
+                      <% if (r.status === 'Planifié') { %>
+                        <form method="POST" action="/rh/entretiens/<%= r.id %>/conclure" class="stack">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <label>
+                            <span>Points forts</span>
+                            <textarea name="strengths" rows="2" maxlength="2000"></textarea>
+                          </label>
+                          <label>
+                            <span>Axes de progrès</span>
+                            <textarea name="improvements" rows="2" maxlength="2000"></textarea>
+                          </label>
+                          <label>
+                            <span>Objectifs</span>
+                            <textarea name="objectives" rows="2" maxlength="2000"></textarea>
+                          </label>
+                          <label>
+                            <span>Appréciation (1 à 5)</span>
+                            <input type="number" name="rating" min="1" max="5" />
+                          </label>
+                          <div class="row-actions">
+                            <button type="submit" class="btn btn-primary btn-sm">Conclure l'entretien</button>
+                          </div>
+                        </form>
+                        <div class="row-actions">
+                          <form method="POST" action="/rh/entretiens/<%= r.id %>/annuler" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm"><%= t('common.cancel') %></button>
+                          </form>
+                          <form method="POST" action="/rh/entretiens/<%= r.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet entretien ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </div>
+                      <% } else { %>
+                        <% if (r.strengths) { %><p class="cell-sub"><strong>Points forts :</strong> <%= r.strengths %></p><% } %>
+                        <% if (r.improvements) { %><p class="cell-sub"><strong>Axes de progrès :</strong> <%= r.improvements %></p><% } %>
+                        <% if (r.objectives) { %><p class="cell-sub"><strong>Objectifs :</strong> <%= r.objectives %></p><% } %>
+                        <div class="row-actions">
+                          <form method="POST" action="/rh/entretiens/<%= r.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet entretien ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </div>
+                      <% } %>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Recrutement ---------- -->
+        <section class="tab-panel" id="recrutement">
+          <div class="grid-2">
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h3>Ouvrir un poste</h3></div>
+                <form method="POST" action="/rh/postes" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label>
+                    <span>Intitulé</span>
+                    <input type="text" name="title" maxlength="160" required />
+                  </label>
+                  <div class="form-grid">
+                    <label>
+                      <span><%= t('common.department') %></span>
+                      <select name="department_id">
+                        <option value="">—</option>
+                        <% talent.departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+                      </select>
+                    </label>
+                    <label>
+                      <span><%= t('common.team') %></span>
+                      <select name="team_id">
+                        <option value="">—</option>
+                        <% talent.teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %>
+                      </select>
+                    </label>
+                  </div>
+                  <label>
+                    <span><%= t('common.contract') %></span>
+                    <select name="contract_type">
+                      <option value="">—</option>
+                      <% ['CDI', 'CDD', 'Intérim', 'Stage', 'Alternance', 'Freelance'].forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Description</span>
+                    <textarea name="description" rows="3" maxlength="4000"></textarea>
+                  </label>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                </form>
+              </div>
+
+              <% if (talent.openings.length) { %>
+                <div class="card">
+                  <div class="card-head"><h3>Ajouter une candidature</h3></div>
+                  <form method="POST" action="/rh/candidats" class="stack">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label>
+                      <span>Poste</span>
+                      <select name="opening_id" required>
+                        <% talent.openings.forEach((o) => { %><option value="<%= o.id %>"><%= o.title %></option><% }) %>
+                      </select>
+                    </label>
+                    <div class="form-grid">
+                      <label>
+                        <span>Prénom</span>
+                        <input type="text" name="first_name" maxlength="100" required />
+                      </label>
+                      <label>
+                        <span>Nom</span>
+                        <input type="text" name="last_name" maxlength="100" required />
+                      </label>
+                      <label>
+                        <span><%= t('common.email') %></span>
+                        <input type="email" name="email" maxlength="254" />
+                      </label>
+                      <label>
+                        <span>Source</span>
+                        <input type="text" name="source" maxlength="80" placeholder="Ex : cooptation" />
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                  </form>
+                </div>
+              <% } %>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('erp.recruitment') %> <span class="muted">(<%= talent.openings.length %>)</span></h3></div>
+              <% if (talent.openings.length === 0) { %>
+                <div class="empty-state"><%= t('erp.noOpening') %></div>
+              <% } else { %>
+                <ul class="meeting-list">
+                  <% talent.openings.forEach((o) => {
+                       const applicants = talent.candidatesByOpening[o.id] || [];
+                  %>
+                    <li class="meeting-item">
+                      <div class="meeting-head">
+                        <span class="meeting-title"><%= o.title %></span>
+                        <span class="status <%= o.status === 'Pourvu' ? 'status-on' : (o.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= o.status %></span>
+                      </div>
+                      <p class="cell-sub">
+                        <%= [o.department_name, o.team_name, o.contract_type].filter(Boolean).join(' · ') || '—' %>
+                        · <%= applicants.length %> candidature(s), <%= o.active_count %> en cours
+                      </p>
+
+                      <div class="row-actions">
+                        <form method="POST" action="/rh/postes/<%= o.id %>/statut" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <select name="status" class="input-sm">
+                            <% talent.openingStatuses.forEach((st) => { %>
+                              <option value="<%= st %>" <%= o.status === st ? 'selected' : '' %>><%= st %></option>
+                            <% }) %>
+                          </select>
+                          <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                        </form>
+                        <form method="POST" action="/rh/postes/<%= o.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce poste et ses candidatures ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                        </form>
+                      </div>
+
+                      <% if (applicants.length) { %>
+                        <div class="table-wrap">
+                          <table>
+                            <thead><tr><th>Candidat</th><th>Étape</th><th class="actions"></th></tr></thead>
+                            <tbody>
+                              <% applicants.forEach((c) => { %>
+                                <tr>
+                                  <td>
+                                    <div class="cell-strong"><%= c.first_name %> <%= c.last_name %></div>
+                                    <div class="cell-sub"><%= [c.email, c.source].filter(Boolean).join(' · ') || '—' %></div>
+                                  </td>
+                                  <td><span class="tag <%= c.stage === 'Recruté' ? 'tag-accent' : '' %>"><%= c.stage %></span></td>
+                                  <td class="actions">
+                                    <form method="POST" action="/rh/candidats/<%= c.id %>/etape" class="inline-form">
+                                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                      <select name="stage" class="input-sm">
+                                        <% talent.candidateStages.forEach((st) => { %>
+                                          <option value="<%= st %>" <%= c.stage === st ? 'selected' : '' %>><%= st %></option>
+                                        <% }) %>
+                                      </select>
+                                      <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                                    </form>
+                                    <form method="POST" action="/rh/candidats/<%= c.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette candidature ?">
+                                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                                    </form>
+                                  </td>
+                                </tr>
+                              <% }) %>
+                            </tbody>
+                          </table>
+                        </div>
+                      <% } %>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   </div>

@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS users (
   contract_end_date TEXT,
   daily_rate REAL,
   is_hr INTEGER NOT NULL DEFAULT 0,
+  is_finance INTEGER NOT NULL DEFAULT 0,
   leave_balance REAL NOT NULL DEFAULT 0,
   department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
   team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
@@ -265,6 +266,237 @@ CREATE INDEX IF NOT EXISTS idx_cse_candidacies_election ON cse_candidacies(elect
 CREATE INDEX IF NOT EXISTS idx_cse_ballots_election ON cse_ballots(election_id);
 CREATE INDEX IF NOT EXISTS idx_calendar_events_user ON calendar_events(user_id, start_date);
 
+-- ---------- Tiers : clients et fournisseurs ----------
+CREATE TABLE IF NOT EXISTS partners (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  kind TEXT NOT NULL DEFAULT 'Fournisseur' CHECK(kind IN ('Client','Fournisseur','Client et fournisseur')),
+  name TEXT NOT NULL,
+  registration TEXT NOT NULL DEFAULT '',
+  contact_name TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  address TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Contrats commerciaux et fournisseurs ----------
+CREATE TABLE IF NOT EXISTS partner_contracts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+  reference TEXT NOT NULL DEFAULT '',
+  title TEXT NOT NULL,
+  start_date TEXT,
+  end_date TEXT,
+  notice_days INTEGER NOT NULL DEFAULT 0,
+  amount REAL,
+  billing_period TEXT NOT NULL DEFAULT 'Annuel',
+  owner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'Actif' CHECK(status IN ('Brouillon','Actif','Résilié','Échu')),
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Factures : recettes et dépenses ----------
+CREATE TABLE IF NOT EXISTS invoices (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  direction TEXT NOT NULL CHECK(direction IN ('Client','Fournisseur')),
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  reference TEXT NOT NULL DEFAULT '',
+  label TEXT NOT NULL,
+  issue_date TEXT NOT NULL,
+  due_date TEXT,
+  amount_ht REAL NOT NULL DEFAULT 0,
+  vat_rate REAL NOT NULL DEFAULT 20,
+  status TEXT NOT NULL DEFAULT 'Émise' CHECK(status IN ('Brouillon','Émise','Payée','Annulée')),
+  paid_at TEXT,
+  notes TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Budgets par service ----------
+CREATE TABLE IF NOT EXISTS budgets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  department_id INTEGER NOT NULL REFERENCES departments(id) ON DELETE CASCADE,
+  year INTEGER NOT NULL,
+  amount REAL NOT NULL DEFAULT 0,
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(department_id, year)
+);
+
+-- ---------- Notes de frais ----------
+CREATE TABLE IF NOT EXISTS expense_claims (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  spent_on TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'Autre',
+  description TEXT NOT NULL DEFAULT '',
+  amount REAL NOT NULL,
+  status TEXT NOT NULL DEFAULT 'En attente' CHECK(status IN ('En attente','Approuvée','Refusée','Remboursée')),
+  reviewed_by INTEGER REFERENCES users(id),
+  review_note TEXT NOT NULL DEFAULT '',
+  reviewed_at TEXT,
+  reimbursed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Parc matériel ----------
+CREATE TABLE IF NOT EXISTS assets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  reference TEXT NOT NULL DEFAULT '',
+  serial_number TEXT NOT NULL DEFAULT '',
+  purchase_date TEXT,
+  warranty_end TEXT,
+  value REAL,
+  status TEXT NOT NULL DEFAULT 'Disponible' CHECK(status IN ('Disponible','Affecté','En maintenance','Réformé')),
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS asset_assignments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  asset_id INTEGER NOT NULL REFERENCES assets(id) ON DELETE CASCADE,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  assigned_at TEXT NOT NULL DEFAULT (date('now')),
+  returned_at TEXT,
+  note TEXT NOT NULL DEFAULT ''
+);
+
+-- ---------- Salles et réservations ----------
+CREATE TABLE IF NOT EXISTS rooms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE COLLATE NOCASE,
+  location TEXT NOT NULL DEFAULT '',
+  capacity INTEGER NOT NULL DEFAULT 0,
+  equipment TEXT NOT NULL DEFAULT '',
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS room_bookings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  room_id INTEGER NOT NULL REFERENCES rooms(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  booking_date TEXT NOT NULL,
+  start_time TEXT NOT NULL,
+  end_time TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Documents d'entreprise ----------
+CREATE TABLE IF NOT EXISTS company_documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  url TEXT NOT NULL DEFAULT '',
+  requires_ack INTEGER NOT NULL DEFAULT 0,
+  published_at TEXT NOT NULL DEFAULT (date('now')),
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS document_acks (
+  document_id INTEGER NOT NULL REFERENCES company_documents(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  acked_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (document_id, user_id)
+);
+
+-- ---------- Formation ----------
+CREATE TABLE IF NOT EXISTS trainings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  provider TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  duration_hours REAL,
+  cost REAL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS training_sessions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  training_id INTEGER NOT NULL REFERENCES trainings(id) ON DELETE CASCADE,
+  start_date TEXT NOT NULL,
+  end_date TEXT,
+  location TEXT NOT NULL DEFAULT '',
+  seats INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'Planifiée' CHECK(status IN ('Planifiée','Confirmée','Terminée','Annulée')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS training_registrations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  session_id INTEGER NOT NULL REFERENCES training_sessions(id) ON DELETE CASCADE,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'Demandée' CHECK(status IN ('Demandée','Inscrite','Refusée','Terminée','Annulée')),
+  reviewed_by INTEGER REFERENCES users(id),
+  reviewed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(session_id, employee_id)
+);
+
+-- ---------- Entretiens annuels ----------
+CREATE TABLE IF NOT EXISTS reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  reviewer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  period TEXT NOT NULL,
+  scheduled_on TEXT,
+  status TEXT NOT NULL DEFAULT 'Planifié' CHECK(status IN ('Planifié','Réalisé','Annulé')),
+  strengths TEXT NOT NULL DEFAULT '',
+  improvements TEXT NOT NULL DEFAULT '',
+  objectives TEXT NOT NULL DEFAULT '',
+  employee_comment TEXT NOT NULL DEFAULT '',
+  rating INTEGER,
+  completed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Recrutement ----------
+CREATE TABLE IF NOT EXISTS job_openings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
+  contract_type TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Ouvert' CHECK(status IN ('Ouvert','En cours','Pourvu','Annulé')),
+  opened_on TEXT NOT NULL DEFAULT (date('now')),
+  closed_on TEXT,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS candidates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  opening_id INTEGER NOT NULL REFERENCES job_openings(id) ON DELETE CASCADE,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT '',
+  stage TEXT NOT NULL DEFAULT 'Reçue' CHECK(stage IN ('Reçue','Présélection','Entretien','Offre','Recruté','Refusé')),
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_invoices_partner ON invoices(partner_id);
+CREATE INDEX IF NOT EXISTS idx_expense_claims_employee ON expense_claims(employee_id);
+CREATE INDEX IF NOT EXISTS idx_asset_assignments_asset ON asset_assignments(asset_id);
+CREATE INDEX IF NOT EXISTS idx_room_bookings_date ON room_bookings(booking_date);
+CREATE INDEX IF NOT EXISTS idx_training_registrations_employee ON training_registrations(employee_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_employee ON reviews(employee_id);
+CREATE INDEX IF NOT EXISTS idx_candidates_opening ON candidates(opening_id);
+
 CREATE INDEX IF NOT EXISTS idx_hr_requests_employee ON hr_requests(employee_id);
 CREATE INDEX IF NOT EXISTS idx_payslips_employee ON payslips(employee_id);
 CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);
@@ -281,6 +513,7 @@ for (const migration of [
   "ALTER TABLE assignments ADD COLUMN username TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE users ADD COLUMN daily_rate REAL",
   "ALTER TABLE users ADD COLUMN is_hr INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN is_finance INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN leave_balance REAL NOT NULL DEFAULT 0",
   'ALTER TABLE users ADD COLUMN manager_id INTEGER REFERENCES users(id) ON DELETE SET NULL',
   'ALTER TABLE users ADD COLUMN avatar_file TEXT',

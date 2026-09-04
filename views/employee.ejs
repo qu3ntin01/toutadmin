@@ -337,6 +337,232 @@
             </div>
           <% } %>
         </div>
+
+        <!-- ---------- Documents à lire ---------- -->
+        <% const toAck = myDocuments.filter((d) => d.requires_ack && !d.acked_at); %>
+        <div class="card" id="documents">
+          <div class="card-head">
+            <div>
+              <h3><%= t('erp.documents') %> <span class="muted">(<%= myDocuments.length %>)</span></h3>
+              <% if (toAck.length) { %><p class="card-sub"><%= toAck.length %> document(s) attendent votre accusé de réception.</p><% } %>
+            </div>
+          </div>
+          <% if (myDocuments.length === 0) { %>
+            <div class="empty-state"><%= t('erp.noDocument') %></div>
+          <% } else { %>
+            <ul class="person-list">
+              <% myDocuments.forEach((d) => { %>
+                <li class="person-row">
+                  <span class="person-body">
+                    <span class="person-name"><%= d.title %></span>
+                    <span class="cell-sub">
+                      <%= d.category || '—' %> · <%= new Date(d.published_at + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %>
+                      <%= d.acked_at ? ' · ' + t('erp.acknowledged', { date: new Date(d.acked_at).toLocaleDateString(locale) }) : '' %>
+                    </span>
+                    <% if (d.description) { %><span class="benefit-text"><%= d.description %></span><% } %>
+                  </span>
+                  <span class="row-actions">
+                    <% if (d.url) { %>
+                      <a href="<%= d.url %>" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer"><%= t('common.open') %></a>
+                    <% } %>
+                    <% if (d.requires_ack && !d.acked_at) { %>
+                      <form method="POST" action="/mon-espace/documents/<%= d.id %>/accuser">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-primary btn-sm"><%= t('erp.acknowledge') %></button>
+                      </form>
+                    <% } %>
+                  </span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+
+        <div class="grid-2">
+          <!-- ---------- Notes de frais ---------- -->
+          <div class="card" id="frais">
+            <div class="card-head"><h3><%= t('erp.newClaim') %></h3></div>
+            <form method="POST" action="/mon-espace/frais" class="stack">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <div class="form-grid">
+                <label>
+                  <span><%= t('common.date') %></span>
+                  <input type="date" name="spent_on" required />
+                </label>
+                <label>
+                  <span><%= t('erp.amount') %></span>
+                  <input type="text" name="amount" inputmode="decimal" required placeholder="Ex : 42,50" />
+                </label>
+              </div>
+              <label>
+                <span><%= t('common.type') %></span>
+                <select name="category" required>
+                  <% expenseCategories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %>
+                </select>
+              </label>
+              <label>
+                <span><%= t('common.reason') %></span>
+                <input type="text" name="description" maxlength="500" />
+              </label>
+              <button type="submit" class="btn btn-primary btn-block"><%= t('common.send') %></button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('erp.myClaims') %> <span class="muted">(<%= myClaims.length %>)</span></h3></div>
+            <% if (myClaims.length === 0) { %>
+              <div class="empty-state"><%= t('erp.noClaim') %></div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('common.date') %></th><th><%= t('common.type') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                  <tbody>
+                    <% myClaims.forEach((c) => { %>
+                      <tr>
+                        <td><%= new Date(c.spent_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></td>
+                        <td>
+                          <span class="tag"><%= c.category %></span>
+                          <% if (c.description) { %><div class="cell-sub"><%= c.description %></div><% } %>
+                        </td>
+                        <td class="num cell-strong"><%= c.amount.toFixed(2) %> €</td>
+                        <td>
+                          <span class="status <%= c.status === 'Remboursée' || c.status === 'Approuvée' ? 'status-on' : (c.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= c.status %></span>
+                          <% if (c.review_note) { %><div class="cell-sub"><%= c.review_note %></div><% } %>
+                        </td>
+                        <td class="actions">
+                          <% if (c.status === 'En attente') { %>
+                            <form method="POST" action="/mon-espace/frais/<%= c.id %>/annuler" data-confirm="Retirer cette note de frais ?">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
+                            </form>
+                          <% } else { %>
+                            <span class="cell-sub">—</span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- ---------- Matériel confié ---------- -->
+          <div class="card" id="materiel">
+            <div class="card-head"><h3><%= t('erp.myAssets') %> <span class="muted">(<%= myAssets.length %>)</span></h3></div>
+            <% if (myAssets.length === 0) { %>
+              <div class="empty-state">Aucun équipement ne vous est confié.</div>
+            <% } else { %>
+              <ul class="person-list">
+                <% myAssets.forEach((a) => { %>
+                  <li class="person-row">
+                    <span class="person-body">
+                      <span class="person-name"><%= a.name %></span>
+                      <span class="cell-sub">
+                        <%= [a.category, a.serial_number].filter(Boolean).join(' · ') || '—' %>
+                        · confié le <%= new Date(a.assigned_at + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %>
+                      </span>
+                    </span>
+                  </li>
+                <% }) %>
+              </ul>
+              <p class="hint">La reprise d'un équipement se fait auprès de la gestion.</p>
+            <% } %>
+          </div>
+
+          <!-- ---------- Formations ---------- -->
+          <div class="card" id="formations">
+            <div class="card-head"><h3><%= t('erp.myTrainings') %> <span class="muted">(<%= myTrainings.length %>)</span></h3></div>
+            <% if (myTrainings.length === 0 && openSessions.length === 0) { %>
+              <div class="empty-state"><%= t('erp.noTraining') %></div>
+            <% } else { %>
+              <% if (myTrainings.length) { %>
+                <ul class="person-list">
+                  <% myTrainings.forEach((r) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name"><%= r.title %></span>
+                        <span class="cell-sub">
+                          <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><%= r.location ? ' · ' + r.location : '' %>
+                        </span>
+                      </span>
+                      <span class="row-actions">
+                        <span class="status <%= r.status === 'Inscrite' ? 'status-on' : (r.status === 'Refusée' ? 'status-danger' : (r.status === 'Terminée' ? 'status-off' : 'status-warning')) %>"><%= r.status %></span>
+                        <% if (r.status === 'Demandée') { %>
+                          <form method="POST" action="/mon-espace/formations/<%= r.id %>/annuler">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
+                          </form>
+                        <% } %>
+                      </span>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+
+              <% const available = openSessions.filter((s) => !myTrainings.some((r) => r.session_id === s.id)); %>
+              <% if (available.length) { %>
+                <h4 class="section-label">Catalogue</h4>
+                <ul class="person-list">
+                  <% available.forEach((s) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name"><%= s.title %></span>
+                        <span class="cell-sub">
+                          <%= new Date(s.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><%= s.location ? ' · ' + s.location : '' %>
+                          · <%= s.taken %><%= s.seats ? '/' + s.seats : '' %> <%= t('erp.seats').toLowerCase() %>
+                        </span>
+                      </span>
+                      <form method="POST" action="/mon-espace/formations/<%= s.id %>/inscription">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-outline btn-sm"><%= t('erp.requestSeat') %></button>
+                      </form>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- ---------- Entretiens annuels ---------- -->
+        <% if (myReviews.length) { %>
+          <div class="card" id="entretiens">
+            <div class="card-head"><h3><%= t('erp.myReviews') %> <span class="muted">(<%= myReviews.length %>)</span></h3></div>
+            <ul class="meeting-list">
+              <% myReviews.forEach((r) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><%= r.period %></span>
+                    <span class="status <%= r.status === 'Réalisé' ? 'status-on' : (r.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= r.status %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= r.scheduled_on ? new Date(r.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—' %>
+                    <%= r.reviewer_first_name ? ' · ' + r.reviewer_first_name + ' ' + r.reviewer_last_name : '' %>
+                    <%= r.rating ? ' · ' + r.rating + '/5' : '' %>
+                  </p>
+                  <% if (r.strengths) { %><p class="cell-sub"><strong>Points forts :</strong> <%= r.strengths %></p><% } %>
+                  <% if (r.improvements) { %><p class="cell-sub"><strong>Axes de progrès :</strong> <%= r.improvements %></p><% } %>
+                  <% if (r.objectives) { %><p class="cell-sub"><strong>Objectifs :</strong> <%= r.objectives %></p><% } %>
+
+                  <form method="POST" action="/mon-espace/entretiens/<%= r.id %>/commentaire" class="stack">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label>
+                      <span>Votre commentaire</span>
+                      <textarea name="employee_comment" rows="3" maxlength="2000"><%= r.employee_comment %></textarea>
+                    </label>
+                    <div class="row-actions">
+                      <button type="submit" class="btn btn-primary btn-sm"><%= t('common.save') %></button>
+                    </div>
+                  </form>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+
       </main>
     </div>
   </div>

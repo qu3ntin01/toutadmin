@@ -108,6 +108,28 @@ function leaveEntries(userId, fromISO, toISO) {
   `).all(userId, toISO, fromISO);
 }
 
+/** Réservations de salle du salarié : elles occupent son agenda comme un rendez-vous. */
+function roomEntries(userId, fromISO, toISO) {
+  return db.prepare(`
+    SELECT b.title, b.booking_date, b.start_time, b.end_time, r.name AS room_name
+    FROM room_bookings b JOIN rooms r ON r.id = b.room_id
+    WHERE b.user_id = ? AND b.booking_date BETWEEN ? AND ?
+    ORDER BY b.booking_date, b.start_time
+  `).all(userId, fromISO, toISO);
+}
+
+/** Sessions de formation où le salarié est inscrit, une fois l'inscription validée. */
+function trainingEntries(userId, fromISO, toISO) {
+  return db.prepare(`
+    SELECT t.title, s.start_date, s.end_date, s.location
+    FROM training_registrations reg
+    JOIN training_sessions s ON s.id = reg.session_id
+    JOIN trainings t ON t.id = s.training_id
+    WHERE reg.employee_id = ? AND reg.status = 'Inscrite' AND s.status != 'Annulée'
+      AND s.start_date <= ? AND COALESCE(s.end_date, s.start_date) >= ?
+  `).all(userId, toISO, fromISO);
+}
+
 function meetingEntries(fromISO, toISO) {
   return db.prepare(`
     SELECT id, title, meeting_date, meeting_time, location FROM cse_meetings
@@ -225,6 +247,30 @@ function monthAgenda(user, month, { attendsCse = false, shared = false } = {}) {
     }
   }
 
+  for (const booking of roomEntries(user.id, firstISO, lastISO)) {
+    push(booking.booking_date, {
+      source: 'salle',
+      title: booking.title,
+      category: booking.room_name,
+      location: booking.room_name,
+      time: [booking.start_time, booking.end_time].filter(Boolean).join(' – '),
+      startTime: booking.start_time,
+      removable: false,
+    });
+  }
+
+  for (const session of trainingEntries(user.id, firstISO, lastISO)) {
+    spread(session.start_date, session.end_date || session.start_date, () => ({
+      source: 'formation',
+      title: session.title,
+      category: 'Formation',
+      location: session.location,
+      time: '',
+      startTime: '',
+      removable: false,
+    }));
+  }
+
   if (user.contract_end_date) {
     push(user.contract_end_date, { source: 'contrat', title: 'Fin de contrat', category: 'Contrat', time: '', startTime: '', removable: false });
   }
@@ -300,6 +346,8 @@ function upcoming(user, { attendsCse = false, days = 30, limit = 8 } = {}) {
 
 module.exports = {
   EVENT_CATEGORIES,
+  roomEntries,
+  trainingEntries,
   VISIBILITIES,
   setVisibility,
   sharedEvents,

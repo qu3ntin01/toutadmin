@@ -63,6 +63,8 @@ router.get('/', (req, res) => {
     teamManagers: Object.fromEntries(teams.map((t) => [t.id, org.managersOf('team', t.id)])),
     hrMembers: employees.filter((e) => e.is_hr),
     hrEligibleEmployees: employees.filter((e) => !e.is_hr),
+    financeMembers: employees.filter((e) => e.is_finance),
+    financeEligibleEmployees: employees.filter((e) => !e.is_finance),
     companyNews: announcements.all(),
     annualLeaveDays: annualLeaveDays(),
     pendingRequestCount: db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n,
@@ -520,6 +522,25 @@ router.post('/affectations/:id/supprimer', (req, res) => {
 });
 
 // ---------- Gestion des accès RH ----------
+
+router.post('/gestion/nommer', (req, res) => {
+  const id = Number(req.body.employee_id);
+  const employee = findEmployee(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#rh');
+  }
+
+  db.prepare('UPDATE users SET is_finance = 1 WHERE id = ?').run(id);
+  setFlash(req, 'success', `${employee.first_name} ${employee.last_name} accède à la gestion administrative et financière.`);
+  res.redirect('/admin#rh');
+});
+
+router.post('/gestion/:id/retirer', (req, res) => {
+  db.prepare('UPDATE users SET is_finance = 0 WHERE id = ?').run(Number(req.params.id));
+  setFlash(req, 'success', "Accès à la gestion retiré.");
+  res.redirect('/admin#rh');
+});
 
 router.post('/rh/nommer', (req, res) => {
   const id = Number(req.body.employee_id);

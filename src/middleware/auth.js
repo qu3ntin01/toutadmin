@@ -15,11 +15,28 @@ function requireEmployee(req, res, next) {
   next();
 }
 
+// Les rôles désignés par l'administration sont relus à chaque requête : une
+// désignation prend effet immédiatement, sans que la personne ait à se reconnecter.
+function hasFlag(userId, column) {
+  const db = require('../db');
+  const row = db.prepare(`SELECT ${column} AS flag FROM users WHERE id = ?`).get(userId);
+  return Boolean(row && row.flag);
+}
+
 // Accès à l'espace RH : administrateurs (supervision) et employés désignés RH par un administrateur.
 function requireHR(req, res, next) {
   if (!req.session.user) return res.redirect('/connexion');
-  if (req.session.user.role !== 'admin' && !req.session.user.isHr) {
+  if (req.session.user.role !== 'admin' && !hasFlag(req.session.user.id, 'is_hr')) {
     return res.status(403).render('error', { message: "Accès réservé aux membres de l'équipe RH." });
+  }
+  next();
+}
+
+// Gestion administrative et financière : administrateurs et membres désignés par eux.
+function requireFinance(req, res, next) {
+  if (!req.session.user) return res.redirect('/connexion');
+  if (req.session.user.role !== 'admin' && !hasFlag(req.session.user.id, 'is_finance')) {
+    return res.status(403).render('error', { message: "Accès réservé à la gestion administrative et financière." });
   }
   next();
 }
@@ -59,4 +76,4 @@ function requireManager(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAdmin, requireEmployee, requireHR, requireManager, requireCseMember, requireCseElected };
+module.exports = { requireAuth, requireAdmin, requireEmployee, requireHR, requireFinance, requireManager, requireCseMember, requireCseElected };

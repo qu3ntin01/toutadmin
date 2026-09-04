@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: t('nav.rooms') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'salles' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.rooms'),
+        headerSubtitle: t('erp.bookings')
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const day = (iso) => new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' }); %>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head"><h3><%= t('erp.book') %></h3></div>
+            <% if (rooms.length === 0) { %>
+              <div class="empty-state"><%= t('erp.noRoom') %></div>
+            <% } else { %>
+              <form method="POST" action="/salles" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('nav.rooms') %></span>
+                  <select name="room_id" required>
+                    <% rooms.forEach((r) => { %>
+                      <option value="<%= r.id %>"><%= r.name %><%= r.capacity ? ' · ' + r.capacity + ' pl.' : '' %><%= r.location ? ' · ' + r.location : '' %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span>Objet</span>
+                  <input type="text" name="title" maxlength="140" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.date') %></span>
+                    <input type="date" name="booking_date" value="<%= date %>" required />
+                  </label>
+                  <label>
+                    <span><%= t('timer.start_label') %></span>
+                    <input type="time" name="start_time" value="09:00" required />
+                  </label>
+                  <label>
+                    <span><%= t('timer.end_label') %></span>
+                    <input type="time" name="end_time" value="10:00" required />
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('erp.book') %></button>
+                <p class="hint">Un créneau déjà pris est refusé, en indiquant qui l'occupe.</p>
+              </form>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><%= day(date) %></h3>
+              <div class="calendar-nav">
+                <a href="/salles?jour=<%= previousDay %>" class="btn btn-quiet" aria-label="<%= previousDay %>">‹</a>
+                <a href="/salles?jour=<%= today %>" class="btn btn-quiet"><%= t('agenda.today') %></a>
+                <a href="/salles?jour=<%= nextDay %>" class="btn btn-quiet" aria-label="<%= nextDay %>">›</a>
+              </div>
+            </div>
+
+            <% if (rooms.length === 0) { %>
+              <div class="empty-state"><%= t('erp.noRoom') %></div>
+            <% } else { %>
+              <ul class="org-list">
+                <% rooms.forEach((r) => {
+                     const slots = bookingsByRoom[r.id] || [];
+                %>
+                  <li class="org-item">
+                    <div class="org-head">
+                      <div>
+                        <span class="org-name"><%= r.name %></span>
+                        <span class="cell-sub"><%= [r.location, r.capacity ? r.capacity + ' places' : '', r.equipment].filter(Boolean).join(' · ') || '—' %></span>
+                      </div>
+                      <span class="tag"><%= slots.length %></span>
+                    </div>
+                    <% if (slots.length === 0) { %>
+                      <p class="cell-sub">Libre toute la journée.</p>
+                    <% } else { %>
+                      <ul class="person-list">
+                        <% slots.forEach((b) => { %>
+                          <li class="person-row">
+                            <span class="person-body">
+                              <span class="person-name"><%= b.start_time %> – <%= b.end_time %> · <%= b.title %></span>
+                              <span class="cell-sub"><%= b.first_name %> <%= b.last_name %></span>
+                            </span>
+                            <% if (b.user_id === currentUser.id) { %>
+                              <form method="POST" action="/salles/<%= b.id %>/annuler" data-confirm="Annuler cette réservation ?">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <input type="hidden" name="jour" value="<%= date %>" />
+                                <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
+                              </form>
+                            <% } %>
+                          </li>
+                        <% }) %>
+                      </ul>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('erp.bookings') %> <span class="muted">(<%= myBookings.length %>)</span></h3></div>
+          <% if (myBookings.length === 0) { %>
+            <div class="empty-state">Vous n'avez aucune réservation à venir.</div>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th><%= t('common.date') %></th><th>Objet</th><th><%= t('nav.rooms') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                </thead>
+                <tbody>
+                  <% myBookings.forEach((b) => { %>
+                    <tr>
+                      <td>
+                        <strong><%= new Date(b.booking_date + 'T00:00:00Z').toLocaleDateString(locale, { day: '2-digit', month: 'short', timeZone: 'UTC' }) %></strong>
+                        <div class="cell-sub"><%= b.start_time %> – <%= b.end_time %></div>
+                      </td>
+                      <td><%= b.title %></td>
+                      <td><%= b.room_name %><% if (b.location) { %><div class="cell-sub"><%= b.location %></div><% } %></td>
+                      <td class="actions">
+                        <form method="POST" action="/salles/<%= b.id %>/annuler" data-confirm="Annuler cette réservation ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <input type="hidden" name="jour" value="<%= date %>" />
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

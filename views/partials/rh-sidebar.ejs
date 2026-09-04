@@ -12,6 +12,15 @@ const rhSections = [
   { tab: 'personnel', label: t('nav.leave'), icon: 'users' },
   { tab: 'paie', label: t('nav.payroll'), icon: 'card' },
   { tab: 'remuneration', label: t('nav.remuneration'), icon: 'clock' },
+  { tab: 'documents', label: t('erp.documents'), icon: 'inbox' },
+  {
+    tab: 'formations',
+    label: t('erp.trainings'),
+    icon: 'ticket',
+    badge: typeof talent !== 'undefined' && talent ? talent.pendingSeats : 0,
+  },
+  { tab: 'entretiens', label: t('erp.reviews'), icon: 'check' },
+  { tab: 'recrutement', label: t('erp.recruitment'), icon: 'user' },
   {
     tab: 'cse',
     label: t('nav.cse'),
@@ -26,6 +35,7 @@ const rhActive = typeof active !== 'undefined' ? active : null;
 const rhFootLinks = currentUser.role === 'admin'
   ? [{ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }]
   : [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }];
+if (isFinance || currentUser.role === 'admin') rhFootLinks.push({ href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' });
 %>
 <%- include('sidebar', {
   panelLabel: 'Ressources humaines',

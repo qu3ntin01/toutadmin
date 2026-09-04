@@ -174,6 +174,124 @@ insertEvent.run(ids['lucas.petit@entreprise.com'], 'Atelier maquettes', 'Session
   'Studio', inDays(5), inDays(5), '14:00', '17:00', 0, 'Réunion', 'Service');
 insertEvent.run(ids['ines.garnier@entreprise.com'], 'Rendez-vous personnel', '', '', inDays(2), inDays(2), '', '', 1, 'Personnel', 'Privé');
 
+// ---------- Gestion : tiers, contrat, factures, budget, note de frais ----------
+
+const insertPartner = db.prepare('INSERT INTO partners (kind, name, contact_name, email, phone) VALUES (?, ?, ?, ?, ?)');
+const partnerIds = {};
+for (const [kind, name, contact, email, phone] of [
+  ['Client', 'Groupe Bellefeuille', 'Marc Aubin', 'achats@bellefeuille.test', '+33 1 44 55 66 77'],
+  ['Fournisseur', 'Papeterie du Nord', 'Léa Sorel', 'contact@papeterie-nord.test', '+33 3 20 11 22 33'],
+  ['Fournisseur', 'Cloud Atlas Hosting', 'Support', 'facturation@cloudatlas.test', ''],
+]) {
+  partnerIds[name] = insertPartner.run(kind, name, contact, email, phone).lastInsertRowid;
+}
+
+const inDaysISO = (n) => new Date(Date.now() + n * 86400000).toISOString().slice(0, 10);
+
+db.prepare(`
+  INSERT INTO partner_contracts (partner_id, reference, title, start_date, end_date, notice_days, amount, billing_period, status)
+  VALUES (?, 'CT-2025-014', 'Hébergement et sauvegarde', ?, ?, 90, 4800, 'Annuel', 'Actif')
+`).run(partnerIds['Cloud Atlas Hosting'], inDaysISO(-280), inDaysISO(85));
+
+const insertInvoice = db.prepare(`
+  INSERT INTO invoices (direction, partner_id, department_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, created_by)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, 20, ?, ?)
+`);
+insertInvoice.run('Client', partnerIds['Groupe Bellefeuille'], null, 'FA-2026-031', 'Prestation de conception',
+  inDaysISO(-40), inDaysISO(-10), 7500, 'Émise', adminId);
+insertInvoice.run('Client', partnerIds['Groupe Bellefeuille'], null, 'FA-2026-028', 'Maintenance trimestrielle',
+  inDaysISO(-95), inDaysISO(-65), 3200, 'Payée', adminId);
+insertInvoice.run('Fournisseur', partnerIds['Papeterie du Nord'], departmentId('Support technique'), 'AC-8871',
+  'Consommables atelier', inDaysISO(-25), inDaysISO(5), 640, 'Émise', adminId);
+
+const currentYear = new Date().getUTCFullYear();
+const insertBudget = db.prepare('INSERT INTO budgets (department_id, year, amount) VALUES (?, ?, ?)');
+insertBudget.run(departmentId('Support technique'), currentYear, 20000);
+insertBudget.run(departmentId('Création'), currentYear, 12000);
+
+db.prepare(`
+  INSERT INTO expense_claims (employee_id, spent_on, category, description, amount, status)
+  VALUES (?, ?, 'Transport', 'Déplacement client Lille', 87.4, 'En attente')
+`).run(ids['marc.leroy@entreprise.com'], inDaysISO(-6));
+
+// ---------- Parc matériel et salles ----------
+
+const insertAsset = db.prepare(`
+  INSERT INTO assets (name, category, reference, serial_number, purchase_date, warranty_end, value, status)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+`);
+const assetIds = {};
+for (const [name, category, reference, serial, value] of [
+  ['MacBook Pro 14"', 'Informatique', 'IT-0142', 'C02XK1PQ', 2200],
+  ['iPhone 14', 'Téléphonie', 'TEL-0088', 'F17GH9TT', 780],
+  ['Perceuse à colonne', 'Outillage', 'OUT-0031', 'PC-77120', 1450],
+]) {
+  assetIds[name] = insertAsset.run(name, category, reference, serial, inDaysISO(-400), inDaysISO(330), value, 'Disponible').lastInsertRowid;
+}
+
+const assignAsset = db.transaction((assetId, employeeId) => {
+  db.prepare('INSERT INTO asset_assignments (asset_id, employee_id) VALUES (?, ?)').run(assetId, employeeId);
+  db.prepare("UPDATE assets SET status = 'Affecté' WHERE id = ?").run(assetId);
+});
+assignAsset(assetIds['MacBook Pro 14"'], ids['lucas.petit@entreprise.com']);
+assignAsset(assetIds['Perceuse à colonne'], ids['marc.leroy@entreprise.com']);
+
+const insertRoom = db.prepare('INSERT INTO rooms (name, location, capacity, equipment) VALUES (?, ?, ?, ?)');
+const roomIds = {};
+for (const [name, location, capacity, equipment] of [
+  ['Atlas', '2e étage', 12, 'Vidéoprojecteur, visio'],
+  ['Vega', 'Rez-de-chaussée', 4, 'Écran'],
+]) {
+  roomIds[name] = insertRoom.run(name, location, capacity, equipment).lastInsertRowid;
+}
+
+db.prepare('INSERT INTO room_bookings (room_id, user_id, title, booking_date, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?)')
+  .run(roomIds['Atlas'], ids['sofia.nadir@entreprise.com'], 'Revue de production', inDaysISO(3), '09:00', '10:30');
+
+// ---------- Documents, formation, entretiens, recrutement ----------
+
+const insertDocument = db.prepare(`
+  INSERT INTO company_documents (title, category, description, requires_ack, created_by)
+  VALUES (?, ?, ?, ?, ?)
+`);
+insertDocument.run('Règlement intérieur', 'Règlement intérieur', "Version en vigueur depuis janvier.", 1, adminId);
+insertDocument.run('Charte télétravail', 'Politique', 'Trois jours par semaine, sur accord du manager.', 1, adminId);
+insertDocument.run('Procédure de sécurité atelier', 'Sécurité', "Port des EPI obligatoire sur la ligne 2.", 0, adminId);
+
+const insertTraining = db.prepare('INSERT INTO trainings (title, category, provider, duration_hours, cost) VALUES (?, ?, ?, ?, ?)');
+const trainingIds = {};
+for (const [title, category, provider, hours, cost] of [
+  ['Habilitation électrique B1V', 'Sécurité', 'Institut Prévention', 14, 620],
+  ['Gestes et postures', 'Sécurité', 'Institut Prévention', 7, 280],
+  ['Anglais professionnel', 'Langues', 'LinguaPro', 30, 1200],
+]) {
+  trainingIds[title] = insertTraining.run(title, category, provider, hours, cost).lastInsertRowid;
+}
+
+const insertSession = db.prepare('INSERT INTO training_sessions (training_id, start_date, end_date, location, seats, status) VALUES (?, ?, ?, ?, ?, ?)');
+const sessionId = insertSession.run(trainingIds['Habilitation électrique B1V'], inDaysISO(24), inDaysISO(25), 'Centre de formation', 8, 'Confirmée').lastInsertRowid;
+insertSession.run(trainingIds['Gestes et postures'], inDaysISO(45), inDaysISO(45), 'Salle Atlas', 12, 'Planifiée');
+
+db.prepare("INSERT INTO training_registrations (session_id, employee_id, status) VALUES (?, ?, 'Inscrite')")
+  .run(sessionId, ids['marc.leroy@entreprise.com']);
+db.prepare("INSERT INTO training_registrations (session_id, employee_id, status) VALUES (?, ?, 'Demandée')")
+  .run(sessionId, ids['ines.garnier@entreprise.com']);
+
+db.prepare(`
+  INSERT INTO reviews (employee_id, reviewer_id, period, scheduled_on, status)
+  VALUES (?, ?, ?, ?, 'Planifié')
+`).run(ids['marc.leroy@entreprise.com'], ids['sofia.nadir@entreprise.com'], String(currentYear), inDaysISO(18));
+
+const openingId = db.prepare(`
+  INSERT INTO job_openings (title, department_id, contract_type, description, created_by)
+  VALUES (?, ?, 'CDI', ?, ?)
+`).run('Technicien de maintenance', departmentId('Support technique'),
+  "Renfort sur les interventions et l'astreinte.", adminId).lastInsertRowid;
+
+const insertCandidate = db.prepare('INSERT INTO candidates (opening_id, first_name, last_name, email, source, stage) VALUES (?, ?, ?, ?, ?, ?)');
+insertCandidate.run(openingId, 'Nadia', 'Berger', 'nadia.berger@exemple.test', 'Cooptation', 'Entretien');
+insertCandidate.run(openingId, 'Théo', 'Rimbaud', 'theo.rimbaud@exemple.test', 'Annonce', 'Présélection');
+
 // Quelques messages internes, dont un non lu.
 const insertMessage = db.prepare('INSERT INTO messages (sender_id, recipient_id, subject, body, read_at) VALUES (?, ?, ?, ?, ?)');
 insertMessage.run(ids['claire.moreau@entreprise.com'], ids['marc.leroy@entreprise.com'],

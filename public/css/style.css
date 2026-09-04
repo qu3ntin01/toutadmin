@@ -891,6 +891,8 @@ td.actions { min-width: 196px; }
 /* Ce qui vient d'un collègue se distingue de ce qui vient de soi. */
 .cal-event.is-partage { border-inline-start-color: var(--text-tertiary); background: var(--surface-2); }
 .cal-event.is-absence { border-inline-start-color: var(--text-secondary); background: var(--surface-2); font-style: italic; }
+.cal-event.is-salle { border-inline-start-color: var(--brand-deep); background: var(--accent-soft); }
+.cal-event.is-formation { border-inline-start-color: var(--brand-deep-2); background: var(--accent-soft); }
 .cal-more { font-size: 0.7rem; color: var(--text-tertiary); }
 
 .calendar-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 0.76rem; color: var(--text-secondary); }
@@ -918,6 +920,13 @@ td.actions { min-width: 196px; }
 .org-managers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 /* Dans un tableau qui défile, un menu déroulant écrasé devient inutilisable. */
 .table-wrap td select { min-width: 132px; }
+
+/* ---------- Jauge de consommation ---------- */
+
+.meter { height: 8px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+.meter-fill { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 4px; }
+.meter-fill.is-warn { background: var(--warning); }
+.meter-fill.is-over { background: var(--danger); }
 
 /* ---------- CSE ---------- */
 
@@ -968,6 +977,8 @@ td.actions { min-width: 196px; }
 
 .meeting-list { display: grid; gap: 12px; }
 .meeting-item { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2); display: grid; gap: 8px; }
+/* Sans cela, un tableau imbriqué élargit la carte au lieu de défiler dedans. */
+.meeting-item > * { min-width: 0; }
 .meeting-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .meeting-title { font-size: 0.92rem; font-weight: 650; }
 
@@ -1059,6 +1070,8 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
   .cal-event.is-contrat { background: var(--danger); }
   .cal-event.is-partage { background: var(--text-tertiary); }
   .cal-event.is-absence { background: var(--text-secondary); }
+  .cal-event.is-salle { background: var(--brand-deep); }
+  .cal-event.is-formation { background: var(--brand-deep-2); }
   .cal-event-time, .cal-more { display: none; }
 
   /* Sur téléphone, la barre se réduit aux icônes : seule la section courante est nommée. */
