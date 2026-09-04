@@ -14,20 +14,22 @@ const ALLOWED = new Map([
 
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
-  // Nom aléatoire : le nom d'origine, fourni par le client, n'est jamais réutilisé.
-  filename: (req, file, cb) => {
-    const extension = ALLOWED.get(file.mimetype) || '';
-    cb(null, `${crypto.randomBytes(16).toString('hex')}${extension}`);
-  },
-});
-
+// Stockage en mémoire, pas sur disque : le jeton CSRF d'un envoi multipart ne
+// devient lisible qu'une fois le corps décodé. Écrire d'abord reviendrait à
+// laisser une requête forgée déposer un fichier avant d'être refusée.
 const avatarUpload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: MAX_BYTES, files: 1 },
   fileFilter: (req, file, cb) => cb(null, ALLOWED.has(file.mimetype)),
 });
+
+/** Écrit la photo reçue et rend son nom de fichier. */
+function saveAvatar(file) {
+  // Nom aléatoire : le nom d'origine, fourni par le client, n'est jamais réutilisé.
+  const name = `${crypto.randomBytes(16).toString('hex')}${ALLOWED.get(file.mimetype) || ''}`;
+  fs.writeFileSync(path.join(UPLOAD_DIR, name), file.buffer, { mode: 0o600 });
+  return name;
+}
 
 function removeAvatar(filename) {
   if (!filename) return;
@@ -36,4 +38,4 @@ function removeAvatar(filename) {
   fs.rm(path.join(UPLOAD_DIR, filename), { force: true }, () => {});
 }
 
-module.exports = { UPLOAD_DIR, MAX_BYTES, avatarUpload, removeAvatar };
+module.exports = { UPLOAD_DIR, MAX_BYTES, avatarUpload, saveAvatar, removeAvatar };

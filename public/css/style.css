@@ -921,6 +921,53 @@ td.actions { min-width: 196px; }
 /* Dans un tableau qui défile, un menu déroulant écrasé devient inutilisable. */
 .table-wrap td select { min-width: 132px; }
 
+/* ---------- Filtrage ATS ---------- */
+
+/* Le score se lit d'un coup d'œil, sans avoir à comparer des nombres. */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.score-badge.is-ok { color: var(--success); background: var(--success-bg); border-color: var(--success-border); }
+.score-badge.is-low { color: var(--warning); background: var(--warning-bg); border-color: var(--warning-border); }
+.score-badge.is-none { color: var(--text-tertiary); background: var(--surface-2); border-color: var(--border); }
+
+/* Un champ étiqueté dans une barre d'actions horizontale. */
+.inline-field { display: inline-flex !important; align-items: center; gap: 6px; margin: 0; }
+.inline-field input { width: 5.5rem; }
+
+.candidate-row .row-actions { margin-top: 8px; }
+
+/* Le sélecteur de fichier natif est habillé aux couleurs du reste des champs :
+   sans cela il affiche un bouton système et un libellé non traduit. */
+.candidate-row input[type="file"] {
+  max-width: 230px;
+  padding: 4px 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.candidate-row input[type="file"]::file-selector-button {
+  margin-right: 8px;
+  padding: 4px 10px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.candidate-row input[type="file"]:hover::file-selector-button { border-color: var(--accent); color: var(--accent); }
+
 /* ---------- Saisie d'écriture comptable ---------- */
 
 /* Compte, libellé, débit, crédit : une ligne de journal se lit en colonnes. */

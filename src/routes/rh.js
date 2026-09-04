@@ -4,6 +4,9 @@ const db = require('../db');
 const hr = require('../hr');
 const cse = require('../cse');
 const talent = require('../talent');
+const ats = require('../ats');
+const cv = require('../cv');
+const security = require('../security');
 const org = require('../org');
 const timesheet = require('../timesheet');
 const requestTypes = require('../request-types');
@@ -63,10 +66,17 @@ router.get('/', (req, res) => {
       openings,
       openingStatuses: talent.OPENING_STATUSES,
       candidateStages: talent.CANDIDATE_STAGES,
-      candidatesByOpening: Object.fromEntries(openings.map((o) => [o.id, talent.candidates(o.id)])),
+      candidatesByOpening: Object.fromEntries(openings.map((o) => [o.id, ats.rankedCandidates(o.id)])),
       departments: org.departments(),
       teams: org.teams(),
     },
+    // Le filtrage ATS est une préoccupation à part : il ne se mélange pas au
+    // reste du dossier RH.
+    criteriaByOpening: Object.fromEntries(openings.map((o) => [o.id, ats.criteriaOf(o.id)])),
+    criterionKinds: ats.CRITERION_KINDS,
+    maxWeight: ats.MAX_WEIGHT,
+    cvQuery: (req.query.cv || '').trim().slice(0, 120),
+    cvResults: (req.query.cv || '').trim() ? ats.searchCvs(req.query.cv.trim()) : [],
     statusFilter,
     staff,
     payslips,
@@ -581,6 +591,148 @@ router.post('/candidats/:id/etape', (req, res) => {
 router.post('/candidats/:id/supprimer', (req, res) => {
   talent.deleteCandidate(Number(req.params.id));
   setFlash(req, 'success', 'Candidature supprimée.');
+  res.redirect(backTalent('recrutement'));
+});
+
+// ---------- Filtrage ATS : critères, CV, classement ----------
+
+router.post('/postes/:id/ats', (req, res) => {
+  const openingId = Number(req.params.id);
+  if (!talent.openingById(openingId)) return talentFail(req, res, 'recrutement', 'Poste introuvable.');
+
+  const minExperience = parseAmount(req.body.min_experience || '0');
+  const threshold = Number(req.body.ats_threshold);
+
+  const result = ats.setOpeningAts(openingId, { minExperience, threshold });
+  const messages = {
+    'bad-experience': "Expérience minimale invalide (0 à 60 ans).",
+    'bad-threshold': 'Seuil invalide (0 à 100).',
+  };
+  if (!result.ok) return talentFail(req, res, 'recrutement', messages[result.reason] || 'Réglage impossible.');
+
+  // Les scores dépendent du seuil et de l'expérience : ils sont refaits.
+  ats.rescoreOpening(openingId);
+  setFlash(req, 'success', 'Réglages ATS mis à jour.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/postes/:id/criteres', (req, res) => {
+  const openingId = Number(req.params.id);
+  const label = (req.body.label || '').trim().slice(0, 120);
+  const kind = (req.body.kind || '').trim();
+  const weight = Number(req.body.weight);
+
+  if (!label) return talentFail(req, res, 'recrutement', "L'intitulé du critère est obligatoire.");
+
+  const result = ats.createCriterion({
+    openingId, label, kind, weight,
+    keywords: (req.body.keywords || '').trim().slice(0, 500),
+  });
+
+  const messages = {
+    'bad-kind': 'Type de critère invalide.',
+    'bad-weight': `Poids invalide (1 à ${ats.MAX_WEIGHT}).`,
+    'no-opening': 'Poste introuvable.',
+  };
+  if (!result.ok) return talentFail(req, res, 'recrutement', messages[result.reason] || 'Critère refusé.');
+
+  ats.rescoreOpening(openingId);
+  setFlash(req, 'success', 'Critère ajouté. Les candidatures ont été réévaluées.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/criteres/:id/supprimer', (req, res) => {
+  const openingId = ats.deleteCriterion(Number(req.params.id));
+  if (openingId == null) return talentFail(req, res, 'recrutement', 'Critère introuvable.');
+
+  ats.rescoreOpening(openingId);
+  setFlash(req, 'success', 'Critère retiré. Les candidatures ont été réévaluées.');
+  res.redirect(backTalent('recrutement'));
+});
+
+/**
+ * Dépôt d'un CV : le fichier est stocké hors du dépôt, son texte extrait, et
+ * la candidature réévaluée dans la foulée.
+ */
+function receiveCv(req, res, next) {
+  cv.cvUpload(req, res, (err) => {
+    if (!err) return next();
+    const message = err.code === 'LIMIT_FILE_SIZE'
+      ? 'CV trop volumineux : 5 Mo maximum.'
+      : 'Format non pris en charge : PDF, DOCX, TXT ou Markdown.';
+    talentFail(req, res, 'recrutement', message);
+  });
+}
+
+// upload() enchaîne la réception du fichier puis le contrôle du jeton CSRF, que
+// le corps multipart ne rend lisible qu'à ce moment-là.
+router.post('/candidats/:id/cv', ...security.upload(receiveCv), async (req, res) => {
+  const candidate = db.prepare('SELECT * FROM candidates WHERE id = ?').get(Number(req.params.id));
+  if (!candidate) return talentFail(req, res, 'recrutement', 'Candidature introuvable.');
+  if (!req.file) return talentFail(req, res, 'recrutement', 'Aucun fichier reçu.');
+
+  let text = '';
+  try {
+    text = await cv.extractText(req.file.buffer, req.file.mimetype);
+  } catch {
+    // Un fichier illisible ne doit pas faire tomber la requête : on garde le
+    // document, sans texte, et on le dit.
+    text = '';
+  }
+
+  // Le CV précédent est remplacé, pas accumulé.
+  cv.remove(candidate.cv_file);
+  const fileName = cv.save(req.file);
+
+  db.prepare(`
+    UPDATE candidates SET cv_file = ?, cv_name = ?, cv_text = ?, cv_uploaded_at = ?
+    WHERE id = ?
+  `).run(fileName, req.file.originalname.slice(0, 200), text, new Date().toISOString(), candidate.id);
+
+  ats.rescoreCandidate(candidate.id);
+
+  setFlash(req, 'success', text
+    ? 'CV déposé et analysé.'
+    : "CV déposé, mais aucun texte n'a pu en être extrait : un PDF scanné demande une reconnaissance de caractères, que ce module ne fait pas.");
+  res.redirect(backTalent('recrutement'));
+});
+
+/** Un CV est une donnée personnelle : il ne sort que par cette route authentifiée. */
+router.get('/candidats/:id/cv', (req, res) => {
+  const candidate = db.prepare('SELECT * FROM candidates WHERE id = ?').get(Number(req.params.id));
+  if (!candidate || !candidate.cv_file) {
+    return res.status(404).render('error', { message: 'CV introuvable.' });
+  }
+  res.download(cv.pathOf(candidate.cv_file), candidate.cv_name || 'cv');
+});
+
+router.post('/candidats/:id/cv/supprimer', (req, res) => {
+  const candidate = db.prepare('SELECT * FROM candidates WHERE id = ?').get(Number(req.params.id));
+  if (!candidate) return talentFail(req, res, 'recrutement', 'Candidature introuvable.');
+
+  cv.remove(candidate.cv_file);
+  db.prepare("UPDATE candidates SET cv_file = NULL, cv_name = '', cv_text = '', cv_uploaded_at = NULL WHERE id = ?")
+    .run(candidate.id);
+  ats.rescoreCandidate(candidate.id);
+
+  setFlash(req, 'success', 'CV supprimé, fichier et texte compris.');
+  res.redirect(backTalent('recrutement'));
+});
+
+router.post('/candidats/:id/experience', (req, res) => {
+  const candidate = db.prepare('SELECT * FROM candidates WHERE id = ?').get(Number(req.params.id));
+  if (!candidate) return talentFail(req, res, 'recrutement', 'Candidature introuvable.');
+
+  const raw = (req.body.experience_years || '').trim();
+  const years = raw === '' ? null : parseAmount(raw);
+  if (years !== null && (!Number.isFinite(years) || years < 0 || years > 60)) {
+    return talentFail(req, res, 'recrutement', 'Expérience invalide (0 à 60 ans).');
+  }
+
+  db.prepare('UPDATE candidates SET experience_years = ? WHERE id = ?').run(years, candidate.id);
+  ats.rescoreCandidate(candidate.id);
+
+  setFlash(req, 'success', 'Expérience enregistrée.');
   res.redirect(backTalent('recrutement'));
 });
 

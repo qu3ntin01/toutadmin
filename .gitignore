@@ -1,5 +1,6 @@
 node_modules/
-data/*.sqlite
-data/*.sqlite-journal
+# data/ ne contient que de l'état d'exécution : base, secret de session, photos de
+# profil et CV. Des données personnelles n'ont rien à faire dans le dépôt.
+data/
 .env
 *.log

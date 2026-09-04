@@ -82,6 +82,16 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Entretiens annuels** : planification, compte-rendu (points forts, axes de progrès, objectifs, appréciation de 1 à 5), et **commentaire du salarié** sur son seul entretien
 - **Recrutement** : postes ouverts rattachés à un service et une équipe, candidatures suivies par étapes (reçue → présélection → entretien → offre → recruté / refusé). Un poste pourvu n'accepte plus de candidature
 
+### CV et filtrage ATS
+- **Dépôt de CV** par candidature : PDF, DOCX, TXT ou Markdown, 5 Mo maximum. Le texte en est extrait à la réception (un PDF scanné, lui, ne contient aucun texte : le dépôt est accepté mais l'absence d'extraction est annoncée, ce module ne fait pas de reconnaissance de caractères)
+- **Critères par poste**, chacun avec un intitulé, ses synonymes, un poids de 1 à 5 et une nature *Requis* ou *Souhaité*. Le rapprochement se fait sans tenir compte des accents, de la casse ni de la ponctuation, mais **en frontière de mot** : « java » ne se déclenche pas sur « javascript », ni « api » sur « rapide »
+- **Score pondéré sur 100**, seuil de retenue et **expérience minimale** réglables poste par poste. Les années d'expérience sont lues dans le CV quand la phrase est explicite (« 7 ans d'expérience »), et peuvent être saisies à la main sinon
+- Une candidature est **retenue** si elle a un CV, atteint le seuil, ne manque aucun critère requis et satisfait l'expérience minimale. Le détail est affiché critère par critère, avec le terme effectivement trouvé
+- **Classement automatique** des candidatures d'un poste, réévalué à chaque dépôt de CV et à chaque modification des critères ou du seuil
+- **CVthèque** : recherche plein texte dans tous les CV reçus, tous postes confondus, classée par nombre de termes trouvés
+- **Le score aide à trier, il ne décide de rien** : un dossier écarté par le filtre reste consultable et son CV téléchargeable. Aucune candidature n'est refusée automatiquement
+- Les CV sont des **données personnelles** : ils sont stockés hors du dépôt, en `0600`, jamais servis en statique — seule une route authentifiée réservée aux RH les délivre — et leur suppression efface le fichier *et* le texte extrait
+
 ### Organisation : services, équipes et encadrement
 - **Services** et **équipes** sont des entités à part entière, créées et modifiées depuis la console d'administration ; une équipe appartient à un service
 - **Plusieurs managers par périmètre** : un service comme une équipe acceptent autant de managers que nécessaire. L'encadrement est une relation, pas une colonne sur le salarié
@@ -114,12 +124,12 @@ de l'annuaire ou configurer une messagerie.
 - **Verrouillage de compte** : 5 échecs consécutifs verrouillent le compte 15 minutes.
 - **Limitation de débit** : 10 tentatives de connexion / 15 min par IP, 300 requêtes / minute au global (ajustables par variables d'environnement).
 - **Anti-énumération** : message et temps de réponse identiques que le compte existe ou non.
-- **CSRF** : jeton par session vérifié en comparaison à temps constant sur chaque POST.
+- **CSRF** : jeton par session vérifié en comparaison à temps constant sur chaque POST. Un envoi de fichier ne livre son jeton qu'une fois le corps multipart décodé : le contrôle y est donc différé juste après la réception, et les fichiers transitent **en mémoire** — rien n'est écrit sur le disque avant que le jeton soit validé.
 - **Sessions** : cookie `httpOnly`, `sameSite=lax`, `secure` en production, identifiant régénéré à la connexion.
 - **En-têtes** : `helmet` avec CSP stricte (scripts par nonce, aucun style ni gestionnaire d'événement en ligne).
 - **Validation** : grades, types de contrat et de demande contrôlés contre des listes blanches ; emails, URL, dates et montants validés ; longueurs bornées.
 - **Base** : requêtes intégralement paramétrées (`better-sqlite3`).
-- **Téléversement** : photos limitées à 2 Mo, types JPEG/PNG/WebP contrôlés, nom de fichier régénéré aléatoirement, stockage hors du dépôt et servi en lecture seule.
+- **Téléversement** : photos limitées à 2 Mo (JPEG/PNG/WebP) et CV à 5 Mo (PDF/DOCX/TXT/Markdown), types contrôlés, nom de fichier régénéré aléatoirement, stockage hors du dépôt. Les photos sont servies en lecture seule ; les CV ne le sont pas du tout, ils ne sortent que par une route authentifiée réservée aux RH.
 - **Messagerie** : un message n'est lisible que par son expéditeur ou son destinataire, et n'est marqué lu que par ce dernier.
 - **Erreurs** : aucune trace technique renvoyée au client.
 - **Démarrage** : refus de démarrer en production si `SESSION_SECRET` ou `ADMIN_PASSWORD` sont restés à leur valeur par défaut.
@@ -200,7 +210,11 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-217 tests d'intégration couvrent les modules débloquables (routes en 404 tant qu'un
+245 tests d'intégration couvrent le filtrage ATS (frontières de mots, années
+d'expérience lues dans le CV, extraction PDF/DOCX/texte, score pondéré, critère requis
+manquant qui écarte malgré un bon score, réévaluation après retrait d'un critère,
+type de fichier refusé, CVthèque, suppression du fichier et du texte, CV hors de portée
+du personnel, **envoi multipart sans jeton CSRF refusé sans rien écrire**), les modules débloquables (routes en 404 tant qu'un
 module est éteint, activation réservée à l'administration, amorçage non dupliqué),
 la comptabilité (écriture déséquilibrée refusée, balance équilibrée, facture
 comptabilisée une seule fois, export CSV), la paie (plafonnement, doublon de période,
@@ -285,6 +299,7 @@ d'administration sont en place pour l'accueillir.
 | `DB_PATH` | Emplacement de la base SQLite (défaut `data/app.sqlite`) |
 | `LOGIN_RATE_LIMIT` / `GLOBAL_RATE_LIMIT` | Plafonds de requêtes, ajustables pour les tests ou un usage interne intensif |
 | `UPLOAD_DIR` | Dossier des photos de profil (défaut `data/uploads`) |
+| `CV_DIR` | Dossier des CV déposés (défaut : `cv/` à côté de la base) |
 
 ## Structure
 
@@ -303,6 +318,8 @@ src/
   finance.js         tiers, contrats et préavis, factures, budgets, notes de frais
   resources.js       parc matériel, affectations, salles et réservations
   talent.js          documents, formation, entretiens, recrutement
+  cv.js              réception des CV en mémoire, écriture hors dépôt, extraction PDF/DOCX/texte
+  ats.js             critères pondérés, score, seuil, classement des candidatures, CVthèque
   modules.js         modules optionnels : activation, barrière de route, limites
   accounting.js      plan comptable, écritures équilibrées, balance, grand livre
   payroll.js         barèmes, calcul du brut au net, bulletins détaillés

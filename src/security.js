@@ -15,6 +15,31 @@ function nonceMiddleware(req, res, next) {
   next();
 }
 
+function tokenMatches(submitted, expected) {
+  return (
+    typeof submitted === 'string' &&
+    typeof expected === 'string' &&
+    submitted.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(submitted), Buffer.from(expected))
+  );
+}
+
+function refuse(res) {
+  return res.status(403).render('error', {
+    message: 'Session expirée ou requête invalide. Merci de recharger la page et de réessayer.',
+  });
+}
+
+// Vérification différée : sur un envoi multipart, le corps n'est décodé que par
+// multer, à l'intérieur de la route. Le jeton n'y est donc pas encore lisible.
+// La route doit alors se déclarer avec upload(), qui enchaîne l'uploader et
+// verifyCsrf ; aucun fichier n'est écrit avant ce contrôle puisque les
+// uploaders travaillent en mémoire.
+function isMultipart(req) {
+  const type = req.headers['content-type'] || '';
+  return type.toLowerCase().startsWith('multipart/form-data');
+}
+
 function csrfMiddleware(req, res, next) {
   if (!req.session.csrfToken) {
     req.session.csrfToken = crypto.randomBytes(32).toString('hex');
@@ -22,21 +47,31 @@ function csrfMiddleware(req, res, next) {
   res.locals.csrfToken = req.session.csrfToken;
 
   if (req.method === 'POST') {
-    const submitted = req.body ? req.body._csrf : null;
-    const expected = req.session.csrfToken;
-    const valid =
-      typeof submitted === 'string' &&
-      typeof expected === 'string' &&
-      submitted.length === expected.length &&
-      crypto.timingSafeEqual(Buffer.from(submitted), Buffer.from(expected));
-
-    if (!valid) {
-      return res.status(403).render('error', {
-        message: 'Session expirée ou requête invalide. Merci de recharger la page et de réessayer.',
-      });
+    if (isMultipart(req)) {
+      req.csrfDeferred = true;
+      return next();
+    }
+    if (!tokenMatches(req.body ? req.body._csrf : null, req.session.csrfToken)) {
+      return refuse(res);
     }
   }
   next();
+}
+
+// À placer immédiatement après le middleware d'upload d'une route multipart.
+function verifyCsrf(req, res, next) {
+  if (!tokenMatches(req.body ? req.body._csrf : null, req.session.csrfToken)) {
+    return refuse(res);
+  }
+  req.csrfDeferred = false;
+  next();
+}
+
+// Rend le couple indissociable : une route multipart se déclare avec
+// ...security.upload(monUploader), jamais avec l'uploader seul, si bien qu'on ne
+// peut pas déclarer un envoi de fichier sans son contrôle de jeton.
+function upload(middleware) {
+  return [middleware, verifyCsrf];
 }
 
 // Les plafonds restent configurables : la suite de tests joue des dizaines de
@@ -81,6 +116,8 @@ module.exports = {
   DUMMY_HASH,
   nonceMiddleware,
   csrfMiddleware,
+  verifyCsrf,
+  upload,
   loginLimiter,
   globalLimiter,
   isLocked,

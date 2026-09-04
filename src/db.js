@@ -471,6 +471,8 @@ CREATE TABLE IF NOT EXISTS job_openings (
   contract_type TEXT NOT NULL DEFAULT '',
   description TEXT NOT NULL DEFAULT '',
   status TEXT NOT NULL DEFAULT 'Ouvert' CHECK(status IN ('Ouvert','En cours','Pourvu','Annulé')),
+  min_experience REAL NOT NULL DEFAULT 0,
+  ats_threshold INTEGER NOT NULL DEFAULT 60,
   opened_on TEXT NOT NULL DEFAULT (date('now')),
   closed_on TEXT,
   created_by INTEGER REFERENCES users(id),
@@ -487,6 +489,13 @@ CREATE TABLE IF NOT EXISTS candidates (
   source TEXT NOT NULL DEFAULT '',
   stage TEXT NOT NULL DEFAULT 'Reçue' CHECK(stage IN ('Reçue','Présélection','Entretien','Offre','Recruté','Refusé')),
   notes TEXT NOT NULL DEFAULT '',
+  cv_file TEXT,
+  cv_name TEXT NOT NULL DEFAULT '',
+  cv_text TEXT NOT NULL DEFAULT '',
+  cv_uploaded_at TEXT,
+  experience_years REAL,
+  ats_score INTEGER,
+  ats_detail TEXT NOT NULL DEFAULT '',
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -648,6 +657,19 @@ CREATE TABLE IF NOT EXISTS crm_activities (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ---------- Critères ATS d'un poste ----------
+CREATE TABLE IF NOT EXISTS opening_criteria (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  opening_id INTEGER NOT NULL REFERENCES job_openings(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,
+  keywords TEXT NOT NULL DEFAULT '',
+  kind TEXT NOT NULL DEFAULT 'Souhaité' CHECK(kind IN ('Requis','Souhaité')),
+  weight INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_opening_criteria_opening ON opening_criteria(opening_id);
+
 CREATE INDEX IF NOT EXISTS idx_entry_lines_entry ON entry_lines(entry_id);
 CREATE INDEX IF NOT EXISTS idx_entry_lines_account ON entry_lines(account_id);
 CREATE INDEX IF NOT EXISTS idx_stock_movements_item ON stock_movements(item_id);
@@ -680,6 +702,16 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN is_hr INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN is_finance INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN gross_salary REAL",
+  // CV et évaluation ATS d'une candidature.
+  "ALTER TABLE candidates ADD COLUMN cv_file TEXT",
+  "ALTER TABLE candidates ADD COLUMN cv_name TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE candidates ADD COLUMN cv_text TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE candidates ADD COLUMN cv_uploaded_at TEXT",
+  "ALTER TABLE candidates ADD COLUMN experience_years REAL",
+  "ALTER TABLE candidates ADD COLUMN ats_score INTEGER",
+  "ALTER TABLE candidates ADD COLUMN ats_detail TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE job_openings ADD COLUMN min_experience REAL NOT NULL DEFAULT 0",
+  "ALTER TABLE job_openings ADD COLUMN ats_threshold INTEGER NOT NULL DEFAULT 60",
   "ALTER TABLE users ADD COLUMN leave_balance REAL NOT NULL DEFAULT 0",
   'ALTER TABLE users ADD COLUMN manager_id INTEGER REFERENCES users(id) ON DELETE SET NULL',
   'ALTER TABLE users ADD COLUMN avatar_file TEXT',

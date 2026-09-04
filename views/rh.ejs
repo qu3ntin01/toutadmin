@@ -973,9 +973,48 @@
                       </label>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                    <p class="hint">Le CV se dépose ensuite depuis la fiche de la candidature.</p>
                   </form>
                 </div>
               <% } %>
+
+              <!-- ---------- CVthèque ---------- -->
+              <div class="card" id="cvtheque">
+                <div class="card-head">
+                  <div>
+                    <h3>CVthèque</h3>
+                    <p class="card-sub">Recherche plein texte dans tous les CV reçus, tous postes confondus.</p>
+                  </div>
+                </div>
+                <form method="GET" action="/rh" class="search-bar">
+                  <input type="search" name="cv" value="<%= cvQuery %>" placeholder="Ex : automatisme habilitation" />
+                  <button type="submit" class="btn"><%= t('common.search') %></button>
+                </form>
+
+                <% if (cvQuery) { %>
+                  <% if (cvResults.length === 0) { %>
+                    <div class="empty-state">Aucun CV ne contient ces termes.</div>
+                  <% } else { %>
+                    <ul class="person-list">
+                      <% cvResults.forEach((r) => { %>
+                        <li class="person-row">
+                          <span class="person-body">
+                            <span class="person-name"><%= r.first_name %> <%= r.last_name %></span>
+                            <span class="cell-sub">
+                              <%= r.opening_title %> · <%= r.stage %>
+                              <%= r.ats_score != null ? ' · score ' + r.ats_score : '' %>
+                            </span>
+                            <span class="cell-sub">
+                              <% r.hits.forEach((h) => { %><span class="tag <%= r.matchedAll ? 'tag-accent' : '' %>"><%= h %></span> <% }) %>
+                            </span>
+                          </span>
+                          <a href="/rh/candidats/<%= r.id %>/cv" class="btn btn-outline btn-sm">CV</a>
+                        </li>
+                      <% }) %>
+                    </ul>
+                  <% } %>
+                <% } %>
+              </div>
             </div>
 
             <div class="card">
@@ -986,6 +1025,8 @@
                 <ul class="meeting-list">
                   <% talent.openings.forEach((o) => {
                        const applicants = talent.candidatesByOpening[o.id] || [];
+                       const criteria = criteriaByOpening[o.id] || [];
+                       const shortlisted = applicants.filter((c) => c.ats.shortlisted).length;
                   %>
                     <li class="meeting-item">
                       <div class="meeting-head">
@@ -994,7 +1035,7 @@
                       </div>
                       <p class="cell-sub">
                         <%= [o.department_name, o.team_name, o.contract_type].filter(Boolean).join(' · ') || '—' %>
-                        · <%= applicants.length %> candidature(s), <%= o.active_count %> en cours
+                        · <%= applicants.length %> candidature(s), <%= shortlisted %> retenue(s) par le filtre
                       </p>
 
                       <div class="row-actions">
@@ -1007,44 +1048,172 @@
                           </select>
                           <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
                         </form>
-                        <form method="POST" action="/rh/postes/<%= o.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce poste et ses candidatures ?">
+                        <form method="POST" action="/rh/postes/<%= o.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce poste, ses critères et ses candidatures ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </div>
 
+                      <!-- Réglages et critères ATS -->
+                      <details class="minutes">
+                        <summary>Filtre ATS — <%= criteria.length %> critère(s), seuil <%= o.ats_threshold %> %</summary>
+
+                        <form method="POST" action="/rh/postes/<%= o.id %>/ats" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <label class="inline-field">
+                            <span class="cell-sub">Seuil (%)</span>
+                            <input type="number" name="ats_threshold" class="input-sm" min="0" max="100" value="<%= o.ats_threshold %>" />
+                          </label>
+                          <label class="inline-field">
+                            <span class="cell-sub">Expérience min. (ans)</span>
+                            <input type="text" name="min_experience" class="input-sm" inputmode="decimal" value="<%= o.min_experience %>" />
+                          </label>
+                          <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                        </form>
+
+                        <% if (criteria.length) { %>
+                          <div class="table-wrap">
+                            <table>
+                              <thead><tr><th>Critère</th><th>Synonymes</th><th>Type</th><th>Poids</th><th class="actions"></th></tr></thead>
+                              <tbody>
+                                <% criteria.forEach((c) => { %>
+                                  <tr>
+                                    <td class="cell-strong"><%= c.label %></td>
+                                    <td class="cell-sub"><%= c.keywords || '—' %></td>
+                                    <td><span class="tag <%= c.kind === 'Requis' ? 'tag-accent' : '' %>"><%= c.kind %></span></td>
+                                    <td class="num"><%= c.weight %></td>
+                                    <td class="actions">
+                                      <form method="POST" action="/rh/criteres/<%= c.id %>/supprimer">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                        <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                                      </form>
+                                    </td>
+                                  </tr>
+                                <% }) %>
+                              </tbody>
+                            </table>
+                          </div>
+                        <% } %>
+
+                        <form method="POST" action="/rh/postes/<%= o.id %>/criteres" class="stack">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <div class="form-grid">
+                            <label>
+                              <span>Critère</span>
+                              <input type="text" name="label" maxlength="120" placeholder="Ex : Automatisme" required />
+                            </label>
+                            <label>
+                              <span>Synonymes <span class="cell-sub">(séparés par des virgules)</span></span>
+                              <input type="text" name="keywords" maxlength="500" placeholder="API, automate, Siemens" />
+                            </label>
+                            <label>
+                              <span>Type</span>
+                              <select name="kind">
+                                <% criterionKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %>
+                              </select>
+                            </label>
+                            <label>
+                              <span>Poids (1 à <%= maxWeight %>)</span>
+                              <input type="number" name="weight" min="1" max="<%= maxWeight %>" value="1" />
+                            </label>
+                          </div>
+                          <div class="form-actions">
+                            <button type="submit" class="btn btn-sm">Ajouter le critère</button>
+                          </div>
+                          <p class="hint">
+                            Un critère « Requis » manquant écarte la candidature quel que soit son score.
+                            La recherche est insensible aux accents et respecte les frontières de mots :
+                            « java » ne se déclenche pas sur « javascript ».
+                          </p>
+                        </form>
+                      </details>
+
+                      <!-- Candidatures classées -->
                       <% if (applicants.length) { %>
-                        <div class="table-wrap">
-                          <table>
-                            <thead><tr><th>Candidat</th><th>Étape</th><th class="actions"></th></tr></thead>
-                            <tbody>
-                              <% applicants.forEach((c) => { %>
-                                <tr>
-                                  <td>
-                                    <div class="cell-strong"><%= c.first_name %> <%= c.last_name %></div>
-                                    <div class="cell-sub"><%= [c.email, c.source].filter(Boolean).join(' · ') || '—' %></div>
-                                  </td>
-                                  <td><span class="tag <%= c.stage === 'Recruté' ? 'tag-accent' : '' %>"><%= c.stage %></span></td>
-                                  <td class="actions">
-                                    <form method="POST" action="/rh/candidats/<%= c.id %>/etape" class="inline-form">
-                                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                      <select name="stage" class="input-sm">
-                                        <% talent.candidateStages.forEach((st) => { %>
-                                          <option value="<%= st %>" <%= c.stage === st ? 'selected' : '' %>><%= st %></option>
-                                        <% }) %>
-                                      </select>
-                                      <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
-                                    </form>
-                                    <form method="POST" action="/rh/candidats/<%= c.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette candidature ?">
-                                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
-                                    </form>
-                                  </td>
-                                </tr>
-                              <% }) %>
-                            </tbody>
-                          </table>
-                        </div>
+                        <h4 class="section-label">Candidatures classées</h4>
+                        <ul class="candidate-list">
+                          <% applicants.forEach((c) => { %>
+                            <li class="candidate-row">
+                              <div class="meeting-head">
+                                <span class="person-name">
+                                  <%= c.first_name %> <%= c.last_name %>
+                                  <% if (c.ats.shortlisted) { %><span class="tag tag-accent">Retenu</span><% } %>
+                                </span>
+                                <span class="score-badge <%= c.ats.shortlisted ? 'is-ok' : (c.ats.hasCv ? 'is-low' : 'is-none') %>">
+                                  <%= c.ats.hasCv ? c.ats.score + ' %' : 'sans CV' %>
+                                </span>
+                              </div>
+                              <p class="cell-sub">
+                                <%= [c.email, c.source].filter(Boolean).join(' · ') || '—' %>
+                                <%= c.ats.years != null ? ' · ' + c.ats.years + ' ans (' + c.ats.yearsSource + ')' : '' %>
+                              </p>
+
+                              <% if (c.ats.hasCv) { %>
+                                <div class="meter">
+                                  <span class="meter-fill <%= c.ats.shortlisted ? '' : 'is-warn' %>" data-ratio="<%= c.ats.score %>"></span>
+                                </div>
+                                <p class="cell-sub">
+                                  <% c.ats.rows.forEach((r) => { %>
+                                    <span class="tag <%= r.matched ? 'tag-accent' : '' %>" title="<%= r.kind %> · poids <%= r.weight %><%= r.matchedOn ? ' · trouvé : ' + r.matchedOn : '' %>">
+                                      <%= r.matched ? '✓' : '✕' %> <%= r.label %>
+                                    </span>
+                                  <% }) %>
+                                </p>
+                                <% if (c.ats.missingRequired.length) { %>
+                                  <p class="cell-sub text-danger">Critère(s) requis manquant(s) : <%= c.ats.missingRequired.join(', ') %></p>
+                                <% } %>
+                                <% if (c.ats.experienceShort) { %>
+                                  <p class="cell-sub text-warning">Expérience sous le minimum demandé (<%= o.min_experience %> ans).</p>
+                                <% } %>
+                              <% } else { %>
+                                <p class="cell-sub">Aucun CV déposé : la candidature n'est pas évaluée.</p>
+                              <% } %>
+
+                              <div class="row-actions">
+                                <form method="POST" action="/rh/candidats/<%= c.id %>/cv" enctype="multipart/form-data" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <input type="file" name="cv" class="input-sm" accept=".pdf,.docx,.txt,.md" required />
+                                  <button type="submit" class="btn btn-sm"><%= c.cv_file ? 'Remplacer' : 'Déposer' %> le CV</button>
+                                </form>
+                                <% if (c.cv_file) { %>
+                                  <a href="/rh/candidats/<%= c.id %>/cv" class="btn btn-outline btn-sm"><%= c.cv_name || 'CV' %></a>
+                                  <form method="POST" action="/rh/candidats/<%= c.id %>/cv/supprimer" class="inline-form" data-confirm="Supprimer ce CV, fichier et texte compris ?">
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer le CV</button>
+                                  </form>
+                                <% } %>
+                              </div>
+
+                              <div class="row-actions">
+                                <form method="POST" action="/rh/candidats/<%= c.id %>/experience" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <label class="inline-field">
+                                    <span class="cell-sub">Expérience (ans)</span>
+                                    <input type="text" name="experience_years" class="input-sm" inputmode="decimal" value="<%= c.experience_years != null ? c.experience_years : '' %>" />
+                                  </label>
+                                  <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                                </form>
+                                <form method="POST" action="/rh/candidats/<%= c.id %>/etape" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <select name="stage" class="input-sm">
+                                    <% talent.candidateStages.forEach((st) => { %>
+                                      <option value="<%= st %>" <%= c.stage === st ? 'selected' : '' %>><%= st %></option>
+                                    <% }) %>
+                                  </select>
+                                  <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                                </form>
+                                <form method="POST" action="/rh/candidats/<%= c.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette candidature et son CV ?">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                                </form>
+                              </div>
+                            </li>
+                          <% }) %>
+                        </ul>
+                        <p class="hint">
+                          Le score aide à trier, il ne décide de rien : un dossier écarté par le filtre
+                          reste consultable et son CV téléchargeable.
+                        </p>
                       <% } %>
                     </li>
                   <% }) %>
@@ -1061,5 +1230,6 @@
   <script src="/js/theme.js"></script>
   <script src="/js/confirm.js"></script>
   <script src="/js/admin.js"></script>
+  <script src="/js/meter.js"></script>
 </body>
 </html>

@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const db = require('../db');
 const i18n = require('../i18n');
 const org = require('../org');
-const { avatarUpload, removeAvatar } = require('../uploads');
+const security = require('../security');
+const { avatarUpload, saveAvatar, removeAvatar } = require('../uploads');
 const { requireAuth } = require('../middleware/auth');
 const { setFlash } = require('../utils');
 
@@ -47,7 +48,9 @@ router.post('/informations', (req, res) => {
   res.redirect('/mon-profil');
 });
 
-router.post('/photo', avatarUpload.single('avatar'), (req, res) => {
+// upload() enchaîne la réception du fichier puis le contrôle du jeton CSRF, que
+// le corps multipart ne rend lisible qu'à ce moment-là.
+router.post('/photo', ...security.upload(avatarUpload.single('avatar')), (req, res) => {
   if (!req.file) {
     setFlash(req, 'error', 'Image invalide : formats acceptés JPEG, PNG ou WebP, 2 Mo maximum.');
     return res.redirect('/mon-profil');
@@ -55,9 +58,10 @@ router.post('/photo', avatarUpload.single('avatar'), (req, res) => {
 
   const user = currentUser(req);
   removeAvatar(user.avatar_file);
-  db.prepare('UPDATE users SET avatar_file = ? WHERE id = ?').run(req.file.filename, user.id);
+  const fileName = saveAvatar(req.file);
+  db.prepare('UPDATE users SET avatar_file = ? WHERE id = ?').run(fileName, user.id);
 
-  req.session.user.avatarFile = req.file.filename;
+  req.session.user.avatarFile = fileName;
   setFlash(req, 'success', 'Photo de profil mise à jour.');
   res.redirect('/mon-profil');
 });
