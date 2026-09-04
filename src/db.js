@@ -139,6 +139,105 @@ CREATE TABLE IF NOT EXISTS messages (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS cse_mandates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  mandate_role TEXT NOT NULL DEFAULT 'Titulaire',
+  started_on TEXT NOT NULL DEFAULT (date('now')),
+  ends_on TEXT,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS cse_elections (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  seats INTEGER NOT NULL DEFAULT 1,
+  status TEXT NOT NULL DEFAULT 'Candidatures' CHECK(status IN ('Candidatures','Vote','Clôturée')),
+  candidacy_deadline TEXT,
+  vote_start TEXT,
+  vote_end TEXT,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  closed_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS cse_candidacies (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  election_id INTEGER NOT NULL REFERENCES cse_elections(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  statement TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'En attente' CHECK(status IN ('En attente','Validée','Refusée')),
+  reviewed_by INTEGER REFERENCES users(id),
+  reviewed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(election_id, user_id)
+);
+
+-- Bulletin dépouillable mais anonyme : aucune colonne ne relie un bulletin à son électeur.
+CREATE TABLE IF NOT EXISTS cse_ballots (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  election_id INTEGER NOT NULL REFERENCES cse_elections(id) ON DELETE CASCADE,
+  candidacy_id INTEGER NOT NULL REFERENCES cse_candidacies(id) ON DELETE CASCADE,
+  cast_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Émargement : dit qui a voté, jamais pour qui.
+CREATE TABLE IF NOT EXISTS cse_voters (
+  election_id INTEGER NOT NULL REFERENCES cse_elections(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  voted_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY (election_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS cse_meetings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  meeting_date TEXT NOT NULL,
+  meeting_time TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  agenda TEXT NOT NULL DEFAULT '',
+  minutes TEXT NOT NULL DEFAULT '',
+  minutes_published INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS cse_benefits (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  partner TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  discount TEXT NOT NULL DEFAULT '',
+  code TEXT NOT NULL DEFAULT '',
+  url TEXT NOT NULL DEFAULT '',
+  valid_until TEXT,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS calendar_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  start_date TEXT NOT NULL,
+  end_date TEXT NOT NULL,
+  start_time TEXT NOT NULL DEFAULT '',
+  end_time TEXT NOT NULL DEFAULT '',
+  all_day INTEGER NOT NULL DEFAULT 1,
+  category TEXT NOT NULL DEFAULT 'Personnel',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_cse_candidacies_election ON cse_candidacies(election_id);
+CREATE INDEX IF NOT EXISTS idx_cse_ballots_election ON cse_ballots(election_id);
+CREATE INDEX IF NOT EXISTS idx_calendar_events_user ON calendar_events(user_id, start_date);
+
 CREATE INDEX IF NOT EXISTS idx_hr_requests_employee ON hr_requests(employee_id);
 CREATE INDEX IF NOT EXISTS idx_payslips_employee ON payslips(employee_id);
 CREATE INDEX IF NOT EXISTS idx_messages_recipient ON messages(recipient_id);

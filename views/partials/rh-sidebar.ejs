@@ -12,6 +12,13 @@ const rhSections = [
   { tab: 'personnel', label: t('nav.leave'), icon: 'users' },
   { tab: 'paie', label: t('nav.payroll'), icon: 'card' },
   { tab: 'remuneration', label: t('nav.remuneration'), icon: 'clock' },
+  {
+    tab: 'cse',
+    label: t('nav.cse'),
+    icon: 'lifebuoy',
+    // Le compteur ne vaut que sur l'espace RH lui-même, où les candidatures sont chargées.
+    badge: typeof cse !== 'undefined' && cse ? cse.pendingCandidacies : 0,
+  },
 ];
 const rhAsLinks = typeof asLinks !== 'undefined' && asLinks;
 const rhActive = typeof active !== 'undefined' ? active : null;

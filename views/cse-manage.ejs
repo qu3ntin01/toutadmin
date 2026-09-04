@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: t('cse.manageTitle') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: t('nav.cse'),
+      navItems: [
+        { tab: 'avantages', label: t('cse.benefits'), icon: 'ticket' },
+        { tab: 'reunions', label: t('cse.meetings'), icon: 'calendar', badge: stats.pendingMinutes },
+        { tab: 'elus', label: t('cse.elected'), icon: 'users' }
+      ],
+      footLinks: [{ href: '/cse', label: t('nav.cse'), icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('cse.manageTitle'),
+        headerSubtitle: t('cse.manageSubtitle'),
+        userRoleLabel: myMandate ? myMandate.mandate_role : t('cse.mandate')
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.benefitCount %></span><span class="stat-label"><%= t('cse.benefits') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.meetingCount %></span><span class="stat-label"><%= t('cse.meetings') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.pendingMinutes %></span><span class="stat-label"><%= t('cse.minutes') %> · <%= t('cse.draft') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.memberCount %></span><span class="stat-label"><%= t('cse.elected') %></span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Avantages ---------- -->
+        <section class="tab-panel is-active" id="avantages">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('cse.newBenefit') %></h3></div>
+              <form method="POST" action="/cse/gestion/avantages" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('agenda.eventTitle') %></span>
+                  <input type="text" name="title" maxlength="140" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.type') %></span>
+                    <select name="category">
+                      <option value="">—</option>
+                      <% categories.forEach((cat) => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
+                    </select>
+                  </label>
+                  <label>
+                    <span><%= t('cse.partner') %></span>
+                    <input type="text" name="partner" maxlength="140" />
+                  </label>
+                </div>
+                <div class="form-grid">
+                  <label>
+                    <span>Réduction</span>
+                    <input type="text" name="discount" maxlength="60" placeholder="Ex : -30 %" />
+                  </label>
+                  <label>
+                    <span><%= t('cse.code') %></span>
+                    <input type="text" name="code" maxlength="60" />
+                  </label>
+                </div>
+                <label>
+                  <span>Lien</span>
+                  <input type="url" name="url" maxlength="500" placeholder="https://" />
+                </label>
+                <label>
+                  <span><%= t('cse.validUntil', { date: '' }) %></span>
+                  <input type="date" name="valid_until" />
+                </label>
+                <label>
+                  <span>Description</span>
+                  <textarea name="description" rows="3" maxlength="2000"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                <p class="hint">Un avantage dont la date de validité est passée disparaît automatiquement de l'espace salarié.</p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('cse.benefits') %> <span class="muted">(<%= benefits.length %>)</span></h3></div>
+              <% if (benefits.length === 0) { %>
+                <p class="empty-state"><%= t('cse.noBenefits') %></p>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th><%= t('agenda.eventTitle') %></th><th><%= t('common.type') %></th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                    </thead>
+                    <tbody>
+                      <% benefits.forEach((benefit) => { %>
+                        <tr>
+                          <td>
+                            <strong><%= benefit.title %></strong>
+                            <% if (benefit.partner) { %><div class="cell-sub"><%= benefit.partner %></div><% } %>
+                          </td>
+                          <td><%= benefit.category || '—' %></td>
+                          <td>
+                            <% const expired = benefit.valid_until && benefit.valid_until < new Date().toISOString().slice(0, 10); %>
+                            <span class="status <%= !benefit.active ? 'status-off' : (expired ? 'status-warning' : 'status-on') %>">
+                              <%= !benefit.active ? t('common.inactive') : (expired ? t('status.expired') : t('common.active')) %>
+                            </span>
+                          </td>
+                          <td class="actions">
+                            <form method="POST" action="/cse/gestion/avantages/<%= benefit.id %>/modifier" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <input type="hidden" name="title" value="<%= benefit.title %>" />
+                              <input type="hidden" name="category" value="<%= benefit.category %>" />
+                              <input type="hidden" name="partner" value="<%= benefit.partner %>" />
+                              <input type="hidden" name="description" value="<%= benefit.description %>" />
+                              <input type="hidden" name="discount" value="<%= benefit.discount %>" />
+                              <input type="hidden" name="code" value="<%= benefit.code %>" />
+                              <input type="hidden" name="url" value="<%= benefit.url %>" />
+                              <input type="hidden" name="valid_until" value="<%= benefit.valid_until || '' %>" />
+                              <% if (benefit.active) { %>
+                                <button type="submit" class="btn btn-sm">Désactiver</button>
+                              <% } else { %>
+                                <input type="hidden" name="active" value="on" />
+                                <button type="submit" class="btn btn-sm">Activer</button>
+                              <% } %>
+                            </form>
+                            <form method="POST" action="/cse/gestion/avantages/<%= benefit.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet avantage ?">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Réunions et comptes-rendus ---------- -->
+        <section class="tab-panel" id="reunions">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('cse.meetings') %></h3>
+                <p class="card-sub">Les réunions sont convoquées par les ressources humaines ; le compte-rendu est rédigé ici.</p>
+              </div>
+            </div>
+            <% if (meetings.length === 0) { %>
+              <p class="empty-state"><%= t('cse.noMeetings') %></p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% meetings.forEach((meeting) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= meeting.title %></span>
+                      <span class="status <%= meeting.minutes_published ? 'status-on' : 'status-warning' %>">
+                        <%= meeting.minutes_published ? t('cse.published') : t('cse.draft') %>
+                      </span>
+                    </div>
+                    <p class="cell-sub">
+                      <%= new Date(meeting.meeting_date + 'T00:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) %><%= meeting.meeting_time ? ' · ' + meeting.meeting_time : '' %><%= meeting.location ? ' · ' + meeting.location : '' %>
+                    </p>
+                    <% if (meeting.agenda) { %><p class="cell-sub"><strong><%= t('cse.agenda') %> :</strong> <%= meeting.agenda %></p><% } %>
+
+                    <form method="POST" action="/cse/gestion/reunions/<%= meeting.id %>/compte-rendu" class="stack">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <label>
+                        <span><%= t('cse.minutes') %></span>
+                        <textarea name="minutes" rows="4" maxlength="20000"><%= meeting.minutes %></textarea>
+                      </label>
+                      <label class="check-row">
+                        <input type="checkbox" name="publish" <%= meeting.minutes_published ? 'checked' : '' %> />
+                        <span><%= t('cse.publishMinutes') %></span>
+                      </label>
+                      <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-sm"><%= t('common.save') %></button>
+                      </div>
+                    </form>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Composition du comité ---------- -->
+        <section class="tab-panel" id="elus">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('cse.elected') %> <span class="muted">(<%= mandates.length %>)</span></h3>
+                <p class="card-sub">La composition du comité est tenue par les ressources humaines.</p>
+              </div>
+            </div>
+            <% if (mandates.length === 0) { %>
+              <p class="empty-state"><%= t('cse.noElected') %></p>
+            <% } else { %>
+              <ul class="person-list">
+                <% mandates.forEach((member) => { %>
+                  <li class="person-row">
+                    <%- include('partials/avatar', { person: member, size: 'sm' }) %>
+                    <span class="person-body">
+                      <span class="person-name"><%= member.first_name %> <%= member.last_name %></span>
+                      <span class="cell-sub">
+                        <%= member.mandate_role %> · <%= t('agenda.from') %> <%= new Date(member.started_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><%= member.ends_on ? ' → ' + new Date(member.ends_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '' %>
+                      </span>
+                    </span>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

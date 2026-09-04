@@ -836,9 +836,150 @@ td.actions { min-width: 196px; }
 .mail-reader-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
 .mail-reader-body { font-size: 0.88rem; line-height: 1.65; white-space: pre-line; color: var(--text); }
 
+/* ---------- Agenda ---------- */
+
+.agenda-layout { display: grid; grid-template-columns: 1fr 340px; gap: 14px; align-items: start; margin-bottom: 14px; }
+
+.calendar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.calendar-month { text-transform: capitalize; }
+.calendar-nav { display: flex; align-items: center; gap: 4px; }
+
+.calendar-wrap { overflow-x: auto; }
+.calendar { width: 100%; min-width: 560px; border-collapse: collapse; table-layout: fixed; }
+.calendar th {
+  padding: 8px 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  text-align: start;
+}
+
+.cal-cell {
+  height: 96px;
+  vertical-align: top;
+  padding: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.cal-cell.is-weekend { background: var(--surface-2); }
+.cal-cell.is-outside { background: var(--surface-2); opacity: 0.55; }
+.cal-cell.is-today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+.cal-day { display: block; font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+.cal-cell.is-today .cal-day { color: var(--accent); }
+
+.cal-event {
+  display: block;
+  padding: 2px 6px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  border-inline-start: 3px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cal-event-time { font-variant-numeric: tabular-nums; color: var(--text-secondary); margin-inline-end: 4px; }
+.cal-event.is-conge { border-inline-start-color: var(--success); background: var(--success-bg); }
+.cal-event.is-cse { border-inline-start-color: var(--warning); background: var(--warning-bg); }
+.cal-event.is-contrat { border-inline-start-color: var(--danger); background: var(--danger-bg); }
+.cal-more { font-size: 0.7rem; color: var(--text-tertiary); }
+
+.calendar-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 0.76rem; color: var(--text-secondary); }
+/* Chaque entrée reste solidaire de sa pastille quand la légende passe à la ligne. */
+.legend-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.legend-dot.is-conge { background: var(--success); }
+.legend-dot.is-cse { background: var(--warning); }
+.legend-dot.is-contrat { background: var(--danger); }
+
+.timeline { display: grid; gap: 10px; }
+.timeline-item { display: flex; align-items: flex-start; gap: 9px; }
+.timeline-item .legend-dot { margin-top: 5px; }
+.timeline-body { display: flex; flex-direction: column; min-width: 0; }
+.timeline-title { font-size: 0.86rem; font-weight: 600; }
+
+/* ---------- CSE ---------- */
+
+.benefit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 12px; }
+
+.benefit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  min-width: 0;
+}
+.benefit-card:hover { border-color: var(--accent); }
+.benefit-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.benefit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.benefit-title { font-size: 0.95rem; font-weight: 650; }
+.benefit-discount { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.benefit-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; overflow-wrap: anywhere; }
+.benefit-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+
+.code-chip { display: inline-flex; align-items: center; gap: 6px; }
+.code-chip code {
+  padding: 3px 8px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 3px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.person-list, .meeting-list, .candidate-list, .timeline { list-style: none; }
+.person-list { display: grid; gap: 2px; }
+.person-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.person-row:last-child { border-bottom: none; }
+.person-row .person-body { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+
+.meeting-list { display: grid; gap: 12px; }
+.meeting-item { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2); display: grid; gap: 8px; }
+.meeting-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.meeting-title { font-size: 0.92rem; font-weight: 650; }
+
+.minutes summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--accent); }
+.minutes p { margin-top: 8px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; }
+
+.election-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.election-title { font-size: 1rem; font-weight: 650; }
+
+.section-label { margin: 16px 0 8px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-tertiary); }
+
+.candidate-list { display: grid; gap: 8px; }
+.candidate-row { padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); }
+.candidate-row:hover { border-color: var(--accent); }
+.candidate-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+input:disabled, select:disabled, textarea:disabled { background: var(--surface-2); color: var(--text-tertiary); cursor: not-allowed; }
+
+.check-row { display: flex !important; align-items: flex-start; gap: 9px; }
+.check-row input { width: auto; margin-top: 3px; flex-shrink: 0; }
+
+.row-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1080px) {
+  .agenda-layout { grid-template-columns: 1fr; }
   .grid-2 { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .mail-layout { grid-template-columns: 1fr; }
@@ -871,7 +1012,8 @@ td.actions { min-width: 196px; }
   .form-grid .span-2 { grid-column: auto; }
   .page { padding: 16px 14px 48px; }
   .app-header { padding: 10px 14px; flex-wrap: wrap; }
-  .user-meta, .btn-label { display: none; }
+  /* On dégraisse l'en-tête, pas les actions de la page : un bouton principal garde son libellé. */
+  .user-meta, .app-header .btn-label { display: none; }
   .user-chip { padding-right: 0; border-right: none; }
   .timer-stats { grid-template-columns: 1fr; }
   .table-wrap { margin: 0 -20px -18px; }
@@ -882,6 +1024,26 @@ td.actions { min-width: 196px; }
   .install-step.is-current .install-step-label { display: inline; }
   .install-body { padding: 22px 18px; }
   .people-grid { grid-template-columns: 1fr; }
+  /* Sur téléphone, la grille du mois tient en entier : chaque événement devient une
+     barre colorée, et la liste sous le calendrier en porte le détail. */
+  .calendar { min-width: 0; }
+  .calendar th { padding: 6px 2px; font-size: 0.62rem; }
+  .cal-cell { height: 56px; padding: 3px; }
+  .cal-day { font-size: 0.7rem; margin-bottom: 3px; }
+  .cal-event {
+    height: 5px;
+    padding: 0;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    border-inline-start: none;
+    background: var(--accent);
+    text-indent: -999em;
+  }
+  .cal-event.is-conge { background: var(--success); }
+  .cal-event.is-cse { background: var(--warning); }
+  .cal-event.is-contrat { background: var(--danger); }
+  .cal-event-time, .cal-more { display: none; }
+
   /* Sur téléphone, la barre se réduit aux icônes : seule la section courante est nommée. */
   .sidebar-nav .side-link-label { display: none; }
   .sidebar-nav .side-link.is-active .side-link-label { display: inline; }

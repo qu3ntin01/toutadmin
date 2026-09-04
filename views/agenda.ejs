@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: t('agenda.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'agenda' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('agenda.title'),
+        headerSubtitle: t('agenda.subtitle')
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <div class="agenda-layout">
+          <div class="card">
+            <div class="card-head calendar-head">
+              <h3 class="calendar-month"><%= monthLabel %></h3>
+              <div class="calendar-nav">
+                <a href="/agenda?mois=<%= previousMonth %>" class="btn btn-quiet" aria-label="<%= previousMonth %>">‹</a>
+                <a href="/agenda?mois=<%= currentMonth %>" class="btn btn-quiet"><%= t('agenda.today') %></a>
+                <a href="/agenda?mois=<%= nextMonth %>" class="btn btn-quiet" aria-label="<%= nextMonth %>">›</a>
+              </div>
+            </div>
+
+            <div class="calendar-wrap">
+              <table class="calendar">
+                <thead>
+                  <tr>
+                    <% const dayNames = [];
+                       // Les noms de jours suivent la langue de l'utilisateur, semaine commençant le lundi.
+                       for (let i = 0; i < 7; i++) {
+                         const d = new Date(Date.UTC(2024, 0, 1 + i));
+                         dayNames.push(d.toLocaleDateString(locale, { weekday: 'short', timeZone: 'UTC' }));
+                       } %>
+                    <% dayNames.forEach((name) => { %><th scope="col"><%= name %></th><% }) %>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% weeks.forEach((week) => { %>
+                    <tr>
+                      <% week.forEach((day) => {
+                           const entries = agenda[day.iso] || [];
+                           const classes = ['cal-cell'];
+                           if (!day.inMonth) classes.push('is-outside');
+                           if (day.isToday) classes.push('is-today');
+                           if (day.isWeekend) classes.push('is-weekend');
+                      %>
+                        <td class="<%= classes.join(' ') %>">
+                          <span class="cal-day"><%= day.day %></span>
+                          <% entries.slice(0, 3).forEach((entry) => { %>
+                            <span class="cal-event is-<%= entry.source %>" title="<%= entry.title %><%= entry.time ? ' · ' + entry.time : '' %>">
+                              <% if (entry.startTime) { %><span class="cal-event-time"><%= entry.startTime %></span><% } %>
+                              <%= entry.title %>
+                            </span>
+                          <% }) %>
+                          <% if (entries.length > 3) { %>
+                            <span class="cal-more">+<%= entries.length - 3 %></span>
+                          <% } %>
+                        </td>
+                      <% }) %>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="calendar-legend">
+              <span class="legend-item"><span class="legend-dot is-personnel"></span><%= t('agenda.legendPersonal') %></span>
+              <span class="legend-item"><span class="legend-dot is-conge"></span><%= t('agenda.legendLeave') %></span>
+              <span class="legend-item"><span class="legend-dot is-cse"></span><%= t('nav.cse') %></span>
+              <span class="legend-item"><span class="legend-dot is-contrat"></span><%= t('common.contract') %></span>
+            </p>
+          </div>
+
+          <div class="stack">
+            <div class="card">
+              <div class="card-head"><h3><%= t('agenda.newEvent') %></h3></div>
+              <form method="POST" action="/agenda" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="mois" value="<%= month %>" />
+                <label>
+                  <span><%= t('agenda.eventTitle') %></span>
+                  <input type="text" name="title" maxlength="140" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('agenda.from') %></span>
+                    <input type="date" name="start_date" value="<%= today %>" required />
+                  </label>
+                  <label>
+                    <span><%= t('agenda.to') %></span>
+                    <input type="date" name="end_date" value="<%= today %>" />
+                  </label>
+                </div>
+                <label class="check-row">
+                  <input type="checkbox" name="all_day" checked />
+                  <span><%= t('agenda.allDay') %></span>
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('timer.start_label') %></span>
+                    <input type="time" name="start_time" />
+                  </label>
+                  <label>
+                    <span><%= t('timer.end_label') %></span>
+                    <input type="time" name="end_time" />
+                  </label>
+                </div>
+                <label>
+                  <span><%= t('common.type') %></span>
+                  <select name="category">
+                    <% categories.forEach((cat) => { %><option value="<%= cat %>"><%= cat %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('agenda.location') %> <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                  <input type="text" name="location" maxlength="140" />
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                <p class="hint">Les heures ne sont prises en compte que si « <%= t('agenda.allDay') %> » est décoché.</p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('agenda.upcoming') %></h3></div>
+              <% if (upcoming.length === 0) { %>
+                <p class="empty-state"><%= t('agenda.nothingUpcoming') %></p>
+              <% } else { %>
+                <ul class="timeline">
+                  <% upcoming.forEach((entry) => { %>
+                    <li class="timeline-item">
+                      <span class="legend-dot is-<%= entry.source %>"></span>
+                      <span class="timeline-body">
+                        <span class="timeline-title"><%= entry.title %></span>
+                        <span class="cell-sub">
+                          <%= new Date(entry.date + 'T00:00:00Z').toLocaleDateString(locale, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }) %><%= entry.time ? ' · ' + entry.time : '' %>
+                        </span>
+                      </span>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3 class="calendar-month"><%= monthLabel %></h3></div>
+          <% const monthEntries = Object.entries(agenda).sort(([a], [b]) => a.localeCompare(b)); %>
+          <% if (monthEntries.length === 0) { %>
+            <p class="empty-state"><%= t('agenda.noEvent') %></p>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th><%= t('common.date') %></th>
+                    <th><%= t('agenda.eventTitle') %></th>
+                    <th><%= t('common.type') %></th>
+                    <th><%= t('agenda.location') %></th>
+                    <th class="actions"><%= t('common.actions') %></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% monthEntries.forEach(([iso, entries]) => { %>
+                    <% entries.forEach((entry) => { %>
+                      <tr>
+                        <td>
+                          <strong><%= new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { day: '2-digit', month: 'short', timeZone: 'UTC' }) %></strong>
+                          <% if (entry.time) { %><div class="cell-sub"><%= entry.time %></div><% } %>
+                        </td>
+                        <td>
+                          <%= entry.title %>
+                          <% if (entry.description) { %><div class="cell-sub"><%= entry.description %></div><% } %>
+                        </td>
+                        <td><span class="tag is-<%= entry.source %>"><%= entry.category %></span></td>
+                        <td><%= entry.location || '—' %></td>
+                        <td class="actions">
+                          <% if (entry.removable) { %>
+                            <form method="POST" action="/agenda/<%= entry.id %>/supprimer" data-confirm="Supprimer cet événement ?">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <input type="hidden" name="mois" value="<%= month %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                            </form>
+                          <% } else { %>
+                            <span class="cell-sub">—</span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+  <script src="/js/agenda.js"></script>
+</body>
+</html>

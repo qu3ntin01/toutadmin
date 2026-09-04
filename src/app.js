@@ -9,6 +9,7 @@ const security = require('./security');
 const i18n = require('./i18n');
 const install = require('./install');
 const settings = require('./settings');
+const cse = require('./cse');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
 const messageRoutes = require('./routes/messages');
@@ -19,6 +20,8 @@ const rhRoutes = require('./routes/rh');
 const managerRoutes = require('./routes/manager');
 const profileRoutes = require('./routes/profile');
 const directoryRoutes = require('./routes/directory');
+const cseRoutes = require('./routes/cse');
+const agendaRoutes = require('./routes/agenda');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -110,9 +113,14 @@ function createApp() {
       res.locals.unreadMessages = messageRoutes.unreadCount(user.id);
       res.locals.isManager =
         db.prepare('SELECT COUNT(*) AS n FROM users WHERE manager_id = ?').get(user.id).n > 0;
+      const row = db.prepare('SELECT role, contract_type FROM users WHERE id = ?').get(user.id);
+      res.locals.isCseMember = Boolean(row && cse.isEligible(row));
+      res.locals.isCseElected = cse.isElected(user.id);
     } else {
       res.locals.unreadMessages = 0;
       res.locals.isManager = false;
+      res.locals.isCseMember = false;
+      res.locals.isCseElected = false;
     }
     next();
   });
@@ -132,6 +140,8 @@ function createApp() {
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);
+  app.use('/agenda', agendaRoutes);
+  app.use('/cse', cseRoutes);
   app.use('/messagerie', messageRoutes);
   app.use('/mon-equipe', managerRoutes);
   app.use('/rh', rhRoutes);

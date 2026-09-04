@@ -15,6 +15,9 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 | Profil | `/mon-profil` | Chaque membre, pour ses propres réglages |
 | Annuaire | `/annuaire` | Tout membre connecté |
 | Messagerie | `/messagerie` | Tout membre connecté |
+| Agenda | `/agenda` | Chaque membre, pour son propre calendrier |
+| CSE | `/cse` | Salariés représentés par le comité (hors freelances et administrateurs) |
+| Gestion du CSE | `/cse/gestion` | Membres élus dont le mandat court encore |
 
 ## Fonctionnalités
 
@@ -38,7 +41,21 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - Panneau RH : approbation (décompte du solde), refus motivé, annulation d'une demande approuvée avec **recrédit automatique du solde**
 - Gestion des soldes de congés : ajustement manuel crédit/débit avec motif et historique
 - Fiches de paie : création (période, brut, net), suivi du versement, consultation par le membre
-- 25 jours de congés attribués à la création d'un membre non-freelance
+- Quota de congés annuel posé à l'installation, attribué à la création d'un membre non-freelance
+
+### CSE — comité social et économique
+- **Espace salarié** (`/cse`) : avantages et réductions négociés par le comité, avec code, lien et date de validité ; composition du comité ; réunions et comptes-rendus publiés
+- **Se présenter au CSE** : dépôt d'une candidature avec profession de foi pendant la phase de candidatures, retrait possible tant que le vote n'est pas ouvert
+- **Vote à bulletin secret** : le bulletin et l'émargement sont écrits ensemble mais dans deux tables sans lien entre elles — la base dit qui a voté, jamais pour qui. Un seul vote par salarié, refusé côté serveur
+- **Espace de gestion des élus** (`/cse/gestion`) : publication et retrait des avantages, rédaction et publication des comptes-rendus. Un mandat échu referme automatiquement cet espace
+- **Pilotage RH** (`/rh#cse`) : composition du comité et durée des mandats, organisation des élections (candidatures → vote → clôture), validation ou refus des candidatures, convocation des réunions, participation et résultats
+- Le comité représente les salariés : **les freelances et les administrateurs n'y ont pas accès**, ni à l'espace, ni au corps électoral
+
+### Agenda
+- **Calendrier mensuel** par membre : grille du lundi au dimanche, navigation de mois en mois, retour au mois courant
+- Événements personnels : intitulé, journée entière ou créneau horaire, plusieurs jours, catégorie et lieu
+- Le calendrier **reprend ce que le site sait déjà** : congés et absences approuvés, réunions du CSE, échéance de contrat — sans ressaisie, et sans possibilité de les supprimer depuis l'agenda
+- Colonne « à venir » sur 30 jours et liste détaillée du mois sous le calendrier
 
 ### Organisation, managers et actualités
 - Chaque membre peut être **rattaché à un manager** depuis la console d'administration (auto-rattachement et boucles hiérarchiques refusés)
@@ -53,7 +70,7 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 ### Confort
 - Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil ; l'arabe bascule l'interface en écriture de droite à gauche
 - Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement
-- Interface responsive : la navigation latérale se replie en bandeau horizontal, les tableaux denses défilent
+- Interface responsive : la navigation latérale se replie en bandeau horizontal, les tableaux denses défilent, et la grille du calendrier tient en entier sur un téléphone
 
 ## Sécurité
 
@@ -140,8 +157,12 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-99 tests d'intégration couvrent l'assistant d'installation (redirection d'une instance
-vierge, jeton, validations, verrouillage définitif, réglages appliqués), l'authentification (mauvais mot de passe, verrouillage,
+131 tests d'intégration couvrent l'assistant d'installation (redirection d'une instance
+vierge, jeton, validations, verrouillage définitif, réglages appliqués), le CSE
+(cloisonnement des freelances, cycle complet d'une élection, anonymat du bulletin,
+mandat échu, avantages périmés, comptes-rendus), l'agenda (grille, validations,
+événements sur plusieurs jours, reprise des congés et des réunions, suppression
+limitée à ses propres entrées), l'authentification (mauvais mot de passe, verrouillage,
 rejet CSRF), le cloisonnement de tous les espaces, la création de membres et ses validations,
 la désactivation automatique en fin de contrat, les outils et affectations, le pointage
 freelance, le cycle RH complet (demande → approbation → décompte du solde → annulation →
@@ -187,18 +208,21 @@ src/
   utils.js           helpers partagés (flash, validation, génération de mot de passe)
   timesheet.js       pointage : entrées, heures cumulées, estimation de rémunération
   hr.js              demandes, soldes de congés, fiches de paie
+  cse.js             mandats, élections, scrutin anonyme, réunions, avantages
+  calendar.js        grille mensuelle, événements personnels et entrées dérivées
   announcements.js   actualités entreprise et équipe
   uploads.js         photos de profil (validation, stockage, suppression)
   i18n.js            négociation de langue, traduction, sens d'écriture
   locales/           16 dictionnaires (fr de référence, 15 traductions)
   grades.js · contract-types.js · request-types.js   listes blanches métier
-  middleware/auth.js contrôle d'accès admin / employé / RH / manager
-  routes/            install · auth · admin · employee · rh · manager · profile · directory · messages
+  middleware/auth.js contrôle d'accès admin / employé / RH / manager / CSE
+  routes/            install · auth · admin · employee · rh · manager · profile · directory · messages · cse · agenda
 views/
   partials/          head, sidebar, navigation membre, en-têtes, avatars, icônes, langues, thème
   install · login · error · admin · rh · employee · manager · profile · directory · messages
+  cse · cse-manage · agenda
   employee-edit · employee-timesheet · tool-edit
-public/              feuille de style, thème, chronomètre, confirmations
+public/              feuille de style, thème, chronomètre, agenda, confirmations
 scripts/seed-demo.js jeu de données de démonstration
 tests/               suite d'intégration (node --test)
 ```

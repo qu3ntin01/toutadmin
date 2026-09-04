@@ -286,6 +286,284 @@
             <p class="hint">Ces montants sont des estimations de pilotage, pas des bulletins de paie.</p>
           </div>
         </section>
+
+        <!-- ---------- CSE : élus, élections, réunions ---------- -->
+        <section class="tab-panel" id="cse">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('cse.addElected') %></h3></div>
+              <form method="POST" action="/rh/cse/mandats" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('common.member') %></span>
+                  <select name="user_id" required>
+                    <option value=""><%= t('common.none') %></option>
+                    <% cse.eligible.forEach((employee) => { %>
+                      <option value="<%= employee.id %>"><%= employee.first_name %> <%= employee.last_name %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('cse.mandate') %></span>
+                  <select name="mandate_role" required>
+                    <% cse.mandateRoles.forEach((role) => { %><option value="<%= role %>"><%= role %></option><% }) %>
+                  </select>
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('agenda.from') %></span>
+                    <input type="date" name="started_on" value="<%= new Date().toISOString().slice(0, 10) %>" required />
+                  </label>
+                  <label>
+                    <span><%= t('agenda.to') %> <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                    <input type="date" name="ends_on" />
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
+                <p class="hint">Un mandat échu ferme automatiquement l'espace de gestion du CSE à son titulaire.</p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('cse.elected') %> <span class="muted">(<%= cse.mandates.length %>)</span></h3></div>
+              <% if (cse.mandates.length === 0) { %>
+                <p class="empty-state"><%= t('cse.noElected') %></p>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr><th><%= t('common.member') %></th><th><%= t('cse.mandate') %></th><th><%= t('common.period') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                    </thead>
+                    <tbody>
+                      <% cse.mandates.forEach((member) => { %>
+                        <tr>
+                          <td>
+                            <strong><%= member.first_name %> <%= member.last_name %></strong>
+                            <div class="cell-sub"><%= member.email %></div>
+                          </td>
+                          <td><span class="tag"><%= member.mandate_role %></span></td>
+                          <td>
+                            <%= new Date(member.started_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %>
+                            <%= member.ends_on ? ' → ' + new Date(member.ends_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '' %>
+                          </td>
+                          <td class="actions">
+                            <form method="POST" action="/rh/cse/mandats/<%= member.user_id %>/retirer" data-confirm="Retirer ce mandat ?">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('cse.newElection') %></h3></div>
+              <form method="POST" action="/rh/cse/elections" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('agenda.eventTitle') %></span>
+                  <input type="text" name="title" maxlength="160" placeholder="Ex : Élection du CSE 2026" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('cse.seats') %></span>
+                    <input type="number" name="seats" min="1" max="100" value="4" required />
+                  </label>
+                  <label>
+                    <span>Clôture des candidatures</span>
+                    <input type="date" name="candidacy_deadline" />
+                  </label>
+                </div>
+                <div class="form-grid">
+                  <label>
+                    <span>Ouverture du vote</span>
+                    <input type="date" name="vote_start" />
+                  </label>
+                  <label>
+                    <span>Clôture du vote</span>
+                    <input type="date" name="vote_end" />
+                  </label>
+                </div>
+                <label>
+                  <span>Description</span>
+                  <textarea name="description" rows="3" maxlength="2000"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                <p class="hint">L'élection s'ouvre en phase de candidatures. Le vote ne peut démarrer qu'avec au moins une candidature validée.</p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('cse.newMeeting') %></h3></div>
+              <form method="POST" action="/rh/cse/reunions" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('agenda.eventTitle') %></span>
+                  <input type="text" name="title" maxlength="160" placeholder="Ex : Réunion mensuelle" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.date') %></span>
+                    <input type="date" name="meeting_date" required />
+                  </label>
+                  <label>
+                    <span><%= t('timer.start_label') %></span>
+                    <input type="time" name="meeting_time" />
+                  </label>
+                </div>
+                <label>
+                  <span><%= t('agenda.location') %></span>
+                  <input type="text" name="location" maxlength="140" />
+                </label>
+                <label>
+                  <span><%= t('cse.agenda') %></span>
+                  <textarea name="agenda" rows="3" maxlength="4000"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                <p class="hint">La réunion apparaît aussitôt dans l'agenda des salariés représentés ; les élus y déposeront le compte-rendu.</p>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('cse.elections') %> <span class="muted">(<%= cse.elections.length %>)</span></h3></div>
+            <% if (cse.elections.length === 0) { %>
+              <p class="empty-state"><%= t('cse.noElection') %></p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% cse.elections.forEach((election) => {
+                     const candidacies = cse.candidaciesByElection[election.id] || [];
+                     const turnout = cse.turnoutByElection[election.id];
+                     const results = cse.resultsByElection[election.id] || [];
+                %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= election.title %></span>
+                      <span class="status <%= election.status === 'Vote' ? 'status-on' : (election.status === 'Clôturée' ? 'status-off' : 'status-warning') %>"><%= election.status %></span>
+                    </div>
+                    <p class="cell-sub">
+                      <%= t('cse.seats') %> : <%= election.seats %> · <%= t('cse.turnout') %> : <%= turnout.rate %> % (<%= turnout.voters %>/<%= turnout.electorate %>)
+                    </p>
+
+                    <% if (election.status !== 'Clôturée') { %>
+                      <div class="row-actions">
+                        <% if (election.status === 'Candidatures') { %>
+                          <form method="POST" action="/rh/cse/elections/<%= election.id %>/statut" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="status" value="Vote" />
+                            <button type="submit" class="btn btn-primary btn-sm"><%= t('cse.openVote') %></button>
+                          </form>
+                        <% } %>
+                        <form method="POST" action="/rh/cse/elections/<%= election.id %>/statut" class="inline-form" data-confirm="Clôturer ce scrutin ? Les résultats deviendront définitifs.">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <input type="hidden" name="status" value="Clôturée" />
+                          <button type="submit" class="btn btn-outline btn-sm"><%= t('cse.closeElection') %></button>
+                        </form>
+                        <form method="POST" action="/rh/cse/elections/<%= election.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette élection et toutes ses candidatures ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                        </form>
+                      </div>
+                    <% } %>
+
+                    <h4 class="section-label"><%= t('cse.candidates') %> <span class="muted">(<%= candidacies.length %>)</span></h4>
+                    <% if (candidacies.length === 0) { %>
+                      <p class="empty-state"><%= t('cse.noCandidates') %></p>
+                    <% } else { %>
+                      <div class="table-wrap">
+                        <table>
+                          <thead>
+                            <tr><th><%= t('common.member') %></th><th><%= t('cse.statement') %></th><th><%= t('common.status') %></th>
+                              <% if (election.status === 'Clôturée') { %><th><%= t('cse.votes') %></th><% } %>
+                              <th class="actions"><%= t('common.actions') %></th></tr>
+                          </thead>
+                          <tbody>
+                            <% candidacies.forEach((candidate) => { %>
+                              <tr>
+                                <td>
+                                  <strong><%= candidate.first_name %> <%= candidate.last_name %></strong>
+                                  <div class="cell-sub"><%= candidate.grade %></div>
+                                </td>
+                                <td class="cell-sub"><%= candidate.statement || '—' %></td>
+                                <td>
+                                  <span class="status <%= candidate.status === 'Validée' ? 'status-on' : (candidate.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= candidate.status %></span>
+                                </td>
+                                <% if (election.status === 'Clôturée') { %>
+                                  <td><strong><%= (results.find((r) => r.id === candidate.id) || {}).votes || 0 %></strong></td>
+                                <% } %>
+                                <td class="actions">
+                                  <% if (election.status === 'Candidatures') { %>
+                                    <form method="POST" action="/rh/cse/candidatures/<%= candidate.id %>/statut" class="inline-form">
+                                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                      <input type="hidden" name="status" value="Validée" />
+                                      <button type="submit" class="btn btn-primary btn-sm"><%= t('hr.approve') %></button>
+                                    </form>
+                                    <form method="POST" action="/rh/cse/candidatures/<%= candidate.id %>/statut" class="inline-form">
+                                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                      <input type="hidden" name="status" value="Refusée" />
+                                      <button type="submit" class="btn btn-outline btn-sm"><%= t('hr.refuse') %></button>
+                                    </form>
+                                  <% } else { %>
+                                    <span class="cell-sub">—</span>
+                                  <% } %>
+                                </td>
+                              </tr>
+                            <% }) %>
+                          </tbody>
+                        </table>
+                      </div>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('cse.meetings') %> <span class="muted">(<%= cse.meetings.length %>)</span></h3></div>
+            <% if (cse.meetings.length === 0) { %>
+              <p class="empty-state"><%= t('cse.noMeetings') %></p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th><%= t('common.date') %></th><th><%= t('agenda.eventTitle') %></th><th><%= t('agenda.location') %></th><th><%= t('cse.minutes') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                  </thead>
+                  <tbody>
+                    <% cse.meetings.forEach((meeting) => { %>
+                      <tr>
+                        <td>
+                          <strong><%= new Date(meeting.meeting_date + 'T00:00:00Z').toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' }) %></strong>
+                          <% if (meeting.meeting_time) { %><div class="cell-sub"><%= meeting.meeting_time %></div><% } %>
+                        </td>
+                        <td><%= meeting.title %></td>
+                        <td><%= meeting.location || '—' %></td>
+                        <td>
+                          <span class="status <%= meeting.minutes_published ? 'status-on' : 'status-warning' %>">
+                            <%= meeting.minutes_published ? t('cse.published') : t('cse.draft') %>
+                          </span>
+                        </td>
+                        <td class="actions">
+                          <form method="POST" action="/rh/cse/reunions/<%= meeting.id %>/supprimer" data-confirm="Supprimer cette réunion ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
       </main>
     </div>
   </div>

@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: t('cse.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'cse' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('cse.title'),
+        headerSubtitle: t('cse.subtitle')
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% if (isElected) { %>
+          <div class="banner">
+            <%- include('partials/icon', { name: 'lifebuoy', iconSize: 17 }) %>
+            <span>Vous siégez au comité. <a href="/cse/gestion"><%= t('nav.cseManage') %></a></span>
+          </div>
+        <% } %>
+
+        <!-- ---------- Avantages et réductions ---------- -->
+        <section class="card" id="avantages">
+          <div class="card-head">
+            <div>
+              <h3><%= t('cse.benefits') %> <span class="muted">(<%= benefits.length %>)</span></h3>
+              <p class="card-sub"><%= t('cse.benefitsSubtitle') %></p>
+            </div>
+          </div>
+
+          <% if (benefits.length === 0) { %>
+            <p class="empty-state"><%= t('cse.noBenefits') %></p>
+          <% } else { %>
+            <div class="benefit-grid">
+              <% benefits.forEach((benefit) => { %>
+                <article class="benefit-card">
+                  <div class="benefit-top">
+                    <span class="benefit-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+                    <% if (benefit.category) { %><span class="tag"><%= benefit.category %></span><% } %>
+                  </div>
+                  <h4 class="benefit-title"><%= benefit.title %></h4>
+                  <% if (benefit.partner) { %>
+                    <p class="cell-sub"><%= t('cse.partner') %> · <%= benefit.partner %></p>
+                  <% } %>
+                  <% if (benefit.discount) { %>
+                    <p class="benefit-discount"><%= benefit.discount %></p>
+                  <% } %>
+                  <% if (benefit.description) { %>
+                    <p class="benefit-text"><%= benefit.description %></p>
+                  <% } %>
+
+                  <div class="benefit-foot">
+                    <% if (benefit.code) { %>
+                      <span class="code-chip"><span class="cell-sub"><%= t('cse.code') %></span><code><%= benefit.code %></code></span>
+                    <% } %>
+                    <% if (benefit.url) { %>
+                      <a href="<%= benefit.url %>" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer">
+                        <%= t('cse.useBenefit') %> <%- include('partials/icon', { name: 'external', iconSize: 14 }) %>
+                      </a>
+                    <% } %>
+                  </div>
+                  <% if (benefit.valid_until) { %>
+                    <p class="cell-sub"><%= t('cse.validUntil', { date: new Date(benefit.valid_until + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) }) %></p>
+                  <% } %>
+                </article>
+              <% }) %>
+            </div>
+          <% } %>
+        </section>
+
+        <div class="grid-2">
+          <!-- ---------- Élus ---------- -->
+          <section class="card" id="elus">
+            <div class="card-head"><h3><%= t('cse.elected') %> <span class="muted">(<%= mandates.length %>)</span></h3></div>
+            <% if (mandates.length === 0) { %>
+              <p class="empty-state"><%= t('cse.noElected') %></p>
+            <% } else { %>
+              <ul class="person-list">
+                <% mandates.forEach((member) => { %>
+                  <li class="person-row">
+                    <%- include('partials/avatar', { person: member, size: 'sm' }) %>
+                    <span class="person-body">
+                      <span class="person-name"><%= member.first_name %> <%= member.last_name %></span>
+                      <span class="cell-sub"><%= member.mandate_role %><%= member.department ? ' · ' + member.department : '' %></span>
+                    </span>
+                    <a href="/messagerie" class="btn btn-outline btn-sm"><%= t('nav.messages') %></a>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </section>
+
+          <!-- ---------- Réunions ---------- -->
+          <section class="card" id="reunions">
+            <div class="card-head"><h3><%= t('cse.meetings') %></h3></div>
+            <% if (meetings.length === 0) { %>
+              <p class="empty-state"><%= t('cse.noMeetings') %></p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% meetings.forEach((meeting) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= meeting.title %></span>
+                      <span class="cell-sub">
+                        <%= new Date(meeting.meeting_date + 'T00:00:00Z').toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }) %><%= meeting.meeting_time ? ' · ' + meeting.meeting_time : '' %><%= meeting.location ? ' · ' + meeting.location : '' %>
+                      </span>
+                    </div>
+                    <% if (meeting.agenda) { %>
+                      <p class="cell-sub"><strong><%= t('cse.agenda') %> :</strong> <%= meeting.agenda %></p>
+                    <% } %>
+                    <% if (meeting.minutes_published && meeting.minutes) { %>
+                      <details class="minutes">
+                        <summary><%= t('cse.minutes') %></summary>
+                        <p><%= meeting.minutes %></p>
+                      </details>
+                    <% } else { %>
+                      <p class="cell-sub"><%= t('cse.minutesPending') %></p>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </section>
+        </div>
+
+        <!-- ---------- Élections ---------- -->
+        <section class="card" id="elections">
+          <div class="card-head"><h3><%= t('cse.elections') %></h3></div>
+
+          <% if (!election) { %>
+            <p class="empty-state"><%= t('cse.noElection') %></p>
+          <% } else { %>
+            <div class="election-head">
+              <div>
+                <h4 class="election-title"><%= election.title %></h4>
+                <p class="cell-sub">
+                  <%= t('cse.seats') %> : <%= election.seats %>
+                  <% if (election.candidacy_deadline) { %> · <%= t('leave.to') %> <%= new Date(election.candidacy_deadline + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><% } %>
+                </p>
+              </div>
+              <span class="status <%= election.status === 'Vote' ? 'status-on' : 'status-warning' %>"><%= t('cse.phase') %> : <%= election.status %></span>
+            </div>
+
+            <% if (election.description) { %><p class="benefit-text"><%= election.description %></p><% } %>
+
+            <% if (election.status === 'Candidatures') { %>
+              <% if (myCandidacy) { %>
+                <div class="banner">
+                  <%- include('partials/icon', { name: 'check', iconSize: 17 }) %>
+                  <span><%= t('cse.myCandidacy') %> — <%= myCandidacy.status %></span>
+                </div>
+                <% if (myCandidacy.statement) { %><p class="benefit-text"><%= myCandidacy.statement %></p><% } %>
+                <form method="POST" action="/cse/candidature/retirer" data-confirm="Retirer votre candidature au CSE ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-sm"><%= t('cse.withdraw') %></button>
+                </form>
+              <% } else { %>
+                <form method="POST" action="/cse/candidature" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label>
+                    <span><%= t('cse.statement') %></span>
+                    <textarea name="statement" rows="4" maxlength="2000" placeholder="<%= t('cse.statementHelp') %>"></textarea>
+                  </label>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                      <%- include('partials/icon', { name: 'ballot', iconSize: 16 }) %>
+                      <span class="btn-label"><%= t('cse.apply') %></span>
+                    </button>
+                  </div>
+                </form>
+              <% } %>
+            <% } %>
+
+            <h4 class="section-label"><%= t('cse.candidates') %> <span class="muted">(<%= candidacies.length %>)</span></h4>
+            <% if (candidacies.length === 0) { %>
+              <p class="empty-state"><%= t('cse.noCandidates') %></p>
+            <% } else if (election.status === 'Vote' && !hasVoted) { %>
+              <form method="POST" action="/cse/vote" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <ul class="candidate-list">
+                  <% candidacies.forEach((candidate, index) => { %>
+                    <li class="candidate-row">
+                      <label class="check-row">
+                        <input type="radio" name="candidacy_id" value="<%= candidate.id %>" <%= index === 0 ? 'required' : '' %> />
+                        <span class="candidate-body">
+                          <span class="person-name"><%= candidate.first_name %> <%= candidate.last_name %></span>
+                          <span class="cell-sub"><%= candidate.grade %><%= candidate.department ? ' · ' + candidate.department : '' %></span>
+                          <% if (candidate.statement) { %><span class="benefit-text"><%= candidate.statement %></span><% } %>
+                        </span>
+                      </label>
+                    </li>
+                  <% }) %>
+                </ul>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary" data-confirm="Confirmer votre vote ? Il ne pourra pas être modifié.">
+                    <%- include('partials/icon', { name: 'ballot', iconSize: 16 }) %>
+                    <span class="btn-label"><%= t('cse.vote') %></span>
+                  </button>
+                </div>
+              </form>
+            <% } else { %>
+              <% if (election.status === 'Vote' && hasVoted) { %>
+                <div class="banner">
+                  <%- include('partials/icon', { name: 'check', iconSize: 17 }) %>
+                  <span><%= t('cse.voted') %></span>
+                </div>
+              <% } %>
+              <ul class="person-list">
+                <% candidacies.forEach((candidate) => { %>
+                  <li class="person-row">
+                    <%- include('partials/avatar', { person: candidate, size: 'sm' }) %>
+                    <span class="person-body">
+                      <span class="person-name"><%= candidate.first_name %> <%= candidate.last_name %></span>
+                      <span class="cell-sub"><%= candidate.grade %><%= candidate.department ? ' · ' + candidate.department : '' %></span>
+                      <% if (candidate.statement) { %><span class="benefit-text"><%= candidate.statement %></span><% } %>
+                    </span>
+                    <span class="status <%= candidate.status === 'Validée' ? 'status-on' : (candidate.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= candidate.status %></span>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          <% } %>
+
+          <!-- Le dernier scrutin clos reste consultable : c'est là que se lisent les résultats. -->
+          <% if (lastClosed) { %>
+            <% const closedResults = resultsFor(lastClosed.id); const closedTurnout = turnoutFor(lastClosed.id); %>
+            <h4 class="section-label"><%= t('cse.results') %> — <%= lastClosed.title %></h4>
+            <p class="cell-sub"><%= t('cse.turnout') %> : <%= closedTurnout.rate %> % (<%= closedTurnout.voters %>/<%= closedTurnout.electorate %>)</p>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th><%= t('common.member') %></th><th><%= t('common.department') %></th><th><%= t('cse.votes') %></th></tr>
+                </thead>
+                <tbody>
+                  <% closedResults.forEach((row, index) => { %>
+                    <tr>
+                      <td>
+                        <strong><%= row.first_name %> <%= row.last_name %></strong>
+                        <% if (index < lastClosed.seats) { %> <span class="tag tag-accent"><%= t('status.approved') %></span><% } %>
+                      </td>
+                      <td><%= row.department || '—' %></td>
+                      <td><strong><%= row.votes %></strong></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

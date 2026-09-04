@@ -24,6 +24,30 @@ function requireHR(req, res, next) {
   next();
 }
 
+// Espace CSE : réservé aux salariés que le comité représente (ni administrateurs, ni freelances).
+function requireCseMember(req, res, next) {
+  if (!req.session.user) return res.redirect('/connexion');
+
+  const db = require('../db');
+  const cse = require('../cse');
+  const user = db.prepare('SELECT * FROM users WHERE id = ?').get(req.session.user.id);
+  if (!user || !cse.isEligible(user)) {
+    return res.status(403).render('error', { message: 'Le CSE représente les salariés de l\'entreprise ; cet espace ne vous est pas ouvert.' });
+  }
+  next();
+}
+
+// Gestion du CSE : réservée aux élus dont le mandat court encore.
+function requireCseElected(req, res, next) {
+  if (!req.session.user) return res.redirect('/connexion');
+
+  const cse = require('../cse');
+  if (!cse.isElected(req.session.user.id)) {
+    return res.status(403).render('error', { message: 'Espace réservé aux membres élus du CSE.' });
+  }
+  next();
+}
+
 // Est manager quiconque a au moins un collaborateur rattaché : aucun rôle à gérer en plus.
 function requireManager(req, res, next) {
   if (!req.session.user) return res.redirect('/connexion');
@@ -36,4 +60,4 @@ function requireManager(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAdmin, requireEmployee, requireHR, requireManager };
+module.exports = { requireAuth, requireAdmin, requireEmployee, requireHR, requireManager, requireCseMember, requireCseElected };
