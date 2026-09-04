@@ -19,6 +19,7 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 | CSE | `/cse` | Salariés représentés par le comité (hors freelances et administrateurs) |
 | Gestion du CSE | `/cse/gestion` | Membres élus dont le mandat court encore |
 | Gestion administrative et financière | `/gestion` | Administrateurs et membres désignés gestionnaires |
+| Comptabilité, Paie, Facturation électronique, Stock, CRM | voir « Modules débloquables » | Modules optionnels, éteints par défaut |
 | Salles | `/salles` | Tout membre connecté, pour réserver et voir le planning |
 
 ## Fonctionnalités
@@ -199,7 +200,14 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-175 tests d'intégration couvrent la gestion (rôle gestionnaire, préavis de contrat,
+217 tests d'intégration couvrent les modules débloquables (routes en 404 tant qu'un
+module est éteint, activation réservée à l'administration, amorçage non dupliqué),
+la comptabilité (écriture déséquilibrée refusée, balance équilibrée, facture
+comptabilisée une seule fois, export CSV), la paie (plafonnement, doublon de période,
+refus pour un freelance, génération en lot), la facturation électronique (SIREN mal
+formé, export bloqué sur facture incomplète, XML échappé), le stock (mouvements,
+inventaire, seuil, deux niveaux d'approbation) et le CRM (devis facturé une fois,
+pipeline pondéré), la gestion (rôle gestionnaire, préavis de contrat,
 TTC et retard de facture, budget agrégeant factures et notes de frais, remboursement
 conditionné à l'approbation, affectation et reprise d'équipement, chevauchement de
 réservation), le cycle RH (accusé de réception, session pleine, appréciation bornée,
@@ -220,22 +228,39 @@ drapeau, RTL arabe), le profil (mot de passe, présentation), l'annuaire et son 
 la messagerie interne et ses règles de confidentialité, ainsi que les rattachements
 hiérarchiques et les actualités. Ils tournent sur une base SQLite temporaire isolée.
 
-## Ce que le CMS ne fait pas
+## Modules débloquables
 
-Le produit couvre l'administration d'une société : personnel, organisation, RH,
-CSE, tiers, contrats, facturation, budgets, frais, parc et salles. Il ne remplace
-pas, et ne prétend pas remplacer :
+Cinq modules sont livrés **éteints par défaut**. L'administration les débloque un à un
+depuis la console (`/admin`, section Modules) : l'activation ouvre l'espace, ses routes
+et son entrée de navigation ; la désactivation les referme **sans rien effacer**. Tant
+qu'un module est éteint, ses URL répondent 404.
 
-- un **logiciel comptable** — pas de plan comptable, d'écritures, de lettrage ni de
-  liasse fiscale ; les factures ici servent au pilotage, pas à la tenue des comptes ;
-- un **moteur de paie** — les fiches de paie sont saisies, pas calculées : aucun
-  barème de cotisations, aucune DSN ;
-- la **facturation électronique réglementaire** (Factur-X, portails de dématérialisation) ;
-- la **gestion de stock** et les achats à plusieurs niveaux d'approbation ;
-- un **CRM** commercial (pipeline d'affaires, devis, relances).
+Chaque module affiche à l'activation ce qu'il **ne** garantit pas — la limite est sur
+l'écran, pas enfouie dans une documentation.
 
-Ces briques demandent chacune une conformité et une validation métier qui dépassent
-ce qu'un module ajouté ici pourrait honnêtement offrir.
+| Module | URL | Ce qu'il fait | Ce qu'il ne fait pas |
+| --- | --- | --- | --- |
+| **Comptabilité** | `/comptabilite` | Plan comptable, journaux, écritures équilibrées, balance, grand livre, export CSV. Une facture se passe en écriture d'un clic. | Ni liasse fiscale, ni télétransmission : l'export alimente l'expert-comptable. |
+| **Moteur de paie** | `/paie` | Barèmes paramétrables, calcul du brut au net, part patronale, coût employeur, bulletin détaillé, génération en lot, simulateur. | Les taux sont ceux que vous saisissez ; aucune DSN. |
+| **Facturation électronique** | `/facturation-electronique` | Contrôle des mentions EN 16931 et export du XML CII (UN/CEFACT) de chaque facture client. | L'encapsulation PDF/A-3 (Factur-X) et le dépôt sur plateforme agréée restent à faire. |
+| **Stock et achats** | `/stock` | Articles, mouvements, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà de 500 €. | Stock mono-dépôt au dernier prix connu ; ni FIFO, ni CUMP. |
+| **CRM commercial** | `/crm` | Contacts, pipeline pondéré, devis convertibles en facture, relances à échéance. | Pas de synchronisation avec une messagerie ni d'automatisation marketing. |
+
+### Ce que ces modules garantissent
+
+- **Une écriture comptable est refusée si elle n'est pas équilibrée**, et le message dit
+  de combien : « 100,00 € au débit contre 80,00 € au crédit ». Une ligne porte un débit
+  ou un crédit, jamais les deux. Un compte mouvementé est désactivé, jamais supprimé.
+- **Le bulletin de paie est calculé**, pas saisi : chaque cotisation s'applique sur le
+  brut ou sur la part plafonnée, et le bulletin garde le détail ligne à ligne. Un
+  freelance n'a pas de bulletin ; un doublon de période est refusé.
+- **Le XML n'est produit que si la facture est conforme** : sinon chaque mention
+  manquante est listée telle quelle, émetteur et client compris.
+- **Le stock est la somme des mouvements**, jamais une valeur saisie ; un inventaire
+  repose le compteur. Une sortie supérieure au stock est refusée.
+- **Une demande d'achat suit deux niveaux** : le manager du demandeur, puis la gestion
+  au-delà du seuil. Un manager n'arbitre que ses propres collaborateurs.
+- **Un devis accepté devient une facture**, une seule fois.
 
 ## Messagerie externe (IMAP/SMTP)
 
@@ -278,6 +303,12 @@ src/
   finance.js         tiers, contrats et préavis, factures, budgets, notes de frais
   resources.js       parc matériel, affectations, salles et réservations
   talent.js          documents, formation, entretiens, recrutement
+  modules.js         modules optionnels : activation, barrière de route, limites
+  accounting.js      plan comptable, écritures équilibrées, balance, grand livre
+  payroll.js         barèmes, calcul du brut au net, bulletins détaillés
+  einvoicing.js      contrôle EN 16931 et génération du XML CII
+  inventory.js       articles, mouvements, demandes d'achat à deux niveaux
+  crm.js             contacts, pipeline, devis, relances
   org.js             services, équipes, encadrement multiple, rattachements
   calendar.js        grille mensuelle, événements personnels et entrées dérivées
   announcements.js   actualités entreprise et équipe
@@ -288,10 +319,12 @@ src/
   middleware/auth.js contrôle d'accès admin / employé / RH / manager / CSE
   routes/            install · auth · admin · employee · rh · manager · profile · directory
                      messages · cse · agenda · gestion · salles
+                     comptabilite · paie · facturation-electronique · stock · crm
 views/
   partials/          head, sidebar, navigation membre, en-têtes, avatars, icônes, langues, thème
   install · login · error · admin · rh · employee · manager · profile · directory · messages
   cse · cse-manage · agenda · gestion · rooms
+  comptabilite · paie · einvoicing · stock · crm
   employee-edit · employee-timesheet · tool-edit
 public/              feuille de style, thème, chronomètre, agenda, jauges, confirmations
 scripts/seed-demo.js jeu de données de démonstration

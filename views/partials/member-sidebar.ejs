@@ -11,6 +11,10 @@ const memberLinks = [
 // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
 if (isCseMember) memberLinks.push({ key: 'cse', href: '/cse', label: t('nav.cse'), icon: 'lifebuoy' });
 if (isManager) memberLinks.push({ key: 'equipe', href: '/mon-equipe', label: t('nav.team'), icon: 'shield' });
+// Le stock ouvre aux salariés la demande d'achat : elle passe par leur manager.
+if (enabledModules.some((m) => m.key === 'stock')) {
+  memberLinks.push({ key: 'stock', href: '/stock', label: 'Stock et achats', icon: 'network' });
+}
 memberLinks.push({ key: 'profil', href: '/mon-profil', label: t('nav.profile'), icon: 'user' });
 
 // Les espaces d'encadrement restent au pied de la barre, séparés du parcours du membre.

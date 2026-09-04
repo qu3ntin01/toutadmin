@@ -69,7 +69,13 @@ class Client {
   }
 
   async post(pathname, data = {}, { withToken = true } = {}) {
-    const form = new URLSearchParams(data);
+    // Un formulaire HTML répète la clé pour chaque valeur ; URLSearchParams,
+    // lui, aplatirait un tableau en une seule chaîne séparée par des virgules.
+    const form = new URLSearchParams();
+    for (const [key, value] of Object.entries(data)) {
+      if (Array.isArray(value)) value.forEach((v) => form.append(key, v));
+      else form.append(key, value);
+    }
     if (withToken && this.csrfToken) form.set('_csrf', this.csrfToken);
 
     const res = await fetch(this.baseUrl + pathname, {

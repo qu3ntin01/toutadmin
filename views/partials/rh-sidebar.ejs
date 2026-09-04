@@ -36,6 +36,9 @@ const rhFootLinks = currentUser.role === 'admin'
   ? [{ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }]
   : [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }];
 if (isFinance || currentUser.role === 'admin') rhFootLinks.push({ href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' });
+// Le moteur de paie est un module RH : il n'apparaît qu'une fois débloqué.
+const payrollModule = enabledModules.find((m) => m.key === 'paie');
+if (payrollModule) rhFootLinks.unshift({ href: payrollModule.href, label: payrollModule.label, icon: payrollModule.icon });
 %>
 <%- include('sidebar', {
   panelLabel: 'Ressources humaines',

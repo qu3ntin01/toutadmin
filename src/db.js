@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
   daily_rate REAL,
   is_hr INTEGER NOT NULL DEFAULT 0,
   is_finance INTEGER NOT NULL DEFAULT 0,
+  gross_salary REAL,
   leave_balance REAL NOT NULL DEFAULT 0,
   department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
   team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
@@ -489,6 +490,170 @@ CREATE TABLE IF NOT EXISTS candidates (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ---------- Comptabilité ----------
+CREATE TABLE IF NOT EXISTS accounts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL UNIQUE,
+  label TEXT NOT NULL,
+  kind TEXT NOT NULL CHECK(kind IN ('Actif','Passif','Charge','Produit')),
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS journals (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL UNIQUE,
+  label TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS entries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  journal_id INTEGER NOT NULL REFERENCES journals(id) ON DELETE RESTRICT,
+  entry_date TEXT NOT NULL,
+  reference TEXT NOT NULL DEFAULT '',
+  label TEXT NOT NULL,
+  invoice_id INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS entry_lines (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  entry_id INTEGER NOT NULL REFERENCES entries(id) ON DELETE CASCADE,
+  account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE RESTRICT,
+  label TEXT NOT NULL DEFAULT '',
+  debit REAL NOT NULL DEFAULT 0,
+  credit REAL NOT NULL DEFAULT 0,
+  reconciliation TEXT NOT NULL DEFAULT ''
+);
+
+-- ---------- Paie ----------
+CREATE TABLE IF NOT EXISTS payroll_rates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  base TEXT NOT NULL DEFAULT 'Brut' CHECK(base IN ('Brut','Plafond')),
+  employee_rate REAL NOT NULL DEFAULT 0,
+  employer_rate REAL NOT NULL DEFAULT 0,
+  sort_order INTEGER NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE TABLE IF NOT EXISTS payslip_lines (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  payslip_id INTEGER NOT NULL REFERENCES payslips(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,
+  base_amount REAL NOT NULL DEFAULT 0,
+  employee_rate REAL NOT NULL DEFAULT 0,
+  employer_rate REAL NOT NULL DEFAULT 0,
+  employee_amount REAL NOT NULL DEFAULT 0,
+  employer_amount REAL NOT NULL DEFAULT 0,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+-- ---------- Stock et achats ----------
+CREATE TABLE IF NOT EXISTS items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL DEFAULT '',
+  label TEXT NOT NULL,
+  unit TEXT NOT NULL DEFAULT 'unité',
+  category TEXT NOT NULL DEFAULT '',
+  stock_min REAL NOT NULL DEFAULT 0,
+  unit_price REAL,
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id INTEGER NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL CHECK(kind IN ('Entrée','Sortie','Inventaire')),
+  quantity REAL NOT NULL,
+  reason TEXT NOT NULL DEFAULT '',
+  moved_on TEXT NOT NULL DEFAULT (date('now')),
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS purchase_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  requester_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  item_id INTEGER REFERENCES items(id) ON DELETE SET NULL,
+  label TEXT NOT NULL,
+  quantity REAL NOT NULL DEFAULT 1,
+  estimated_amount REAL NOT NULL DEFAULT 0,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  justification TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Manager' CHECK(status IN ('Manager','Gestion','Approuvée','Refusée','Annulée','Commandée')),
+  manager_reviewed_by INTEGER REFERENCES users(id),
+  manager_reviewed_at TEXT,
+  finance_reviewed_by INTEGER REFERENCES users(id),
+  finance_reviewed_at TEXT,
+  review_note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- CRM ----------
+CREATE TABLE IF NOT EXISTS crm_contacts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS opportunities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  amount REAL NOT NULL DEFAULT 0,
+  stage TEXT NOT NULL DEFAULT 'Qualification' CHECK(stage IN ('Qualification','Proposition','Négociation','Gagnée','Perdue')),
+  probability INTEGER NOT NULL DEFAULT 50,
+  expected_close TEXT,
+  owner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  notes TEXT NOT NULL DEFAULT '',
+  closed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS quotes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+  opportunity_id INTEGER REFERENCES opportunities(id) ON DELETE SET NULL,
+  reference TEXT NOT NULL DEFAULT '',
+  label TEXT NOT NULL,
+  issue_date TEXT NOT NULL DEFAULT (date('now')),
+  valid_until TEXT,
+  amount_ht REAL NOT NULL DEFAULT 0,
+  vat_rate REAL NOT NULL DEFAULT 20,
+  status TEXT NOT NULL DEFAULT 'Brouillon' CHECK(status IN ('Brouillon','Envoyé','Accepté','Refusé','Expiré')),
+  invoice_id INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+  created_by INTEGER REFERENCES users(id),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS crm_activities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER REFERENCES partners(id) ON DELETE CASCADE,
+  opportunity_id INTEGER REFERENCES opportunities(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Relance',
+  due_on TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  owner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  done_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_entry_lines_entry ON entry_lines(entry_id);
+CREATE INDEX IF NOT EXISTS idx_entry_lines_account ON entry_lines(account_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_item ON stock_movements(item_id);
+CREATE INDEX IF NOT EXISTS idx_payslip_lines_payslip ON payslip_lines(payslip_id);
+CREATE INDEX IF NOT EXISTS idx_opportunities_partner ON opportunities(partner_id);
+
 CREATE INDEX IF NOT EXISTS idx_invoices_partner ON invoices(partner_id);
 CREATE INDEX IF NOT EXISTS idx_expense_claims_employee ON expense_claims(employee_id);
 CREATE INDEX IF NOT EXISTS idx_asset_assignments_asset ON asset_assignments(asset_id);
@@ -514,6 +679,7 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN daily_rate REAL",
   "ALTER TABLE users ADD COLUMN is_hr INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN is_finance INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN gross_salary REAL",
   "ALTER TABLE users ADD COLUMN leave_balance REAL NOT NULL DEFAULT 0",
   'ALTER TABLE users ADD COLUMN manager_id INTEGER REFERENCES users(id) ON DELETE SET NULL',
   'ALTER TABLE users ADD COLUMN avatar_file TEXT',

@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Comptabilité — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Comptabilité',
+      navItems: [
+        { tab: 'ecritures', label: 'Écritures', icon: 'card' },
+        { tab: 'balance', label: 'Balance', icon: 'network' },
+        { tab: 'grand-livre', label: 'Grand livre', icon: 'inbox' },
+        { tab: 'plan', label: 'Plan comptable', icon: 'settings' }
+      ],
+      footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Comptabilité',
+        headerSubtitle: 'Écritures équilibrées, balance et grand livre — exercice ' + year
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const money = (n) => Number(n || 0).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(income.revenue) %></span><span class="stat-label">Produits <%= year %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(income.expenses) %></span><span class="stat-label">Charges <%= year %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(income.result) %></span><span class="stat-label">Résultat</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= unposted.length %></span><span class="stat-label">Factures à comptabiliser</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Écritures ---------- -->
+        <section class="tab-panel is-active" id="ecritures">
+          <div class="card">
+            <div class="card-head"><h3>Saisir une écriture</h3></div>
+            <form method="POST" action="/comptabilite/ecritures" class="stack">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <div class="form-grid">
+                  <label>
+                    <span>Journal</span>
+                    <select name="journal_id" required>
+                      <% journals.forEach((j) => { %><option value="<%= j.id %>"><%= j.code %> — <%= j.label %></option><% }) %>
+                    </select>
+                  </label>
+                  <label>
+                    <span><%= t('common.date') %></span>
+                    <input type="date" name="entry_date" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Libellé</span>
+                  <input type="text" name="label" maxlength="160" required />
+                </label>
+                <label>
+                  <span>Pièce</span>
+                  <input type="text" name="reference" maxlength="60" />
+                </label>
+
+                <h4 class="section-label">Lignes</h4>
+                <% for (let i = 0; i < 4; i++) { %>
+                  <div class="entry-line">
+                    <select name="account_id">
+                      <option value="">— compte —</option>
+                      <% accounts.filter((a) => a.active).forEach((a) => { %>
+                        <option value="<%= a.id %>"><%= a.code %> <%= a.label %></option>
+                      <% }) %>
+                    </select>
+                    <input type="text" name="line_label" placeholder="libellé" maxlength="160" />
+                    <input type="text" name="debit" inputmode="decimal" placeholder="débit" />
+                    <input type="text" name="credit" inputmode="decimal" placeholder="crédit" />
+                  </div>
+                <% } %>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Enregistrer l'écriture</button>
+              </div>
+              <p class="hint">L'écriture n'est acceptée que si le total des débits égale celui des crédits. Une ligne porte un débit ou un crédit, jamais les deux.</p>
+            </form>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Factures à comptabiliser <span class="muted">(<%= unposted.length %>)</span></h3></div>
+              <% if (unposted.length === 0) { %>
+                <div class="empty-state">Toutes les factures sont comptabilisées.</div>
+              <% } else { %>
+                <ul class="person-list">
+                  <% unposted.slice(0, 12).forEach((i) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name"><%= i.label %></span>
+                        <span class="cell-sub"><%= i.direction %> · <%= day(i.issue_date) %> · <%= money(i.amount_ttc) %> TTC</span>
+                      </span>
+                      <form method="POST" action="/comptabilite/factures/<%= i.id %>/comptabiliser">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-outline btn-sm">Comptabiliser</button>
+                      </form>
+                    </li>
+                  <% }) %>
+                </ul>
+                <p class="hint">Une vente débite le client et crédite le produit et la TVA collectée ; un achat fait l'inverse.</p>
+              <% } %>
+            </div>
+
+            <div class="card">
+                <div class="card-head"><h3>Journal des écritures <span class="muted">(<%= entries.length %>)</span></h3></div>
+                <% if (entries.length === 0) { %>
+                  <div class="empty-state">Aucune écriture enregistrée.</div>
+                <% } else { %>
+                  <ul class="meeting-list">
+                    <% entries.slice(0, 25).forEach((e) => { %>
+                      <li class="meeting-item">
+                        <div class="meeting-head">
+                          <span class="meeting-title"><%= e.label %></span>
+                          <span class="tag"><%= e.journal_code %></span>
+                        </div>
+                        <p class="cell-sub"><%= day(e.entry_date) %><%= e.reference ? ' · ' + e.reference : '' %> · <%= money(e.total_debit) %></p>
+                        <div class="table-wrap">
+                          <table>
+                            <thead><tr><th>Compte</th><th>Libellé</th><th>Débit</th><th>Crédit</th></tr></thead>
+                            <tbody>
+                              <% linesOf(e.id).forEach((l) => { %>
+                                <tr>
+                                  <td class="mono"><%= l.code %></td>
+                                  <td class="cell-sub"><%= l.label || l.account_label %></td>
+                                  <td class="num"><%= l.debit ? money(l.debit) : '' %></td>
+                                  <td class="num"><%= l.credit ? money(l.credit) : '' %></td>
+                                </tr>
+                              <% }) %>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="row-actions">
+                          <form method="POST" action="/comptabilite/ecritures/<%= e.id %>/supprimer" data-confirm="Supprimer cette écriture ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </div>
+                      </li>
+                    <% }) %>
+                  </ul>
+                <% } %>
+              </div>
+          </div>
+        </section>
+
+        <!-- ---------- Balance ---------- -->
+        <section class="tab-panel" id="balance">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Balance générale <%= year %></h3>
+                <p class="card-sub">Un solde par compte mouvementé sur l'exercice.</p>
+              </div>
+              <div class="row-actions">
+                <form method="GET" action="/comptabilite" class="inline-form">
+                  <select name="annee" class="input-sm">
+                    <% years.forEach((y) => { %><option value="<%= y %>" <%= y === year ? 'selected' : '' %>><%= y %></option><% }) %>
+                  </select>
+                  <button type="submit" class="btn btn-sm"><%= t('common.open') %></button>
+                </form>
+                <a href="/comptabilite/balance.csv?annee=<%= year %>" class="btn btn-outline btn-sm">Export CSV</a>
+              </div>
+            </div>
+
+            <% if (balance.length === 0) { %>
+              <div class="empty-state">Aucun mouvement sur cet exercice.</div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Compte</th><th><%= t('common.type') %></th><th>Débit</th><th>Crédit</th><th>Solde</th></tr></thead>
+                  <tbody>
+                    <% balance.forEach((b) => { %>
+                      <tr>
+                        <td>
+                          <span class="mono cell-strong"><%= b.code %></span>
+                          <div class="cell-sub"><%= b.label %></div>
+                        </td>
+                        <td><span class="tag"><%= b.kind %></span></td>
+                        <td class="num"><%= money(b.debit) %></td>
+                        <td class="num"><%= money(b.credit) %></td>
+                        <td class="num cell-strong"><%= money(b.balance) %></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hint">L'export CSV alimente votre expert-comptable : ce module tient les comptes, il ne produit ni liasse ni télétransmission.</p>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Grand livre ---------- -->
+        <section class="tab-panel" id="grand-livre">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Grand livre</h3>
+                <p class="card-sub">Le détail qui explique le solde d'un compte.</p>
+              </div>
+              <form method="GET" action="/comptabilite" class="inline-form">
+                <input type="hidden" name="annee" value="<%= year %>" />
+                <select name="compte" class="input-sm">
+                  <option value="">— compte —</option>
+                  <% accounts.forEach((a) => { %>
+                    <option value="<%= a.id %>" <%= selectedAccount && selectedAccount.id === a.id ? 'selected' : '' %>><%= a.code %> <%= a.label %></option>
+                  <% }) %>
+                </select>
+                <button type="submit" class="btn btn-sm"><%= t('common.open') %></button>
+              </form>
+            </div>
+
+            <% if (!selectedAccount) { %>
+              <div class="empty-state">Choisissez un compte pour voir son grand livre.</div>
+            <% } else if (ledger.length === 0) { %>
+              <div class="empty-state">Aucun mouvement sur ce compte pour l'exercice <%= year %>.</div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('common.date') %></th><th>Journal</th><th>Libellé</th><th>Débit</th><th>Crédit</th><th>Solde</th></tr></thead>
+                  <tbody>
+                    <% ledger.forEach((l) => { %>
+                      <tr>
+                        <td><%= day(l.entry_date) %></td>
+                        <td><span class="tag"><%= l.journal_code %></span></td>
+                        <td>
+                          <%= l.entry_label %>
+                          <% if (l.label) { %><div class="cell-sub"><%= l.label %></div><% } %>
+                        </td>
+                        <td class="num"><%= l.debit ? money(l.debit) : '' %></td>
+                        <td class="num"><%= l.credit ? money(l.credit) : '' %></td>
+                        <td class="num cell-strong"><%= money(l.running) %></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Plan comptable ---------- -->
+        <section class="tab-panel" id="plan">
+          <div class="grid-2">
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h3>Ajouter un compte</h3></div>
+                <form method="POST" action="/comptabilite/comptes" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <div class="form-grid">
+                    <label>
+                      <span>Numéro</span>
+                      <input type="text" name="code" maxlength="10" placeholder="Ex : 627" required />
+                    </label>
+                    <label>
+                      <span><%= t('common.type') %></span>
+                      <select name="kind" required>
+                        <% accountKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %>
+                      </select>
+                    </label>
+                  </div>
+                  <label>
+                    <span>Intitulé</span>
+                    <input type="text" name="label" maxlength="160" required />
+                  </label>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                </form>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Ajouter un journal</h3></div>
+                <form method="POST" action="/comptabilite/journaux" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <div class="form-grid">
+                    <label>
+                      <span>Code</span>
+                      <input type="text" name="code" maxlength="6" placeholder="Ex : CA" required />
+                    </label>
+                    <label>
+                      <span>Intitulé</span>
+                      <input type="text" name="label" maxlength="120" required />
+                    </label>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                </form>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Plan comptable <span class="muted">(<%= accounts.length %>)</span></h3></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Compte</th><th><%= t('common.type') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                  <tbody>
+                    <% accounts.forEach((a) => { %>
+                      <tr>
+                        <td>
+                          <span class="mono cell-strong"><%= a.code %></span>
+                          <div class="cell-sub"><%= a.label %></div>
+                        </td>
+                        <td><span class="tag"><%= a.kind %></span></td>
+                        <td>
+                          <span class="status <%= a.active ? 'status-on' : 'status-off' %>"><%= a.active ? t('common.active') : t('common.inactive') %></span>
+                        </td>
+                        <td class="actions">
+                          <form method="POST" action="/comptabilite/comptes/<%= a.id %>/supprimer" data-confirm="Supprimer ce compte ? S'il est mouvementé, il sera désactivé.">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

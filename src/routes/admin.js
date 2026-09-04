@@ -7,6 +7,9 @@ const contractTypes = require('../contract-types');
 const hr = require('../hr');
 const org = require('../org');
 const settings = require('../settings');
+const modules = require('../modules');
+const accounting = require('../accounting');
+const payroll = require('../payroll');
 const announcements = require('../announcements');
 const { requireAdmin } = require('../middleware/auth');
 const { setFlash, generatePassword, isValidEmail, isValidDateString, isValidUrl, parseDailyRate } = require('../utils');
@@ -66,6 +69,7 @@ router.get('/', (req, res) => {
     financeMembers: employees.filter((e) => e.is_finance),
     financeEligibleEmployees: employees.filter((e) => !e.is_finance),
     companyNews: announcements.all(),
+    modules: modules.list(),
     annualLeaveDays: annualLeaveDays(),
     pendingRequestCount: db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n,
     stats: {
@@ -522,6 +526,28 @@ router.post('/affectations/:id/supprimer', (req, res) => {
 });
 
 // ---------- Gestion des accès RH ----------
+
+// Débloquer un module : son écran, ses routes et son entrée de navigation apparaissent.
+router.post('/modules/:key', (req, res) => {
+  const key = req.params.key;
+  const module = modules.byKey(key);
+  if (!module) {
+    setFlash(req, 'error', 'Module inconnu.');
+    return res.redirect('/admin#modules');
+  }
+
+  const enable = req.body.enabled === 'on';
+  modules.setEnabled(key, enable);
+
+  // À la première activation, le module reçoit de quoi ne pas s'ouvrir sur du vide.
+  if (enable && key === 'comptabilite') accounting.seedDefaults();
+  if (enable && key === 'paie') payroll.seedDefaults();
+
+  setFlash(req, 'success', enable
+    ? `Module « ${module.label} » activé.`
+    : `Module « ${module.label} » désactivé. Ses données sont conservées.`);
+  res.redirect('/admin#modules');
+});
 
 router.post('/gestion/nommer', (req, res) => {
   const id = Number(req.body.employee_id);

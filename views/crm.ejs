@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'CRM — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'CRM commercial',
+      navItems: [
+        { tab: 'pipeline', label: 'Pipeline', icon: 'network' },
+        { tab: 'devis', label: 'Devis', icon: 'card' },
+        { tab: 'relances', label: 'Relances', icon: 'clock', badge: activities.filter((a) => a.overdue).length },
+        { tab: 'contacts', label: 'Contacts', icon: 'users' }
+      ],
+      footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'CRM commercial',
+        headerSubtitle: 'Pipeline, devis et relances'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const money = (n) => Number(n || 0).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(pipeline.total) %></span><span class="stat-label">Pipeline ouvert</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(pipeline.weighted) %></span><span class="stat-label">Pondéré</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(pipeline.won) %></span><span class="stat-label">Gagné</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= pipeline.winRate %> %</span><span class="stat-label">Taux de réussite</span></span>
+          </div>
+        </section>
+
+        <% if (clients.length === 0) { %>
+          <div class="banner is-warning">
+            <%- include('partials/icon', { name: 'briefcase', iconSize: 17 }) %>
+            <span>Aucun client enregistré. Créez-en un dans <a href="/gestion#tiers">la gestion</a> : le CRM travaille sur les mêmes tiers.</span>
+          </div>
+        <% } %>
+
+        <!-- ---------- Pipeline ---------- -->
+        <section class="tab-panel is-active" id="pipeline">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Nouvelle affaire</h3></div>
+              <form method="POST" action="/crm/opportunites" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span>Client</span>
+                  <select name="partner_id" required>
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span>Intitulé</span>
+                  <input type="text" name="title" maxlength="160" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span>Montant</span>
+                    <input type="text" name="amount" inputmode="decimal" value="0" required />
+                  </label>
+                  <label>
+                    <span>Probabilité (%)</span>
+                    <input type="number" name="probability" min="0" max="100" value="50" required />
+                  </label>
+                  <label>
+                    <span>Clôture prévue</span>
+                    <input type="date" name="expected_close" />
+                  </label>
+                  <label>
+                    <span>Responsable</span>
+                    <select name="owner_id">
+                      <option value="">—</option>
+                      <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                    </select>
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+              </form>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h3>Par étape</h3></div>
+                <ul class="org-list">
+                  <% pipeline.byStage.forEach((s) => { %>
+                    <li class="org-item">
+                      <div class="org-head">
+                        <div>
+                          <span class="org-name"><%= s.stage %></span>
+                          <span class="cell-sub"><%= s.count %> affaire(s)</span>
+                        </div>
+                        <span class="cell-strong"><%= money(s.amount) %></span>
+                      </div>
+                      <div class="meter">
+                        <span class="meter-fill" data-ratio="<%= pipeline.total > 0 ? Math.round((s.amount / pipeline.total) * 100) : 0 %>"></span>
+                      </div>
+                    </li>
+                  <% }) %>
+                </ul>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Affaires <span class="muted">(<%= opportunities.length %>)</span></h3></div>
+                <% if (opportunities.length === 0) { %>
+                  <div class="empty-state">Aucune affaire au pipeline.</div>
+                <% } else { %>
+                  <div class="table-wrap">
+                    <table>
+                      <thead><tr><th>Affaire</th><th>Montant</th><th>Étape</th><th class="actions"></th></tr></thead>
+                      <tbody>
+                        <% opportunities.forEach((o) => { %>
+                          <tr>
+                            <td>
+                              <div class="cell-strong"><%= o.title %></div>
+                              <div class="cell-sub">
+                                <%= o.partner_name %><%= o.expected_close ? ' · ' + day(o.expected_close) : '' %>
+                                <%= o.owner_first_name ? ' · ' + o.owner_first_name + ' ' + o.owner_last_name : '' %>
+                              </div>
+                            </td>
+                            <td class="num cell-strong">
+                              <%= money(o.amount) %>
+                              <div class="cell-sub"><%= o.probability %> %</div>
+                            </td>
+                            <td>
+                              <span class="status <%= o.stage === 'Gagnée' ? 'status-on' : (o.stage === 'Perdue' ? 'status-danger' : 'status-warning') %>"><%= o.stage %></span>
+                            </td>
+                            <td class="actions">
+                              <form method="POST" action="/crm/opportunites/<%= o.id %>/etape" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <select name="stage" class="input-sm">
+                                  <% stages.forEach((st) => { %>
+                                    <option value="<%= st %>" <%= o.stage === st ? 'selected' : '' %>><%= st %></option>
+                                  <% }) %>
+                                </select>
+                                <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                              </form>
+                              <form method="POST" action="/crm/opportunites/<%= o.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette affaire ?">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                              </form>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Devis ---------- -->
+        <section class="tab-panel" id="devis">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Nouveau devis</h3></div>
+              <form method="POST" action="/crm/devis" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span>Client</span>
+                  <select name="partner_id" required>
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span>Affaire <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                  <select name="opportunity_id">
+                    <option value="">—</option>
+                    <% opportunities.forEach((o) => { %><option value="<%= o.id %>"><%= o.title %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span>Intitulé</span>
+                  <input type="text" name="label" maxlength="160" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span>Référence</span>
+                    <input type="text" name="reference" maxlength="60" />
+                  </label>
+                  <label>
+                    <span>Émission</span>
+                    <input type="date" name="issue_date" value="<%= today %>" required />
+                  </label>
+                  <label>
+                    <span>Valable jusqu'au</span>
+                    <input type="date" name="valid_until" />
+                  </label>
+                  <label>
+                    <span>Montant HT</span>
+                    <input type="text" name="amount_ht" inputmode="decimal" value="0" required />
+                  </label>
+                  <label>
+                    <span>TVA (%)</span>
+                    <input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required />
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Devis <span class="muted">(<%= quotes.length %>)</span></h3></div>
+              <% if (quotes.length === 0) { %>
+                <div class="empty-state">Aucun devis.</div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Devis</th><th>TTC</th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr></thead>
+                    <tbody>
+                      <% quotes.forEach((q) => { %>
+                        <tr>
+                          <td>
+                            <div class="cell-strong"><%= q.reference || '(sans réf.)' %> — <%= q.label %></div>
+                            <div class="cell-sub">
+                              <%= q.partner_name %> · <%= day(q.issue_date) %>
+                              <%= q.valid_until ? ' → ' + day(q.valid_until) : '' %>
+                            </div>
+                          </td>
+                          <td class="num cell-strong"><%= money(q.amount_ttc) %></td>
+                          <td>
+                            <span class="status <%= q.status === 'Accepté' ? 'status-on' : (q.status === 'Refusé' ? 'status-danger' : (q.expired ? 'status-danger' : 'status-warning')) %>">
+                              <%= q.expired ? 'Expiré' : q.status %>
+                            </span>
+                            <% if (q.invoice_id) { %><div class="cell-sub">Facturé</div><% } %>
+                          </td>
+                          <td class="actions">
+                            <% if (!q.invoice_id) { %>
+                              <form method="POST" action="/crm/devis/<%= q.id %>/statut" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <select name="status" class="input-sm">
+                                  <% quoteStatuses.forEach((st) => { %>
+                                    <option value="<%= st %>" <%= q.status === st ? 'selected' : '' %>><%= st %></option>
+                                  <% }) %>
+                                </select>
+                                <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                              </form>
+                              <% if (q.status === 'Accepté') { %>
+                                <form method="POST" action="/crm/devis/<%= q.id %>/facturer" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <button type="submit" class="btn btn-primary btn-sm">Facturer</button>
+                                </form>
+                              <% } %>
+                            <% } %>
+                            <form method="POST" action="/crm/devis/<%= q.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce devis ?">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="hint">Un devis accepté devient une facture client dans la gestion, et ne peut pas être facturé deux fois.</p>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Relances ---------- -->
+        <section class="tab-panel" id="relances">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Planifier une relance</h3></div>
+              <form method="POST" action="/crm/relances" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span>Client</span>
+                  <select name="partner_id">
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span>Affaire</span>
+                  <select name="opportunity_id">
+                    <option value="">—</option>
+                    <% opportunities.forEach((o) => { %><option value="<%= o.id %>"><%= o.title %></option><% }) %>
+                  </select>
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.type') %></span>
+                    <select name="kind">
+                      <% activityKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %>
+                    </select>
+                  </label>
+                  <label>
+                    <span>Échéance</span>
+                    <input type="date" name="due_on" value="<%= today %>" required />
+                  </label>
+                </div>
+                <label>
+                  <span>Note</span>
+                  <textarea name="note" rows="3" maxlength="1000"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                <p class="hint">Une relance vise un client, une affaire, ou les deux.</p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Relances <span class="muted">(<%= activities.filter((a) => !a.done_at).length %> en cours)</span></h3></div>
+              <% if (activities.length === 0) { %>
+                <div class="empty-state">Aucune relance planifiée.</div>
+              <% } else { %>
+                <ul class="person-list">
+                  <% activities.forEach((a) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name">
+                          <%= a.kind %><%= a.partner_name ? ' · ' + a.partner_name : '' %><%= a.opportunity_title ? ' · ' + a.opportunity_title : '' %>
+                        </span>
+                        <span class="cell-sub <%= a.overdue ? 'text-danger' : '' %>">
+                          <%= day(a.due_on) %><%= a.done_at ? ' · faite' : (a.overdue ? ' · en retard' : '') %>
+                        </span>
+                        <% if (a.note) { %><span class="benefit-text"><%= a.note %></span><% } %>
+                      </span>
+                      <span class="row-actions">
+                        <% if (!a.done_at) { %>
+                          <form method="POST" action="/crm/relances/<%= a.id %>/faite">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-outline btn-sm">Marquer faite</button>
+                          </form>
+                        <% } %>
+                        <form method="POST" action="/crm/relances/<%= a.id %>/supprimer" data-confirm="Supprimer cette relance ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                        </form>
+                      </span>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Contacts ---------- -->
+        <section class="tab-panel" id="contacts">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Nouveau contact</h3></div>
+              <form method="POST" action="/crm/contacts" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span>Client</span>
+                  <select name="partner_id" required>
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span>Prénom</span>
+                    <input type="text" name="first_name" maxlength="100" required />
+                  </label>
+                  <label>
+                    <span>Nom</span>
+                    <input type="text" name="last_name" maxlength="100" required />
+                  </label>
+                  <label>
+                    <span>Fonction</span>
+                    <input type="text" name="role" maxlength="100" />
+                  </label>
+                  <label>
+                    <span><%= t('common.email') %></span>
+                    <input type="email" name="email" maxlength="254" />
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Contacts <span class="muted">(<%= contacts.length %>)</span></h3></div>
+              <% if (contacts.length === 0) { %>
+                <div class="empty-state">Aucun contact.</div>
+              <% } else { %>
+                <ul class="person-list">
+                  <% contacts.forEach((c) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name"><%= c.first_name %> <%= c.last_name %></span>
+                        <span class="cell-sub"><%= [c.partner_name, c.role, c.email].filter(Boolean).join(' · ') %></span>
+                      </span>
+                      <form method="POST" action="/crm/contacts/<%= c.id %>/supprimer" data-confirm="Supprimer ce contact ?">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                      </form>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/meter.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

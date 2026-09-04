@@ -921,6 +921,12 @@ td.actions { min-width: 196px; }
 /* Dans un tableau qui défile, un menu déroulant écrasé devient inutilisable. */
 .table-wrap td select { min-width: 132px; }
 
+/* ---------- Saisie d'écriture comptable ---------- */
+
+/* Compte, libellé, débit, crédit : une ligne de journal se lit en colonnes. */
+.entry-line { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.entry-line select, .entry-line input { min-width: 0; }
+
 /* ---------- Jauge de consommation ---------- */
 
 .meter { height: 8px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
@@ -1050,6 +1056,7 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
   .install-step.is-current .install-step-label { display: inline; }
   .install-body { padding: 22px 18px; }
   .people-grid { grid-template-columns: 1fr; }
+  .entry-line { grid-template-columns: 1fr 1fr; }
   /* Sur téléphone, la grille du mois tient en entier : chaque événement devient une
      barre colorée, et la liste sous le calendrier en porte le détail. */
   .calendar { min-width: 0; }

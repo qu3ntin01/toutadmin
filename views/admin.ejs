@@ -763,6 +763,50 @@
             </div>
           </div>
         </section>
+        <section class="tab-panel" id="modules">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Modules <span class="muted">(<%= modules.filter((m) => m.enabled).length %>/<%= modules.length %>)</span></h3>
+                <p class="card-sub">Chaque module est éteint par défaut. L'activer ouvre son espace, ses routes et son entrée de navigation ; le désactiver les referme sans rien effacer.</p>
+              </div>
+            </div>
+
+            <ul class="org-list">
+              <% modules.forEach((m) => { %>
+                <li class="org-item">
+                  <div class="org-head">
+                    <div>
+                      <span class="org-name"><%= m.label %></span>
+                      <span class="cell-sub"><%= m.href %></span>
+                    </div>
+                    <span class="status <%= m.enabled ? 'status-on' : 'status-off' %>">
+                      <%= m.enabled ? t('common.active') : t('common.inactive') %>
+                    </span>
+                  </div>
+                  <p class="benefit-text"><%= m.description %></p>
+                  <div class="banner is-warning">
+                    <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+                    <span><%= m.caveat %></span>
+                  </div>
+                  <div class="row-actions">
+                    <form method="POST" action="/admin/modules/<%= m.key %>" class="inline-form"<%= m.enabled ? ' data-confirm="Désactiver ce module ? Ses écrans disparaissent, ses données restent."' : '' %>>
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <% if (!m.enabled) { %><input type="hidden" name="enabled" value="on" /><% } %>
+                      <button type="submit" class="btn btn-sm <%= m.enabled ? '' : 'btn-primary' %>">
+                        <%= m.enabled ? 'Désactiver' : 'Débloquer ce module' %>
+                      </button>
+                    </form>
+                    <% if (m.enabled) { %>
+                      <a href="<%= m.href %>" class="btn btn-outline btn-sm"><%= t('common.open') %></a>
+                    <% } %>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        </section>
+
       </main>
     </div>
   </div>

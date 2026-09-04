@@ -10,9 +10,17 @@ const gestionSections = [
   { tab: 'equipements', label: t('erp.assets'), icon: 'tool' },
   { tab: 'salles', label: t('nav.rooms'), icon: 'calendar' },
 ];
-const gestionFootLinks = currentUser.role === 'admin'
-  ? [{ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }]
-  : [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }];
+// Les modules optionnels débloqués, réservés à la gestion, rejoignent le pied de barre.
+const gestionModules = enabledModules
+  .filter((m) => ['comptabilite', 'facturation-electronique', 'crm', 'stock'].includes(m.key))
+  .map((m) => ({ href: m.href, label: m.label, icon: m.icon }));
+
+const gestionFootLinks = [
+  ...gestionModules,
+  currentUser.role === 'admin'
+    ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }
+    : { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' },
+];
 %>
 <%- include('sidebar', {
   panelLabel: t('nav.gestion'),

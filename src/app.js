@@ -12,6 +12,7 @@ const settings = require('./settings');
 const cse = require('./cse');
 const org = require('./org');
 const talent = require('./talent');
+const modules = require('./modules');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
 const messageRoutes = require('./routes/messages');
@@ -26,6 +27,11 @@ const cseRoutes = require('./routes/cse');
 const agendaRoutes = require('./routes/agenda');
 const gestionRoutes = require('./routes/gestion');
 const roomRoutes = require('./routes/salles');
+const comptabiliteRoutes = require('./routes/comptabilite');
+const paieRoutes = require('./routes/paie');
+const einvoicingRoutes = require('./routes/facturation-electronique');
+const stockRoutes = require('./routes/stock');
+const crmRoutes = require('./routes/crm');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -123,6 +129,7 @@ function createApp() {
       res.locals.isHr = Boolean(row && row.is_hr);
       res.locals.isFinance = Boolean(row && row.is_finance);
       res.locals.pendingAcks = talent.pendingAckCount(user.id);
+      res.locals.enabledModules = modules.enabled();
     } else {
       res.locals.unreadMessages = 0;
       res.locals.isManager = false;
@@ -131,6 +138,7 @@ function createApp() {
       res.locals.isHr = false;
       res.locals.isFinance = false;
       res.locals.pendingAcks = 0;
+      res.locals.enabledModules = [];
     }
     next();
   });
@@ -154,6 +162,11 @@ function createApp() {
   app.use('/cse', cseRoutes);
   app.use('/salles', roomRoutes);
   app.use('/gestion', gestionRoutes);
+  app.use('/comptabilite', comptabiliteRoutes);
+  app.use('/paie', paieRoutes);
+  app.use('/facturation-electronique', einvoicingRoutes);
+  app.use('/stock', stockRoutes);
+  app.use('/crm', crmRoutes);
   app.use('/messagerie', messageRoutes);
   app.use('/mon-equipe', managerRoutes);
   app.use('/rh', rhRoutes);

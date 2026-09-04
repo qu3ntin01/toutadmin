@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Stock et achats — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <% if (isFinance) { %>
+      <%- include('partials/sidebar', {
+        panelLabel: 'Stock et achats',
+        navItems: [
+          { tab: 'articles', label: 'Articles', icon: 'network', badge: lowStock.length },
+          { tab: 'mouvements', label: 'Mouvements', icon: 'link' },
+          { tab: 'demandes', label: "Demandes d'achat", icon: 'inbox', badge: financeRequests.length }
+        ],
+        footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
+      }) %>
+    <% } else { %>
+      <%- include('partials/member-sidebar', { active: 'stock' }) %>
+    <% } %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Stock et achats',
+        headerSubtitle: isFinance ? "Articles, mouvements et demandes d'achat" : "Vos demandes d'achat"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const money = (n) => Number(n || 0).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <% if (isFinance) { %>
+          <section class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= items.length %></span><span class="stat-label">Articles</span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= lowStock.length %></span><span class="stat-label">Sous le seuil</span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= money(stockValue) %></span><span class="stat-label">Valeur du stock</span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= financeRequests.length %></span><span class="stat-label">À valider</span></span>
+            </div>
+          </section>
+
+          <% if (lowStock.length) { %>
+            <div class="banner is-warning">
+              <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+              <span><%= lowStock.length %> article(s) sous le seuil d'alerte : <%= lowStock.slice(0, 4).map((i) => i.label).join(', ') %><%= lowStock.length > 4 ? '…' : '' %></span>
+            </div>
+          <% } %>
+
+          <!-- ---------- Articles ---------- -->
+          <section class="tab-panel is-active" id="articles">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head"><h3>Nouvel article</h3></div>
+                <form method="POST" action="/stock/articles" class="stack">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label>
+                    <span>Désignation</span>
+                    <input type="text" name="label" maxlength="160" required />
+                  </label>
+                  <div class="form-grid">
+                    <label>
+                      <span>Référence</span>
+                      <input type="text" name="reference" maxlength="60" />
+                    </label>
+                    <label>
+                      <span>Unité</span>
+                      <input type="text" name="unit" maxlength="20" value="unité" />
+                    </label>
+                    <label>
+                      <span><%= t('common.type') %></span>
+                      <input type="text" name="category" maxlength="80" />
+                    </label>
+                    <label>
+                      <span>Seuil d'alerte</span>
+                      <input type="text" name="stock_min" inputmode="decimal" value="0" />
+                    </label>
+                    <label>
+                      <span>Prix unitaire</span>
+                      <input type="text" name="unit_price" inputmode="decimal" />
+                    </label>
+                    <label>
+                      <span>Fournisseur</span>
+                      <select name="partner_id">
+                        <option value="">—</option>
+                        <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
+                      </select>
+                    </label>
+                  </div>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                </form>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Stock <span class="muted">(<%= items.length %>)</span></h3></div>
+                <% if (items.length === 0) { %>
+                  <div class="empty-state">Aucun article.</div>
+                <% } else { %>
+                  <div class="table-wrap">
+                    <table>
+                      <thead><tr><th>Article</th><th>Stock</th><th>Seuil</th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                      <tbody>
+                        <% items.forEach((i) => { %>
+                          <tr>
+                            <td>
+                              <div class="cell-strong"><%= i.label %></div>
+                              <div class="cell-sub"><%= [i.reference, i.category, i.partner_name].filter(Boolean).join(' · ') || '—' %></div>
+                            </td>
+                            <td class="num cell-strong <%= i.below ? 'text-danger' : '' %>"><%= i.stock %> <%= i.unit %></td>
+                            <td class="num cell-sub"><%= i.stock_min %></td>
+                            <td>
+                              <span class="status <%= !i.active ? 'status-off' : (i.below ? 'status-warning' : 'status-on') %>">
+                                <%= !i.active ? t('common.inactive') : (i.below ? 'Sous le seuil' : 'En stock') %>
+                              </span>
+                            </td>
+                            <td class="actions">
+                              <form method="POST" action="/stock/articles/<%= i.id %>/statut" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-sm"><%= i.active ? 'Désactiver' : 'Activer' %></button>
+                              </form>
+                              <form method="POST" action="/stock/articles/<%= i.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet article et ses mouvements ?">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                              </form>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                  <p class="hint">Le stock est la somme des mouvements depuis le dernier inventaire, jamais une valeur saisie.</p>
+                <% } %>
+              </div>
+            </div>
+          </section>
+
+          <!-- ---------- Mouvements ---------- -->
+          <section class="tab-panel" id="mouvements">
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head"><h3>Enregistrer un mouvement</h3></div>
+                <% if (items.length === 0) { %>
+                  <div class="empty-state">Créez d'abord un article.</div>
+                <% } else { %>
+                  <form method="POST" action="/stock/mouvements" class="stack">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label>
+                      <span>Article</span>
+                      <select name="item_id" required>
+                        <% items.forEach((i) => { %><option value="<%= i.id %>"><%= i.label %> (<%= i.stock %> <%= i.unit %>)</option><% }) %>
+                      </select>
+                    </label>
+                    <div class="form-grid">
+                      <label>
+                        <span><%= t('common.type') %></span>
+                        <select name="kind" required>
+                          <% movementKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %>
+                        </select>
+                      </label>
+                      <label>
+                        <span>Quantité</span>
+                        <input type="text" name="quantity" inputmode="decimal" required />
+                      </label>
+                      <label>
+                        <span><%= t('common.date') %></span>
+                        <input type="date" name="moved_on" />
+                      </label>
+                      <label>
+                        <span>Motif</span>
+                        <input type="text" name="reason" maxlength="200" />
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
+                    <p class="hint">Une sortie supérieure au stock est refusée. Un inventaire repose le compteur à la quantité saisie.</p>
+                  </form>
+                <% } %>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3>Derniers mouvements <span class="muted">(<%= movements.length %>)</span></h3></div>
+                <% if (movements.length === 0) { %>
+                  <div class="empty-state">Aucun mouvement.</div>
+                <% } else { %>
+                  <div class="table-wrap">
+                    <table>
+                      <thead><tr><th><%= t('common.date') %></th><th>Article</th><th><%= t('common.type') %></th><th>Quantité</th><th>Par</th></tr></thead>
+                      <tbody>
+                        <% movements.slice(0, 40).forEach((m) => { %>
+                          <tr>
+                            <td><%= day(m.moved_on) %></td>
+                            <td>
+                              <%= m.item_label %>
+                              <% if (m.reason) { %><div class="cell-sub"><%= m.reason %></div><% } %>
+                            </td>
+                            <td>
+                              <span class="tag <%= m.kind === 'Entrée' ? 'tag-accent' : '' %>"><%= m.kind %></span>
+                            </td>
+                            <td class="num cell-strong"><%= m.quantity %> <%= m.unit %></td>
+                            <td class="cell-sub"><%= m.first_name ? m.first_name + ' ' + m.last_name : '—' %></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </section>
+        <% } %>
+
+        <!-- ---------- Demandes d'achat ---------- -->
+        <section class="tab-panel <%= isFinance ? '' : 'is-active' %>" id="demandes">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Nouvelle demande d'achat</h3></div>
+              <form method="POST" action="/stock/demandes" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span>Objet</span>
+                  <input type="text" name="label" maxlength="160" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span>Quantité</span>
+                    <input type="text" name="quantity" inputmode="decimal" value="1" required />
+                  </label>
+                  <label>
+                    <span>Montant estimé</span>
+                    <input type="text" name="estimated_amount" inputmode="decimal" value="0" required />
+                  </label>
+                </div>
+                <% if (items.length) { %>
+                  <label>
+                    <span>Article du catalogue <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                    <select name="item_id">
+                      <option value="">—</option>
+                      <% items.filter((i) => i.active).forEach((i) => { %><option value="<%= i.id %>"><%= i.label %></option><% }) %>
+                    </select>
+                  </label>
+                <% } %>
+                <label>
+                  <span>Justification</span>
+                  <textarea name="justification" rows="3" maxlength="1000"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.send') %></button>
+                <p class="hint">Votre manager valide d'abord. Au-delà de <%= threshold %> €, la gestion valide ensuite.</p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Mes demandes <span class="muted">(<%= myRequests.length %>)</span></h3></div>
+              <% if (myRequests.length === 0) { %>
+                <div class="empty-state">Aucune demande envoyée.</div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Objet</th><th>Montant</th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                    <tbody>
+                      <% myRequests.forEach((r) => { %>
+                        <tr>
+                          <td>
+                            <div class="cell-strong"><%= r.label %></div>
+                            <div class="cell-sub"><%= r.quantity %> × <%= day(r.created_at.slice(0, 10)) %></div>
+                          </td>
+                          <td class="num"><%= money(r.estimated_amount) %></td>
+                          <td>
+                            <span class="status <%= ['Approuvée','Commandée'].includes(r.status) ? 'status-on' : (r.status === 'Refusée' || r.status === 'Annulée' ? 'status-danger' : 'status-warning') %>">
+                              <%= r.status === 'Manager' ? 'Chez le manager' : (r.status === 'Gestion' ? 'Chez la gestion' : r.status) %>
+                            </span>
+                            <% if (r.review_note) { %><div class="cell-sub"><%= r.review_note %></div><% } %>
+                          </td>
+                          <td class="actions">
+                            <% if (r.status === 'Manager') { %>
+                              <form method="POST" action="/stock/demandes/<%= r.id %>/annuler" data-confirm="Annuler cette demande ?">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
+                              </form>
+                            <% } else { %>
+                              <span class="cell-sub">—</span>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <% if (managerRequests.length) { %>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>À arbitrer — vos collaborateurs <span class="muted">(<%= managerRequests.length %>)</span></h3>
+                  <p class="card-sub">Premier niveau de validation. Au-delà de <%= threshold %> €, votre accord envoie la demande à la gestion.</p>
+                </div>
+              </div>
+              <ul class="meeting-list">
+                <% managerRequests.forEach((r) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= r.label %></span>
+                      <span class="tag"><%= money(r.estimated_amount) %></span>
+                    </div>
+                    <p class="cell-sub"><%= r.first_name %> <%= r.last_name %> · <%= r.quantity %> unité(s)<%= r.department_name ? ' · ' + r.department_name : '' %></p>
+                    <% if (r.justification) { %><p class="benefit-text"><%= r.justification %></p><% } %>
+                    <div class="row-actions">
+                      <% ['approuver', 'refuser'].forEach((decision) => { %>
+                        <form method="POST" action="/stock/demandes/<%= r.id %>/manager" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <input type="hidden" name="decision" value="<%= decision %>" />
+                          <button type="submit" class="btn btn-sm <%= decision === 'approuver' ? 'btn-primary' : '' %>">
+                            <%= decision === 'approuver' ? t('hr.approve') : t('hr.refuse') %>
+                          </button>
+                        </form>
+                      <% }) %>
+                    </div>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          <% } %>
+
+          <% if (isFinance) { %>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3>Toutes les demandes <span class="muted">(<%= allRequests.length %>)</span></h3>
+                  <p class="card-sub">Second niveau : la gestion tranche au-delà de <%= threshold %> €, puis passe la commande.</p>
+                </div>
+              </div>
+              <% if (allRequests.length === 0) { %>
+                <div class="empty-state">Aucune demande d'achat.</div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Demandeur</th><th>Objet</th><th>Montant</th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr></thead>
+                    <tbody>
+                      <% allRequests.forEach((r) => { %>
+                        <tr>
+                          <td>
+                            <div class="cell-strong"><%= r.first_name %> <%= r.last_name %></div>
+                            <div class="cell-sub"><%= r.department_name || '—' %></div>
+                          </td>
+                          <td>
+                            <%= r.label %>
+                            <div class="cell-sub"><%= r.quantity %> unité(s)</div>
+                          </td>
+                          <td class="num cell-strong"><%= money(r.estimated_amount) %></td>
+                          <td>
+                            <span class="status <%= ['Approuvée','Commandée'].includes(r.status) ? 'status-on' : (['Refusée','Annulée'].includes(r.status) ? 'status-danger' : 'status-warning') %>">
+                              <%= r.status === 'Manager' ? 'Chez le manager' : (r.status === 'Gestion' ? 'Chez la gestion' : r.status) %>
+                            </span>
+                          </td>
+                          <td class="actions">
+                            <% if (r.status === 'Gestion') { %>
+                              <% ['approuver', 'refuser'].forEach((decision) => { %>
+                                <form method="POST" action="/stock/demandes/<%= r.id %>/gestion" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <input type="hidden" name="decision" value="<%= decision %>" />
+                                  <button type="submit" class="btn btn-sm <%= decision === 'approuver' ? 'btn-primary' : '' %>">
+                                    <%= decision === 'approuver' ? t('hr.approve') : t('hr.refuse') %>
+                                  </button>
+                                </form>
+                              <% }) %>
+                            <% } else if (r.status === 'Approuvée') { %>
+                              <form method="POST" action="/stock/demandes/<%= r.id %>/commander" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-primary btn-sm">Commander</button>
+                              </form>
+                            <% } else { %>
+                              <span class="cell-sub">—</span>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          <% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>
