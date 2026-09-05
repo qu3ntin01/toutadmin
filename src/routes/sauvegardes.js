@@ -5,6 +5,7 @@ const express = require('express');
 const audit = require('../audit');
 const backup = require('../backup');
 const offsite = require('../offsite');
+const exporter = require('../export');
 const security = require('../security');
 const { requireAdmin } = require('../middleware/auth');
 const { setFlash } = require('../utils');
@@ -30,6 +31,7 @@ router.get('/', (req, res) => {
     directory: backup.BACKUP_DIR,
     maxUploadBytes: backup.MAX_UPLOAD_BYTES,
     destinations: offsite.list(),
+    exportPreview: exporter.preview(),
     // Compte rendu de la dernière restauration, affiché une fois puis oublié.
     restoreReport: req.session.restoreReport || null,
   });
@@ -215,6 +217,23 @@ router.post('/:fichier/externaliser', async (req, res) => {
     ? `Échec vers ${failures.map((r) => `${r.key} (${r.message})`).join(', ')}.`
     : `${req.params.fichier} déposé sur ${sent.length} destination(s).`);
   res.redirect(back('externalisation'));
+});
+
+// ---------- Export intégral ----------
+
+/**
+ * L'export part directement au navigateur, sans passer par le disque : il n'a
+ * pas à laisser une copie de toute l'entreprise dans un dossier du serveur.
+ */
+router.post('/export', (req, res) => {
+  const archive = exporter.build();
+  audit.log(req, 'export.integral', 'instance', null, {
+    fichier: archive.fileName, tables: archive.tables, lignes: archive.rows, fichiers: archive.files, octets: archive.bytes,
+  });
+
+  res.setHeader('Content-Type', 'application/gzip');
+  res.setHeader('Content-Disposition', `attachment; filename="${archive.fileName}"`);
+  res.send(archive.buffer);
 });
 
 // ---------- Réglages ----------

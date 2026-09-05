@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Demandes — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Demandes',
+      navItems: [
+        { tab: 'nouvelle', label: 'Nouvelle demande', icon: 'plus' },
+        { tab: 'mes-demandes', label: 'Mes demandes', icon: 'inbox', badge: mine.filter((r) => r.status === 'En cours').length },
+        { tab: 'a-valider', label: 'À valider', icon: 'check', badge: toDecide.length }
+      ].concat(admin ? [{ tab: 'types', label: 'Circuits', icon: 'settings', badge: stats.forms }] : []),
+      footLinks: [{ href: '/mon-espace', label: 'Mon espace', icon: 'home' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Demandes internes',
+        headerSubtitle: "Circuits d'approbation paramétrables"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso.slice(0, 10) + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const stateTag = (s) => (s === 'Approuvée' ? 'tag-success' : (s === 'En cours' ? 'tag-warning' : 'tag-danger')); %>
+
+        <% const requestList = (rows, empty) => { %>
+          <% if (!rows.length) { %>
+            <p class="empty-state"><%= empty %></p>
+          <% } else { %>
+            <ul class="meeting-list">
+              <% rows.forEach((r) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><a href="/demandes/<%= r.id %>"><%= r.form ? r.form.label : 'Demande' %></a></span>
+                    <span class="tag <%= stateTag(r.status) %>"><%= r.status %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= r.requesterName %> · déposée le <%= day(r.created_at) %>
+                    <% if (r.summary) { %> · <%= r.summary %><% } %>
+                  </p>
+                  <% if (r.status === 'En cours' && r.step) { %>
+                    <p class="cell-sub">
+                      Étape <%= r.stepIndex + 1 %>/<%= r.steps.length %> —
+                      <%= r.step.label || r.step.approver %> ·
+                      <%= r.pendingApprovers.map((a) => `${a.first_name} ${a.last_name}`).join(', ') %>
+                    </p>
+                  <% } %>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        <% }; %>
+
+        <section class="tab-panel is-active" id="nouvelle">
+          <% if (!openForms.length) { %>
+            <div class="card"><p class="empty-state">Aucun type de demande n'est ouvert pour le moment.</p></div>
+          <% } %>
+          <% openForms.forEach((form) => { %>
+            <div class="card">
+              <div class="card-head"><h3><%= form.label %></h3><span class="card-sub"><%= form.steps.length %> étape(s) de validation</span></div>
+              <% if (form.description) { %><p class="cell-sub"><%= form.description %></p><% } %>
+              <form method="POST" action="/demandes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="form_id" value="<%= form.id %>" />
+                <% form.fieldList.forEach((field) => { %>
+                  <label class="<%= field.type === 'zone' ? 'span-2' : '' %>">
+                    <span><%= field.label %><%= field.required ? ' *' : '' %></span>
+                    <% if (field.type === 'zone') { %>
+                      <textarea name="champ_<%= field.name %>" rows="3" <%= field.required ? 'required' : '' %>></textarea>
+                    <% } else if (field.type === 'choix') { %>
+                      <select name="champ_<%= field.name %>" <%= field.required ? 'required' : '' %>>
+                        <option value="">—</option>
+                        <% field.options.forEach((o) => { %><option value="<%= o %>"><%= o %></option><% }) %>
+                      </select>
+                    <% } else if (field.type === 'date') { %>
+                      <input type="date" name="champ_<%= field.name %>" <%= field.required ? 'required' : '' %> />
+                    <% } else if (field.type === 'nombre' || field.type === 'montant') { %>
+                      <input type="text" inputmode="decimal" name="champ_<%= field.name %>" <%= field.required ? 'required' : '' %> placeholder="0" />
+                    <% } else { %>
+                      <input type="text" name="champ_<%= field.name %>" maxlength="2000" <%= field.required ? 'required' : '' %> />
+                    <% } %>
+                  </label>
+                <% }) %>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déposer la demande</button></div>
+              </form>
+              <% if (form.steps.length) { %>
+                <p class="hint">
+                  Circuit :
+                  <% form.steps.forEach((s, index) => { %><%= index ? ' → ' : '' %><%= s.label || s.approver %><% if (s.threshold) { %> (au-delà de <%= s.threshold %>)<% } %><% }) %>
+                </p>
+              <% } %>
+            </div>
+          <% }) %>
+        </section>
+
+        <section class="tab-panel" id="mes-demandes">
+          <div class="card">
+            <div class="card-head"><h3>Mes demandes</h3></div>
+            <% requestList(mine, "Vous n'avez déposé aucune demande.") %>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="a-valider">
+          <div class="card">
+            <div class="card-head"><h3>Attendent votre décision</h3></div>
+            <% requestList(toDecide, 'Rien à valider.') %>
+          </div>
+        </section>
+
+        <% if (admin) { %>
+          <section class="tab-panel" id="types">
+            <div class="card">
+              <div class="card-head"><h3>Créer un type de demande</h3></div>
+              <form method="POST" action="/demandes/types" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Demande de déplacement" /></label>
+                <label><span>Champ portant le montant</span><input type="text" name="amount_field" maxlength="60" placeholder="montant" /></label>
+                <label class="span-2"><span>Description</span><textarea name="description" rows="2" placeholder="Ce que la demande sert à obtenir, et ce qu'il faut y joindre."></textarea></label>
+
+                <div class="span-2">
+                  <p class="section-label">Champs à saisir (<%= maxFields %> au plus)</p>
+                  <% [1, 2, 3, 4, 5].forEach((rank) => { %>
+                    <div class="signer-row">
+                      <span class="signer-rank"><%= rank %></span>
+                      <input type="text" name="field_names" maxlength="60" placeholder="nom_technique" />
+                      <input type="text" name="field_labels" maxlength="120" placeholder="Libellé affiché" />
+                      <select name="field_types">
+                        <% fieldTypes.forEach((ft) => { %><option value="<%= ft.key %>"><%= ft.label %></option><% }) %>
+                      </select>
+                      <select name="field_required"><option value="0">Facultatif</option><option value="1">Obligatoire</option></select>
+                      <input type="text" name="field_options" maxlength="300" placeholder="Choix séparés par |" />
+                    </div>
+                  <% }) %>
+                </div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer le type</button></div>
+              </form>
+              <p class="hint">
+                Le champ de montant sert aux seuils : une demande de 40 € et une demande de 40 000 € ne méritent
+                pas le même nombre de signatures.
+              </p>
+            </div>
+
+            <% allForms.forEach((form) => { %>
+              <div class="card">
+                <div class="card-head">
+                  <h3><%= form.label %></h3>
+                  <span class="tag <%= form.active ? 'tag-success' : 'tag-danger' %>"><%= form.active ? 'Ouvert' : 'Fermé' %></span>
+                </div>
+                <p class="cell-sub">
+                  <%= form.fieldList.map((f) => f.label).join(' · ') %>
+                  <%= form.amount_field ? ` · montant : ${form.amount_field}` : '' %>
+                </p>
+
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Étape</th><th>Validateur</th><th>Seuil</th><th></th></tr></thead>
+                    <tbody>
+                      <% form.steps.forEach((s) => { %>
+                        <tr>
+                          <td class="cell-sub"><%= s.position %></td>
+                          <td class="cell-strong">
+                            <%= s.label || (approvers.find((a) => a.key === s.approver) || {}).label || s.approver %>
+                            <% if (s.approver === 'user' && s.first_name) { %><br /><span class="cell-sub"><%= s.first_name %> <%= s.last_name %></span><% } %>
+                          </td>
+                          <td class="num"><%= s.threshold ? s.threshold : '—' %></td>
+                          <td>
+                            <form method="POST" action="/demandes/types/<%= form.id %>/etapes/<%= s.id %>/supprimer" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                      <% if (!form.steps.length) { %>
+                        <tr><td colspan="4" class="cell-sub">Aucune étape : une demande de ce type serait approuvée d'emblée.</td></tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+
+                <form method="POST" action="/demandes/types/<%= form.id %>/etapes" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label><span>Validateur</span>
+                    <select name="approver"><% approvers.forEach((a) => { %><option value="<%= a.key %>"><%= a.label %></option><% }) %></select>
+                  </label>
+                  <label><span>Personne désignée</span>
+                    <select name="approver_id">
+                      <option value="">—</option>
+                      <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                    </select>
+                  </label>
+                  <label><span>Intitulé de l'étape</span><input type="text" name="label" maxlength="80" placeholder="Accord du manager" /></label>
+                  <label><span>Seuil de déclenchement</span><input type="number" name="threshold" min="0" step="1" value="0" /></label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Ajouter l'étape</button></div>
+                </form>
+
+                <div class="row-actions">
+                  <form method="POST" action="/demandes/types/<%= form.id %>/etat" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <input type="hidden" name="active" value="<%= form.active ? '0' : '1' %>" />
+                    <button type="submit" class="btn btn-outline btn-sm"><%= form.active ? 'Fermer aux demandes' : 'Ouvrir aux demandes' %></button>
+                  </form>
+                  <form method="POST" action="/demandes/types/<%= form.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce type et son historique ?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                  </form>
+                </div>
+              </div>
+            <% }) %>
+          </section>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

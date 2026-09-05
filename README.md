@@ -220,6 +220,20 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Une adresse interne ou en clair est refusée par défaut** : faire émettre des requêtes à un serveur vers son propre réseau est une porte dérobée classique. L'autoriser se fait sciemment, case cochée
 - **Un échec n'est pas silencieux** : journalisé, réessayé cinq fois avec un délai qui double, puis abandonné. Après vingt échecs consécutifs le webhook s'éteint de lui-même — mieux vaut un tuyau éteint, qui se voit, qu'un tuyau muet qui fait croire que l'information passe
 
+### Demandes internes et circuits d'approbation
+- **Types de demande paramétrables** (`/demandes`) : l'administration décrit les champs à saisir (texte, montant, date, liste de choix) et le circuit qui les valide — déplacement, matériel, avance, télétravail, formation, ce que l'entreprise voudra
+- **Une étape désigne une fonction, pas une personne** (le manager du demandeur, les RH, la gestion, la direction, ou quelqu'un de nommé) : le circuit survit aux départs
+- **Seuils** : une demande de 40 € et une demande de 40 000 € ne méritent pas le même nombre de signatures. Au-dessous du seuil, l'étape ne s'applique pas
+- **Une étape sans validateur possible est sautée** plutôt que de bloquer la demande sur quelqu'un qui n'existe pas — un salarié sans manager, ou une étape dont le demandeur serait le seul validateur. Personne ne valide sa propre demande
+- La demande avance étape par étape, chaque validateur est prévenu à son tour, **un refus se motive** et referme le circuit. Le demandeur retire sa demande tant que personne ne s'est prononcé
+- Les circuits déjà écrits ailleurs — congés, notes de frais, demandes d'achat — restent tels quels : la loi et la comptabilité les fixent
+
+### Export intégral
+- **Emporter toutes les données** (`/sauvegardes`, onglet Export) : une table par fichier JSON, les documents joints, un manifeste avec les empreintes, et un mode d'emploi
+- C'est la **réversibilité** : une sauvegarde sert à revenir dans ce logiciel, un export sert à s'en aller. Le format ne suppose ni SQLite ni ce CMS pour être relu
+- **Ce qui n'y figure pas est dit dans l'archive elle-même** : empreintes de mots de passe, secrets de double authentification, jetons d'API, secrets de webhook, sessions ouvertes, réglages chiffrés. Ces éléments n'ont aucune valeur ailleurs — les recopier dans un fichier destiné à circuler serait un risque sans contrepartie
+- L'archive part directement vers le navigateur : elle ne laisse pas une copie de toute l'entreprise dans un dossier du serveur. Chaque export est tracé
+
 ### Sauvegarde et restauration
 - **Sauvegarde automatique**, toutes les heures par défaut (intervalle et nombre d'archives conservées réglables dans `/sauvegardes`). Le serveur sauvegarde aussi au démarrage s'il a manqué une échéance
 - **Une archive contient tout** : la base, les photos de profil, les CV, le coffre-fort et les documents du parapheur. Sauvegarder la seule base serait un piège — l'instance restaurée prétendrait détenir des bulletins disparus
@@ -368,7 +382,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-631 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+665 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -436,7 +450,13 @@ par route, jeton stocké en empreinte seule et absent du journal, membre masqué
 qui ne ressort pas, motif d'absence retenu, pagination bornée, 404 en JSON) et
 les webhooks (adresse interne et http refusées par défaut, secret chiffré,
 signature qui ne vaut que pour ce corps exact, événement non écouté ignoré,
-réessais puis abandon, extinction après une série d'échecs, purge du journal), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
+réessais puis abandon, extinction après une série d'échecs, purge du journal),
+les circuits d'approbation (seuil qui raccourcit le circuit, étape sans
+validateur sautée, demandeur écarté de ses propres validations, avancée étape
+par étape, refus motivé, retrait impossible après examen, type fermé et non
+supprimable tant qu'une demande y court) et l'export intégral (tables et
+colonnes sensibles absentes, réglages chiffrés retenus, jeton d'API introuvable
+dans l'archive, manifeste et mode d'emploi, rien laissé sur le serveur), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
 projection et point bas), les immobilisations (linéaire, bascule du dégressif, bornes)
 et la flotte (doublon d'immatriculation, compteur qui ne recule pas, échéance
 dépassée), la sécurité (session révoquée dès la désactivation,
@@ -591,6 +611,8 @@ src/
   signing.js         parapheur : empreinte du document, sceau des signatures, circuit
   api-tokens.js      jetons d'API : portées, empreinte, révocation
   webhooks.js        webhooks sortants : signature, file d'attente, réessais
+  workflows.js       demandes internes : formulaires, seuils, circuits d'approbation
+  export.js          export intégral en JSON, secrets exclus
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
   secret-store.js    chiffrement AES-256-GCM des secrets rangés en base

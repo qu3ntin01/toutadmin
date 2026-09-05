@@ -1590,6 +1590,63 @@ CREATE TABLE IF NOT EXISTS webhook_deliveries (
   next_try_at TEXT
 );
 
+-- ---------- Demandes internes et circuits d'approbation ----------
+
+-- Un type de demande décrit ce qu'on saisit ; les étapes décrivent qui
+-- l'approuve. Les deux sont paramétrables : chaque entreprise a ses propres
+-- circuits, et les figer dans le code obligerait à recompiler pour ajouter une
+-- validation.
+CREATE TABLE IF NOT EXISTS request_forms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  icon TEXT NOT NULL DEFAULT 'inbox',
+  fields TEXT NOT NULL DEFAULT '[]',
+  amount_field TEXT NOT NULL DEFAULT '',
+  active INTEGER NOT NULL DEFAULT 1,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Une étape désigne une fonction, pas une personne : le circuit survit aux
+-- départs. Le seuil permet de n'appeler la direction qu'au-delà d'un montant.
+CREATE TABLE IF NOT EXISTS request_steps (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  form_id INTEGER NOT NULL REFERENCES request_forms(id) ON DELETE CASCADE,
+  position INTEGER NOT NULL DEFAULT 1,
+  approver TEXT NOT NULL DEFAULT 'manager',
+  approver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  label TEXT NOT NULL DEFAULT '',
+  threshold REAL NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS workflow_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  form_id INTEGER NOT NULL REFERENCES request_forms(id) ON DELETE CASCADE,
+  requester_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  payload TEXT NOT NULL DEFAULT '{}',
+  amount REAL NOT NULL DEFAULT 0,
+  summary TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'En cours' CHECK(status IN ('En cours','Approuvée','Refusée','Annulée')),
+  current_step INTEGER,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  closed_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS workflow_decisions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  request_id INTEGER NOT NULL REFERENCES workflow_requests(id) ON DELETE CASCADE,
+  step_id INTEGER REFERENCES request_steps(id) ON DELETE SET NULL,
+  position INTEGER NOT NULL DEFAULT 1,
+  approver_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  decision TEXT NOT NULL CHECK(decision IN ('Approuvée','Refusée')),
+  note TEXT NOT NULL DEFAULT '',
+  decided_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_workflow_requests_state ON workflow_requests(status, form_id);
+CREATE INDEX IF NOT EXISTS idx_workflow_requests_requester ON workflow_requests(requester_id, status);
+CREATE INDEX IF NOT EXISTS idx_request_steps_form ON request_steps(form_id, position);
 CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_state ON webhook_deliveries(status, next_try_at);
 CREATE INDEX IF NOT EXISTS idx_api_tokens_hash ON api_tokens(token_hash);
 CREATE INDEX IF NOT EXISTS idx_signature_signers_user ON signature_signers(user_id, status);

@@ -24,9 +24,9 @@ qui relie le tout.
 | **Import de données en masse (CSV)** : aperçu contrôlé, écriture tout ou rien | ✅ |
 | **Sauvegarde automatique horaire, vérification d'intégrité et restauration** | ✅ |
 | **Externalisation des sauvegardes** vers un serveur FTP/FTPS ou Google Drive, avec alerte en cas d'échec | ✅ |
-| Export intégral de l'instance vers un format tiers | ⬜ |
+| **Export intégral de l'instance** en JSON, documents compris, secrets exclus | ✅ |
 | **API REST de lecture à portées, et webhooks sortants signés** | ✅ |
-| Workflows d'approbation configurables (au-delà des circuits figés actuels) | ⬜ |
+| **Workflows d'approbation configurables** : formulaires, seuils, validateurs par fonction | ✅ |
 
 ## Direction et pilotage
 

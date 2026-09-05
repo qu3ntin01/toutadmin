@@ -20,6 +20,7 @@ const notifications = require('./notifications');
 const vault = require('./vault');
 const surveys = require('./surveys');
 const signing = require('./signing');
+const workflows = require('./workflows');
 const { revalidateSession, requirePasswordChange, restrictToVault } = require('./middleware/auth');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
@@ -65,6 +66,7 @@ const importRoutes = require('./routes/import');
 const parapheurRoutes = require('./routes/parapheur');
 const apiRoutes = require('./routes/api');
 const integrationRoutes = require('./routes/integrations');
+const demandeRoutes = require('./routes/demandes');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -185,6 +187,7 @@ function createApp() {
       res.locals.pendingAcks = talent.pendingAckCount(user.id);
       res.locals.pendingSurveys = surveys.pendingCountFor(user.id);
       res.locals.pendingSignatures = signing.pendingCountFor(user.id);
+      res.locals.pendingApprovals = workflows.awaitingCount(user.id);
       res.locals.enabledModules = modules.enabled();
     } else {
       res.locals.unreadMessages = 0;
@@ -198,6 +201,7 @@ function createApp() {
       res.locals.pendingAcks = 0;
       res.locals.pendingSurveys = 0;
       res.locals.pendingSignatures = 0;
+      res.locals.pendingApprovals = 0;
       res.locals.enabledModules = [];
     }
     next();
@@ -265,6 +269,7 @@ function createApp() {
   app.use('/import', importRoutes);
   app.use('/parapheur', parapheurRoutes);
   app.use('/integrations', integrationRoutes);
+  app.use('/demandes', demandeRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

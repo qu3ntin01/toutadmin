@@ -11,6 +11,7 @@
         { tab: 'archives', label: 'Archives', icon: 'inbox', badge: summary.count },
         { tab: 'externalisation', label: 'Externalisation', icon: 'external', badge: destinations.filter((d) => d.enabled && d.status && d.status.ok === false).length },
         { tab: 'restauration', label: 'Restaurer', icon: 'back' },
+        { tab: 'export', label: 'Export intégral', icon: 'external' },
         { tab: 'reglages', label: 'Réglages', icon: 'settings' }
       ],
       footLinks: [
@@ -290,6 +291,69 @@
         </section>
 
         <!-- ---------- Réglages ---------- -->
+        <!-- ---------- Export intégral ---------- -->
+        <section class="tab-panel" id="export">
+          <div class="card">
+            <div class="card-head">
+              <h3>Emporter toutes les données</h3>
+              <span class="card-sub"><%= exportPreview.tableCount %> tables · <%= exportPreview.rows.toLocaleString(locale) %> lignes</span>
+            </div>
+            <p class="cell-sub">
+              C'est la réversibilité : la garantie qu'on peut partir. Une sauvegarde sert à revenir dans ce
+              logiciel ; l'export sert à s'en aller. Il est écrit en JSON, une table par fichier, avec les
+              documents, et ne suppose ni SQLite ni ce CMS pour être relu.
+            </p>
+            <form method="POST" action="/sauvegardes/export">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-primary btn-block">Construire et télécharger l'export</button>
+            </form>
+            <p class="hint">
+              L'archive part directement vers votre navigateur : elle ne laisse pas une copie de toute
+              l'entreprise dans un dossier du serveur. Chaque export est tracé au journal.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Ce que l'export contient</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Fichiers joints</th><th>Nombre</th></tr></thead>
+                <tbody>
+                  <tr><td class="cell-sub">Photos de profil</td><td><%= exportPreview.files.uploads %></td></tr>
+                  <tr><td class="cell-sub">CV reçus</td><td><%= exportPreview.files.cv %></td></tr>
+                  <tr><td class="cell-sub">Coffre-fort</td><td><%= exportPreview.files.coffre %></td></tr>
+                  <tr><td class="cell-sub">Parapheur</td><td><%= exportPreview.files.parapheur %></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="section-label">Tables les mieux garnies</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Table</th><th>Lignes</th></tr></thead>
+                <tbody>
+                  <% exportPreview.tables.slice(0, 12).forEach((entry) => { %>
+                    <tr><td class="mono cell-strong"><%= entry.table %></td><td><%= entry.lignes %></td></tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Ce que l'export ne contient pas</h3></div>
+            <ul class="check-list">
+              <li class="check-item">Les empreintes de mots de passe et les secrets de double authentification</li>
+              <li class="check-item">Les jetons d'API et les secrets de signature des webhooks</li>
+              <li class="check-item">Les sessions ouvertes</li>
+              <li class="check-item">Les réglages chiffrés (identifiants d'externalisation)</li>
+            </ul>
+            <p class="hint">
+              Ces éléments n'ont aucune valeur hors de cette instance : les recopier dans un fichier destiné à
+              circuler serait un risque sans contrepartie. Le fichier LISEZMOI de l'archive le dit aussi.
+            </p>
+          </div>
+        </section>
+
         <section class="tab-panel" id="reglages">
           <div class="card">
             <div class="card-head"><h3>Sauvegarde automatique</h3></div>

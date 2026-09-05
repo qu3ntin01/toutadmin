@@ -138,8 +138,13 @@ function addMonths(isoDate, months) {
   return target.toISOString().slice(0, 10);
 }
 
+/**
+ * Un montant tel qu'on le tape : virgule décimale, et espaces de milliers —
+ * y compris l'espace insécable que produisent les tableurs. « 1 800,50 » est
+ * une saisie normale, pas une erreur.
+ */
 function parseAmount(value) {
-  return Number((value || '').replace(',', '.'));
+  return Number(String(value || '').replace(/[\s\u00a0\u202f]/g, '').replace(',', '.'));
 }
 
 module.exports = {
