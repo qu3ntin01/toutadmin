@@ -4,6 +4,9 @@ const path = require('path');
 
 const ADMIN_EMAIL = 'admin@test.local';
 const ADMIN_PASSWORD = 'admin-password-de-test';
+// Mot de passe choisi par les comptes de test à leur premier accès : il doit
+// satisfaire la politique (longueur, catégories) sans reprendre le nom du compte.
+const MEMBER_PASSWORD = 'Prairie-Bleue-2026';
 
 // Doit être appelé AVANT tout require de src/db : la base est ouverte au chargement du module.
 function prepareEnvironment() {
@@ -96,6 +99,20 @@ class Client {
     return res;
   }
 
+  /**
+   * Première connexion : un compte créé par l'administration porte un mot de
+   * passe temporaire, et ne s'ouvre qu'après l'avoir remplacé.
+   */
+  async firstAccess(email, temporary, chosen = MEMBER_PASSWORD) {
+    await this.login(email, temporary);
+    await this.refreshToken('/mon-profil/premier-acces');
+    await this.post('/mon-profil/premier-acces', {
+      current_password: temporary, new_password: chosen, confirm_password: chosen,
+    });
+    await this.login(email, chosen);
+    return chosen;
+  }
+
   async logout() {
     await this.post('/deconnexion');
     this.csrfToken = null;
@@ -120,4 +137,4 @@ class Client {
   }
 }
 
-module.exports = { prepareEnvironment, startServer, Client, ADMIN_EMAIL, ADMIN_PASSWORD };
+module.exports = { prepareEnvironment, startServer, Client, ADMIN_EMAIL, ADMIN_PASSWORD, MEMBER_PASSWORD };

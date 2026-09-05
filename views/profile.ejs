@@ -119,6 +119,91 @@
               </form>
               <p class="hint"><%= t('profile.passwordHelp') %></p>
             </div>
+
+            <div class="card" id="securite">
+              <div class="card-head">
+                <h3>Double authentification</h3>
+                <% if (twoFactorState.enabled) { %>
+                  <span class="tag tag-success">Active</span>
+                <% } else if (twoFactorRequired) { %>
+                  <span class="tag tag-danger">Exigée</span>
+                <% } %>
+              </div>
+
+              <% if (recoveryCodes) { %>
+                <div class="flash flash-success">
+                  Codes de secours — affichés une seule fois. Notez-les et rangez-les ailleurs que sur ce poste.
+                </div>
+                <ul class="code-list">
+                  <% recoveryCodes.forEach((code) => { %><li><%= code %></li><% }) %>
+                </ul>
+              <% } %>
+
+              <% if (twoFactorState.enabled) { %>
+                <p class="cell-sub">
+                  Un code temporaire vous est demandé à chaque connexion.
+                  <%= twoFactorState.remainingCodes %> code(s) de secours restant(s).
+                </p>
+                <form method="POST" action="/mon-profil/2fa/codes" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm">Régénérer les codes de secours</button>
+                </form>
+                <% if (!twoFactorRequired) { %>
+                  <form method="POST" action="/mon-profil/2fa/desactiver" class="form-grid" data-confirm="Désactiver la double authentification ?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label class="span-2">
+                      <span>Mot de passe, pour confirmer</span>
+                      <input type="password" name="current_password" required autocomplete="current-password" />
+                    </label>
+                    <div class="span-2">
+                      <button type="submit" class="btn btn-danger btn-sm">Désactiver</button>
+                    </div>
+                  </form>
+                <% } %>
+
+              <% } else if (twoFactorState.pending) { %>
+                <p class="cell-sub">Scannez ce QR code dans votre application d'authentification, puis saisissez le code affiché.</p>
+                <% if (twoFactorQr) { %>
+                  <img class="totp-qr" src="<%= twoFactorQr %>" alt="QR code de mise en service" width="220" height="220" />
+                <% } %>
+                <p class="cell-sub">Saisie manuelle : <code class="totp-secret"><%= twoFactorSecret %></code></p>
+                <form method="POST" action="/mon-profil/2fa/activer" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2">
+                    <span>Code à 6 chiffres</span>
+                    <input type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
+                  </label>
+                  <div class="span-2">
+                    <button type="submit" class="btn btn-primary btn-block">Activer</button>
+                  </div>
+                </form>
+
+              <% } else { %>
+                <p class="cell-sub">
+                  Un mot de passe volé ne suffit plus à entrer : un code temporaire, généré sur votre
+                  téléphone, est demandé en plus.
+                  <% if (twoFactorRequired) { %>
+                    <strong>Votre rôle l'exige : activez-la maintenant.</strong>
+                  <% } %>
+                </p>
+                <form method="POST" action="/mon-profil/2fa/preparer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-primary btn-block">Mettre en service</button>
+                </form>
+              <% } %>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Sessions ouvertes</h3></div>
+              <p class="cell-sub">
+                Si vous vous êtes connecté depuis un poste qui n'est plus le vôtre, fermez toutes les
+                sessions : la vôtre comprise, vous vous reconnecterez.
+              </p>
+              <form method="POST" action="/sessions/fermer" data-confirm="Fermer toutes les sessions, y compris celle-ci ?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-outline btn-block">Fermer toutes mes sessions</button>
+              </form>
+            </div>
           </div>
         </div>
       </main>

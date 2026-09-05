@@ -2,6 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 
 const db = require('../db');
+const audit = require('../audit');
+const sessionStore = require('../session-store');
 const grades = require('../grades');
 const contractTypes = require('../contract-types');
 const hr = require('../hr');
@@ -338,8 +340,8 @@ router.post('/employes', (req, res) => {
   const initialLeaveBalance = contractType === 'Freelance' ? 0 : annualLeaveDays();
 
   const created = db.prepare(`
-    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, contract_type, contract_end_date, daily_rate, leave_balance, active)
-    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+    INSERT INTO users (role, email, password_hash, first_name, last_name, grade, contract_type, contract_end_date, daily_rate, leave_balance, active, must_change_password)
+    VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)
   `).run(
     email, bcrypt.hashSync(password, 12), firstName, lastName, grade,
     contractType, contractEndDate || null, dailyRate.value, initialLeaveBalance
@@ -411,8 +413,13 @@ router.post('/employes/:id/reinitialiser', (req, res) => {
   if (!employee) return res.redirect('/admin#personnel');
 
   const password = generatePassword();
-  db.prepare('UPDATE users SET password_hash = ?, failed_attempts = 0, locked_until = NULL WHERE id = ?')
+  db.prepare('UPDATE users SET password_hash = ?, failed_attempts = 0, locked_until = NULL, must_change_password = 1 WHERE id = ?')
     .run(bcrypt.hashSync(password, 12), id);
+
+  // Le mot de passe transmis par un tiers ne doit pas rester en vigueur : toutes
+  // les sessions ouvertes tombent, et la personne devra en choisir un autre.
+  sessionStore.store().revokeUser(id);
+  audit.log(req, 'utilisateur.mot_de_passe_reinitialise', 'users', id, { email: employee.email });
 
   setFlash(req, 'success', `Nouveau mot de passe pour ${employee.email} : ${password}`);
   res.redirect('/admin#personnel');

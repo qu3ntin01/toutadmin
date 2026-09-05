@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Sécurité — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Sécurité',
+      navItems: [
+        { tab: 'journal', label: "Journal d'audit", icon: 'inbox' },
+        { tab: 'sessions', label: 'Sessions ouvertes', icon: 'clock' },
+        { tab: 'comptes', label: 'Comptes à surveiller', icon: 'shield' },
+        { tab: 'administrateurs', label: 'Administrateurs', icon: 'users' },
+        { tab: 'politique', label: 'Politique', icon: 'settings' }
+      ],
+      footLinks: [{ href: '/admin', label: "Console d'administration", icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Sécurité',
+        headerSubtitle: "Traçabilité, sessions, comptes sensibles et politique de l'instance"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const when = (v) => (v ? new Date(String(v).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const fullName = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || r.email || '—'; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= counters.entries %></span><span class="stat-label">Entrées au journal</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= sessions.length %></span><span class="stat-label">Sessions ouvertes</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= counters.totpEnabled %>/<%= counters.accounts %></span><span class="stat-label">Comptes en double authentification</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= admins.length %></span><span class="stat-label">Administrateurs</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Journal ---------- -->
+        <section class="tab-panel is-active" id="journal">
+          <div class="card">
+            <div class="card-head"><h3>Journal d'audit</h3></div>
+            <form method="GET" action="/securite" class="form-grid">
+              <label>
+                <span>Action</span>
+                <input type="text" name="action" list="actions-connues" value="<%= filters.action %>" placeholder="connexion." />
+                <datalist id="actions-connues">
+                  <% knownActions.forEach((a) => { %><option value="<%= a %>"></option><% }) %>
+                </datalist>
+              </label>
+              <label>
+                <span>Objet</span>
+                <input type="text" name="objet" value="<%= filters.entity %>" placeholder="users" />
+              </label>
+              <label>
+                <span>Du</span>
+                <input type="date" name="du" value="<%= filters.from %>" />
+              </label>
+              <label>
+                <span>Au</span>
+                <input type="date" name="au" value="<%= filters.to %>" />
+              </label>
+              <div class="span-2 row-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
+                <a class="btn btn-outline btn-sm" href="/securite">Tout voir</a>
+                <a class="btn btn-outline btn-sm" href="/securite/journal.csv?action=<%= encodeURIComponent(filters.action) %>&objet=<%= encodeURIComponent(filters.entity) %>&du=<%= filters.from %>&au=<%= filters.to %>">Exporter en CSV</a>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><%= journal.total %> entrée(s) — page <%= journal.page %>/<%= journal.pages %></h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Date</th><th>Auteur</th><th>Action</th><th>Objet</th><th>Détail</th><th>IP</th></tr>
+                </thead>
+                <tbody>
+                  <% journal.rows.forEach((row) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= when(row.occurred_at) %></td>
+                      <td><%= row.actor_label %></td>
+                      <td><code class="audit-action"><%= row.action %></code></td>
+                      <td class="cell-sub"><%= row.entity || '—' %><%= row.entity_id ? ' #' + row.entity_id : '' %></td>
+                      <td class="cell-sub audit-detail"><%= row.detail || '—' %></td>
+                      <td class="cell-sub"><%= row.ip || '—' %></td>
+                    </tr>
+                  <% }) %>
+                  <% if (journal.rows.length === 0) { %>
+                    <tr><td colspan="6" class="cell-sub">Aucune entrée pour ce filtre.</td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+            <% if (journal.pages > 1) { %>
+              <div class="row-actions pager">
+                <% if (journal.page > 1) { %>
+                  <a class="btn btn-outline btn-sm" href="/securite?page=<%= journal.page - 1 %>&action=<%= encodeURIComponent(filters.action) %>&objet=<%= encodeURIComponent(filters.entity) %>&du=<%= filters.from %>&au=<%= filters.to %>">Précédent</a>
+                <% } %>
+                <% if (journal.page < journal.pages) { %>
+                  <a class="btn btn-outline btn-sm" href="/securite?page=<%= journal.page + 1 %>&action=<%= encodeURIComponent(filters.action) %>&objet=<%= encodeURIComponent(filters.entity) %>&du=<%= filters.from %>&au=<%= filters.to %>">Suivant</a>
+                <% } %>
+              </div>
+            <% } %>
+
+            <form method="POST" action="/securite/journal/purger" data-confirm="Supprimer définitivement les entrées au-delà de la durée de conservation ?">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-outline btn-sm">Purger au-delà de <%= policy.audit_retention_days %> jours</button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- Sessions ---------- -->
+        <section class="tab-panel" id="sessions">
+          <div class="card">
+            <div class="card-head"><h3>Sessions ouvertes</h3></div>
+            <p class="hint">
+              Une session fermée ici disparaît immédiatement : la personne se retrouve sur l'écran de
+              connexion à sa requête suivante, où qu'elle soit.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Compte</th><th>Rôle</th><th>Expire</th><th></th></tr></thead>
+                <tbody>
+                  <% sessions.forEach((s) => { %>
+                    <tr>
+                      <td><span class="cell-strong"><%= fullName(s) %></span><br /><span class="cell-sub"><%= s.email %></span></td>
+                      <td><%= s.role === 'admin' ? 'Administration' : 'Membre' %></td>
+                      <td class="cell-sub nowrap"><%= new Date(s.expires_at).toLocaleString(locale) %></td>
+                      <td>
+                        <form method="POST" action="/securite/sessions/<%= s.user_id %>/fermer" class="inline-form" data-confirm="Fermer toutes les sessions de ce compte ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Fermer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (sessions.length === 0) { %><tr><td colspan="4" class="cell-sub">Aucune session ouverte.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Comptes à surveiller ---------- -->
+        <section class="tab-panel" id="comptes">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Comptes verrouillés</h3></div>
+              <ul class="org-list">
+                <% risky.locked.forEach((u) => { %>
+                  <li class="org-item">
+                    <span><span class="cell-strong"><%= fullName(u) %></span><br /><span class="cell-sub">jusqu'au <%= when(u.locked_until) %></span></span>
+                    <form method="POST" action="/securite/comptes/<%= u.id %>/deverrouiller" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-outline btn-sm">Déverrouiller</button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (risky.locked.length === 0) { %><li class="cell-sub">Aucun.</li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Mot de passe temporaire non remplacé</h3></div>
+              <p class="hint">Ces comptes tournent encore avec le mot de passe transmis à la création.</p>
+              <ul class="org-list">
+                <% risky.temporary.forEach((u) => { %>
+                  <li class="org-item"><span class="cell-strong"><%= fullName(u) %></span><span class="cell-sub"><%= u.email %></span></li>
+                <% }) %>
+                <% if (risky.temporary.length === 0) { %><li class="cell-sub">Aucun.</li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Administrateurs sans double authentification</h3></div>
+              <ul class="org-list">
+                <% risky.withoutTotp.forEach((u) => { %>
+                  <li class="org-item"><span class="cell-strong"><%= fullName(u) %></span><span class="cell-sub"><%= u.email %></span></li>
+                <% }) %>
+                <% if (risky.withoutTotp.length === 0) { %><li class="cell-sub">Aucun : tous les administrateurs sont protégés.</li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Comptes dormants (90 jours)</h3></div>
+              <p class="hint">Un compte qui ne sert plus reste une porte ouverte. Réinitialisez sa double authentification si le téléphone a été perdu.</p>
+              <ul class="org-list">
+                <% risky.dormant.forEach((u) => { %>
+                  <li class="org-item">
+                    <span><span class="cell-strong"><%= fullName(u) %></span><br /><span class="cell-sub">dernière connexion : <%= when(u.last_login_at) %></span></span>
+                    <form method="POST" action="/securite/2fa/<%= u.id %>/reinitialiser" class="inline-form" data-confirm="Remettre à zéro la double authentification de ce compte ?">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-outline btn-sm">Réinitialiser la 2FA</button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (risky.dormant.length === 0) { %><li class="cell-sub">Aucun.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Administrateurs ---------- -->
+        <section class="tab-panel" id="administrateurs">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Nommer un administrateur</h3></div>
+              <p class="hint">
+                Une entreprise ne peut pas dépendre d'un seul compte : si son détenteur part, l'instance
+                devient ingérable. Nommez au moins un second administrateur.
+              </p>
+              <form method="POST" action="/securite/administrateurs" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span>Membre</span>
+                  <select name="user_id" required>
+                    <option value="">—</option>
+                    <% promotable.forEach((u) => { %>
+                      <option value="<%= u.id %>"><%= fullName(u) %> — <%= u.email %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Nommer</button></div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= admins.length %> administrateur(s)</h3></div>
+              <ul class="org-list">
+                <% admins.forEach((u) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= fullName(u) %></span>
+                      <% if (u.totp_enabled) { %><span class="tag tag-success">2FA</span><% } else { %><span class="tag tag-danger">sans 2FA</span><% } %>
+                      <br /><span class="cell-sub"><%= u.email %> · dernière connexion <%= when(u.last_login_at) %></span>
+                    </span>
+                    <% if (admins.length > 1 && u.id !== currentUser.id) { %>
+                      <form method="POST" action="/securite/administrateurs/<%= u.id %>/retirer" class="inline-form" data-confirm="Retirer les droits d'administration à ce compte ?">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-danger btn-sm">Rétrograder</button>
+                      </form>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Politique ---------- -->
+        <section class="tab-panel" id="politique">
+          <div class="card">
+            <div class="card-head"><h3>Politique de sécurité de l'instance</h3></div>
+            <form method="POST" action="/securite/politique" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="check-row span-2">
+                <input type="checkbox" name="require_2fa_admin" value="1" <%= policy.require_2fa_admin === '1' ? 'checked' : '' %> />
+                <span>Exiger la double authentification des administrateurs</span>
+              </label>
+              <label class="check-row span-2">
+                <input type="checkbox" name="require_2fa_all" value="1" <%= policy.require_2fa_all === '1' ? 'checked' : '' %> />
+                <span>Exiger la double authentification de tous les comptes</span>
+              </label>
+              <label class="span-2">
+                <span>Conservation du journal d'audit (jours)</span>
+                <input type="number" name="audit_retention_days" min="30" max="3650" value="<%= policy.audit_retention_days %>" required />
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+            </form>
+            <p class="hint">
+              Expiration par inactivité et durée maximale d'une session se règlent au déploiement
+              (SESSION_IDLE_MINUTES, SESSION_MAX_HOURS) : elles touchent à l'infrastructure, pas au métier.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

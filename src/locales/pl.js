@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'Obecne hasło',
   'profile.newPassword': 'Nowe hasło',
   'profile.confirmPassword': 'Potwierdź nowe hasło',
-  'profile.passwordHelp': 'Minimum 12 znaków.',
+  'profile.passwordHelp': 'Co najmniej 12 znaków z trzech kategorii: małe litery, wielkie litery, cyfry, symbole. Ani imię, ani identyfikator. Zmiana zamyka pozostałe sesje.',
   'profile.managedByAdmin': 'Tymi danymi zarządza administracja.',
 
   'directory.title': 'Katalog',

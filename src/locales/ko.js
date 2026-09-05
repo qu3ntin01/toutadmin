@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': '현재 비밀번호',
   'profile.newPassword': '새 비밀번호',
   'profile.confirmPassword': '새 비밀번호 확인',
-  'profile.passwordHelp': '최소 12자 이상.',
+  'profile.passwordHelp': '12자 이상, 소문자·대문자·숫자·기호 중 세 가지를 섞어 주세요. 이름이나 아이디는 사용할 수 없습니다. 변경하면 다른 세션이 모두 종료됩니다.',
   'profile.managedByAdmin': '이 정보는 관리자가 관리합니다.',
 
   'directory.title': '주소록',

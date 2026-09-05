@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'Текущий пароль',
   'profile.newPassword': 'Новый пароль',
   'profile.confirmPassword': 'Подтвердите новый пароль',
-  'profile.passwordHelp': 'Не менее 12 символов.',
+  'profile.passwordHelp': 'Не менее 12 символов из трёх категорий: строчные, прописные, цифры, символы. Ни имени, ни логина. Смена пароля закрывает остальные сеансы.',
   'profile.managedByAdmin': 'Эти данные ведёт администрация.',
 
   'directory.title': 'Справочник',

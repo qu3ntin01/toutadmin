@@ -7,6 +7,11 @@ const DEFAULTS = {
   annual_leave_days: '25',
   installed_at: '',
   installed_version: '',
+  // Politique de sécurité de l'instance.
+  require_2fa_admin: '0',
+  require_2fa_all: '0',
+  audit_retention_days: '365',
+  password_max_age_days: '0',
 };
 
 function get(key) {

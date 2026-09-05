@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': '現在のパスワード',
   'profile.newPassword': '新しいパスワード',
   'profile.confirmPassword': '新しいパスワード（確認）',
-  'profile.passwordHelp': '12 文字以上。',
+  'profile.passwordHelp': '12 文字以上、小文字・大文字・数字・記号のうち 3 種類を混ぜてください。氏名やアカウント名は使えません。変更すると他のセッションは終了します。',
   'profile.managedByAdmin': 'これらの情報は管理者が管理します。',
 
   'directory.title': '社員名簿',

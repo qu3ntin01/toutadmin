@@ -6,13 +6,16 @@ const cookieParser = require('cookie-parser');
 
 const db = require('./db');
 const security = require('./security');
+const audit = require('./audit');
 const i18n = require('./i18n');
 const install = require('./install');
+const sessionStore = require('./session-store');
 const settings = require('./settings');
 const cse = require('./cse');
 const org = require('./org');
 const talent = require('./talent');
 const modules = require('./modules');
+const { revalidateSession, requirePasswordChange } = require('./middleware/auth');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
 const messageRoutes = require('./routes/messages');
@@ -32,6 +35,7 @@ const paieRoutes = require('./routes/paie');
 const einvoicingRoutes = require('./routes/facturation-electronique');
 const stockRoutes = require('./routes/stock');
 const crmRoutes = require('./routes/crm');
+const securiteRoutes = require('./routes/securite');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -86,21 +90,33 @@ function createApp() {
   // Photos de profil : servies en lecture seule, sans exécution ni indexation.
   app.use('/media/avatars', express.static(UPLOAD_DIR, { maxAge: '7d', index: false, dotfiles: 'ignore' }));
 
+  // Expiration par inactivité : le cookie est repoussé à chaque requête, si bien
+  // qu'un poste laissé sans surveillance se referme tout seul. Le plafond absolu,
+  // lui, est contrôlé côté serveur (voir revalidateSession).
+  const idleMinutes = Number(process.env.SESSION_IDLE_MINUTES) || 60;
+
   app.use(
     session({
       name: 'pm.sid',
       // Fourni par l'environnement, sinon généré et conservé dans data/session.key.
       secret: install.sessionSecret(),
+      store: sessionStore.store(),
       resave: false,
+      rolling: true,
       saveUninitialized: false,
       cookie: {
         httpOnly: true,
         sameSite: 'lax',
         secure: isProd,
-        maxAge: 1000 * 60 * 60 * 8,
+        maxAge: 1000 * 60 * idleMinutes,
       },
     })
   );
+
+  // Avant toute autre chose : une session ouverte ne vaut que ce que la base dit
+  // encore du compte. Désactivation, fin de contrat, verrouillage, changement de
+  // rôle — tout prend effet ici, sans attendre une reconnexion.
+  app.use(revalidateSession);
 
   // L'i18n et les variables de marque doivent précéder le contrôle CSRF : ce
   // dernier rend une page d'erreur traduite et brandée quand un jeton manque,
@@ -122,7 +138,7 @@ function createApp() {
     if (user) {
       res.locals.unreadMessages = messageRoutes.unreadCount(user.id);
       res.locals.isManager = org.isManager(user.id);
-      const row = db.prepare('SELECT role, contract_type, is_hr, is_finance FROM users WHERE id = ?').get(user.id);
+      const row = req.currentUser;
       res.locals.isCseMember = Boolean(row && cse.isEligible(row));
       res.locals.isCseElected = cse.isElected(user.id);
       // Les rôles désignés sont relus ici : une désignation vaut sans reconnexion.
@@ -145,6 +161,9 @@ function createApp() {
 
   app.use(security.csrfMiddleware);
 
+  // Un mot de passe temporaire n'ouvre qu'une seule page : celle qui le remplace.
+  app.use(requirePasswordChange);
+
   // Tant que l'instance n'est pas installée, tout mène à l'assistant ; une fois
   // installée, l'assistant est définitivement fermé (voir routes/install.js).
   app.use((req, res, next) => {
@@ -152,9 +171,30 @@ function createApp() {
     res.redirect('/installation');
   });
 
+  // Journal d'audit automatique : toute requête qui modifie quelque chose laisse
+  // une trace, sans qu'il faille y penser route par route. Les actions sensibles
+  // ajoutent par-dessus une entrée détaillée (voir les appels à audit.log).
+  app.use((req, res, next) => {
+    if (req.method !== 'POST') return next();
+    res.on('finish', () => {
+      // Une requête refusée n'a rien changé : elle n'encombre pas le journal,
+      // sauf si elle a été rejetée pour défaut de droits — ça, ça se sait.
+      if (res.statusCode >= 400 && res.statusCode !== 403) return;
+      if (req.auditHandled) return;
+      // Les identifiants dans l'URL sont normalisés : « /admin/employes/12/supprimer »
+      // et « .../37/supprimer » sont la même action, sur deux objets différents.
+      const route = req.originalUrl.split('?')[0].replace(/\/\d+(?=\/|$)/g, '/:id');
+      const numeric = (req.originalUrl.match(/\/(\d+)(?=\/|$)/) || [])[1];
+      audit.log(req, route, '', numeric ? Number(numeric) : null,
+        res.statusCode === 403 ? { refuse: true } : null);
+    });
+    next();
+  });
+
   app.use('/installation', installRoutes);
   app.use('/', authRoutes);
   app.use('/admin', adminRoutes);
+  app.use('/securite', securiteRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

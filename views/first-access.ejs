@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Premier accès — ' + t('app.name') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark"><%= brandInitials %></span>
+      <span class="brand-text">
+        <span class="brand-name"><%= companyName %></span>
+        <span class="brand-panel"><%= t('app.portal') %></span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1>Choisissez votre mot de passe</h1>
+      <p class="auth-sub">
+        Le mot de passe qui vous a été transmis est temporaire : il a circulé hors de l'application.
+        Remplacez-le pour ouvrir votre espace.
+      </p>
+
+      <% if (flash) { %>
+        <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <form method="POST" action="/mon-profil/premier-acces" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label>
+          <span>Mot de passe temporaire</span>
+          <input type="password" name="current_password" required autofocus autocomplete="current-password" />
+        </label>
+        <label>
+          <span>Nouveau mot de passe</span>
+          <input type="password" name="new_password" required autocomplete="new-password" />
+        </label>
+        <label>
+          <span>Confirmation</span>
+          <input type="password" name="confirm_password" required autocomplete="new-password" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Enregistrer et continuer</button>
+      </form>
+
+      <p class="auth-note">
+        Au moins <%= minPasswordLength %> caractères, mêlant trois catégories parmi minuscules,
+        majuscules, chiffres et symboles. Ni votre nom, ni votre identifiant.
+      </p>
+
+      <div class="auth-foot">
+        <form method="POST" action="/deconnexion">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <button type="submit" class="btn-link">Se déconnecter</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

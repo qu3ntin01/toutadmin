@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'Aktuelles Passwort',
   'profile.newPassword': 'Neues Passwort',
   'profile.confirmPassword': 'Neues Passwort bestätigen',
-  'profile.passwordHelp': 'Mindestens 12 Zeichen.',
+  'profile.passwordHelp': 'Mindestens 12 Zeichen aus drei Kategorien: Kleinbuchstaben, Großbuchstaben, Ziffern, Sonderzeichen. Weder Ihr Name noch Ihre Kennung. Eine Änderung beendet Ihre übrigen Sitzungen.',
   'profile.managedByAdmin': 'Diese Angaben werden von der Administration verwaltet.',
 
   'directory.title': 'Verzeichnis',

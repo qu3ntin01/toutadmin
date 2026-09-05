@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'Mevcut parola',
   'profile.newPassword': 'Yeni parola',
   'profile.confirmPassword': 'Yeni parolayı doğrula',
-  'profile.passwordHelp': 'En az 12 karakter.',
+  'profile.passwordHelp': 'En az 12 karakter; küçük harf, büyük harf, rakam ve sembollerden en az üç kategori. Adınız ya da kullanıcı adınız olmasın. Değiştirmek diğer oturumlarınızı kapatır.',
   'profile.managedByAdmin': 'Bu bilgiler yönetim tarafından yönetilir.',
 
   'directory.title': 'Rehber',

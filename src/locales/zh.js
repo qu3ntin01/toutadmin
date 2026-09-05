@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': '当前密码',
   'profile.newPassword': '新密码',
   'profile.confirmPassword': '确认新密码',
-  'profile.passwordHelp': '至少 12 个字符。',
+  'profile.passwordHelp': '至少 12 个字符，且须混合小写、大写、数字、符号中的三类。不得包含您的姓名或账号。更改密码会关闭您的其他会话。',
   'profile.managedByAdmin': '这些信息由管理员维护。',
 
   'directory.title': '通讯录',

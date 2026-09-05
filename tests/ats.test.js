@@ -342,7 +342,7 @@ test('CV et filtrage dans le recrutement', async (t) => {
     });
     const password = (await admin.flash('/admin')).message.match(/Mot de passe temporaire : ([A-Za-z0-9]+)/)[1];
     const employee = newClient();
-    await employee.login('curieux.ats@test.local', password);
+    await employee.firstAccess('curieux.ats@test.local', password);
 
     const theo = db.prepare("SELECT id FROM candidates WHERE last_name = 'Rimbaud'").get().id;
     assert.equal((await employee.get(`/rh/candidats/${theo}/cv`)).status, 403);

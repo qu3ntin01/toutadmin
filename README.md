@@ -107,6 +107,11 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Annuaire** de tous les collaborateurs avec recherche et filtres par service et par équipe, affichant le rattachement et les managers de chacun ; la **visibilité dans l'annuaire est pilotée uniquement par l'administration**, un membre ne peut pas s'y soustraire ni s'y remettre
 - **Messagerie interne** : boîte de réception, envoi, réponse, compteur de non-lus, suppression. L'**adresse professionnelle et les serveurs IMAP/SMTP sont configurés par l'administration** et affichés en lecture seule au membre
 
+### Sécurité et administration de l'instance
+- **Console de sécurité** (`/securite`, administration) : journal d'audit filtrable et exportable, sessions ouvertes et leur révocation, comptes à surveiller (verrouillés, mot de passe temporaire jamais remplacé, administrateurs sans double authentification, comptes dormants depuis 90 jours), gestion des administrateurs et politique de l'instance
+- **Réinitialisation de la double authentification** d'un membre par l'administration, pour un téléphone perdu — la personne devra la remettre en service
+- **Fermeture de toutes ses sessions** par le membre lui-même, depuis son profil
+
 ### Confort
 - Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil ; l'arabe bascule l'interface en écriture de droite à gauche
 - Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement
@@ -120,16 +125,22 @@ Le contrôle d'accès repose sur des garde-fous serveur : `requireAdmin` sur `/a
 administrateur peut accorder ou retirer l'accès RH, rattacher un manager, masquer un membre
 de l'annuaire ou configurer une messagerie.
 
-- **Mots de passe** : hachage `bcrypt` (coût 12). Les mots de passe temporaires sont aléatoires et affichés une seule fois. Aucun mot de passe d'outil tiers n'est stocké, seulement l'identifiant et l'URL.
+- **La session suit les droits réels** : désactivation, fin de contrat, verrouillage, promotion ou rétrogradation sont relus **à chaque requête**. Un départ coupe l'accès tout de suite, sans attendre l'expiration du cookie.
+- **Mots de passe** : hachage `bcrypt` (coût 12). Politique appliquée partout — 12 caractères minimum, trois catégories parmi minuscules/majuscules/chiffres/symboles, ni le nom ni l'identifiant, ni suite de clavier ni mot de passe courant. Les mots de passe temporaires font 16 caractères, sont affichés une seule fois, et **doivent être remplacés avant d'ouvrir quoi que ce soit**. Changer de mot de passe ferme les autres sessions. Aucun mot de passe d'outil tiers n'est stocké, seulement l'identifiant et l'URL.
+- **Double authentification (TOTP, RFC 6238)** : mise en service par QR code, vérifiée par un premier code avant d'être activée, codes de secours à usage unique, et un code faux compte comme un échec de connexion. L'instance peut l'exiger des administrateurs, ou de tout le monde.
+- **Sessions** persistées en base : elles survivent à un redémarrage, se voient dans la console, et se **révoquent d'un geste** — par la personne elle-même ou par l'administration. Expiration par inactivité (`SESSION_IDLE_MINUTES`, 60 min par défaut) doublée d'un plafond absolu (`SESSION_MAX_HOURS`, 12 h).
+- **Journal d'audit** : toute requête qui modifie quelque chose est tracée (auteur, action, objet, IP, horodatage), avec des entrées détaillées sur les actions sensibles — connexions réussies et manquées, réinitialisations, promotions, changements de politique. Consultable, filtrable et exportable en CSV depuis `/securite`, purgeable selon la durée de conservation choisie.
+- **Plusieurs administrateurs** : une entreprise ne dépend pas d'un seul compte. Le dernier administrateur ne peut être ni rétrogradé, ni se retirer ses propres droits.
 - **Verrouillage de compte** : 5 échecs consécutifs verrouillent le compte 15 minutes.
 - **Limitation de débit** : 10 tentatives de connexion / 15 min par IP, 300 requêtes / minute au global (ajustables par variables d'environnement).
 - **Anti-énumération** : message et temps de réponse identiques que le compte existe ou non.
 - **CSRF** : jeton par session vérifié en comparaison à temps constant sur chaque POST. Un envoi de fichier ne livre son jeton qu'une fois le corps multipart décodé : le contrôle y est donc différé juste après la réception, et les fichiers transitent **en mémoire** — rien n'est écrit sur le disque avant que le jeton soit validé.
+- **Redirections** : toute cible venue d'un formulaire passe par un filtre qui refuse `//site` et `/\site`, des URL absolues pour le navigateur.
 - **Sessions** : cookie `httpOnly`, `sameSite=lax`, `secure` en production, identifiant régénéré à la connexion.
 - **En-têtes** : `helmet` avec CSP stricte (scripts par nonce, aucun style ni gestionnaire d'événement en ligne).
 - **Validation** : grades, types de contrat et de demande contrôlés contre des listes blanches ; emails, URL, dates et montants validés ; longueurs bornées.
 - **Base** : requêtes intégralement paramétrées (`better-sqlite3`).
-- **Téléversement** : photos limitées à 2 Mo (JPEG/PNG/WebP) et CV à 5 Mo (PDF/DOCX/TXT/Markdown), types contrôlés, nom de fichier régénéré aléatoirement, stockage hors du dépôt. Les photos sont servies en lecture seule ; les CV ne le sont pas du tout, ils ne sortent que par une route authentifiée réservée aux RH.
+- **Téléversement** : photos limitées à 2 Mo (JPEG/PNG/WebP) et CV à 5 Mo (PDF/DOCX/TXT/Markdown). Le type MIME étant déclaré par le client, c'est la **signature du fichier** qui est vérifiée : un exécutable renommé en `.pdf` est refusé. Nom de fichier régénéré aléatoirement, stockage hors du dépôt en `0600`. Les photos sont servies en lecture seule ; les CV ne le sont pas du tout, ils ne sortent que par une route authentifiée réservée aux RH.
 - **Messagerie** : un message n'est lisible que par son expéditeur ou son destinataire, et n'est marqué lu que par ce dernier.
 - **Erreurs** : aucune trace technique renvoyée au client.
 - **Démarrage** : refus de démarrer en production si `SESSION_SECRET` ou `ADMIN_PASSWORD` sont restés à leur valeur par défaut.
@@ -210,7 +221,12 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-245 tests d'intégration couvrent le filtrage ATS (frontières de mots, années
+274 tests d'intégration couvrent la sécurité (session révoquée dès la désactivation,
+la fin de contrat, le verrouillage ou la rétrogradation ; redirection hors site refusée ;
+politique de mot de passe ; mot de passe temporaire à remplacer avant toute autre page ;
+TOTP vérifié contre les vecteurs de la RFC 6238 ; code de secours à usage unique ;
+exécutable déguisé refusé à l'envoi ; journal d'audit et son export réservés à
+l'administration ; dernier administrateur non rétrogradable), le filtrage ATS (frontières de mots, années
 d'expérience lues dans le CV, extraction PDF/DOCX/texte, score pondéré, critère requis
 manquant qui écarte malgré un bon score, réévaluation après retrait d'un critère,
 type de fichier refusé, CVthèque, suppression du fichier et du texte, CV hors de portée
@@ -299,6 +315,8 @@ d'administration sont en place pour l'accueillir.
 | `DB_PATH` | Emplacement de la base SQLite (défaut `data/app.sqlite`) |
 | `LOGIN_RATE_LIMIT` / `GLOBAL_RATE_LIMIT` | Plafonds de requêtes, ajustables pour les tests ou un usage interne intensif |
 | `UPLOAD_DIR` | Dossier des photos de profil (défaut `data/uploads`) |
+| `SESSION_IDLE_MINUTES` | Expiration d'une session inactive (défaut `60`) |
+| `SESSION_MAX_HOURS` | Durée de vie absolue d'une session, quelle que soit l'activité (défaut `12`) |
 | `CV_DIR` | Dossier des CV déposés (défaut : `cv/` à côté de la base) |
 
 ## Structure
@@ -310,7 +328,12 @@ src/
   db.js              base SQLite, schéma, migrations, désactivation des contrats expirés
   install.js         état d'installation, secret de session, contrôles d'environnement
   settings.js        réglages de l'instance (nom, langue par défaut, quota de congés)
-  security.js        CSRF, limitation de débit, verrouillage de compte, nonce CSP
+  security.js        CSRF (dont envois multipart), limitation de débit, verrouillage de compte, nonce CSP
+  session-store.js   magasin de sessions SQLite, révocation par compte
+  audit.js           journal d'audit : écriture, filtres, export CSV, purge
+  totp.js            codes temporaires RFC 6238, codes de secours
+  two-factor.js      mise en service, vérification et politique de double authentification
+  file-type.js       contrôle de la signature réelle d'un fichier reçu
   utils.js           helpers partagés (flash, validation, génération de mot de passe)
   timesheet.js       pointage : entrées, heures cumulées, estimation de rémunération
   hr.js              demandes, soldes de congés, fiches de paie

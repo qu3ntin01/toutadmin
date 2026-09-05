@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'वर्तमान पासवर्ड',
   'profile.newPassword': 'नया पासवर्ड',
   'profile.confirmPassword': 'नए पासवर्ड की पुष्टि करें',
-  'profile.passwordHelp': 'कम से कम 12 वर्ण।',
+  'profile.passwordHelp': 'कम से कम 12 अक्षर, जिनमें छोटे अक्षर, बड़े अक्षर, अंक और चिह्नों में से तीन श्रेणियाँ हों। न आपका नाम, न आपकी पहचान। बदलने पर आपके अन्य सत्र बंद हो जाते हैं।',
   'profile.managedByAdmin': 'यह जानकारी प्रशासन द्वारा प्रबंधित की जाती है।',
 
   'directory.title': 'निर्देशिका',

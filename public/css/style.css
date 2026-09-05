@@ -1132,3 +1132,25 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
   .sidebar-nav .side-link-label { display: none; }
   .sidebar-nav .side-link.is-active .side-link-label { display: inline; }
 }
+
+/* ---------- Première connexion ---------- */
+
+.auth-note { margin-top: 14px; font-size: 12px; line-height: 1.5; color: var(--text-tertiary); }
+.btn-link { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; cursor: pointer; }
+.btn-link:hover { text-decoration: underline; }
+
+/* ---------- Double authentification ---------- */
+
+.totp-qr { display: block; margin: 12px auto; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; padding: 8px; }
+.totp-secret { display: inline-block; padding: 3px 7px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: 1px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; word-break: break-all; }
+.code-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; margin: 10px 0; padding: 0; list-style: none; }
+.code-list li { padding: 6px 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; text-align: center; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; }
+
+/* ---------- Console de sécurité ---------- */
+
+/* L'en-tête est collant : une ancre doit s'arrêter en dessous, pas dessous lui. */
+.tab-panel[id], .card[id] { scroll-margin-top: 84px; }
+.audit-action { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; white-space: nowrap; }
+.audit-detail { max-width: 320px; overflow-wrap: anywhere; }
+.nowrap { white-space: nowrap; }
+.pager { margin-top: 10px; }

@@ -39,8 +39,9 @@ async function createEmployee(admin, fields) {
 async function makeMember(admin, email, extra = {}) {
   const password = await createEmployee(admin, { email, ...extra });
   const client = newClient();
-  await client.login(email, password);
-  return { client, password, id: userByEmail(email).id };
+  // password reste le mot de passe temporaire ; current est celui choisi au premier accès.
+  const current = await client.firstAccess(email, password);
+  return { client, password, current, id: userByEmail(email).id };
 }
 
 test('internationalisation', async (t) => {
@@ -101,7 +102,7 @@ test('internationalisation', async (t) => {
 test('profil du collaborateur', async (t) => {
   const admin = await loginAsAdmin();
   const email = 'profil@test.local';
-  const { client, password, id } = await makeMember(admin, email, { first_name: 'Paul', last_name: 'Profil' });
+  const { client, current, id } = await makeMember(admin, email, { first_name: 'Paul', last_name: 'Profil' });
 
   await t.test('enregistre présentation et téléphone', async () => {
     await client.post('/mon-profil/informations', {
@@ -120,24 +121,37 @@ test('profil du collaborateur', async (t) => {
     assert.match((await client.flash('/mon-profil')).message, /actuel incorrect/);
   });
 
-  await t.test('refuse un mot de passe trop court ou mal confirmé', async () => {
-    await client.post('/mon-profil/mot-de-passe', {
-      current_password: password, new_password: 'court', confirm_password: 'court',
-    });
-    assert.match((await client.flash('/mon-profil')).message, /au moins 12 caractères/);
+  await t.test('applique la politique de mot de passe', async () => {
+    const refuse = async (value, motif) => {
+      await client.post('/mon-profil/mot-de-passe', {
+        current_password: current, new_password: value, confirm_password: value,
+      });
+      assert.match((await client.flash('/mon-profil')).message, motif);
+    };
+
+    await refuse('Court1!', /au moins 12 caractères/);
+    await refuse('seulementdesminuscules', /trois catégories/);
+    await refuse('Profil-Paul-2026', /ne doit pas contenir votre nom/);
 
     await client.post('/mon-profil/mot-de-passe', {
-      current_password: password, new_password: 'mot-de-passe-valide', confirm_password: 'autre-chose-encore',
+      current_password: current, new_password: 'Chemin-Creux-77', confirm_password: 'autre-chose-encore',
     });
     assert.match((await client.flash('/mon-profil')).message, /confirmation ne correspond pas/);
   });
 
-  await t.test('change le mot de passe et permet de se reconnecter avec', async () => {
-    const nextPassword = 'nouveau-mot-de-passe-solide';
+  await t.test('change le mot de passe, ferme les autres sessions, et laisse se reconnecter', async () => {
+    // Une seconde session du même compte, ouverte ailleurs : elle doit tomber.
+    const autre = newClient();
+    await autre.login(email, current);
+    assert.equal((await autre.get('/mon-espace')).status, 200);
+
+    const nextPassword = 'Chemin-Creux-1977';
     await client.post('/mon-profil/mot-de-passe', {
-      current_password: password, new_password: nextPassword, confirm_password: nextPassword,
+      current_password: current, new_password: nextPassword, confirm_password: nextPassword,
     });
-    assert.match((await client.flash('/mon-profil')).message, /mis à jour/);
+    assert.match((await client.flash('/connexion')).message, /mis à jour/);
+
+    assert.equal((await autre.get('/mon-espace')).headers.get('location'), '/connexion');
 
     const again = newClient();
     const res = await again.login(email, nextPassword);

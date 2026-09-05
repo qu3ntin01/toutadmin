@@ -96,7 +96,7 @@ test('authentification', async (t) => {
     assert.equal(userByEmail(email).failed_attempts, 5);
     assert.ok(userByEmail(email).locked_until, 'le compte doit porter une date de déverrouillage');
 
-    await victim.login(email, password);
+    await victim.firstAccess(email, password);
     const flash = await victim.flash('/connexion');
     assert.match(flash.message, /verrouillé/);
   });
@@ -108,7 +108,7 @@ test('contrôle des accès', async (t) => {
   const { password } = await createEmployee(admin, { email, first_name: 'Alex', last_name: 'Acces' });
 
   const employee = newClient();
-  await employee.login(email, password);
+  await employee.firstAccess(email, password);
 
   await t.test("un employé n'atteint pas l'espace admin", async () => {
     const res = await employee.get('/admin');
@@ -131,7 +131,7 @@ test('contrôle des accès', async (t) => {
 
     // Les droits sont lus à la connexion : il faut se reconnecter pour les recevoir.
     const hrUser = newClient();
-    await hrUser.login(email, password);
+    await hrUser.firstAccess(email, password);
     const res = await hrUser.get('/rh');
     assert.equal(res.status, 200);
   });
@@ -203,7 +203,7 @@ test('fin de contrat : désactivation automatique', async (t) => {
 
   await t.test('la connexion est refusée avec un message explicite', async () => {
     const expired = newClient();
-    await expired.login(email, password);
+    await expired.firstAccess(email, password);
     const flash = await expired.flash('/connexion');
     assert.match(flash.message, /terme de son contrat/);
   });
@@ -229,7 +229,7 @@ test('outils et affectations', async (t) => {
     });
 
     const employee = newClient();
-    await employee.login(email, password);
+    await employee.firstAccess(email, password);
     const { body } = await employee.html('/mon-espace');
     assert.match(body, /theo\.outils/);
     assert.match(body, /https:\/\/exemple\.slack\.com/);
@@ -251,7 +251,7 @@ test('pointage des freelances', async (t) => {
   });
 
   const freelance = newClient();
-  await freelance.login(email, password);
+  await freelance.firstAccess(email, password);
   const employeeId = userByEmail(email).id;
 
   const openEntries = () =>
@@ -280,7 +280,7 @@ test('pointage des freelances', async (t) => {
     const cdiEmail = 'nonfree@test.local';
     const { password: cdiPassword } = await createEmployee(admin, { email: cdiEmail, first_name: 'Nina', last_name: 'Cdi' });
     const cdi = newClient();
-    await cdi.login(cdiEmail, cdiPassword);
+    await cdi.firstAccess(cdiEmail, cdiPassword);
 
     await cdi.post('/mon-espace/pointage/commencer');
     const entries = db.prepare('SELECT * FROM time_entries WHERE employee_id = ?').all(userByEmail(cdiEmail).id);
@@ -302,9 +302,9 @@ test('cycle RH complet : demande, approbation, solde', async (t) => {
   await admin.post('/admin/rh/nommer', { employee_id: String(userByEmail(hrEmail).id) });
 
   const staff = newClient();
-  await staff.login(staffEmail, staffPassword);
+  await staff.firstAccess(staffEmail, staffPassword);
   const rh = newClient();
-  await rh.login(hrEmail, hrPassword);
+  await rh.firstAccess(hrEmail, hrPassword);
 
   const lastRequest = () =>
     db.prepare('SELECT * FROM hr_requests WHERE employee_id = ? ORDER BY id DESC LIMIT 1').get(staffId);
@@ -397,7 +397,7 @@ test('cycle RH complet : demande, approbation, solde', async (t) => {
       email: freelanceEmail, first_name: 'Flo', last_name: 'Free', contract_type: 'Freelance', daily_rate: '400',
     });
     const freelance = newClient();
-    await freelance.login(freelanceEmail, password);
+    await freelance.firstAccess(freelanceEmail, password);
 
     await freelance.post('/mon-espace/demandes', {
       type: 'Congés payés', start_date: '2026-09-07', end_date: '2026-09-11',
@@ -438,7 +438,7 @@ test('fiches de paie', async (t) => {
     assert.equal(payslip.status, 'À verser');
 
     const employee = newClient();
-    await employee.login(email, password);
+    await employee.firstAccess(email, password);
     const { body } = await employee.html('/mon-espace');
     assert.match(body, /2026-08/);
     assert.match(body, /2480\.00/);

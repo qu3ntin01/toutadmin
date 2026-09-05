@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'Mot de passe actuel',
   'profile.newPassword': 'Nouveau mot de passe',
   'profile.confirmPassword': 'Confirmer le nouveau mot de passe',
-  'profile.passwordHelp': '12 caractères minimum.',
+  'profile.passwordHelp': 'Au moins 12 caractères, mêlant trois catégories parmi minuscules, majuscules, chiffres et symboles. Ni votre nom, ni votre identifiant. Changer de mot de passe ferme vos autres sessions.',
   'profile.managedByAdmin': "Ces informations sont gérées par l'administration.",
 
   'directory.title': 'Annuaire',

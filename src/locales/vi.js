@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'Mật khẩu hiện tại',
   'profile.newPassword': 'Mật khẩu mới',
   'profile.confirmPassword': 'Xác nhận mật khẩu mới',
-  'profile.passwordHelp': 'Tối thiểu 12 ký tự.',
+  'profile.passwordHelp': 'Ít nhất 12 ký tự, kết hợp ba nhóm trong số chữ thường, chữ hoa, chữ số và ký hiệu. Không chứa tên hay tên đăng nhập của bạn. Đổi mật khẩu sẽ đóng các phiên khác.',
   'profile.managedByAdmin': 'Các thông tin này do quản trị viên quản lý.',
 
   'directory.title': 'Danh bạ',

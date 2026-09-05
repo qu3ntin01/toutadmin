@@ -3,8 +3,12 @@ const bcrypt = require('bcryptjs');
 
 const db = require('../db');
 const security = require('../security');
+const audit = require('../audit');
+const sessionStore = require('../session-store');
 const i18n = require('../i18n');
-const { setFlash } = require('../utils');
+const twoFactor = require('../two-factor');
+const settings = require('../settings');
+const { setFlash, safeRedirect } = require('../utils');
 
 const router = express.Router();
 
@@ -34,10 +38,14 @@ router.post('/connexion', security.loginLimiter, (req, res) => {
 
   if (!user) {
     bcrypt.compareSync(password, security.DUMMY_HASH); // temps constant : ne révèle pas l'existence du compte
+    req.auditHandled = true;
+    audit.log(req, 'connexion.echec', 'users', null, { email, motif: 'compte inconnu' });
     return genericError();
   }
 
   if (security.isLocked(user)) {
+    req.auditHandled = true;
+    audit.log(req, 'connexion.refusee', 'users', user.id, { motif: 'compte verrouillé' });
     setFlash(req, 'error', `Compte temporairement verrouillé suite à plusieurs échecs. Réessayez dans ${security.LOCKOUT_MINUTES} minutes.`);
     return res.redirect('/connexion');
   }
@@ -45,19 +53,52 @@ router.post('/connexion', security.loginLimiter, (req, res) => {
   const today = new Date().toISOString().slice(0, 10);
   if (user.contract_end_date && user.contract_end_date < today) {
     if (user.active) db.prepare('UPDATE users SET active = 0 WHERE id = ?').run(user.id);
+    req.auditHandled = true;
+    audit.log(req, 'connexion.refusee', 'users', user.id, { motif: 'contrat échu' });
     setFlash(req, 'error', 'Ce compte est arrivé au terme de son contrat et a été désactivé.');
     return res.redirect('/connexion');
   }
 
   if (!user.active || !bcrypt.compareSync(password, user.password_hash)) {
     if (user.active) security.registerFailedAttempt(user);
+    req.auditHandled = true;
+    audit.log(req, 'connexion.echec', 'users', user.id, {
+      motif: user.active ? 'mot de passe incorrect' : 'compte désactivé',
+      tentative: user.failed_attempts + 1,
+    });
     return genericError();
   }
 
   security.resetFailedAttempts(user.id);
 
+  // Deuxième facteur : le mot de passe seul n'ouvre pas encore de session. On
+  // retient seulement l'identité en attente, sans aucun droit attaché.
+  if (user.totp_enabled) {
+    return req.session.regenerate((err) => {
+      if (err) return genericError();
+      req.session.pendingTotp = { userId: user.id, since: Date.now() };
+      req.auditHandled = true;
+      audit.log(req, 'connexion.second_facteur_demande', 'users', user.id);
+      res.redirect('/connexion/code');
+    });
+  }
+
+  return openSession(req, res, user);
+});
+
+// Délai au-delà duquel une authentification restée en suspens est abandonnée.
+const PENDING_TOTP_MS = 5 * 60 * 1000;
+
+function openSession(req, res, user) {
+  db.prepare("UPDATE users SET last_login_at = datetime('now') WHERE id = ?").run(user.id);
+
   req.session.regenerate((err) => {
-    if (err) return genericError();
+    if (err) {
+      setFlash(req, 'error', 'Identifiants incorrects.');
+      return res.redirect('/connexion');
+    }
+    // Horodatage d'ouverture : sert de plafond absolu, que l'activité ne repousse pas.
+    req.session.openedAt = Date.now();
     req.session.user = {
       id: user.id,
       role: user.role,
@@ -68,20 +109,82 @@ router.post('/connexion', security.loginLimiter, (req, res) => {
       isHr: Boolean(user.is_hr),
       locale: user.locale,
       avatarFile: user.avatar_file,
+      mustChangePassword: Boolean(user.must_change_password),
     };
-    res.redirect(homeFor(user));
+    req.auditHandled = true;
+    audit.log(req, 'connexion.reussie', 'users', user.id);
+    res.redirect(user.must_change_password ? '/mon-profil/premier-acces' : homeFor(user));
   });
+  return undefined;
+}
+
+function pendingUser(req) {
+  const pending = req.session.pendingTotp;
+  if (!pending || Date.now() - pending.since > PENDING_TOTP_MS) return null;
+  return db.prepare('SELECT * FROM users WHERE id = ?').get(pending.userId) || null;
+}
+
+router.get('/connexion/code', (req, res) => {
+  if (req.session.user) return res.redirect(homeFor(req.session.user));
+  if (!pendingUser(req)) {
+    setFlash(req, 'error', 'Authentification expirée. Reprenez depuis le début.');
+    return res.redirect('/connexion');
+  }
+  res.render('login-totp');
+});
+
+router.post('/connexion/code', security.loginLimiter, (req, res) => {
+  const user = pendingUser(req);
+  if (!user) {
+    setFlash(req, 'error', 'Authentification expirée. Reprenez depuis le début.');
+    return res.redirect('/connexion');
+  }
+
+  const verdict = twoFactor.verifyLogin(user, req.body.code || '');
+  if (!verdict.ok) {
+    // Un code faux compte comme un échec de connexion : sans cela, le second
+    // facteur se force par répétition, à l'abri du verrouillage de compte.
+    security.registerFailedAttempt(user);
+    req.auditHandled = true;
+    audit.log(req, 'connexion.second_facteur_echec', 'users', user.id);
+    setFlash(req, 'error', 'Code incorrect.');
+    return res.redirect('/connexion/code');
+  }
+
+  delete req.session.pendingTotp;
+  req.auditHandled = true;
+  audit.log(req, 'connexion.second_facteur_valide', 'users', user.id, verdict.usedRecovery ? { code_de_secours: true } : null);
+  if (verdict.usedRecovery) setFlash(req, 'success', 'Code de secours utilisé : il ne resservira pas. Pensez à en régénérer.');
+  return openSession(req, res, user);
 });
 
 router.post('/deconnexion', (req, res) => {
+  req.auditHandled = true;
+  audit.log(req, 'deconnexion', 'users', req.session.user ? req.session.user.id : null);
   req.session.destroy(() => res.redirect('/connexion'));
+});
+
+/** Ferme toutes les autres sessions du compte : utile après un doute ou un voyage. */
+router.post('/sessions/fermer', (req, res) => {
+  if (!req.session.user) return res.redirect('/connexion');
+  const closed = sessionStore.store().revokeUser(req.session.user.id);
+  req.auditHandled = true;
+  audit.log(req, 'sessions.revoquees', 'users', req.session.user.id, { fermees: closed });
+
+  // La session courante vient d'être fermée elle aussi : on la rouvre.
+  req.session.regenerate((err) => {
+    if (err) return res.redirect('/connexion');
+    req.session.openedAt = Date.now();
+    req.session.flash = { type: 'success', message: `${closed} session(s) fermée(s). Reconnectez-vous.` };
+    res.redirect('/connexion');
+  });
 });
 
 // Choix de la langue depuis l'écran de connexion : mémorisé en cookie tant qu'aucun
 // compte n'est ouvert, puis repris par la préférence du compte une fois connecté.
 router.post('/langue', (req, res) => {
   const locale = (req.body.locale || '').trim();
-  const back = typeof req.body.retour === 'string' && req.body.retour.startsWith('/') ? req.body.retour : '/connexion';
+  const back = safeRedirect(req.body.retour, '/connexion');
 
   if (i18n.isSupported(locale)) {
     res.cookie('locale', locale, {

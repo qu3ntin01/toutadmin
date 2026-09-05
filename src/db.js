@@ -13,6 +13,39 @@ db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
 db.exec(`
+-- Sessions : persistées en base plutôt qu'en mémoire, pour survivre à un
+-- redémarrage, tenir plusieurs processus, et permettre de révoquer d'un coup
+-- toutes les sessions d'un compte.
+CREATE TABLE IF NOT EXISTS sessions (
+  sid TEXT PRIMARY KEY,
+  user_id INTEGER,
+  data TEXT NOT NULL,
+  expires_at INTEGER NOT NULL
+);
+
+-- Journal d'audit : qui a fait quoi, quand, depuis où. Inscrit en base, jamais
+-- modifiable depuis l'interface, et conservé même si l'objet visé est supprimé —
+-- c'est précisément la trace d'une suppression qui compte.
+CREATE TABLE IF NOT EXISTS audit_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  occurred_at TEXT NOT NULL DEFAULT (datetime('now')),
+  actor_id INTEGER,
+  actor_label TEXT NOT NULL DEFAULT '',
+  action TEXT NOT NULL,
+  entity TEXT NOT NULL DEFAULT '',
+  entity_id INTEGER,
+  detail TEXT NOT NULL DEFAULT '',
+  ip TEXT NOT NULL DEFAULT ''
+);
+
+-- Codes de secours de la double authentification : hachés, à usage unique.
+CREATE TABLE IF NOT EXISTS totp_recovery_codes (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  code_hash TEXT NOT NULL,
+  used_at TEXT
+);
+
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   role TEXT NOT NULL CHECK(role IN ('admin','employee')),
@@ -41,6 +74,11 @@ CREATE TABLE IF NOT EXISTS users (
   mail_smtp_host TEXT NOT NULL DEFAULT '',
   mail_smtp_port INTEGER,
   active INTEGER NOT NULL DEFAULT 1,
+  must_change_password INTEGER NOT NULL DEFAULT 0,
+  totp_secret TEXT,
+  totp_enabled INTEGER NOT NULL DEFAULT 0,
+  password_changed_at TEXT,
+  last_login_at TEXT,
   failed_attempts INTEGER NOT NULL DEFAULT 0,
   locked_until TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
@@ -75,6 +113,12 @@ CREATE TABLE IF NOT EXISTS time_entries (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE INDEX IF NOT EXISTS idx_recovery_user ON totp_recovery_codes(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_date ON audit_log(occurred_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_log(actor_id);
+CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_log(action);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expiry ON sessions(expires_at);
 CREATE INDEX IF NOT EXISTS idx_time_entries_employee ON time_entries(employee_id);
 
 CREATE TABLE IF NOT EXISTS hr_requests (
@@ -728,6 +772,11 @@ for (const migration of [
   'ALTER TABLE users ADD COLUMN team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL',
   "ALTER TABLE calendar_events ADD COLUMN visibility TEXT NOT NULL DEFAULT 'Privé'",
   "ALTER TABLE announcements ADD COLUMN scope_id INTEGER",
+  "ALTER TABLE users ADD COLUMN must_change_password INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN totp_secret TEXT",
+  "ALTER TABLE users ADD COLUMN totp_enabled INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN password_changed_at TEXT",
+  "ALTER TABLE users ADD COLUMN last_login_at TEXT",
 ]) {
   try {
     db.exec(migration);

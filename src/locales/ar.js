@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'كلمة المرور الحالية',
   'profile.newPassword': 'كلمة المرور الجديدة',
   'profile.confirmPassword': 'تأكيد كلمة المرور الجديدة',
-  'profile.passwordHelp': '12 حرفًا على الأقل.',
+  'profile.passwordHelp': '12 حرفًا على الأقل، تجمع ثلاث فئات من الأحرف الصغيرة والكبيرة والأرقام والرموز. ولا اسمك ولا معرّفك. تغييره يغلق جلساتك الأخرى.',
   'profile.managedByAdmin': 'تتولى الإدارة إدارة هذه البيانات.',
 
   'directory.title': 'الدليل',

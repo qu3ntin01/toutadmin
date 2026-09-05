@@ -35,7 +35,7 @@ async function makeMember(admin, email, extra = {}) {
   const flash = await admin.flash('/admin');
   const password = flash.message.match(/Mot de passe temporaire : ([A-Za-z0-9]+)/)[1];
   const client = newClient();
-  await client.login(email, password);
+  await client.firstAccess(email, password);
   return { client, id: userByEmail(email).id };
 }
 

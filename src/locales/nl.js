@@ -194,7 +194,7 @@ module.exports = {
   'profile.currentPassword': 'Huidig wachtwoord',
   'profile.newPassword': 'Nieuw wachtwoord',
   'profile.confirmPassword': 'Nieuw wachtwoord bevestigen',
-  'profile.passwordHelp': 'Minimaal 12 tekens.',
+  'profile.passwordHelp': 'Minstens 12 tekens uit drie categorieën: kleine letters, hoofdletters, cijfers, symbolen. Niet uw naam of gebruikersnaam. Wijzigen sluit uw andere sessies.',
   'profile.managedByAdmin': 'Deze gegevens worden beheerd door het beheer.',
 
   'directory.title': 'Smoelenboek',

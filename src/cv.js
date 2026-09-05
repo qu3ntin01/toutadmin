@@ -4,6 +4,8 @@ const zlib = require('zlib');
 const crypto = require('crypto');
 const multer = require('multer');
 
+const fileType = require('./file-type');
+
 // Les CV sont des données personnelles : ils vivent hors du dépôt et ne sont
 // jamais servis en statique, seulement par une route authentifiée.
 const CV_DIR = process.env.CV_DIR || path.join(path.dirname(process.env.DB_PATH || path.join(__dirname, '..', 'data', 'app.sqlite')), 'cv');
@@ -31,8 +33,12 @@ const cvUpload = multer({
   },
 }).single('cv');
 
-/** Écrit le CV reçu et rend son nom de fichier. */
+/**
+ * Écrit le CV reçu et rend son nom de fichier, ou null si le contenu ne
+ * correspond pas au type annoncé : le MIME d'un envoi vient du client.
+ */
 function save(file) {
+  if (!fileType.matches(file.buffer, file.mimetype)) return null;
   ensureDir();
   // Nom aléatoire : le nom d'origine du fichier ne dicte jamais le chemin sur disque.
   const name = crypto.randomBytes(16).toString('hex') + (ACCEPTED[file.mimetype] || '.bin');
@@ -113,4 +119,9 @@ function pathOf(fileName) {
   return path.join(CV_DIR, path.basename(fileName));
 }
 
-module.exports = { CV_DIR, MAX_BYTES, ACCEPTED, cvUpload, save, extractText, extractDocx, remove, pathOf };
+/** Le contenu correspond-il au type annoncé ? À contrôler avant toute écriture. */
+function accepts(file) {
+  return Boolean(file) && fileType.matches(file.buffer, file.mimetype);
+}
+
+module.exports = { CV_DIR, MAX_BYTES, ACCEPTED, cvUpload, save, accepts, extractText, extractDocx, remove, pathOf };

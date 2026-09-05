@@ -671,6 +671,10 @@ router.post('/candidats/:id/cv', ...security.upload(receiveCv), async (req, res)
   if (!candidate) return talentFail(req, res, 'recrutement', 'Candidature introuvable.');
   if (!req.file) return talentFail(req, res, 'recrutement', 'Aucun fichier reçu.');
 
+  if (!cv.accepts(req.file)) {
+    return talentFail(req, res, 'recrutement', "Ce fichier n'est pas du type annoncé : dépôt refusé.");
+  }
+
   let text = '';
   try {
     text = await cv.extractText(req.file.buffer, req.file.mimetype);

@@ -3,6 +3,8 @@ const path = require('path');
 const crypto = require('crypto');
 const multer = require('multer');
 
+const fileType = require('./file-type');
+
 // Les photos de profil vivent hors du dépôt, à côté de la base.
 const UPLOAD_DIR = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'data', 'uploads');
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -23,8 +25,12 @@ const avatarUpload = multer({
   fileFilter: (req, file, cb) => cb(null, ALLOWED.has(file.mimetype)),
 });
 
-/** Écrit la photo reçue et rend son nom de fichier. */
+/**
+ * Écrit la photo reçue et rend son nom de fichier, ou null si le contenu ne
+ * correspond pas au type annoncé : le MIME d'un envoi vient du client.
+ */
 function saveAvatar(file) {
+  if (!fileType.matches(file.buffer, file.mimetype)) return null;
   // Nom aléatoire : le nom d'origine, fourni par le client, n'est jamais réutilisé.
   const name = `${crypto.randomBytes(16).toString('hex')}${ALLOWED.get(file.mimetype) || ''}`;
   fs.writeFileSync(path.join(UPLOAD_DIR, name), file.buffer, { mode: 0o600 });
