@@ -156,7 +156,9 @@ function entryFromInvoice(invoice, createdBy) {
   const journal = db.prepare('SELECT id FROM journals WHERE code = ?').get(isSale ? 'VE' : 'AC');
   if (!journal) return { ok: false, reason: 'no-journal' };
 
-  const ht = round(invoice.amount_ht);
+  // Une écriture se passe dans la devise de tenue des comptes : le montant est
+  // converti au taux figé sur la facture, pas au taux du jour.
+  const ht = round(invoice.amount_ht * (Number(invoice.exchange_rate) || 1));
   const vat = round(ht * (invoice.vat_rate / 100));
   const ttc = round(ht + vat);
 

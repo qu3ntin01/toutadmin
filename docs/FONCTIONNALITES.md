@@ -81,9 +81,9 @@ qui relie le tout.
 | CRM, pipeline pondéré, devis | ✅ (module) |
 | **Trésorerie : comptes, mouvements, rapprochement, prévisionnel** | ✅ (module) |
 | **Immobilisations et amortissements** | ✅ (module) |
-| Déclarations de TVA | ⬜ |
-| Facturation récurrente et abonnements | ⬜ |
-| Multi-devises | ⬜ |
+| **Déclarations de TVA** : collectée, déductible, ventilation par taux, crédit reportable | ✅ |
+| **Facturation récurrente et abonnements**, émis au balayage sans doublon possible | ✅ |
+| **Multidevise**, taux figé à l'émission de chaque pièce | ✅ |
 
 ## Moyens généraux
 

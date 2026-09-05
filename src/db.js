@@ -777,6 +777,12 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN totp_enabled INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN password_changed_at TEXT",
   "ALTER TABLE users ADD COLUMN last_login_at TEXT",
+  // Multidevise : la facture porte sa devise et le taux du jour de son émission.
+  // Figer le taux est le point important — un taux qui bouge ne doit pas
+  // réécrire les comptes de l'an dernier.
+  "ALTER TABLE invoices ADD COLUMN currency TEXT NOT NULL DEFAULT 'EUR'",
+  "ALTER TABLE invoices ADD COLUMN exchange_rate REAL NOT NULL DEFAULT 1",
+  "ALTER TABLE invoices ADD COLUMN subscription_id INTEGER",
 ]) {
   try {
     db.exec(migration);
@@ -1435,6 +1441,66 @@ CREATE TABLE IF NOT EXISTS mail_items (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ---------- Devises, abonnements et TVA ----------
+
+-- Un taux par devise, exprimé dans la devise de référence de l'instance. Le
+-- taux vit ici pour être mis à jour ; celui qui a servi à une facture est copié
+-- dans la facture, où il ne bouge plus.
+CREATE TABLE IF NOT EXISTS exchange_rates (
+  code TEXT PRIMARY KEY,
+  rate REAL NOT NULL,
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_by INTEGER REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- Facturation récurrente : l'abonnement est le moule, la facture est la pièce.
+-- On garde la date de la prochaine émission plutôt que de recalculer depuis le
+-- début : une facture sautée ou avancée à la main ne dérègle pas la suite.
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  direction TEXT NOT NULL DEFAULT 'Client' CHECK(direction IN ('Client','Fournisseur')),
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  label TEXT NOT NULL,
+  amount_ht REAL NOT NULL DEFAULT 0,
+  vat_rate REAL NOT NULL DEFAULT 20,
+  currency TEXT NOT NULL DEFAULT 'EUR',
+  period TEXT NOT NULL DEFAULT 'Mensuelle',
+  start_date TEXT NOT NULL,
+  next_issue TEXT NOT NULL,
+  end_date TEXT,
+  payment_days INTEGER NOT NULL DEFAULT 30,
+  active INTEGER NOT NULL DEFAULT 1,
+  notes TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Déclarations de TVA. Le CMS calcule et conserve ; il ne télétransmet pas.
+CREATE TABLE IF NOT EXISTS vat_returns (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  regime TEXT NOT NULL DEFAULT 'Mensuel',
+  period_label TEXT NOT NULL,
+  period_start TEXT NOT NULL,
+  period_end TEXT NOT NULL,
+  collected REAL NOT NULL DEFAULT 0,
+  deductible REAL NOT NULL DEFAULT 0,
+  due REAL NOT NULL DEFAULT 0,
+  credit REAL NOT NULL DEFAULT 0,
+  breakdown TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Brouillon' CHECK(status IN ('Brouillon','Déclarée','Payée')),
+  filed_on TEXT,
+  paid_on TEXT,
+  notes TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(period_start, period_end)
+);
+
+CREATE INDEX IF NOT EXISTS idx_subscriptions_next ON subscriptions(active, next_issue);
+-- Une échéance d'abonnement ne peut pas être facturée deux fois, même si deux
+-- balayages se croisent : l'index l'interdit à la source.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_invoices_subscription_period ON invoices(subscription_id, issue_date) WHERE subscription_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_meeting_actions_assignee ON meeting_actions(assignee_id, status);
 CREATE INDEX IF NOT EXISTS idx_meeting_attendees_meeting ON meeting_attendees(meeting_id);
 CREATE INDEX IF NOT EXISTS idx_decisions_meeting ON decisions(meeting_id);

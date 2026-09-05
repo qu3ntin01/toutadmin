@@ -1,4 +1,5 @@
 const db = require('./db');
+const currency = require('./currency');
 
 const PARTNER_KINDS = ['Client', 'Fournisseur', 'Client et fournisseur'];
 const CONTRACT_STATUSES = ['Brouillon', 'Actif', 'Résilié', 'Échu'];
@@ -111,6 +112,24 @@ function contractsToRenew(withinDays = 90) {
 
 const amountTtc = (invoice) => Math.round(invoice.amount_ht * (1 + invoice.vat_rate / 100) * 100) / 100;
 
+/**
+ * Les montants d'une facture existent en deux exemplaires : dans la devise de
+ * la pièce, qui est ce que le client paie, et dans la devise de référence, qui
+ * est ce qui s'additionne. La conversion utilise le taux figé à l'émission —
+ * jamais le taux du jour, sinon les totaux de l'an dernier bougeraient encore.
+ */
+function withAmounts(invoice) {
+  const ttc = amountTtc(invoice);
+  const rate = Number(invoice.exchange_rate) || 1;
+  return {
+    ...invoice,
+    amount_ttc: ttc,
+    amount_base_ht: Math.round(invoice.amount_ht * rate * 100) / 100,
+    amount_base_ttc: Math.round(ttc * rate * 100) / 100,
+    foreign: invoice.currency !== currency.base(),
+  };
+}
+
 function invoices({ direction } = {}) {
   const where = direction ? 'WHERE i.direction = ?' : '';
   const rows = db.prepare(`
@@ -125,24 +144,28 @@ function invoices({ direction } = {}) {
 
   // Le retard se déduit de la date d'échéance : aucun statut à maintenir à la main.
   return list.map((i) => ({
-    ...i,
-    amount_ttc: amountTtc(i),
+    ...withAmounts(i),
     overdue: i.status === 'Émise' && Boolean(i.due_date) && i.due_date < today(),
   }));
 }
 
 function invoiceById(id) {
   const invoice = db.prepare('SELECT * FROM invoices WHERE id = ?').get(id);
-  return invoice ? { ...invoice, amount_ttc: amountTtc(invoice) } : null;
+  return invoice ? withAmounts(invoice) : null;
 }
 
 function createInvoice(data) {
+  const code = data.currency || currency.base();
+  // Le taux est figé ici, une fois pour toutes.
+  const rate = data.exchangeRate ?? currency.rateOf(code);
+  if (rate === null) return null;
+
   return db.prepare(`
-    INSERT INTO invoices (direction, partner_id, department_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, notes, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO invoices (direction, partner_id, department_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, notes, created_by, currency, exchange_rate)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(data.direction, data.partnerId || null, data.departmentId || null, data.reference || '', data.label,
          data.issueDate, data.dueDate || null, data.amountHt, data.vatRate, data.status || 'Émise',
-         data.notes || '', data.createdBy).lastInsertRowid;
+         data.notes || '', data.createdBy, code, rate).lastInsertRowid;
 }
 
 function setInvoiceStatus(id, status) {
@@ -161,7 +184,9 @@ function financialSummary(year) {
   const to = `${year}-12-31`;
   const all = invoices().filter((i) => i.issue_date >= from && i.issue_date <= to && i.status !== 'Annulée');
 
-  const sum = (rows) => Math.round(rows.reduce((total, i) => total + i.amount_ttc, 0) * 100) / 100;
+  // On additionne les montants ramenés en devise de référence : additionner des
+  // euros et des dollars ne voudrait rien dire.
+  const sum = (rows) => Math.round(rows.reduce((total, i) => total + i.amount_base_ttc, 0) * 100) / 100;
   const income = all.filter((i) => i.direction === 'Client');
   const spending = all.filter((i) => i.direction === 'Fournisseur');
 
@@ -173,6 +198,7 @@ function financialSummary(year) {
     unpaidIncome: sum(income.filter((i) => i.status !== 'Payée')),
     unpaidSpending: sum(spending.filter((i) => i.status !== 'Payée')),
     overdue: all.filter((i) => i.overdue).length,
+    currency: currency.base(),
   };
 }
 

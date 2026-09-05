@@ -19,7 +19,9 @@
           <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
         <% } %>
 
-        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const symbol = (code) => { const c = currencies.find((x) => x.code === code); return c ? c.symbol : code; }; %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + symbol(baseCurrency)); %>
+        <% const inCurrency = (n, code) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + symbol(code)); %>
         <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
 
         <section class="stats-grid">
@@ -301,6 +303,14 @@
                     <span>TVA (%)</span>
                     <input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required />
                   </label>
+                  <label>
+                    <span>Devise</span>
+                    <select name="currency">
+                      <% usableCurrencies.forEach((c) => { %>
+                        <option value="<%= c.code %>" <%= c.code === baseCurrency ? 'selected' : '' %>><%= c.code %> — <%= c.label %></option>
+                      <% }) %>
+                    </select>
+                  </label>
                 </div>
                 <label>
                   <span>Référence</span>
@@ -340,7 +350,10 @@
                               <div class="cell-strong"><%= i.label %></div>
                               <div class="cell-sub"><%= i.direction %><%= i.partner_name ? ' · ' + i.partner_name : '' %><%= i.department_name ? ' · ' + i.department_name : '' %></div>
                             </td>
-                            <td class="num cell-strong"><%= money(i.amount_ttc) %></td>
+                            <td class="num cell-strong">
+                              <%= inCurrency(i.amount_ttc, i.currency) %>
+                              <% if (i.foreign) { %><div class="cell-sub"><%= money(i.amount_base_ttc) %> au taux du jour d'émission</div><% } %>
+                            </td>
                             <td>
                               <%= day(i.due_date) %>
                               <% if (i.overdue) { %><div class="cell-sub text-danger">En retard</div><% } %>
@@ -373,6 +386,253 @@
         </section>
 
         <!-- ---------- Budgets ---------- -->
+        <!-- ---------- Abonnements ---------- -->
+        <section class="tab-panel" id="abonnements">
+          <section class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= subscriptions.filter((a) => a.active).length %></span><span class="stat-label">Abonnements actifs</span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= money(subscriptionValue.client) %></span><span class="stat-label">Récurrent client sur 12 mois</span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= money(subscriptionValue.supplier) %></span><span class="stat-label">Récurrent fournisseur</span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= subscriptionDue.length %></span><span class="stat-label">Échéance(s) à facturer</span></span>
+            </div>
+          </section>
+
+          <div class="card">
+            <div class="card-head"><h3>Nouvel abonnement</h3></div>
+            <form method="POST" action="/gestion/abonnements" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Intitulé</span><input type="text" name="label" required maxlength="160" placeholder="Maintenance annuelle — site vitrine" /></label>
+              <label><span>Sens</span>
+                <select name="direction"><% invoiceDirections.forEach((d) => { %><option value="<%= d %>"><%= d %></option><% }) %></select>
+              </label>
+              <label><span>Tiers</span>
+                <select name="partner_id">
+                  <option value="">—</option>
+                  <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Montant HT</span><input type="text" name="amount_ht" inputmode="decimal" required placeholder="Ex : 250,00" /></label>
+              <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required /></label>
+              <label><span>Devise</span>
+                <select name="currency">
+                  <% usableCurrencies.forEach((c) => { %><option value="<%= c.code %>" <%= c.code === baseCurrency ? 'selected' : '' %>><%= c.code %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Périodicité</span>
+                <select name="period"><% subscriptionPeriods.forEach((p) => { %><option value="<%= p.key %>"><%= p.key %></option><% }) %></select>
+              </label>
+              <label><span>Première échéance</span><input type="date" name="start_date" required /></label>
+              <label><span>Fin (facultative)</span><input type="date" name="end_date" /></label>
+              <label><span>Délai de paiement (jours)</span><input type="number" name="payment_days" min="0" max="180" value="30" required /></label>
+              <label><span>Service imputé</span>
+                <select name="department_id">
+                  <option value="">—</option>
+                  <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+                </select>
+              </label>
+              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer l'abonnement</button></div>
+            </form>
+            <p class="hint">Rien n'est émis d'avance : la facture du mois prochain n'existe pas encore, et l'abonnement peut être arrêté d'ici là.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><%= subscriptions.length %> abonnement(s)</h3>
+              <form method="POST" action="/gestion/abonnements/emettre" class="inline-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-outline btn-sm">Émettre les échéances dues</button>
+              </form>
+            </div>
+            <% if (!subscriptions.length) { %>
+              <div class="empty-state">Aucun abonnement.</div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Abonnement</th><th>Montant HT</th><th>Rythme</th><th>Prochaine</th><th>Fin</th><th>Émises</th><th>État</th><th class="actions"></th></tr></thead>
+                  <tbody>
+                    <% subscriptions.forEach((a) => { %>
+                      <tr>
+                        <td>
+                          <div class="cell-strong"><%= a.label %></div>
+                          <div class="cell-sub"><%= a.direction %><%= a.partner_name ? ' · ' + a.partner_name : '' %><%= a.department_name ? ' · ' + a.department_name : '' %></div>
+                        </td>
+                        <td class="num"><%= inCurrency(a.amount_ht, a.currency) %></td>
+                        <td class="cell-sub"><%= a.period %></td>
+                        <td class="cell-sub nowrap"><%= day(a.next_issue) %></td>
+                        <td class="cell-sub nowrap"><%= a.end_date ? day(a.end_date) : '—' %></td>
+                        <td><%= a.issued_count %></td>
+                        <td><span class="status <%= a.active ? 'status-on' : 'status-off' %>"><%= a.active ? 'Actif' : 'Suspendu' %></span></td>
+                        <td class="actions">
+                          <div class="row-actions">
+                            <form method="POST" action="/gestion/abonnements/<%= a.id %>/etat" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <input type="hidden" name="active" value="<%= a.active ? '0' : '1' %>" />
+                              <button type="submit" class="btn btn-outline btn-sm"><%= a.active ? 'Suspendre' : 'Réactiver' %></button>
+                            </form>
+                            <form method="POST" action="/gestion/abonnements/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet abonnement ? Les factures déjà émises restent dues.">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- TVA ---------- -->
+        <section class="tab-panel" id="tva">
+          <div class="card">
+            <div class="card-head"><h3>Arrêter une période</h3><span class="card-sub">Déclaration sur les débits</span></div>
+            <form method="POST" action="/gestion/tva" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Période de <%= year %></span>
+                <select name="periode" required>
+                  <% vatRegimes.forEach((r) => { %>
+                    <optgroup label="<%= r.key %>">
+                      <% vatPeriods.filter((p) => p.regime === r.key).forEach((p) => { %>
+                        <option value="<%= p.key %>"><%= p.label %> (<%= p.start %> → <%= p.end %>)</option>
+                      <% }) %>
+                    </optgroup>
+                  <% }) %>
+                </select>
+              </label>
+              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Calculer et enregistrer</button></div>
+            </form>
+            <p class="hint">Une période se choisit dans la liste plutôt que de se saisir : trois jours de décalage feraient une déclaration fausse que personne ne verrait passer. Changez l'année en haut de page pour déclarer un exercice antérieur.</p>
+            <p class="hint">
+              La TVA collectée vient des factures client, la déductible des factures fournisseur ; les brouillons et
+              les factures annulées sont ignorés. Le CMS calcule et conserve : le dépôt à l'administration reste
+              l'affaire de votre expert-comptable ou d'un tiers déclarant.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= vatReturns.length %> déclaration(s)</h3><span class="card-sub"><%= vatSummary.pending %> en attente · <%= money(vatSummary.pendingAmount) %></span></div>
+            <% if (!vatReturns.length) { %>
+              <div class="empty-state">Aucune déclaration enregistrée.</div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Période</th><th>Collectée</th><th>Déductible</th><th>À payer</th><th>Crédit</th><th>Détail par taux</th><th>État</th><th class="actions"></th></tr></thead>
+                  <tbody>
+                    <% vatReturns.forEach((v) => { %>
+                      <tr>
+                        <td>
+                          <div class="cell-strong"><%= v.period_label %></div>
+                          <div class="cell-sub"><%= v.regime %> · <%= day(v.period_start) %> → <%= day(v.period_end) %></div>
+                        </td>
+                        <td class="num"><%= money(v.collected) %></td>
+                        <td class="num"><%= money(v.deductible) %></td>
+                        <td class="num cell-strong"><%= v.due ? money(v.due) : '—' %></td>
+                        <td class="num"><%= v.credit ? money(v.credit) : '—' %></td>
+                        <td class="cell-sub">
+                          <% v.detail.forEach((line) => { %>
+                            <div><%= line.rate %> % : <%= money(line.collected) %> collectée, <%= money(line.deductible) %> déductible</div>
+                          <% }) %>
+                          <% if (!v.detail.length) { %>—<% } %>
+                        </td>
+                        <td>
+                          <span class="status <%= v.status === 'Payée' ? 'status-on' : (v.status === 'Déclarée' ? 'status-warning' : 'status-off') %>"><%= v.status %></span>
+                          <% if (v.filed_on) { %><div class="cell-sub">déposée le <%= day(v.filed_on) %></div><% } %>
+                        </td>
+                        <td class="actions">
+                          <div class="row-actions">
+                            <form method="POST" action="/gestion/tva/<%= v.id %>/statut" class="inline-field">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <select name="status" class="input-sm">
+                                <% vatStatuses.forEach((st) => { %><option value="<%= st %>" <%= st === v.status ? 'selected' : '' %>><%= st %></option><% }) %>
+                              </select>
+                              <button type="submit" class="btn btn-outline btn-sm">Changer</button>
+                            </form>
+                            <form method="POST" action="/gestion/tva/<%= v.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette déclaration ?">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                            </form>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Devises ---------- -->
+        <section class="tab-panel" id="devises">
+          <div class="card">
+            <div class="card-head"><h3>Devise de tenue des comptes</h3><span class="card-sub">Actuellement <%= baseCurrency %></span></div>
+            <% if (currentUser.role === 'admin') { %>
+              <form method="POST" action="/gestion/devises/reference" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Devise</span>
+                  <select name="code">
+                    <% currencies.forEach((c) => { %><option value="<%= c.code %>" <%= c.isBase ? 'selected' : '' %>><%= c.code %> — <%= c.label %></option><% }) %>
+                  </select>
+                </label>
+                <div><button type="submit" class="btn btn-primary btn-block">Changer la devise de référence</button></div>
+              </form>
+            <% } else { %>
+              <p class="hint">La devise de tenue des comptes relève de l'administration.</p>
+            <% } %>
+            <p class="hint">
+              Les totaux sont exprimés dans cette devise. Une pièce déjà émise garde le taux figé le jour de son
+              émission : changer un taux aujourd'hui ne réécrit pas le chiffre d'affaires de l'an dernier.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Taux de change</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Devise</th><th>1 unité vaut</th><th>Mise à jour</th><th class="actions"></th></tr></thead>
+                <tbody>
+                  <% currencies.forEach((c) => { %>
+                    <tr>
+                      <td><div class="cell-strong"><%= c.code %></div><div class="cell-sub"><%= c.label %></div></td>
+                      <td class="num">
+                        <% if (c.isBase) { %><span class="tag tag-success">Référence</span>
+                        <% } else if (c.rate === null) { %><span class="cell-sub">Taux non renseigné</span>
+                        <% } else { %><%= c.rate %> <%= baseCurrency %><% } %>
+                      </td>
+                      <td class="cell-sub nowrap"><%= c.updatedAt ? c.updatedAt.slice(0, 10) : '—' %></td>
+                      <td class="actions">
+                        <% if (!c.isBase) { %>
+                          <form method="POST" action="/gestion/devises/taux" class="inline-field">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="code" value="<%= c.code %>" />
+                            <input type="text" name="rate" inputmode="decimal" class="input-sm" value="<%= c.rate === null ? '' : c.rate %>" placeholder="0,92" />
+                            <button type="submit" class="btn btn-outline btn-sm">Enregistrer</button>
+                          </form>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <p class="hint">Une devise sans taux connu n'est pas proposée à la facturation : mieux vaut refuser que convertir au petit bonheur.</p>
+          </div>
+        </section>
+
         <section class="tab-panel" id="budgets">
           <div class="grid-2">
             <div class="card">

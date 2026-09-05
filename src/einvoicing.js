@@ -146,7 +146,7 @@ function toXml(invoice) {
     </ram:ApplicableHeaderTradeAgreement>
     <ram:ApplicableHeaderTradeDelivery />
     <ram:ApplicableHeaderTradeSettlement>
-      <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+      <ram:InvoiceCurrencyCode>${escapeXml(invoice.currency || 'EUR')}</ram:InvoiceCurrencyCode>
       <ram:ApplicableTradeTax>
         <ram:CalculatedAmount>${vat.toFixed(2)}</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
@@ -162,7 +162,7 @@ function toXml(invoice) {
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
         <ram:LineTotalAmount>${ht.toFixed(2)}</ram:LineTotalAmount>
         <ram:TaxBasisTotalAmount>${ht.toFixed(2)}</ram:TaxBasisTotalAmount>
-        <ram:TaxTotalAmount currencyID="EUR">${vat.toFixed(2)}</ram:TaxTotalAmount>
+        <ram:TaxTotalAmount currencyID="${escapeXml(invoice.currency || 'EUR')}">${vat.toFixed(2)}</ram:TaxTotalAmount>
         <ram:GrandTotalAmount>${ttc.toFixed(2)}</ram:GrandTotalAmount>
         <ram:DuePayableAmount>${ttc.toFixed(2)}</ram:DuePayableAmount>
       </ram:SpecifiedTradeSettlementHeaderMonetarySummation>

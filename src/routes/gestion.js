@@ -3,6 +3,10 @@ const express = require('express');
 const org = require('../org');
 const finance = require('../finance');
 const resources = require('../resources');
+const currency = require('../currency');
+const billing = require('../billing');
+const vat = require('../vat');
+const audit = require('../audit');
 const { requireFinance } = require('../middleware/auth');
 const { setFlash, isValidDateString, isValidEmail, isValidUrl, parseAmount } = require('../utils');
 
@@ -49,6 +53,18 @@ router.get('/', (req, res) => {
     billingPeriods: finance.BILLING_PERIODS,
     renewals,
     invoices: finance.invoices(),
+    currencies: currency.rates(),
+    usableCurrencies: currency.usable(),
+    baseCurrency: currency.base(),
+    subscriptions: billing.list(),
+    subscriptionPeriods: billing.PERIODS,
+    subscriptionDue: billing.due(),
+    subscriptionValue: billing.annualValue(),
+    vatReturns: vat.list(),
+    vatRegimes: vat.REGIMES,
+    vatStatuses: vat.STATUSES,
+    vatPeriods: vat.periods(year, 'Trimestriel').concat(vat.periods(year, 'Mensuel')),
+    vatSummary: vat.summary(),
     invoiceDirections: finance.INVOICE_DIRECTIONS,
     invoiceStatuses: finance.INVOICE_STATUSES,
     budgets: finance.budgets(year),
@@ -174,6 +190,7 @@ router.post('/factures', (req, res) => {
   const partnerId = Number(req.body.partner_id) || null;
   const departmentId = Number(req.body.department_id) || null;
   const status = (req.body.status || 'Émise').trim();
+  const code = (req.body.currency || currency.base()).trim().toUpperCase();
 
   if (!finance.INVOICE_DIRECTIONS.includes(direction)) return fail(req, res, 'factures', 'Sens de facture invalide.');
   if (!label) return fail(req, res, 'factures', "L'intitulé de la facture est obligatoire.");
@@ -185,10 +202,16 @@ router.post('/factures', (req, res) => {
   if (!finance.INVOICE_STATUSES.includes(status)) return fail(req, res, 'factures', 'Statut invalide.');
   if (partnerId && !finance.partnerById(partnerId)) return fail(req, res, 'factures', 'Tiers introuvable.');
   if (departmentId && !org.departmentById(departmentId)) return fail(req, res, 'factures', 'Service introuvable.');
+  if (!currency.isKnown(code)) return fail(req, res, 'factures', 'Devise inconnue.');
+  // Facturer dans une devise dont le taux n'est pas connu produirait un total
+  // faux : mieux vaut refuser et demander le taux.
+  if (currency.rateOf(code) === null) {
+    return fail(req, res, 'factures', `Aucun taux connu pour ${code} : renseignez-le dans l'onglet Devises avant de facturer.`);
+  }
 
   finance.createInvoice({
     direction, partnerId, departmentId, label, issueDate, dueDate,
-    amountHt: amountHt.value, vatRate, status,
+    amountHt: amountHt.value, vatRate, status, currency: code,
     reference: (req.body.reference || '').trim().slice(0, 60),
     notes: (req.body.notes || '').trim().slice(0, 1000),
     createdBy: req.session.user.id,
@@ -345,6 +368,125 @@ router.post('/reservations/:id/annuler', (req, res) => {
     return fail(req, res, 'salles', 'Réservation introuvable.');
   }
   return ok(req, res, 'salles', 'Réservation annulée.');
+});
+
+// ---------- Devises ----------
+
+router.post('/devises/reference', (req, res) => {
+  if (req.session.user.role !== 'admin') return fail(req, res, 'devises', "La devise de tenue des comptes relève de l'administration.");
+  if (!currency.setBase(req.body.code)) return fail(req, res, 'devises', 'Devise inconnue.');
+
+  audit.log(req, 'devise.reference', 'settings', null, { devise: req.body.code });
+  return ok(req, res, 'devises', `Comptes désormais tenus en ${String(req.body.code).toUpperCase()}. Les pièces déjà émises gardent le taux figé à leur émission.`);
+});
+
+router.post('/devises/taux', (req, res) => {
+  const verdict = currency.setRate(req.body.code, parseAmount(req.body.rate), req.session.user.id);
+  if (!verdict.ok) return fail(req, res, 'devises', verdict.message);
+
+  audit.log(req, 'devise.taux', 'exchange_rates', null, { devise: req.body.code, taux: req.body.rate });
+  return ok(req, res, 'devises', 'Taux enregistré. Les pièces déjà émises ne bougent pas.');
+});
+
+// ---------- Abonnements ----------
+
+router.post('/abonnements', (req, res) => {
+  const label = (req.body.label || '').trim().slice(0, 160);
+  const direction = (req.body.direction || '').trim();
+  const period = (req.body.period || '').trim();
+  const startDate = (req.body.start_date || '').trim();
+  const endDate = (req.body.end_date || '').trim();
+  const amountHt = readAmount(req.body.amount_ht);
+  const vatRate = Number(req.body.vat_rate);
+  const paymentDays = Number(req.body.payment_days);
+  const code = (req.body.currency || currency.base()).trim().toUpperCase();
+  const partnerId = Number(req.body.partner_id) || null;
+  const departmentId = Number(req.body.department_id) || null;
+
+  if (!label) return fail(req, res, 'abonnements', "L'intitulé est obligatoire.");
+  if (!billing.DIRECTIONS.includes(direction)) return fail(req, res, 'abonnements', 'Sens invalide.');
+  if (!billing.PERIODS.some((p) => p.key === period)) return fail(req, res, 'abonnements', 'Périodicité invalide.');
+  if (!isValidDateString(startDate)) return fail(req, res, 'abonnements', 'Date de début invalide.');
+  if (endDate && (!isValidDateString(endDate) || endDate < startDate)) return fail(req, res, 'abonnements', 'Date de fin invalide.');
+  if (!amountHt.ok) return fail(req, res, 'abonnements', 'Montant HT invalide.');
+  if (!Number.isFinite(vatRate) || vatRate < 0 || vatRate > 100) return fail(req, res, 'abonnements', 'Taux de TVA invalide.');
+  if (!Number.isInteger(paymentDays) || paymentDays < 0 || paymentDays > 180) return fail(req, res, 'abonnements', 'Délai de paiement invalide.');
+  if (!currency.isKnown(code) || currency.rateOf(code) === null) return fail(req, res, 'abonnements', `Aucun taux connu pour ${code}.`);
+  if (partnerId && !finance.partnerById(partnerId)) return fail(req, res, 'abonnements', 'Tiers introuvable.');
+  if (departmentId && !org.departmentById(departmentId)) return fail(req, res, 'abonnements', 'Service introuvable.');
+
+  const id = billing.create({
+    direction, partnerId, departmentId, label,
+    amountHt: amountHt.value, vatRate, currency: code, period,
+    startDate, endDate: endDate || null, paymentDays,
+    notes: (req.body.notes || '').trim().slice(0, 1000),
+    createdBy: req.session.user.id,
+  });
+  audit.log(req, 'abonnement.cree', 'subscriptions', id, { intitule: label, periodicite: period });
+  return ok(req, res, 'abonnements', 'Abonnement enregistré. La première facture partira à sa date d\'échéance.');
+});
+
+router.post('/abonnements/:id/etat', (req, res) => {
+  const subscription = billing.byId(req.params.id);
+  if (!subscription) return fail(req, res, 'abonnements', 'Abonnement introuvable.');
+
+  const active = req.body.active === '1';
+  billing.setActive(subscription.id, active);
+  audit.log(req, 'abonnement.etat', 'subscriptions', subscription.id, { actif: active });
+  return ok(req, res, 'abonnements', active ? 'Abonnement réactivé.' : 'Abonnement suspendu : plus aucune facture n\'en sortira.');
+});
+
+router.post('/abonnements/:id/supprimer', (req, res) => {
+  const subscription = billing.byId(req.params.id);
+  if (!subscription) return fail(req, res, 'abonnements', 'Abonnement introuvable.');
+
+  billing.remove(subscription.id);
+  audit.log(req, 'abonnement.supprime', 'subscriptions', subscription.id, { intitule: subscription.label });
+  return ok(req, res, 'abonnements', 'Abonnement supprimé. Les factures déjà émises restent dues.');
+});
+
+router.post('/abonnements/emettre', (req, res) => {
+  const result = billing.run({ createdBy: req.session.user.id });
+  audit.log(req, 'abonnement.emission', 'invoices', null, { emises: result.issued.length, sautees: result.skipped.length });
+
+  if (!result.issued.length && !result.skipped.length) return fail(req, res, 'abonnements', 'Aucune échéance à facturer aujourd\'hui.');
+  const message = `${result.issued.length} facture(s) émise(s).`;
+  return result.skipped.length
+    ? fail(req, res, 'abonnements', `${message} ${result.skipped.length} écartée(s) : ${result.skipped.map((s) => `${s.label} (${s.reason})`).join(', ')}.`)
+    : ok(req, res, 'abonnements', message);
+});
+
+// ---------- TVA ----------
+
+router.post('/tva', (req, res) => {
+  const period = vat.periodByKey(req.body.periode);
+  if (!period) return fail(req, res, 'tva', 'Période inconnue.');
+
+  const verdict = vat.save({
+    regime: period.regime, label: period.label, from: period.start, to: period.end,
+    notes: (req.body.notes || '').trim().slice(0, 1000),
+    createdBy: req.session.user.id,
+  });
+  if (!verdict.ok) return fail(req, res, 'tva', verdict.message);
+
+  audit.log(req, 'tva.calculee', 'vat_returns', verdict.id, { periode: period.label, due: verdict.totals.due });
+  return ok(req, res, 'tva', verdict.totals.credit
+    ? `${period.label} : crédit de TVA de ${verdict.totals.credit} ${verdict.totals.currency}, reportable.`
+    : `${period.label} : ${verdict.totals.due} ${verdict.totals.currency} dus sur ${verdict.totals.invoices} facture(s).`);
+});
+
+router.post('/tva/:id/statut', (req, res) => {
+  const verdict = vat.setStatus(Number(req.params.id), (req.body.status || '').trim());
+  if (!verdict.ok) return fail(req, res, 'tva', verdict.message);
+
+  audit.log(req, 'tva.statut', 'vat_returns', Number(req.params.id), { statut: req.body.status });
+  return ok(req, res, 'tva', 'Déclaration mise à jour.');
+});
+
+router.post('/tva/:id/supprimer', (req, res) => {
+  vat.remove(Number(req.params.id));
+  audit.log(req, 'tva.supprimee', 'vat_returns', Number(req.params.id), {});
+  return ok(req, res, 'tva', 'Déclaration supprimée.');
 });
 
 module.exports = router;

@@ -162,10 +162,13 @@ function convertToInvoice(id, createdBy) {
 
   const commit = db.transaction(() => {
     const invoiceId = db.prepare(`
-      INSERT INTO invoices (direction, partner_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, notes, created_by)
-      VALUES ('Client', ?, ?, ?, date('now'), date('now', '+30 days'), ?, ?, 'Émise', ?, ?)
+      INSERT INTO invoices (direction, partner_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, notes, created_by, currency, exchange_rate)
+      VALUES ('Client', ?, ?, ?, date('now'), date('now', '+30 days'), ?, ?, 'Émise', ?, ?, ?, 1)
     `).run(quote.partner_id, quote.reference, quote.label, quote.amount_ht, quote.vat_rate,
-           `Issue du devis ${quote.reference || '#' + quote.id}`, createdBy).lastInsertRowid;
+           `Issue du devis ${quote.reference || '#' + quote.id}`, createdBy,
+           // Un devis se chiffre dans la devise de tenue des comptes : la
+           // facture qui en sort n'a donc pas de conversion à faire.
+           require('./currency').base()).lastInsertRowid;
 
     db.prepare('UPDATE quotes SET invoice_id = ? WHERE id = ?').run(invoiceId, id);
     return invoiceId;

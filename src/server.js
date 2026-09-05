@@ -10,6 +10,7 @@ const notifications = require('./notifications');
 const audit = require('./audit');
 const settings = require('./settings');
 const backup = require('./backup');
+const billing = require('./billing');
 const offsite = require('./offsite');
 
 const PORT = process.env.PORT || 3000;
@@ -24,6 +25,16 @@ const EXPIRY_SWEEP_INTERVAL_MS = 60 * 60 * 1000;
 async function sweep() {
   try {
     db.deactivateExpiredContracts();
+
+    // Facturation récurrente : les échéances atteintes partent d'elles-mêmes.
+    // Une émission déjà faite est écartée par l'index unique, donc un balayage
+    // rejoué ne facture jamais deux fois.
+    const recurring = billing.run();
+    if (recurring.issued.length || recurring.skipped.length) {
+      console.log(`Abonnements : ${recurring.issued.length} facture(s) émise(s)`
+        + (recurring.skipped.length ? `, ${recurring.skipped.length} écartée(s) (${recurring.skipped.map((s) => s.reason).join(', ')})` : ''));
+    }
+
     const created = deadlines.notify();
     notifications.purgeRead();
 

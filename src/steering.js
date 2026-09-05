@@ -30,8 +30,10 @@ function payrollMass() {
 function revenue(year) {
   const row = db.prepare(`
     SELECT
-      COALESCE(SUM(CASE WHEN direction = 'Client' THEN amount_ht ELSE 0 END), 0) AS sales,
-      COALESCE(SUM(CASE WHEN direction = 'Fournisseur' THEN amount_ht ELSE 0 END), 0) AS purchases
+      -- Chaque facture est ramenée en devise de référence par le taux figé à
+      -- son émission : un total qui mêle des devises ne veut rien dire.
+      COALESCE(SUM(CASE WHEN direction = 'Client' THEN amount_ht * exchange_rate ELSE 0 END), 0) AS sales,
+      COALESCE(SUM(CASE WHEN direction = 'Fournisseur' THEN amount_ht * exchange_rate ELSE 0 END), 0) AS purchases
     FROM invoices WHERE issue_date BETWEEN ? AND ?
   `).get(`${year}-01-01`, `${year}-12-31`);
   return {
@@ -43,7 +45,7 @@ function revenue(year) {
 
 function unpaid() {
   const row = db.prepare(`
-    SELECT COUNT(*) AS n, COALESCE(SUM(amount_ht * (1 + vat_rate / 100.0)), 0) AS total
+    SELECT COUNT(*) AS n, COALESCE(SUM(amount_ht * (1 + vat_rate / 100.0) * exchange_rate), 0) AS total
     FROM invoices WHERE direction = 'Client' AND status != 'Payée'
   `).get();
   return { count: row.n, total: Math.round(row.total * 100) / 100 };

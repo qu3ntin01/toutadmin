@@ -133,7 +133,7 @@ function projection({ weeks = 12 } = {}) {
   const dues = db.prepare(`
     SELECT due_date AS on_date,
            COALESCE(NULLIF(reference, ''), label) AS label,
-           ROUND(amount_ht * (1 + vat_rate / 100.0), 2) * (CASE WHEN direction = 'Client' THEN 1 ELSE -1 END) AS amount,
+           ROUND(amount_ht * (1 + vat_rate / 100.0) * exchange_rate, 2) * (CASE WHEN direction = 'Client' THEN 1 ELSE -1 END) AS amount,
            'Facture' AS origin
     FROM invoices
     WHERE status != 'Payée' AND due_date IS NOT NULL AND due_date <= ?

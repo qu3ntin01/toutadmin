@@ -76,6 +76,16 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Parc matériel** : équipements avec numéro de série, garantie et valeur, affectés à un salarié et repris. Un équipement déjà affecté ne peut pas l'être deux fois, et l'historique des détenteurs est conservé
 - **Salles** : parc de salles et planning d'occupation. Tout salarié réserve depuis `/salles` ; un créneau qui chevauche une réservation existante est refusé en nommant qui l'occupe
 
+### Devises, abonnements et TVA
+- **Multidevise** : chaque facture porte sa devise et **le taux figé le jour de son émission**. Le taux vit dans la pièce, pas dans la table des taux — mettre un taux à jour aujourd'hui ne réécrit pas le chiffre d'affaires de l'an dernier
+- Les totaux sont exprimés dans la **devise de tenue des comptes** (réglable par l'administration seule) : additionner des euros et des dollars ne veut rien dire. Comptabilité, trésorerie et pilotage convertissent au taux de la pièce
+- **Une devise sans taux connu n'est pas proposée** à la facturation : mieux vaut refuser que convertir au petit bonheur
+- **Facturation récurrente** : l'abonnement est le moule, la facture est la pièce. Périodicité mensuelle à annuelle, délai de paiement, terme facultatif. Rien n'est émis d'avance ; les échéances atteintes partent au balayage horaire, et un **index unique interdit de facturer deux fois la même échéance**, même si deux balayages se croisent
+- Un abonnement dont le terme est passé **s'éteint de lui-même** plutôt que de facturer au-delà de ce qui a été signé ; le supprimer laisse les factures déjà émises, qui restent dues
+- **Déclarations de TVA** : collectée sur les factures client, déductible sur les factures fournisseur, ventilée par taux, sur les débits. Les brouillons et les factures annulées sont ignorés, les factures en devise converties au taux figé
+- **La période se choisit dans une liste** (mensuelle ou trimestrielle) plutôt que de se saisir : trois jours de décalage feraient une déclaration fausse que personne ne verrait passer. Une TVA négative est rendue comme **crédit reportable**, pas comme dette
+- **Une déclaration déposée ne se recalcule plus** : c'est une pièce, pas un tableau de bord. Le dépôt à l'administration reste l'affaire d'un tiers déclarant — aucune télétransmission n'est faite
+
 ### Projets, tâches et temps passé
 - **Projets** rattachés à un client, un service, une équipe et un responsable, avec budget et taux horaire
 - **Jalons** datés, marqués atteints d'un geste
@@ -326,7 +336,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-523 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+551 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -369,7 +379,15 @@ roulement borné à trois mois, publication de la semaine, astreinte lue à l'in
 voulu, salarié qui ne voit que ses propres créneaux), la qualité (non-conformité non
 clôturable avec des actions en cours, efficacité impossible à juger avant la fin de
 l'action, constat d'audit transformé en non-conformité) et l'accueil (liste des
-personnes dans les murs, sortie non réécrite, remise de courrier datée et signée), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
+personnes dans les murs, sortie non réécrite, remise de courrier datée et signée),
+la multidevise (taux figé qui survit à la mise à jour du taux courant, devise sans
+taux refusée à la facturation, totaux convertis, devise de référence réservée à
+l'administration), la facturation récurrente (échéance avancée d'une période,
+émission rejouée sans doublon, terme qui éteint l'abonnement, devise sans taux
+écartée sans bloquer les autres, factures conservées après suppression du moule)
+et la TVA (ventilation par taux, brouillon et annulée ignorés, conversion au taux
+figé, crédit reportable, période bricolée refusée, déclaration déposée non
+recalculée), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
 projection et point bas), les immobilisations (linéaire, bascule du dégressif, bornes)
 et la flotte (doublon d'immatriculation, compteur qui ne recule pas, échéance
 dépassée), la sécurité (session révoquée dès la désactivation,
@@ -514,6 +532,9 @@ src/
   planning.js        créneaux, roulements, astreintes, conflits avec les absences
   quality.js         non-conformités, actions correctives, efficacité, audits internes
   frontdesk.js       registre des visiteurs et suivi du courrier
+  currency.js        devises, taux, conversion vers la devise de tenue des comptes
+  billing.js         abonnements et facturation récurrente
+  vat.js             calcul et conservation des déclarations de TVA
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
   secret-store.js    chiffrement AES-256-GCM des secrets rangés en base
