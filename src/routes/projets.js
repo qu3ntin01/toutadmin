@@ -21,26 +21,67 @@ function fail(req, res, target, message) {
 }
 
 /**
- * Qui pilote les projets : l'administration, la gestion, et les managers. Les
- * autres membres participent — ils voient leurs projets et y saisissent leur
- * temps, sans pouvoir en créer ni en supprimer.
+ * Trois cercles, et non deux.
+ *
+ * L'administration et la gestion voient et conduisent tous les projets : c'est
+ * leur périmètre. Un manager peut en ouvrir — son équipe en a besoin — mais ne
+ * conduit que ceux dont il est responsable : encadrer une équipe ne donne
+ * aucun droit sur le projet d'une autre. Les membres participent et saisissent
+ * leur temps.
  */
-function canManage(req) {
+function isSteward(req) {
   const user = req.currentUser;
-  return Boolean(user && (user.role === 'admin' || user.is_finance || org.isManager(user.id)));
+  return Boolean(user && (user.role === 'admin' || user.is_finance));
 }
 
+/** Peut ouvrir un projet : la gestion, et quiconque encadre un périmètre. */
+function canCreate(req) {
+  return isSteward(req) || org.isManager(req.currentUser.id);
+}
+
+function canManage(req, project) {
+  if (isSteward(req)) return true;
+  return Boolean(project && project.lead_id === req.currentUser.id);
+}
+
+function requireCreate(req, res, next) {
+  if (canCreate(req)) return next();
+  res.status(403).render('error', { message: "L'ouverture d'un projet est réservée à la gestion et aux managers." });
+}
+
+/** Garde des routes qui portent un projet dans leur chemin. */
 function requireManage(req, res, next) {
-  if (canManage(req)) return next();
-  res.status(403).render('error', { message: 'La conduite des projets est réservée à la gestion et aux managers.' });
+  const project = projects.byId(req.params.id);
+  if (project && canManage(req, project)) return next();
+  res.status(403).render('error', { message: "La conduite de ce projet est réservée à son responsable et à la gestion." });
 }
 
-/** Un projet n'est ouvert qu'à son équipe, sauf pour ceux qui les pilotent. */
+/** Même garde, pour les routes qui portent une tâche ou un jalon. */
+function requireManageOf(getProjectId) {
+  return (req, res, next) => {
+    const projectId = getProjectId(req);
+    const project = projectId ? projects.byId(projectId) : null;
+    if (project && canManage(req, project)) return next();
+    res.status(403).render('error', { message: "La conduite de ce projet est réservée à son responsable et à la gestion." });
+  };
+}
+
+/** Un projet n'est ouvert qu'à son équipe, son responsable et la gestion. */
 function visibleTo(req, project) {
-  if (canManage(req)) return true;
+  if (isSteward(req)) return true;
   const userId = req.currentUser.id;
   if (project.lead_id === userId) return true;
   return Boolean(db.prepare('SELECT 1 FROM project_members WHERE project_id = ? AND user_id = ?').get(project.id, userId));
+}
+
+function milestoneProject(req) {
+  const row = db.prepare('SELECT project_id FROM project_milestones WHERE id = ?').get(Number(req.params.id));
+  return row ? row.project_id : null;
+}
+
+function taskProject(req) {
+  const task = projects.taskById(req.params.id);
+  return task ? task.project_id : null;
 }
 
 function readAmount(raw, { max = 1e9 } = {}) {
@@ -65,11 +106,13 @@ function activeUsers() {
 // ---------- Vue d'ensemble ----------
 
 router.get('/', (req, res) => {
-  const manage = canManage(req);
-  const all = manage ? projects.list({ includeArchived: req.query.archives === '1' }) : projects.forUser(req.currentUser.id);
+  // La gestion voit tout ; un manager voit les projets dont il est responsable
+  // ou membre, comme n'importe quel participant.
+  const steward = isSteward(req);
+  const all = steward ? projects.list({ includeArchived: req.query.archives === '1' }) : projects.forUser(req.currentUser.id);
 
   res.render('projets', {
-    canManage: manage,
+    canManage: canCreate(req),
     showArchived: req.query.archives === '1',
     projectList: all.map((p) => ({ ...p, profit: projects.profitability(p) })),
     myTasks: projects.tasksOf(req.currentUser.id),
@@ -79,11 +122,11 @@ router.get('/', (req, res) => {
     people: activeUsers(),
     departments: org.departments(),
     teams: org.teams(),
-    partners: manage ? finance.partners() : [],
+    partners: canCreate(req) ? finance.partners() : [],
   });
 });
 
-router.post('/', requireManage, (req, res) => {
+router.post('/', requireCreate, (req, res) => {
   const name = (req.body.name || '').trim();
   if (!name || name.length > 160) return fail(req, res, back('projets'), 'Intitulé de projet invalide.');
 
@@ -99,13 +142,17 @@ router.post('/', requireManage, (req, res) => {
   if (!budget.ok || !rate.ok) return fail(req, res, back('projets'), 'Montant invalide.');
   if (!projects.STATUSES.includes(req.body.status || 'Cadrage')) return fail(req, res, back('projets'), 'Statut invalide.');
 
+  // Sans responsable désigné, c'est celui qui ouvre le projet : un manager qui
+  // n'en désignerait pas perdrait la main sur ce qu'il vient de créer.
+  const leadId = Number(req.body.lead_id) || (isSteward(req) ? null : req.currentUser.id);
+
   const id = projects.create({
     code: (req.body.code || '').trim().slice(0, 20),
     name,
     partnerId: Number(req.body.partner_id) || null,
     departmentId: Number(req.body.department_id) || null,
     teamId: Number(req.body.team_id) || null,
-    leadId: Number(req.body.lead_id) || null,
+    leadId,
     status: req.body.status || 'Cadrage',
     startDate: start.value,
     dueDate: due.value,
@@ -130,7 +177,7 @@ router.get('/:id', (req, res) => {
 
   res.render('projet', {
     project,
-    canManage: canManage(req),
+    canManage: canManage(req, project),
     board: projects.board(project.id),
     taskList: projects.tasks(project.id),
     milestoneList: projects.milestones(project.id),
@@ -238,13 +285,13 @@ router.post('/:id/jalons', requireManage, (req, res) => {
   res.redirect(backTo(project.id, 'jalons'));
 });
 
-router.post('/jalons/:id/basculer', requireManage, (req, res) => {
+router.post('/jalons/:id/basculer', requireManageOf(milestoneProject), (req, res) => {
   const projectId = projects.toggleMilestone(Number(req.params.id));
   if (!projectId) return fail(req, res, back('projets'), 'Jalon introuvable.');
   res.redirect(backTo(projectId, 'jalons'));
 });
 
-router.post('/jalons/:id/supprimer', requireManage, (req, res) => {
+router.post('/jalons/:id/supprimer', requireManageOf(milestoneProject), (req, res) => {
   const projectId = projects.deleteMilestone(Number(req.params.id));
   if (!projectId) return fail(req, res, back('projets'), 'Jalon introuvable.');
   setFlash(req, 'success', 'Jalon retiré.');
@@ -309,7 +356,7 @@ router.post('/taches/:id/affecter', (req, res) => {
   res.redirect(backTo(task.project_id, 'taches'));
 });
 
-router.post('/taches/:id/supprimer', requireManage, (req, res) => {
+router.post('/taches/:id/supprimer', requireManageOf(taskProject), (req, res) => {
   const projectId = projects.deleteTask(Number(req.params.id));
   if (!projectId) return fail(req, res, back('projets'), 'Tâche introuvable.');
   setFlash(req, 'success', 'Tâche supprimée.');
@@ -354,7 +401,9 @@ router.post('/:id/temps', (req, res) => {
 
 router.post('/temps/:id/supprimer', (req, res) => {
   // Chacun efface ses propres saisies ; la gestion peut corriger celles de tous.
-  const restrict = canManage(req) ? {} : { userId: req.currentUser.id };
+  const entry = db.prepare('SELECT project_id FROM project_time WHERE id = ?').get(Number(req.params.id));
+  const project = entry ? projects.byId(entry.project_id) : null;
+  const restrict = canManage(req, project) ? {} : { userId: req.currentUser.id };
   const projectId = projects.deleteTimeEntry(Number(req.params.id), restrict);
   if (!projectId) return fail(req, res, back('mon-temps'), 'Saisie introuvable, ou pas la vôtre.');
   setFlash(req, 'success', 'Saisie supprimée.');

@@ -121,6 +121,34 @@ test('Tickets et support', async (t) => {
     assert.equal(ticket.partner_id, null);
   });
 
+  await t.test("une demande RH ne se lit pas depuis la gestion", async () => {
+    // Un membre désigné à la gestion, mais pas aux RH.
+    const gestionnaire = await makeMember(admin, 'gestionnaire@test.local');
+    db.prepare('UPDATE users SET is_finance = 1 WHERE id = ?').run(gestionnaire.id);
+
+    await demandeur.client.refreshToken('/support');
+    await demandeur.client.post('/support/tickets', {
+      subject: 'Erreur sur mon bulletin de paie', category: 'Ressources humaines', priority: 'Haute',
+      body: 'Le net ne correspond pas.',
+    });
+    const rh = db.prepare("SELECT * FROM tickets WHERE category = 'Ressources humaines'").get();
+
+    // La gestion ne le voit ni en fiche, ni en liste, ni ne le traite.
+    assert.equal((await gestionnaire.client.get(`/support/tickets/${rh.id}`)).status, 403);
+    const { body } = await gestionnaire.client.html('/support');
+    assert.equal(/Erreur sur mon bulletin/.test(body), false);
+
+    await gestionnaire.client.refreshToken('/support');
+    assert.equal((await gestionnaire.client.post(`/support/tickets/${rh.id}/statut`, { status: 'Clos' })).status, 403);
+    assert.equal(db.prepare('SELECT status FROM tickets WHERE id = ?').get(rh.id).status, 'Ouvert');
+
+    // Un ticket informatique, lui, lui est ouvert.
+    assert.equal((await gestionnaire.client.get(`/support/tickets/${ticketId}`)).status, 200);
+
+    // Et l'administration voit tout.
+    assert.equal((await admin.get(`/support/tickets/${rh.id}`)).status, 200);
+  });
+
   await t.test('résoudre un ticket pose sa date de clôture', async () => {
     await admin.refreshToken(`/support/tickets/${ticketId}`);
     await admin.post(`/support/tickets/${ticketId}/statut`, { status: 'Résolu' });

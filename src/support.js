@@ -15,6 +15,21 @@ const STATUSES = ['Ouvert', 'En cours', 'En attente', 'Résolu', 'Clos'];
 const ORIGINS = ['Interne', 'Client'];
 const OPEN_STATUSES = ['Ouvert', 'En cours', 'En attente'];
 
+// Une demande RH parle de paie, de contrat, parfois de santé : elle ne se
+// traite pas par la même file que le remplacement d'un écran.
+const RESTRICTED_CATEGORY = 'Ressources humaines';
+
+/**
+ * Les catégories qu'une personne peut traiter. Un manager d'équipe n'a pas à
+ * lire les demandes RH de toute l'entreprise ; les RH, si.
+ */
+function agentCategories(user) {
+  if (!user) return [];
+  if (user.role === 'admin' || user.is_hr) return CATEGORIES;
+  if (user.is_finance) return CATEGORIES.filter((c) => c !== RESTRICTED_CATEGORY);
+  return [];
+}
+
 // Délai de première réponse attendu, en heures, selon la priorité.
 const RESPONSE_HOURS = { Critique: 2, Haute: 8, Normale: 24, Basse: 72 };
 
@@ -51,9 +66,15 @@ function byId(id) {
   `).get(Number(id) || 0) || null;
 }
 
-function list({ status = '', category = '', assigneeId = null, requesterId = null, openOnly = false } = {}) {
+function list({ status = '', category = '', assigneeId = null, requesterId = null, openOnly = false, categories = null } = {}) {
   const clauses = [];
   const params = [];
+  // Restriction par catégorie : posée en SQL, pas retirée à l'affichage.
+  if (categories) {
+    if (categories.length === 0) return [];
+    clauses.push(`tk.category IN (${categories.map(() => '?').join(',')})`);
+    params.push(...categories);
+  }
   if (status) { clauses.push('tk.status = ?'); params.push(status); }
   if (openOnly) { clauses.push(`tk.status IN (${OPEN_STATUSES.map(() => '?').join(',')})`); params.push(...OPEN_STATUSES); }
   if (category) { clauses.push('tk.category = ?'); params.push(category); }
@@ -207,7 +228,7 @@ function categories() {
 }
 
 module.exports = {
-  CATEGORIES, PRIORITIES, STATUSES, ORIGINS, OPEN_STATUSES, RESPONSE_HOURS, KB_VISIBILITIES,
+  CATEGORIES, RESTRICTED_CATEGORY, agentCategories, PRIORITIES, STATUSES, ORIGINS, OPEN_STATUSES, RESPONSE_HOURS, KB_VISIBILITIES,
   reference, dueFor, create, byId, list, messages, reply, setStatus, assign, setPriority, isOverdue, summary, remove,
   articles, articleById, canRead, createArticle, updateArticle, deleteArticle, noteRead, categories,
 };

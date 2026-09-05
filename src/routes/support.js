@@ -20,17 +20,29 @@ function fail(req, res, target, message) {
 }
 
 /**
- * Qui traite les tickets : l'administration, les RH, la gestion et les managers.
- * Tout le monde peut en ouvrir un et suivre les siens.
+ * Qui traite les tickets, et lesquels.
+ *
+ * L'administration et les RH voient tout ; la gestion et les managers voient
+ * tout sauf les demandes RH, qui parlent de paie, de contrat, parfois de santé.
+ * Tout le monde peut ouvrir un ticket et suivre les siens.
  */
-function isAgent(req) {
+function agentCategories(req) {
   const user = req.currentUser;
-  return Boolean(user && (user.role === 'admin' || user.is_hr || user.is_finance || org.isManager(user.id)));
+  if (!user) return [];
+  const base = support.agentCategories(user);
+  if (base.length) return base;
+  // Un manager encadre : il traite les demandes de son périmètre, hors RH.
+  return org.isManager(user.id) ? support.CATEGORIES.filter((c) => c !== support.RESTRICTED_CATEGORY) : [];
 }
 
-function requireAgent(req, res, next) {
-  if (isAgent(req)) return next();
-  res.status(403).render('error', { message: 'Le traitement des tickets est réservé aux équipes support.' });
+function isAgent(req) {
+  return agentCategories(req).length > 0;
+}
+
+function requireAgentFor(req, res, next) {
+  const ticket = support.byId(req.params.id);
+  if (ticket && agentCategories(req).includes(ticket.category)) return next();
+  res.status(403).render('error', { message: 'Le traitement de ce ticket est réservé aux équipes qui en ont la charge.' });
 }
 
 function activeUsers() {
@@ -47,15 +59,16 @@ router.get('/', (req, res) => {
     openOnly: req.query.tous !== '1',
   };
 
+  const allowed = agentCategories(req);
   const tickets = agent
-    ? support.list(filters)
+    ? support.list({ ...filters, categories: allowed })
     : support.list({ ...filters, requesterId: req.currentUser.id });
 
   res.render('support', {
     isAgent: agent,
     tickets: tickets.map((tk) => ({ ...tk, overdue: support.isOverdue(tk) })),
     mine: support.list({ requesterId: req.currentUser.id }),
-    assigned: agent ? support.list({ assigneeId: req.currentUser.id, openOnly: true }) : [],
+    assigned: agent ? support.list({ assigneeId: req.currentUser.id, openOnly: true, categories: allowed }) : [],
     filters,
     summary: support.summary(),
     categories: support.CATEGORIES,
@@ -94,9 +107,10 @@ router.post('/tickets', (req, res) => {
   res.redirect(`/support/tickets/${id}`);
 });
 
-/** Un demandeur ne voit que ses tickets ; les équipes support les voient tous. */
+/** Un demandeur voit ses tickets ; un agent, ceux des catégories qu'il traite. */
 function visibleTo(req, ticket) {
-  return isAgent(req) || ticket.requester_id === req.currentUser.id;
+  if (ticket.requester_id === req.currentUser.id) return true;
+  return agentCategories(req).includes(ticket.category);
 }
 
 router.get('/tickets/:id', (req, res) => {
@@ -135,7 +149,7 @@ router.post('/tickets/:id/repondre', (req, res) => {
   res.redirect(`/support/tickets/${ticket.id}`);
 });
 
-router.post('/tickets/:id/statut', requireAgent, (req, res) => {
+router.post('/tickets/:id/statut', requireAgentFor, (req, res) => {
   const ticket = support.byId(req.params.id);
   if (!ticket) return fail(req, res, back('tickets'), 'Ticket introuvable.');
   if (!support.setStatus(ticket.id, req.body.status)) {
@@ -144,7 +158,7 @@ router.post('/tickets/:id/statut', requireAgent, (req, res) => {
   res.redirect(`/support/tickets/${ticket.id}`);
 });
 
-router.post('/tickets/:id/priorite', requireAgent, (req, res) => {
+router.post('/tickets/:id/priorite', requireAgentFor, (req, res) => {
   const ticket = support.byId(req.params.id);
   if (!ticket) return fail(req, res, back('tickets'), 'Ticket introuvable.');
   if (!support.setPriority(ticket.id, req.body.priority)) {
@@ -153,14 +167,14 @@ router.post('/tickets/:id/priorite', requireAgent, (req, res) => {
   res.redirect(`/support/tickets/${ticket.id}`);
 });
 
-router.post('/tickets/:id/affecter', requireAgent, (req, res) => {
+router.post('/tickets/:id/affecter', requireAgentFor, (req, res) => {
   const ticket = support.byId(req.params.id);
   if (!ticket) return fail(req, res, back('tickets'), 'Ticket introuvable.');
   support.assign(ticket.id, Number(req.body.assignee_id) || null);
   res.redirect(`/support/tickets/${ticket.id}`);
 });
 
-router.post('/tickets/:id/supprimer', requireAgent, (req, res) => {
+router.post('/tickets/:id/supprimer', requireAgentFor, (req, res) => {
   const ticket = support.byId(req.params.id);
   if (!ticket) return fail(req, res, back('tickets'), 'Ticket introuvable.');
   support.remove(ticket.id);

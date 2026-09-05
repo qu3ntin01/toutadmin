@@ -83,10 +83,12 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Temps passé** imputé au projet et, s'il y a lieu, à la tâche : au plus 24 heures par saisie, jamais une date à venir
 - **Rentabilité** : heures, coût au taux horaire, marge restante et part du budget consommée
 - Un projet n'est ouvert qu'à **son équipe**, son responsable et la gestion ; chacun n'efface que ses propres saisies
+- **Trois cercles, pas deux** : la gestion conduit tous les projets, un manager peut en ouvrir mais ne conduit que ceux dont il est responsable — encadrer une équipe ne donne aucun droit sur le projet d'une autre. Sans responsable désigné, c'est celui qui ouvre le projet
 
 ### Support et base de connaissances
 - **Tickets** internes et clients dans un même circuit, avec **délai de première réponse déduit de la priorité** (2 h à 72 h). Changer la priorité recalcule le délai depuis l'ouverture, pas depuis maintenant
 - **Notes internes** invisibles du demandeur, et qui ne comptent pas comme première réponse
+- **Cloisonnement par catégorie** : une demande « Ressources humaines » parle de paie, de contrat, parfois de santé. Seules l'administration et les RH la voient ; la gestion et les managers traitent tout le reste
 - **Base de connaissances** par catégorie, avec recherche plein texte et portée entreprise, service, équipe ou administration
 
 ### Moyens généraux
@@ -263,7 +265,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-364 tests d'intégration couvrent le socle transverse (échéances rassemblées de tous
+366 tests d'intégration couvrent le socle transverse (échéances rassemblées de tous
 les espaces et triées, notification dédupliquée à la rejouée, notification d'autrui
 non marquable, résultat clé mesuré sur son échelle y compris décroissante, recherche
 qui ne rend ni les tiers ni les projets hors périmètre, membre masqué introuvable,

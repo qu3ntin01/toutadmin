@@ -195,6 +195,40 @@ test('Projets, tâches et temps passé', async (t) => {
     assert.equal(db.prepare('SELECT id FROM project_time WHERE id = ?').get(mine), undefined);
   });
 
+  await t.test("un manager conduit ses projets, pas ceux des autres", async () => {
+    // Un manager : quelqu'un qui encadre une équipe.
+    const { client: manager, id: managerId } = await makeMember(admin, 'manager-projets@test.local');
+    await admin.refreshToken('/admin');
+    await admin.post('/admin/equipes', { name: 'Équipe Projets' });
+    const team = db.prepare("SELECT id FROM teams WHERE name = 'Équipe Projets'").get();
+    await admin.refreshToken('/admin');
+    await admin.post('/admin/encadrement', { scope: 'team', scope_id: String(team.id), user_id: String(managerId) });
+
+    // Il peut ouvrir un projet, et en devient responsable sans l'avoir désigné.
+    await manager.refreshToken('/projets');
+    await manager.post('/projets', { name: 'Projet du manager' });
+    const sien = db.prepare("SELECT * FROM projects WHERE name = 'Projet du manager'").get();
+    assert.equal(sien.lead_id, managerId, "l'ouvreur devient responsable par défaut");
+
+    await manager.refreshToken(`/projets/${sien.id}`);
+    await manager.post(`/projets/${sien.id}/jalons`, { title: 'Jalon du manager' });
+    assert.equal(db.prepare('SELECT COUNT(*) AS n FROM project_milestones WHERE project_id = ?').get(sien.id).n, 1);
+
+    // Mais pas toucher au projet d'un autre : encadrer une équipe ne donne
+    // aucun droit sur le projet d'une autre.
+    assert.equal((await manager.get(`/projets/${projectId}`)).status, 403);
+    await manager.refreshToken('/projets');
+    assert.equal((await manager.post(`/projets/${projectId}/supprimer`)).status, 403);
+    assert.ok(projects.byId(projectId), "le projet d'autrui est intact");
+
+    const foreignTask = db.prepare('SELECT id FROM project_tasks WHERE project_id = ?').get(projectId);
+    if (foreignTask) {
+      await manager.refreshToken('/projets');
+      assert.equal((await manager.post(`/projets/taches/${foreignTask.id}/supprimer`)).status, 403);
+      assert.ok(db.prepare('SELECT id FROM project_tasks WHERE id = ?').get(foreignTask.id));
+    }
+  });
+
   await t.test('archiver retire le projet de la liste courante sans rien perdre', async () => {
     await admin.refreshToken('/projets');
     await admin.post(`/projets/${projectId}/archiver`);

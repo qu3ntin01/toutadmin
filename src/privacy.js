@@ -127,45 +127,45 @@ function seedRecords() {
  * demande. Ce qui relève d'une obligation légale de conservation ne le peut pas.
  */
 const PERSONAL_SOURCES = [
-  { key: 'compte', label: 'Compte', erasable: false,
+  { key: 'compte', table: 'users', column: 'id', label: 'Compte', erasable: false,
     query: "SELECT id, email, first_name, last_name, grade, contract_type, contract_end_date, phone, bio, locale, created_at, last_login_at FROM users WHERE id = ?" },
-  { key: 'demandes', label: 'Demandes de congés et absences', erasable: true,
+  { key: 'demandes', table: 'hr_requests', column: 'employee_id', label: 'Demandes de congés et absences', erasable: true,
     query: 'SELECT id, type, start_date, end_date, days, reason, status, created_at FROM hr_requests WHERE employee_id = ?' },
-  { key: 'ajustements', label: 'Ajustements de solde', erasable: true,
+  { key: 'ajustements', table: 'leave_adjustments', column: 'employee_id', label: 'Ajustements de solde', erasable: true,
     query: 'SELECT id, amount, reason, created_at FROM leave_adjustments WHERE employee_id = ?' },
-  { key: 'bulletins', label: 'Bulletins de paie', erasable: false,
+  { key: 'bulletins', table: 'payslips', column: 'employee_id', label: 'Bulletins de paie', erasable: false,
     query: 'SELECT id, period, gross_amount, net_amount, status, created_at FROM payslips WHERE employee_id = ?' },
-  { key: 'pointages', label: 'Pointages', erasable: true,
+  { key: 'pointages', table: 'time_entries', column: 'employee_id', label: 'Pointages', erasable: true,
     query: 'SELECT id, clock_in, clock_out, created_at FROM time_entries WHERE employee_id = ?' },
-  { key: 'affectations', label: 'Outils affectés', erasable: true,
+  { key: 'affectations', table: 'assignments', column: 'employee_id', label: 'Outils affectés', erasable: true,
     query: 'SELECT id, tool_id, username, assigned_at FROM assignments WHERE employee_id = ?' },
-  { key: 'equipements', label: 'Équipements affectés', erasable: true,
+  { key: 'equipements', table: 'asset_assignments', column: 'employee_id', label: 'Équipements affectés', erasable: true,
     query: 'SELECT id, asset_id, assigned_at, returned_at FROM asset_assignments WHERE employee_id = ?' },
-  { key: 'messages', label: 'Messagerie interne', erasable: true,
+  { key: 'messages', table: 'messages', column: 'sender_id', label: 'Messagerie interne', erasable: true,
     query: 'SELECT id, sender_id, recipient_id, subject, created_at FROM messages WHERE sender_id = ? OR recipient_id = ?' },
-  { key: 'agenda', label: 'Agenda personnel', erasable: true,
+  { key: 'agenda', table: 'calendar_events', column: 'user_id', label: 'Agenda personnel', erasable: true,
     query: 'SELECT id, title, start_date, end_date, visibility FROM calendar_events WHERE user_id = ?' },
-  { key: 'competences', label: 'Compétences et habilitations', erasable: false,
+  { key: 'competences', table: 'user_skills', column: 'user_id', label: 'Compétences et habilitations', erasable: false,
     query: 'SELECT us.id, s.name, us.level, us.obtained_on, us.expires_on FROM user_skills us JOIN skills s ON s.id = us.skill_id WHERE us.user_id = ?' },
-  { key: 'visites', label: 'Visites médicales', erasable: false,
+  { key: 'visites', table: 'medical_visits', column: 'user_id', label: 'Visites médicales', erasable: false,
     query: 'SELECT id, kind, scheduled_on, done_on, verdict, next_due FROM medical_visits WHERE user_id = ?' },
-  { key: 'accidents', label: 'Registre des accidents', erasable: false,
+  { key: 'accidents', table: 'workplace_incidents', column: 'user_id', label: 'Registre des accidents', erasable: false,
     query: 'SELECT id, occurred_on, kind, location, days_off FROM workplace_incidents WHERE user_id = ?' },
-  { key: 'protections', label: 'Équipements de protection remis', erasable: true,
+  { key: 'protections', table: 'ppe_assignments', column: 'user_id', label: 'Équipements de protection remis', erasable: true,
     query: 'SELECT id, ppe_id, issued_on, expires_on, returned_on FROM ppe_assignments WHERE user_id = ?' },
-  { key: 'temps_projet', label: 'Temps passé sur les projets', erasable: true,
+  { key: 'temps_projet', table: 'project_time', column: 'user_id', label: 'Temps passé sur les projets', erasable: true,
     query: 'SELECT id, project_id, spent_on, hours, note FROM project_time WHERE user_id = ?' },
-  { key: 'taches', label: 'Tâches assignées', erasable: true,
+  { key: 'taches', table: 'project_tasks', column: 'assignee_id', label: 'Tâches assignées', erasable: true,
     query: 'SELECT id, project_id, title, status, due_date FROM project_tasks WHERE assignee_id = ?' },
-  { key: 'tickets', label: 'Tickets ouverts', erasable: true,
+  { key: 'tickets', table: 'tickets', column: 'requester_id', label: 'Tickets ouverts', erasable: true,
     query: 'SELECT id, reference, subject, status, created_at FROM tickets WHERE requester_id = ?' },
-  { key: 'frais', label: 'Notes de frais', erasable: false,
+  { key: 'frais', table: 'expense_claims', column: 'employee_id', label: 'Notes de frais', erasable: false,
     query: 'SELECT id, spent_on, category, description, amount, status FROM expense_claims WHERE employee_id = ?' },
-  { key: 'parcours', label: "Parcours d'arrivée et de départ", erasable: true,
+  { key: 'parcours', table: 'checklists', column: 'user_id', label: "Parcours d'arrivée et de départ", erasable: true,
     query: 'SELECT id, kind, reference_date, completed_at FROM checklists WHERE user_id = ?' },
-  { key: 'notifications', label: 'Notifications', erasable: true,
+  { key: 'notifications', table: 'notifications', column: 'user_id', label: 'Notifications', erasable: true,
     query: 'SELECT id, title, body, created_at, read_at FROM notifications WHERE user_id = ?' },
-  { key: 'journal', label: "Journal d'audit", erasable: false,
+  { key: 'journal', table: 'audit_log', column: 'actor_id', label: "Journal d'audit", erasable: false,
     query: 'SELECT id, occurred_at, action, entity, entity_id, ip FROM audit_log WHERE actor_id = ?' },
 ];
 
@@ -216,18 +216,11 @@ function eraseFor(userId) {
         kept.push({ label: source.label, count: source.rows.length });
         continue;
       }
-      const table = source.query.match(/FROM\s+(\w+)/i)[1];
-      const column = source.query.includes('employee_id') ? 'employee_id'
-        : source.query.includes('assignee_id') ? 'assignee_id'
-          : source.query.includes('requester_id') ? 'requester_id'
-            : 'user_id';
-
-      let removed;
-      if (source.key === 'messages') {
-        removed = db.prepare('DELETE FROM messages WHERE sender_id = ? OR recipient_id = ?').run(userId, userId).changes;
-      } else {
-        removed = db.prepare(`DELETE FROM ${table} WHERE ${column} = ?`).run(userId).changes;
-      }
+      // Table et colonne sont déclarées avec la source, jamais déduites de la
+      // requête : ce qui entre dans le SQL doit venir d'une liste fermée.
+      const removed = source.key === 'messages'
+        ? db.prepare('DELETE FROM messages WHERE sender_id = ? OR recipient_id = ?').run(userId, userId).changes
+        : db.prepare(`DELETE FROM ${source.table} WHERE ${source.column} = ?`).run(userId).changes;
       erased.push({ label: source.label, count: removed });
     }
 

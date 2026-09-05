@@ -92,7 +92,9 @@ function collect({ withinDays = HORIZON_DAYS } = {}) {
     FROM medical_visits v JOIN users u ON u.id = v.user_id
     WHERE u.active = 1 AND v.next_due IS NOT NULL AND v.next_due <= ?
   `).all(limit)) {
-    add('Visite médicale', `${visit.first_name} ${visit.last_name}`, visit.kind, visit.next_due, '/sante-securite#echeances', stewards());
+    // La personne est prévenue de sa propre visite : c'est elle qui s'y rend.
+    add('Visite médicale', `${visit.first_name} ${visit.last_name}`, visit.kind, visit.next_due, '/sante-securite#echeances',
+      [...new Set([visit.user_id, ...stewards()])]);
   }
 
   // --- Équipements de protection
