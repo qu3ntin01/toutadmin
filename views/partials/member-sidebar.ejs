@@ -8,6 +8,8 @@ const memberLinks = [
   { key: 'agenda', href: '/agenda', label: t('nav.agenda'), icon: 'calendar' },
   { key: 'salles', href: '/salles', label: t('nav.rooms'), icon: 'network' },
   { key: 'projets', href: '/projets', label: 'Projets', icon: 'briefcase' },
+  { key: 'support', href: '/support', label: 'Support', icon: 'lifebuoy' },
+  { key: 'connaissances', href: '/base-de-connaissances', label: 'Connaissances', icon: 'inbox' },
 ];
 // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
 if (isCseMember) memberLinks.push({ key: 'cse', href: '/cse', label: t('nav.cse'), icon: 'lifebuoy' });

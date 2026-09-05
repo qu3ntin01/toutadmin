@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Base de connaissances — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Connaissances',
+      navItems: canWrite
+        ? [{ tab: 'articles', label: 'Articles', icon: 'inbox' }, { tab: 'rediger', label: 'Rédiger', icon: 'plus' }]
+        : [{ tab: 'articles', label: 'Articles', icon: 'inbox' }],
+      footLinks: [
+        { href: '/support', label: 'Support', icon: 'lifebuoy' },
+        { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: 'Retour', icon: 'back' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Base de connaissances',
+        headerSubtitle: 'Procédures, modes opératoires et réponses aux questions récurrentes'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <section class="tab-panel is-active" id="articles">
+          <div class="card">
+            <div class="card-head"><h3>Chercher</h3></div>
+            <form method="GET" action="/base-de-connaissances" class="form-grid">
+              <label><span>Mots-clés</span><input type="search" name="q" value="<%= query %>" placeholder="télétravail, badge, note de frais" /></label>
+              <label><span>Catégorie</span>
+                <select name="categorie"><option value="">Toutes</option>
+                  <% categoryList.forEach((c) => { %><option value="<%= c %>" <%= category === c ? 'selected' : '' %>><%= c %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2 row-actions">
+                <button type="submit" class="btn btn-primary btn-sm">Chercher</button>
+                <a class="btn btn-outline btn-sm" href="/base-de-connaissances">Tout voir</a>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= articleList.length %> article(s)</h3></div>
+            <ul class="org-list">
+              <% articleList.forEach((a) => { %>
+                <li class="org-item">
+                  <span>
+                    <a class="cell-strong" href="/base-de-connaissances/<%= a.id %>"><%= a.title %></a>
+                    <span class="tag"><%= a.category %></span>
+                    <% if (a.visibility !== 'Entreprise') { %><span class="tag tag-accent"><%= a.visibility %></span><% } %>
+                    <br />
+                    <span class="cell-sub">
+                      <%= a.first_name ? a.first_name + ' ' + a.last_name + ' · ' : '' %>
+                      <%= a.views %> lecture(s)
+                    </span>
+                  </span>
+                  <a class="btn btn-outline btn-sm" href="/base-de-connaissances/<%= a.id %>">Lire</a>
+                </li>
+              <% }) %>
+              <% if (articleList.length === 0) { %><li class="cell-sub">Aucun article ne correspond.</li><% } %>
+            </ul>
+          </div>
+        </section>
+
+        <% if (canWrite) { %>
+          <section class="tab-panel" id="rediger">
+            <div class="card">
+              <div class="card-head"><h3>Rédiger un article</h3></div>
+              <form method="POST" action="/base-de-connaissances" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Titre</span><input type="text" name="title" required maxlength="200" /></label>
+                <label><span>Catégorie</span><input type="text" name="category" list="kb-categories" value="Général" maxlength="60" />
+                  <datalist id="kb-categories"><% categoryList.forEach((c) => { %><option value="<%= c %>"></option><% }) %></datalist>
+                </label>
+                <label><span>Portée</span>
+                  <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>"><%= v %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span>Service ou équipe concerné (si portée restreinte)</span>
+                  <select name="scope_id">
+                    <option value="">—</option>
+                    <optgroup label="Services">
+                      <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+                    </optgroup>
+                    <optgroup label="Équipes">
+                      <% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %>
+                    </optgroup>
+                  </select>
+                </label>
+                <label class="span-2"><span>Contenu</span><textarea name="body" rows="12" placeholder="Les étapes, dans l'ordre, avec ce qu'il faut avoir sous la main."></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Publier</button></div>
+              </form>
+              <p class="hint">Une portée « Administration » réserve l'article à la console d'administration : un salarié ne le voit pas.</p>
+            </div>
+          </section>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

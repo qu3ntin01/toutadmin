@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: article.title + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Connaissances',
+      navItems: canWrite
+        ? [{ tab: 'lecture', label: 'Article', icon: 'inbox' }, { tab: 'edition', label: 'Modifier', icon: 'settings' }]
+        : [{ tab: 'lecture', label: 'Article', icon: 'inbox' }],
+      footLinks: [{ href: '/base-de-connaissances', label: 'Tous les articles', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: article.title,
+        headerSubtitle: article.category + ' · ' + article.visibility + ' · ' + article.views + ' lecture(s)'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <section class="tab-panel is-active" id="lecture">
+          <div class="card">
+            <% if (!article.published) { %><div class="flash flash-error">Brouillon : cet article n'est pas visible des lecteurs.</div><% } %>
+            <p class="article-body"><%= article.body || 'Cet article est vide.' %></p>
+          </div>
+        </section>
+
+        <% if (canWrite) { %>
+          <section class="tab-panel" id="edition">
+            <div class="card">
+              <div class="card-head"><h3>Modifier</h3></div>
+              <form method="POST" action="/base-de-connaissances/<%= article.id %>/modifier" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Titre</span><input type="text" name="title" required maxlength="200" value="<%= article.title %>" /></label>
+                <label><span>Catégorie</span><input type="text" name="category" value="<%= article.category %>" maxlength="60" /></label>
+                <label><span>Portée</span>
+                  <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>" <%= article.visibility === v ? 'selected' : '' %>><%= v %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span>Service ou équipe concerné</span>
+                  <select name="scope_id">
+                    <option value="">—</option>
+                    <optgroup label="Services">
+                      <% departments.forEach((d) => { %><option value="<%= d.id %>" <%= article.scope_id === d.id && article.visibility === 'Service' ? 'selected' : '' %>><%= d.name %></option><% }) %>
+                    </optgroup>
+                    <optgroup label="Équipes">
+                      <% teams.forEach((tm) => { %><option value="<%= tm.id %>" <%= article.scope_id === tm.id && article.visibility === 'Équipe' ? 'selected' : '' %>><%= tm.name %></option><% }) %>
+                    </optgroup>
+                  </select>
+                </label>
+                <label class="span-2"><span>Contenu</span><textarea name="body" rows="16"><%= article.body %></textarea></label>
+                <label class="check-row span-2">
+                  <input type="checkbox" name="published" value="1" <%= article.published ? 'checked' : '' %> />
+                  <span>Publié</span>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              </form>
+
+              <form method="POST" action="/base-de-connaissances/<%= article.id %>/supprimer" data-confirm="Supprimer cet article ?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-danger btn-block">Supprimer</button>
+              </form>
+            </div>
+          </section>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

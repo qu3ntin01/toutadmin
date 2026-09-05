@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: ticket.reference + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: ticket.reference,
+      navItems: [
+        { tab: 'echange', label: 'Échange', icon: 'inbox' },
+        { tab: 'fiche', label: 'Fiche', icon: 'settings' }
+      ],
+      footLinks: [{ href: '/support', label: 'Retour au support', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: ticket.subject,
+        headerSubtitle: ticket.reference + ' · ' + ticket.category + ' · ' + ticket.status
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + (iso.endsWith('Z') ? '' : 'Z')).toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <% if (overdue) { %>
+          <div class="flash flash-error">Ce ticket a dépassé son délai de première réponse (<%= moment(ticket.due_at) %>).</div>
+        <% } %>
+
+        <section class="tab-panel is-active" id="echange">
+          <div class="card">
+            <div class="card-head"><h3>Demande initiale</h3></div>
+            <p class="cell-sub">
+              <%= ticket.requester_first_name ? ticket.requester_first_name + ' ' + ticket.requester_last_name : 'Demandeur inconnu' %>
+              · <%= moment(ticket.created_at) %>
+            </p>
+            <p class="ticket-body"><%= ticket.body || '—' %></p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= messageList.length %> message(s)</h3></div>
+            <ul class="thread">
+              <% messageList.forEach((m) => { %>
+                <li class="thread-item <%= m.internal ? 'is-internal' : '' %>">
+                  <p class="cell-sub">
+                    <span class="cell-strong"><%= m.first_name ? m.first_name + ' ' + m.last_name : 'Système' %></span>
+                    · <%= moment(m.created_at) %>
+                    <% if (m.internal) { %><span class="tag tag-danger">note interne</span><% } %>
+                  </p>
+                  <p class="ticket-body"><%= m.body %></p>
+                </li>
+              <% }) %>
+              <% if (messageList.length === 0) { %><li class="cell-sub">Aucune réponse pour l'instant.</li><% } %>
+            </ul>
+
+            <form method="POST" action="/support/tickets/<%= ticket.id %>/repondre" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Répondre</span><textarea name="body" rows="4" required></textarea></label>
+              <% if (isAgent) { %>
+                <label class="check-row span-2">
+                  <input type="checkbox" name="internal" value="1" />
+                  <span>Note interne — invisible pour le demandeur</span>
+                </label>
+              <% } %>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Envoyer</button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="fiche">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Fiche</h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub">Référence</td><td class="cell-strong"><%= ticket.reference %></td></tr>
+                  <tr><td class="cell-sub">Origine</td><td><%= ticket.origin %></td></tr>
+                  <tr><td class="cell-sub">Client</td><td><%= ticket.partner_name || '—' %></td></tr>
+                  <tr><td class="cell-sub">Ouvert le</td><td><%= moment(ticket.created_at) %></td></tr>
+                  <tr><td class="cell-sub">Délai de réponse</td><td><%= moment(ticket.due_at) %></td></tr>
+                  <tr><td class="cell-sub">Première réponse</td><td><%= moment(ticket.first_reply_at) %></td></tr>
+                  <tr><td class="cell-sub">Clos le</td><td><%= moment(ticket.closed_at) %></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <% if (isAgent) { %>
+              <div class="card">
+                <div class="card-head"><h3>Traitement</h3></div>
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/statut" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span>Statut</span>
+                    <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= ticket.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Enregistrer le statut</button></div>
+                </form>
+
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/priorite" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span>Priorité</span>
+                    <select name="priority"><% priorities.forEach((p) => { %><option value="<%= p %>" <%= ticket.priority === p ? 'selected' : '' %>><%= p %></option><% }) %></select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Changer la priorité</button></div>
+                </form>
+                <p class="hint">Changer la priorité recalcule le délai depuis l'ouverture, pas depuis maintenant.</p>
+
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/affecter" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span>Traité par</span>
+                    <select name="assignee_id"><option value="">—</option>
+                      <% people.forEach((u) => { %><option value="<%= u.id %>" <%= ticket.assignee_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                    </select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Affecter</button></div>
+                </form>
+
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/supprimer" data-confirm="Supprimer ce ticket et tout son échange ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-block">Supprimer le ticket</button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>
