@@ -522,6 +522,11 @@ td.actions { min-width: 196px; }
   white-space: nowrap;
 }
 .tag-accent { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+/* Variantes de statut : une criticité, un retard ou une note interne doivent se
+   voir sans lire l'étiquette. */
+.tag-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); font-weight: 600; }
+.tag-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); font-weight: 600; }
+.tag-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); font-weight: 600; }
 
 .status {
   display: inline-flex;
@@ -1189,3 +1194,10 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
 .thread-item.is-internal { background: var(--warning-bg); border-color: var(--warning-border); }
 
 .article-body { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; margin: 0; }
+
+/* ---------- Parcours et compétences ---------- */
+
+.org-item.is-done { opacity: .62; }
+.matrix-head { font-size: 11px; font-weight: 600; white-space: nowrap; }
+.matrix-cell { text-align: center; white-space: nowrap; }
+.matrix-cell .btn-link { display: block; margin: 2px auto 0; font-size: 11px; }

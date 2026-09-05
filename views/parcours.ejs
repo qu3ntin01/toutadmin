@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Parcours et compétences — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Parcours',
+      navItems: [
+        { tab: 'parcours', label: 'Arrivées et départs', icon: 'users' },
+        { tab: 'modeles', label: 'Modèles de parcours', icon: 'settings' },
+        { tab: 'competences', label: 'Compétences', icon: 'check' },
+        { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: expiring.length + missing.length }
+      ],
+      footLinks: [{ href: '/rh', label: 'Espace RH', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Parcours et compétences',
+        headerSubtitle: "Ce qu'il y a à faire à l'arrivée, au départ, et ce que chacun détient"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const fullName = (r) => [r.first_name, r.last_name].filter(Boolean).join(' '); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= checklistList.filter((c) => !c.completed_at).length %></span><span class="stat-label">Parcours en cours</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= late.length %></span><span class="stat-label">Points en retard</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= expiring.length %></span><span class="stat-label">Habilitations à renouveler</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= missing.length %></span><span class="stat-label">Obligatoires manquantes</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Parcours ---------- -->
+        <section class="tab-panel is-active" id="parcours">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Lancer un parcours</h3></div>
+              <form method="POST" action="/parcours/listes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Modèle</span>
+                  <select name="template_id" required>
+                    <option value="">—</option>
+                    <% templateList.forEach((tpl) => { %>
+                      <option value="<%= tpl.id %>"><%= tpl.kind %> — <%= tpl.name %> (<%= tpl.items.length %> point(s))</option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Personne concernée</span>
+                  <select name="user_id" required>
+                    <option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %> — <%= u.email %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Date pivot (arrivée ou départ)</span>
+                  <input type="date" name="reference_date" value="<%= today %>" required />
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Lancer</button></div>
+              </form>
+              <p class="hint">Chaque point du modèle porte un écart au jour pivot : « −2 » vaut deux jours avant.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Points en retard</h3></div>
+              <ul class="org-list">
+                <% late.slice(0, 12).forEach((item) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= item.label %></span>
+                      <br /><span class="cell-sub"><%= fullName(item) %> · <%= item.owner_role %> · dû le <%= day(item.due_date) %></span>
+                    </span>
+                    <form method="POST" action="/parcours/listes/points/<%= item.id %>/basculer" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-outline btn-sm">Fait</button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (late.length === 0) { %><li class="cell-sub">Rien en retard.</li><% } %>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= checklistList.length %> parcours</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Personne</th><th>Type</th><th>Date pivot</th><th>Avancement</th><th></th></tr></thead>
+                <tbody>
+                  <% checklistList.forEach((c) => { %>
+                    <tr>
+                      <td><a class="cell-strong" href="/parcours/listes/<%= c.id %>"><%= fullName(c) %></a><br /><span class="cell-sub"><%= c.template_name || '—' %></span></td>
+                      <td><span class="tag <%= c.kind === 'Départ' ? 'tag-danger' : 'tag-accent' %>"><%= c.kind %></span></td>
+                      <td class="cell-sub nowrap"><%= day(c.reference_date) %></td>
+                      <td>
+                        <span class="meter"><span class="meter-fill" data-ratio="<%= c.total ? Math.round(c.done * 100 / c.total) : 0 %>"></span></span>
+                        <span class="cell-sub"><%= c.done %>/<%= c.total %><%= c.completed_at ? ' — terminé' : '' %></span>
+                      </td>
+                      <td>
+                        <form method="POST" action="/parcours/listes/<%= c.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce parcours ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (checklistList.length === 0) { %><tr><td colspan="5" class="cell-sub">Aucun parcours lancé.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Modèles ---------- -->
+        <section class="tab-panel" id="modeles">
+          <div class="card">
+            <div class="card-head"><h3>Créer un modèle</h3></div>
+            <form method="POST" action="/parcours/modeles" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Nom</span><input type="text" name="name" required maxlength="120" placeholder="Arrivée — poste au siège" /></label>
+              <label><span>Type</span>
+                <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer</button></div>
+            </form>
+          </div>
+
+          <% templateList.forEach((tpl) => { %>
+            <div class="card">
+              <div class="card-head">
+                <h3><%= tpl.name %> <span class="tag"><%= tpl.kind %></span></h3>
+                <form method="POST" action="/parcours/modeles/<%= tpl.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce modèle ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                </form>
+              </div>
+              <ul class="org-list">
+                <% tpl.items.forEach((item) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= item.label %></span>
+                      <br /><span class="cell-sub"><%= item.owner_role %> · J<%= item.offset_days >= 0 ? '+' + item.offset_days : item.offset_days %></span>
+                    </span>
+                    <form method="POST" action="/parcours/modeles/points/<%= item.id %>/supprimer" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (tpl.items.length === 0) { %><li class="cell-sub">Aucun point pour l'instant.</li><% } %>
+              </ul>
+
+              <form method="POST" action="/parcours/modeles/<%= tpl.id %>/points" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Point à faire</span><input type="text" name="label" required maxlength="200" placeholder="Créer les comptes et remettre le matériel" /></label>
+                <label><span>Responsable</span>
+                  <select name="owner_role"><% ownerRoles.forEach((r) => { %><option value="<%= r %>"><%= r %></option><% }) %></select>
+                </label>
+                <label><span>Écart au jour pivot</span><input type="number" name="offset_days" value="0" min="-365" max="365" required /></label>
+                <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Ajouter le point</button></div>
+              </form>
+            </div>
+          <% }) %>
+          <% if (templateList.length === 0) { %>
+            <div class="card"><p class="cell-sub">Aucun modèle. Créez-en un ci-dessus, puis ajoutez-y ses points.</p></div>
+          <% } %>
+        </section>
+
+        <!-- ---------- Compétences ---------- -->
+        <section class="tab-panel" id="competences">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Déclarer une compétence</h3></div>
+              <form method="POST" action="/parcours/competences" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="120" placeholder="Habilitation électrique B1V" /></label>
+                <label><span>Catégorie</span><input type="text" name="category" value="Générale" maxlength="60" /></label>
+                <label><span>Validité (mois)</span><input type="number" name="validity_months" min="1" max="600" placeholder="36" /></label>
+                <label class="check-row span-2">
+                  <input type="checkbox" name="mandatory" value="1" />
+                  <span>Obligatoire pour tout le personnel</span>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+              </form>
+              <p class="hint">Sans durée de validité, la compétence est acquise une fois pour toutes.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Attribuer</h3></div>
+              <form method="POST" action="/parcours/competences/attribuer" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Personne</span>
+                  <select name="user_id" required><option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Compétence</span>
+                  <select name="skill_id" required><option value="">—</option>
+                    <% skillList.forEach((s) => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span>Niveau</span>
+                  <select name="level"><% levels.forEach((l) => { %><option value="<%= l %>" <%= l === 2 ? 'selected' : '' %>><%= l %></option><% }) %></select>
+                </label>
+                <label><span>Obtenue le</span><input type="date" name="obtained_on" value="<%= today %>" /></label>
+                <label class="span-2"><span>Référence du titre</span><input type="text" name="reference" maxlength="120" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Attribuer</button></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Matrice des compétences</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Personne</th>
+                    <% skillList.forEach((s) => { %><th class="matrix-head"><%= s.name %></th><% }) %>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% matrix.forEach((person) => { %>
+                    <tr>
+                      <td class="cell-strong nowrap"><%= fullName(person) %></td>
+                      <% skillList.forEach((s) => { %>
+                        <% const held = person.held[s.id]; %>
+                        <td class="matrix-cell">
+                          <% if (!held) { %>
+                            <span class="cell-sub">—</span>
+                          <% } else { %>
+                            <span class="tag <%= held.expires_on && held.expires_on < today ? 'tag-danger' : 'tag-success' %>">
+                              N<%= held.level %><%= held.expires_on ? ' · ' + day(held.expires_on) : '' %>
+                            </span>
+                            <form method="POST" action="/parcours/competences/<%= s.id %>/retirer/<%= person.id %>" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn-link">retirer</button>
+                            </form>
+                          <% } %>
+                        </td>
+                      <% }) %>
+                    </tr>
+                  <% }) %>
+                  <% if (matrix.length === 0 || skillList.length === 0) { %>
+                    <tr><td colspan="<%= skillList.length + 1 %>" class="cell-sub">Déclarez des compétences pour construire la matrice.</td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Compétences déclarées</h3></div>
+            <ul class="org-list">
+              <% skillList.forEach((s) => { %>
+                <li class="org-item">
+                  <span>
+                    <span class="cell-strong"><%= s.name %></span>
+                    <% if (s.mandatory) { %><span class="tag tag-danger">obligatoire</span><% } %>
+                    <br /><span class="cell-sub"><%= s.category %><%= s.validity_months ? ' · valable ' + s.validity_months + ' mois' : ' · sans échéance' %> · <%= s.holders %> détenteur(s)</span>
+                  </span>
+                  <form method="POST" action="/parcours/competences/<%= s.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette compétence et toutes ses attributions ?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                  </form>
+                </li>
+              <% }) %>
+              <% if (skillList.length === 0) { %><li class="cell-sub">Aucune compétence déclarée.</li><% } %>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ---------- Échéances ---------- -->
+        <section class="tab-panel" id="echeances">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Habilitations qui arrivent à échéance</h3></div>
+              <ul class="org-list">
+                <% expiring.forEach((e) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= fullName(e) %></span>
+                      <br /><span class="cell-sub"><%= e.name %> — <%= e.expires_on < today ? 'périmée le ' : 'expire le ' %><%= day(e.expires_on) %></span>
+                    </span>
+                    <span class="tag <%= e.expires_on < today ? 'tag-danger' : '' %>"><%= e.expires_on < today ? 'périmée' : 'à renouveler' %></span>
+                  </li>
+                <% }) %>
+                <% if (expiring.length === 0) { %><li class="cell-sub">Rien à renouveler dans les 90 jours.</li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Obligatoires manquantes</h3></div>
+              <p class="hint">Une habilitation déclarée obligatoire et absente — ou périmée — apparaît ici jusqu'à régularisation.</p>
+              <ul class="org-list">
+                <% missing.forEach((m) => { %>
+                  <li class="org-item">
+                    <span class="cell-strong"><%= fullName(m) %></span>
+                    <span class="cell-sub"><%= m.name %><%= m.expires_on ? ' (périmée le ' + day(m.expires_on) + ')' : '' %></span>
+                  </li>
+                <% }) %>
+                <% if (missing.length === 0) { %><li class="cell-sub">Tout le monde est à jour.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/meter.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

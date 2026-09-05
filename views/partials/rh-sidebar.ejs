@@ -32,9 +32,13 @@ const rhSections = [
 const rhAsLinks = typeof asLinks !== 'undefined' && asLinks;
 const rhActive = typeof active !== 'undefined' ? active : null;
 // L'administrateur n'a pas d'espace membre : il retourne à sa console.
-const rhFootLinks = currentUser.role === 'admin'
-  ? [{ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }]
-  : [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }];
+const rhFootLinks = [
+  { href: '/parcours', label: 'Parcours et compétences', icon: 'users' },
+  { href: '/sante-securite', label: 'Santé-sécurité', icon: 'shield' },
+];
+rhFootLinks.push(currentUser.role === 'admin'
+  ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }
+  : { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' });
 if (isFinance || currentUser.role === 'admin') rhFootLinks.push({ href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' });
 // Le moteur de paie est un module RH : il n'apparaît qu'une fois débloqué.
 const payrollModule = enabledModules.find((m) => m.key === 'paie');

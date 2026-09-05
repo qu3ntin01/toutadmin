@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Parcours — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: checklist.kind,
+      navItems: [{ tab: 'points', label: 'Points à faire', icon: 'check' }],
+      footLinks: [{ href: '/parcours', label: 'Tous les parcours', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: checklist.kind + ' — ' + person.first_name + ' ' + person.last_name,
+        headerSubtitle: 'Jour pivot : ' + checklist.reference_date
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const today = new Date().toISOString().slice(0, 10); %>
+
+        <section class="tab-panel is-active" id="points">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= items.filter((i) => i.done_at).length %>/<%= items.length %> point(s) faits</h3>
+              <% if (checklist.completed_at) { %><span class="tag tag-success">terminé</span><% } %>
+            </div>
+            <ul class="org-list">
+              <% items.forEach((item) => { %>
+                <li class="org-item <%= item.done_at ? 'is-done' : '' %>">
+                  <span>
+                    <span class="cell-strong"><%= item.label %></span>
+                    <br />
+                    <span class="cell-sub">
+                      <%= item.owner_role %> · échéance
+                      <span class="<%= !item.done_at && item.due_date && item.due_date < today ? 'text-danger' : '' %>"><%= day(item.due_date) %></span>
+                      <% if (item.done_at) { %> · fait par <%= item.first_name %> <%= item.last_name %><% } %>
+                    </span>
+                  </span>
+                  <form method="POST" action="/parcours/listes/points/<%= item.id %>/basculer" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn <%= item.done_at ? 'btn-outline' : 'btn-primary' %> btn-sm">
+                      <%= item.done_at ? 'Rouvrir' : 'Marquer fait' %>
+                    </button>
+                  </form>
+                </li>
+              <% }) %>
+              <% if (items.length === 0) { %><li class="cell-sub">Ce modèle ne comportait aucun point.</li><% } %>
+            </ul>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

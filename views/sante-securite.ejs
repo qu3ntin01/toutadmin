@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Santé et sécurité — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Santé-sécurité',
+      navItems: [
+        { tab: 'risques', label: 'Document unique', icon: 'shield' },
+        { tab: 'accidents', label: 'Registre des accidents', icon: 'ticket' },
+        { tab: 'protections', label: 'Équipements', icon: 'tool' },
+        { tab: 'visites', label: 'Visites médicales', icon: 'calendar' },
+        { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: upcoming.visits.length + upcoming.ppe.length + upcoming.risks.length }
+      ],
+      footLinks: [{ href: '/rh', label: 'Espace RH', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Santé et sécurité au travail',
+        headerSubtitle: "Évaluation des risques, registre des accidents, protections et suivi médical"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const fullName = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || '—'; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= riskList.filter((r) => r.critical).length %></span><span class="stat-label">Risques appelant une action</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= indicators.accidents %></span><span class="stat-label">Accidents avec arrêt (12 mois)</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= indicators.frequency %></span><span class="stat-label">Taux de fréquence</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= indicators.severity %></span><span class="stat-label">Taux de gravité</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Document unique ---------- -->
+        <section class="tab-panel is-active" id="risques">
+          <div class="card">
+            <div class="card-head"><h3>Consigner un risque</h3></div>
+            <form method="POST" action="/sante-securite/risques" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Unité de travail</span><input type="text" name="unit" required maxlength="120" placeholder="Atelier de production" /></label>
+              <label><span>Danger</span><input type="text" name="hazard" required maxlength="200" placeholder="Chute de plain-pied" /></label>
+              <label class="span-2"><span>Situation d'exposition</span><input type="text" name="exposure" maxlength="300" placeholder="Sol glissant après lavage, deux fois par jour" /></label>
+              <label><span>Gravité (1 à 4)</span>
+                <select name="severity"><% severities.forEach((s) => { %><option value="<%= s %>" <%= s === 2 ? 'selected' : '' %>><%= s %></option><% }) %></select>
+              </label>
+              <label><span>Probabilité (1 à 4)</span>
+                <select name="likelihood"><% likelihoods.forEach((l) => { %><option value="<%= l %>" <%= l === 2 ? 'selected' : '' %>><%= l %></option><% }) %></select>
+              </label>
+              <label class="span-2"><span>Mesures de prévention</span><textarea name="measures" rows="3" placeholder="Ce qui est déjà en place, et ce qui reste à faire."></textarea></label>
+              <label><span>Évalué le</span><input type="date" name="reviewed_on" value="<%= today %>" /></label>
+              <label><span>Prochaine revue</span><input type="date" name="next_review" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner</button></div>
+            </form>
+            <p class="hint">La criticité est le produit gravité × probabilité. Au-delà de <%= actionThreshold %>, le risque appelle une action.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= riskList.length %> risque(s) évalué(s)</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Unité</th><th>Danger</th><th>G</th><th>P</th><th>Criticité</th><th>Mesures</th><th>Revue</th><th></th></tr></thead>
+                <tbody>
+                  <% riskList.forEach((r) => { %>
+                    <tr>
+                      <td class="cell-sub"><%= r.unit %></td>
+                      <td class="cell-strong"><%= r.hazard %><% if (r.exposure) { %><br /><span class="cell-sub"><%= r.exposure %></span><% } %></td>
+                      <td><%= r.severity %></td>
+                      <td><%= r.likelihood %></td>
+                      <td><span class="tag <%= r.critical ? 'tag-danger' : 'tag-success' %>"><%= r.score %></span></td>
+                      <td class="cell-sub audit-detail"><%= r.measures || '—' %></td>
+                      <td class="cell-sub nowrap"><%= day(r.next_review) %></td>
+                      <td>
+                        <form method="POST" action="/sante-securite/risques/<%= r.id %>/supprimer" class="inline-form" data-confirm="Retirer ce risque du document unique ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (riskList.length === 0) { %><tr><td colspan="8" class="cell-sub">Le document unique est vide.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Accidents ---------- -->
+        <section class="tab-panel" id="accidents">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Consigner un événement</h3></div>
+              <form method="POST" action="/sante-securite/accidents" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Survenu le</span><input type="date" name="occurred_on" max="<%= today %>" value="<%= today %>" required /></label>
+                <label><span>Nature</span>
+                  <select name="kind"><% incidentKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span>Personne concernée</span>
+                  <select name="user_id"><option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Lieu</span><input type="text" name="location" maxlength="160" /></label>
+                <label class="span-2"><span>Circonstances</span><textarea name="description" rows="3"></textarea></label>
+                <label><span>Jours d'arrêt</span><input type="number" name="days_off" min="0" max="3650" value="0" /></label>
+                <label><span>Déclaré le</span><input type="date" name="declared_on" /></label>
+                <label class="span-2"><span>Suites données</span><textarea name="follow_up" rows="2"></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner</button></div>
+              </form>
+              <p class="hint">Ce registre est interne : il ne remplace pas la déclaration à la caisse d'assurance maladie.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Indicateurs sur douze mois</h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub">Effectif</td><td class="cell-strong"><%= indicators.headcount %></td></tr>
+                  <tr><td class="cell-sub">Heures travaillées (estimées)</td><td><%= indicators.worked.toLocaleString(locale) %></td></tr>
+                  <tr><td class="cell-sub">Accidents avec arrêt</td><td><%= indicators.accidents %></td></tr>
+                  <tr><td class="cell-sub">Journées perdues</td><td><%= indicators.daysOff %></td></tr>
+                  <tr><td class="cell-sub">Taux de fréquence</td><td class="cell-strong"><%= indicators.frequency %></td></tr>
+                  <tr><td class="cell-sub">Taux de gravité</td><td class="cell-strong"><%= indicators.severity %></td></tr>
+                </tbody>
+              </table>
+              <p class="hint">
+                Fréquence : accidents avec arrêt par million d'heures travaillées. Gravité : journées perdues
+                par millier d'heures. Les heures sont estimées à 1 607 h par personne et par an.
+              </p>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Registre (<%= incidentList.length %>)</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Nature</th><th>Personne</th><th>Lieu</th><th>Arrêt</th><th>Déclaré</th><th></th></tr></thead>
+                <tbody>
+                  <% incidentList.forEach((i) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= day(i.occurred_on) %></td>
+                      <td><span class="tag <%= i.kind === 'Presque-accident' ? '' : 'tag-danger' %>"><%= i.kind %></span></td>
+                      <td><%= fullName(i) %></td>
+                      <td class="cell-sub"><%= i.location || '—' %><% if (i.description) { %><br /><span class="cell-sub"><%= i.description %></span><% } %></td>
+                      <td class="cell-strong"><%= i.days_off %> j</td>
+                      <td class="cell-sub nowrap"><%= day(i.declared_on) %></td>
+                      <td>
+                        <form method="POST" action="/sante-securite/accidents/<%= i.id %>/supprimer" class="inline-form" data-confirm="Retirer cette entrée du registre ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (incidentList.length === 0) { %><tr><td colspan="7" class="cell-sub">Aucun événement consigné.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Protections ---------- -->
+        <section class="tab-panel" id="protections">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Déclarer un équipement</h3></div>
+              <form method="POST" action="/sante-securite/protections" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="120" placeholder="Casque de chantier" /></label>
+                <label><span>Catégorie</span><input type="text" name="category" value="Protection" maxlength="60" /></label>
+                <label><span>Validité (mois)</span><input type="number" name="validity_months" min="1" max="600" placeholder="60" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déclarer</button></div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Remettre à quelqu'un</h3></div>
+              <form method="POST" action="/sante-securite/protections/remettre" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Équipement</span>
+                  <select name="ppe_id" required><option value="">—</option>
+                    <% ppeList.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Personne</span>
+                  <select name="user_id" required><option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Remis le</span><input type="date" name="issued_on" value="<%= today %>" required /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner la remise</button></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Équipements en circulation (<%= ppeGiven.length %>)</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Équipement</th><th>Détenteur</th><th>Remis le</th><th>Échéance</th><th></th></tr></thead>
+                <tbody>
+                  <% ppeGiven.forEach((a) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= a.name %><br /><span class="cell-sub"><%= a.category %></span></td>
+                      <td><%= fullName(a) %></td>
+                      <td class="cell-sub nowrap"><%= day(a.issued_on) %></td>
+                      <td class="<%= a.expires_on && a.expires_on < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(a.expires_on) %></td>
+                      <td>
+                        <form method="POST" action="/sante-securite/protections/remises/<%= a.id %>/rendre" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-outline btn-sm">Restitué</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (ppeGiven.length === 0) { %><tr><td colspan="5" class="cell-sub">Aucun équipement en circulation.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Catalogue</h3></div>
+            <ul class="org-list">
+              <% ppeList.forEach((p) => { %>
+                <li class="org-item">
+                  <span><span class="cell-strong"><%= p.name %></span><br /><span class="cell-sub"><%= p.category %><%= p.validity_months ? ' · ' + p.validity_months + ' mois' : ' · sans échéance' %></span></span>
+                  <form method="POST" action="/sante-securite/protections/<%= p.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet équipement et ses remises ?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                  </form>
+                </li>
+              <% }) %>
+              <% if (ppeList.length === 0) { %><li class="cell-sub">Aucun équipement déclaré.</li><% } %>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ---------- Visites ---------- -->
+        <section class="tab-panel" id="visites">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Consigner une visite</h3></div>
+              <form method="POST" action="/sante-securite/visites" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Personne</span>
+                  <select name="user_id" required><option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Type</span>
+                  <select name="kind"><% visitKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+                </label>
+                <label><span>Programmée le</span><input type="date" name="scheduled_on" /></label>
+                <label><span>Effectuée le</span><input type="date" name="done_on" /></label>
+                <label class="span-2"><span>Avis</span><input type="text" name="verdict" maxlength="200" placeholder="Apte, apte avec réserves…" /></label>
+                <label class="span-2"><span>Prochaine échéance</span><input type="date" name="next_due" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner</button></div>
+              </form>
+              <p class="hint">Seul l'avis d'aptitude est consigné : aucune donnée de santé n'a à figurer ici.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Visites suivies (<%= visitList.length %>)</h3></div>
+              <ul class="org-list">
+                <% visitList.forEach((v) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= fullName(v) %></span>
+                      <br /><span class="cell-sub"><%= v.kind %><%= v.verdict ? ' · ' + v.verdict : '' %> · effectuée <%= day(v.done_on) %> · prochaine <%= day(v.next_due) %></span>
+                    </span>
+                    <form method="POST" action="/sante-securite/visites/<%= v.id %>/supprimer" class="inline-form" data-confirm="Retirer cette visite ?">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (visitList.length === 0) { %><li class="cell-sub">Aucune visite consignée.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Échéances ---------- -->
+        <section class="tab-panel" id="echeances">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Visites médicales dues</h3></div>
+              <ul class="org-list">
+                <% upcoming.visits.forEach((v) => { %>
+                  <li class="org-item"><span class="cell-strong"><%= fullName(v) %></span><span class="cell-sub"><%= v.kind %> · <%= day(v.next_due) %></span></li>
+                <% }) %>
+                <% if (upcoming.visits.length === 0) { %><li class="cell-sub">Rien dans les 60 jours.</li><% } %>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Protections à remplacer</h3></div>
+              <ul class="org-list">
+                <% upcoming.ppe.forEach((a) => { %>
+                  <li class="org-item"><span class="cell-strong"><%= a.name %></span><span class="cell-sub"><%= fullName(a) %> · <%= day(a.expires_on) %></span></li>
+                <% }) %>
+                <% if (upcoming.ppe.length === 0) { %><li class="cell-sub">Rien dans les 60 jours.</li><% } %>
+              </ul>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3>Risques à réévaluer</h3></div>
+              <ul class="org-list">
+                <% upcoming.risks.forEach((r) => { %>
+                  <li class="org-item"><span class="cell-strong"><%= r.hazard %></span><span class="cell-sub"><%= r.unit %> · <%= day(r.next_review) %></span></li>
+                <% }) %>
+                <% if (upcoming.risks.length === 0) { %><li class="cell-sub">Rien dans les 60 jours.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

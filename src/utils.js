@@ -122,6 +122,22 @@ function checkPassword(password, { email = '', firstName = '', lastName = '' } =
   return { ok: true };
 }
 
+/**
+ * Ajoute des mois à une date ISO, en butant sur la fin du mois.
+ *
+ * setUTCMonth déborde : le 29 février + 60 mois donne le 1er mars, parce que le
+ * 29 février n'existe pas cette année-là. Une habilitation obtenue le 29 février
+ * expire le 28, pas le lendemain.
+ */
+function addMonths(isoDate, months) {
+  if (!isoDate) return null;
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const target = new Date(Date.UTC(year, month - 1 + Number(months), 1));
+  const lastDay = new Date(Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0)).getUTCDate();
+  target.setUTCDate(Math.min(day, lastDay));
+  return target.toISOString().slice(0, 10);
+}
+
 function parseAmount(value) {
   return Number((value || '').replace(',', '.'));
 }
@@ -136,5 +152,6 @@ module.exports = {
   parseAmount,
   safeRedirect,
   checkPassword,
+  addMonths,
   MIN_PASSWORD_LENGTH,
 };
