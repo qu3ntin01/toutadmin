@@ -158,6 +158,16 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - Téléchargement pour copie hors ligne, vérification d'intégrité à la demande, et restauration depuis une archive téléversée (64 Mo maximum ; au-delà, le fichier se dépose dans le dossier des sauvegardes)
 - Une archive contient empreintes de mots de passe, secrets de double authentification et bulletins de paie : le dossier est en `0700`, les archives en `0600`, l'espace est réservé à l'administration et chaque téléchargement est tracé
 
+### Externalisation des sauvegardes
+- **Une sauvegarde qui reste sur le serveur qu'elle protège ne protège de rien** : la panne de disque, l'incendie et le rançongiciel emportent les deux. Chaque archive est déposée sur les destinations extérieures actives dès sa création, automatique ou manuelle
+- **Serveur FTP** (NAS, espace de sauvegarde d'un hébergeur) en **FTPS explicite, FTPS implicite ou FTP simple** — le mode est choisi à l'écran, l'avertissement sur le FTP en clair aussi. Le dossier distant est créé s'il manque, le certificat auto-signé accepté seulement si on le demande
+- **Google Drive par compte de service** : un jeton JWT signé RS256, sans dépendance ni consentement à renouveler. Le compte de service ne possède aucun espace — le dossier de destination lui est partagé depuis un compte Drive, ce qui borne son accès à ce seul dossier
+- **Les secrets sont chiffrés en base** (AES-256-GCM, clé dérivée du secret de session qui vit dans un fichier à part) : une copie de la base seule ne livre pas le mot de passe FTP ni la clé du compte de service. L'écran ne les affiche jamais, et un champ secret laissé vide conserve la valeur en place plutôt que de l'effacer
+- **Un test de connexion écrit puis efface un fichier d'essai** : il vérifie l'accès en écriture, pas seulement l'authentification
+- **Une destination incomplète ne peut pas être activée** — une externalisation qu'on croit active et qui ne l'est pas est pire que pas d'externalisation
+- **Le distant est aligné sur le nombre d'archives conservées**, sinon l'espace grossit jusqu'à refuser les dépôts
+- **Un échec alerte les administrateurs** (une fois par jour et par destination) et reste affiché à l'écran : une externalisation muette qui échoue depuis trois semaines est le pire des cas, on se croit couvert. Renvoi manuel d'une archive après une panne réseau
+
 ### Sécurité et administration de l'instance
 - **Console de sécurité** (`/securite`, administration) : journal d'audit filtrable et exportable, sessions ouvertes et leur révocation, comptes à surveiller (verrouillés, mot de passe temporaire jamais remplacé, administrateurs sans double authentification, comptes dormants depuis 90 jours), gestion des administrateurs et politique de l'instance
 - **Réinitialisation de la double authentification** d'un membre par l'administration, pour un téléphone perdu — la personne devra la remettre en service
@@ -286,13 +296,18 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-414 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+450 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
 sécurité prise avant, confirmation par nom exact, colonne ajoutée après la
 sauvegarde tolérée, purge, intervalle automatique respecté, espace réservé à
-l'administration), les palettes (jetons complets dans chaque
+l'administration), l'externalisation (client FTP éprouvé contre un vrai serveur
+FTP tenu en mémoire — dépôt octet pour octet, liste, suppression, mot de passe
+refusé sans exception ; jeton Google vérifié avec un vrai couple de clés et
+réutilisé au lieu d'être redemandé ; secret illisible après altération, jamais
+rendu à l'écran, conservé si le champ est laissé vide ; destination incomplète
+non activable, administrateurs alertés en cas d'échec), les palettes (jetons complets dans chaque
 combinaison, contraste minimal tenu sur les six, aperçus sans couleur en dur,
 palette servie jusqu'à l'écran de connexion, valeur inconnue ou aberrante sans
 effet), le coffre-fort (document scellé par son empreinte et
@@ -454,6 +469,8 @@ src/
   themes.js          palettes de l'instance et palette en service
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
+  secret-store.js    chiffrement AES-256-GCM des secrets rangés en base
+  offsite/           externalisation des sauvegardes : FTP/FTPS, Google Drive
   cv.js              réception des CV en mémoire, écriture hors dépôt, extraction PDF/DOCX/texte
   ats.js             critères pondérés, score, seuil, classement des candidatures, CVthèque
   modules.js         modules optionnels : activation, barrière de route, limites

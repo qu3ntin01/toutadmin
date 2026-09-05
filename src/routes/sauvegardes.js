@@ -4,6 +4,7 @@ const express = require('express');
 
 const audit = require('../audit');
 const backup = require('../backup');
+const offsite = require('../offsite');
 const security = require('../security');
 const { requireAdmin } = require('../middleware/auth');
 const { setFlash } = require('../utils');
@@ -28,6 +29,7 @@ router.get('/', (req, res) => {
     summary: backup.summary(),
     directory: backup.BACKUP_DIR,
     maxUploadBytes: backup.MAX_UPLOAD_BYTES,
+    destinations: offsite.list(),
     // Compte rendu de la dernière restauration, affiché une fois puis oublié.
     restoreReport: req.session.restoreReport || null,
   });
@@ -39,7 +41,22 @@ router.post('/', async (req, res) => {
     const created = await backup.create({ reason: 'manuelle', label: (req.body.label || '').trim() });
     const removed = backup.prune();
     audit.log(req, 'sauvegarde.creee', 'backups', null, { fichier: created.fileName, octets: created.bytes, purgees: removed.length });
-    setFlash(req, 'success', `Sauvegarde ${created.fileName} créée (${created.files} fichier(s)).`);
+
+    // Externalisation dans la foulée, s'il y a des destinations actives.
+    let suffix = '';
+    let anyFailure = false;
+    if (offsite.enabled().length) {
+      const target = backup.pathOf(created.fileName);
+      const sent = await offsite.afterBackup(created.fileName, fs.readFileSync(target), { keep: backup.config().keep, req });
+      const failures = sent.filter((r) => !r.ok);
+      anyFailure = failures.length > 0;
+      suffix = anyFailure
+        ? ` Externalisation en échec vers ${failures.map((r) => r.key).join(', ')}.`
+        : ` Déposée sur ${sent.length} destination(s) extérieure(s).`;
+    }
+    // La sauvegarde locale a réussi, mais un échec d'externalisation doit se
+    // voir : c'est elle qui protège du serveur lui-même.
+    setFlash(req, anyFailure ? 'error' : 'success', `Sauvegarde ${created.fileName} créée (${created.files} fichier(s)).${suffix}`);
   } catch (err) {
     audit.log(req, 'sauvegarde.echec', 'backups', null, { erreur: err.message });
     setFlash(req, 'error', `La sauvegarde a échoué : ${err.message}`);
@@ -152,6 +169,52 @@ router.post('/televerser', ...security.upload(receiveArchive), async (req, res) 
     return fail(req, res, 'restauration', "Saisissez « RESTAURER » pour confirmer.");
   }
   return applyRestore(req, res, req.file.buffer, req.file.originalname || 'archive téléversée');
+});
+
+// ---------- Externalisation ----------
+
+router.post('/destinations/:key', (req, res) => {
+  const destination = offsite.byKey(req.params.key);
+  if (!destination) return fail(req, res, 'externalisation', 'Destination inconnue.');
+
+  const verdict = offsite.setConfig(destination.key, req.body);
+  if (!verdict.ok) return fail(req, res, 'externalisation', verdict.message);
+
+  // Activer une destination mal renseignée donnerait une fausse assurance.
+  const wanted = req.body.enabled === '1';
+  if (wanted && !offsite.isConfigured(destination.key)) {
+    offsite.setEnabled(destination.key, false);
+    return fail(req, res, 'externalisation', `${destination.label} : renseignez les champs obligatoires avant de l'activer.`);
+  }
+  offsite.setEnabled(destination.key, wanted);
+
+  audit.log(req, 'externalisation.configuree', 'settings', null, { destination: destination.key, active: wanted });
+  setFlash(req, 'success', `${destination.label} enregistrée${wanted ? ' et activée' : ''}.`);
+  res.redirect(back('externalisation'));
+});
+
+router.post('/destinations/:key/tester', async (req, res) => {
+  const destination = offsite.byKey(req.params.key);
+  if (!destination) return fail(req, res, 'externalisation', 'Destination inconnue.');
+
+  const verdict = await offsite.test(destination.key);
+  audit.log(req, 'externalisation.testee', 'settings', null, { destination: destination.key, ok: verdict.ok });
+  setFlash(req, verdict.ok ? 'success' : 'error', `${destination.label} : ${verdict.message}`);
+  res.redirect(back('externalisation'));
+});
+
+/** Renvoi manuel d'une archive : après une panne réseau, ou pour une reprise. */
+router.post('/:fichier/externaliser', async (req, res) => {
+  const target = backup.pathOf(req.params.fichier);
+  if (!target) return fail(req, res, 'externalisation', 'Sauvegarde introuvable.');
+  if (offsite.enabled().length === 0) return fail(req, res, 'externalisation', "Aucune destination extérieure n'est active.");
+
+  const sent = await offsite.afterBackup(req.params.fichier, fs.readFileSync(target), { keep: backup.config().keep, req });
+  const failures = sent.filter((r) => !r.ok);
+  setFlash(req, failures.length ? 'error' : 'success', failures.length
+    ? `Échec vers ${failures.map((r) => `${r.key} (${r.message})`).join(', ')}.`
+    : `${req.params.fichier} déposé sur ${sent.length} destination(s).`);
+  res.redirect(back('externalisation'));
 });
 
 // ---------- Réglages ----------

@@ -9,6 +9,7 @@
       panelLabel: 'Sauvegardes',
       navItems: [
         { tab: 'archives', label: 'Archives', icon: 'inbox', badge: summary.count },
+        { tab: 'externalisation', label: 'Externalisation', icon: 'external', badge: destinations.filter((d) => d.enabled && d.status && d.status.ok === false).length },
         { tab: 'restauration', label: 'Restaurer', icon: 'back' },
         { tab: 'reglages', label: 'Réglages', icon: 'settings' }
       ],
@@ -93,6 +94,12 @@
                         <span class="row-actions">
                           <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/telecharger">Télécharger</a>
                           <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/verifier">Vérifier</a>
+                          <% if (destinations.some((d) => d.enabled)) { %>
+                            <form method="POST" action="/sauvegardes/<%= a.fileName %>/externaliser" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-outline btn-sm">Externaliser</button>
+                            </form>
+                          <% } %>
                           <form method="POST" action="/sauvegardes/<%= a.fileName %>/supprimer" class="inline-form" data-confirm="Supprimer cette sauvegarde ?">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
@@ -107,6 +114,100 @@
             </div>
             <p class="hint">Dossier sur le serveur : <code class="totp-secret"><%= directory %></code></p>
           </div>
+        </section>
+
+        <!-- ---------- Externalisation ---------- -->
+        <section class="tab-panel" id="externalisation">
+          <div class="card">
+            <div class="card-head"><h3>Pourquoi externaliser</h3></div>
+            <p class="hint">
+              Une sauvegarde qui reste sur le serveur qu'elle protège ne protège de rien : la panne de
+              disque, l'incendie et le rançongiciel emportent les deux. Chaque archive est déposée sur
+              les destinations actives dès sa création, et le nombre d'archives conservées y est aligné
+              sur le réglage local.
+            </p>
+            <div class="banner is-warning">
+              <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+              <span>
+                L'archive part telle quelle : elle contient les empreintes de mots de passe, les secrets
+                de double authentification et les bulletins de paie. Choisissez une destination dont
+                l'accès est aussi restreint que celui de ce serveur.
+              </span>
+            </div>
+          </div>
+
+          <% destinations.forEach((d) => { %>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= d.label %></h3>
+                  <p class="card-sub"><%= d.hint %></p>
+                </div>
+                <span class="status <%= d.enabled ? 'status-on' : 'status-off' %>">
+                  <%= d.enabled ? 'Active' : 'Inactive' %>
+                </span>
+              </div>
+
+              <% if (d.status) { %>
+                <div class="flash flash-<%= d.status.ok ? 'success' : 'error' %>">
+                  Dernier essai le <%= moment(d.status.at) %> :
+                  <%= d.status.ok ? 'réussi' : 'échec' %><%= d.status.message ? ' — ' + d.status.message : '' %>
+                </div>
+              <% } %>
+
+              <form method="POST" action="/sauvegardes/destinations/<%= d.key %>" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <% d.fields.forEach((field) => { %>
+                  <% if (field.type === 'checkbox') { %>
+                    <label class="check-row span-2">
+                      <input type="checkbox" name="<%= field.name %>" value="1" <%= d.values[field.name] ? 'checked' : '' %> />
+                      <span><%= field.label %></span>
+                    </label>
+                  <% } else if (field.type === 'select') { %>
+                    <label class="span-2"><span><%= field.label %></span>
+                      <select name="<%= field.name %>">
+                        <% field.options.forEach((option) => { %>
+                          <option value="<%= option.value %>" <%= d.values[field.name] === option.value ? 'selected' : '' %>><%= option.label %></option>
+                        <% }) %>
+                      </select>
+                    </label>
+                  <% } else if (field.type === 'textarea') { %>
+                    <label class="span-2"><span><%= field.label %></span>
+                      <textarea name="<%= field.name %>" rows="4" placeholder="<%= d.values[field.name] || '-----BEGIN PRIVATE KEY-----…' %>"></textarea>
+                    </label>
+                  <% } else if (field.secret) { %>
+                    <label class="span-2"><span><%= field.label %></span>
+                      <input type="password" name="<%= field.name %>" autocomplete="new-password" placeholder="<%= d.values[field.name] || '' %>" />
+                    </label>
+                  <% } else { %>
+                    <label><span><%= field.label %></span>
+                      <input type="<%= field.type === 'number' ? 'number' : 'text' %>" name="<%= field.name %>"
+                             value="<%= d.values[field.name] %>" placeholder="<%= field.placeholder || '' %>" />
+                    </label>
+                  <% } %>
+                <% }) %>
+
+                <label class="check-row span-2">
+                  <input type="checkbox" name="enabled" value="1" <%= d.enabled ? 'checked' : '' %> />
+                  <span>Envoyer les sauvegardes vers cette destination</span>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              </form>
+
+              <p class="hint">
+                Les secrets sont chiffrés en base avec une clé dérivée du secret de session, qui vit dans
+                un fichier à part : une copie de la base seule ne les livre pas. Un champ secret laissé
+                vide conserve la valeur en place.
+              </p>
+
+              <% if (d.configured) { %>
+                <form method="POST" action="/sauvegardes/destinations/<%= d.key %>/tester">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-block">Tester la connexion et l'écriture</button>
+                </form>
+              <% } %>
+            </div>
+          <% }) %>
         </section>
 
         <!-- ---------- Restauration ---------- -->

@@ -1,5 +1,7 @@
 require('dotenv').config();
 
+const fs = require('fs');
+
 const createApp = require('./app');
 const db = require('./db');
 const install = require('./install');
@@ -8,6 +10,7 @@ const notifications = require('./notifications');
 const audit = require('./audit');
 const settings = require('./settings');
 const backup = require('./backup');
+const offsite = require('./offsite');
 
 const PORT = process.env.PORT || 3000;
 const EXPIRY_SWEEP_INTERVAL_MS = 60 * 60 * 1000;
@@ -41,6 +44,16 @@ async function sweep() {
     if (done) {
       console.log(`Sauvegarde automatique : ${done.fileName} (${done.files} fichier(s), ${Math.round(done.bytes / 1024)} Ko)`
         + (done.removed.length ? `, ${done.removed.length} archive(s) purgée(s)` : ''));
+
+      // Externalisation : une archive restée sur le serveur qu'elle protège ne
+      // protège de rien.
+      const target = backup.pathOf(done.fileName);
+      if (target && offsite.enabled().length) {
+        const sent = await offsite.afterBackup(done.fileName, fs.readFileSync(target), { keep: backup.config().keep });
+        for (const result of sent) {
+          console.log(`  → ${result.key} : ${result.ok ? 'déposé' : 'ÉCHEC — ' + result.message}`);
+        }
+      }
     }
   } catch (err) {
     console.error('Sauvegarde automatique en échec :', err.message);

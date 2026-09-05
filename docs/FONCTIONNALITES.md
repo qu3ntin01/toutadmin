@@ -23,6 +23,7 @@ qui relie le tout.
 | **Recherche globale** sur tous les espaces autorisés | ✅ |
 | Import de données en masse (CSV) | ⬜ |
 | **Sauvegarde automatique horaire, vérification d'intégrité et restauration** | ✅ |
+| **Externalisation des sauvegardes** vers un serveur FTP/FTPS ou Google Drive, avec alerte en cas d'échec | ✅ |
 | Export intégral de l'instance vers un format tiers | ⬜ |
 | API et webhooks pour les outils tiers | ⬜ |
 | Workflows d'approbation configurables (au-delà des circuits figés actuels) | ⬜ |
