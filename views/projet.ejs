@@ -1,0 +1,329 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: project.name + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: project.code || 'Projet',
+      navItems: [
+        { tab: 'taches', label: 'Tâches', icon: 'check' },
+        { tab: 'jalons', label: 'Jalons', icon: 'calendar' },
+        { tab: 'temps', label: 'Temps passé', icon: 'clock' },
+        { tab: 'equipe', label: 'Équipe', icon: 'users' },
+        { tab: 'reglages', label: 'Réglages', icon: 'settings' }
+      ],
+      footLinks: [{ href: '/projets', label: 'Tous les projets', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: project.name,
+        headerSubtitle: project.status + (project.due_date ? ' · échéance ' + project.due_date : '')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <% const money = (n) => n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= profit.hours %> h</span><span class="stat-label">Temps passé</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(profit.cost) %></span><span class="stat-label">Coût estimé</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(profit.budget) %></span><span class="stat-label">Budget</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value <%= profit.margin != null && profit.margin < 0 ? 'text-danger' : '' %>"><%= money(profit.margin) %></span>
+              <span class="stat-label">Marge restante</span>
+            </span>
+          </div>
+        </section>
+
+        <!-- ---------- Tâches ---------- -->
+        <section class="tab-panel is-active" id="taches">
+          <div class="card">
+            <div class="card-head"><h3>Ajouter une tâche</h3></div>
+            <form method="POST" action="/projets/<%= project.id %>/taches" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" /></label>
+              <label><span>Assignée à</span>
+                <select name="assignee_id"><option value="">—</option>
+                  <% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Priorité</span>
+                <select name="priority"><% priorities.forEach((p) => { %><option value="<%= p %>" <%= p === 'Normale' ? 'selected' : '' %>><%= p %></option><% }) %></select>
+              </label>
+              <label><span>Jalon</span>
+                <select name="milestone_id"><option value="">—</option>
+                  <% milestoneList.forEach((m) => { %><option value="<%= m.id %>"><%= m.title %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Échéance</span><input type="date" name="due_date" /></label>
+              <label><span>Estimation (h)</span><input type="text" name="estimate_hours" inputmode="decimal" placeholder="8" /></label>
+              <label class="span-2"><span>Détail</span><textarea name="description" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+            </form>
+          </div>
+
+          <div class="board">
+            <% board.forEach((column) => { %>
+              <div class="board-column">
+                <h4 class="board-title"><%= column.status %> <span class="tag"><%= column.items.length %></span></h4>
+                <% column.items.forEach((task) => { %>
+                  <article class="board-card">
+                    <span class="cell-strong"><%= task.title %></span>
+                    <p class="cell-sub">
+                      <%= task.first_name ? task.first_name + ' ' + task.last_name : 'non assignée' %>
+                      <% if (task.due_date) { %> · <%= day(task.due_date) %><% } %>
+                      <% if (task.estimate_hours) { %> · <%= task.spent_hours %>/<%= task.estimate_hours %> h<% } else if (task.spent_hours) { %> · <%= task.spent_hours %> h<% } %>
+                    </p>
+                    <% if (task.milestone_title) { %><p class="cell-sub"><span class="tag"><%= task.milestone_title %></span></p><% } %>
+                    <% if (['Haute','Critique'].includes(task.priority)) { %><span class="tag tag-danger"><%= task.priority %></span><% } %>
+                    <div class="row-actions">
+                      <form method="POST" action="/projets/taches/<%= task.id %>/statut" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <select name="status" class="input-sm">
+                          <% taskStatuses.forEach((s) => { %><option value="<%= s %>" <%= task.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-sm">Déplacer</button>
+                      </form>
+                      <form method="POST" action="/projets/taches/<%= task.id %>/affecter" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <select name="assignee_id" class="input-sm">
+                          <option value="">—</option>
+                          <% people.forEach((u) => { %><option value="<%= u.id %>" <%= task.assignee_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-sm">Affecter</button>
+                      </form>
+                      <% if (canManage) { %>
+                        <form method="POST" action="/projets/taches/<%= task.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette tâche ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                      <% } %>
+                    </div>
+                  </article>
+                <% }) %>
+                <% if (column.items.length === 0) { %><p class="cell-sub">—</p><% } %>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+
+        <!-- ---------- Jalons ---------- -->
+        <section class="tab-panel" id="jalons">
+          <div class="grid-2">
+            <% if (canManage) { %>
+              <div class="card">
+                <div class="card-head"><h3>Ajouter un jalon</h3></div>
+                <form method="POST" action="/projets/<%= project.id %>/jalons" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="160" /></label>
+                  <label class="span-2"><span>Échéance</span><input type="date" name="due_date" /></label>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+                </form>
+              </div>
+            <% } %>
+            <div class="card">
+              <div class="card-head"><h3><%= milestoneList.length %> jalon(s)</h3></div>
+              <ul class="org-list">
+                <% milestoneList.forEach((m) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= m.title %></span>
+                      <% if (m.reached_on) { %><span class="tag tag-success">atteint le <%= day(m.reached_on) %></span><% } %>
+                      <br /><span class="cell-sub">échéance <%= day(m.due_date) %></span>
+                    </span>
+                    <% if (canManage) { %>
+                      <span class="row-actions">
+                        <form method="POST" action="/projets/jalons/<%= m.id %>/basculer" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-outline btn-sm"><%= m.reached_on ? 'Rouvrir' : 'Marquer atteint' %></button>
+                        </form>
+                        <form method="POST" action="/projets/jalons/<%= m.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce jalon ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                      </span>
+                    <% } %>
+                  </li>
+                <% }) %>
+                <% if (milestoneList.length === 0) { %><li class="cell-sub">Aucun jalon.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Temps passé ---------- -->
+        <section class="tab-panel" id="temps">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Saisir du temps</h3></div>
+              <form method="POST" action="/projets/<%= project.id %>/temps" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Date</span><input type="date" name="spent_on" value="<%= today %>" max="<%= today %>" required /></label>
+                <label><span>Heures</span><input type="text" name="hours" inputmode="decimal" placeholder="3,5" required /></label>
+                <label class="span-2"><span>Tâche</span>
+                  <select name="task_id"><option value="">— sans tâche</option>
+                    <% taskList.forEach((task) => { %><option value="<%= task.id %>"><%= task.title %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Note</span><input type="text" name="note" maxlength="300" /></label>
+                <label class="check-row span-2">
+                  <input type="checkbox" name="billable" value="1" checked />
+                  <span>Temps facturable au client</span>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              </form>
+              <p class="hint">Une saisie porte au plus 24 heures et jamais une date à venir.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Répartition par personne</h3></div>
+              <ul class="org-list">
+                <% byMember.forEach((m) => { %>
+                  <li class="org-item">
+                    <span class="cell-strong"><%= m.first_name %> <%= m.last_name %></span>
+                    <span class="cell-sub"><%= Math.round(m.hours * 10) / 10 %> h</span>
+                  </li>
+                <% }) %>
+                <% if (byMember.length === 0) { %><li class="cell-sub">Aucun temps saisi.</li><% } %>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Saisies (<%= entries.length %>)</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Qui</th><th>Tâche</th><th>Heures</th><th>Note</th><th></th></tr></thead>
+                <tbody>
+                  <% entries.forEach((e) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= day(e.spent_on) %></td>
+                      <td><%= e.first_name %> <%= e.last_name %></td>
+                      <td class="cell-sub"><%= e.task_title || '—' %></td>
+                      <td class="cell-strong"><%= e.hours %> h<%= e.billable ? '' : ' *' %></td>
+                      <td class="cell-sub"><%= e.note || '—' %></td>
+                      <td>
+                        <% if (canManage || e.user_id === currentUser.id) { %>
+                          <form method="POST" action="/projets/temps/<%= e.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette saisie ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          </form>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (entries.length === 0) { %><tr><td colspan="6" class="cell-sub">Aucune saisie.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+            <p class="hint">* temps non facturable.</p>
+          </div>
+        </section>
+
+        <!-- ---------- Équipe ---------- -->
+        <section class="tab-panel" id="equipe">
+          <div class="grid-2">
+            <% if (canManage) { %>
+              <div class="card">
+                <div class="card-head"><h3>Ajouter au projet</h3></div>
+                <form method="POST" action="/projets/<%= project.id %>/membres" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span>Membre</span>
+                    <select name="user_id" required>
+                      <option value="">—</option>
+                      <% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                    </select>
+                  </label>
+                  <label class="span-2"><span>Rôle sur le projet</span><input type="text" name="role" maxlength="60" placeholder="Développeuse" /></label>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+                </form>
+                <p class="hint">Seuls les membres du projet, son responsable et la gestion y ont accès.</p>
+              </div>
+            <% } %>
+            <div class="card">
+              <div class="card-head"><h3><%= memberList.length %> membre(s)</h3></div>
+              <ul class="org-list">
+                <% memberList.forEach((m) => { %>
+                  <li class="org-item">
+                    <span><span class="cell-strong"><%= m.first_name %> <%= m.last_name %></span><br /><span class="cell-sub"><%= m.role || m.grade %></span></span>
+                    <% if (canManage) { %>
+                      <form method="POST" action="/projets/<%= project.id %>/membres/<%= m.user_id %>/retirer" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                      </form>
+                    <% } %>
+                  </li>
+                <% }) %>
+                <% if (memberList.length === 0) { %><li class="cell-sub">Personne n'est encore rattaché.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Réglages ---------- -->
+        <section class="tab-panel" id="reglages">
+          <div class="card">
+            <div class="card-head"><h3>Réglages du projet</h3></div>
+            <% if (canManage) { %>
+              <form method="POST" action="/projets/<%= project.id %>/modifier" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Code</span><input type="text" name="code" maxlength="20" value="<%= project.code %>" /></label>
+                <label><span>Statut</span>
+                  <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= project.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="160" value="<%= project.name %>" /></label>
+                <label><span>Responsable</span>
+                  <select name="lead_id"><option value="">—</option>
+                    <% people.forEach((u) => { %><option value="<%= u.id %>" <%= project.lead_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span>Début</span><input type="date" name="start_date" value="<%= project.start_date || '' %>" /></label>
+                <label><span>Échéance</span><input type="date" name="due_date" value="<%= project.due_date || '' %>" /></label>
+                <label><span>Budget (€)</span><input type="text" name="budget_amount" inputmode="decimal" value="<%= project.budget_amount == null ? '' : project.budget_amount %>" /></label>
+                <label><span>Taux horaire (€)</span><input type="text" name="hourly_rate" inputmode="decimal" value="<%= project.hourly_rate == null ? '' : project.hourly_rate %>" /></label>
+                <label class="span-2"><span>Description</span><textarea name="description" rows="4"><%= project.description %></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              </form>
+
+              <div class="row-actions">
+                <form method="POST" action="/projets/<%= project.id %>/archiver" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm"><%= project.archived ? 'Réactiver' : 'Archiver' %></button>
+                </form>
+                <form method="POST" action="/projets/<%= project.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce projet, ses tâches et son temps passé ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                </form>
+              </div>
+            <% } else { %>
+              <p class="cell-sub"><%= project.description || 'Aucune description.' %></p>
+              <p class="hint">Les réglages sont tenus par la gestion et les managers.</p>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/meter.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

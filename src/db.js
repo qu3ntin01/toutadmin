@@ -785,6 +785,376 @@ for (const migration of [
   }
 }
 
+// Tables des espaces métier ajoutés après le socle. Déclarées ici, après les
+// migrations de colonnes, pour que leurs clés étrangères pointent vers des tables
+// et des colonnes qui existent déjà.
+db.exec(`
+-- ---------- Projets, tâches et temps passé ----------
+
+CREATE TABLE IF NOT EXISTS projects (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL DEFAULT '',
+  name TEXT NOT NULL,
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
+  lead_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'Cadrage',
+  start_date TEXT,
+  due_date TEXT,
+  budget_amount REAL,
+  hourly_rate REAL,
+  description TEXT NOT NULL DEFAULT '',
+  archived INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS project_members (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT '',
+  UNIQUE(project_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS project_milestones (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  due_date TEXT,
+  reached_on TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS project_tasks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  milestone_id INTEGER REFERENCES project_milestones(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  assignee_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'À faire',
+  priority TEXT NOT NULL DEFAULT 'Normale',
+  estimate_hours REAL,
+  due_date TEXT,
+  done_at TEXT,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS project_time (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  project_id INTEGER NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+  task_id INTEGER REFERENCES project_tasks(id) ON DELETE SET NULL,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  spent_on TEXT NOT NULL,
+  hours REAL NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  billable INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Tickets et support ----------
+
+CREATE TABLE IF NOT EXISTS tickets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL DEFAULT '',
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL DEFAULT '',
+  category TEXT NOT NULL DEFAULT 'Autre',
+  priority TEXT NOT NULL DEFAULT 'Normale',
+  status TEXT NOT NULL DEFAULT 'Ouvert',
+  origin TEXT NOT NULL DEFAULT 'Interne',
+  requester_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  assignee_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  due_at TEXT,
+  first_reply_at TEXT,
+  closed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ticket_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ticket_id INTEGER NOT NULL REFERENCES tickets(id) ON DELETE CASCADE,
+  author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  body TEXT NOT NULL,
+  internal INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Base de connaissances ----------
+
+CREATE TABLE IF NOT EXISTS kb_articles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'Général',
+  body TEXT NOT NULL DEFAULT '',
+  visibility TEXT NOT NULL DEFAULT 'Entreprise',
+  scope_id INTEGER,
+  author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  published INTEGER NOT NULL DEFAULT 1,
+  views INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Objectifs et résultats clés ----------
+
+CREATE TABLE IF NOT EXISTS objectives (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  scope TEXT NOT NULL DEFAULT 'Entreprise',
+  scope_id INTEGER,
+  owner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  period TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'En cours',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS key_results (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  objective_id INTEGER NOT NULL REFERENCES objectives(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  start_value REAL NOT NULL DEFAULT 0,
+  target_value REAL NOT NULL DEFAULT 100,
+  current_value REAL NOT NULL DEFAULT 0,
+  unit TEXT NOT NULL DEFAULT ''
+);
+
+-- ---------- Arrivée et départ ----------
+
+CREATE TABLE IF NOT EXISTS checklist_templates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Arrivée',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS checklist_template_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  template_id INTEGER NOT NULL REFERENCES checklist_templates(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,
+  owner_role TEXT NOT NULL DEFAULT 'RH',
+  offset_days INTEGER NOT NULL DEFAULT 0,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS checklists (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  template_id INTEGER REFERENCES checklist_templates(id) ON DELETE SET NULL,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Arrivée',
+  reference_date TEXT NOT NULL,
+  completed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS checklist_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  checklist_id INTEGER NOT NULL REFERENCES checklists(id) ON DELETE CASCADE,
+  label TEXT NOT NULL,
+  owner_role TEXT NOT NULL DEFAULT 'RH',
+  due_date TEXT,
+  done_at TEXT,
+  done_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  sort_order INTEGER NOT NULL DEFAULT 0
+);
+
+-- ---------- Compétences et habilitations ----------
+
+CREATE TABLE IF NOT EXISTS skills (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL UNIQUE,
+  category TEXT NOT NULL DEFAULT 'Générale',
+  validity_months INTEGER,
+  mandatory INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS user_skills (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  skill_id INTEGER NOT NULL REFERENCES skills(id) ON DELETE CASCADE,
+  level INTEGER NOT NULL DEFAULT 1,
+  obtained_on TEXT,
+  expires_on TEXT,
+  reference TEXT NOT NULL DEFAULT '',
+  UNIQUE(user_id, skill_id)
+);
+
+-- ---------- Santé et sécurité au travail ----------
+
+CREATE TABLE IF NOT EXISTS risk_assessments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  unit TEXT NOT NULL,
+  hazard TEXT NOT NULL,
+  exposure TEXT NOT NULL DEFAULT '',
+  severity INTEGER NOT NULL DEFAULT 1,
+  likelihood INTEGER NOT NULL DEFAULT 1,
+  measures TEXT NOT NULL DEFAULT '',
+  reviewed_on TEXT,
+  next_review TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS workplace_incidents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  occurred_on TEXT NOT NULL,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  kind TEXT NOT NULL DEFAULT 'Accident du travail',
+  location TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  days_off INTEGER NOT NULL DEFAULT 0,
+  declared_on TEXT,
+  follow_up TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS ppe_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'Protection',
+  validity_months INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS ppe_assignments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ppe_id INTEGER NOT NULL REFERENCES ppe_items(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  issued_on TEXT NOT NULL,
+  expires_on TEXT,
+  returned_on TEXT
+);
+
+CREATE TABLE IF NOT EXISTS medical_visits (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Visite périodique',
+  scheduled_on TEXT,
+  done_on TEXT,
+  verdict TEXT NOT NULL DEFAULT '',
+  next_due TEXT
+);
+
+-- ---------- Trésorerie ----------
+
+CREATE TABLE IF NOT EXISTS bank_accounts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  bank TEXT NOT NULL DEFAULT '',
+  iban_last4 TEXT NOT NULL DEFAULT '',
+  opening_balance REAL NOT NULL DEFAULT 0,
+  active INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS bank_transactions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  account_id INTEGER NOT NULL REFERENCES bank_accounts(id) ON DELETE CASCADE,
+  value_date TEXT NOT NULL,
+  label TEXT NOT NULL,
+  amount REAL NOT NULL,
+  category TEXT NOT NULL DEFAULT '',
+  invoice_id INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+  claim_id INTEGER REFERENCES expense_claims(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS cash_forecasts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  expected_on TEXT NOT NULL,
+  amount REAL NOT NULL,
+  certainty TEXT NOT NULL DEFAULT 'Probable',
+  note TEXT NOT NULL DEFAULT ''
+);
+
+-- ---------- Immobilisations ----------
+
+CREATE TABLE IF NOT EXISTS fixed_assets (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'Matériel',
+  acquired_on TEXT NOT NULL,
+  amount REAL NOT NULL,
+  duration_years REAL NOT NULL DEFAULT 3,
+  method TEXT NOT NULL DEFAULT 'Linéaire',
+  disposed_on TEXT,
+  note TEXT NOT NULL DEFAULT ''
+);
+
+-- ---------- Flotte de véhicules ----------
+
+CREATE TABLE IF NOT EXISTS vehicles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  registration TEXT NOT NULL UNIQUE,
+  brand TEXT NOT NULL DEFAULT '',
+  model TEXT NOT NULL DEFAULT '',
+  kind TEXT NOT NULL DEFAULT 'Voiture',
+  acquired_on TEXT,
+  mileage INTEGER NOT NULL DEFAULT 0,
+  assigned_to INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  insurance_due TEXT,
+  inspection_due TEXT,
+  service_due TEXT,
+  status TEXT NOT NULL DEFAULT 'En service',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS vehicle_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  vehicle_id INTEGER NOT NULL REFERENCES vehicles(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Entretien',
+  occurred_on TEXT NOT NULL,
+  mileage INTEGER,
+  cost REAL,
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Registre des traitements (RGPD) ----------
+
+CREATE TABLE IF NOT EXISTS processing_records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  purpose TEXT NOT NULL DEFAULT '',
+  legal_basis TEXT NOT NULL DEFAULT '',
+  data_categories TEXT NOT NULL DEFAULT '',
+  recipients TEXT NOT NULL DEFAULT '',
+  retention TEXT NOT NULL DEFAULT '',
+  measures TEXT NOT NULL DEFAULT '',
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Notifications ----------
+
+CREATE TABLE IF NOT EXISTS notifications (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'echeance',
+  title TEXT NOT NULL,
+  body TEXT NOT NULL DEFAULT '',
+  link TEXT NOT NULL DEFAULT '',
+  dedupe_key TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  read_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_project_tasks_project ON project_tasks(project_id, status);
+CREATE INDEX IF NOT EXISTS idx_project_tasks_assignee ON project_tasks(assignee_id, status);
+CREATE INDEX IF NOT EXISTS idx_project_time_project ON project_time(project_id, spent_on);
+CREATE INDEX IF NOT EXISTS idx_project_time_user ON project_time(user_id, spent_on);
+CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status, priority);
+CREATE INDEX IF NOT EXISTS idx_ticket_messages_ticket ON ticket_messages(ticket_id);
+CREATE INDEX IF NOT EXISTS idx_user_skills_user ON user_skills(user_id);
+CREATE INDEX IF NOT EXISTS idx_checklist_items_checklist ON checklist_items(checklist_id);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_account ON bank_transactions(account_id, value_date);
+CREATE INDEX IF NOT EXISTS idx_vehicle_events_vehicle ON vehicle_events(vehicle_id, occurred_on);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_dedupe ON notifications(user_id, dedupe_key) WHERE dedupe_key != '';
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read_at);
+`);
+
 // Installation sans interface (conteneur, CI, déploiement automatisé) : renseigner
 // ADMIN_EMAIL et ADMIN_PASSWORD crée le compte au démarrage. Sans ces variables,
 // aucun compte n'est créé et l'assistant d'installation prend le relais.

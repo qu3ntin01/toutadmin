@@ -36,6 +36,7 @@ const einvoicingRoutes = require('./routes/facturation-electronique');
 const stockRoutes = require('./routes/stock');
 const crmRoutes = require('./routes/crm');
 const securiteRoutes = require('./routes/securite');
+const projetsRoutes = require('./routes/projets');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -195,6 +196,7 @@ function createApp() {
   app.use('/', authRoutes);
   app.use('/admin', adminRoutes);
   app.use('/securite', securiteRoutes);
+  app.use('/projets', projetsRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

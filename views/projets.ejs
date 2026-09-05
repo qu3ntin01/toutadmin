@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Projets — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Projets',
+      navItems: [
+        { tab: 'projets', label: 'Tous les projets', icon: 'briefcase' },
+        { tab: 'mes-taches', label: 'Mes tâches', icon: 'check', badge: myTasks.length },
+        { tab: 'mon-temps', label: 'Mon temps', icon: 'clock' }
+      ],
+      footLinks: [{ href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: 'Retour', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Projets',
+        headerSubtitle: 'Jalons, tâches, temps passé et rentabilité'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <% const money = (n) => n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const today = new Date().toISOString().slice(0, 10); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.open %></span><span class="stat-label">Projets ouverts</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.late %></span><span class="stat-label">En retard</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.openTasks %></span><span class="stat-label">Tâches ouvertes</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.hours %> h</span><span class="stat-label">Saisies sur 30 jours</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Projets ---------- -->
+        <section class="tab-panel is-active" id="projets">
+          <div class="<%= canManage ? 'grid-2' : 'stack' %>">
+            <% if (canManage) { %>
+              <div class="card">
+                <div class="card-head"><h3>Ouvrir un projet</h3></div>
+                <form method="POST" action="/projets" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label><span>Code</span><input type="text" name="code" maxlength="20" placeholder="PRJ-24" /></label>
+                  <label><span>Statut</span>
+                    <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
+                  </label>
+                  <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="160" /></label>
+                  <label><span>Client</span>
+                    <select name="partner_id"><option value="">—</option><% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %></select>
+                  </label>
+                  <label><span>Responsable</span>
+                    <select name="lead_id"><option value="">—</option><% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %></select>
+                  </label>
+                  <label><span>Service</span>
+                    <select name="department_id"><option value="">—</option><% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %></select>
+                  </label>
+                  <label><span>Équipe</span>
+                    <select name="team_id"><option value="">—</option><% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %></select>
+                  </label>
+                  <label><span>Début</span><input type="date" name="start_date" /></label>
+                  <label><span>Échéance</span><input type="date" name="due_date" /></label>
+                  <label><span>Budget (€)</span><input type="text" name="budget_amount" inputmode="decimal" placeholder="25000" /></label>
+                  <label><span>Taux horaire (€)</span><input type="text" name="hourly_rate" inputmode="decimal" placeholder="75" /></label>
+                  <label class="span-2"><span>Description</span><textarea name="description" rows="3"></textarea></label>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer</button></div>
+                </form>
+                <p class="hint">Le taux horaire sert à convertir le temps passé en coût : sans lui, seules les heures sont suivies.</p>
+              </div>
+            <% } %>
+
+            <div class="card">
+              <div class="card-head">
+                <h3><%= projectList.length %> projet(s)</h3>
+                <% if (canManage) { %>
+                  <a class="btn btn-outline btn-sm" href="/projets<%= showArchived ? '' : '?archives=1' %>">
+                    <%= showArchived ? 'Masquer les archives' : 'Voir les archives' %>
+                  </a>
+                <% } %>
+              </div>
+              <ul class="org-list">
+                <% projectList.forEach((p) => { %>
+                  <li class="org-item project-row">
+                    <span class="project-main">
+                      <a class="cell-strong" href="/projets/<%= p.id %>"><%= p.code ? p.code + ' · ' : '' %><%= p.name %></a>
+                      <% if (p.archived) { %><span class="tag">archivé</span><% } %>
+                      <span class="tag <%= p.status === 'En cours' ? 'tag-accent' : '' %>"><%= p.status %></span>
+                      <% if (p.due_date && p.due_date < today && !['Livré','Clôturé'].includes(p.status)) { %>
+                        <span class="tag tag-danger">en retard</span>
+                      <% } %>
+                      <br />
+                      <span class="cell-sub">
+                        <%= p.partner_name ? p.partner_name + ' · ' : '' %>
+                        <%= p.lead_first_name ? p.lead_first_name + ' ' + p.lead_last_name + ' · ' : '' %>
+                        échéance <%= day(p.due_date) %> ·
+                        <%= p.profit.hours %> h passées<%= p.profit.cost != null ? ' · ' + money(p.profit.cost) : '' %>
+                        <%= p.profit.budget != null ? ' sur ' + money(p.profit.budget) : '' %>
+                      </span>
+                      <% if (p.profit.consumed != null) { %>
+                        <span class="meter"><span class="meter-fill <%= p.profit.consumed > 100 ? 'is-danger' : (p.profit.consumed > 80 ? 'is-warn' : '') %>" data-ratio="<%= Math.min(100, p.profit.consumed) %>"></span></span>
+                        <span class="cell-sub"><%= p.profit.consumed %> % du budget consommé</span>
+                      <% } %>
+                    </span>
+                    <a class="btn btn-outline btn-sm" href="/projets/<%= p.id %>">Ouvrir</a>
+                  </li>
+                <% }) %>
+                <% if (projectList.length === 0) { %><li class="cell-sub">Aucun projet pour l'instant.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Mes tâches ---------- -->
+        <section class="tab-panel" id="mes-taches">
+          <div class="card">
+            <div class="card-head"><h3><%= myTasks.length %> tâche(s) à traiter</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Tâche</th><th>Projet</th><th>Priorité</th><th>Échéance</th><th>Statut</th></tr></thead>
+                <tbody>
+                  <% myTasks.forEach((task) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= task.title %></td>
+                      <td><a href="/projets/<%= task.project_id %>"><%= task.project_name %></a></td>
+                      <td><span class="tag <%= ['Haute','Critique'].includes(task.priority) ? 'tag-danger' : '' %>"><%= task.priority %></span></td>
+                      <td class="<%= task.due_date && task.due_date < today ? 'text-danger' : 'cell-sub' %>"><%= day(task.due_date) %></td>
+                      <td>
+                        <form method="POST" action="/projets/taches/<%= task.id %>/statut" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <select name="status" class="input-sm">
+                            <% ['À faire','En cours','En revue','Terminée'].forEach((s) => { %>
+                              <option value="<%= s %>" <%= task.status === s ? 'selected' : '' %>><%= s %></option>
+                            <% }) %>
+                          </select>
+                          <button type="submit" class="btn btn-sm">OK</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (myTasks.length === 0) { %><tr><td colspan="5" class="cell-sub">Rien qui vous attende.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Mon temps ---------- -->
+        <section class="tab-panel" id="mon-temps">
+          <div class="card">
+            <div class="card-head"><h3>Mes dernières saisies</h3></div>
+            <p class="hint">Le temps se saisit depuis la fiche du projet, onglet « Temps passé ».</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Projet</th><th>Tâche</th><th>Heures</th><th>Note</th><th></th></tr></thead>
+                <tbody>
+                  <% myTime.forEach((e) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= day(e.spent_on) %></td>
+                      <td><a href="/projets/<%= e.project_id %>"><%= e.project_name %></a></td>
+                      <td class="cell-sub"><%= e.task_title || '—' %></td>
+                      <td class="cell-strong"><%= e.hours %> h<%= e.billable ? '' : ' (non facturable)' %></td>
+                      <td class="cell-sub"><%= e.note || '—' %></td>
+                      <td>
+                        <form method="POST" action="/projets/temps/<%= e.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette saisie ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (myTime.length === 0) { %><tr><td colspan="6" class="cell-sub">Aucune saisie.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/meter.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

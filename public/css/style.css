@@ -976,7 +976,7 @@ td.actions { min-width: 196px; }
 
 /* ---------- Jauge de consommation ---------- */
 
-.meter { height: 8px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+.meter { display: block; height: 8px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
 .meter-fill { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 4px; }
 .meter-fill.is-warn { background: var(--warning); }
 .meter-fill.is-over { background: var(--danger); }
@@ -1154,3 +1154,27 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
 .audit-detail { max-width: 320px; overflow-wrap: anywhere; }
 .nowrap { white-space: nowrap; }
 .pager { margin-top: 10px; }
+
+/* ---------- Projets ---------- */
+
+/* Un tableau par statut : les colonnes défilent horizontalement plutôt que de
+   se tasser, pour rester lisibles quel que soit le nombre de tâches. */
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+.board-column { min-width: 0; padding: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }
+.board-title { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); }
+.board-card { padding: 10px; margin-bottom: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.board-card p { margin: 4px 0; }
+.board-card .row-actions { margin-top: 8px; gap: 4px; }
+.board-card select { max-width: 120px; }
+
+.project-row { align-items: flex-start; }
+.project-main { min-width: 0; flex: 1; }
+.project-main .meter { margin: 6px 0 2px; max-width: 420px; }
+/* .org-item est une grille : le bouton d'ouverture ne doit pas s'étirer sur toute la ligne. */
+.project-row { grid-template-columns: 1fr auto; align-items: start; }
+.project-row > .btn { justify-self: end; }
+.meter-fill.is-danger { background: var(--danger); }
+
+@media (max-width: 720px) {
+  .board { grid-auto-flow: row; grid-auto-columns: auto; }
+}

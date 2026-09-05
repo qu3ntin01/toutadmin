@@ -27,6 +27,7 @@ const adminActive = typeof active !== 'undefined' ? active : null;
     : adminSections,
   // Un administrateur n'a pas d'espace membre : /mon-espace le renverrait ici.
   footLinks: [
+    { href: '/projets', label: 'Projets', icon: 'briefcase' },
     { href: '/securite', label: 'Sécurité', icon: 'shield' },
     { href: '/rh', label: t('nav.openHrSpace'), icon: 'external' },
     { href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' }
