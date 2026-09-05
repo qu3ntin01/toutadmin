@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: request.title + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Parapheur',
+      navItems: [{ href: '/parapheur', label: 'Tous les documents', icon: 'inbox', active: true }],
+      footLinks: [
+        { href: '/parapheur/' + request.id + '/attestation', label: 'Attestation', icon: 'shield' },
+        { href: '/mon-espace', label: 'Mon espace', icon: 'home' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: request.title,
+        headerSubtitle: request.kind + ' · ' + request.signedCount + '/' + request.total + ' signature(s)',
+        backHref: '/parapheur',
+        backLabel: 'Parapheur'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso).toLocaleString(locale) : '—'); %>
+        <% const day = (iso) => (iso ? new Date(iso.slice(0, 10) + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>État du circuit</h3>
+            <span class="tag <%= request.status === 'Signé' ? 'tag-success' : (request.status === 'En cours' ? 'tag-warning' : 'tag-danger') %>"><%= request.status %></span>
+          </div>
+          <p class="cell-sub">
+            Ouvert le <%= day(request.created_at) %><%= request.deadline ? ` · à signer avant le ${day(request.deadline)}` : '' %>
+            <%= request.overdue ? ' · échéance dépassée' : '' %>
+          </p>
+          <span class="meter"><span class="meter-fill" data-ratio="<%= request.progress %>"></span></span>
+
+          <% if (!verification.ok) { %>
+            <div class="flash flash-error">
+              Intégrité mise en défaut :
+              <%= verification.document.ok ? '' : verification.document.reason %>
+              <%= verification.broken.length ? `sceau invalide pour ${verification.broken.join(', ')}` : '' %>.
+            </div>
+          <% } else { %>
+            <p class="hint">Empreinte du document vérifiée, sceaux des signatures vérifiés.</p>
+          <% } %>
+          <p class="cell-sub mono">SHA-256 : <%= request.sha256 %></p>
+
+          <% if (request.closing_reason) { %>
+            <p class="cell-sub">Motif : <%= request.closing_reason %></p>
+          <% } %>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Document</h3></div>
+          <% if (request.file_name) { %>
+            <p class="cell-sub"><%= request.original_name %> · <%= Math.round(request.byte_size / 1024) %> Ko</p>
+            <div class="row-actions"><a href="/parapheur/<%= request.id %>/document" class="btn btn-outline btn-sm">Télécharger le document</a></div>
+          <% } else { %>
+            <div class="minutes"><p><%= request.body %></p></div>
+          <% } %>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>Signataires</h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Rang</th><th>Signataire</th><th>Qualité</th><th>État</th><th>Horodatage</th><th>Sceau</th></tr></thead>
+              <tbody>
+                <% request.signers.forEach((s) => { %>
+                  <tr>
+                    <td class="cell-sub"><%= s.position %></td>
+                    <td class="cell-strong"><%= s.first_name %> <%= s.last_name %><br /><span class="cell-sub"><%= s.grade || '' %></span></td>
+                    <td class="cell-sub"><%= s.role_label || '—' %></td>
+                    <td>
+                      <span class="tag <%= s.status === 'Signé' ? 'tag-success' : (s.status === 'Refusé' ? 'tag-danger' : 'tag-warning') %>"><%= s.status %></span>
+                      <% if (s.reason) { %><div class="cell-sub"><%= s.reason %></div><% } %>
+                    </td>
+                    <td class="cell-sub nowrap"><%= moment(s.signed_at) %><% if (s.ip) { %><br /><span class="cell-sub">depuis <%= s.ip %></span><% } %></td>
+                    <td class="cell-sub mono"><%= s.seal ? s.seal.slice(0, 16) + '…' : '—' %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <% if (myTurn.ok) { %>
+          <div class="card">
+            <div class="card-head"><h3>Signer</h3></div>
+            <form method="POST" action="/parapheur/<%= request.id %>/signer" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2 check-row">
+                <input type="checkbox" name="consent" value="1" required />
+                <span>J'ai lu le document et je consens à le signer électroniquement.</span>
+              </label>
+              <label class="span-2"><span>Votre mot de passe</span><input type="password" name="password" required autocomplete="current-password" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Apposer ma signature</button></div>
+            </form>
+            <p class="hint">
+              Le mot de passe est redemandé à dessein : une session ouverte sur un poste laissé sans surveillance
+              ne doit pas suffire à engager quelqu'un.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Refuser</h3></div>
+            <form method="POST" action="/parapheur/<%= request.id %>/refuser" class="form-grid" data-confirm="Refuser de signer interrompt le circuit. Continuer ?">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Motif du refus</span><textarea name="reason" rows="2" required placeholder="Un refus se motive : c'est ce qui permet de corriger le document."></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Refuser de signer</button></div>
+            </form>
+          </div>
+        <% } else if (request.status === 'En cours') { %>
+          <div class="card"><p class="empty-state"><%= myTurn.message %></p></div>
+        <% } %>
+
+        <% if (opener) { %>
+          <div class="card">
+            <div class="card-head"><h3>Administration du circuit</h3></div>
+            <div class="row-actions">
+              <a href="/parapheur/<%= request.id %>/attestation" class="btn btn-outline btn-sm">Attestation de signature</a>
+              <% if (request.status === 'En cours') { %>
+                <form method="POST" action="/parapheur/<%= request.id %>/annuler" class="inline-field" data-confirm="Retirer ce document de la signature ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <input type="text" name="reason" class="input-sm" placeholder="Motif" maxlength="200" />
+                  <button type="submit" class="btn btn-outline btn-sm">Annuler le circuit</button>
+                </form>
+              <% } else if (request.signedCount === 0) { %>
+                <form method="POST" action="/parapheur/<%= request.id %>/supprimer" class="inline-form" data-confirm="Supprimer définitivement ce document ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                </form>
+              <% } %>
+            </div>
+            <% if (request.signedCount > 0) { %>
+              <p class="hint">Un document déjà signé ne se supprime pas : il fait preuve de l'engagement pris.</p>
+            <% } %>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/meter.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

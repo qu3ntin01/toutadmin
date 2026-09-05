@@ -67,7 +67,7 @@ qui relie le tout.
 | **Sondages internes et baromètre social, anonymes par construction** | ✅ |
 | **Organigramme visuel**, encadrement compris, et personnes sans rattachement | ✅ |
 | **Coffre-fort numérique : bulletins accessibles après le départ, scellés et conservés 50 ans** | ✅ |
-| Signature électronique des contrats et avenants | ⬜ |
+| **Signature électronique simple** des contrats et avenants : circuit ordonné, empreinte, sceau, attestation | ✅ |
 
 ## Finance et gestion
 

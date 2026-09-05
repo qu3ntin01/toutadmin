@@ -201,9 +201,18 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Lecteur CSV écrit à la main** : point-virgule, virgule ou tabulation reconnus seuls, guillemets et retours à la ligne dans un champ, marque d'ordre des octets d'Excel retirée, en-têtes normalisés (« Prénom », « prenom » et « PRENOM » désignent la même colonne). Un import de masse est une porte d'entrée dans la base : la dépendance qui lit le fichier serait aussi sensible que celle qui l'écrit
 - Les **mots de passe temporaires** des comptes créés sont affichés une seule fois, à l'écran, et ne sont stockés nulle part en clair — pas même dans le journal d'audit, qui retient le nombre de lignes et rien de leur contenu
 
+### Parapheur : signature électronique
+- **Circuit de signature** (`/parapheur`) pour les contrats, avenants, accords internes et procès-verbaux : document PDF, DOCX ou texte saisi, signataires ordonnés, échéance
+- **Le document est figé dès son dépôt** : son empreinte SHA-256 est calculée là, revérifiée avant chaque signature et à chaque téléchargement. Signer un document qui peut changer ensuite ne signifierait rien — un fichier modifié sur le disque n'est plus servi et bloque toute nouvelle signature
+- **Chaque signature porte qui, quand, depuis quelle adresse**, et un **sceau** : un HMAC-SHA256 de l'empreinte du document, du signataire et de l'horodatage, calculé avec une clé propre à l'instance qui vit hors de la base. Une ligne écrite à la main dans la base ne passe pas la vérification
+- **Le signataire prouve sa présence** en ressaisissant son mot de passe et consent explicitement : une session ouverte sur un poste laissé sans surveillance ne suffit pas à engager quelqu'un
+- **Le parapheur circule** : chacun signe à son tour, et chacun est prévenu quand vient le sien. Un refus se motive et interrompt le circuit
+- **Attestation de signature** imprimable : empreinte, sceaux recalculés à l'ouverture, horodatages, adresses. Un document déjà signé ne se supprime pas — il fait preuve
+- Signature électronique **simple**, assumée comme telle : la valeur probante repose sur le faisceau (empreinte, sceau, horodatage, journal d'audit). Une signature *qualifiée* au sens eIDAS demande un prestataire de confiance certifié, hors périmètre — c'est écrit sur l'attestation elle-même
+
 ### Sauvegarde et restauration
 - **Sauvegarde automatique**, toutes les heures par défaut (intervalle et nombre d'archives conservées réglables dans `/sauvegardes`). Le serveur sauvegarde aussi au démarrage s'il a manqué une échéance
-- **Une archive contient tout** : la base, les photos de profil, les CV et le coffre-fort. Sauvegarder la seule base serait un piège — l'instance restaurée prétendrait détenir des bulletins disparus
+- **Une archive contient tout** : la base, les photos de profil, les CV, le coffre-fort et les documents du parapheur. Sauvegarder la seule base serait un piège — l'instance restaurée prétendrait détenir des bulletins disparus
 - La base est copiée par le **mécanisme de sauvegarde en ligne de SQLite**, cohérent même pendant l'écriture ; copier le fichier à la main ne le serait pas, le journal WAL vivant à côté
 - **Chaque fichier porte son empreinte** dans le manifeste de l'archive, vérifiée avant toute restauration. La somme de contrôle de `tar` ne couvre que les en-têtes : c'est le manifeste qui protège le contenu
 - **Restauration table par table dans une seule transaction** : l'application reste debout, et un échec en cours de route ne laisse pas une base à moitié écrite. Les colonnes ajoutées par une migration postérieure à l'archive sont ignorées plutôt que de faire échouer l'opération
@@ -349,7 +358,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-582 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+603 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -407,7 +416,11 @@ fautive intégralement refusé, doublon vu contre la base et contre le fichier
 lui-même, mot de passe temporaire affiché une fois et absent du journal, imports
 de module suivant l'activation, cloisonnement par droit) et l'organigramme
 (rattachement sans équipe, équipe sans service, personne sans rattachement,
-membre masqué visible de la seule administration), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
+membre masqué visible de la seule administration), le parapheur (ordre du
+circuit respecté, rang laissé libre sans décalage des qualités, mot de passe
+et consentement exigés, sceau invalidé par une réécriture en base, texte ou
+fichier modifié qui bloque la signature et le téléchargement, refus motivé qui
+interrompt le circuit, document signé non supprimable, fichier en 0600), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
 projection et point bas), les immobilisations (linéaire, bascule du dégressif, bornes)
 et la flotte (doublon d'immatriculation, compteur qui ne recule pas, échéance
 dépassée), la sécurité (session révoquée dès la désactivation,
@@ -510,6 +523,7 @@ d'administration sont en place pour l'accueillir.
 | `SESSION_MAX_HOURS` | Durée de vie absolue d'une session, quelle que soit l'activité (défaut `12`) |
 | `CV_DIR` | Dossier des CV déposés (défaut : `cv/` à côté de la base) |
 | `VAULT_DIR` | Dossier du coffre-fort (défaut : `coffre/` à côté de la base) |
+| `SIGN_DIR` | Dossier des documents mis à la signature (défaut : `parapheur/` à côté de la base) |
 | `BACKUP_DIR` | Dossier des sauvegardes (défaut : `sauvegardes/` à côté de la base) — à recopier hors du serveur |
 
 ## Structure
@@ -557,6 +571,7 @@ src/
   vat.js             calcul et conservation des déclarations de TVA
   csv.js             lecture de fichiers CSV, séparateurs et guillemets
   importer.js        import de masse : contrôle ligne à ligne, écriture tout ou rien
+  signing.js         parapheur : empreinte du document, sceau des signatures, circuit
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
   secret-store.js    chiffrement AES-256-GCM des secrets rangés en base

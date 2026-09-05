@@ -17,6 +17,11 @@ const memberLinks = [
 ];
 // Un sondage à remplir se signale : passé la clôture, il ne sert plus à rien.
 if (pendingSurveys) memberLinks.push({ key: 'sondages', href: '/sondages', label: 'Sondages', icon: 'ballot', badge: pendingSurveys });
+// Le parapheur n'apparaît que s'il attend quelque chose de vous, ou si vous
+// pouvez y déposer des documents.
+if (pendingSignatures || isHr || currentUser.role === 'admin') {
+  memberLinks.push({ key: 'parapheur', href: '/parapheur', label: 'Parapheur', icon: 'check', badge: pendingSignatures });
+}
 // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
 if (isCseMember) memberLinks.push({ key: 'cse', href: '/cse', label: t('nav.cse'), icon: 'lifebuoy' });
 if (isManager) {

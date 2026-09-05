@@ -1497,6 +1497,49 @@ CREATE TABLE IF NOT EXISTS vat_returns (
   UNIQUE(period_start, period_end)
 );
 
+-- ---------- Parapheur : signature électronique interne ----------
+
+-- Le document signé est figé dès la création : son empreinte est calculée là,
+-- et revérifiée à chaque signature comme à chaque téléchargement. Signer un
+-- document qui peut changer ensuite ne signifierait rien.
+CREATE TABLE IF NOT EXISTS signature_requests (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Document',
+  body TEXT NOT NULL DEFAULT '',
+  file_name TEXT NOT NULL DEFAULT '',
+  original_name TEXT NOT NULL DEFAULT '',
+  mime_type TEXT NOT NULL DEFAULT '',
+  byte_size INTEGER NOT NULL DEFAULT 0,
+  sha256 TEXT NOT NULL,
+  deadline TEXT,
+  status TEXT NOT NULL DEFAULT 'En cours' CHECK(status IN ('En cours','Signé','Refusé','Annulé')),
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  completed_at TEXT,
+  closing_reason TEXT NOT NULL DEFAULT ''
+);
+
+-- Une signature n'est pas une case cochée : elle porte le moment, l'adresse
+-- d'où elle vient, et un sceau calculé par l'instance à partir de l'empreinte
+-- du document. Le sceau se recalcule pour vérification ; il ne se recopie pas
+-- d'une signature à l'autre.
+CREATE TABLE IF NOT EXISTS signature_signers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  request_id INTEGER NOT NULL REFERENCES signature_requests(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  position INTEGER NOT NULL DEFAULT 1,
+  role_label TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'En attente' CHECK(status IN ('En attente','Signé','Refusé')),
+  signed_at TEXT,
+  reason TEXT NOT NULL DEFAULT '',
+  seal TEXT NOT NULL DEFAULT '',
+  ip TEXT NOT NULL DEFAULT '',
+  UNIQUE(request_id, user_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_signature_signers_user ON signature_signers(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_signature_signers_request ON signature_signers(request_id, position);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_next ON subscriptions(active, next_issue);
 -- Une échéance d'abonnement ne peut pas être facturée deux fois, même si deux
 -- balayages se croisent : l'index l'interdit à la source.

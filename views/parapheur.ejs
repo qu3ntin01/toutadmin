@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Parapheur — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Parapheur',
+      navItems: [
+        { tab: 'a-signer', label: 'À signer', icon: 'check', badge: pending.length },
+        { tab: 'mes-documents', label: 'Mes documents', icon: 'inbox', badge: mine.length }
+      ].concat(opener ? [
+        { tab: 'nouveau', label: 'Mettre à la signature', icon: 'plus' },
+        { tab: 'documents', label: 'Tous les documents', icon: 'ballot', badge: stats.running }
+      ] : []),
+      footLinks: [{ href: '/mon-espace', label: 'Mon espace', icon: 'home' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Parapheur',
+        headerSubtitle: 'Signature électronique des contrats, avenants et accords'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso.slice(0, 10) + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const stateTag = (s) => (s === 'Signé' ? 'tag-success' : (s === 'Refusé' || s === 'Annulé' ? 'tag-danger' : 'tag-warning')); %>
+
+        <% const documentList = (rows, empty) => { %>
+          <% if (!rows.length) { %>
+            <p class="empty-state"><%= empty %></p>
+          <% } else { %>
+            <ul class="meeting-list">
+              <% rows.forEach((r) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><a href="/parapheur/<%= r.id %>"><%= r.title %></a></span>
+                    <span class="tag <%= stateTag(r.status) %>"><%= r.status %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= r.kind %> · ouvert le <%= day(r.created_at) %>
+                    <%= r.deadline ? ` · pour le ${day(r.deadline)}` : '' %>
+                    <%= r.overdue ? ' · en retard' : '' %>
+                    · <%= r.signedCount %>/<%= r.total %> signature(s)
+                    <% if (r.next) { %> · au tour de <%= r.next.first_name %> <%= r.next.last_name %><% } %>
+                  </p>
+                  <span class="meter"><span class="meter-fill" data-ratio="<%= r.progress %>"></span></span>
+                  <p class="cell-sub mono">empreinte <%= r.sha256.slice(0, 32) %>…</p>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        <% }; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= pending.length %></span><span class="stat-label">Attendent votre signature</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.running %></span><span class="stat-label">Circuits en cours<%= stats.overdue ? ` · ${stats.overdue} en retard` : '' %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.signed %></span><span class="stat-label">Documents signés</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.refused %></span><span class="stat-label">Refus</span></span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="a-signer">
+          <div class="card">
+            <div class="card-head"><h3>Attendent votre signature</h3></div>
+            <% documentList(pending, "Rien à signer pour le moment.") %>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="mes-documents">
+          <div class="card">
+            <div class="card-head"><h3>Documents où vous figurez</h3></div>
+            <% documentList(mine, "Aucun document ne vous a été soumis.") %>
+          </div>
+        </section>
+
+        <% if (opener) { %>
+          <section class="tab-panel" id="nouveau">
+            <div class="card">
+              <div class="card-head"><h3>Mettre un document à la signature</h3></div>
+              <form method="POST" action="/parapheur" enctype="multipart/form-data" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" placeholder="Avenant au contrat de M. Dupont" /></label>
+                <label><span>Nature</span>
+                  <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+                </label>
+                <label><span>À signer avant le</span><input type="date" name="deadline" /></label>
+                <label class="span-2"><span>Fichier PDF ou DOCX (10 Mo maximum)</span><input type="file" name="document" accept=".pdf,.docx,application/pdf" /></label>
+                <label class="span-2"><span>… ou le texte à signer</span><textarea name="body" rows="6" placeholder="Le texte figera tel quel : c'est lui qui portera l'empreinte."></textarea></label>
+
+                <div class="span-2">
+                  <p class="section-label">Signataires, dans l'ordre du circuit</p>
+                  <% [1, 2, 3, 4, 5].forEach((rank) => { %>
+                    <div class="signer-row">
+                      <span class="signer-rank"><%= rank %></span>
+                      <select name="signer_ids">
+                        <option value="">—</option>
+                        <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %><%= e.grade ? ` — ${e.grade}` : '' %></option><% }) %>
+                      </select>
+                      <input type="text" name="signer_roles" maxlength="80" placeholder="Qualité (salarié, employeur…)" />
+                    </div>
+                  <% }) %>
+                </div>
+
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ouvrir le circuit de signature</button></div>
+              </form>
+              <p class="hint">
+                Le document est figé dès son dépôt : son empreinte SHA-256 est calculée là, puis revérifiée avant
+                chaque signature et à chaque téléchargement. Le parapheur circule dans l'ordre indiqué, et chaque
+                signataire est prévenu à son tour.
+              </p>
+              <p class="hint">
+                Signature électronique <strong>simple</strong> : sa valeur probante repose sur le faisceau —
+                empreinte, sceau, horodatage, journal d'audit. Une signature <em>qualifiée</em> au sens eIDAS
+                demande un prestataire de confiance certifié, hors du périmètre de ce CMS.
+              </p>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="documents">
+            <div class="card">
+              <div class="card-head"><h3><%= all.length %> document(s)</h3></div>
+              <% documentList(all, 'Aucun document au parapheur.') %>
+            </div>
+          </section>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/meter.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

@@ -19,6 +19,7 @@ const modules = require('./modules');
 const notifications = require('./notifications');
 const vault = require('./vault');
 const surveys = require('./surveys');
+const signing = require('./signing');
 const { revalidateSession, requirePasswordChange, restrictToVault } = require('./middleware/auth');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
@@ -61,6 +62,7 @@ const qualiteRoutes = require('./routes/qualite');
 const accueilRoutes = require('./routes/accueil');
 const organigrammeRoutes = require('./routes/organigramme');
 const importRoutes = require('./routes/import');
+const parapheurRoutes = require('./routes/parapheur');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -175,6 +177,7 @@ function createApp() {
       res.locals.isFinance = Boolean(row && row.is_finance);
       res.locals.pendingAcks = talent.pendingAckCount(user.id);
       res.locals.pendingSurveys = surveys.pendingCountFor(user.id);
+      res.locals.pendingSignatures = signing.pendingCountFor(user.id);
       res.locals.enabledModules = modules.enabled();
     } else {
       res.locals.unreadMessages = 0;
@@ -187,6 +190,7 @@ function createApp() {
       res.locals.isFinance = false;
       res.locals.pendingAcks = 0;
       res.locals.pendingSurveys = 0;
+      res.locals.pendingSignatures = 0;
       res.locals.enabledModules = [];
     }
     next();
@@ -252,6 +256,7 @@ function createApp() {
   app.use('/accueil', accueilRoutes);
   app.use('/organigramme', organigrammeRoutes);
   app.use('/import', importRoutes);
+  app.use('/parapheur', parapheurRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

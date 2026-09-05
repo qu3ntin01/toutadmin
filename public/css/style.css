@@ -309,7 +309,9 @@ a:hover { text-decoration: underline; }
 
 .muted { color: var(--text-secondary); }
 .small { font-size: 0.82rem; }
-.mono { font-family: var(--font-mono); font-size: 0.85em; }
+/* Une empreinte SHA-256 est une chaîne de 64 caractères sans espace : sans
+   coupure autorisée, elle pousse sa carte au-delà de l'écran sur mobile. */
+.mono { font-family: var(--font-mono); font-size: 0.85em; overflow-wrap: anywhere; }
 .text-warning { color: var(--warning); }
 .text-danger { color: var(--danger); }
 
@@ -1524,3 +1526,20 @@ tr.is-current { background: var(--accent-soft); }
 .chart-person-body { display: flex; flex-direction: column; min-width: 0; }
 .chart-person-name { font-size: 0.84rem; }
 .chart-person-role { font-size: 0.76rem; color: var(--text-secondary); }
+
+/* ---------- Parapheur ---------- */
+
+/* Le rang du signataire est la donnée qui compte : le circuit est ordonné. */
+.signer-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.signer-row select { flex: 2; min-width: 0; }
+.signer-row input { flex: 1; min-width: 0; }
+.signer-rank {
+  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface-2); border: 1px solid var(--border);
+  font-size: 0.74rem; font-weight: 700; color: var(--text-secondary);
+}
+@media (max-width: 720px) {
+  .signer-row { flex-wrap: wrap; }
+  .signer-row select, .signer-row input { flex: 1 1 100%; }
+}
