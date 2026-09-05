@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Organigramme — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'annuaire' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Organigramme',
+        headerSubtitle: 'Services, équipes et encadrement',
+        backHref: '/annuaire',
+        backLabel: t('nav.directory')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const fullName = (p) => `${p.first_name} ${p.last_name}`.trim(); %>
+        <% const initials = (p) => `${(p.first_name || '?').charAt(0)}${(p.last_name || '').charAt(0)}`.toUpperCase(); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= chart.headcount %></span><span class="stat-label">Salariés</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= chart.departments.length %></span><span class="stat-label">Services</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= chart.departments.reduce((n, d) => n + d.teams.length, 0) + chart.orphanTeams.length %></span><span class="stat-label">Équipes</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= chart.managerCount %></span><span class="stat-label">Encadrants</span></span>
+          </div>
+        </section>
+
+        <% if (!chart.departments.length && !chart.orphanTeams.length) { %>
+          <div class="card">
+            <p class="empty-state">Aucun service n'est encore déclaré. L'organigramme se dessine à partir des services et des équipes.</p>
+          </div>
+        <% } %>
+
+        <% const people = (list, kind) => { %>
+          <ul class="chart-people">
+            <% list.forEach((person) => { %>
+              <li class="chart-person<%= person.id === viewerId ? ' is-me' : '' %>">
+                <span class="chart-avatar"><%= initials(person) %></span>
+                <span class="chart-person-body">
+                  <span class="chart-person-name"><%= fullName(person) %></span>
+                  <span class="chart-person-role">
+                    <%= person.grade || (person.role === 'admin' ? 'Administration' : '—') %><%= person.contract_type ? ` · ${person.contract_type}` : '' %>
+                  </span>
+                </span>
+                <% if (person.directory_hidden) { %><span class="tag tag-warning">Hors annuaire</span><% } %>
+              </li>
+            <% }) %>
+            <% if (!list.length) { %><li class="chart-person chart-empty"><%= kind %></li><% } %>
+          </ul>
+        <% }; %>
+
+        <% const managers = (list) => { %>
+          <% if (list.length) { %>
+            <p class="chart-managers">
+              <%- include('partials/icon', { name: 'shield', iconSize: 14 }) %>
+              <%= list.map((m) => `${m.first_name} ${m.last_name}`).join(', ') %>
+            </p>
+          <% } else { %>
+            <p class="chart-managers chart-empty">Sans encadrant désigné</p>
+          <% } %>
+        <% }; %>
+
+        <div class="chart">
+          <% chart.departments.forEach((department) => { %>
+            <section class="card chart-department">
+              <div class="card-head">
+                <h3><%= department.name %></h3>
+                <span class="card-sub"><%= department.member_count %> personne(s) · <%= department.teams.length %> équipe(s)</span>
+              </div>
+              <% managers(department.managers) %>
+              <% if (department.description) { %><p class="cell-sub"><%= department.description %></p><% } %>
+
+              <% if (department.loose.length) { %>
+                <div class="chart-branch">
+                  <h4 class="chart-branch-title">Rattachés au service, sans équipe</h4>
+                  <% people(department.loose, '') %>
+                </div>
+              <% } %>
+
+              <div class="chart-teams">
+                <% department.teams.forEach((team) => { %>
+                  <div class="chart-team">
+                    <h4 class="chart-branch-title"><%= team.name %></h4>
+                    <% managers(team.managers) %>
+                    <% people(team.members, 'Équipe sans membre') %>
+                  </div>
+                <% }) %>
+                <% if (!department.teams.length) { %>
+                  <p class="cell-sub">Aucune équipe dans ce service.</p>
+                <% } %>
+              </div>
+            </section>
+          <% }) %>
+
+          <% if (chart.orphanTeams.length) { %>
+            <section class="card chart-department">
+              <div class="card-head"><h3>Équipes sans service</h3></div>
+              <p class="hint">Un rattachement oublié se voit ici plutôt que de disparaître de l'organigramme.</p>
+              <div class="chart-teams">
+                <% chart.orphanTeams.forEach((team) => { %>
+                  <div class="chart-team">
+                    <h4 class="chart-branch-title"><%= team.name %></h4>
+                    <% managers(team.managers) %>
+                    <% people(team.members, 'Équipe sans membre') %>
+                  </div>
+                <% }) %>
+              </div>
+            </section>
+          <% } %>
+
+          <% if (chart.unassigned.length) { %>
+            <section class="card chart-department">
+              <div class="card-head"><h3>Sans rattachement</h3><span class="card-sub"><%= chart.unassigned.length %> personne(s)</span></div>
+              <p class="hint">Ni service, ni équipe : c'est ce qu'un organigramme sert à découvrir.</p>
+              <% people(chart.unassigned, '') %>
+            </section>
+          <% } %>
+        </div>
+
+        <% if (includeHidden) { %>
+          <p class="hint">Vous voyez l'effectif entier, y compris les personnes retirées de l'annuaire par l'administration.</p>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

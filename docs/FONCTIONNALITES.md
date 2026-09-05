@@ -21,7 +21,7 @@ qui relie le tout.
 | **Échéances et alertes** — un seul moteur pour tout ce qui arrive à terme | ✅ |
 | **Centre de notifications** par personne, avec accusé de lecture | ✅ |
 | **Recherche globale** sur tous les espaces autorisés | ✅ |
-| Import de données en masse (CSV) | ⬜ |
+| **Import de données en masse (CSV)** : aperçu contrôlé, écriture tout ou rien | ✅ |
 | **Sauvegarde automatique horaire, vérification d'intégrité et restauration** | ✅ |
 | **Externalisation des sauvegardes** vers un serveur FTP/FTPS ou Google Drive, avec alerte en cas d'échec | ✅ |
 | Export intégral de l'instance vers un format tiers | ⬜ |
@@ -65,7 +65,7 @@ qui relie le tout.
 | **Compétences et habilitations, avec échéances de recyclage** | ✅ |
 | **Santé et sécurité au travail : risques, accidents, équipements, visites médicales** | ✅ |
 | **Sondages internes et baromètre social, anonymes par construction** | ✅ |
-| Organigramme visuel | ⬜ |
+| **Organigramme visuel**, encadrement compris, et personnes sans rattachement | ✅ |
 | **Coffre-fort numérique : bulletins accessibles après le départ, scellés et conservés 50 ans** | ✅ |
 | Signature électronique des contrats et avenants | ⬜ |
 

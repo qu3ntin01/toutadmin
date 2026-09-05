@@ -186,6 +186,66 @@ function assignMembership(userId, { departmentId, teamId }) {
   return { ok: true };
 }
 
+/**
+ * L'organigramme : services, équipes qu'ils contiennent, et personnes.
+ *
+ * Trois choses qu'un organigramme doit dire et que les listes séparées ne
+ * disent pas : qui encadre quoi, où se trouve chacun, et qui n'est rattaché
+ * nulle part — c'est ce dernier point qu'on découvre en le dessinant.
+ *
+ * `includeHidden` suit la règle de l'annuaire : un membre que l'administration
+ * en a retiré n'apparaît pas non plus ici, sauf pour l'administration et les RH,
+ * qui doivent voir l'effectif entier.
+ */
+function chart({ includeHidden = false } = {}) {
+  const visible = includeHidden ? '' : 'AND u.directory_hidden = 0';
+  const people = db.prepare(`
+    SELECT u.id, u.first_name, u.last_name, u.grade, u.role, u.contract_type,
+           u.department_id, u.team_id, u.avatar_file, u.directory_hidden
+    FROM users u WHERE u.active = 1 ${visible}
+    ORDER BY u.last_name COLLATE NOCASE, u.first_name COLLATE NOCASE
+  `).all();
+
+  const managerRows = db.prepare(`
+    SELECT m.scope, m.scope_id, u.id, u.first_name, u.last_name, u.grade
+    FROM org_managers m JOIN users u ON u.id = m.user_id WHERE u.active = 1
+  `).all();
+  const managersOfScope = (scope, id) => managerRows.filter((m) => m.scope === scope && m.scope_id === id);
+
+  const allTeams = teams();
+  const structure = departments().map((department) => {
+    const departmentTeams = allTeams.filter((team) => team.department_id === department.id).map((team) => ({
+      ...team,
+      managers: managersOfScope('team', team.id),
+      members: people.filter((person) => person.team_id === team.id),
+    }));
+
+    return {
+      ...department,
+      managers: managersOfScope('department', department.id),
+      teams: departmentTeams,
+      // Rattaché au service sans équipe : la place existe, elle se voit.
+      loose: people.filter((person) => person.department_id === department.id && !person.team_id),
+    };
+  });
+
+  // Les équipes sans service ne doivent pas disparaître de l'organigramme :
+  // elles sont le signe d'un rattachement oublié, pas une raison de les cacher.
+  const orphanTeams = allTeams.filter((team) => !team.department_id).map((team) => ({
+    ...team,
+    managers: managersOfScope('team', team.id),
+    members: people.filter((person) => person.team_id === team.id),
+  }));
+
+  return {
+    departments: structure,
+    orphanTeams,
+    unassigned: people.filter((person) => !person.department_id && !person.team_id && person.role === 'employee'),
+    headcount: people.filter((person) => person.role === 'employee').length,
+    managerCount: new Set(managerRows.map((m) => m.id)).size,
+  };
+}
+
 /** Décrit le rattachement d'un salarié en une ligne, pour les listes et l'annuaire. */
 function membershipLabel(user) {
   return [user.team_name, user.department_name].filter(Boolean).join(' · ');
@@ -193,6 +253,7 @@ function membershipLabel(user) {
 
 module.exports = {
   SCOPES,
+  chart,
   departments,
   departmentById,
   createDepartment,

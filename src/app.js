@@ -59,6 +59,8 @@ const sondageRoutes = require('./routes/sondages');
 const planningRoutes = require('./routes/planning');
 const qualiteRoutes = require('./routes/qualite');
 const accueilRoutes = require('./routes/accueil');
+const organigrammeRoutes = require('./routes/organigramme');
+const importRoutes = require('./routes/import');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -248,6 +250,8 @@ function createApp() {
   app.use('/planning', planningRoutes);
   app.use('/qualite', qualiteRoutes);
   app.use('/accueil', accueilRoutes);
+  app.use('/organigramme', organigrammeRoutes);
+  app.use('/import', importRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

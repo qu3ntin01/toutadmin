@@ -1275,7 +1275,9 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
   .sidebar-nav { flex-direction: row; gap: 4px; flex: 1; overflow-x: auto; }
   .side-link { border-left: none; border-bottom: 3px solid transparent; border-radius: var(--radius); padding: 8px 11px; white-space: nowrap; }
   .side-link.is-active { border-left-color: transparent; border-bottom-color: #fff; }
-  .sidebar-foot { flex-direction: row; align-items: center; margin: 0; padding: 0 0 0 10px; border-top: none; border-left: 1px solid rgba(255, 255, 255, 0.16); }
+  /* Le pied défile comme la navigation : à mesure que les espaces s'ajoutent,
+     il finirait sinon par pousser la page au-delà de l'écran. */
+  .sidebar-foot { flex-direction: row; align-items: center; margin: 0; padding: 0 0 0 10px; border-top: none; border-left: 1px solid rgba(255, 255, 255, 0.16); min-width: 0; overflow-x: auto; }
   .side-link-quiet .side-link-label { display: none; }
 }
 
@@ -1488,3 +1490,37 @@ tr.is-current { background: var(--accent-soft); }
 .shift-label { display: block; color: var(--text-secondary); }
 .shift .inline-form { display: inline; }
 .shift .btn-link { padding: 0; font-size: 0.76rem; }
+
+/* ---------- Organigramme ---------- */
+
+.chart { display: grid; gap: 14px; }
+.chart-department { display: grid; gap: 10px; }
+.chart-managers {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.8rem; font-weight: 600; color: var(--accent);
+}
+.chart-managers.chart-empty { color: var(--text-tertiary); font-weight: 500; }
+.chart-branch-title {
+  font-size: 0.82rem; font-weight: 650; text-transform: uppercase;
+  letter-spacing: 0.03em; color: var(--text-tertiary);
+}
+/* Les équipes se rangent côte à côte tant que la place le permet, puis
+   s'empilent : un organigramme illisible n'organise rien. */
+.chart-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(252px, 1fr)); gap: 12px; }
+.chart-team, .chart-branch {
+  display: grid; gap: 8px; padding: 12px;
+  border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2);
+}
+.chart-people { list-style: none; display: grid; gap: 2px; }
+.chart-person { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+.chart-person.is-me { font-weight: 650; }
+.chart-person.chart-empty { color: var(--text-tertiary); font-size: 0.8rem; }
+.chart-avatar {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 0.68rem; font-weight: 700;
+}
+.chart-person-body { display: flex; flex-direction: column; min-width: 0; }
+.chart-person-name { font-size: 0.84rem; }
+.chart-person-role { font-size: 0.76rem; color: var(--text-secondary); }

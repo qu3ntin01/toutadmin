@@ -20,6 +20,7 @@ const gestionModules = enabledModules
 
 const gestionFootLinks = [
   { href: '/flotte', label: 'Flotte de véhicules', icon: 'network' },
+  { href: '/import', label: 'Import de données', icon: 'plus' },
   ...gestionModules,
   currentUser.role === 'admin'
     ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }

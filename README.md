@@ -188,6 +188,19 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Registre des visiteurs** avec heure d'arrivée et de départ, société, personne visitée et badge remis. La liste **« dans les murs »** répond à la seule question qui compte en cas d'évacuation, ce qu'aucune liste de salariés ne sait faire
 - **Courrier entrant et sortant** : nature (dont recommandé avec AR), correspondant, destinataire interne, numéro de suivi. Un pli reste **« à remettre »** tant que personne n'a signé la remise, qui est datée et porte le nom de celui qui l'a faite
 
+### Organigramme
+- **Vue d'ensemble** (`/organigramme`, ouverte à tous) : services, équipes qu'ils contiennent, encadrants de chaque périmètre et personnes rattachées
+- Trois choses qu'un organigramme dit et que des listes séparées ne disent pas : **qui encadre quoi**, **où se trouve chacun**, et **qui n'est rattaché nulle part** — c'est ce dernier point qu'on découvre en le dessinant. Les équipes sans service et les services sans équipe apparaissent aussi : un rattachement oublié se voit plutôt que de disparaître
+- La visibilité suit exactement celle de l'annuaire : un membre que l'administration en a retiré n'apparaît que pour l'administration et les RH, qui doivent voir l'effectif entier
+
+### Import de données en masse
+- **Reprise d'un tableur** (`/import`) : membres du personnel, clients et fournisseurs, articles de stock, contacts commerciaux — chaque type ouvert selon les droits de la personne et les modules activés
+- **Rien n'est écrit avant d'avoir tout vérifié** : l'aperçu contrôle chaque ligne, nomme le problème et son numéro de ligne, et ne touche pas la base
+- **Tout ou rien** : un fichier contenant une seule ligne fautive n'est pas importé du tout — un import à moitié fait est plus long à rattraper qu'un fichier à corriger. Le contrôle est refait au moment d'écrire, car la base a pu changer entre l'aperçu et la confirmation
+- **L'import crée, il ne met jamais à jour** : un doublon est signalé, jamais silencieusement fondu dans l'existant. Le fichier est aussi vérifié contre lui-même — deux lignes portant la même adresse se voient avant l'écriture
+- **Lecteur CSV écrit à la main** : point-virgule, virgule ou tabulation reconnus seuls, guillemets et retours à la ligne dans un champ, marque d'ordre des octets d'Excel retirée, en-têtes normalisés (« Prénom », « prenom » et « PRENOM » désignent la même colonne). Un import de masse est une porte d'entrée dans la base : la dépendance qui lit le fichier serait aussi sensible que celle qui l'écrit
+- Les **mots de passe temporaires** des comptes créés sont affichés une seule fois, à l'écran, et ne sont stockés nulle part en clair — pas même dans le journal d'audit, qui retient le nombre de lignes et rien de leur contenu
+
 ### Sauvegarde et restauration
 - **Sauvegarde automatique**, toutes les heures par défaut (intervalle et nombre d'archives conservées réglables dans `/sauvegardes`). Le serveur sauvegarde aussi au démarrage s'il a manqué une échéance
 - **Une archive contient tout** : la base, les photos de profil, les CV et le coffre-fort. Sauvegarder la seule base serait un piège — l'instance restaurée prétendrait détenir des bulletins disparus
@@ -336,7 +349,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-551 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+582 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -387,7 +400,14 @@ l'administration), la facturation récurrente (échéance avancée d'une périod
 écartée sans bloquer les autres, factures conservées après suppression du moule)
 et la TVA (ventilation par taux, brouillon et annulée ignorés, conversion au taux
 figé, crédit reportable, période bricolée refusée, déclaration déposée non
-recalculée), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
+recalculée), la lecture CSV (séparateur deviné, guillemets et retours à la ligne
+dans un champ, marque d'Excel retirée, en-têtes accentués normalisés, colonnes en
+double refusées), l'import de masse (aperçu qui n'écrit rien, fichier à une ligne
+fautive intégralement refusé, doublon vu contre la base et contre le fichier
+lui-même, mot de passe temporaire affiché une fois et absent du journal, imports
+de module suivant l'activation, cloisonnement par droit) et l'organigramme
+(rattachement sans équipe, équipe sans service, personne sans rattachement,
+membre masqué visible de la seule administration), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
 projection et point bas), les immobilisations (linéaire, bascule du dégressif, bornes)
 et la flotte (doublon d'immatriculation, compteur qui ne recule pas, échéance
 dépassée), la sécurité (session révoquée dès la désactivation,
@@ -535,6 +555,8 @@ src/
   currency.js        devises, taux, conversion vers la devise de tenue des comptes
   billing.js         abonnements et facturation récurrente
   vat.js             calcul et conservation des déclarations de TVA
+  csv.js             lecture de fichiers CSV, séparateurs et guillemets
+  importer.js        import de masse : contrôle ligne à ligne, écriture tout ou rien
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
   secret-store.js    chiffrement AES-256-GCM des secrets rangés en base
