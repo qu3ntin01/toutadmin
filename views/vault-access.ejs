@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Accès au coffre-fort — ' + t('app.name') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark"><%= brandInitials %></span>
+      <span class="brand-text">
+        <span class="brand-name"><%= companyName %></span>
+        <span class="brand-panel">Coffre-fort</span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1>Accéder à vos bulletins</h1>
+      <p class="auth-sub">
+        Vous avez quitté l'entreprise et cherchez vos fiches de paie ? Saisissez l'adresse
+        de votre ancien compte et le code que le service des ressources humaines vous a remis.
+      </p>
+
+      <% if (flash) { %>
+        <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <form method="POST" action="/coffre-fort/acces" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label>
+          <span>Adresse de votre ancien compte</span>
+          <input type="email" name="email" required autofocus autocomplete="username" placeholder="nom@entreprise.com" />
+        </label>
+        <label>
+          <span>Code d'accès</span>
+          <input type="text" name="code" required autocomplete="one-time-code" placeholder="ABCDE-FGHIJ-KLMNO" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Ouvrir le coffre</button>
+      </form>
+
+      <p class="auth-note">
+        Si vous vous souvenez de votre mot de passe, la connexion habituelle suffit : elle ouvre
+        directement le coffre-fort. Le code n'est utile qu'à défaut.
+      </p>
+
+      <div class="auth-foot">
+        <a href="/connexion">Revenir à la connexion</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

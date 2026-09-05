@@ -1204,3 +1204,8 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
 
 tr.is-muted { opacity: .55; }
 tr.is-current { background: var(--accent-soft); }
+
+/* ---------- Coffre-fort ---------- */
+
+/* L'empreinte doit être lisible sans attirer l'œil : c'est une preuve, pas une donnée de travail. */
+.fingerprint { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: .02em; }

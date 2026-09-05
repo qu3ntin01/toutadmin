@@ -26,6 +26,24 @@ function revalidateSession(req, res, next) {
   const openedAt = Number(req.session.openedAt) || 0;
   const tooOld = openedAt > 0 && Date.now() - openedAt > MAX_SESSION_HOURS * 60 * 60 * 1000;
 
+  /**
+   * Session de coffre-fort : ouverte précisément parce que le compte est fermé.
+   * Le compte désactivé n'est donc pas un motif de révocation ici — seuls le
+   * comptent la disparition du compte, son verrouillage, l'expiration de la
+   * session, et la disparition du coffre lui-même.
+   */
+  if (req.session.vaultOnly) {
+    if (!user || tooOld || security.isLocked(user) || !require('../vault').hasDocuments(user.id)) {
+      return req.session.regenerate((err) => {
+        if (err) return next(err);
+        req.session.flash = { type: 'error', message: 'Accès au coffre-fort expiré. Reconnectez-vous.' };
+        res.redirect('/connexion');
+      });
+    }
+    req.currentUser = user;
+    return next();
+  }
+
   if (!user || !user.active || contractOver || tooOld || security.isLocked(user)) {
     if (user && user.active && contractOver) {
       db.prepare('UPDATE users SET active = 0 WHERE id = ?').run(user.id);
@@ -65,9 +83,27 @@ const PASSWORD_CHANGE_ALLOWED = new Set(['/mon-profil/premier-acces', '/deconnex
 
 function requirePasswordChange(req, res, next) {
   if (!req.session || !req.session.user || !req.currentUser) return next();
+  // Un ancien salarié vient chercher ses bulletins, pas ouvrir une session de travail.
+  if (req.session.vaultOnly) return next();
   if (!req.currentUser.must_change_password) return next();
   if (PASSWORD_CHANGE_ALLOWED.has(req.path)) return next();
   res.redirect('/mon-profil/premier-acces');
+}
+
+/**
+ * Verrou de la session de coffre-fort : hors du coffre, rien n'est atteignable.
+ * Posé en amont des routeurs, il ferme aussi ce qui serait ajouté demain sans
+ * qu'on y pense.
+ */
+const VAULT_ALLOWED_PREFIXES = ['/coffre-fort', '/deconnexion', '/langue'];
+
+function restrictToVault(req, res, next) {
+  if (!req.session || !req.session.vaultOnly) return next();
+  if (VAULT_ALLOWED_PREFIXES.some((prefix) => req.path === prefix || req.path.startsWith(`${prefix}/`))) return next();
+  if (req.method !== 'GET') {
+    return res.status(403).render('error', { message: 'Cet accès ne permet que la consultation de votre coffre-fort.' });
+  }
+  res.redirect('/coffre-fort');
 }
 
 function requireAuth(req, res, next) {
@@ -147,4 +183,4 @@ function requireManager(req, res, next) {
   next();
 }
 
-module.exports = { revalidateSession, requirePasswordChange, requireAuth, requireAdmin, requireEmployee, requireHR, requireFinance, requireManager, requireCseMember, requireCseElected };
+module.exports = { revalidateSession, requirePasswordChange, restrictToVault, requireAuth, requireAdmin, requireEmployee, requireHR, requireFinance, requireManager, requireCseMember, requireCseElected };

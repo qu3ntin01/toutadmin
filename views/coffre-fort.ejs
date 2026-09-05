@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Coffre-fort — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <% if (restricted) { %>
+      <%- include('partials/sidebar', {
+        panelLabel: 'Coffre-fort',
+        navItems: [{ tab: 'documents', label: 'Mes documents', icon: 'shield' }],
+        footLinks: []
+      }) %>
+    <% } else { %>
+      <%- include('partials/member-sidebar', { active: 'coffre' }) %>
+    <% } %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Coffre-fort',
+        headerSubtitle: 'Vos bulletins et documents d\'emploi, conservés ' + retentionYears + ' ans'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const size = (n) => (n < 1024 * 1024 ? Math.round(n / 1024) + ' Ko' : (n / 1048576).toFixed(1) + ' Mo'); %>
+
+        <% if (restricted) { %>
+          <div class="flash flash-success">
+            Vous consultez le coffre-fort de <%= holder.first_name %> <%= holder.last_name %>.
+            Cet accès ne donne rien d'autre que vos documents : téléchargez-les et conservez-en une copie.
+          </div>
+        <% } %>
+
+        <section class="tab-panel is-active" id="documents">
+          <div class="card">
+            <div class="card-head"><h3><%= documents.length %> document(s) au coffre</h3></div>
+            <% if (documents.length === 0) { %>
+              <p class="cell-sub">
+                Aucun document déposé pour l'instant. Les bulletins y sont versés par le service des
+                ressources humaines au fur et à mesure.
+              </p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Document</th><th>Catégorie</th><th>Période</th><th>Déposé le</th><th>Conservé jusqu'au</th><th>Taille</th><th></th></tr></thead>
+                  <tbody>
+                    <% documents.forEach((d) => { %>
+                      <tr>
+                        <td>
+                          <span class="cell-strong"><%= d.title %></span>
+                          <br /><span class="cell-sub fingerprint" title="Empreinte SHA-256 du document">
+                            empreinte <%= d.sha256.slice(0, 16) %>…
+                          </span>
+                        </td>
+                        <td><span class="tag <%= d.category === 'Bulletin de paie' ? 'tag-accent' : '' %>"><%= d.category %></span></td>
+                        <td class="cell-sub nowrap"><%= d.period || '—' %></td>
+                        <td class="cell-sub nowrap"><%= moment(d.deposited_at) %></td>
+                        <td class="cell-sub nowrap"><%= day(d.retention_until) %></td>
+                        <td class="cell-sub nowrap"><%= size(d.byte_size) %></td>
+                        <td><a class="btn btn-primary btn-sm" href="/coffre-fort/documents/<%= d.id %>">Télécharger</a></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hint">
+                L'empreinte est recalculée à chaque téléchargement : un document dont le contenu aurait
+                bougé ne vous serait pas remis.
+              </p>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Historique des paies (<%= payslips.length %>)</h3></div>
+            <p class="hint">
+              Le récapitulatif de vos fiches de paie. La colonne « document » indique si le bulletin
+              lui-même a été versé au coffre.
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Période</th><th>Brut</th><th>Net</th><th>Statut</th><th>Document</th></tr></thead>
+                <tbody>
+                  <% payslips.forEach((p) => { %>
+                    <% const doc = documents.find((d) => d.payslip_id === p.id) %>
+                    <tr>
+                      <td class="cell-strong nowrap"><%= p.period %></td>
+                      <td><%= money(p.gross_amount) %></td>
+                      <td class="cell-strong"><%= money(p.net_amount) %></td>
+                      <td><span class="tag <%= p.status === 'Payée' ? 'tag-success' : '' %>"><%= p.status %></span></td>
+                      <td>
+                        <% if (doc) { %>
+                          <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= doc.id %>">Télécharger</a>
+                        <% } else { %>
+                          <span class="cell-sub">non déposé</span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (payslips.length === 0) { %><tr><td colspan="5" class="cell-sub">Aucune fiche de paie enregistrée.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <% if (restricted) { %>
+            <div class="card">
+              <form method="POST" action="/deconnexion">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-outline btn-block">Fermer l'accès</button>
+              </form>
+            </div>
+          <% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

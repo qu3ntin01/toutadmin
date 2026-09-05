@@ -201,11 +201,20 @@ test('fin de contrat : désactivation automatique', async (t) => {
     assert.equal(userByEmail(email).active, 0);
   });
 
-  await t.test('la connexion est refusée avec un message explicite', async () => {
+  await t.test('la connexion est refusée, et oriente vers le coffre-fort', async () => {
     const expired = newClient();
-    await expired.firstAccess(email, password);
+    await expired.login(email, password);
     const flash = await expired.flash('/connexion');
-    assert.match(flash.message, /terme de son contrat/);
+    // Le compte est fermé et son coffre est vide : rien à ouvrir, mais on dit où aller.
+    assert.match(flash.message, /compte est fermé/);
+    assert.match(flash.message, /code d'accès/);
+    assert.equal((await expired.get('/mon-espace')).headers.get('location'), '/connexion');
+  });
+
+  await t.test('un mot de passe faux sur un compte fermé ne dit pas qu\'il est fermé', async () => {
+    const intrus = newClient();
+    await intrus.login(email, 'ce-n-est-pas-le-bon');
+    assert.match((await intrus.flash('/connexion')).message, /Identifiants incorrects/);
   });
 });
 

@@ -20,6 +20,8 @@ if (isManager) memberLinks.push({ key: 'equipe', href: '/mon-equipe', label: t('
 if (enabledModules.some((m) => m.key === 'stock')) {
   memberLinks.push({ key: 'stock', href: '/stock', label: 'Stock et achats', icon: 'network' });
 }
+// Le coffre n'apparaît que s'il contient quelque chose : une entrée vide n'apprend rien.
+if (hasVault) memberLinks.push({ key: 'coffre', href: '/coffre-fort', label: 'Coffre-fort', icon: 'shield' });
 memberLinks.push({ key: 'profil', href: '/mon-profil', label: t('nav.profile'), icon: 'user' });
 
 // Les espaces d'encadrement restent au pied de la barre, séparés du parcours du membre.
@@ -30,6 +32,7 @@ if (isFinance || currentUser.role === 'admin') {
 if (isCseElected) memberFootLinks.push({ href: '/cse/gestion', label: t('nav.cseManage'), icon: 'lifebuoy' });
 if (isHr || currentUser.role === 'admin') {
   memberFootLinks.push({ href: '/rh', label: t('nav.hrSpace'), icon: 'shield' });
+  memberFootLinks.push({ href: '/coffre-fort/gestion', label: 'Coffre-fort (gestion)', icon: 'shield' });
 }
 if (currentUser.role === 'admin') {
   memberFootLinks.push({ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' });

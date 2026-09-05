@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Coffre-fort — gestion — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Coffre-fort',
+      navItems: [
+        { tab: 'depot', label: 'Déposer', icon: 'plus' },
+        { tab: 'documents', label: 'Documents', icon: 'shield' },
+        { tab: 'acces', label: 'Accès après départ', icon: 'link', badge: summary.grants },
+        { tab: 'integrite', label: 'Intégrité', icon: 'check', badge: integrity.broken.length }
+      ],
+      footLinks: [{ href: '/rh', label: 'Espace RH', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Coffre-fort',
+        headerSubtitle: 'Dépôt des bulletins et accès des anciens salariés'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const fullName = (u) => [u.first_name, u.last_name].filter(Boolean).join(' '); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.documents %></span><span class="stat-label">Documents au coffre</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.holders %></span><span class="stat-label">Titulaires</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'logout', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.departed %></span><span class="stat-label">Dont partis</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value <%= integrity.broken.length ? 'text-danger' : '' %>"><%= integrity.total - integrity.broken.length %>/<%= integrity.total %></span>
+              <span class="stat-label">Empreintes vérifiées</span>
+            </span>
+          </div>
+        </section>
+
+        <div class="card">
+          <div class="card-head"><h3>Choisir un titulaire</h3></div>
+          <form method="GET" action="/coffre-fort/gestion" class="form-grid">
+            <label class="span-2"><span>Personne</span>
+              <select name="personne" required>
+                <option value="">—</option>
+                <% people.forEach((u) => { %>
+                  <option value="<%= u.id %>" <%= target && target.id === u.id ? 'selected' : '' %>>
+                    <%= fullName(u) %> — <%= u.email %><%= u.active ? '' : ' (parti)' %> · <%= u.documents %> doc.
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ouvrir son coffre</button></div>
+          </form>
+        </div>
+
+        <!-- ---------- Dépôt ---------- -->
+        <section class="tab-panel is-active" id="depot">
+          <div class="card">
+            <div class="card-head"><h3>Déposer un document</h3></div>
+            <% if (!target) { %>
+              <p class="cell-sub">Choisissez d'abord un titulaire ci-dessus.</p>
+            <% } else { %>
+              <form method="POST" action="/coffre-fort/gestion/depots" enctype="multipart/form-data" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="user_id" value="<%= target.id %>" />
+                <label class="span-2"><span>Intitulé</span>
+                  <input type="text" name="title" required maxlength="200" placeholder="Bulletin de paie — janvier 2026" />
+                </label>
+                <label><span>Catégorie</span>
+                  <select name="category"><% categories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
+                </label>
+                <label><span>Période (AAAA ou AAAA-MM)</span><input type="text" name="period" maxlength="7" placeholder="2026-01" /></label>
+                <label class="span-2"><span>Rattacher à une fiche de paie</span>
+                  <select name="payslip_id">
+                    <option value="">— aucune</option>
+                    <% payslips.forEach((p) => { %>
+                      <option value="<%= p.id %>"><%= p.period %> · net <%= p.net_amount %> €</option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span>Fichier</span>
+                  <input type="file" name="document" accept=".pdf,.docx,.png,.jpg,.jpeg" required />
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déposer</button></div>
+              </form>
+              <p class="hint">
+                PDF, DOCX, PNG ou JPEG, 10 Mo maximum. Le document est scellé par son empreinte et
+                conservé <%= retentionYears %> ans : il ne pourra plus être modifié, seulement retiré
+                par l'administration, avec un motif.
+              </p>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Documents ---------- -->
+        <section class="tab-panel" id="documents">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= target ? 'Coffre de ' + fullName(target) : 'Documents' %></h3>
+            </div>
+            <% if (!target) { %>
+              <p class="cell-sub">Choisissez un titulaire pour voir son coffre.</p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Document</th><th>Catégorie</th><th>Période</th><th>Déposé</th><th>Conservé jusqu'au</th><th></th></tr></thead>
+                  <tbody>
+                    <% documents.forEach((d) => { %>
+                      <tr class="<%= d.removed_at ? 'is-muted' : '' %>">
+                        <td>
+                          <span class="cell-strong"><%= d.title %></span>
+                          <% if (d.removed_at) { %><span class="tag tag-danger">retiré</span><% } %>
+                          <br /><span class="cell-sub fingerprint"><%= d.sha256.slice(0, 24) %>…</span>
+                          <% if (d.removed_at) { %>
+                            <br /><span class="cell-sub">retiré le <%= moment(d.removed_at) %> — <%= d.removal_reason %></span>
+                          <% } %>
+                        </td>
+                        <td><span class="tag"><%= d.category %></span></td>
+                        <td class="cell-sub nowrap"><%= d.period || '—' %></td>
+                        <td class="cell-sub nowrap">
+                          <%= moment(d.deposited_at) %>
+                          <% if (d.deposited_first_name) { %><br /><%= d.deposited_first_name %> <%= d.deposited_last_name %><% } %>
+                        </td>
+                        <td class="cell-sub nowrap"><%= day(d.retention_until) %></td>
+                        <td>
+                          <% if (!d.removed_at) { %>
+                            <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= d.id %>">Ouvrir</a>
+                            <% if (currentUser.role === 'admin') { %>
+                              <form method="POST" action="/coffre-fort/gestion/documents/<%= d.id %>/retirer" class="inline-form"
+                                    data-confirm="Retirer définitivement ce document du coffre ?">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <input type="text" name="reason" class="input-sm" placeholder="Motif du retrait" required minlength="5" />
+                                <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                              </form>
+                            <% } %>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                    <% if (documents.length === 0) { %><tr><td colspan="6" class="cell-sub">Coffre vide.</td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+              <% if (currentUser.role !== 'admin') { %>
+                <p class="hint">Le retrait d'un document est réservé à l'administration.</p>
+              <% } %>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Accès après départ ---------- -->
+        <section class="tab-panel" id="acces">
+          <% if (issuedCode) { %>
+            <div class="card">
+              <div class="flash flash-success">
+                Code d'accès pour <%= issuedCode.email %> — affiché une seule fois.
+              </div>
+              <ul class="code-list"><li><%= issuedCode.code %></li></ul>
+              <p class="cell-sub">
+                Valable jusqu'au <%= moment(issuedCode.expiresAt) %>. La personne le saisit sur
+                <code class="totp-secret">/coffre-fort/acces</code>, avec l'adresse de son ancien compte.
+              </p>
+            </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head"><h3>Codes d'accès</h3></div>
+            <p class="hint">
+              Un ancien salarié qui se souvient de son mot de passe entre par la connexion habituelle :
+              elle ouvre directement son coffre, et rien d'autre. Le code sert à qui l'a oublié — ce qui
+              arrivera, sur <%= retentionYears %> ans.
+            </p>
+
+            <% if (!target) { %>
+              <p class="cell-sub">Choisissez un titulaire pour lui émettre un code.</p>
+            <% } else { %>
+              <form method="POST" action="/coffre-fort/gestion/acces/<%= target.id %>" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Validité (jours)</span>
+                  <input type="number" name="days" min="1" max="<%= maxGrantDays %>" value="<%= defaultGrantDays %>" required />
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Émettre un code pour <%= fullName(target) %></button></div>
+              </form>
+              <p class="hint">Émettre un nouveau code révoque le précédent : un seul vaut à la fois.</p>
+
+              <ul class="org-list">
+                <% grants.forEach((g) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong">Code du <%= moment(g.created_at) %></span>
+                      <% if (g.revoked_at) { %><span class="tag tag-danger">révoqué</span>
+                      <% } else if (new Date(g.expires_at) < new Date()) { %><span class="tag">expiré</span>
+                      <% } else { %><span class="tag tag-success">actif</span><% } %>
+                      <br /><span class="cell-sub">
+                        expire le <%= moment(g.expires_at) %> · <%= g.uses %> utilisation(s)
+                        <%= g.last_used_at ? ' · dernière le ' + moment(g.last_used_at) : '' %>
+                      </span>
+                    </span>
+                  </li>
+                <% }) %>
+                <% if (grants.length === 0) { %><li class="cell-sub">Aucun code émis.</li><% } %>
+              </ul>
+
+              <% if (grants.some((g) => !g.revoked_at)) { %>
+                <form method="POST" action="/coffre-fort/gestion/acces/<%= target.id %>/revoquer" data-confirm="Révoquer les codes actifs ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-block">Révoquer les codes actifs</button>
+                </form>
+              <% } %>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Intégrité ---------- -->
+        <section class="tab-panel" id="integrite">
+          <div class="card">
+            <div class="card-head"><h3>Contrôle d'intégrité</h3></div>
+            <p class="hint">
+              Chaque document porte l'empreinte SHA-256 de son contenu au moment du dépôt. Le contrôle
+              la recalcule : un écart signale un fichier altéré ou disparu, et le document n'est plus servi.
+            </p>
+            <% if (integrity.broken.length === 0) { %>
+              <p class="cell-strong"><%= integrity.total %> document(s) contrôlé(s), aucune anomalie.</p>
+            <% } else { %>
+              <div class="flash flash-error"><%= integrity.broken.length %> document(s) en anomalie.</div>
+              <ul class="org-list">
+                <% integrity.broken.forEach((d) => { %>
+                  <li class="org-item">
+                    <span><span class="cell-strong"><%= d.title %></span><br /><span class="cell-sub">titulaire #<%= d.user_id %> · déposé le <%= moment(d.deposited_at) %></span></span>
+                    <span class="tag tag-danger">à vérifier</span>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

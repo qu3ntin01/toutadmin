@@ -63,6 +63,7 @@ qui relie le tout.
 | **Santé et sécurité au travail : risques, accidents, équipements, visites médicales** | ✅ |
 | Sondages internes et baromètre social | ⬜ |
 | Organigramme visuel | ⬜ |
+| **Coffre-fort numérique : bulletins accessibles après le départ, scellés et conservés 50 ans** | ✅ |
 | Signature électronique des contrats et avenants | ⬜ |
 
 ## Finance et gestion
@@ -115,3 +116,7 @@ réécrire à moitié :
 - **Visioconférence et téléphonie**.
 - **Signature électronique qualifiée** (eIDAS niveau qualifié) : demande un
   prestataire de confiance certifié.
+- **Horodatage qualifié du coffre-fort** : les documents y sont scellés par leur
+  empreinte et datés par le serveur, ce qui suffit à détecter une altération.
+  Un horodatage opposable à un tiers demande une autorité de certification, et
+  la norme NF Z42-020 pour un composant coffre-fort au sens strict.

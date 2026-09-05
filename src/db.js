@@ -1127,6 +1127,45 @@ CREATE TABLE IF NOT EXISTS processing_records (
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ---------- Coffre-fort numérique ----------
+
+-- Un document déposé au coffre ne se modifie pas : il porte l'empreinte de son
+-- contenu, une date de conservation, et son retrait éventuel laisse la ligne en
+-- place avec son motif. C'est cette trace qui fait la valeur du coffre.
+CREATE TABLE IF NOT EXISTS vault_documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  category TEXT NOT NULL DEFAULT 'Bulletin de paie',
+  title TEXT NOT NULL,
+  period TEXT NOT NULL DEFAULT '',
+  payslip_id INTEGER REFERENCES payslips(id) ON DELETE SET NULL,
+  file_name TEXT NOT NULL,
+  original_name TEXT NOT NULL DEFAULT '',
+  mime_type TEXT NOT NULL DEFAULT '',
+  byte_size INTEGER NOT NULL DEFAULT 0,
+  sha256 TEXT NOT NULL,
+  deposited_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  deposited_at TEXT NOT NULL DEFAULT (datetime('now')),
+  retention_until TEXT NOT NULL DEFAULT '',
+  removed_at TEXT,
+  removed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  removal_reason TEXT NOT NULL DEFAULT ''
+);
+
+-- Accès au coffre après le départ : un code à usage limité, remis par les RH,
+-- pour qui ne se souvient plus de son mot de passe des années après.
+CREATE TABLE IF NOT EXISTS vault_access_grants (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  code_hash TEXT NOT NULL,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expires_at TEXT NOT NULL,
+  revoked_at TEXT,
+  last_used_at TEXT,
+  uses INTEGER NOT NULL DEFAULT 0
+);
+
 -- ---------- Notifications ----------
 
 CREATE TABLE IF NOT EXISTS notifications (
@@ -1153,6 +1192,8 @@ CREATE INDEX IF NOT EXISTS idx_bank_transactions_account ON bank_transactions(ac
 CREATE INDEX IF NOT EXISTS idx_vehicle_events_vehicle ON vehicle_events(vehicle_id, occurred_on);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_dedupe ON notifications(user_id, dedupe_key) WHERE dedupe_key != '';
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read_at);
+CREATE INDEX IF NOT EXISTS idx_vault_documents_user ON vault_documents(user_id, removed_at);
+CREATE INDEX IF NOT EXISTS idx_vault_grants_user ON vault_access_grants(user_id);
 `);
 
 // Installation sans interface (conteneur, CI, déploiement automatisé) : renseigner

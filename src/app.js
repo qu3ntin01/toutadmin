@@ -16,7 +16,8 @@ const org = require('./org');
 const talent = require('./talent');
 const modules = require('./modules');
 const notifications = require('./notifications');
-const { revalidateSession, requirePasswordChange } = require('./middleware/auth');
+const vault = require('./vault');
+const { revalidateSession, requirePasswordChange, restrictToVault } = require('./middleware/auth');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
 const messageRoutes = require('./routes/messages');
@@ -49,6 +50,7 @@ const notificationRoutes = require('./routes/notifications');
 const pilotageRoutes = require('./routes/pilotage');
 const rechercheRoutes = require('./routes/recherche');
 const rgpdRoutes = require('./routes/rgpd');
+const coffreRoutes = require('./routes/coffre-fort');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -151,6 +153,7 @@ function createApp() {
     if (user) {
       res.locals.unreadMessages = messageRoutes.unreadCount(user.id);
       res.locals.unreadNotifications = notifications.unreadCount(user.id);
+      res.locals.hasVault = vault.hasDocuments(user.id);
       res.locals.isManager = org.isManager(user.id);
       const row = req.currentUser;
       res.locals.isCseMember = Boolean(row && cse.isEligible(row));
@@ -163,6 +166,7 @@ function createApp() {
     } else {
       res.locals.unreadMessages = 0;
       res.locals.unreadNotifications = 0;
+      res.locals.hasVault = false;
       res.locals.isManager = false;
       res.locals.isCseMember = false;
       res.locals.isCseElected = false;
@@ -178,6 +182,9 @@ function createApp() {
 
   // Un mot de passe temporaire n'ouvre qu'une seule page : celle qui le remplace.
   app.use(requirePasswordChange);
+
+  // Un ancien salarié n'atteint que son coffre-fort, quoi qu'il demande.
+  app.use(restrictToVault);
 
   // Tant que l'instance n'est pas installée, tout mène à l'assistant ; une fois
   // installée, l'assistant est définitivement fermé (voir routes/install.js).
@@ -222,6 +229,7 @@ function createApp() {
   app.use('/pilotage', pilotageRoutes);
   app.use('/recherche', rechercheRoutes);
   app.use('/rgpd', rgpdRoutes);
+  app.use('/coffre-fort', coffreRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

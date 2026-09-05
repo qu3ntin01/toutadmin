@@ -94,6 +94,16 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 ### Moyens généraux
 - **Flotte de véhicules** : affectation, kilométrage qui ne recule jamais, historique des entretiens, réparations, sinistres et carburant, échéances d'assurance, de contrôle technique et d'entretien
 
+### Coffre-fort numérique
+- **Les bulletins restent accessibles après le départ.** Un salarié parti se connecte comme avant : son compte est fermé, mais l'identifiant et le mot de passe ouvrent **son coffre-fort, et rien d'autre** — aucune autre page n'est atteignable et aucune écriture n'est possible
+- **Code d'accès** émis par les RH pour qui a oublié son mot de passe, ce qui arrivera sur cinquante ans : adresse + code sur `/coffre-fort/acces`. Émettre un code révoque le précédent, la validité est réglable et le code est révocable à tout moment
+- **Scellé par son empreinte** : chaque document porte le SHA-256 de son contenu, recalculé **à chaque téléchargement**. Un fichier altéré ou disparu n'est pas servi, et l'anomalie est consignée au journal d'audit
+- **Conservation de 50 ans** calculée au dépôt et affichée sur chaque ligne
+- **Un retrait laisse sa trace** : la ligne reste au coffre avec son auteur et son motif. Le retrait est réservé à l'administration ; les RH déposent
+- Bulletins, contrats, avenants, certificats de travail, attestations, soldes de tout compte — PDF, DOCX, PNG ou JPEG, 10 Mo maximum, type vérifié à la signature
+- **Contrôle d'intégrité** de tout le coffre depuis la console RH, en un écran
+- L'historique des paies est affiché à côté, avec l'indication des périodes dont le bulletin n'a pas encore été déposé
+
 ### Cycle de vie du salarié
 - **Documents d'entreprise** : règlement intérieur, politiques, procédures, avec **accusé de réception exigible**. Un document non lu reste signalé dans l'espace du salarié
 - **Formation** : catalogue, sessions datées avec places limitées, demande par le salarié puis confirmation RH. Une session pleine refuse toute inscription de plus, et une inscription confirmée apparaît dans l'agenda
@@ -265,7 +275,11 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-366 tests d'intégration couvrent le socle transverse (échéances rassemblées de tous
+384 tests d'intégration couvrent le coffre-fort (document scellé par son empreinte et
+conservé cinquante ans, exécutable déguisé refusé, dépôt multipart sans jeton refusé,
+document en double écarté, altération détectée et document non servi, retrait réservé à
+l'administration et motivé, compte fermé qui n'ouvre que le coffre, code d'accès valide
+puis révoqué, message identique que le compte existe ou non), le socle transverse (échéances rassemblées de tous
 les espaces et triées, notification dédupliquée à la rejouée, notification d'autrui
 non marquable, résultat clé mesuré sur son échelle y compris décroissante, recherche
 qui ne rend ni les tiers ni les projets hors périmètre, membre masqué introuvable,
@@ -380,6 +394,7 @@ d'administration sont en place pour l'accueillir.
 | `SESSION_IDLE_MINUTES` | Expiration d'une session inactive (défaut `60`) |
 | `SESSION_MAX_HOURS` | Durée de vie absolue d'une session, quelle que soit l'activité (défaut `12`) |
 | `CV_DIR` | Dossier des CV déposés (défaut : `cv/` à côté de la base) |
+| `VAULT_DIR` | Dossier du coffre-fort (défaut : `coffre/` à côté de la base) — à sauvegarder avec la base |
 
 ## Structure
 
@@ -414,6 +429,7 @@ src/
   steering.js        indicateurs de direction, objectifs et résultats clés
   search.js          recherche globale, cloisonnée par droits à la source
   privacy.js         registre des traitements, export et effacement des données
+  vault.js           coffre-fort : dépôt scellé, intégrité, codes d'accès après départ
   cv.js              réception des CV en mémoire, écriture hors dépôt, extraction PDF/DOCX/texte
   ats.js             critères pondérés, score, seuil, classement des candidatures, CVthèque
   modules.js         modules optionnels : activation, barrière de route, limites

@@ -7,6 +7,7 @@ const audit = require('../audit');
 const sessionStore = require('../session-store');
 const i18n = require('../i18n');
 const twoFactor = require('../two-factor');
+const vault = require('../vault');
 const settings = require('../settings');
 const { setFlash, safeRedirect } = require('../utils');
 
@@ -51,22 +52,38 @@ router.post('/connexion', security.loginLimiter, (req, res) => {
   }
 
   const today = new Date().toISOString().slice(0, 10);
-  if (user.contract_end_date && user.contract_end_date < today) {
-    if (user.active) db.prepare('UPDATE users SET active = 0 WHERE id = ?').run(user.id);
-    req.auditHandled = true;
-    audit.log(req, 'connexion.refusee', 'users', user.id, { motif: 'contrat échu' });
-    setFlash(req, 'error', 'Ce compte est arrivé au terme de son contrat et a été désactivé.');
-    return res.redirect('/connexion');
-  }
+  const contractOver = Boolean(user.contract_end_date && user.contract_end_date < today);
+  if (contractOver && user.active) db.prepare('UPDATE users SET active = 0 WHERE id = ?').run(user.id);
 
-  if (!user.active || !bcrypt.compareSync(password, user.password_hash)) {
-    if (user.active) security.registerFailedAttempt(user);
+  // Le mot de passe est vérifié avant toute chose, y compris pour un compte
+  // fermé : sans cela, l'écran de connexion dirait qui est parti.
+  const passwordOk = bcrypt.compareSync(password, user.password_hash);
+  const closed = contractOver || !user.active;
+
+  if (!passwordOk) {
+    if (!closed) security.registerFailedAttempt(user);
     req.auditHandled = true;
     audit.log(req, 'connexion.echec', 'users', user.id, {
-      motif: user.active ? 'mot de passe incorrect' : 'compte désactivé',
+      motif: closed ? 'compte fermé' : 'mot de passe incorrect',
       tentative: user.failed_attempts + 1,
     });
     return genericError();
+  }
+
+  /**
+   * Compte fermé mais coffre-fort garni : la personne entre, et n'atteint que
+   * son coffre. C'est l'obligation de tenir ses bulletins à sa disposition
+   * après le départ ; ce n'est pas une réouverture de compte.
+   */
+  if (closed) {
+    if (!vault.hasDocuments(user.id)) {
+      req.auditHandled = true;
+      audit.log(req, 'connexion.refusee', 'users', user.id, { motif: contractOver ? 'contrat échu' : 'compte désactivé' });
+      setFlash(req, 'error', "Ce compte est fermé. Si vous cherchez vos bulletins de paie, demandez un code d'accès à votre ancien employeur.");
+      return res.redirect('/connexion');
+    }
+    security.resetFailedAttempts(user.id);
+    return openVaultSession(req, res, user, 'mot de passe');
   }
 
   security.resetFailedAttempts(user.id);
@@ -117,6 +134,57 @@ function openSession(req, res, user) {
   });
   return undefined;
 }
+
+/**
+ * Session restreinte au coffre-fort : aucun droit attaché, aucune autre page
+ * atteignable (voir restrictToVault). C'est l'accès d'un ancien salarié.
+ */
+function openVaultSession(req, res, user, moyen) {
+  req.session.regenerate((err) => {
+    if (err) {
+      setFlash(req, 'error', 'Identifiants incorrects.');
+      return res.redirect('/connexion');
+    }
+    req.session.openedAt = Date.now();
+    req.session.vaultOnly = true;
+    req.session.user = {
+      id: user.id,
+      role: user.role,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      grade: user.grade,
+      isHr: false,
+      locale: user.locale,
+      avatarFile: user.avatar_file,
+      mustChangePassword: false,
+    };
+    req.auditHandled = true;
+    audit.log(req, 'coffre.acces_ancien_salarie', 'users', user.id, { moyen });
+    res.redirect('/coffre-fort');
+  });
+  return undefined;
+}
+
+/** Accès au coffre par code, pour qui a oublié son mot de passe. */
+router.get('/coffre-fort/acces', (req, res) => {
+  if (req.session.user) return res.redirect('/coffre-fort');
+  res.render('vault-access');
+});
+
+router.post('/coffre-fort/acces', security.loginLimiter, (req, res) => {
+  const user = vault.redeem(req.body.email, req.body.code);
+  if (!user || !vault.hasDocuments(user.id)) {
+    req.auditHandled = true;
+    audit.log(req, 'coffre.code_refuse', 'users', user ? user.id : null, { email: (req.body.email || '').slice(0, 120) });
+    setFlash(req, 'error', "Adresse ou code invalide, ou code expiré. Rapprochez-vous de votre ancien employeur.");
+    return res.redirect('/coffre-fort/acces');
+  }
+
+  // Un code ouvre toujours une session restreinte, même pour un compte encore
+  // actif : il ne sert qu'à retrouver ses documents.
+  return openVaultSession(req, res, user, "code d'accès");
+});
 
 function pendingUser(req) {
   const pending = req.session.pendingTotp;
