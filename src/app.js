@@ -18,6 +18,7 @@ const talent = require('./talent');
 const modules = require('./modules');
 const notifications = require('./notifications');
 const vault = require('./vault');
+const surveys = require('./surveys');
 const { revalidateSession, requirePasswordChange, restrictToVault } = require('./middleware/auth');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
@@ -53,6 +54,11 @@ const rechercheRoutes = require('./routes/recherche');
 const rgpdRoutes = require('./routes/rgpd');
 const coffreRoutes = require('./routes/coffre-fort');
 const sauvegardeRoutes = require('./routes/sauvegardes');
+const directionRoutes = require('./routes/direction');
+const sondageRoutes = require('./routes/sondages');
+const planningRoutes = require('./routes/planning');
+const qualiteRoutes = require('./routes/qualite');
+const accueilRoutes = require('./routes/accueil');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -166,6 +172,7 @@ function createApp() {
       res.locals.isHr = Boolean(row && row.is_hr);
       res.locals.isFinance = Boolean(row && row.is_finance);
       res.locals.pendingAcks = talent.pendingAckCount(user.id);
+      res.locals.pendingSurveys = surveys.pendingCountFor(user.id);
       res.locals.enabledModules = modules.enabled();
     } else {
       res.locals.unreadMessages = 0;
@@ -177,6 +184,7 @@ function createApp() {
       res.locals.isHr = false;
       res.locals.isFinance = false;
       res.locals.pendingAcks = 0;
+      res.locals.pendingSurveys = 0;
       res.locals.enabledModules = [];
     }
     next();
@@ -235,6 +243,11 @@ function createApp() {
   app.use('/rgpd', rgpdRoutes);
   app.use('/coffre-fort', coffreRoutes);
   app.use('/sauvegardes', sauvegardeRoutes);
+  app.use('/direction', directionRoutes);
+  app.use('/sondages', sondageRoutes);
+  app.use('/planning', planningRoutes);
+  app.use('/qualite', qualiteRoutes);
+  app.use('/accueil', accueilRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

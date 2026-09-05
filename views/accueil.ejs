@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Accueil — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Accueil',
+      navItems: [
+        { tab: 'visiteurs', label: 'Registre des visiteurs', icon: 'users', badge: stats.presentNow },
+        { tab: 'courrier', label: 'Courrier', icon: 'inbox', badge: stats.pendingMail }
+      ],
+      footLinks: [
+        { href: '/rh', label: 'Espace RH', icon: 'shield' },
+        { href: '/salles', label: 'Salles', icon: 'calendar' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: "Accueil",
+        headerSubtitle: 'Registre des visiteurs et suivi du courrier'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const who = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || '—'; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.presentNow %></span><span class="stat-label">Visiteurs dans les murs</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.visitorsToday %></span><span class="stat-label">Visites aujourd'hui</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.pendingMail %></span><span class="stat-label">Courriers à remettre</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.registered %></span><span class="stat-label">Recommandés en attente</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Visiteurs ---------- -->
+        <section class="tab-panel is-active" id="visiteurs">
+          <div class="card">
+            <div class="card-head"><h3>Dans les murs</h3><span class="card-sub">La liste qu'on emporte en cas d'évacuation</span></div>
+            <% if (!presentList.length) { %>
+              <p class="empty-state">Aucun visiteur présent.</p>
+            <% } else { %>
+              <ul class="person-list">
+                <% presentList.forEach((v) => { %>
+                  <li class="person-row">
+                    <span class="person-body">
+                      <span class="person-name"><%= v.first_name %> <%= v.last_name %><%= v.company ? ` — ${v.company}` : '' %></span>
+                      <span class="person-role">
+                        arrivé à <%= v.arrived_at %><%= v.host_last ? ` · reçu par ${v.host_first} ${v.host_last}` : '' %><%= v.badge ? ` · badge ${v.badge}` : '' %>
+                      </span>
+                    </span>
+                    <form method="POST" action="/accueil/visiteurs/<%= v.id %>/sortie" class="inline-field">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <input type="time" name="departed_at" value="<%= now %>" class="input-sm" />
+                      <button type="submit" class="btn btn-outline btn-sm">Sortie</button>
+                    </form>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Inscrire une arrivée</h3></div>
+            <form method="POST" action="/accueil/visiteurs" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Prénom</span><input type="text" name="first_name" maxlength="120" /></label>
+              <label><span>Nom</span><input type="text" name="last_name" required maxlength="120" /></label>
+              <label><span>Société</span><input type="text" name="company" maxlength="160" /></label>
+              <label><span>Reçu par</span>
+                <select name="host_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Jour</span><input type="date" name="visited_on" value="<%= today %>" /></label>
+              <label><span>Heure d'arrivée</span><input type="time" name="arrived_at" value="<%= now %>" /></label>
+              <label><span>Badge remis</span><input type="text" name="badge" maxlength="40" /></label>
+              <label><span>Motif</span><input type="text" name="purpose" maxlength="300" placeholder="Rendez-vous commercial" /></label>
+              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>Registre<%= filterDay ? ` du ${day(filterDay)}` : '' %></h3>
+              <span class="card-sub"><%= visitorList.length %> visite(s) · <%= stats.visitorsMonth %> sur 30 jours</span>
+            </div>
+            <form method="GET" action="/accueil" class="form-grid">
+              <label><span>Filtrer sur un jour</span><input type="date" name="jour" value="<%= filterDay || '' %>" /></label>
+              <div><button type="submit" class="btn btn-outline btn-block">Filtrer</button></div>
+            </form>
+            <% if (!visitorList.length) { %>
+              <p class="empty-state">Aucune visite enregistrée.</p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Jour</th><th>Visiteur</th><th>Société</th><th>Reçu par</th><th>Arrivée</th><th>Départ</th><th>Motif</th><th></th></tr></thead>
+                  <tbody>
+                    <% visitorList.forEach((v) => { %>
+                      <tr>
+                        <td class="cell-sub nowrap"><%= day(v.visited_on) %></td>
+                        <td class="cell-strong"><%= v.first_name %> <%= v.last_name %></td>
+                        <td class="cell-sub"><%= v.company || '—' %></td>
+                        <td class="cell-sub"><%= v.host_last ? `${v.host_first} ${v.host_last}` : '—' %></td>
+                        <td class="cell-sub"><%= v.arrived_at || '—' %></td>
+                        <td class="cell-sub"><%= v.departed_at || '—' %></td>
+                        <td class="cell-sub audit-detail"><%= v.purpose || '—' %></td>
+                        <td>
+                          <form method="POST" action="/accueil/visiteurs/<%= v.id %>/supprimer" class="inline-form" data-confirm="Retirer cette visite du registre ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Courrier ---------- -->
+        <section class="tab-panel" id="courrier">
+          <div class="card">
+            <div class="card-head"><h3>Enregistrer un courrier</h3></div>
+            <form method="POST" action="/accueil/courrier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Sens</span>
+                <select name="direction"><% mailDirections.forEach((d) => { %><option value="<%= d %>"><%= d %></option><% }) %></select>
+              </label>
+              <label><span>Nature</span>
+                <select name="kind"><% mailKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+              </label>
+              <label><span>Reçu ou envoyé le</span><input type="date" name="logged_on" value="<%= today %>" /></label>
+              <label><span>Numéro de suivi</span><input type="text" name="tracking" maxlength="80" /></label>
+              <label><span>Correspondant</span><input type="text" name="correspondent" maxlength="200" placeholder="Expéditeur ou destinataire externe" /></label>
+              <label><span>Destinataire interne</span>
+                <select name="recipient_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label class="span-2"><span>Objet</span><input type="text" name="subject" maxlength="300" /></label>
+              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+            </form>
+          </div>
+
+          <% [{ label: 'Courrier entrant', rows: incoming }, { label: 'Courrier sortant', rows: outgoing }].forEach((block) => { %>
+            <div class="card">
+              <div class="card-head"><h3><%= block.label %></h3><span class="card-sub"><%= block.rows.length %> pli(s)</span></div>
+              <% if (!block.rows.length) { %>
+                <p class="empty-state">Rien d'enregistré.</p>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Date</th><th>Nature</th><th>Correspondant</th><th>Destinataire</th><th>Objet</th><th>Suivi</th><th>État</th><th></th></tr></thead>
+                    <tbody>
+                      <% block.rows.forEach((m) => { %>
+                        <tr>
+                          <td class="cell-sub nowrap"><%= day(m.logged_on) %></td>
+                          <td class="cell-sub"><%= m.kind %></td>
+                          <td class="cell-sub"><%= m.correspondent || '—' %></td>
+                          <td class="cell-sub"><%= m.last_name ? who(m) : (m.recipient_label || '—') %></td>
+                          <td class="cell-strong"><%= m.subject || '—' %></td>
+                          <td class="cell-sub mono"><%= m.tracking || '—' %></td>
+                          <td>
+                            <span class="tag <%= m.status === 'À remettre' ? 'tag-warning' : 'tag-success' %>"><%= m.status %></span>
+                            <% if (m.handed_on) { %><br /><span class="cell-sub"><%= day(m.handed_on) %></span><% } %>
+                          </td>
+                          <td>
+                            <div class="row-actions">
+                              <% if (m.status === 'À remettre') { %>
+                                <form method="POST" action="/accueil/courrier/<%= m.id %>/remise" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <button type="submit" class="btn btn-outline btn-sm">Remis</button>
+                                </form>
+                              <% } else if (m.status === 'Remis') { %>
+                                <form method="POST" action="/accueil/courrier/<%= m.id %>/archiver" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <button type="submit" class="btn btn-outline btn-sm">Archiver</button>
+                                </form>
+                              <% } %>
+                              <form method="POST" action="/accueil/courrier/<%= m.id %>/supprimer" class="inline-form" data-confirm="Retirer ce courrier du registre ?">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                              </form>
+                            </div>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

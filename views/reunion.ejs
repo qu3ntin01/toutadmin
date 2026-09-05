@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: meeting.title + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Réunion',
+      navItems: [
+        { tab: 'ordre-du-jour', label: 'Ordre du jour', icon: 'inbox' },
+        { tab: 'participants', label: 'Participants', icon: 'users', badge: attendeeList.length },
+        { tab: 'compte-rendu', label: 'Compte rendu', icon: 'ballot' },
+        { tab: 'decisions', label: 'Décisions', icon: 'check', badge: decisionList.length },
+        { tab: 'actions', label: 'Actions', icon: 'clock', badge: actionList.filter((a) => a.status !== 'Faite').length }
+      ],
+      footLinks: [{ href: '/direction#reunions', label: 'Toutes les réunions', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: meeting.title,
+        headerSubtitle: meeting.kind + ' · ' + new Date(meeting.held_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) + (meeting.location ? ' · ' + meeting.location : ''),
+        backHref: '/direction#reunions',
+        backLabel: 'Direction'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const who = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || '—'; %>
+
+        <!-- ---------- Ordre du jour ---------- -->
+        <section class="tab-panel is-active" id="ordre-du-jour">
+          <div class="card">
+            <div class="card-head"><h3>Convocation</h3><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? 'tag-danger' : 'tag-warning') %>"><%= meeting.status %></span></div>
+            <form method="POST" action="/direction/reunions/<%= meeting.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" value="<%= meeting.title %>" /></label>
+              <label><span>Type</span>
+                <select name="kind"><% meetingKinds.forEach((k) => { %><option value="<%= k %>" <%= k === meeting.kind ? 'selected' : '' %>><%= k %></option><% }) %></select>
+              </label>
+              <label><span>Date</span><input type="date" name="held_on" value="<%= meeting.held_on %>" required /></label>
+              <label><span>Début</span><input type="time" name="starts_at" value="<%= meeting.starts_at %>" /></label>
+              <label><span>Fin</span><input type="time" name="ends_at" value="<%= meeting.ends_at %>" /></label>
+              <label><span>Lieu</span><input type="text" name="location" maxlength="160" value="<%= meeting.location %>" /></label>
+              <label><span>Président de séance</span>
+                <select name="chair_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>" <%= e.id === meeting.chair_id ? 'selected' : '' %>><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span>État</span>
+                <select name="status"><% meetingStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === meeting.status ? 'selected' : '' %>><%= s %></option><% }) %></select>
+              </label>
+              <label class="span-2"><span>Ordre du jour</span><textarea name="agenda" rows="6"><%= meeting.agenda %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- Participants ---------- -->
+        <section class="tab-panel" id="participants">
+          <div class="card">
+            <div class="card-head"><h3>Convier</h3></div>
+            <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Personnes</span>
+                <select name="user_ids" multiple size="8">
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %><%= e.grade ? ` — ${e.grade}` : '' %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Convier</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= attendeeList.length %> participant(s)</h3></div>
+            <% if (!attendeeList.length) { %>
+              <p class="empty-state">Personne n'est encore convié.</p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Personne</th><th>Fonction</th><th>Présence</th><th></th></tr></thead>
+                  <tbody>
+                    <% attendeeList.forEach((a) => { %>
+                      <tr>
+                        <td class="cell-strong"><%= who(a) %></td>
+                        <td class="cell-sub"><%= a.grade || '—' %></td>
+                        <td>
+                          <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants/<%= a.user_id %>/presence" class="inline-field">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="attendance" class="input-sm">
+                              <% attendances.forEach((att) => { %><option value="<%= att %>" <%= att === a.attendance ? 'selected' : '' %>><%= att %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-outline btn-sm">Noter</button>
+                          </form>
+                        </td>
+                        <td>
+                          <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants/<%= a.user_id %>/retirer" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Compte rendu ---------- -->
+        <section class="tab-panel" id="compte-rendu">
+          <div class="card">
+            <div class="card-head"><h3>Compte rendu</h3></div>
+            <form method="POST" action="/direction/reunions/<%= meeting.id %>/compte-rendu" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Relevé de séance</span><textarea name="minutes" rows="14" placeholder="Ce qui a été dit, ce qui a été tranché, ce qui reste ouvert."><%= meeting.minutes %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer et marquer la réunion tenue</button></div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- Décisions ---------- -->
+        <section class="tab-panel" id="decisions">
+          <div class="card">
+            <div class="card-head"><h3>Décision prise en séance</h3></div>
+            <form method="POST" action="/direction/decisions" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
+              <label class="span-2"><span>Décision</span><input type="text" name="title" required maxlength="200" /></label>
+              <label><span>Prise le</span><input type="date" name="decided_on" value="<%= meeting.held_on %>" required /></label>
+              <label><span>Portée</span>
+                <select name="scope"><% decisionScopes.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
+              </label>
+              <label class="span-2"><span>Contenu</span><textarea name="body" rows="3"></textarea></label>
+              <label class="span-2"><span>Motif</span><textarea name="rationale" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire au registre</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= decisionList.length %> décision(s)</h3></div>
+            <% if (!decisionList.length) { %>
+              <p class="empty-state">Aucune décision consignée pour cette réunion.</p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% decisionList.forEach((d) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= d.title %></span>
+                      <span class="tag <%= d.status === 'En vigueur' ? 'tag-success' : 'tag-warning' %>"><%= d.status %></span>
+                    </div>
+                    <p class="cell-sub"><%= day(d.decided_on) %> · <%= d.scope %></p>
+                    <% if (d.body) { %><p class="cell-sub"><%= d.body %></p><% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Actions ---------- -->
+        <section class="tab-panel" id="actions">
+          <div class="card">
+            <div class="card-head"><h3>Confier une action</h3></div>
+            <form method="POST" action="/direction/actions" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
+              <label class="span-2"><span>Action</span><input type="text" name="label" required maxlength="300" /></label>
+              <label><span>Confiée à</span>
+                <select name="assignee_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Pour le</span><input type="date" name="due_date" /></label>
+              <label class="span-2"><span>Décision d'origine</span>
+                <select name="decision_id">
+                  <option value="">—</option>
+                  <% decisionList.forEach((d) => { %><option value="<%= d.id %>"><%= d.title %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Confier</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= actionList.length %> action(s)</h3></div>
+            <% if (!actionList.length) { %>
+              <p class="empty-state">Aucune action issue de cette réunion.</p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Échéance</th><th>Action</th><th>Porteur</th><th>État</th></tr></thead>
+                  <tbody>
+                    <% actionList.forEach((a) => { %>
+                      <tr>
+                        <td class="cell-sub nowrap"><% if (a.due_date && a.due_date < today && a.status !== 'Faite') { %><span class="tag tag-danger"><%= day(a.due_date) %></span><% } else { %><%= day(a.due_date) %><% } %></td>
+                        <td class="cell-strong"><%= a.label %></td>
+                        <td class="cell-sub"><%= who(a) %></td>
+                        <td>
+                          <form method="POST" action="/direction/actions/<%= a.id %>/statut" class="inline-field">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="back" value="reunion" />
+                            <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
+                            <select name="status" class="input-sm">
+                              <% actionStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === a.status ? 'selected' : '' %>><%= s %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-outline btn-sm">Mettre à jour</button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

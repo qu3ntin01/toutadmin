@@ -35,8 +35,9 @@ qui relie le tout.
 | Actualités à portée entreprise / service / équipe | ✅ |
 | **Tableau de bord de direction** — effectif, masse salariale, activité, trésorerie | ✅ |
 | **Objectifs et résultats clés (OKR)**, déclinés par service et par équipe | ✅ |
-| Comptes rendus de réunion et registre des décisions | ⬜ |
-| Registre des risques de l'entreprise | ⬜ |
+| **Réunions : convocation, ordre du jour, présences, compte rendu** | ✅ |
+| **Registre des décisions et actions confiées, avec échéance et porteur** | ✅ |
+| **Registre des risques : cotation brute et résiduelle, matrice, traitement, revue** | ✅ |
 
 ## Opérations
 
@@ -46,8 +47,8 @@ qui relie le tout.
 | **Temps passé imputé au projet**, et rentabilité face au budget | ✅ |
 | **Tickets et support**, interne comme client, avec priorité et délai de traitement | ✅ |
 | **Base de connaissances** interne, par catégorie, avec recherche | ✅ |
-| Qualité : non-conformités, actions correctives, audits internes | ⬜ |
-| Planning d'équipe, roulements et astreintes | ⬜ |
+| **Qualité : non-conformités, actions correctives, vérification d'efficacité, audits internes** | ✅ |
+| **Planning d'équipe, roulements et astreintes, avec détection des conflits** | ✅ |
 
 ## Ressources humaines
 
@@ -63,7 +64,7 @@ qui relie le tout.
 | **Arrivée et départ : listes de contrôle suivies** | ✅ |
 | **Compétences et habilitations, avec échéances de recyclage** | ✅ |
 | **Santé et sécurité au travail : risques, accidents, équipements, visites médicales** | ✅ |
-| Sondages internes et baromètre social | ⬜ |
+| **Sondages internes et baromètre social, anonymes par construction** | ✅ |
 | Organigramme visuel | ⬜ |
 | **Coffre-fort numérique : bulletins accessibles après le départ, scellés et conservés 50 ans** | ✅ |
 | Signature électronique des contrats et avenants | ⬜ |
@@ -91,8 +92,8 @@ qui relie le tout.
 | Équipements et leur affectation | ✅ |
 | Salles et réservations | ✅ |
 | **Flotte de véhicules : entretien, contrôle technique, assurance, sinistres** | ✅ |
-| Registre des visiteurs | ⬜ |
-| Courrier entrant et sortant | ⬜ |
+| **Registre des visiteurs, avec liste des personnes présentes** | ✅ |
+| **Courrier entrant et sortant, remise datée et signée** | ✅ |
 
 ## Conformité
 

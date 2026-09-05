@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Résultats — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Direction',
+      navItems: [{ href: '/direction#sondages', label: 'Sondages', icon: 'megaphone', active: true }],
+      footLinks: [{ href: '/direction#sondages', label: 'Retour aux sondages', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: result.survey.title,
+        headerSubtitle: result.survey.kind + ' · ' + result.survey.status.toLowerCase(),
+        backHref: '/direction#sondages',
+        backLabel: 'Sondages'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= result.answered %></span><span class="stat-label">Réponses sur <%= result.invited %> conviés</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= result.rate %> %</span><span class="stat-label">Participation</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= result.questions.length %></span><span class="stat-label">Questions</span></span>
+          </div>
+        </section>
+
+        <% if (result.withheld) { %>
+          <div class="card">
+            <div class="card-head"><h3>Résultats non affichés</h3></div>
+            <p class="empty-state">
+              <%= result.answered %> réponse(s) reçue(s) : sous <%= result.threshold %>, rien n'est montré.
+              Dans un petit groupe, une moyenne suffit à désigner quelqu'un — et un sondage dont l'anonymat
+              se laisse contourner ne mesure plus que la prudence des gens.
+            </p>
+          </div>
+        <% } else { %>
+          <% result.questions.forEach((q) => { %>
+            <div class="card">
+              <div class="card-head"><h3><%= q.label %></h3><span class="card-sub"><%= q.count %> réponse(s)</span></div>
+
+              <% if (q.type === 'echelle') { %>
+                <p class="stat-value"><%= q.average === null ? '—' : q.average %> <span class="cell-sub">/ 5 en moyenne</span></p>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Note</th><th>Réponses</th><th>Part</th></tr></thead>
+                    <tbody>
+                      <% q.distribution.forEach((d) => { %>
+                        <tr>
+                          <td class="cell-strong"><%= d.value %></td>
+                          <td><%= d.count %></td>
+                          <td><span class="meter"><span class="meter-fill" data-ratio="<%= q.count ? Math.round(d.count * 100 / q.count) : 0 %>"></span></span></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } else if (q.type === 'texte') { %>
+                <% if (!q.verbatims.length) { %>
+                  <p class="empty-state">Aucune réponse libre.</p>
+                <% } else { %>
+                  <ul class="meeting-list">
+                    <% q.verbatims.forEach((v) => { %><li class="meeting-item"><p class="cell-sub"><%= v %></p></li><% }) %>
+                  </ul>
+                <% } %>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Réponse</th><th>Nombre</th><th>Part</th></tr></thead>
+                    <tbody>
+                      <% q.distribution.forEach((d) => { %>
+                        <tr>
+                          <td class="cell-strong"><%= d.value %></td>
+                          <td><%= d.count %></td>
+                          <td><span class="meter"><span class="meter-fill" data-ratio="<%= q.count ? Math.round(d.count * 100 / q.count) : 0 %>"></span></span></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/meter.js"></script>
+</body>
+</html>

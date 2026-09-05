@@ -132,6 +132,43 @@ function collect({ withinDays = HORIZON_DAYS } = {}) {
       task.assignee_id ? [task.assignee_id] : []);
   }
 
+  // --- Actions décidées en réunion
+  for (const action of db.prepare(`
+    SELECT a.id, a.label, a.due_date, a.assignee_id, m.title AS meeting_title
+    FROM meeting_actions a LEFT JOIN meetings m ON m.id = a.meeting_id
+    WHERE a.status NOT IN ('Faite','Abandonnée') AND a.due_date IS NOT NULL AND a.due_date <= ?
+  `).all(limit)) {
+    add('Action de direction', action.label, action.meeting_title || 'Hors réunion', action.due_date, '/direction#actions',
+      action.assignee_id ? [action.assignee_id] : stewards());
+  }
+
+  // --- Décisions à réexaminer
+  for (const decision of db.prepare(`
+    SELECT id, title, scope, review_on FROM decisions
+    WHERE status = 'En vigueur' AND review_on IS NOT NULL AND review_on <= ?
+  `).all(limit)) {
+    add('Décision', decision.title, `À réexaminer — ${decision.scope}`, decision.review_on, '/direction#decisions', stewards());
+  }
+
+  // --- Revue des risques de l'entreprise
+  for (const risk of db.prepare(`
+    SELECT id, title, category, next_review, owner_id FROM enterprise_risks
+    WHERE status != 'Clos' AND next_review IS NOT NULL AND next_review <= ?
+  `).all(limit)) {
+    add('Risque', risk.title, `Revue — ${risk.category}`, risk.next_review, '/direction#risques',
+      [...new Set([risk.owner_id, ...stewards()].filter(Boolean))]);
+  }
+
+  // --- Actions qualité
+  for (const action of db.prepare(`
+    SELECT a.id, a.label, a.due_date, a.owner_id, a.kind, n.reference
+    FROM quality_actions a LEFT JOIN nonconformities n ON n.id = a.nonconformity_id
+    WHERE a.status != 'Faite' AND a.due_date IS NOT NULL AND a.due_date <= ?
+  `).all(limit)) {
+    add('Qualité', action.label, `Action ${action.kind.toLowerCase()}${action.reference ? ` — ${action.reference}` : ''}`,
+      action.due_date, '/qualite#actions', action.owner_id ? [action.owner_id] : stewards());
+  }
+
   // --- Points de parcours d'arrivée ou de départ
   for (const item of db.prepare(`
     SELECT i.id, i.label, i.due_date, c.kind, u.first_name, u.last_name

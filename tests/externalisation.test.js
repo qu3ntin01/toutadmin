@@ -352,18 +352,21 @@ test('Envoi des sauvegardes au-dehors', async (t) => {
 
 test('Écran d\'externalisation', async (t) => {
   await t.test('seule l\'administration y accède', async () => {
-    const salarie = newClient();
-    const temporaire = 'Mot-De-Passe-Temp-2026';
     const admin = await loginAsAdmin();
-    await admin.refreshToken('/admin/membres/nouveau');
-    await admin.post('/admin/membres/nouveau', {
-      first_name: 'Camille', last_name: 'Extern', email: 'camille.extern@test.local',
-      password: temporaire, role: 'employee',
+    await admin.refreshToken('/admin');
+    await admin.post('/admin/employes', {
+      first_name: 'Camille', last_name: 'Extern', grade: 'Employé',
+      contract_type: 'CDI', email: 'camille.extern@test.local',
     });
-    await salarie.firstAccess('camille.extern@test.local', temporaire, MEMBER_PASSWORD);
+    const flash = await admin.flash('/admin');
+    const temporaire = flash.message.match(/Mot de passe temporaire : ([A-Za-z0-9]+)/)[1];
 
-    const refus = await salarie.get('/sauvegardes');
-    assert.equal([302, 403].includes(refus.status), true);
+    const salarie = newClient();
+    await salarie.firstAccess('camille.extern@test.local', temporaire, MEMBER_PASSWORD);
+    // Le compte est bien ouvert : c'est un refus de droits, pas de session.
+    assert.equal((await salarie.get('/mon-espace')).status, 200);
+
+    assert.equal((await salarie.get('/sauvegardes')).status, 403);
   });
 
   await t.test('la page montre les destinations sans laisser fuir les secrets', async () => {

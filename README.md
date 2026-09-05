@@ -148,6 +148,36 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Annuaire** de tous les collaborateurs avec recherche et filtres par service et par équipe, affichant le rattachement et les managers de chacun ; la **visibilité dans l'annuaire est pilotée uniquement par l'administration**, un membre ne peut pas s'y soustraire ni s'y remettre
 - **Messagerie interne** : boîte de réception, envoi, réponse, compteur de non-lus, suppression. L'**adresse professionnelle et les serveurs IMAP/SMTP sont configurés par l'administration** et affichés en lecture seule au membre
 
+### Direction et gouvernance
+- **Réunions** (`/direction`, administration) : convocation avec ordre du jour, participants conviés et **pointage des présences** (attendu, présent, excusé, absent), compte rendu qui marque la réunion tenue
+- **Registre des décisions** : intitulé, contenu, **motif** — c'est ce qu'on cherche deux ans plus tard —, portée, état et date de réexamen. Une décision peut naître **hors réunion** : le rattachement est facultatif, sinon la moitié des arbitrages n'entrerait jamais au registre. **Supprimer une réunion n'efface pas ses décisions**
+- **Actions confiées** avec porteur et échéance, rattachées à leur décision d'origine ; elles rejoignent les échéances de l'entreprise et alertent leur porteur
+- **Registre des risques de l'entreprise**, distinct du document unique qui ne traite que la santé des personnes : catégorie, cotation probabilité × impact, **cotation résiduelle** (ce qu'il reste une fois le traitement en place), traitement retenu, porteur, plan d'action et date de revue
+- **Matrice 5 × 5** colorée par criticité. Tant que le résiduel n'est pas coté, c'est la cotation brute qui est retenue : ne pas coter ne doit pas faire passer un risque pour traité
+
+### Sondages et baromètre social
+- **Questionnaires** à échelle, oui/non, choix multiple ou réponse libre, adressés à toute l'entreprise, à un service ou à une équipe
+- **L'anonymat tient à la structure des tables, pas à une promesse** : les réponses ne portent aucun identifiant de personne, et la participation — nominative — ne dit que « a répondu ». Une base saisie ne peut pas rendre ce qu'elle ne contient pas ; le journal d'audit non plus
+- **Sous cinq réponses, aucun résultat n'est affiché** : dans un petit groupe, une moyenne suffit à désigner quelqu'un
+- **Un sondage ouvert ne se modifie plus** — des questions changées en cours de route rendraient les réponses incomparables. Résultats agrégés, verbatims, taux de participation et **indice du baromètre** suivi d'un sondage à l'autre
+
+### Planning, roulements et astreintes
+- **Grille de la semaine** (`/planning`) par personne et par jour, avec postes, astreintes, permanences, télétravail et formations
+- **Les contradictions sont refusées à la création** : un créneau qui chevauche un autre poste, ou qui tombe sur une **absence déjà accordée**, est rejeté — plus tard, ce sont déjà des absences
+- **Roulements** réutilisables (horaires, jours de la semaine, lieu) applicables sur une période ; les jours en conflit sont **sautés et rendus avec leur motif**. Une heure de fin plus petite que l'heure de début décrit un **poste de nuit**, qui se termine le lendemain
+- **Publication de la semaine** : un planning non publié reste un brouillon, signalé en pointillé, sur lequel personne ne doit organiser sa semaine
+- **Qui est d'astreinte à cet instant**, avec son numéro — la question qu'on pose à 3 h du matin — et **charge par personne** sur la période. Un manager ne planifie que son périmètre ; un salarié consulte son planning sans voir celui des autres
+
+### Qualité
+- **Non-conformités** (`/qualite`, encadrement et administration) : origine, gravité, objet, action immédiate, **cause racine**, coût, avec une référence lisible et séquentielle (`NC-2026-001`)
+- **Actions correctives, préventives et d'amélioration** avec responsable et échéance, puis **vérification d'efficacité** : une action « faite » dont personne n'a mesuré l'effet laisse le même écart revenir. Le tableau de bord compte séparément ce qui est fait et ce qui est efficace
+- **Une non-conformité ne se clôture pas tant que ses actions sont en cours** : une fermeture avec du travail en cours est une fermeture de façade
+- **Audits internes** : périmètre, référentiel, auditeur, constats (non-conformité, remarque, point fort) et synthèse. Un constat de non-conformité **se transforme en non-conformité** avec sa propre référence — un constat qui reste un constat ne sert à rien
+
+### Accueil : visiteurs et courrier
+- **Registre des visiteurs** avec heure d'arrivée et de départ, société, personne visitée et badge remis. La liste **« dans les murs »** répond à la seule question qui compte en cas d'évacuation, ce qu'aucune liste de salariés ne sait faire
+- **Courrier entrant et sortant** : nature (dont recommandé avec AR), correspondant, destinataire interne, numéro de suivi. Un pli reste **« à remettre »** tant que personne n'a signé la remise, qui est datée et porte le nom de celui qui l'a faite
+
 ### Sauvegarde et restauration
 - **Sauvegarde automatique**, toutes les heures par défaut (intervalle et nombre d'archives conservées réglables dans `/sauvegardes`). Le serveur sauvegarde aussi au démarrage s'il a manqué une échéance
 - **Une archive contient tout** : la base, les photos de profil, les CV et le coffre-fort. Sauvegarder la seule base serait un piège — l'instance restaurée prétendrait détenir des bulletins disparus
@@ -296,7 +326,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-450 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+523 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -327,7 +357,19 @@ et non comptée comme réponse, portée des articles), les parcours et compéten
 (échéances relatives au jour pivot, clôture et réouverture, expiration déduite de la
 durée de validité, obligatoire manquante), la santé-sécurité (criticité, refus d'un
 accident daté dans le futur, taux de fréquence et de gravité, péremption des
-protections), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
+protections), la gouvernance (décision qui survit à la suppression de sa réunion,
+présence inventée refusée, action remontée dans les échéances et notifiée à son
+porteur, cotation résiduelle retenue et cotation brute conservée quand elle manque,
+placement dans la matrice), les sondages (table de réponses dépourvue de colonne
+d'auteur, journal d'audit qui ne rend rien de plus, résultats retenus sous le seuil
+d'anonymat, sondage ouvert non modifiable, double réponse et population non conviée
+refusées, indice du baromètre), le planning (chevauchement et absence accordée
+refusés, absence en attente sans effet, poste de nuit qui finit le lendemain,
+roulement borné à trois mois, publication de la semaine, astreinte lue à l'instant
+voulu, salarié qui ne voit que ses propres créneaux), la qualité (non-conformité non
+clôturable avec des actions en cours, efficacité impossible à juger avant la fin de
+l'action, constat d'audit transformé en non-conformité) et l'accueil (liste des
+personnes dans les murs, sortie non réécrite, remise de courrier datée et signée), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
 projection et point bas), les immobilisations (linéaire, bascule du dégressif, bornes)
 et la flotte (doublon d'immatriculation, compteur qui ne recule pas, échéance
 dépassée), la sécurité (session révoquée dès la désactivation,
@@ -467,6 +509,11 @@ src/
   privacy.js         registre des traitements, export et effacement des données
   vault.js           coffre-fort : dépôt scellé, intégrité, codes d'accès après départ
   themes.js          palettes de l'instance et palette en service
+  governance.js      réunions, registre des décisions, actions, risques de l'entreprise
+  surveys.js         sondages anonymes, seuil d'anonymat, baromètre social
+  planning.js        créneaux, roulements, astreintes, conflits avec les absences
+  quality.js         non-conformités, actions correctives, efficacité, audits internes
+  frontdesk.js       registre des visiteurs et suivi du courrier
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
   secret-store.js    chiffrement AES-256-GCM des secrets rangés en base

@@ -8,14 +8,20 @@ const memberLinks = [
   { key: 'messagerie', href: '/messagerie', label: t('nav.messages'), icon: 'inbox', badge: unreadMessages },
   { key: 'notifications', href: '/notifications', label: 'Notifications', icon: 'megaphone', badge: unreadNotifications },
   { key: 'agenda', href: '/agenda', label: t('nav.agenda'), icon: 'calendar' },
+  { key: 'planning', href: '/planning', label: 'Planning', icon: 'clock' },
   { key: 'salles', href: '/salles', label: t('nav.rooms'), icon: 'network' },
   { key: 'projets', href: '/projets', label: 'Projets', icon: 'briefcase' },
   { key: 'support', href: '/support', label: 'Support', icon: 'lifebuoy' },
   { key: 'connaissances', href: '/base-de-connaissances', label: 'Connaissances', icon: 'inbox' },
 ];
+// Un sondage à remplir se signale : passé la clôture, il ne sert plus à rien.
+if (pendingSurveys) memberLinks.push({ key: 'sondages', href: '/sondages', label: 'Sondages', icon: 'ballot', badge: pendingSurveys });
 // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
 if (isCseMember) memberLinks.push({ key: 'cse', href: '/cse', label: t('nav.cse'), icon: 'lifebuoy' });
-if (isManager) memberLinks.push({ key: 'equipe', href: '/mon-equipe', label: t('nav.team'), icon: 'shield' });
+if (isManager) {
+  memberLinks.push({ key: 'equipe', href: '/mon-equipe', label: t('nav.team'), icon: 'shield' });
+  memberLinks.push({ key: 'qualite', href: '/qualite', label: 'Qualité', icon: 'check' });
+}
 // Le stock ouvre aux salariés la demande d'achat : elle passe par leur manager.
 if (enabledModules.some((m) => m.key === 'stock')) {
   memberLinks.push({ key: 'stock', href: '/stock', label: 'Stock et achats', icon: 'network' });
@@ -32,6 +38,7 @@ if (isFinance || currentUser.role === 'admin') {
 if (isCseElected) memberFootLinks.push({ href: '/cse/gestion', label: t('nav.cseManage'), icon: 'lifebuoy' });
 if (isHr || currentUser.role === 'admin') {
   memberFootLinks.push({ href: '/rh', label: t('nav.hrSpace'), icon: 'shield' });
+  memberFootLinks.push({ href: '/accueil', label: 'Accueil et courrier', icon: 'inbox' });
   memberFootLinks.push({ href: '/coffre-fort/gestion', label: 'Coffre-fort (gestion)', icon: 'shield' });
 }
 if (currentUser.role === 'admin') {

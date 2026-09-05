@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Sondages — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: null }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Sondages',
+        headerSubtitle: 'Vos réponses ne portent pas votre nom'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <div class="card">
+          <div class="card-head"><h3><%= invitations.length %> sondage(s) à remplir</h3></div>
+          <% if (!invitations.length) { %>
+            <p class="empty-state">Rien à remplir pour le moment.</p>
+          <% } else { %>
+            <ul class="meeting-list">
+              <% invitations.forEach((s) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><%= s.title %></span>
+                    <span class="tag tag-warning"><%= s.question_count %> question(s)</span>
+                  </div>
+                  <% if (s.intro) { %><p class="cell-sub"><%= s.intro %></p><% } %>
+                  <p class="cell-sub">
+                    <%= s.kind %><% if (s.closes_on) { %> · jusqu'au <%= new Date(s.closes_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><% } %>
+                  </p>
+                  <div class="row-actions"><a href="/sondages/<%= s.id %>" class="btn btn-primary btn-sm">Répondre</a></div>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+          <p class="hint">
+            Les réponses sont enregistrées sans lien avec votre compte : la table qui les contient n'a pas de
+            colonne pour cela. Seule la participation est retenue, pour ne pas vous solliciter deux fois. Aucun
+            résultat n'est affiché sous <%= anonymityThreshold %> réponses.
+          </p>
+        </div>
+
+        <% if (answered.length) { %>
+          <div class="card">
+            <div class="card-head"><h3>Déjà répondu</h3></div>
+            <ul class="person-list">
+              <% answered.forEach((s) => { %>
+                <li class="person-row">
+                  <span class="person-body">
+                    <span class="person-name"><%= s.title %></span>
+                    <span class="person-role"><%= s.kind %> · <%= s.status %></span>
+                  </span>
+                  <span class="tag tag-success">Merci</span>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

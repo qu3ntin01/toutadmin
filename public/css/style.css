@@ -1455,3 +1455,36 @@ tr.is-current { background: var(--accent-soft); }
    confirmation doit pouvoir le contenir, sinon la consigne devient un piège. */
 .confirm-name { min-width: 260px; }
 @media (max-width: 720px) { .confirm-name { min-width: 0; width: 100%; } }
+
+/* ---------- Direction : matrice des risques ---------- */
+
+/* Les quatre niveaux reprennent les couleurs d'état déjà définies : la matrice
+   se relit d'un coup d'œil, et suit la palette de l'instance comme le reste. */
+/* Une matrice s'embrasse d'un regard : elle ne s'étale pas sur toute la
+   largeur comme un tableau de données, sinon les cases perdent leur forme. */
+.table-wrap .risk-matrix { width: auto; min-width: 0; }
+.risk-matrix th, .risk-matrix td { text-align: center; padding: 9px 12px; }
+.risk-matrix tbody th { width: 150px; text-align: right; }
+.risk-cell { font-weight: 650; min-width: 64px; }
+.risk-level-1 { background: var(--success-bg); color: var(--success); }
+.risk-level-2 { background: var(--accent-soft); color: var(--accent); }
+.risk-level-3 { background: var(--warning-bg); color: var(--warning); }
+.risk-level-4 { background: var(--danger-bg); color: var(--danger); }
+
+/* ---------- Planning ---------- */
+
+.planning-grid td { vertical-align: top; }
+.planning-cell { min-width: 118px; padding: 6px; }
+.shift {
+  display: block; margin-bottom: 4px; padding: 5px 7px; border-radius: var(--radius);
+  border: 1px solid var(--accent-ring); background: var(--accent-soft); color: var(--text-primary);
+  font-size: 0.76rem; line-height: 1.35;
+}
+.shift-oncall { background: var(--warning-bg); border-color: var(--warning-border); }
+.shift-remote { background: var(--success-bg); border-color: var(--success-border); }
+/* Un brouillon se voit : personne ne doit organiser sa semaine dessus. */
+.shift.is-draft { border-style: dashed; opacity: 0.75; }
+.shift-time { display: block; font-weight: 650; }
+.shift-label { display: block; color: var(--text-secondary); }
+.shift .inline-form { display: inline; }
+.shift .btn-link { padding: 0; font-size: 0.76rem; }

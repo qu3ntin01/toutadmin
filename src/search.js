@@ -107,6 +107,37 @@ function search(query, user, { org = require('./org') } = {}) {
     `).all(pattern, pattern, pattern, MAX_PER_SOURCE).map((v) => ({ ...v, link: `/flotte/${v.id}` })));
   }
 
+  // --- Gouvernance : décisions et réunions, réservées à l'administration.
+  //     Un relevé de décisions est plus confidentiel que la plupart des tables.
+  if (user.role === 'admin') {
+    add('Décisions', db.prepare(`
+      SELECT id, title AS label, decided_on || ' · ' || status AS detail, '/direction#decisions' AS link
+      FROM decisions WHERE title LIKE ? OR body LIKE ? OR rationale LIKE ?
+      ORDER BY decided_on DESC LIMIT ?
+    `).all(pattern, pattern, pattern, MAX_PER_SOURCE));
+
+    add('Réunions', db.prepare(`
+      SELECT id, title AS label, kind || ' · ' || held_on AS detail FROM meetings
+      WHERE title LIKE ? OR agenda LIKE ? OR minutes LIKE ? ORDER BY held_on DESC LIMIT ?
+    `).all(pattern, pattern, pattern, MAX_PER_SOURCE).map((m) => ({ ...m, link: `/direction/reunions/${m.id}` })));
+
+    add('Risques', db.prepare(`
+      SELECT id, title AS label, category || ' · ' || status AS detail, '/direction#risques' AS link
+      FROM enterprise_risks WHERE title LIKE ? OR description LIKE ? OR reference LIKE ?
+      ORDER BY id DESC LIMIT ?
+    `).all(pattern, pattern, pattern, MAX_PER_SOURCE));
+  }
+
+  // --- Qualité : ouverte à l'encadrement, comme l'écran qui la porte.
+  if (user.role === 'admin' || org.isManager(user.id)) {
+    add('Qualité', db.prepare(`
+      SELECT id, reference || ' — ' || title AS label, severity || ' · ' || status AS detail,
+             '/qualite#non-conformites' AS link
+      FROM nonconformities WHERE title LIKE ? OR description LIKE ? OR reference LIKE ? OR subject LIKE ?
+      ORDER BY detected_on DESC LIMIT ?
+    `).all(pattern, pattern, pattern, pattern, MAX_PER_SOURCE));
+  }
+
   // --- RH : personnel et candidatures, réservés aux RH.
   if (can(user, 'hr')) {
     add('Candidatures', db.prepare(`

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: survey.title + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: null }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: survey.title,
+        headerSubtitle: survey.kind + ' · réponse anonyme',
+        backHref: '/sondages',
+        backLabel: 'Sondages'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <div class="card">
+          <% if (survey.intro) { %><p class="page-intro"><%= survey.intro %></p><% } %>
+          <form method="POST" action="/sondages/<%= survey.id %>" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <% questionList.forEach((q) => { %>
+              <% if (q.type === 'echelle') { %>
+                <label class="span-2"><span><%= q.label %><%= q.required ? ' *' : '' %></span>
+                  <select name="q_<%= q.id %>" <%= q.required ? 'required' : '' %>>
+                    <option value="">—</option>
+                    <% scale.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %>
+                  </select>
+                </label>
+              <% } else if (q.type === 'oui_non') { %>
+                <label class="span-2"><span><%= q.label %><%= q.required ? ' *' : '' %></span>
+                  <select name="q_<%= q.id %>" <%= q.required ? 'required' : '' %>>
+                    <option value="">—</option><option value="Oui">Oui</option><option value="Non">Non</option>
+                  </select>
+                </label>
+              <% } else if (q.type === 'choix') { %>
+                <label class="span-2"><span><%= q.label %><%= q.required ? ' *' : '' %></span>
+                  <select name="q_<%= q.id %>" <%= q.required ? 'required' : '' %>>
+                    <option value="">—</option>
+                    <% q.choiceList.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %>
+                  </select>
+                </label>
+              <% } else { %>
+                <label class="span-2"><span><%= q.label %><%= q.required ? ' *' : '' %></span>
+                  <textarea name="q_<%= q.id %>" rows="3" <%= q.required ? 'required' : '' %>></textarea>
+                </label>
+              <% } %>
+            <% }) %>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Envoyer ma réponse</button></div>
+          </form>
+          <p class="hint">Une fois envoyée, votre réponse ne peut plus être modifiée : elle n'est plus rattachable à vous.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

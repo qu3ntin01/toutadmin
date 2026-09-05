@@ -1180,6 +1180,270 @@ CREATE TABLE IF NOT EXISTS notifications (
   read_at TEXT
 );
 
+-- ---------- Gouvernance : réunions, décisions, risques ----------
+
+-- Une réunion sans relevé de décisions n'a pas eu lieu : trois mois après,
+-- personne ne sait plus ce qui a été arbitré ni par qui. La réunion porte
+-- l'ordre du jour et le compte rendu ; la décision et l'action en sortent et
+-- vivent leur vie propre, parce qu'on les cherche par sujet, pas par date.
+CREATE TABLE IF NOT EXISTS meetings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Comité de direction',
+  held_on TEXT NOT NULL,
+  starts_at TEXT NOT NULL DEFAULT '',
+  ends_at TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  agenda TEXT NOT NULL DEFAULT '',
+  minutes TEXT NOT NULL DEFAULT '',
+  chair_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'Planifiée' CHECK(status IN ('Planifiée','Tenue','Annulée')),
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS meeting_attendees (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  meeting_id INTEGER NOT NULL REFERENCES meetings(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  attendance TEXT NOT NULL DEFAULT 'Attendu' CHECK(attendance IN ('Attendu','Présent','Excusé','Absent')),
+  UNIQUE(meeting_id, user_id)
+);
+
+-- Le registre des décisions. Une décision peut naître hors réunion (arbitrage
+-- pris seul, dans le couloir) : le rattachement à une réunion est facultatif,
+-- sinon la moitié des décisions n'entrerait jamais au registre.
+CREATE TABLE IF NOT EXISTS decisions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  meeting_id INTEGER REFERENCES meetings(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  body TEXT NOT NULL DEFAULT '',
+  rationale TEXT NOT NULL DEFAULT '',
+  decided_on TEXT NOT NULL,
+  decided_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  scope TEXT NOT NULL DEFAULT 'Entreprise',
+  status TEXT NOT NULL DEFAULT 'En vigueur' CHECK(status IN ('En vigueur','En cours','Suspendue','Abandonnée')),
+  review_on TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Ce qui a été décidé n'est fait que si quelqu'un le porte et qu'une date le
+-- rappelle : les actions rejoignent les échéances de l'entreprise.
+CREATE TABLE IF NOT EXISTS meeting_actions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  meeting_id INTEGER REFERENCES meetings(id) ON DELETE CASCADE,
+  decision_id INTEGER REFERENCES decisions(id) ON DELETE SET NULL,
+  label TEXT NOT NULL,
+  assignee_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  due_date TEXT,
+  status TEXT NOT NULL DEFAULT 'À faire' CHECK(status IN ('À faire','En cours','Faite','Abandonnée')),
+  done_on TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Registre des risques de l'entreprise — distinct du document unique, qui ne
+-- traite que la santé des personnes. Ici : la dépendance à un client, la panne
+-- du système d'information, le départ d'une compétence unique. La cotation
+-- résiduelle dit ce qu'il reste une fois le traitement en place ; c'est elle
+-- qu'on relit, pas la cotation brute.
+CREATE TABLE IF NOT EXISTS enterprise_risks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL DEFAULT '',
+  category TEXT NOT NULL DEFAULT 'Opérationnel',
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  likelihood INTEGER NOT NULL DEFAULT 3,
+  impact INTEGER NOT NULL DEFAULT 3,
+  owner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  treatment TEXT NOT NULL DEFAULT 'Réduire',
+  action_plan TEXT NOT NULL DEFAULT '',
+  residual_likelihood INTEGER,
+  residual_impact INTEGER,
+  status TEXT NOT NULL DEFAULT 'Ouvert' CHECK(status IN ('Ouvert','Maîtrisé','Clos')),
+  identified_on TEXT NOT NULL DEFAULT (date('now')),
+  next_review TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Sondages et baromètre social ----------
+
+CREATE TABLE IF NOT EXISTS surveys (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  intro TEXT NOT NULL DEFAULT '',
+  kind TEXT NOT NULL DEFAULT 'Baromètre social',
+  status TEXT NOT NULL DEFAULT 'Brouillon' CHECK(status IN ('Brouillon','Ouvert','Clos')),
+  opens_on TEXT,
+  closes_on TEXT,
+  audience TEXT NOT NULL DEFAULT 'Tous',
+  audience_id INTEGER,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS survey_questions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  survey_id INTEGER NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
+  position INTEGER NOT NULL DEFAULT 0,
+  label TEXT NOT NULL,
+  type TEXT NOT NULL DEFAULT 'echelle' CHECK(type IN ('echelle','oui_non','choix','texte')),
+  choices TEXT NOT NULL DEFAULT '',
+  required INTEGER NOT NULL DEFAULT 1
+);
+
+-- Aucune colonne user_id ici, et ce n'est pas un oubli : c'est ce qui rend
+-- l'anonymat vrai plutôt que promis. Une base saisie ne peut pas rendre ce
+-- qu'elle ne contient pas.
+CREATE TABLE IF NOT EXISTS survey_answers (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question_id INTEGER NOT NULL REFERENCES survey_questions(id) ON DELETE CASCADE,
+  value TEXT NOT NULL DEFAULT '',
+  submitted_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- La participation, elle, est nominative — mais elle ne dit que « a répondu ».
+-- Elle empêche de répondre deux fois sans jamais permettre de savoir quoi.
+CREATE TABLE IF NOT EXISTS survey_participations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  survey_id INTEGER NOT NULL REFERENCES surveys(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(survey_id, user_id)
+);
+
+-- ---------- Planning, roulements et astreintes ----------
+
+CREATE TABLE IF NOT EXISTS shifts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  starts_at TEXT NOT NULL,
+  ends_at TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Poste',
+  label TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  team_id INTEGER REFERENCES teams(id) ON DELETE SET NULL,
+  -- Un planning non publié est un brouillon : personne d'autre que son auteur
+  -- ne doit organiser sa semaine dessus.
+  published INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS shift_templates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Poste',
+  start_time TEXT NOT NULL DEFAULT '09:00',
+  end_time TEXT NOT NULL DEFAULT '17:00',
+  weekdays TEXT NOT NULL DEFAULT '1,2,3,4,5',
+  location TEXT NOT NULL DEFAULT ''
+);
+
+-- ---------- Qualité : non-conformités, actions, audits ----------
+
+CREATE TABLE IF NOT EXISTS nonconformities (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL DEFAULT '',
+  title TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
+  source TEXT NOT NULL DEFAULT 'Interne',
+  severity TEXT NOT NULL DEFAULT 'Mineure' CHECK(severity IN ('Mineure','Majeure','Critique')),
+  detected_on TEXT NOT NULL,
+  detected_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  subject TEXT NOT NULL DEFAULT '',
+  immediate_action TEXT NOT NULL DEFAULT '',
+  root_cause TEXT NOT NULL DEFAULT '',
+  cost REAL NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'Ouverte' CHECK(status IN ('Ouverte','En traitement','Clôturée')),
+  closed_on TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS internal_audits (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL DEFAULT '',
+  scope TEXT NOT NULL,
+  standard TEXT NOT NULL DEFAULT '',
+  planned_on TEXT,
+  done_on TEXT,
+  auditor_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  summary TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Planifié' CHECK(status IN ('Planifié','Réalisé','Clos'))
+);
+
+CREATE TABLE IF NOT EXISTS audit_findings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  audit_id INTEGER NOT NULL REFERENCES internal_audits(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Remarque' CHECK(kind IN ('Non-conformité','Remarque','Point fort')),
+  clause TEXT NOT NULL DEFAULT '',
+  statement TEXT NOT NULL
+);
+
+-- Une action corrective dont personne n'a vérifié l'effet n'est qu'une
+-- intention : l'efficacité se constate après coup, à une date qu'on se fixe.
+CREATE TABLE IF NOT EXISTS quality_actions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nonconformity_id INTEGER REFERENCES nonconformities(id) ON DELETE CASCADE,
+  audit_id INTEGER REFERENCES internal_audits(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Corrective' CHECK(kind IN ('Corrective','Préventive','Amélioration')),
+  label TEXT NOT NULL,
+  owner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  due_date TEXT,
+  status TEXT NOT NULL DEFAULT 'À faire' CHECK(status IN ('À faire','En cours','Faite')),
+  done_on TEXT,
+  effectiveness TEXT NOT NULL DEFAULT 'Non vérifiée' CHECK(effectiveness IN ('Non vérifiée','Efficace','Inefficace')),
+  verified_on TEXT,
+  verified_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------- Accueil : visiteurs et courrier ----------
+
+-- Le registre des visiteurs sert à l'évacuation autant qu'à la sécurité : en
+-- cas d'alarme, il faut savoir qui est dans les murs. Il porte donc l'heure
+-- d'arrivée et celle de départ, pas seulement la date.
+CREATE TABLE IF NOT EXISTS visitors (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  visited_on TEXT NOT NULL,
+  arrived_at TEXT NOT NULL DEFAULT '',
+  departed_at TEXT NOT NULL DEFAULT '',
+  first_name TEXT NOT NULL DEFAULT '',
+  last_name TEXT NOT NULL,
+  company TEXT NOT NULL DEFAULT '',
+  purpose TEXT NOT NULL DEFAULT '',
+  host_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  badge TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS mail_items (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  direction TEXT NOT NULL DEFAULT 'Entrant' CHECK(direction IN ('Entrant','Sortant')),
+  logged_on TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Lettre',
+  correspondent TEXT NOT NULL DEFAULT '',
+  recipient_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  recipient_label TEXT NOT NULL DEFAULT '',
+  tracking TEXT NOT NULL DEFAULT '',
+  subject TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'À remettre' CHECK(status IN ('À remettre','Remis','Archivé')),
+  handed_on TEXT,
+  handed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_meeting_actions_assignee ON meeting_actions(assignee_id, status);
+CREATE INDEX IF NOT EXISTS idx_meeting_attendees_meeting ON meeting_attendees(meeting_id);
+CREATE INDEX IF NOT EXISTS idx_decisions_meeting ON decisions(meeting_id);
+CREATE INDEX IF NOT EXISTS idx_survey_answers_question ON survey_answers(question_id);
+CREATE INDEX IF NOT EXISTS idx_shifts_user ON shifts(user_id, starts_at);
+CREATE INDEX IF NOT EXISTS idx_shifts_window ON shifts(starts_at, ends_at);
+CREATE INDEX IF NOT EXISTS idx_quality_actions_owner ON quality_actions(owner_id, status);
+CREATE INDEX IF NOT EXISTS idx_visitors_day ON visitors(visited_on);
+CREATE INDEX IF NOT EXISTS idx_mail_status ON mail_items(status, logged_on);
 CREATE INDEX IF NOT EXISTS idx_project_tasks_project ON project_tasks(project_id, status);
 CREATE INDEX IF NOT EXISTS idx_project_tasks_assignee ON project_tasks(assignee_id, status);
 CREATE INDEX IF NOT EXISTS idx_project_time_project ON project_time(project_id, spent_on);

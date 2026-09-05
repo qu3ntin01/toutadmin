@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Qualité — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Qualité',
+      navItems: [
+        { tab: 'non-conformites', label: 'Non-conformités', icon: 'ticket', badge: stats.open },
+        { tab: 'actions', label: 'Actions', icon: 'check', badge: stats.openActions },
+        { tab: 'audits', label: 'Audits internes', icon: 'ballot' }
+      ],
+      footLinks: [
+        { href: '/sante-securite', label: 'Santé-sécurité', icon: 'shield' },
+        { href: '/mon-espace', label: 'Mon espace', icon: 'home' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Qualité',
+        headerSubtitle: 'Non-conformités, actions correctives et audits internes'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const who = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || '—'; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.open %></span><span class="stat-label">Non-conformités ouvertes<%= stats.critical ? ` · ${stats.critical} critique(s)` : '' %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.openActions %></span><span class="stat-label">Actions en cours</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.awaitingVerification %></span><span class="stat-label">Efficacité à vérifier</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.cost.toLocaleString(locale) %> €</span><span class="stat-label">Coût des écarts (12 mois)</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Non-conformités ---------- -->
+        <section class="tab-panel is-active" id="non-conformites">
+          <div class="card">
+            <div class="card-head"><h3>Constater un écart</h3></div>
+            <form method="POST" action="/qualite/non-conformites" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" placeholder="Lot livré hors tolérance dimensionnelle" /></label>
+              <label><span>Origine</span>
+                <select name="source"><% sources.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
+              </label>
+              <label><span>Gravité</span>
+                <select name="severity"><% severities.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
+              </label>
+              <label><span>Constaté le</span><input type="date" name="detected_on" value="<%= today %>" required /></label>
+              <label><span>Coût estimé (€)</span><input type="text" name="cost" inputmode="decimal" placeholder="0" /></label>
+              <label class="span-2"><span>Objet concerné</span><input type="text" name="subject" maxlength="200" placeholder="Produit, service, processus ou fournisseur" /></label>
+              <label class="span-2"><span>Description</span><textarea name="description" rows="3"></textarea></label>
+              <label class="span-2"><span>Action immédiate</span><textarea name="immediate_action" rows="2" placeholder="Ce qui a été fait sur le champ pour contenir l'écart."></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= ncList.length %> non-conformité(s)</h3></div>
+            <% if (!ncList.length) { %>
+              <p class="empty-state">Aucun écart enregistré.</p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% ncList.forEach((n) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><span class="mono"><%= n.reference %></span> — <%= n.title %></span>
+                      <span class="tag <%= n.severity === 'Critique' ? 'tag-danger' : (n.severity === 'Majeure' ? 'tag-warning' : '') %>"><%= n.severity %></span>
+                    </div>
+                    <p class="cell-sub">
+                      <%= day(n.detected_on) %> · <%= n.source %><%= n.subject ? ` · ${n.subject}` : '' %> · constaté par <%= who(n) %>
+                      · <span class="tag <%= n.status === 'Clôturée' ? 'tag-success' : 'tag-warning' %>"><%= n.status %></span>
+                      <% if (n.open_actions) { %> · <%= n.open_actions %> action(s) en cours<% } %>
+                      <% if (n.cost) { %> · <%= n.cost.toLocaleString(locale) %> €<% } %>
+                    </p>
+                    <% if (n.description) { %><p class="cell-sub"><%= n.description %></p><% } %>
+                    <% if (n.immediate_action) { %><details class="minutes"><summary>Action immédiate</summary><p><%= n.immediate_action %></p></details><% } %>
+
+                    <form method="POST" action="/qualite/non-conformites/<%= n.id %>/cause" class="form-grid">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <label class="span-2"><span>Cause racine</span><textarea name="root_cause" rows="2" placeholder="Pourquoi cela s'est produit — pas ce qui s'est produit."><%= n.root_cause %></textarea></label>
+                      <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Consigner la cause</button></div>
+                    </form>
+
+                    <div class="row-actions">
+                      <form method="POST" action="/qualite/non-conformites/<%= n.id %>/statut" class="inline-field">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <select name="status" class="input-sm">
+                          <% ncStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === n.status ? 'selected' : '' %>><%= s %></option><% }) %>
+                        </select>
+                        <button type="submit" class="btn btn-outline btn-sm">Changer l'état</button>
+                      </form>
+                      <form method="POST" action="/qualite/non-conformites/<%= n.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette non-conformité et ses actions ?">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                      </form>
+                    </div>
+                  </li>
+                <% }) %>
+              </ul>
+              <p class="hint">Une non-conformité ne se clôture qu'une fois ses actions faites : une fermeture avec du travail en cours est une fermeture de façade.</p>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Actions ---------- -->
+        <section class="tab-panel" id="actions">
+          <div class="card">
+            <div class="card-head"><h3>Ouvrir une action</h3></div>
+            <form method="POST" action="/qualite/actions" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Action</span><input type="text" name="label" required maxlength="300" placeholder="Réétalonner le gabarit de contrôle et former l'équipe" /></label>
+              <label><span>Type</span>
+                <select name="kind"><% actionKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+              </label>
+              <label><span>Responsable</span>
+                <select name="owner_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Pour le</span><input type="date" name="due_date" /></label>
+              <label><span>Non-conformité</span>
+                <select name="nonconformity_id">
+                  <option value="">—</option>
+                  <% ncList.forEach((n) => { %><option value="<%= n.id %>"><%= n.reference %> — <%= n.title %></option><% }) %>
+                </select>
+              </label>
+              <label class="span-2"><span>Audit</span>
+                <select name="audit_id">
+                  <option value="">—</option>
+                  <% auditList.forEach((a) => { %><option value="<%= a.id %>"><%= a.reference %> — <%= a.scope %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ouvrir l'action</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= actionList.length %> action(s)</h3></div>
+            <% if (!actionList.length) { %>
+              <p class="empty-state">Aucune action.</p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Échéance</th><th>Action</th><th>Type</th><th>Responsable</th><th>Origine</th><th>État</th><th>Efficacité</th></tr></thead>
+                  <tbody>
+                    <% actionList.forEach((a) => { %>
+                      <tr>
+                        <td class="cell-sub nowrap"><% if (a.due_date && a.due_date < today && a.status !== 'Faite') { %><span class="tag tag-danger"><%= day(a.due_date) %></span><% } else { %><%= day(a.due_date) %><% } %></td>
+                        <td class="cell-strong"><%= a.label %></td>
+                        <td class="cell-sub"><%= a.kind %></td>
+                        <td class="cell-sub"><%= who(a) %></td>
+                        <td class="cell-sub mono"><%= a.nc_reference || a.audit_reference || '—' %></td>
+                        <td>
+                          <form method="POST" action="/qualite/actions/<%= a.id %>/statut" class="inline-field">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="status" class="input-sm">
+                              <% actionStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === a.status ? 'selected' : '' %>><%= s %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-outline btn-sm">Mettre à jour</button>
+                          </form>
+                        </td>
+                        <td>
+                          <% if (a.effectiveness !== 'Non vérifiée') { %>
+                            <span class="tag <%= a.effectiveness === 'Efficace' ? 'tag-success' : 'tag-danger' %>"><%= a.effectiveness %></span>
+                            <span class="cell-sub"><%= day(a.verified_on) %></span>
+                          <% } else if (a.status === 'Faite') { %>
+                            <form method="POST" action="/qualite/actions/<%= a.id %>/efficacite" class="inline-field">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <select name="effectiveness" class="input-sm">
+                                <option value="Efficace">Efficace</option>
+                                <option value="Inefficace">Inefficace</option>
+                              </select>
+                              <button type="submit" class="btn btn-outline btn-sm">Vérifier</button>
+                            </form>
+                          <% } else { %>
+                            <span class="cell-sub">—</span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hint">Une action « faite » dont personne n'a mesuré l'effet laisse le même écart revenir : la vérification d'efficacité n'est possible qu'une fois l'action terminée.</p>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Audits ---------- -->
+        <section class="tab-panel" id="audits">
+          <div class="card">
+            <div class="card-head"><h3>Planifier un audit interne</h3></div>
+            <form method="POST" action="/qualite/audits" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Périmètre</span><input type="text" name="scope" required maxlength="200" placeholder="Processus achats" /></label>
+              <label><span>Référentiel</span><input type="text" name="standard" maxlength="120" placeholder="ISO 9001:2015" /></label>
+              <label><span>Prévu le</span><input type="date" name="planned_on" /></label>
+              <label class="span-2"><span>Auditeur</span>
+                <select name="auditor_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Planifier</button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= auditList.length %> audit(s)</h3></div>
+            <% if (!auditList.length) { %>
+              <p class="empty-state">Aucun audit planifié.</p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% auditList.forEach((a) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><span class="mono"><%= a.reference %></span> — <%= a.scope %></span>
+                      <span class="tag <%= a.status === 'Planifié' ? 'tag-warning' : 'tag-success' %>"><%= a.status %></span>
+                    </div>
+                    <p class="cell-sub">
+                      <%= a.standard || 'Sans référentiel' %> · prévu le <%= day(a.planned_on) %><%= a.done_on ? ` · réalisé le ${day(a.done_on)}` : '' %>
+                      · <%= who(a) %> · <%= a.finding_count %> constat(s)<%= a.nc_count ? `, dont ${a.nc_count} non-conformité(s)` : '' %>
+                    </p>
+                    <% if (a.summary) { %><details class="minutes"><summary>Synthèse</summary><p><%= a.summary %></p></details><% } %>
+
+                    <% const list = findingsByAudit[a.id] || []; %>
+                    <% if (list.length) { %>
+                      <div class="table-wrap">
+                        <table>
+                          <thead><tr><th>Type</th><th>Exigence</th><th>Constat</th><th></th></tr></thead>
+                          <tbody>
+                            <% list.forEach((f) => { %>
+                              <tr>
+                                <td><span class="tag <%= f.kind === 'Non-conformité' ? 'tag-danger' : (f.kind === 'Point fort' ? 'tag-success' : '') %>"><%= f.kind %></span></td>
+                                <td class="cell-sub mono"><%= f.clause || '—' %></td>
+                                <td class="cell-sub"><%= f.statement %></td>
+                                <td>
+                                  <div class="row-actions">
+                                    <% if (f.kind === 'Non-conformité') { %>
+                                      <form method="POST" action="/qualite/constats/<%= f.id %>/en-non-conformite" class="inline-form">
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                        <button type="submit" class="btn btn-outline btn-sm">Ouvrir une NC</button>
+                                      </form>
+                                    <% } %>
+                                    <form method="POST" action="/qualite/constats/<%= f.id %>/supprimer" class="inline-form">
+                                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                      <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                                    </form>
+                                  </div>
+                                </td>
+                              </tr>
+                            <% }) %>
+                          </tbody>
+                        </table>
+                      </div>
+                    <% } %>
+
+                    <form method="POST" action="/qualite/audits/<%= a.id %>/constats" class="form-grid">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <label><span>Type de constat</span>
+                        <select name="kind"><% findingKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+                      </label>
+                      <label><span>Exigence</span><input type="text" name="clause" maxlength="60" placeholder="8.4.1" /></label>
+                      <label class="span-2"><span>Constat</span><textarea name="statement" rows="2" required></textarea></label>
+                      <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Ajouter le constat</button></div>
+                    </form>
+
+                    <% if (a.status === 'Planifié') { %>
+                      <form method="POST" action="/qualite/audits/<%= a.id %>/realiser" class="form-grid">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <label><span>Réalisé le</span><input type="date" name="done_on" value="<%= today %>" required /></label>
+                        <label class="span-2"><span>Synthèse</span><textarea name="summary" rows="3"></textarea></label>
+                        <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Clore l'audit</button></div>
+                      </form>
+                    <% } %>
+
+                    <div class="row-actions">
+                      <form method="POST" action="/qualite/audits/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet audit et ses constats ?">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                      </form>
+                    </div>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>
