@@ -22,7 +22,8 @@ qui relie le tout.
 | **Centre de notifications** par personne, avec accusé de lecture | ✅ |
 | **Recherche globale** sur tous les espaces autorisés | ✅ |
 | Import de données en masse (CSV) | ⬜ |
-| Sauvegarde, restauration et export intégral de l'instance | ⬜ |
+| **Sauvegarde automatique horaire, vérification d'intégrité et restauration** | ✅ |
+| Export intégral de l'instance vers un format tiers | ⬜ |
 | API et webhooks pour les outils tiers | ⬜ |
 | Workflows d'approbation configurables (au-delà des circuits figés actuels) | ⬜ |
 

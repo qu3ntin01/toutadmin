@@ -52,6 +52,7 @@ const pilotageRoutes = require('./routes/pilotage');
 const rechercheRoutes = require('./routes/recherche');
 const rgpdRoutes = require('./routes/rgpd');
 const coffreRoutes = require('./routes/coffre-fort');
+const sauvegardeRoutes = require('./routes/sauvegardes');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -233,6 +234,7 @@ function createApp() {
   app.use('/recherche', rechercheRoutes);
   app.use('/rgpd', rgpdRoutes);
   app.use('/coffre-fort', coffreRoutes);
+  app.use('/sauvegardes', sauvegardeRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

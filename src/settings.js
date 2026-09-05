@@ -13,6 +13,10 @@ const DEFAULTS = {
   require_2fa_admin: '0',
   require_2fa_all: '0',
   audit_retention_days: '365',
+  // Sauvegardes automatiques : activées, toutes les heures, 24 archives gardées.
+  backup_enabled: '1',
+  backup_interval_minutes: '60',
+  backup_keep: '24',
   password_max_age_days: '0',
 };
 

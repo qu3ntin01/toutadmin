@@ -7,6 +7,7 @@ const deadlines = require('./deadlines');
 const notifications = require('./notifications');
 const audit = require('./audit');
 const settings = require('./settings');
+const backup = require('./backup');
 
 const PORT = process.env.PORT || 3000;
 const EXPIRY_SWEEP_INTERVAL_MS = 60 * 60 * 1000;
@@ -17,7 +18,7 @@ const EXPIRY_SWEEP_INTERVAL_MS = 60 * 60 * 1000;
  * opération est idempotente — la clé de déduplication des notifications garantit
  * qu'un même terme n'alerte qu'une fois, quel que soit le nombre de passages.
  */
-function sweep() {
+async function sweep() {
   try {
     db.deactivateExpiredContracts();
     const created = deadlines.notify();
@@ -31,6 +32,19 @@ function sweep() {
   } catch (err) {
     // Un balayage qui échoue ne doit pas emporter le serveur avec lui.
     console.error('Balayage périodique interrompu :', err.message);
+  }
+
+  // La sauvegarde est à part : c'est la seule opération dont l'échec doit se
+  // voir en clair, puisqu'elle est ce qui rattrape toutes les autres.
+  try {
+    const done = await backup.runScheduled();
+    if (done) {
+      console.log(`Sauvegarde automatique : ${done.fileName} (${done.files} fichier(s), ${Math.round(done.bytes / 1024)} Ko)`
+        + (done.removed.length ? `, ${done.removed.length} archive(s) purgée(s)` : ''));
+    }
+  } catch (err) {
+    console.error('Sauvegarde automatique en échec :', err.message);
+    audit.logSystem('sauvegarde.echec', 'backups', null, { erreur: err.message });
   }
 }
 

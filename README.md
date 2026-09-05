@@ -148,6 +148,16 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Annuaire** de tous les collaborateurs avec recherche et filtres par service et par équipe, affichant le rattachement et les managers de chacun ; la **visibilité dans l'annuaire est pilotée uniquement par l'administration**, un membre ne peut pas s'y soustraire ni s'y remettre
 - **Messagerie interne** : boîte de réception, envoi, réponse, compteur de non-lus, suppression. L'**adresse professionnelle et les serveurs IMAP/SMTP sont configurés par l'administration** et affichés en lecture seule au membre
 
+### Sauvegarde et restauration
+- **Sauvegarde automatique**, toutes les heures par défaut (intervalle et nombre d'archives conservées réglables dans `/sauvegardes`). Le serveur sauvegarde aussi au démarrage s'il a manqué une échéance
+- **Une archive contient tout** : la base, les photos de profil, les CV et le coffre-fort. Sauvegarder la seule base serait un piège — l'instance restaurée prétendrait détenir des bulletins disparus
+- La base est copiée par le **mécanisme de sauvegarde en ligne de SQLite**, cohérent même pendant l'écriture ; copier le fichier à la main ne le serait pas, le journal WAL vivant à côté
+- **Chaque fichier porte son empreinte** dans le manifeste de l'archive, vérifiée avant toute restauration. La somme de contrôle de `tar` ne couvre que les en-têtes : c'est le manifeste qui protège le contenu
+- **Restauration table par table dans une seule transaction** : l'application reste debout, et un échec en cours de route ne laisse pas une base à moitié écrite. Les colonnes ajoutées par une migration postérieure à l'archive sont ignorées plutôt que de faire échouer l'opération
+- **L'état actuel est sauvegardé d'abord** : une erreur de manipulation se rattrape. Les sessions ouvertes ne sont pas restaurées, pour ne pas déconnecter celui qui mène l'opération
+- Téléchargement pour copie hors ligne, vérification d'intégrité à la demande, et restauration depuis une archive téléversée (64 Mo maximum ; au-delà, le fichier se dépose dans le dossier des sauvegardes)
+- Une archive contient empreintes de mots de passe, secrets de double authentification et bulletins de paie : le dossier est en `0700`, les archives en `0600`, l'espace est réservé à l'administration et chaque téléchargement est tracé
+
 ### Sécurité et administration de l'instance
 - **Console de sécurité** (`/securite`, administration) : journal d'audit filtrable et exportable, sessions ouvertes et leur révocation, comptes à surveiller (verrouillés, mot de passe temporaire jamais remplacé, administrateurs sans double authentification, comptes dormants depuis 90 jours), gestion des administrateurs et politique de l'instance
 - **Réinitialisation de la double authentification** d'un membre par l'administration, pour un téléphone perdu — la personne devra la remettre en service
@@ -276,7 +286,13 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-395 tests d'intégration couvrent les palettes (jetons complets dans chaque
+414 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
+embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
+restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
+sécurité prise avant, confirmation par nom exact, colonne ajoutée après la
+sauvegarde tolérée, purge, intervalle automatique respecté, espace réservé à
+l'administration), les palettes (jetons complets dans chaque
 combinaison, contraste minimal tenu sur les six, aperçus sans couleur en dur,
 palette servie jusqu'à l'écran de connexion, valeur inconnue ou aberrante sans
 effet), le coffre-fort (document scellé par son empreinte et
@@ -398,7 +414,8 @@ d'administration sont en place pour l'accueillir.
 | `SESSION_IDLE_MINUTES` | Expiration d'une session inactive (défaut `60`) |
 | `SESSION_MAX_HOURS` | Durée de vie absolue d'une session, quelle que soit l'activité (défaut `12`) |
 | `CV_DIR` | Dossier des CV déposés (défaut : `cv/` à côté de la base) |
-| `VAULT_DIR` | Dossier du coffre-fort (défaut : `coffre/` à côté de la base) — à sauvegarder avec la base |
+| `VAULT_DIR` | Dossier du coffre-fort (défaut : `coffre/` à côté de la base) |
+| `BACKUP_DIR` | Dossier des sauvegardes (défaut : `sauvegardes/` à côté de la base) — à recopier hors du serveur |
 
 ## Structure
 
@@ -435,6 +452,8 @@ src/
   privacy.js         registre des traitements, export et effacement des données
   vault.js           coffre-fort : dépôt scellé, intégrité, codes d'accès après départ
   themes.js          palettes de l'instance et palette en service
+  tar.js             écriture et lecture d'archives tar, chemins contrôlés
+  backup.js          sauvegarde complète, vérification d'intégrité, restauration
   cv.js              réception des CV en mémoire, écriture hors dépôt, extraction PDF/DOCX/texte
   ats.js             critères pondérés, score, seuil, classement des candidatures, CVthèque
   modules.js         modules optionnels : activation, barrière de route, limites

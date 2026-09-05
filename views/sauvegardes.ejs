@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Sauvegardes — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Sauvegardes',
+      navItems: [
+        { tab: 'archives', label: 'Archives', icon: 'inbox', badge: summary.count },
+        { tab: 'restauration', label: 'Restaurer', icon: 'back' },
+        { tab: 'reglages', label: 'Réglages', icon: 'settings' }
+      ],
+      footLinks: [
+        { href: '/securite', label: 'Sécurité', icon: 'shield' },
+        { href: '/admin', label: "Console d'administration", icon: 'back' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Sauvegardes',
+        headerSubtitle: "Base de données, photos, CV et coffre-fort, dans une seule archive"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso).toLocaleString(locale) : '—'); %>
+        <% const size = (n) => (n < 1048576 ? Math.round(n / 1024) + ' Ko' : (n / 1048576).toFixed(1) + ' Mo'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.count %></span><span class="stat-label">Archives conservées</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= summary.latest ? moment(summary.latest.createdAt).split(' ')[1] || '—' : '—' %></span>
+              <span class="stat-label"><%= summary.latest ? 'Dernière : ' + moment(summary.latest.createdAt) : 'Aucune sauvegarde' %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= size(summary.bytes) %></span><span class="stat-label">Occupation totale</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value <%= summary.enabled ? '' : 'text-danger' %>"><%= summary.enabled ? 'Actives' : 'Arrêtées' %></span>
+              <span class="stat-label">Toutes les <%= summary.intervalMinutes %> min · <%= summary.keep %> gardées</span>
+            </span>
+          </div>
+        </section>
+
+        <!-- ---------- Archives ---------- -->
+        <section class="tab-panel is-active" id="archives">
+          <div class="card">
+            <div class="card-head"><h3>Sauvegarder maintenant</h3></div>
+            <form method="POST" action="/sauvegardes" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Motif (facultatif)</span><input type="text" name="label" maxlength="120" placeholder="Avant migration des services" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer une sauvegarde</button></div>
+            </form>
+            <p class="hint">
+              L'archive contient la base — copiée par le mécanisme de sauvegarde en ligne de SQLite,
+              donc cohérente même pendant l'écriture — ainsi que les photos de profil, les CV et le
+              coffre-fort. Chaque fichier y porte son empreinte, vérifiée à la restauration.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= archives.length %> archive(s)</h3></div>
+            <div class="banner is-warning">
+              <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+              <span>
+                Une archive contient tout : empreintes de mots de passe, secrets de double
+                authentification, bulletins de paie. Elle se conserve comme la donnée la plus
+                sensible de l'entreprise, et se copie hors du serveur.
+              </span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Archive</th><th>Créée le</th><th>Taille</th><th></th></tr></thead>
+                <tbody>
+                  <% archives.forEach((a) => { %>
+                    <tr>
+                      <td class="cell-strong fingerprint"><%= a.fileName %></td>
+                      <td class="cell-sub nowrap"><%= moment(a.createdAt) %></td>
+                      <td class="cell-sub nowrap"><%= size(a.bytes) %></td>
+                      <td>
+                        <span class="row-actions">
+                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/telecharger">Télécharger</a>
+                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/verifier">Vérifier</a>
+                          <form method="POST" action="/sauvegardes/<%= a.fileName %>/supprimer" class="inline-form" data-confirm="Supprimer cette sauvegarde ?">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          </form>
+                        </span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (archives.length === 0) { %><tr><td colspan="4" class="cell-sub">Aucune archive pour l'instant.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+            <p class="hint">Dossier sur le serveur : <code class="totp-secret"><%= directory %></code></p>
+          </div>
+        </section>
+
+        <!-- ---------- Restauration ---------- -->
+        <section class="tab-panel" id="restauration">
+          <% if (restoreReport) { %>
+            <div class="card">
+              <div class="card-head"><h3>Dernière restauration</h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub">Archive</td><td class="cell-strong"><%= restoreReport.origin %></td></tr>
+                  <tr><td class="cell-sub">Sauvegarde datée du</td><td><%= moment(restoreReport.createdAt) %></td></tr>
+                  <tr><td class="cell-sub">Tables restaurées</td><td><%= restoreReport.tables %></td></tr>
+                  <tr><td class="cell-sub">Lignes réécrites</td><td><%= restoreReport.rows %></td></tr>
+                  <tr><td class="cell-sub">Fichiers remis en place</td><td><%= restoreReport.files %></td></tr>
+                  <tr><td class="cell-sub">État précédent sauvegardé sous</td><td class="fingerprint"><%= restoreReport.safety %></td></tr>
+                  <% if (restoreReport.skipped && restoreReport.skipped.length) { %>
+                    <tr><td class="cell-sub">Tables vidées (absentes de l'archive)</td><td class="cell-sub"><%= restoreReport.skipped.join(', ') %></td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head"><h3>Ce qu'une restauration fait</h3></div>
+            <p class="hint">
+              Le contenu de la base est remplacé par celui de l'archive, table par table, en une seule
+              transaction : l'application reste debout et un échec en cours de route ne laisse pas une
+              base à moitié écrite. Les photos, CV et documents du coffre sont remis à l'état de
+              l'archive — ce qui n'y figure pas est supprimé.
+            </p>
+            <p class="hint">
+              Deux exceptions assumées : les <strong>sessions ouvertes</strong> ne sont pas restaurées,
+              pour ne pas vous déconnecter au milieu de l'opération ; et l'<strong>état actuel est
+              sauvegardé d'abord</strong>, si bien qu'une erreur de manipulation se rattrape.
+              Si votre compte n'existait pas encore dans l'archive, votre session tombera à la
+              requête suivante — c'est le comportement attendu.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Restaurer depuis une archive du serveur</h3></div>
+            <% if (archives.length === 0) { %>
+              <p class="cell-sub">Aucune archive disponible.</p>
+            <% } else { %>
+              <ul class="org-list">
+                <% archives.forEach((a) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong fingerprint"><%= a.fileName %></span>
+                      <br /><span class="cell-sub"><%= moment(a.createdAt) %> · <%= size(a.bytes) %></span>
+                    </span>
+                    <form method="POST" action="/sauvegardes/<%= a.fileName %>/restaurer" class="inline-form"
+                          data-confirm="Remplacer l'état actuel par cette sauvegarde ?">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <input type="text" name="confirmation" class="input-sm confirm-name" placeholder="Nom exact de l'archive" required autocomplete="off" />
+                      <button type="submit" class="btn btn-danger btn-sm">Restaurer</button>
+                    </form>
+                  </li>
+                <% }) %>
+              </ul>
+              <p class="hint">Le nom exact de l'archive est demandé : une restauration ne se déclenche pas d'un clic distrait.</p>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Restaurer depuis une archive téléversée</h3></div>
+            <form method="POST" action="/sauvegardes/televerser" enctype="multipart/form-data" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Archive (.tar.gz)</span><input type="file" name="archive" accept=".gz,.tgz" required /></label>
+              <label class="span-2"><span>Saisissez « RESTAURER » pour confirmer</span><input type="text" name="confirmation" required autocomplete="off" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-danger btn-block">Téléverser et restaurer</button></div>
+            </form>
+            <p class="hint">
+              <%= Math.round(maxUploadBytes / 1048576) %> Mo maximum par téléversement. Au-delà, déposez
+              le fichier directement dans le dossier des sauvegardes du serveur : il apparaîtra dans la
+              liste ci-dessus.
+            </p>
+          </div>
+        </section>
+
+        <!-- ---------- Réglages ---------- -->
+        <section class="tab-panel" id="reglages">
+          <div class="card">
+            <div class="card-head"><h3>Sauvegarde automatique</h3></div>
+            <form method="POST" action="/sauvegardes/reglages" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="check-row span-2">
+                <input type="checkbox" name="enabled" value="1" <%= summary.enabled ? 'checked' : '' %> />
+                <span>Sauvegarder automatiquement</span>
+              </label>
+              <label><span>Intervalle (minutes)</span>
+                <input type="number" name="interval_minutes" min="15" max="1440" value="<%= summary.intervalMinutes %>" required />
+              </label>
+              <label><span>Archives conservées</span>
+                <input type="number" name="keep" min="2" max="500" value="<%= summary.keep %>" required />
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+            </form>
+            <p class="hint">
+              Le balayage horaire du serveur déclenche la sauvegarde dès que l'intervalle est écoulé,
+              et supprime les archives au-delà du nombre conservé. Un intervalle plus court que le
+              balayage ne le rend pas plus fréquent.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

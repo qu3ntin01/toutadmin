@@ -1448,3 +1448,10 @@ tr.is-current { background: var(--accent-soft); }
   background: var(--surface);
 }
 .palette-button { margin-top: auto; height: 16px; width: 64%; border-radius: var(--radius); background: var(--accent); }
+
+/* ---------- Sauvegardes ---------- */
+
+/* Le nom d'une archive fait une quarantaine de caractères : le champ de
+   confirmation doit pouvoir le contenir, sinon la consigne devient un piège. */
+.confirm-name { min-width: 260px; }
+@media (max-width: 720px) { .confirm-name { min-width: 0; width: 100%; } }
