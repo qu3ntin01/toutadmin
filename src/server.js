@@ -11,6 +11,7 @@ const audit = require('./audit');
 const settings = require('./settings');
 const backup = require('./backup');
 const billing = require('./billing');
+const webhooks = require('./webhooks');
 const offsite = require('./offsite');
 
 const PORT = process.env.PORT || 3000;
@@ -37,6 +38,7 @@ async function sweep() {
 
     const created = deadlines.notify();
     notifications.purgeRead();
+    webhooks.purge();
 
     const retention = Number(settings.get('audit_retention_days')) || 365;
     const purged = audit.purgeOlderThan(retention);
@@ -46,6 +48,17 @@ async function sweep() {
   } catch (err) {
     // Un balayage qui échoue ne doit pas emporter le serveur avec lui.
     console.error('Balayage périodique interrompu :', err.message);
+  }
+
+  // Webhooks : la file est vidée ici, avec ses réessais. Un envoi qui échoue
+  // n'interrompt pas les autres et repasse au balayage suivant.
+  try {
+    const sent = await webhooks.flush();
+    if (sent.delivered || sent.failed) {
+      console.log(`Webhooks : ${sent.delivered} livré(s), ${sent.failed} en échec.`);
+    }
+  } catch (err) {
+    console.error('Envoi des webhooks interrompu :', err.message);
   }
 
   // La sauvegarde est à part : c'est la seule opération dont l'échec doit se

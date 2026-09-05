@@ -1538,6 +1538,60 @@ CREATE TABLE IF NOT EXISTS signature_signers (
   UNIQUE(request_id, user_id)
 );
 
+-- ---------- Interfaces : jetons d'API et webhooks ----------
+
+-- Un jeton n'est jamais conservé en clair : seule son empreinte SHA-256 est
+-- stockée, avec le préfixe visible qui permet de le reconnaître dans une liste.
+-- Perdu, il se révoque et se recrée ; il ne se relit pas.
+CREATE TABLE IF NOT EXISTS api_tokens (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  prefix TEXT NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  scopes TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  expires_at TEXT,
+  last_used_at TEXT,
+  last_ip TEXT NOT NULL DEFAULT '',
+  calls INTEGER NOT NULL DEFAULT 0,
+  revoked_at TEXT
+);
+
+CREATE TABLE IF NOT EXISTS webhooks (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  url TEXT NOT NULL,
+  secret TEXT NOT NULL,
+  events TEXT NOT NULL DEFAULT '',
+  active INTEGER NOT NULL DEFAULT 1,
+  -- Viser une adresse interne depuis le serveur est une porte dérobée classique :
+  -- il faut le vouloir explicitement.
+  allow_private INTEGER NOT NULL DEFAULT 0,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  last_status TEXT NOT NULL DEFAULT '',
+  last_attempt_at TEXT,
+  failures INTEGER NOT NULL DEFAULT 0
+);
+
+-- Chaque envoi laisse une trace : un webhook qui échoue en silence fait croire
+-- que l'information est passée.
+CREATE TABLE IF NOT EXISTS webhook_deliveries (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  webhook_id INTEGER NOT NULL REFERENCES webhooks(id) ON DELETE CASCADE,
+  event TEXT NOT NULL,
+  payload TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'En attente' CHECK(status IN ('En attente','Livré','Échec','Abandonné')),
+  attempts INTEGER NOT NULL DEFAULT 0,
+  last_error TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  delivered_at TEXT,
+  next_try_at TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_state ON webhook_deliveries(status, next_try_at);
+CREATE INDEX IF NOT EXISTS idx_api_tokens_hash ON api_tokens(token_hash);
 CREATE INDEX IF NOT EXISTS idx_signature_signers_user ON signature_signers(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_signature_signers_request ON signature_signers(request_id, position);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_next ON subscriptions(active, next_issue);

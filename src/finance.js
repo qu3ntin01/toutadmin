@@ -160,18 +160,34 @@ function createInvoice(data) {
   const rate = data.exchangeRate ?? currency.rateOf(code);
   if (rate === null) return null;
 
-  return db.prepare(`
+  const id = db.prepare(`
     INSERT INTO invoices (direction, partner_id, department_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, notes, created_by, currency, exchange_rate)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(data.direction, data.partnerId || null, data.departmentId || null, data.reference || '', data.label,
          data.issueDate, data.dueDate || null, data.amountHt, data.vatRate, data.status || 'Émise',
          data.notes || '', data.createdBy, code, rate).lastInsertRowid;
+
+  require('./webhooks').emit('facture.creee', {
+    id, reference: data.reference || '', libelle: data.label, sens: data.direction,
+    montant_ht: data.amountHt, devise: code, echeance: data.dueDate || null,
+  });
+  return id;
 }
 
 function setInvoiceStatus(id, status) {
   if (!INVOICE_STATUSES.includes(status)) return false;
-  return db.prepare('UPDATE invoices SET status = ?, paid_at = ? WHERE id = ?')
+
+  const changed = db.prepare('UPDATE invoices SET status = ?, paid_at = ? WHERE id = ?')
     .run(status, status === 'Payée' ? new Date().toISOString() : null, id).changes > 0;
+
+  if (changed && status === 'Payée') {
+    const invoice = invoiceById(id);
+    require('./webhooks').emit('facture.payee', {
+      id, reference: invoice.reference, libelle: invoice.label, sens: invoice.direction,
+      montant_ttc: invoice.amount_ttc, devise: invoice.currency,
+    });
+  }
+  return changed;
 }
 
 function deleteInvoice(id) {

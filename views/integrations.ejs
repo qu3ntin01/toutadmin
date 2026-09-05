@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Interfaces — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Interfaces',
+      navItems: [
+        { tab: 'jetons', label: "Jetons d'API", icon: 'link', badge: tokenList.filter((t2) => !t2.revoked && !t2.expired).length },
+        { tab: 'webhooks', label: 'Webhooks', icon: 'external', badge: stats.active },
+        { tab: 'livraisons', label: 'Livraisons', icon: 'inbox', badge: stats.waiting },
+        { tab: 'documentation', label: 'Documentation', icon: 'inbox' }
+      ],
+      footLinks: [
+        { href: '/admin', label: "Console d'administration", icon: 'settings' },
+        { href: '/securite', label: 'Sécurité', icon: 'shield' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Interfaces',
+        headerSubtitle: "API de lecture et webhooks sortants"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + (iso.includes('Z') ? '' : 'Z')).toLocaleString(locale) : '—'); %>
+
+        <% if (created) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= created.kind === 'token' ? 'Votre jeton' : 'Secret de signature' %> — <%= created.label %></h3></div>
+            <p class="mono cred-box"><%= created.value %></p>
+            <p class="hint">
+              <%= created.kind === 'token'
+                ? `Il n'est conservé que sous forme d'empreinte : cette page est le seul endroit où il s'affiche en clair. Valable jusqu'au ${created.expiresAt}.`
+                : "Il sert au destinataire à vérifier la signature de chaque envoi. Il est chiffré en base et ne sera plus affiché." %>
+            </p>
+          </div>
+        <% } %>
+
+        <!-- ---------- Jetons ---------- -->
+        <section class="tab-panel is-active" id="jetons">
+          <div class="card">
+            <div class="card-head"><h3>Créer un jeton</h3></div>
+            <form method="POST" action="/integrations/jetons" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Outil de paie — production" /></label>
+              <label><span>Durée de vie (jours)</span><input type="number" name="days" min="1" max="3650" value="<%= defaultDays %>" required /></label>
+              <div class="span-2">
+                <p class="section-label">Portées</p>
+                <% scopes.forEach((s) => { %>
+                  <label class="check-row">
+                    <input type="checkbox" name="scopes" value="<%= s.key %>" />
+                    <span><strong><%= s.label %></strong> — <%= s.hint %></span>
+                  </label>
+                <% }) %>
+              </div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer le jeton</button></div>
+            </form>
+            <p class="hint">
+              L'API est en lecture seule : un jeton égaré permet de lire, jamais d'écrire, de supprimer ou de
+              payer. Il n'est conservé que sous forme d'empreinte SHA-256, et se révoque d'un clic.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= tokenList.length %> jeton(s)</h3></div>
+            <% if (!tokenList.length) { %>
+              <p class="empty-state">Aucun jeton.</p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Jeton</th><th>Portées</th><th>Expire</th><th>Dernier appel</th><th>Appels</th><th>État</th><th></th></tr></thead>
+                  <tbody>
+                    <% tokenList.forEach((tk) => { %>
+                      <tr>
+                        <td><div class="cell-strong"><%= tk.label %></div><div class="cell-sub mono"><%= tk.prefix %>…</div></td>
+                        <td class="cell-sub"><%= tk.scopeList.join(', ') %></td>
+                        <td class="cell-sub nowrap"><%= tk.expires_at || '—' %></td>
+                        <td class="cell-sub nowrap"><%= moment(tk.last_used_at) %><% if (tk.last_ip) { %><br /><span class="cell-sub"><%= tk.last_ip %></span><% } %></td>
+                        <td><%= tk.calls %></td>
+                        <td>
+                          <span class="tag <%= tk.revoked ? 'tag-danger' : (tk.expired ? 'tag-warning' : 'tag-success') %>">
+                            <%= tk.revoked ? 'Révoqué' : (tk.expired ? 'Expiré' : 'Actif') %>
+                          </span>
+                        </td>
+                        <td>
+                          <div class="row-actions">
+                            <% if (!tk.revoked) { %>
+                              <form method="POST" action="/integrations/jetons/<%= tk.id %>/revoquer" class="inline-form" data-confirm="Révoquer ce jeton ? Les appels cessent immédiatement.">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-outline btn-sm">Révoquer</button>
+                              </form>
+                            <% } else { %>
+                              <form method="POST" action="/integrations/jetons/<%= tk.id %>/supprimer" class="inline-form" data-confirm="Supprimer la ligne de ce jeton révoqué ?">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                              </form>
+                            <% } %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Webhooks ---------- -->
+        <section class="tab-panel" id="webhooks">
+          <div class="card">
+            <div class="card-head"><h3>Déclarer un webhook</h3></div>
+            <form method="POST" action="/integrations/webhooks" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Notification Slack" /></label>
+              <label><span>Adresse (https)</span><input type="url" name="url" required maxlength="500" placeholder="https://exemple.fr/hooks/salarie-member" /></label>
+              <div class="span-2">
+                <p class="section-label">Événements écoutés</p>
+                <% events.forEach((e) => { %>
+                  <label class="check-row"><input type="checkbox" name="events" value="<%= e.key %>" /><span><%= e.label %> <span class="mono cell-sub"><%= e.key %></span></span></label>
+                <% }) %>
+              </div>
+              <label class="span-2 check-row">
+                <input type="checkbox" name="allow_private" value="1" />
+                <span>Autoriser une adresse interne ou en clair (http) — à ne cocher que pour un service du réseau local</span>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déclarer</button></div>
+            </form>
+            <p class="hint">
+              Chaque envoi porte un en-tête <span class="mono">x-salarie-member-signature</span> : un HMAC-SHA256
+              du corps, calculé avec le secret du webhook. Le destinataire recalcule et compare — c'est ce qui
+              distingue un appel venu d'ici d'un appel forgé.
+            </p>
+            <p class="hint">
+              Un envoi en échec est réessayé <%= maxAttempts %> fois, avec un délai qui double à chaque tentative.
+              Après <%= failureLimit %> échecs consécutifs, le webhook se désactive de lui-même : mieux vaut un tuyau
+              éteint, qui se voit, qu'un tuyau muet qui fait croire que l'information passe.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= webhookList.length %> webhook(s)</h3></div>
+            <% if (!webhookList.length) { %>
+              <p class="empty-state">Aucun webhook déclaré.</p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% webhookList.forEach((w) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= w.label %></span>
+                      <span class="tag <%= w.active ? 'tag-success' : 'tag-danger' %>"><%= w.active ? 'Actif' : 'Suspendu' %></span>
+                    </div>
+                    <p class="cell-sub mono"><%= w.url %></p>
+                    <p class="cell-sub">
+                      <%= w.eventList.join(', ') %>
+                      <% if (w.last_attempt_at) { %> · dernier envoi <%= moment(w.last_attempt_at) %> : <%= w.last_status %><% } %>
+                      <% if (w.failures) { %> · <span class="text-danger"><%= w.failures %> échec(s) consécutif(s)</span><% } %>
+                      <% if (w.allow_private) { %> · adresse interne autorisée<% } %>
+                    </p>
+                    <div class="row-actions">
+                      <form method="POST" action="/integrations/webhooks/<%= w.id %>/tester" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-outline btn-sm">Envoi d'essai</button>
+                      </form>
+                      <form method="POST" action="/integrations/webhooks/<%= w.id %>/etat" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <input type="hidden" name="active" value="<%= w.active ? '0' : '1' %>" />
+                        <button type="submit" class="btn btn-outline btn-sm"><%= w.active ? 'Suspendre' : 'Réactiver' %></button>
+                      </form>
+                      <form method="POST" action="/integrations/webhooks/<%= w.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce webhook et son journal ?">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                      </form>
+                    </div>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Livraisons ---------- -->
+        <section class="tab-panel" id="livraisons">
+          <div class="card">
+            <div class="card-head">
+              <h3>Journal des livraisons</h3>
+              <span class="card-sub"><%= stats.waiting %> en attente · <%= stats.abandoned %> abandonnée(s)</span>
+            </div>
+            <% if (!deliveries.length) { %>
+              <p class="empty-state">Aucun envoi pour le moment.</p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Événement</th><th>Webhook</th><th>État</th><th>Tentatives</th><th>Créée</th><th>Livrée</th><th>Dernière erreur</th></tr></thead>
+                  <tbody>
+                    <% deliveries.forEach((d) => { %>
+                      <tr>
+                        <td class="cell-strong mono"><%= d.event %></td>
+                        <td class="cell-sub"><%= d.label %></td>
+                        <td>
+                          <span class="tag <%= d.status === 'Livré' ? 'tag-success' : (d.status === 'En attente' ? 'tag-warning' : 'tag-danger') %>"><%= d.status %></span>
+                        </td>
+                        <td><%= d.attempts %></td>
+                        <td class="cell-sub nowrap"><%= moment(d.created_at) %></td>
+                        <td class="cell-sub nowrap"><%= moment(d.delivered_at) %></td>
+                        <td class="cell-sub"><%= d.last_error || '—' %></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hint">Les livraisons abouties ou abandonnées sont purgées au bout de trente jours : ce journal est une trace, pas une archive.</p>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Documentation ---------- -->
+        <section class="tab-panel" id="documentation">
+          <div class="card">
+            <div class="card-head"><h3>Interroger l'API</h3></div>
+            <p class="cell-sub">Toutes les routes sont en lecture seule et attendent le jeton dans l'en-tête d'autorisation :</p>
+            <p class="mono cred-box">curl -H "Authorization: Bearer sm_…" https://votre-instance/api/v1/collaborateurs</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Route</th><th>Portée requise</th><th>Contenu</th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">/api/v1</td><td class="cell-sub">—</td><td class="cell-sub">Portées du jeton et liste des routes</td></tr>
+                  <tr><td class="mono">/api/v1/collaborateurs</td><td class="cell-sub">annuaire</td><td class="cell-sub">Effectif visible à l'annuaire, avec service et équipe</td></tr>
+                  <tr><td class="mono">/api/v1/services</td><td class="cell-sub">annuaire</td><td class="cell-sub">Services, effectifs, encadrants</td></tr>
+                  <tr><td class="mono">/api/v1/equipes</td><td class="cell-sub">annuaire</td><td class="cell-sub">Équipes et leur service</td></tr>
+                  <tr><td class="mono">/api/v1/absences</td><td class="cell-sub">rh</td><td class="cell-sub">Absences approuvées, sans le motif</td></tr>
+                  <tr><td class="mono">/api/v1/tiers</td><td class="cell-sub">gestion</td><td class="cell-sub">Clients et fournisseurs</td></tr>
+                  <tr><td class="mono">/api/v1/factures</td><td class="cell-sub">gestion</td><td class="cell-sub">Factures, montants dans leur devise et en devise de référence</td></tr>
+                  <tr><td class="mono">/api/v1/abonnements</td><td class="cell-sub">gestion</td><td class="cell-sub">Facturation récurrente</td></tr>
+                  <tr><td class="mono">/api/v1/projets</td><td class="cell-sub">projets</td><td class="cell-sub">Projets actifs, avancement, heures</td></tr>
+                  <tr><td class="mono">/api/v1/indicateurs</td><td class="cell-sub">pilotage</td><td class="cell-sub">Chiffres consolidés de l'exercice</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="hint">
+              Pagination par <span class="mono">?limite=</span> (200 au plus) et <span class="mono">?depuis=</span>.
+              Les réponses ne sont jamais mises en cache : elles portent des données nominatives.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Vérifier la signature d'un webhook</h3></div>
+            <p class="mono cred-box">HMAC_SHA256(secret, corps_brut) === en-tête x-salarie-member-signature (préfixé « sha256= »)</p>
+            <p class="hint">
+              Comparez en temps constant, et refusez l'appel si la signature ne correspond pas : c'est la seule
+              chose qui distingue un envoi venu d'ici d'un envoi forgé par un tiers qui connaîtrait votre URL.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

@@ -50,6 +50,7 @@ function create({ subject, body, category, priority, origin, requesterId, partne
 
   const id = info.lastInsertRowid;
   db.prepare('UPDATE tickets SET reference = ? WHERE id = ?').run(reference(id), id);
+  require('./webhooks').emit('ticket.ouvert', { id, reference: reference(id), sujet: subject, priorite: priority, origine: origin });
   return id;
 }
 

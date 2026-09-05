@@ -297,6 +297,12 @@ function sign(requestId, userId, { password, consent, ip = '' }) {
   });
 
   const remaining = apply();
+  if (remaining === 0) {
+    require('./webhooks').emit('document.signe', {
+      id: request.id, titre: request.title, nature: request.kind, empreinte: request.sha256,
+      signataires: signersOf(request.id).map((s) => `${s.first_name} ${s.last_name}`),
+    });
+  }
   return { ok: true, seal, signedAt, remaining, completed: remaining === 0 };
 }
 

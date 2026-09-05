@@ -65,6 +65,13 @@ function approveRequest(id, reviewerId, note) {
   db.prepare("UPDATE hr_requests SET status = 'Approuvée', reviewed_by = ?, review_note = ?, reviewed_at = ? WHERE id = ?")
     .run(reviewerId, note || '', new Date().toISOString(), id);
 
+  // Les outils de planification ont besoin de le savoir tout de suite : le
+  // motif, lui, ne sort pas de l'entreprise.
+  require('./webhooks').emit('absence.approuvee', {
+    id, type: request.type, du: request.start_date, au: request.end_date, jours: request.days,
+    personne: `${request.first_name} ${request.last_name}`,
+  });
+
   return { ok: true };
 }
 

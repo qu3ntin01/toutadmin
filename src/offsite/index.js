@@ -246,6 +246,9 @@ async function afterBackup(fileName, buffer, { keep = 24, req = null } = {}) {
 
   for (const result of results.filter((r) => !r.ok)) {
     const destination = byKey(result.key);
+    require('../webhooks').emit('sauvegarde.echec', {
+      destination: result.key, fichier: fileName, motif: result.message,
+    });
     for (const admin of db.prepare("SELECT id FROM users WHERE role = 'admin' AND active = 1").all()) {
       notifications.push({
         userId: admin.id,

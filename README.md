@@ -210,6 +210,16 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Attestation de signature** imprimable : empreinte, sceaux recalculés à l'ouverture, horodatages, adresses. Un document déjà signé ne se supprime pas — il fait preuve
 - Signature électronique **simple**, assumée comme telle : la valeur probante repose sur le faisceau (empreinte, sceau, horodatage, journal d'audit). Une signature *qualifiée* au sens eIDAS demande un prestataire de confiance certifié, hors périmètre — c'est écrit sur l'attestation elle-même
 
+### API de lecture et webhooks
+- **API REST versionnée** (`/api/v1`), volontairement **en lecture seule** : un jeton circule dans des fichiers de configuration, des variables d'environnement, parfois un dépôt Git — il ne doit pas pouvoir supprimer un salarié ni émettre une facture
+- **Jetons à portée explicite** (annuaire, RH, gestion, projets, pilotage) et à durée de vie bornée, révocables d'un clic. Le jeton n'est **jamais conservé en clair** : seule son empreinte SHA-256 vit en base, avec le préfixe qui permet de le reconnaître. Il s'affiche une fois, à sa création
+- Pas de cookie, donc pas de session, donc pas de jeton CSRF : l'authentification tient dans l'en-tête `Authorization: Bearer`. Débit limité, réponses jamais mises en cache, erreurs en JSON
+- **L'API respecte les règles de l'écran** : qui est retiré de l'annuaire n'en sort pas par une autre porte, et le motif d'une absence ne quitte pas l'entreprise
+- **Webhooks sortants** sur les événements qui comptent (facture créée ou payée, absence approuvée, arrivée ou départ, document signé, ticket ouvert, externalisation en échec)
+- Chaque envoi est **signé** (HMAC-SHA256 du corps avec le secret du webhook, en-tête `x-salarie-member-signature`) : c'est ce qui distingue un appel venu d'ici d'un appel forgé. Le secret est chiffré en base et affiché une seule fois
+- **Une adresse interne ou en clair est refusée par défaut** : faire émettre des requêtes à un serveur vers son propre réseau est une porte dérobée classique. L'autoriser se fait sciemment, case cochée
+- **Un échec n'est pas silencieux** : journalisé, réessayé cinq fois avec un délai qui double, puis abandonné. Après vingt échecs consécutifs le webhook s'éteint de lui-même — mieux vaut un tuyau éteint, qui se voit, qu'un tuyau muet qui fait croire que l'information passe
+
 ### Sauvegarde et restauration
 - **Sauvegarde automatique**, toutes les heures par défaut (intervalle et nombre d'archives conservées réglables dans `/sauvegardes`). Le serveur sauvegarde aussi au démarrage s'il a manqué une échéance
 - **Une archive contient tout** : la base, les photos de profil, les CV, le coffre-fort et les documents du parapheur. Sauvegarder la seule base serait un piège — l'instance restaurée prétendrait détenir des bulletins disparus
@@ -358,7 +368,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-603 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+631 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -420,7 +430,13 @@ membre masqué visible de la seule administration), le parapheur (ordre du
 circuit respecté, rang laissé libre sans décalage des qualités, mot de passe
 et consentement exigés, sceau invalidé par une réécriture en base, texte ou
 fichier modifié qui bloque la signature et le téléchargement, refus motivé qui
-interrompt le circuit, document signé non supprimable, fichier en 0600), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
+interrompt le circuit, document signé non supprimable, fichier en 0600), l'API
+(401 sans jeton et sur jeton révoqué, expiré ou inventé, portée refusée route
+par route, jeton stocké en empreinte seule et absent du journal, membre masqué
+qui ne ressort pas, motif d'absence retenu, pagination bornée, 404 en JSON) et
+les webhooks (adresse interne et http refusées par défaut, secret chiffré,
+signature qui ne vaut que pour ce corps exact, événement non écouté ignoré,
+réessais puis abandon, extinction après une série d'échecs, purge du journal), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
 projection et point bas), les immobilisations (linéaire, bascule du dégressif, bornes)
 et la flotte (doublon d'immatriculation, compteur qui ne recule pas, échéance
 dépassée), la sécurité (session révoquée dès la désactivation,
@@ -518,6 +534,7 @@ d'administration sont en place pour l'accueillir.
 | `TRUST_PROXY` | À définir (ex. `1`) derrière un reverse proxy, pour que la limitation de débit voie la bonne IP |
 | `DB_PATH` | Emplacement de la base SQLite (défaut `data/app.sqlite`) |
 | `LOGIN_RATE_LIMIT` / `GLOBAL_RATE_LIMIT` | Plafonds de requêtes, ajustables pour les tests ou un usage interne intensif |
+| `API_RATE_LIMIT` | Requêtes par minute et par adresse sur `/api/v1` (défaut `120`) |
 | `UPLOAD_DIR` | Dossier des photos de profil (défaut `data/uploads`) |
 | `SESSION_IDLE_MINUTES` | Expiration d'une session inactive (défaut `60`) |
 | `SESSION_MAX_HOURS` | Durée de vie absolue d'une session, quelle que soit l'activité (défaut `12`) |
@@ -572,6 +589,8 @@ src/
   csv.js             lecture de fichiers CSV, séparateurs et guillemets
   importer.js        import de masse : contrôle ligne à ligne, écriture tout ou rien
   signing.js         parapheur : empreinte du document, sceau des signatures, circuit
+  api-tokens.js      jetons d'API : portées, empreinte, révocation
+  webhooks.js        webhooks sortants : signature, file d'attente, réessais
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
   secret-store.js    chiffrement AES-256-GCM des secrets rangés en base

@@ -63,6 +63,8 @@ const accueilRoutes = require('./routes/accueil');
 const organigrammeRoutes = require('./routes/organigramme');
 const importRoutes = require('./routes/import');
 const parapheurRoutes = require('./routes/parapheur');
+const apiRoutes = require('./routes/api');
+const integrationRoutes = require('./routes/integrations');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -116,6 +118,11 @@ function createApp() {
   app.use(express.static(path.join(__dirname, '..', 'public'), { maxAge: isProd ? '1d' : 0 }));
   // Photos de profil : servies en lecture seule, sans exécution ni indexation.
   app.use('/media/avatars', express.static(UPLOAD_DIR, { maxAge: '7d', index: false, dotfiles: 'ignore' }));
+
+  // L'API est montée avant la session : elle ne pose ni ne lit de cookie, donc
+  // pas de session, donc pas de jeton CSRF à vérifier. Son authentification
+  // tient entièrement dans l'en-tête Authorization, et elle est en lecture seule.
+  app.use('/api/v1', apiRoutes);
 
   // Expiration par inactivité : le cookie est repoussé à chaque requête, si bien
   // qu'un poste laissé sans surveillance se referme tout seul. Le plafond absolu,
@@ -257,6 +264,7 @@ function createApp() {
   app.use('/organigramme', organigrammeRoutes);
   app.use('/import', importRoutes);
   app.use('/parapheur', parapheurRoutes);
+  app.use('/integrations', integrationRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);
