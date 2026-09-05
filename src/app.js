@@ -15,6 +15,7 @@ const cse = require('./cse');
 const org = require('./org');
 const talent = require('./talent');
 const modules = require('./modules');
+const notifications = require('./notifications');
 const { revalidateSession, requirePasswordChange } = require('./middleware/auth');
 const installRoutes = require('./routes/install');
 const { UPLOAD_DIR } = require('./uploads');
@@ -44,6 +45,10 @@ const santeSecuriteRoutes = require('./routes/sante-securite');
 const tresorerieRoutes = require('./routes/tresorerie');
 const immobilisationsRoutes = require('./routes/immobilisations');
 const flotteRoutes = require('./routes/flotte');
+const notificationRoutes = require('./routes/notifications');
+const pilotageRoutes = require('./routes/pilotage');
+const rechercheRoutes = require('./routes/recherche');
+const rgpdRoutes = require('./routes/rgpd');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -145,6 +150,7 @@ function createApp() {
     // Compteurs et droits affichés dans la navigation de chaque page.
     if (user) {
       res.locals.unreadMessages = messageRoutes.unreadCount(user.id);
+      res.locals.unreadNotifications = notifications.unreadCount(user.id);
       res.locals.isManager = org.isManager(user.id);
       const row = req.currentUser;
       res.locals.isCseMember = Boolean(row && cse.isEligible(row));
@@ -156,6 +162,7 @@ function createApp() {
       res.locals.enabledModules = modules.enabled();
     } else {
       res.locals.unreadMessages = 0;
+      res.locals.unreadNotifications = 0;
       res.locals.isManager = false;
       res.locals.isCseMember = false;
       res.locals.isCseElected = false;
@@ -211,6 +218,10 @@ function createApp() {
   app.use('/tresorerie', tresorerieRoutes);
   app.use('/immobilisations', immobilisationsRoutes);
   app.use('/flotte', flotteRoutes);
+  app.use('/notifications', notificationRoutes);
+  app.use('/pilotage', pilotageRoutes);
+  app.use('/recherche', rechercheRoutes);
+  app.use('/rgpd', rgpdRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

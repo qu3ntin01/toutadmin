@@ -141,6 +141,19 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Réinitialisation de la double authentification** d'un membre par l'administration, pour un téléphone perdu — la personne devra la remettre en service
 - **Fermeture de toutes ses sessions** par le membre lui-même, depuis son profil
 
+### Pilotage et transverse
+- **Tableau de bord de direction** (`/pilotage`) : effectif par contrat, absents du jour, facturé et marge, masse salariale, trésorerie, charge du support. Un tiret marque une donnée absente, jamais un zéro
+- **Échéances consolidées** : contrats de travail et fournisseurs (au préavis, pas à la fin), factures, habilitations, visites médicales, protections, véhicules, revues du document unique, tâches de projet et points de parcours — dans une seule liste triée
+- **Notifications personnelles** tirées de ces échéances, dédupliquées : une même échéance n'alerte qu'une fois, quel que soit le nombre de balayages
+- **Objectifs et résultats clés** : chaque résultat mesuré sur sa propre échelle, y compris décroissante (de 24 h vers 4 h), l'avancement de l'objectif étant leur moyenne
+- **Recherche globale** : n'interroge que les espaces ouverts à la personne — ce qu'elle n'a pas le droit de voir n'est pas cherché du tout, pas filtré après coup
+- **Balayage horaire** au démarrage puis toutes les heures : contrats échus, notifications d'échéance, purge du journal et des notifications lues
+
+### Données personnelles
+- **Registre des traitements** (`/rgpd`, administration), préremplissable avec les traitements que ce logiciel opère lui-même — à relire et compléter, il ne décrit pas ce que fait votre entreprise par ailleurs
+- **Droit d'accès** : ce que l'instance détient sur une personne, source par source, exportable en JSON
+- **Effacement** : ce qui relève d'une obligation de conservation (bulletins, registre des accidents, journal d'audit) est gardé et le compte rendu le dit ; le reste est effacé et le compte anonymisé plutôt que supprimé, pour que les écritures qui le référencent restent cohérentes. L'adresse exacte est redemandée pour confirmer
+
 ### Confort
 - Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil ; l'arabe bascule l'interface en écriture de droite à gauche
 - Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement
@@ -250,7 +263,12 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-342 tests d'intégration couvrent les projets (échéance antérieure au début refusée,
+364 tests d'intégration couvrent le socle transverse (échéances rassemblées de tous
+les espaces et triées, notification dédupliquée à la rejouée, notification d'autrui
+non marquable, résultat clé mesuré sur son échelle y compris décroissante, recherche
+qui ne rend ni les tiers ni les projets hors périmètre, membre masqué introuvable,
+registre préremplissable une seule fois, export JSON, effacement qui garde les
+bulletins et anonymise le compte), les projets (échéance antérieure au début refusée,
 date de fin de tâche posée puis effacée, saisie de temps bornée, imputation croisée
 entre projets refusée, cloisonnement à l'équipe, suppression en cascade), le support
 (délai déduit de la priorité et recalculé depuis l'ouverture, note interne cloisonnée
@@ -389,6 +407,11 @@ src/
   safety.js          document unique, registre des accidents, protections, visites
   treasury.js        comptes bancaires, rapprochement, prévisionnel, amortissements
   fleet.js           véhicules, échéances et historique d'entretien
+  deadlines.js       échéances de tous les espaces, et leur transformation en alertes
+  notifications.js   notifications personnelles, dédupliquées par clé
+  steering.js        indicateurs de direction, objectifs et résultats clés
+  search.js          recherche globale, cloisonnée par droits à la source
+  privacy.js         registre des traitements, export et effacement des données
   cv.js              réception des CV en mémoire, écriture hors dépôt, extraction PDF/DOCX/texte
   ats.js             critères pondérés, score, seuil, classement des candidatures, CVthèque
   modules.js         modules optionnels : activation, barrière de route, limites

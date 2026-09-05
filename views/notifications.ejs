@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Notifications — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'notifications' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Notifications',
+        headerSubtitle: 'Ce qui arrive à échéance et vous concerne'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <div class="card">
+          <div class="card-head">
+            <h3><%= items.filter((i) => !i.read_at).length %> non lue(s) sur <%= items.length %></h3>
+            <form method="POST" action="/notifications/tout-lu" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-outline btn-sm">Tout marquer comme lu</button>
+            </form>
+          </div>
+
+          <ul class="org-list">
+            <% items.forEach((n) => { %>
+              <li class="org-item <%= n.read_at ? 'is-done' : '' %>">
+                <span>
+                  <span class="cell-strong"><%= n.title %></span>
+                  <% if (!n.read_at) { %><span class="tag tag-accent">nouveau</span><% } %>
+                  <br /><span class="cell-sub"><%= n.body %> · <%= moment(n.created_at) %></span>
+                </span>
+                <span class="row-actions">
+                  <% if (n.link) { %>
+                    <form method="POST" action="/notifications/<%= n.id %>/lue" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <input type="hidden" name="retour" value="<%= n.link %>" />
+                      <button type="submit" class="btn btn-outline btn-sm">Ouvrir</button>
+                    </form>
+                  <% } else if (!n.read_at) { %>
+                    <form method="POST" action="/notifications/<%= n.id %>/lue" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-outline btn-sm">Marquer lue</button>
+                    </form>
+                  <% } %>
+                  <form method="POST" action="/notifications/<%= n.id %>/supprimer" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                  </form>
+                </span>
+              </li>
+            <% }) %>
+            <% if (items.length === 0) { %><li class="cell-sub">Rien à signaler.</li><% } %>
+          </ul>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

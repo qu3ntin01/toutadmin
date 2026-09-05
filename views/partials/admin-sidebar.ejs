@@ -27,10 +27,12 @@ const adminActive = typeof active !== 'undefined' ? active : null;
     : adminSections,
   // Un administrateur n'a pas d'espace membre : /mon-espace le renverrait ici.
   footLinks: [
+    { href: '/pilotage', label: 'Pilotage', icon: 'home' },
     { href: '/projets', label: 'Projets', icon: 'briefcase' },
     { href: '/support', label: 'Support', icon: 'lifebuoy' },
     { href: '/base-de-connaissances', label: 'Connaissances', icon: 'inbox' },
     { href: '/securite', label: 'Sécurité', icon: 'shield' },
+    { href: '/rgpd', label: 'Données personnelles', icon: 'user' },
     { href: '/rh', label: t('nav.openHrSpace'), icon: 'external' },
     { href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' }
   ]

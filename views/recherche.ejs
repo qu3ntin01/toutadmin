@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Recherche — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'recherche' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Recherche',
+        headerSubtitle: 'Dans tous les espaces auxquels vous avez accès'
+      }) %>
+
+      <main class="page">
+        <div class="card">
+          <form method="GET" action="/recherche" class="form-grid">
+            <label class="span-2">
+              <span>Que cherchez-vous ?</span>
+              <input type="search" name="q" value="<%= query %>" placeholder="un collègue, un projet, un ticket, une procédure…" autofocus minlength="2" required />
+            </label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Chercher</button></div>
+          </form>
+          <p class="hint">
+            La recherche n'interroge que les espaces qui vous sont ouverts : ce que vous n'avez pas le
+            droit de voir n'est pas cherché du tout.
+          </p>
+        </div>
+
+        <% if (query) { %>
+          <% groups.forEach((group) => { %>
+            <div class="card">
+              <div class="card-head"><h3><%= group.source %></h3></div>
+              <ul class="org-list">
+                <% group.rows.forEach((row) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= row.label %></span>
+                      <br /><span class="cell-sub"><%= row.detail || '—' %></span>
+                    </span>
+                    <a class="btn btn-outline btn-sm" href="<%= row.link %>">Ouvrir</a>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          <% }) %>
+          <% if (groups.length === 0) { %>
+            <div class="card"><p class="cell-sub">Rien ne correspond à « <%= query %> ».</p></div>
+          <% } %>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

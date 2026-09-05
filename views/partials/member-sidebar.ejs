@@ -3,8 +3,10 @@
    Attend : active ('espace'|'annuaire'|'messagerie'|'equipe'|'profil') */
 const memberLinks = [
   { key: 'espace', href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' },
+  { key: 'recherche', href: '/recherche', label: 'Recherche', icon: 'link' },
   { key: 'annuaire', href: '/annuaire', label: t('nav.directory'), icon: 'users' },
   { key: 'messagerie', href: '/messagerie', label: t('nav.messages'), icon: 'inbox', badge: unreadMessages },
+  { key: 'notifications', href: '/notifications', label: 'Notifications', icon: 'megaphone', badge: unreadNotifications },
   { key: 'agenda', href: '/agenda', label: t('nav.agenda'), icon: 'calendar' },
   { key: 'salles', href: '/salles', label: t('nav.rooms'), icon: 'network' },
   { key: 'projets', href: '/projets', label: 'Projets', icon: 'briefcase' },

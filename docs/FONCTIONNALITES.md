@@ -18,9 +18,9 @@ qui relie le tout.
 | Modules débloquables par l'administration | ✅ |
 | Interface en 16 langues, thème clair/sombre/système, responsive | ✅ |
 | Assistant d'installation | ✅ |
-| **Échéances et alertes** — un seul moteur pour tout ce qui arrive à terme | ⬜ |
-| **Centre de notifications** par personne, avec accusé de lecture | ⬜ |
-| **Recherche globale** sur tous les espaces autorisés | ⬜ |
+| **Échéances et alertes** — un seul moteur pour tout ce qui arrive à terme | ✅ |
+| **Centre de notifications** par personne, avec accusé de lecture | ✅ |
+| **Recherche globale** sur tous les espaces autorisés | ✅ |
 | Import de données en masse (CSV) | ⬜ |
 | Sauvegarde, restauration et export intégral de l'instance | ⬜ |
 | API et webhooks pour les outils tiers | ⬜ |
@@ -31,8 +31,8 @@ qui relie le tout.
 | Fonction | État |
 | --- | --- |
 | Actualités à portée entreprise / service / équipe | ✅ |
-| **Tableau de bord de direction** — effectif, masse salariale, activité, trésorerie | ⬜ |
-| **Objectifs et résultats clés (OKR)**, déclinés par service et par équipe | ⬜ |
+| **Tableau de bord de direction** — effectif, masse salariale, activité, trésorerie | ✅ |
+| **Objectifs et résultats clés (OKR)**, déclinés par service et par équipe | ✅ |
 | Comptes rendus de réunion et registre des décisions | ⬜ |
 | Registre des risques de l'entreprise | ⬜ |
 
@@ -96,7 +96,7 @@ qui relie le tout.
 | Fonction | État |
 | --- | --- |
 | Journal d'audit horodaté, exportable | ✅ |
-| **RGPD : registre des traitements, export et effacement des données d'une personne** | ⬜ |
+| **RGPD : registre des traitements, export et effacement des données d'une personne** | ✅ |
 | Archivage à valeur probante | ⬜ |
 
 ---

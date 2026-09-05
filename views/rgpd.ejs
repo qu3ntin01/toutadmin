@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Données personnelles — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Données personnelles',
+      navItems: [
+        { tab: 'registre', label: 'Registre des traitements', icon: 'inbox' },
+        { tab: 'acces', label: "Droit d'accès et effacement", icon: 'user' }
+      ],
+      footLinks: [
+        { href: '/securite', label: 'Sécurité', icon: 'shield' },
+        { href: '/admin', label: "Console d'administration", icon: 'back' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Données personnelles',
+        headerSubtitle: "Registre des traitements, droit d'accès et effacement"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const fullName = (u) => [u.first_name, u.last_name].filter(Boolean).join(' '); %>
+
+        <!-- ---------- Registre ---------- -->
+        <section class="tab-panel is-active" id="registre">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= recordList.length %> traitement(s) inscrits</h3>
+              <% if (recordList.length === 0) { %>
+                <form method="POST" action="/rgpd/traitements/amorcer" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm">Préremplir le registre</button>
+                </form>
+              <% } %>
+            </div>
+            <p class="hint">
+              Le préremplissage décrit ce que <em>ce logiciel</em> fait de données personnelles. Il ne
+              décrit pas ce que votre entreprise en fait par ailleurs : à relire et à compléter.
+            </p>
+          </div>
+
+          <% recordList.forEach((r) => { %>
+            <div class="card">
+              <div class="card-head">
+                <h3><%= r.name %></h3>
+                <span class="tag tag-accent"><%= r.legal_basis %></span>
+              </div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub">Finalité</td><td><%= r.purpose || '—' %></td></tr>
+                  <tr><td class="cell-sub">Catégories de données</td><td><%= r.data_categories || '—' %></td></tr>
+                  <tr><td class="cell-sub">Destinataires</td><td><%= r.recipients || '—' %></td></tr>
+                  <tr><td class="cell-sub">Durée de conservation</td><td><%= r.retention || '—' %></td></tr>
+                  <tr><td class="cell-sub">Mesures de sécurité</td><td><%= r.measures || '—' %></td></tr>
+                </tbody>
+              </table>
+              <form method="POST" action="/rgpd/traitements/<%= r.id %>/supprimer" class="inline-form" data-confirm="Retirer ce traitement du registre ?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+              </form>
+            </div>
+          <% }) %>
+
+          <div class="card">
+            <div class="card-head"><h3>Inscrire un traitement</h3></div>
+            <form method="POST" action="/rgpd/traitements" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="160" /></label>
+              <label class="span-2"><span>Base légale</span>
+                <select name="legal_basis"><% legalBases.forEach((b) => { %><option value="<%= b %>"><%= b %></option><% }) %></select>
+              </label>
+              <label class="span-2"><span>Finalité</span><textarea name="purpose" rows="2"></textarea></label>
+              <label class="span-2"><span>Catégories de données</span><textarea name="data_categories" rows="2"></textarea></label>
+              <label class="span-2"><span>Destinataires</span><textarea name="recipients" rows="2"></textarea></label>
+              <label><span>Conservation</span><input type="text" name="retention" maxlength="300" /></label>
+              <label><span>Mesures</span><input type="text" name="measures" maxlength="1000" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire</button></div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- Droit d'accès ---------- -->
+        <section class="tab-panel" id="acces">
+          <% if (eraseReport) { %>
+            <div class="card">
+              <div class="card-head"><h3>Effacement de <%= eraseReport.email %></h3></div>
+              <div class="grid-2">
+                <div>
+                  <p class="cell-strong">Effacé</p>
+                  <ul class="org-list">
+                    <% eraseReport.erased.forEach((e) => { %>
+                      <li class="org-item"><span><%= e.label %></span><span class="cell-sub"><%= e.count %></span></li>
+                    <% }) %>
+                    <% if (eraseReport.erased.length === 0) { %><li class="cell-sub">Rien à effacer.</li><% } %>
+                  </ul>
+                </div>
+                <div>
+                  <p class="cell-strong">Conservé par obligation</p>
+                  <ul class="org-list">
+                    <% eraseReport.kept.forEach((k) => { %>
+                      <li class="org-item"><span><%= k.label %></span><span class="cell-sub"><%= k.count %></span></li>
+                    <% }) %>
+                    <% if (eraseReport.kept.length === 0) { %><li class="cell-sub">Rien de conservé.</li><% } %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head"><h3>Choisir une personne</h3></div>
+            <form method="GET" action="/rgpd" class="form-grid">
+              <label class="span-2"><span>Personne</span>
+                <select name="personne" required>
+                  <option value="">—</option>
+                  <% people.forEach((u) => { %>
+                    <option value="<%= u.id %>" <%= target && target.id === u.id ? 'selected' : '' %>>
+                      <%= fullName(u) %> — <%= u.email %><%= u.active ? '' : ' (désactivé)' %>
+                    </option>
+                  <% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Voir ce que l'instance détient</button></div>
+            </form>
+          </div>
+
+          <% if (target) { %>
+            <div class="card">
+              <div class="card-head">
+                <h3><%= fullName(target) %> — <%= target.email %></h3>
+                <a class="btn btn-outline btn-sm" href="/rgpd/personnes/<%= target.id %>/export.json">Exporter en JSON</a>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Source</th><th>Enregistrements</th><th>Sur demande d'effacement</th></tr></thead>
+                  <tbody>
+                    <% held.forEach((s) => { %>
+                      <tr>
+                        <td class="cell-strong"><%= s.label %></td>
+                        <td><%= s.rows.length %></td>
+                        <td>
+                          <span class="tag <%= s.erasable ? 'tag-success' : 'tag-warning' %>">
+                            <%= s.erasable ? 'effaçable' : 'conservé par obligation' %>
+                          </span>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Effacer les données de cette personne</h3></div>
+              <p class="hint">
+                Ce qui relève d'une obligation légale de conservation — bulletins, registre des accidents,
+                journal d'audit — n'est pas effacé, et le compte rendu le dira. Le compte lui-même est
+                anonymisé plutôt que supprimé, pour que les écritures qui le référencent restent cohérentes.
+                L'opération est définitive.
+              </p>
+              <form method="POST" action="/rgpd/personnes/<%= target.id %>/effacer" class="form-grid"
+                    data-confirm="Effacer définitivement les données effaçables de ce compte ?">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span>Saisissez « <%= target.email %> » pour confirmer</span>
+                  <input type="text" name="confirmation" required autocomplete="off" />
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-danger btn-block">Effacer</button></div>
+              </form>
+            </div>
+          <% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>
