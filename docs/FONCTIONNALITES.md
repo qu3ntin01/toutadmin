@@ -16,7 +16,7 @@ qui relie le tout.
 | Comptes, rôles, rattachements (services, équipes, managers multiples) | ✅ |
 | Authentification durcie, double authentification, journal d'audit, console de sécurité | ✅ |
 | Modules débloquables par l'administration | ✅ |
-| Interface en 16 langues, thème clair/sombre/système, responsive | ✅ |
+| Interface en 16 langues, trois palettes au choix de l'administration, mode clair/sombre/système par personne, responsive | ✅ |
 | Assistant d'installation | ✅ |
 | **Échéances et alertes** — un seul moteur pour tout ce qui arrive à terme | ✅ |
 | **Centre de notifications** par personne, avec accusé de lecture | ✅ |

@@ -1,12 +1,24 @@
 /* =========================================================================
-   Salarié Member — thème inspiré de l'univers OVHcloud
-   Bleu profond en navigation, contenu blanc dense, angles droits, accent bleu.
-   Deux palettes seulement : claire par défaut, sombre sous [data-theme="dark"].
-   Le script de thème résout toujours "système" en une valeur concrète,
-   ce qui évite de dupliquer la palette dans une media query.
+   Salarié Member — jetons de thème
+   =========================================================================
+
+   Deux axes, indépendants l'un de l'autre :
+
+     • la PALETTE, posée par l'administration sur <html data-palette>, vaut pour
+       toute l'instance. Trois valeurs : institutionnel (défaut), moderne, vif.
+     • le MODE clair ou sombre, posé sur <html data-theme>, appartient à chaque
+       personne. Le script de thème résout « système » en une valeur concrète
+       avant le premier rendu, ce qui évite de dupliquer les palettes dans une
+       media query.
+
+   Chaque bloc de palette redéfinit l'INTÉGRALITÉ des jetons de couleur : sans
+   cela, le bloc sombre par défaut (:root[data-theme="dark"], spécificité 0,2,0)
+   l'emporterait sur une palette claire de même poids. Les blocs sombres de
+   palette portent deux attributs (0,3,0) et tranchent donc toujours.
    ========================================================================= */
 
-:root {
+:root,
+[data-palette-preview="institutionnel"] {
   /* Marque : bleu profond mais lumineux, constant dans les deux thèmes */
   --brand-deep: #0b46d1;
   --brand-deep-2: #0a2f8f;
@@ -92,6 +104,182 @@
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+
+/* ---------- Palette « Moderne » : ardoise et indigo ---------- */
+/* Neutres presque sans teinte, un indigo violacé pour l'action, des angles
+   nettement plus doux : le vocabulaire des interfaces contemporaines. */
+
+:root[data-palette="moderne"],
+[data-palette-preview="moderne"] {
+  --brand-deep: #242640;
+  --brand-deep-2: #15162a;
+  --brand-ink: #ffffff;
+
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --surface-2: #fafafd;
+  --surface-hover: #f2f1fd;
+  --border: #e4e5f0;
+  --border-strong: #ccced2;
+
+  --text: #16172a;
+  --text-secondary: #545675;
+  --text-tertiary: #82859f;
+  --text-on-brand: rgba(255, 255, 255, 0.76);
+
+  --accent: #5546d6;
+  --accent-hover: #4638bd;
+  --accent-soft: #eeecfe;
+  --accent-ring: rgba(85, 70, 214, 0.24);
+  --accent-contrast: #ffffff;
+
+  --success: #0b7150;
+  --success-bg: #e7f6f0;
+  --success-border: #b2e0ce;
+  --warning: #8d5a06;
+  --warning-bg: #fdf3e4;
+  --warning-border: #edd3a6;
+  --danger: #c62648;
+  --danger-bg: #fdecf0;
+  --danger-border: #f4c1cd;
+
+  /* Ombres plus larges et plus douces : la profondeur remplace les traits. */
+  --shadow-xs: 0 1px 2px rgba(22, 23, 42, 0.05);
+  --shadow-sm: 0 3px 10px rgba(22, 23, 42, 0.07);
+  --shadow-md: 0 14px 38px rgba(22, 23, 42, 0.12);
+
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+:root[data-palette="moderne"][data-theme="dark"] {
+  --brand-deep: #1b1c30;
+  --brand-deep-2: #101120;
+  --brand-ink: #ffffff;
+
+  --bg: #0c0d16;
+  --surface: #141525;
+  --surface-2: #1b1c30;
+  --surface-hover: #232442;
+  --border: #2b2c49;
+  --border-strong: #414367;
+
+  --text: #edecfb;
+  --text-secondary: #a8a9c8;
+  --text-tertiary: #7c7e9e;
+  --text-on-brand: rgba(255, 255, 255, 0.76);
+
+  --accent: #9b92ff;
+  --accent-hover: #b3acff;
+  --accent-soft: rgba(155, 146, 255, 0.16);
+  --accent-ring: rgba(155, 146, 255, 0.32);
+  --accent-contrast: #0d0c1f;
+
+  --success: #48d69f;
+  --success-bg: rgba(72, 214, 159, 0.13);
+  --success-border: rgba(72, 214, 159, 0.3);
+  --warning: #f3ba6b;
+  --warning-bg: rgba(243, 186, 107, 0.13);
+  --warning-border: rgba(243, 186, 107, 0.3);
+  --danger: #ff7d95;
+  --danger-bg: rgba(255, 125, 149, 0.13);
+  --danger-border: rgba(255, 125, 149, 0.32);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 3px 12px rgba(0, 0, 0, 0.55);
+  --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.65);
+
+  --radius: 10px;
+  --radius-lg: 14px;
+}
+
+/* ---------- Palette « Vif » : magenta et violet ---------- */
+/* Couleurs franches, navigation en dégradé violet-magenta, fonds légèrement
+   teintés. Le contraste du texte reste celui d'une application de travail. */
+
+:root[data-palette="vif"],
+[data-palette-preview="vif"] {
+  --brand-deep: #7c12c8;
+  --brand-deep-2: #bd0f72;
+  --brand-ink: #ffffff;
+
+  --bg: #fbf6fc;
+  --surface: #ffffff;
+  --surface-2: #fdf8fe;
+  --surface-hover: #fbedf7;
+  --border: #ecdcef;
+  --border-strong: #d6bcdc;
+
+  --text: #21102a;
+  --text-secondary: #6a4675;
+  --text-tertiary: #96769f;
+  --text-on-brand: rgba(255, 255, 255, 0.82);
+
+  --accent: #cc1268;
+  --accent-hover: #a80d55;
+  --accent-soft: #ffe8f2;
+  --accent-ring: rgba(204, 18, 104, 0.26);
+  --accent-contrast: #ffffff;
+
+  --success: #067a52;
+  --success-bg: #e1f8ee;
+  --success-border: #9fe4c6;
+  --warning: #a8560b;
+  --warning-bg: #fff0e0;
+  --warning-border: #ffcd9c;
+  --danger: #d2153b;
+  --danger-bg: #ffe9ed;
+  --danger-border: #ffbcc7;
+
+  --shadow-xs: 0 1px 2px rgba(76, 12, 62, 0.07);
+  --shadow-sm: 0 3px 10px rgba(76, 12, 62, 0.10);
+  --shadow-md: 0 14px 34px rgba(76, 12, 62, 0.16);
+
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+:root[data-palette="vif"][data-theme="dark"] {
+  --brand-deep: #4d0a82;
+  --brand-deep-2: #83094f;
+  --brand-ink: #ffffff;
+
+  --bg: #150a1c;
+  --surface: #1e1028;
+  --surface-2: #271534;
+  --surface-hover: #331b43;
+  --border: #3d2350;
+  --border-strong: #5a3374;
+
+  --text: #fbeefc;
+  --text-secondary: #c9abd3;
+  --text-tertiary: #a081ad;
+  --text-on-brand: rgba(255, 255, 255, 0.82);
+
+  --accent: #ff6bb0;
+  --accent-hover: #ff92c6;
+  --accent-soft: rgba(255, 107, 176, 0.17);
+  --accent-ring: rgba(255, 107, 176, 0.34);
+  --accent-contrast: #23061a;
+
+  --success: #35e3a2;
+  --success-bg: rgba(53, 227, 162, 0.14);
+  --success-border: rgba(53, 227, 162, 0.32);
+  --warning: #ffb85f;
+  --warning-bg: rgba(255, 184, 95, 0.14);
+  --warning-border: rgba(255, 184, 95, 0.32);
+  --danger: #ff6f8a;
+  --danger-bg: rgba(255, 111, 138, 0.14);
+  --danger-border: rgba(255, 111, 138, 0.34);
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 3px 12px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 16px 40px rgba(0, 0, 0, 0.7);
+
+  --radius: 8px;
+  --radius-lg: 12px;
 }
 
 /* ---------- Base ---------- */
@@ -1209,3 +1397,54 @@ tr.is-current { background: var(--accent-soft); }
 
 /* L'empreinte doit être lisible sans attirer l'œil : c'est une preuve, pas une donnée de travail. */
 .fingerprint { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: .02em; }
+
+/* ---------- Choix de la palette (console d'administration) ---------- */
+
+.palette-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+
+.palette-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+.palette-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.palette-name { font-weight: 650; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.palette-text { font-size: 0.78rem; line-height: 1.5; color: var(--text-secondary); }
+
+/* L'aperçu emprunte les jetons de la palette qu'il montre : il ne peut pas
+   mentir, puisqu'il n'a pas de couleurs à lui. Il montre toujours le mode
+   clair — le mode reste un réglage personnel. */
+.palette-preview {
+  display: flex;
+  height: 104px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.palette-nav {
+  flex: 0 0 34%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px;
+  background: linear-gradient(180deg, var(--brand-deep) 0%, var(--brand-deep-2) 100%);
+}
+.palette-mark { width: 18px; height: 18px; border-radius: 4px; background: var(--brand-ink); opacity: .92; }
+.palette-line { height: 6px; border-radius: 3px; background: var(--brand-ink); opacity: .42; }
+.palette-line.is-short { width: 62%; }
+.palette-line.is-dark { background: var(--text); opacity: .22; }
+.palette-body { flex: 1; padding: 10px; background: var(--bg); }
+.palette-card-sample {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.palette-button { margin-top: auto; height: 16px; width: 64%; border-radius: var(--radius); background: var(--accent); }

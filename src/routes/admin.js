@@ -10,6 +10,7 @@ const hr = require('../hr');
 const org = require('../org');
 const settings = require('../settings');
 const modules = require('../modules');
+const themes = require('../themes');
 const accounting = require('../accounting');
 const payroll = require('../payroll');
 const announcements = require('../announcements');
@@ -72,6 +73,7 @@ router.get('/', (req, res) => {
     financeEligibleEmployees: employees.filter((e) => !e.is_finance),
     companyNews: announcements.all(),
     modules: modules.list(),
+    palettes: themes.list(),
     annualLeaveDays: annualLeaveDays(),
     pendingRequestCount: db.prepare("SELECT COUNT(*) AS n FROM hr_requests WHERE status = 'En attente'").get().n,
     stats: {
@@ -535,6 +537,19 @@ router.post('/affectations/:id/supprimer', (req, res) => {
 // ---------- Gestion des accès RH ----------
 
 // Débloquer un module : son écran, ses routes et son entrée de navigation apparaissent.
+/** Palette de l'instance : un choix d'identité, donc réservé à l'administration. */
+router.post('/apparence', (req, res) => {
+  const key = (req.body.palette || '').trim();
+  if (!themes.set(key)) {
+    setFlash(req, 'error', 'Palette inconnue.');
+    return res.redirect('/admin#apparence');
+  }
+
+  audit.log(req, 'apparence.palette_changee', 'settings', null, { palette: key });
+  setFlash(req, 'success', `Palette « ${themes.byKey(key).label} » appliquée à toute l'instance.`);
+  res.redirect('/admin#apparence');
+});
+
 router.post('/modules/:key', (req, res) => {
   const key = req.params.key;
   const module = modules.byKey(key);

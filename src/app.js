@@ -11,6 +11,7 @@ const i18n = require('./i18n');
 const install = require('./install');
 const sessionStore = require('./session-store');
 const settings = require('./settings');
+const themes = require('./themes');
 const cse = require('./cse');
 const org = require('./org');
 const talent = require('./talent');
@@ -148,6 +149,8 @@ function createApp() {
     const companyName = settings.get('company_name');
     res.locals.companyName = companyName;
     res.locals.brandInitials = settings.brandInitials(companyName);
+    // Palette de l'instance : posée sur <html>, elle vaut aussi avant connexion.
+    res.locals.palette = themes.current();
 
     // Compteurs et droits affichés dans la navigation de chaque page.
     if (user) {

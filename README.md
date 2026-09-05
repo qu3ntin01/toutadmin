@@ -168,7 +168,8 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 
 ### Confort
 - Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil ; l'arabe bascule l'interface en écriture de droite à gauche
-- Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement
+- **Trois palettes**, choisies par l'administration pour toute l'instance (`/admin`, section Apparence) : *Bleu institutionnel* (sobre, angles droits), *Ardoise et indigo* (neutres contemporains, angles doux), *Magenta et violet* (couleurs franches, navigation en dégradé). L'écran de choix montre un aperçu qui emprunte les jetons de chaque palette — il ne peut pas mentir sur ce qu'il propose
+- Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement. Deux axes distincts : la palette engage l'identité de l'entreprise et se règle une fois ; le clair ou sombre est un confort de lecture et appartient à chaque personne. Les six combinaisons sont vérifiées au contraste par les tests
 - Interface responsive : la navigation latérale se replie en bandeau horizontal, les tableaux denses défilent, et la grille du calendrier tient en entier sur un téléphone
 
 ## Sécurité
@@ -275,7 +276,10 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-384 tests d'intégration couvrent le coffre-fort (document scellé par son empreinte et
+395 tests d'intégration couvrent les palettes (jetons complets dans chaque
+combinaison, contraste minimal tenu sur les six, aperçus sans couleur en dur,
+palette servie jusqu'à l'écran de connexion, valeur inconnue ou aberrante sans
+effet), le coffre-fort (document scellé par son empreinte et
 conservé cinquante ans, exécutable déguisé refusé, dépôt multipart sans jeton refusé,
 document en double écarté, altération détectée et document non servi, retrait réservé à
 l'administration et motivé, compte fermé qui n'ouvre que le coffre, code d'accès valide
@@ -430,6 +434,7 @@ src/
   search.js          recherche globale, cloisonnée par droits à la source
   privacy.js         registre des traitements, export et effacement des données
   vault.js           coffre-fort : dépôt scellé, intégrité, codes d'accès après départ
+  themes.js          palettes de l'instance et palette en service
   cv.js              réception des CV en mémoire, écriture hors dépôt, extraction PDF/DOCX/texte
   ats.js             critères pondérés, score, seuil, classement des candidatures, CVthèque
   modules.js         modules optionnels : activation, barrière de route, limites

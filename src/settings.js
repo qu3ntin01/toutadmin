@@ -7,6 +7,8 @@ const DEFAULTS = {
   annual_leave_days: '25',
   installed_at: '',
   installed_version: '',
+  // Palette de l'instance : posée par l'administration, valable pour tout le monde.
+  theme_palette: 'institutionnel',
   // Politique de sécurité de l'instance.
   require_2fa_admin: '0',
   require_2fa_all: '0',

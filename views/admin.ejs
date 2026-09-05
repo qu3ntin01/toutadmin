@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="<%= locale %>" dir="<%= localeDir %>">
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
 <head>
   <%- include('partials/head', { title: 'Administration — ' + t('app.name') }) %>
 </head>
@@ -804,6 +804,55 @@
                 </li>
               <% }) %>
             </ul>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="apparence">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3>Palette de l'instance</h3>
+                <p class="card-sub">
+                  La palette engage l'identité visuelle de l'entreprise : elle vaut pour tout le monde,
+                  y compris sur l'écran de connexion. Le choix entre clair, sombre et système reste
+                  celui de chaque personne, dans la barre de navigation.
+                </p>
+              </div>
+            </div>
+
+            <div class="palette-grid">
+              <% palettes.forEach((p) => { %>
+                <form method="POST" action="/admin/apparence" class="palette-card <%= p.active ? 'is-active' : '' %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <input type="hidden" name="palette" value="<%= p.key %>" />
+
+                  <span class="palette-preview" data-palette-preview="<%= p.key %>" aria-hidden="true">
+                    <span class="palette-nav">
+                      <span class="palette-mark"></span>
+                      <span class="palette-line"></span>
+                      <span class="palette-line is-short"></span>
+                    </span>
+                    <span class="palette-body">
+                      <span class="palette-card-sample">
+                        <span class="palette-line is-dark"></span>
+                        <span class="palette-line is-dark is-short"></span>
+                        <span class="palette-button"></span>
+                      </span>
+                    </span>
+                  </span>
+
+                  <span class="palette-name">
+                    <%= p.label %>
+                    <% if (p.active) { %><span class="tag tag-accent">en service</span><% } %>
+                  </span>
+                  <span class="palette-text"><%= p.description %></span>
+
+                  <button type="submit" class="btn btn-sm <%= p.active ? 'btn-outline' : 'btn-primary' %>" <%= p.active ? 'disabled' : '' %>>
+                    <%= p.active ? 'Palette actuelle' : 'Appliquer' %>
+                  </button>
+                </form>
+              <% }) %>
+            </div>
           </div>
         </section>
 
