@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: vehicle.registration + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: vehicle.registration,
+      navItems: [
+        { tab: 'historique', label: 'Historique', icon: 'inbox' },
+        { tab: 'fiche', label: 'Fiche', icon: 'settings' }
+      ],
+      footLinks: [{ href: '/flotte', label: 'Toute la flotte', icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: vehicle.registration,
+        headerSubtitle: [vehicle.brand, vehicle.model].filter(Boolean).join(' ') + ' · ' + vehicle.status
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="tab-panel is-active" id="historique">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Consigner un événement</h3></div>
+              <form method="POST" action="/flotte/<%= vehicle.id %>/evenements" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Nature</span>
+                  <select name="kind"><% eventKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+                </label>
+                <label><span>Date</span><input type="date" name="occurred_on" value="<%= today %>" required /></label>
+                <label><span>Kilométrage relevé</span><input type="number" name="mileage" min="0" max="5000000" placeholder="<%= vehicle.mileage %>" /></label>
+                <label><span>Coût (€)</span><input type="text" name="cost" inputmode="decimal" /></label>
+                <label class="span-2"><span>Note</span><input type="text" name="note" maxlength="500" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner</button></div>
+              </form>
+              <p class="hint">Le compteur du véhicule suit le relevé le plus élevé : il ne recule jamais.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Échéances</h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub">Contrôle technique</td><td class="<%= vehicle.inspection_due && vehicle.inspection_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.inspection_due) %></td></tr>
+                  <tr><td class="cell-sub">Assurance</td><td class="<%= vehicle.insurance_due && vehicle.insurance_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.insurance_due) %></td></tr>
+                  <tr><td class="cell-sub">Prochain entretien</td><td class="<%= vehicle.service_due && vehicle.service_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.service_due) %></td></tr>
+                  <tr><td class="cell-sub">Kilométrage</td><td class="cell-strong"><%= vehicle.mileage.toLocaleString(locale) %> km</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= eventList.length %> événement(s)</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Nature</th><th>Km</th><th>Coût</th><th>Note</th><th></th></tr></thead>
+                <tbody>
+                  <% eventList.forEach((e) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= day(e.occurred_on) %></td>
+                      <td><span class="tag <%= e.kind === 'Sinistre' ? 'tag-danger' : '' %>"><%= e.kind %></span></td>
+                      <td class="cell-sub"><%= e.mileage ? e.mileage.toLocaleString(locale) : '—' %></td>
+                      <td><%= money(e.cost) %></td>
+                      <td class="cell-sub"><%= e.note || '—' %></td>
+                      <td>
+                        <form method="POST" action="/flotte/evenements/<%= e.id %>/supprimer" class="inline-form" data-confirm="Retirer cet événement ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (eventList.length === 0) { %><tr><td colspan="6" class="cell-sub">Aucun événement.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="fiche">
+          <div class="card">
+            <div class="card-head"><h3>Fiche du véhicule</h3></div>
+            <form method="POST" action="/flotte/<%= vehicle.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Marque</span><input type="text" name="brand" maxlength="60" value="<%= vehicle.brand %>" /></label>
+              <label><span>Modèle</span><input type="text" name="model" maxlength="60" value="<%= vehicle.model %>" /></label>
+              <label><span>Type</span>
+                <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>" <%= vehicle.kind === k ? 'selected' : '' %>><%= k %></option><% }) %></select>
+              </label>
+              <label><span>Statut</span>
+                <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= vehicle.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
+              </label>
+              <label><span>Mise en service</span><input type="date" name="acquired_on" value="<%= vehicle.acquired_on || '' %>" /></label>
+              <label><span>Kilométrage</span><input type="number" name="mileage" min="0" max="5000000" value="<%= vehicle.mileage %>" /></label>
+              <label class="span-2"><span>Conducteur attitré</span>
+                <select name="assigned_to"><option value="">—</option>
+                  <% employees.forEach((u) => { %><option value="<%= u.id %>" <%= vehicle.assigned_to === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Contrôle technique</span><input type="date" name="inspection_due" value="<%= vehicle.inspection_due || '' %>" /></label>
+              <label><span>Assurance</span><input type="date" name="insurance_due" value="<%= vehicle.insurance_due || '' %>" /></label>
+              <label class="span-2"><span>Prochain entretien</span><input type="date" name="service_due" value="<%= vehicle.service_due || '' %>" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+            </form>
+
+            <form method="POST" action="/flotte/<%= vehicle.id %>/supprimer" data-confirm="Supprimer ce véhicule et tout son historique ?">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-danger btn-block">Supprimer le véhicule</button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

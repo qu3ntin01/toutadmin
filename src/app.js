@@ -41,6 +41,9 @@ const supportRoutes = require('./routes/support');
 const connaissancesRoutes = require('./routes/connaissances');
 const parcoursRoutes = require('./routes/parcours');
 const santeSecuriteRoutes = require('./routes/sante-securite');
+const tresorerieRoutes = require('./routes/tresorerie');
+const immobilisationsRoutes = require('./routes/immobilisations');
+const flotteRoutes = require('./routes/flotte');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -205,6 +208,9 @@ function createApp() {
   app.use('/base-de-connaissances', connaissancesRoutes);
   app.use('/parcours', parcoursRoutes);
   app.use('/sante-securite', santeSecuriteRoutes);
+  app.use('/tresorerie', tresorerieRoutes);
+  app.use('/immobilisations', immobilisationsRoutes);
+  app.use('/flotte', flotteRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

@@ -76,6 +76,22 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Parc matériel** : équipements avec numéro de série, garantie et valeur, affectés à un salarié et repris. Un équipement déjà affecté ne peut pas l'être deux fois, et l'historique des détenteurs est conservé
 - **Salles** : parc de salles et planning d'occupation. Tout salarié réserve depuis `/salles` ; un créneau qui chevauche une réservation existante est refusé en nommant qui l'occupe
 
+### Projets, tâches et temps passé
+- **Projets** rattachés à un client, un service, une équipe et un responsable, avec budget et taux horaire
+- **Jalons** datés, marqués atteints d'un geste
+- **Tâches** en colonnes par statut, avec priorité, estimation, échéance et affectation. Terminer une tâche pose sa date de fin ; la rouvrir l'efface
+- **Temps passé** imputé au projet et, s'il y a lieu, à la tâche : au plus 24 heures par saisie, jamais une date à venir
+- **Rentabilité** : heures, coût au taux horaire, marge restante et part du budget consommée
+- Un projet n'est ouvert qu'à **son équipe**, son responsable et la gestion ; chacun n'efface que ses propres saisies
+
+### Support et base de connaissances
+- **Tickets** internes et clients dans un même circuit, avec **délai de première réponse déduit de la priorité** (2 h à 72 h). Changer la priorité recalcule le délai depuis l'ouverture, pas depuis maintenant
+- **Notes internes** invisibles du demandeur, et qui ne comptent pas comme première réponse
+- **Base de connaissances** par catégorie, avec recherche plein texte et portée entreprise, service, équipe ou administration
+
+### Moyens généraux
+- **Flotte de véhicules** : affectation, kilométrage qui ne recule jamais, historique des entretiens, réparations, sinistres et carburant, échéances d'assurance, de contrôle technique et d'entretien
+
 ### Cycle de vie du salarié
 - **Documents d'entreprise** : règlement intérieur, politiques, procédures, avec **accusé de réception exigible**. Un document non lu reste signalé dans l'espace du salarié
 - **Formation** : catalogue, sessions datées avec places limitées, demande par le salarié puis confirmation RH. Une session pleine refuse toute inscription de plus, et une inscription confirmée apparaît dans l'agenda
@@ -91,6 +107,19 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **CVthèque** : recherche plein texte dans tous les CV reçus, tous postes confondus, classée par nombre de termes trouvés
 - **Le score aide à trier, il ne décide de rien** : un dossier écarté par le filtre reste consultable et son CV téléchargeable. Aucune candidature n'est refusée automatiquement
 - Les CV sont des **données personnelles** : ils sont stockés hors du dépôt, en `0600`, jamais servis en statique — seule une route authentifiée réservée aux RH les délivre — et leur suppression efface le fichier *et* le texte extrait
+
+### Arrivées, départs et compétences
+- **Modèles de parcours** dont chaque point porte un écart au jour pivot (« J−2 : préparer le poste »), appliqués à une personne pour donner une liste datée
+- Cocher le dernier point clôt le parcours ; en décocher un le rouvre. Supprimer un modèle laisse en place les parcours lancés
+- **Matrice des compétences** : niveau, date d'obtention, échéance déduite de la durée de validité déclarée
+- Une habilitation **obligatoire** absente ou périmée remonte jusqu'à régularisation
+
+### Santé et sécurité au travail
+- **Document unique** : unités de travail, dangers, cotation gravité × probabilité, mesures de prévention, dates de revue. Au-delà du seuil, le risque appelle une action
+- **Registre des accidents** avec taux de fréquence et de gravité calculés sur douze mois
+- **Équipements de protection** : catalogue, remises, péremptions et restitutions
+- **Visites médicales** et leurs échéances — seul l'avis d'aptitude est consigné, aucune donnée de santé
+- Registre interne : il ne remplace ni la déclaration à la caisse d'assurance maladie, ni l'avis du médecin du travail
 
 ### Organisation : services, équipes et encadrement
 - **Services** et **équipes** sont des entités à part entière, créées et modifiées depuis la console d'administration ; une équipe appartient à un service
@@ -221,7 +250,18 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-274 tests d'intégration couvrent la sécurité (session révoquée dès la désactivation,
+342 tests d'intégration couvrent les projets (échéance antérieure au début refusée,
+date de fin de tâche posée puis effacée, saisie de temps bornée, imputation croisée
+entre projets refusée, cloisonnement à l'équipe, suppression en cascade), le support
+(délai déduit de la priorité et recalculé depuis l'ouverture, note interne cloisonnée
+et non comptée comme réponse, portée des articles), les parcours et compétences
+(échéances relatives au jour pivot, clôture et réouverture, expiration déduite de la
+durée de validité, obligatoire manquante), la santé-sécurité (criticité, refus d'un
+accident daté dans le futur, taux de fréquence et de gravité, péremption des
+protections), la trésorerie (solde recalculé, rapprochement au sens contraire refusé,
+projection et point bas), les immobilisations (linéaire, bascule du dégressif, bornes)
+et la flotte (doublon d'immatriculation, compteur qui ne recule pas, échéance
+dépassée), la sécurité (session révoquée dès la désactivation,
 la fin de contrat, le verrouillage ou la rétrogradation ; redirection hors site refusée ;
 politique de mot de passe ; mot de passe temporaire à remplacer avant toute autre page ;
 TOTP vérifié contre les vecteurs de la RFC 6238 ; code de secours à usage unique ;
@@ -260,7 +300,7 @@ hiérarchiques et les actualités. Ils tournent sur une base SQLite temporaire i
 
 ## Modules débloquables
 
-Cinq modules sont livrés **éteints par défaut**. L'administration les débloque un à un
+Sept modules sont livrés **éteints par défaut**. L'administration les débloque un à un
 depuis la console (`/admin`, section Modules) : l'activation ouvre l'espace, ses routes
 et son entrée de navigation ; la désactivation les referme **sans rien effacer**. Tant
 qu'un module est éteint, ses URL répondent 404.
@@ -274,6 +314,8 @@ l'écran, pas enfouie dans une documentation.
 | **Moteur de paie** | `/paie` | Barèmes paramétrables, calcul du brut au net, part patronale, coût employeur, bulletin détaillé, génération en lot, simulateur. | Les taux sont ceux que vous saisissez ; aucune DSN. |
 | **Facturation électronique** | `/facturation-electronique` | Contrôle des mentions EN 16931 et export du XML CII (UN/CEFACT) de chaque facture client. | L'encapsulation PDF/A-3 (Factur-X) et le dépôt sur plateforme agréée restent à faire. |
 | **Stock et achats** | `/stock` | Articles, mouvements, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà de 500 €. | Stock mono-dépôt au dernier prix connu ; ni FIFO, ni CUMP. |
+| **Trésorerie** | `/tresorerie` | Comptes bancaires, mouvements, rapprochement des encaissements avec les factures, projection à douze semaines avec son point bas. | Saisie manuelle : aucune connexion bancaire (DSP2). Le solde est celui que vous avez saisi. |
+| **Immobilisations** | `/immobilisations` | Registre, amortissement linéaire et dégressif avec bascule calculée, valeur nette comptable, dotation de l'exercice. | Outil de suivi : rattachement comptable, composants et dérogatoires restent à l'expert-comptable. |
 | **CRM commercial** | `/crm` | Contacts, pipeline pondéré, devis convertibles en facture, relances à échéance. | Pas de synchronisation avec une messagerie ni d'automatisation marketing. |
 
 ### Ce que ces modules garantissent
@@ -341,6 +383,12 @@ src/
   finance.js         tiers, contrats et préavis, factures, budgets, notes de frais
   resources.js       parc matériel, affectations, salles et réservations
   talent.js          documents, formation, entretiens, recrutement
+  projects.js        projets, jalons, tâches, temps passé et rentabilité
+  support.js         tickets, délais de réponse et base de connaissances
+  people.js          parcours d'arrivée et de départ, compétences et habilitations
+  safety.js          document unique, registre des accidents, protections, visites
+  treasury.js        comptes bancaires, rapprochement, prévisionnel, amortissements
+  fleet.js           véhicules, échéances et historique d'entretien
   cv.js              réception des CV en mémoire, écriture hors dépôt, extraction PDF/DOCX/texte
   ats.js             critères pondérés, score, seuil, classement des candidatures, CVthèque
   modules.js         modules optionnels : activation, barrière de route, limites

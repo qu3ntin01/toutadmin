@@ -12,10 +12,11 @@ const gestionSections = [
 ];
 // Les modules optionnels débloqués, réservés à la gestion, rejoignent le pied de barre.
 const gestionModules = enabledModules
-  .filter((m) => ['comptabilite', 'facturation-electronique', 'crm', 'stock'].includes(m.key))
+  .filter((m) => ['comptabilite', 'tresorerie', 'immobilisations', 'facturation-electronique', 'crm', 'stock'].includes(m.key))
   .map((m) => ({ href: m.href, label: m.label, icon: m.icon }));
 
 const gestionFootLinks = [
+  { href: '/flotte', label: 'Flotte de véhicules', icon: 'network' },
   ...gestionModules,
   currentUser.role === 'admin'
     ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>">
+<head>
+  <%- include('partials/head', { title: 'Trésorerie — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Trésorerie',
+      navItems: [
+        { tab: 'comptes', label: 'Comptes', icon: 'card' },
+        { tab: 'mouvements', label: 'Mouvements', icon: 'inbox' },
+        { tab: 'rapprochement', label: 'Rapprochement', icon: 'link', badge: pending.length },
+        { tab: 'previsions', label: 'Prévisionnel', icon: 'calendar' }
+      ],
+      footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Trésorerie',
+        headerSubtitle: "Ce qu'il y a en banque, ce qui entre, ce qui sort"
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value <%= total < 0 ? 'text-danger' : '' %>"><%= money(total) %></span><span class="stat-label">Solde consolidé</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value <%= projection.end < 0 ? 'text-danger' : '' %>"><%= money(projection.end) %></span><span class="stat-label">Projeté à 12 semaines</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value <%= projection.lowest.balance < 0 ? 'text-danger' : '' %>"><%= money(projection.lowest.balance) %></span>
+              <span class="stat-label">Point bas <%= projection.lowest.on_date ? 'le ' + day(projection.lowest.on_date) : "aujourd'hui" %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'link', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= pending.length %></span><span class="stat-label">Mouvements non rapprochés</span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Comptes ---------- -->
+        <section class="tab-panel is-active" id="comptes">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Ajouter un compte</h3></div>
+              <form method="POST" action="/tresorerie/comptes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Compte courant" /></label>
+                <label><span>Banque</span><input type="text" name="bank" maxlength="80" /></label>
+                <label><span>4 derniers chiffres</span><input type="text" name="iban_last4" maxlength="4" inputmode="numeric" /></label>
+                <label class="span-2"><span>Solde initial (€)</span><input type="text" name="opening_balance" inputmode="decimal" placeholder="0" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+              </form>
+              <p class="hint">Seuls les quatre derniers chiffres de l'IBAN sont conservés : le reste n'a rien à faire ici.</p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= accountList.length %> compte(s)</h3></div>
+              <ul class="org-list">
+                <% accountList.forEach((a) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= a.label %></span>
+                      <br /><span class="cell-sub"><%= a.bank || '—' %><%= a.iban_last4 ? ' ····' + a.iban_last4 : '' %></span>
+                    </span>
+                    <span>
+                      <span class="cell-strong <%= a.balance < 0 ? 'text-danger' : '' %>"><%= money(a.balance) %></span>
+                      <span class="row-actions">
+                        <form method="POST" action="/tresorerie/comptes/<%= a.id %>/cloturer" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-outline btn-sm">Clôturer</button>
+                        </form>
+                        <form method="POST" action="/tresorerie/comptes/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce compte et tous ses mouvements ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                      </span>
+                    </span>
+                  </li>
+                <% }) %>
+                <% if (accountList.length === 0) { %><li class="cell-sub">Aucun compte.</li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Mouvements ---------- -->
+        <section class="tab-panel" id="mouvements">
+          <div class="card">
+            <div class="card-head"><h3>Saisir un mouvement</h3></div>
+            <form method="POST" action="/tresorerie/mouvements" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span>Compte</span>
+                <select name="account_id" required>
+                  <% accountList.forEach((a) => { %><option value="<%= a.id %>"><%= a.label %></option><% }) %>
+                </select>
+              </label>
+              <label><span>Date de valeur</span><input type="date" name="value_date" value="<%= today %>" required /></label>
+              <label class="span-2"><span>Libellé</span><input type="text" name="label" required maxlength="160" /></label>
+              <label><span>Montant (€)</span><input type="text" name="amount" inputmode="decimal" required placeholder="-1250,00" /></label>
+              <label><span>Catégorie</span><input type="text" name="category" maxlength="60" placeholder="Loyer, salaires, client…" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+            </form>
+            <p class="hint">Un montant négatif est une sortie. Le signe porte le sens, il n'y a pas de case à cocher.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Derniers mouvements</h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Compte</th><th>Libellé</th><th>Catégorie</th><th>Montant</th><th>Rapproché</th><th></th></tr></thead>
+                <tbody>
+                  <% movements.forEach((m) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= day(m.value_date) %></td>
+                      <td class="cell-sub"><%= m.account_label %></td>
+                      <td class="cell-strong"><%= m.label %></td>
+                      <td class="cell-sub"><%= m.category || '—' %></td>
+                      <td class="cell-strong <%= m.amount < 0 ? 'text-danger' : '' %>"><%= money(m.amount) %></td>
+                      <td class="cell-sub"><%= m.invoice_reference || (m.claim_id ? 'note de frais' : '—') %></td>
+                      <td>
+                        <form method="POST" action="/tresorerie/mouvements/<%= m.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce mouvement ?">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (movements.length === 0) { %><tr><td colspan="7" class="cell-sub">Aucun mouvement.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Rapprochement ---------- -->
+        <section class="tab-panel" id="rapprochement">
+          <div class="card">
+            <div class="card-head"><h3><%= pending.length %> mouvement(s) à rapprocher</h3></div>
+            <p class="hint">Une facture comptabilisée n'est pas une facture encaissée : le rapprochement fait la différence, et passe la facture en payée.</p>
+            <ul class="org-list">
+              <% pending.forEach((m) => { %>
+                <li class="org-item">
+                  <span>
+                    <span class="cell-strong"><%= m.label %></span>
+                    <br /><span class="cell-sub"><%= day(m.value_date) %> · <%= m.account_label %> · <%= money(m.amount) %></span>
+                  </span>
+                  <form method="POST" action="/tresorerie/mouvements/<%= m.id %>/rapprocher" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <select name="invoice_id" class="input-sm" required>
+                      <option value="">— facture</option>
+                      <% openInvoices.forEach((i) => { %>
+                        <option value="<%= i.id %>"><%= i.reference || i.label %> · <%= i.direction %> · <%= money(i.amount_ht * (1 + i.vat_rate / 100)) %></option>
+                      <% }) %>
+                    </select>
+                    <button type="submit" class="btn btn-outline btn-sm">Rapprocher</button>
+                  </form>
+                </li>
+              <% }) %>
+              <% if (pending.length === 0) { %><li class="cell-sub">Tout est rapproché.</li><% } %>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ---------- Prévisionnel ---------- -->
+        <section class="tab-panel" id="previsions">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3>Ajouter une échéance</h3></div>
+              <form method="POST" action="/tresorerie/previsions" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span>Libellé</span><input type="text" name="label" required maxlength="160" placeholder="Acompte marché public" /></label>
+                <label><span>Attendue le</span><input type="date" name="expected_on" required /></label>
+                <label><span>Montant (€)</span><input type="text" name="amount" inputmode="decimal" required /></label>
+                <label class="span-2"><span>Degré de certitude</span>
+                  <select name="certainty"><% certainties.forEach((c) => { %><option value="<%= c %>" <%= c === 'Probable' ? 'selected' : '' %>><%= c %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span>Note</span><input type="text" name="note" maxlength="300" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3>Échéances saisies</h3></div>
+              <ul class="org-list">
+                <% forecastList.forEach((f) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= f.label %></span>
+                      <span class="tag"><%= f.certainty %></span>
+                      <br /><span class="cell-sub"><%= day(f.expected_on) %> · <%= money(f.amount) %></span>
+                    </span>
+                    <form method="POST" action="/tresorerie/previsions/<%= f.id %>/supprimer" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (forecastList.length === 0) { %><li class="cell-sub">Aucune échéance saisie.</li><% } %>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3>Projection à douze semaines</h3></div>
+            <p class="hint">Solde de départ <%= money(projection.start) %>, puis chaque facture encore due et chaque échéance prévue, dans l'ordre.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Origine</th><th>Libellé</th><th>Montant</th><th>Solde projeté</th></tr></thead>
+                <tbody>
+                  <% projection.points.forEach((p) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= day(p.on_date) %></td>
+                      <td><span class="tag"><%= p.origin %></span></td>
+                      <td><%= p.label %></td>
+                      <td class="<%= p.amount < 0 ? 'text-danger' : '' %>"><%= money(p.amount) %></td>
+                      <td class="cell-strong <%= p.balance < 0 ? 'text-danger' : '' %>"><%= money(p.balance) %></td>
+                    </tr>
+                  <% }) %>
+                  <% if (projection.points.length === 0) { %><tr><td colspan="5" class="cell-sub">Rien de prévu sur la période.</td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

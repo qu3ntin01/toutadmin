@@ -40,6 +40,22 @@ const MODULES = [
     caveat: 'Stock mono-dépôt, valorisé au dernier prix unitaire connu. Ni inventaire tournant, ni valorisation FIFO ou CUMP.',
   },
   {
+    key: 'tresorerie',
+    label: 'Trésorerie',
+    href: '/tresorerie',
+    icon: 'card',
+    description: "Comptes bancaires, mouvements, rapprochement des encaissements avec les factures, et projection de trésorerie à douze semaines.",
+    caveat: "Saisie et import manuels : aucune connexion bancaire (DSP2) n'est établie. Le solde est celui que vous avez saisi, pas celui de la banque.",
+  },
+  {
+    key: 'immobilisations',
+    label: 'Immobilisations',
+    href: '/immobilisations',
+    icon: 'briefcase',
+    description: "Registre des immobilisations, tableaux d'amortissement linéaire et dégressif, valeur nette comptable et dotation de l'exercice.",
+    caveat: "Les tableaux sont un outil de suivi : le rattachement comptable, les composants et les dérogatoires restent l'affaire de votre expert-comptable.",
+  },
+  {
     key: 'crm',
     label: 'CRM commercial',
     href: '/crm',
