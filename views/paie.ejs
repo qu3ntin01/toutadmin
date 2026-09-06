@@ -139,7 +139,7 @@
                     <li class="meeting-item">
                       <div class="meeting-head">
                         <span class="meeting-title"><%= p.first_name %> <%= p.last_name %> — <%= p.period %></span>
-                        <span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= p.status %></span>
+                        <span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= st(p.status) %></span>
                       </div>
                       <p class="cell-sub">
                         Brut <%= money(p.gross_amount) %> · Net <%= money(p.net_amount) %>

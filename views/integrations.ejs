@@ -203,7 +203,7 @@
                         <td class="cell-strong mono"><%= d.event %></td>
                         <td class="cell-sub"><%= d.label %></td>
                         <td>
-                          <span class="tag <%= d.status === 'Livré' ? 'tag-success' : (d.status === 'En attente' ? 'tag-warning' : 'tag-danger') %>"><%= d.status %></span>
+                          <span class="tag <%= d.status === 'Livré' ? 'tag-success' : (d.status === 'En attente' ? 'tag-warning' : 'tag-danger') %>"><%= st(d.status) %></span>
                         </td>
                         <td><%= d.attempts %></td>
                         <td class="cell-sub nowrap"><%= moment(d.created_at) %></td>

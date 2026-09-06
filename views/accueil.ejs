@@ -182,7 +182,7 @@
                           <td class="cell-strong"><%= m.subject || '—' %></td>
                           <td class="cell-sub mono"><%= m.tracking || '—' %></td>
                           <td>
-                            <span class="tag <%= m.status === 'À remettre' ? 'tag-warning' : 'tag-success' %>"><%= m.status %></span>
+                            <span class="tag <%= m.status === 'À remettre' ? 'tag-warning' : 'tag-success' %>"><%= st(m.status) %></span>
                             <% if (m.handed_on) { %><br /><span class="cell-sub"><%= day(m.handed_on) %></span><% } %>
                           </td>
                           <td>

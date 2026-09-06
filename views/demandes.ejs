@@ -35,7 +35,7 @@
                 <li class="meeting-item">
                   <div class="meeting-head">
                     <span class="meeting-title"><a href="/demandes/<%= r.id %>"><%= r.form ? r.form.label : 'Demande' %></a></span>
-                    <span class="tag <%= stateTag(r.status) %>"><%= r.status %></span>
+                    <span class="tag <%= stateTag(r.status) %>"><%= st(r.status) %></span>
                   </div>
                   <p class="cell-sub">
                     <%= r.requesterName %> · déposée le <%= day(r.created_at) %>

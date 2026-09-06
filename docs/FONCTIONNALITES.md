@@ -17,6 +17,8 @@ qui relie le tout.
 | Authentification durcie, double authentification, journal d'audit, console de sécurité | ✅ |
 | Modules débloquables par l'administration | ✅ |
 | Interface en 16 langues, trois palettes au choix de l'administration, mode clair/sombre/système par personne, responsive | ✅ |
+| **Statuts traduits** dans les 16 langues, mise en page retournée en arabe | ✅ |
+| Traduction de l'intégralité des écrans métier | ⬜ |
 | Assistant d'installation | ✅ |
 | **Échéances et alertes** — un seul moteur pour tout ce qui arrive à terme | ✅ |
 | **Centre de notifications** par personne, avec accusé de lecture | ✅ |
@@ -105,6 +107,32 @@ qui relie le tout.
 | Journal d'audit horodaté, exportable | ✅ |
 | **RGPD : registre des traitements, export et effacement des données d'une personne** | ✅ |
 | Archivage à valeur probante | ⬜ |
+
+---
+
+## L'état des traductions
+
+Le dictionnaire compte 415 clés déclinées dans les 16 langues. Sa cohérence est
+tenue par les tests : parité des clés, paramètres `{nom}` identiques d'une langue
+à l'autre, aucune valeur vide, et vérification que le russe, l'arabe, le hindi,
+le chinois, le japonais et le coréen sont bien écrits dans leur écriture — une
+traduction oubliée se repère à ce qu'elle reste en caractères latins.
+
+Ce qui est traduit de bout en bout : l'écran de connexion, l'assistant
+d'installation, l'espace collaborateur, l'espace RH, la console d'administration,
+le chrome présent sur chaque page (en-tête, compte, déconnexion, sélecteur de
+thème, navigation latérale des quatre espaces) et **tous les statuts** affichés
+dans le produit.
+
+Ce qui ne l'est pas encore : le corps des écrans ajoutés lors des derniers lots
+— direction, planning, qualité, accueil, parapheur, pièces reçues, trésorerie,
+immobilisations, flotte, CRM, projets, sauvegardes, interfaces. Cela représente
+**1 745 chaînes visibles réparties sur 64 des 76 vues**. Elles s'affichent en
+français quelle que soit la langue choisie ; rien n'est cassé, mais un acheteur
+allemand ou japonais verra ces pages dans une langue qui n'est pas la sienne.
+C'est un travail de traduction volumineux, à mener écran par écran plutôt qu'en
+une passe automatique : une traduction approximative dans un produit vendu coûte
+plus cher que son absence.
 
 ---
 

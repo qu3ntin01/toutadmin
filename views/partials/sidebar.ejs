@@ -13,7 +13,7 @@
     </span>
   </div>
 
-  <nav class="sidebar-nav" id="tabs" aria-label="Sections">
+  <nav class="sidebar-nav" id="tabs" aria-label="<%= t('nav.sections') %>">
     <% navItems.forEach((item, index) => { %>
       <% if (item.href) { %>
         <a href="<%= item.href %>" class="side-link<%= item.active ? ' is-active' : '' %>" title="<%= item.label %>"<%= item.active ? ' aria-current="page"' : '' %>>

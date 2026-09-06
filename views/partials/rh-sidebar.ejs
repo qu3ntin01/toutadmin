@@ -33,10 +33,10 @@ const rhAsLinks = typeof asLinks !== 'undefined' && asLinks;
 const rhActive = typeof active !== 'undefined' ? active : null;
 // L'administrateur n'a pas d'espace membre : il retourne à sa console.
 const rhFootLinks = [
-  { href: '/parapheur', label: 'Parapheur', icon: 'check' },
-  { href: '/coffre-fort/gestion', label: 'Coffre-fort', icon: 'shield' },
-  { href: '/parcours', label: 'Parcours et compétences', icon: 'users' },
-  { href: '/sante-securite', label: 'Santé-sécurité', icon: 'shield' },
+  { href: '/parapheur', label: t('nav.signing'), icon: 'check' },
+  { href: '/coffre-fort/gestion', label: t('nav.vault'), icon: 'shield' },
+  { href: '/parcours', label: t('nav.careerPaths'), icon: 'users' },
+  { href: '/sante-securite', label: t('nav.healthSafety'), icon: 'shield' },
 ];
 rhFootLinks.push(currentUser.role === 'admin'
   ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }
@@ -47,7 +47,7 @@ const payrollModule = enabledModules.find((m) => m.key === 'paie');
 if (payrollModule) rhFootLinks.unshift({ href: payrollModule.href, label: payrollModule.label, icon: payrollModule.icon });
 %>
 <%- include('sidebar', {
-  panelLabel: 'Ressources humaines',
+  panelLabel: t('nav.hr'),
   navItems: rhAsLinks
     ? rhSections.map((s) => ({ href: '/rh#' + s.tab, label: s.label, icon: s.icon, badge: s.badge, active: s.tab === rhActive }))
     : rhSections,

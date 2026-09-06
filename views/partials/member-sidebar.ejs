@@ -3,38 +3,38 @@
    Attend : active ('espace'|'annuaire'|'messagerie'|'equipe'|'profil') */
 const memberLinks = [
   { key: 'espace', href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' },
-  { key: 'recherche', href: '/recherche', label: 'Recherche', icon: 'link' },
+  { key: 'recherche', href: '/recherche', label: t('nav.search'), icon: 'link' },
   { key: 'annuaire', href: '/annuaire', label: t('nav.directory'), icon: 'users' },
-  { key: 'organigramme', href: '/organigramme', label: 'Organigramme', icon: 'network' },
+  { key: 'organigramme', href: '/organigramme', label: t('nav.orgChart'), icon: 'network' },
   { key: 'messagerie', href: '/messagerie', label: t('nav.messages'), icon: 'inbox', badge: unreadMessages },
-  { key: 'notifications', href: '/notifications', label: 'Notifications', icon: 'megaphone', badge: unreadNotifications },
+  { key: 'notifications', href: '/notifications', label: t('nav.notifications'), icon: 'megaphone', badge: unreadNotifications },
   { key: 'agenda', href: '/agenda', label: t('nav.agenda'), icon: 'calendar' },
-  { key: 'planning', href: '/planning', label: 'Planning', icon: 'clock' },
+  { key: 'planning', href: '/planning', label: t('nav.planning'), icon: 'clock' },
   { key: 'salles', href: '/salles', label: t('nav.rooms'), icon: 'network' },
-  { key: 'projets', href: '/projets', label: 'Projets', icon: 'briefcase' },
-  { key: 'support', href: '/support', label: 'Support', icon: 'lifebuoy' },
-  { key: 'connaissances', href: '/base-de-connaissances', label: 'Connaissances', icon: 'inbox' },
+  { key: 'projets', href: '/projets', label: t('nav.projects'), icon: 'briefcase' },
+  { key: 'support', href: '/support', label: t('nav.support'), icon: 'lifebuoy' },
+  { key: 'connaissances', href: '/base-de-connaissances', label: t('nav.knowledge'), icon: 'inbox' },
 ];
 // Un sondage à remplir se signale : passé la clôture, il ne sert plus à rien.
-memberLinks.push({ key: 'demandes', href: '/demandes', label: 'Demandes', icon: 'ballot', badge: pendingApprovals });
-if (pendingSurveys) memberLinks.push({ key: 'sondages', href: '/sondages', label: 'Sondages', icon: 'ballot', badge: pendingSurveys });
+memberLinks.push({ key: 'demandes', href: '/demandes', label: t('nav.requests'), icon: 'ballot', badge: pendingApprovals });
+if (pendingSurveys) memberLinks.push({ key: 'sondages', href: '/sondages', label: t('nav.surveys'), icon: 'ballot', badge: pendingSurveys });
 // Le parapheur n'apparaît que s'il attend quelque chose de vous, ou si vous
 // pouvez y déposer des documents.
 if (pendingSignatures || isHr || currentUser.role === 'admin') {
-  memberLinks.push({ key: 'parapheur', href: '/parapheur', label: 'Parapheur', icon: 'check', badge: pendingSignatures });
+  memberLinks.push({ key: 'parapheur', href: '/parapheur', label: t('nav.signing'), icon: 'check', badge: pendingSignatures });
 }
 // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
 if (isCseMember) memberLinks.push({ key: 'cse', href: '/cse', label: t('nav.cse'), icon: 'lifebuoy' });
 if (isManager) {
   memberLinks.push({ key: 'equipe', href: '/mon-equipe', label: t('nav.team'), icon: 'shield' });
-  memberLinks.push({ key: 'qualite', href: '/qualite', label: 'Qualité', icon: 'check' });
+  memberLinks.push({ key: 'qualite', href: '/qualite', label: t('nav.quality'), icon: 'check' });
 }
 // Le stock ouvre aux salariés la demande d'achat : elle passe par leur manager.
 if (enabledModules.some((m) => m.key === 'stock')) {
-  memberLinks.push({ key: 'stock', href: '/stock', label: 'Stock et achats', icon: 'network' });
+  memberLinks.push({ key: 'stock', href: '/stock', label: t('nav.stock'), icon: 'network' });
 }
 // Le coffre n'apparaît que s'il contient quelque chose : une entrée vide n'apprend rien.
-if (hasVault) memberLinks.push({ key: 'coffre', href: '/coffre-fort', label: 'Coffre-fort', icon: 'shield' });
+if (hasVault) memberLinks.push({ key: 'coffre', href: '/coffre-fort', label: t('nav.vault'), icon: 'shield' });
 memberLinks.push({ key: 'profil', href: '/mon-profil', label: t('nav.profile'), icon: 'user' });
 
 // Les espaces d'encadrement restent au pied de la barre, séparés du parcours du membre.
@@ -45,8 +45,8 @@ if (isFinance || currentUser.role === 'admin') {
 if (isCseElected) memberFootLinks.push({ href: '/cse/gestion', label: t('nav.cseManage'), icon: 'lifebuoy' });
 if (isHr || currentUser.role === 'admin') {
   memberFootLinks.push({ href: '/rh', label: t('nav.hrSpace'), icon: 'shield' });
-  memberFootLinks.push({ href: '/accueil', label: 'Accueil et courrier', icon: 'inbox' });
-  memberFootLinks.push({ href: '/coffre-fort/gestion', label: 'Coffre-fort (gestion)', icon: 'shield' });
+  memberFootLinks.push({ href: '/accueil', label: t('nav.frontDeskMail'), icon: 'inbox' });
+  memberFootLinks.push({ href: '/coffre-fort/gestion', label: t('nav.vaultManage'), icon: 'shield' });
 }
 if (currentUser.role === 'admin') {
   memberFootLinks.push({ href: '/admin', label: t('nav.adminConsole'), icon: 'settings' });

@@ -92,7 +92,7 @@
                         <td><%= m.attendee_count %></td>
                         <td><%= m.decision_count %></td>
                         <td><% if (m.open_actions) { %><span class="tag tag-warning"><%= m.open_actions %> ouverte(s)</span><% } else { %><span class="cell-sub">—</span><% } %></td>
-                        <td><span class="tag <%= m.status === 'Tenue' ? 'tag-success' : (m.status === 'Annulée' ? 'tag-danger' : '') %>"><%= m.status %></span></td>
+                        <td><span class="tag <%= m.status === 'Tenue' ? 'tag-success' : (m.status === 'Annulée' ? 'tag-danger' : '') %>"><%= st(m.status) %></span></td>
                         <td>
                           <form method="POST" action="/direction/reunions/<%= m.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette réunion ? Les décisions prises restent au registre.">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -149,7 +149,7 @@
                   <li class="meeting-item">
                     <div class="meeting-head">
                       <span class="meeting-title"><%= d.title %></span>
-                      <span class="tag <%= d.status === 'En vigueur' ? 'tag-success' : (d.status === 'Abandonnée' ? 'tag-danger' : 'tag-warning') %>"><%= d.status %></span>
+                      <span class="tag <%= d.status === 'En vigueur' ? 'tag-success' : (d.status === 'Abandonnée' ? 'tag-danger' : 'tag-warning') %>"><%= st(d.status) %></span>
                     </div>
                     <p class="cell-sub">
                       <%= day(d.decided_on) %> · <%= d.scope %> · <%= who(d) %>
@@ -326,7 +326,7 @@
                         <td class="cell-sub"><%= r.treatment %></td>
                         <td class="cell-sub"><%= who(r) %></td>
                         <td class="cell-sub nowrap"><%= day(r.next_review) %></td>
-                        <td><span class="tag <%= r.status === 'Ouvert' ? 'tag-warning' : 'tag-success' %>"><%= r.status %></span></td>
+                        <td><span class="tag <%= r.status === 'Ouvert' ? 'tag-warning' : 'tag-success' %>"><%= st(r.status) %></span></td>
                         <td>
                           <form method="POST" action="/direction/risques/<%= r.id %>/supprimer" class="inline-form" data-confirm="Retirer ce risque du registre ?">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -401,7 +401,7 @@
                   <li class="meeting-item">
                     <div class="meeting-head">
                       <span class="meeting-title"><%= s.title %></span>
-                      <span class="tag <%= s.status === 'Ouvert' ? 'tag-success' : (s.status === 'Clos' ? '' : 'tag-warning') %>"><%= s.status %></span>
+                      <span class="tag <%= s.status === 'Ouvert' ? 'tag-success' : (s.status === 'Clos' ? '' : 'tag-warning') %>"><%= st(s.status) %></span>
                     </div>
                     <p class="cell-sub">
                       <%= s.kind %> · <%= s.audience %><%= s.closes_on ? ` · clôture le ${day(s.closes_on)}` : '' %>

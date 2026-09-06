@@ -86,7 +86,7 @@
                       </td>
                       <td class="cell-sub"><%= tk.requester_first_name ? tk.requester_first_name + ' ' + tk.requester_last_name : '—' %></td>
                       <td><span class="tag <%= priorityTag(tk.priority) %>"><%= tk.priority %></span></td>
-                      <td><span class="tag <%= tk.status === 'Ouvert' ? 'tag-accent' : '' %>"><%= tk.status %></span></td>
+                      <td><span class="tag <%= tk.status === 'Ouvert' ? 'tag-accent' : '' %>"><%= st(tk.status) %></span></td>
                       <td class="cell-sub"><%= tk.assignee_first_name ? tk.assignee_first_name + ' ' + tk.assignee_last_name : '—' %></td>
                       <td class="<%= tk.overdue ? 'text-danger' : 'cell-sub' %> nowrap">
                         <%= tk.first_reply_at ? 'répondu' : moment(tk.due_at) %>
@@ -157,7 +157,7 @@
                       <td class="cell-sub"><a href="/support/tickets/<%= tk.id %>"><%= tk.reference %></a></td>
                       <td class="cell-strong"><%= tk.subject %></td>
                       <td><span class="tag <%= priorityTag(tk.priority) %>"><%= tk.priority %></span></td>
-                      <td><span class="tag"><%= tk.status %></span></td>
+                      <td><span class="tag"><%= st(tk.status) %></span></td>
                     </tr>
                   <% }) %>
                   <% if ((isAgent ? assigned : mine).length === 0) { %><tr><td colspan="4" class="cell-sub">Rien pour l'instant.</td></tr><% } %>

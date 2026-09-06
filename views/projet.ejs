@@ -81,7 +81,7 @@
           <div class="board">
             <% board.forEach((column) => { %>
               <div class="board-column">
-                <h4 class="board-title"><%= column.status %> <span class="tag"><%= column.items.length %></span></h4>
+                <h4 class="board-title"><%= st(column.status) %> <span class="tag"><%= column.items.length %></span></h4>
                 <% column.items.forEach((task) => { %>
                   <article class="board-card">
                     <span class="cell-strong"><%= task.title %></span>

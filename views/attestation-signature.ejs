@@ -35,7 +35,7 @@
               <tr><td class="cell-sub">Support</td><td><%= request.file_name ? `${request.original_name} (${request.mime_type})` : 'Texte saisi dans le parapheur' %></td></tr>
               <tr><td class="cell-sub">Empreinte SHA-256</td><td class="mono"><%= request.sha256 %></td></tr>
               <tr><td class="cell-sub">Mis à la signature le</td><td><%= moment(request.created_at) %></td></tr>
-              <tr><td class="cell-sub">État</td><td><%= request.status %><%= request.completed_at ? ` le ${moment(request.completed_at)}` : '' %></td></tr>
+              <tr><td class="cell-sub">État</td><td><%= st(request.status) %><%= request.completed_at ? ` le ${moment(request.completed_at)}` : '' %></td></tr>
               <tr><td class="cell-sub">Attestation établie le</td><td><%= moment(generatedAt) %></td></tr>
             </tbody>
           </table>
@@ -53,7 +53,7 @@
                     <td class="cell-sub"><%= s.position %></td>
                     <td class="cell-strong"><%= s.first_name %> <%= s.last_name %><br /><span class="cell-sub"><%= s.email %></span></td>
                     <td class="cell-sub"><%= s.role_label || '—' %></td>
-                    <td><span class="tag <%= s.status === 'Signé' ? 'tag-success' : (s.status === 'Refusé' ? 'tag-danger' : 'tag-warning') %>"><%= s.status %></span></td>
+                    <td><span class="tag <%= s.status === 'Signé' ? 'tag-success' : (s.status === 'Refusé' ? 'tag-danger' : 'tag-warning') %>"><%= st(s.status) %></span></td>
                     <td class="cell-sub nowrap"><%= moment(s.signed_at) %></td>
                     <td class="cell-sub"><%= s.ip || '—' %></td>
                     <td class="cell-sub mono">

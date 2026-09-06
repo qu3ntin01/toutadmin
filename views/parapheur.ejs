@@ -37,7 +37,7 @@
                 <li class="meeting-item">
                   <div class="meeting-head">
                     <span class="meeting-title"><a href="/parapheur/<%= r.id %>"><%= r.title %></a></span>
-                    <span class="tag <%= stateTag(r.status) %>"><%= r.status %></span>
+                    <span class="tag <%= stateTag(r.status) %>"><%= st(r.status) %></span>
                   </div>
                   <p class="cell-sub">
                     <%= r.kind %> · ouvert le <%= day(r.created_at) %>
