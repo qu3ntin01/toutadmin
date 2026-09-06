@@ -19,6 +19,7 @@ const gestionModules = enabledModules
   .map((m) => ({ href: m.href, label: m.label, icon: m.icon }));
 
 const gestionFootLinks = [
+  { href: '/pieces', label: 'Pièces reçues', icon: 'inbox' },
   { href: '/flotte', label: 'Flotte de véhicules', icon: 'network' },
   { href: '/import', label: 'Import de données', icon: 'plus' },
   ...gestionModules,

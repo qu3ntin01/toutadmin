@@ -76,6 +76,27 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Parc matériel** : équipements avec numéro de série, garantie et valeur, affectés à un salarié et repris. Un équipement déjà affecté ne peut pas l'être deux fois, et l'historique des détenteurs est conservé
 - **Salles** : parc de salles et planning d'occupation. Tout salarié réserve depuis `/salles` ; un créneau qui chevauche une réservation existante est refusé en nommant qui l'occupe
 
+### Pièces reçues : lecture automatique des factures
+- **Corbeille du comptable** (`/pieces`) : les factures fournisseurs arrivent par dépôt manuel ou par relève de la boîte aux lettres, et attendent d'être validées au même endroit
+- **Lecture par règles, hors ligne** : émetteur, numéro, dates, HT, TVA, TTC, taux, devise, SIRET, numéro de TVA et IBAN. Les identifiants sont vérifiés par leur **clé de contrôle** — Luhn pour le SIRET, modulo 97 pour l'IBAN : un numéro mal recopié se voit sans interroger personne
+- **La cohérence prime sur la ressemblance** : HT + TVA doit faire TTC. Quand les trois montants s'accordent, la confiance monte ; quand ils se contredisent, elle tombe et l'écran le dit. Un montant manquant est reconstitué à partir des deux autres, et la note l'explique
+- **Le tiers est reconnu** par son identifiant s'il est déjà enregistré, à défaut par son nom — la facture arrive déjà rapprochée
+- **Rien n'entre en comptabilité sans un clic** : l'analyse pré-remplit le formulaire de facture, le comptable corrige et valide. Une lecture automatique qui écrit directement dans les comptes est une erreur qu'on découvre au bilan
+- **La pièce reste le justificatif** : fichier conservé tel quel, scellé par son empreinte SHA-256, revérifiée à chaque consultation ; une pièce qui a donné lieu à une facture ne se supprime plus. Le même fichier reçu deux fois ne fait qu'une ligne
+
+### Analyse assistée par un modèle (optionnelle, éteinte par défaut)
+- Un modèle de langage peut venir **par-dessus** les règles, pour les documents qu'elles lisent mal : mises en page inhabituelles, factures étrangères, émetteurs inconnus
+- **Deux familles de services** : l'API Claude d'Anthropic (par son SDK officiel, sortie contrainte par un schéma JSON) et tout service **compatible OpenAI** — Mistral, OVHcloud, Scaleway, ou un modèle hébergé sur votre propre réseau, auquel cas rien ne sort de l'entreprise
+- **C'est un choix explicite** : rien n'est envoyé tant qu'un administrateur n'a pas activé la fonction, et l'écran dit en toutes lettres ce qui part. La clé d'accès est chiffrée en base
+- **Le modèle ne décide de rien.** Ce que les règles savent vérifier leur reste acquis : un SIRET ou un IBAN validés par leur clé ne sont pas remplacés, et un triplet de montants cohérent l'emporte sur un triplet qui ne l'est pas — d'où qu'il vienne. Chaque champ affiche son origine, règles ou modèle
+- **Une panne du service ne casse rien** : la lecture par règles reste acquise, et l'écran signale que l'analyse assistée n'a pas répondu
+
+### Capture de la boîte aux lettres comptable
+- **Relève IMAP** d'une adresse dédiée (`factures@…`) : les pièces jointes PDF et DOCX des messages **non lus**, dans une fenêtre de jours bornée, entrent dans la corbeille du comptable
+- Automatique à chaque balayage horaire, ou à la demande depuis l'écran, avec un **test de connexion** qui ouvre le dossier et compte ce qui attend
+- **Aucun message n'est supprimé** : la boîte reste la source, le CMS n'en est qu'un lecteur. Le message est marqué lu — sinon un courriel sans pièce jointe reviendrait à chaque relève — et peut être rangé dans un dossier
+- Le mot de passe est **chiffré en base**, la connexion chiffrée par défaut, et un certificat auto-signé n'est accepté que si on le demande
+
 ### Devises, abonnements et TVA
 - **Multidevise** : chaque facture porte sa devise et **le taux figé le jour de son émission**. Le taux vit dans la pièce, pas dans la table des taux — mettre un taux à jour aujourd'hui ne réécrit pas le chiffre d'affaires de l'an dernier
 - Les totaux sont exprimés dans la **devise de tenue des comptes** (réglable par l'administration seule) : additionner des euros et des dollars ne veut rien dire. Comptabilité, trésorerie et pilotage convertissent au taux de la pièce
@@ -382,7 +403,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-665 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+710 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -451,7 +472,20 @@ qui ne ressort pas, motif d'absence retenu, pagination bornée, 404 en JSON) et
 les webhooks (adresse interne et http refusées par défaut, secret chiffré,
 signature qui ne vaut que pour ce corps exact, événement non écouté ignoré,
 réessais puis abandon, extinction après une série d'échecs, purge du journal),
-les circuits d'approbation (seuil qui raccourcit le circuit, étape sans
+la lecture des factures (nombres et dates dans toutes leurs conventions, clés de
+contrôle SIRET et IBAN, montant lu à côté de son étiquette malgré la colonne de
+blancs, pourcentage qui n'est pas un montant, cohérence qui fait la confiance,
+numéro de facture distingué d'une date, nos propres identifiants écartés de
+l'émetteur), la réception des pièces (doublon refusé, fichier déguisé refusé,
+scan sans texte reçu mais signalé, empreinte revérifiée, correction du comptable
+qui prime sur la lecture, pièce facturée ni refacturable ni supprimable),
+l'analyse assistée (rien envoyé sans activation, clé chiffrée et jamais
+réaffichée, schéma et texte envoyés puis réponse normalisée, refus et panne sans
+casse, arbitrage règles/modèle sur les identifiants vérifiés et les montants
+cohérents), la capture IMAP éprouvée contre un vrai serveur IMAP tenu en mémoire
+(pièces jointes retenues, messages marqués lus, seconde relève vide, doublon
+écarté, message rangé dans un dossier, rien supprimé, mot de passe faux rendu
+comme un échec), les circuits d'approbation (seuil qui raccourcit le circuit, étape sans
 validateur sautée, demandeur écarté de ses propres validations, avancée étape
 par étape, refus motivé, retrait impossible après examen, type fermé et non
 supprimable tant qu'une demande y court) et l'export intégral (tables et
@@ -561,6 +595,7 @@ d'administration sont en place pour l'accueillir.
 | `CV_DIR` | Dossier des CV déposés (défaut : `cv/` à côté de la base) |
 | `VAULT_DIR` | Dossier du coffre-fort (défaut : `coffre/` à côté de la base) |
 | `SIGN_DIR` | Dossier des documents mis à la signature (défaut : `parapheur/` à côté de la base) |
+| `DOCS_DIR` | Dossier des pièces comptables reçues (défaut : `pieces/` à côté de la base) |
 | `BACKUP_DIR` | Dossier des sauvegardes (défaut : `sauvegardes/` à côté de la base) — à recopier hors du serveur |
 
 ## Structure
@@ -613,6 +648,10 @@ src/
   webhooks.js        webhooks sortants : signature, file d'attente, réessais
   workflows.js       demandes internes : formulaires, seuils, circuits d'approbation
   export.js          export intégral en JSON, secrets exclus
+  invoice-scan.js    lecture d'une facture : montants, dates, identifiants, cohérence
+  intake.js          réception des pièces, arbitrage règles/modèle, empreinte
+  ai.js              analyse assistée optionnelle (Claude ou service compatible OpenAI)
+  mailbox.js         relève IMAP de la boîte aux lettres comptable
   tar.js             écriture et lecture d'archives tar, chemins contrôlés
   backup.js          sauvegarde complète, vérification d'intégrité, restauration
   secret-store.js    chiffrement AES-256-GCM des secrets rangés en base

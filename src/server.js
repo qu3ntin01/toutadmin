@@ -12,6 +12,7 @@ const settings = require('./settings');
 const backup = require('./backup');
 const billing = require('./billing');
 const webhooks = require('./webhooks');
+const mailbox = require('./mailbox');
 const offsite = require('./offsite');
 
 const PORT = process.env.PORT || 3000;
@@ -48,6 +49,17 @@ async function sweep() {
   } catch (err) {
     // Un balayage qui échoue ne doit pas emporter le serveur avec lui.
     console.error('Balayage périodique interrompu :', err.message);
+  }
+
+  // Relève de la boîte aux lettres comptable : les factures reçues par
+  // courriel arrivent dans la corbeille du comptable sans qu'on y pense.
+  try {
+    if (mailbox.config().enabled && mailbox.isReady()) {
+      const relevé = await mailbox.fetchOnce();
+      if (relevé.received || !relevé.ok) console.log(`Pièces reçues : ${relevé.message}`);
+    }
+  } catch (err) {
+    console.error('Relève de la boîte aux lettres interrompue :', err.message);
   }
 
   // Webhooks : la file est vidée ici, avec ses réessais. Un envoi qui échoue

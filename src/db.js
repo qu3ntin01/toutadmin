@@ -1644,6 +1644,40 @@ CREATE TABLE IF NOT EXISTS workflow_decisions (
   decided_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ---------- Pièces reçues : dépôt et capture de messagerie ----------
+
+-- Une facture reçue passe par ici avant d'entrer en comptabilité : le fichier
+-- est conservé tel quel, son analyse à côté, et le comptable tranche. Rien
+-- n'écrit dans les factures sans un clic.
+CREATE TABLE IF NOT EXISTS incoming_documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  source TEXT NOT NULL DEFAULT 'Dépôt' CHECK(source IN ('Dépôt','Courriel')),
+  file_name TEXT NOT NULL,
+  original_name TEXT NOT NULL DEFAULT '',
+  mime_type TEXT NOT NULL DEFAULT '',
+  byte_size INTEGER NOT NULL DEFAULT 0,
+  -- L'empreinte sert de garde-fou contre le doublon : la même pièce reçue
+  -- deux fois (déposée puis reçue par courriel) ne fait qu'une ligne.
+  sha256 TEXT NOT NULL,
+  received_at TEXT NOT NULL DEFAULT (datetime('now')),
+  mail_uid TEXT NOT NULL DEFAULT '',
+  mail_from TEXT NOT NULL DEFAULT '',
+  mail_subject TEXT NOT NULL DEFAULT '',
+  mail_date TEXT,
+  text_length INTEGER NOT NULL DEFAULT 0,
+  analysis TEXT NOT NULL DEFAULT '{}',
+  confidence INTEGER NOT NULL DEFAULT 0,
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  invoice_id INTEGER REFERENCES invoices(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'À traiter' CHECK(status IN ('À traiter','Facturée','Écartée')),
+  note TEXT NOT NULL DEFAULT '',
+  handled_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  handled_at TEXT,
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_incoming_documents_sha ON incoming_documents(sha256);
+CREATE INDEX IF NOT EXISTS idx_incoming_documents_status ON incoming_documents(status, received_at);
 CREATE INDEX IF NOT EXISTS idx_workflow_requests_state ON workflow_requests(status, form_id);
 CREATE INDEX IF NOT EXISTS idx_workflow_requests_requester ON workflow_requests(requester_id, status);
 CREATE INDEX IF NOT EXISTS idx_request_steps_form ON request_steps(form_id, position);
