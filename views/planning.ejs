@@ -46,13 +46,13 @@
             <% if (planner && teams.length) { %>
               <form method="GET" action="/planning" class="form-grid">
                 <input type="hidden" name="semaine" value="<%= start %>" />
-                <label><span>Équipe</span>
+                <label><span><%= t('common.team') %></span>
                   <select name="equipe">
                     <option value="">Toutes</option>
                     <% teams.forEach((tm) => { %><option value="<%= tm.id %>" <%= tm.id === teamId ? 'selected' : '' %>><%= tm.name %></option><% }) %>
                   </select>
                 </label>
-                <div><button type="submit" class="btn btn-outline btn-block">Filtrer</button></div>
+                <div><button type="submit" class="btn btn-outline btn-block"><%= t('common.filter') %></button></div>
               </form>
             <% } %>
 
@@ -63,9 +63,9 @@
                 <table class="planning-grid">
                   <thead>
                     <tr>
-                      <th>Personne</th>
+                      <th><%= t('common.person') %></th>
                       <% week.days.forEach((d) => { %><th class="matrix-head"><%= d.short %><br /><span class="cell-sub"><%= day(d.date) %></span></th><% }) %>
-                      <th class="matrix-head">Heures</th>
+                      <th class="matrix-head"><%= t('common.hours') %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -104,21 +104,21 @@
               <form method="POST" action="/planning/creneaux" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="week" value="<%= start %>" />
-                <label><span>Personne</span>
+                <label><span><%= t('common.person') %></span>
                   <select name="user_id" required>
                     <% people.forEach((p) => { %><option value="<%= p.id %>"><%= p.first_name %> <%= p.last_name %></option><% }) %>
                   </select>
                 </label>
-                <label><span>Nature</span>
+                <label><span><%= t('common.nature') %></span>
                   <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
-                <label><span>Jour</span><input type="date" name="day" value="<%= start %>" required /></label>
+                <label><span><%= t('common.day') %></span><input type="date" name="day" value="<%= start %>" required /></label>
                 <label><span>De</span><input type="time" name="start_time" value="09:00" required /></label>
                 <label><span>Jour de fin</span><input type="date" name="end_day" /></label>
                 <label><span>À</span><input type="time" name="end_time" value="17:00" required /></label>
-                <label><span>Libellé</span><input type="text" name="label" maxlength="160" placeholder="Ouverture magasin" /></label>
-                <label><span>Lieu</span><input type="text" name="location" maxlength="160" /></label>
-                <label><span>Équipe</span>
+                <label><span><%= t('common.label') %></span><input type="text" name="label" maxlength="160" placeholder="Ouverture magasin" /></label>
+                <label><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" /></label>
+                <label><span><%= t('common.team') %></span>
                   <select name="team_id">
                     <option value="">—</option>
                     <% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %>
@@ -156,7 +156,7 @@
                       <span class="person-name"><%= s.first_name %> <%= s.last_name %></span>
                       <span class="person-role">jusqu'au <%= day(s.ends_at.slice(0, 10)) %> à <%= hour(s.ends_at) %><%= s.phone ? ` · ${s.phone}` : '' %></span>
                     </span>
-                    <span class="tag tag-success">En cours</span>
+                    <span class="tag tag-success"><%= t('status.running') %></span>
                   </li>
                 <% }) %>
               </ul>
@@ -170,7 +170,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Personne</th><th>Début</th><th>Fin</th><th>Durée</th><th>État</th></tr></thead>
+                  <thead><tr><th><%= t('common.person') %></th><th><%= t('common.start') %></th><th><%= t('common.end') %></th><th><%= t('common.duration') %></th><th><%= t('common.state') %></th></tr></thead>
                   <tbody>
                     <% onCallList.forEach((s) => { %>
                       <tr>
@@ -196,20 +196,20 @@
               <form method="POST" action="/planning/roulements" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="week" value="<%= start %>" />
-                <label><span>Nom</span><input type="text" name="name" required maxlength="120" placeholder="Équipe du matin" /></label>
-                <label><span>Nature</span>
+                <label><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="120" placeholder="Équipe du matin" /></label>
+                <label><span><%= t('common.nature') %></span>
                   <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
                 <label><span>De</span><input type="time" name="start_time" value="06:00" required /></label>
                 <label><span>À</span><input type="time" name="end_time" value="14:00" required /></label>
-                <label class="span-2"><span>Jours</span>
+                <label class="span-2"><span><%= t('common.days') %></span>
                   <span class="filter-pills">
                     <% weekdays.forEach((d) => { %>
                       <label class="check-row"><input type="checkbox" name="weekdays" value="<%= d.value %>" <%= d.value <= 5 ? 'checked' : '' %> /><span><%= d.short %></span></label>
                     <% }) %>
                   </span>
                 </label>
-                <label class="span-2"><span>Lieu</span><input type="text" name="location" maxlength="160" /></label>
+                <label class="span-2"><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" /></label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer le roulement</button></div>
               </form>
               <p class="hint">Une heure de fin plus petite que l'heure de début décrit un poste de nuit : il se termine le lendemain.</p>
@@ -237,21 +237,21 @@
                       <form method="POST" action="/planning/roulements/<%= tp.id %>/appliquer" class="form-grid">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                         <input type="hidden" name="week" value="<%= start %>" />
-                        <label><span>Personne</span>
+                        <label><span><%= t('common.person') %></span>
                           <select name="user_id" required>
                             <% people.forEach((p) => { %><option value="<%= p.id %>"><%= p.first_name %> <%= p.last_name %></option><% }) %>
                           </select>
                         </label>
                         <label><span>Du</span><input type="date" name="from" value="<%= start %>" required /></label>
                         <label><span>Au</span><input type="date" name="to" value="<%= end %>" required /></label>
-                        <label class="check-row"><input type="checkbox" name="published" value="1" /><span>Publier</span></label>
-                        <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Appliquer</button></div>
+                        <label class="check-row"><input type="checkbox" name="published" value="1" /><span><%= t('common.publish') %></span></label>
+                        <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.apply') %></button></div>
                       </form>
                       <div class="row-actions">
                         <form method="POST" action="/planning/roulements/<%= tp.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce roulement ? Les créneaux déjà posés restent.">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <input type="hidden" name="week" value="<%= start %>" />
-                          <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </div>
                     <% } %>
@@ -269,7 +269,7 @@
             <% if (!planner) { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Jour</th><th>Créneau</th><th>Nature</th><th>Durée</th></tr></thead>
+                  <thead><tr><th><%= t('common.day') %></th><th>Créneau</th><th><%= t('common.nature') %></th><th><%= t('common.duration') %></th></tr></thead>
                   <tbody>
                     <% mine.forEach((s) => { %>
                       <tr>
@@ -288,7 +288,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Personne</th><th>Créneaux</th><th>Astreintes</th><th>Heures</th><th>Répartition</th></tr></thead>
+                  <thead><tr><th><%= t('common.person') %></th><th>Créneaux</th><th>Astreintes</th><th><%= t('common.hours') %></th><th>Répartition</th></tr></thead>
                   <tbody>
                     <% const maxHours = Math.max(...loadList.map((l) => l.hours), 1); %>
                     <% loadList.forEach((l) => { %>

@@ -162,6 +162,19 @@ test('aucune vue n\'affiche un statut brut', () => {
   assert.deepEqual(offenders, [], 'ces affichages doivent passer par st()');
 });
 
+test('aucune vue ne masque le helper de traduction', () => {
+  // Une boucle « tools.forEach((t) => … ) » masque t() : l'appel devient une
+  // tentative d'invoquer l'objet de la boucle, et la page casse à l'exécution.
+  const offenders = [];
+  for (const file of viewFiles()) {
+    const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    for (const m of src.matchAll(/\(\s*t\s*\)\s*=>|\bfor\s*\(\s*(?:const|let)\s+t\s+of\b|\b(?:const|let)\s+t\s*=[^=]/g)) {
+      offenders.push(`${file} : ${m[0].trim()}`);
+    }
+  }
+  assert.deepEqual(offenders, [], 'renommer la variable de boucle');
+});
+
 // ---------------------------------------------------------------- chrome partagé
 
 test('le chrome présent sur chaque page est entièrement traduit', () => {

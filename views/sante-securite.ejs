@@ -10,7 +10,7 @@
       navItems: [
         { tab: 'risques', label: 'Document unique', icon: 'shield' },
         { tab: 'accidents', label: 'Registre des accidents', icon: 'ticket' },
-        { tab: 'protections', label: 'Équipements', icon: 'tool' },
+        { tab: 'protections', label: t('erp.assets'), icon: 'tool' },
         { tab: 'visites', label: 'Visites médicales', icon: 'calendar' },
         { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: upcoming.visits.length + upcoming.ppe.length + upcoming.risks.length }
       ],
@@ -65,7 +65,7 @@
               <label class="span-2"><span>Mesures de prévention</span><textarea name="measures" rows="3" placeholder="Ce qui est déjà en place, et ce qui reste à faire."></textarea></label>
               <label><span>Évalué le</span><input type="date" name="reviewed_on" value="<%= today %>" /></label>
               <label><span>Prochaine revue</span><input type="date" name="next_review" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.record') %></button></div>
             </form>
             <p class="hint">La criticité est le produit gravité × probabilité. Au-delà de <%= actionThreshold %>, le risque appelle une action.</p>
           </div>
@@ -74,7 +74,7 @@
             <div class="card-head"><h3><%= riskList.length %> risque(s) évalué(s)</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Unité</th><th>Danger</th><th>G</th><th>P</th><th>Criticité</th><th>Mesures</th><th>Revue</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.unit') %></th><th>Danger</th><th>G</th><th>P</th><th>Criticité</th><th><%= t('common.measures') %></th><th><%= t('common.review') %></th><th></th></tr></thead>
                 <tbody>
                   <% riskList.forEach((r) => { %>
                     <tr>
@@ -88,7 +88,7 @@
                       <td>
                         <form method="POST" action="/sante-securite/risques/<%= r.id %>/supprimer" class="inline-form" data-confirm="Retirer ce risque du document unique ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                         </form>
                       </td>
                     </tr>
@@ -108,7 +108,7 @@
               <form method="POST" action="/sante-securite/accidents" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label><span>Survenu le</span><input type="date" name="occurred_on" max="<%= today %>" value="<%= today %>" required /></label>
-                <label><span>Nature</span>
+                <label><span><%= t('common.nature') %></span>
                   <select name="kind"><% incidentKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
                 <label class="span-2"><span>Personne concernée</span>
@@ -116,12 +116,12 @@
                     <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
                   </select>
                 </label>
-                <label class="span-2"><span>Lieu</span><input type="text" name="location" maxlength="160" /></label>
+                <label class="span-2"><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" /></label>
                 <label class="span-2"><span>Circonstances</span><textarea name="description" rows="3"></textarea></label>
                 <label><span>Jours d'arrêt</span><input type="number" name="days_off" min="0" max="3650" value="0" /></label>
                 <label><span>Déclaré le</span><input type="date" name="declared_on" /></label>
                 <label class="span-2"><span>Suites données</span><textarea name="follow_up" rows="2"></textarea></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.record') %></button></div>
               </form>
               <p class="hint">Ce registre est interne : il ne remplace pas la déclaration à la caisse d'assurance maladie.</p>
             </div>
@@ -130,7 +130,7 @@
               <div class="card-head"><h3>Indicateurs sur douze mois</h3></div>
               <table>
                 <tbody>
-                  <tr><td class="cell-sub">Effectif</td><td class="cell-strong"><%= indicators.headcount %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.headcount') %></td><td class="cell-strong"><%= indicators.headcount %></td></tr>
                   <tr><td class="cell-sub">Heures travaillées (estimées)</td><td><%= indicators.worked.toLocaleString(locale) %></td></tr>
                   <tr><td class="cell-sub">Accidents avec arrêt</td><td><%= indicators.accidents %></td></tr>
                   <tr><td class="cell-sub">Journées perdues</td><td><%= indicators.daysOff %></td></tr>
@@ -149,7 +149,7 @@
             <div class="card-head"><h3>Registre (<%= incidentList.length %>)</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Date</th><th>Nature</th><th>Personne</th><th>Lieu</th><th>Arrêt</th><th>Déclaré</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.date') %></th><th><%= t('common.nature') %></th><th><%= t('common.person') %></th><th><%= t('common.place') %></th><th>Arrêt</th><th>Déclaré</th><th></th></tr></thead>
                 <tbody>
                   <% incidentList.forEach((i) => { %>
                     <tr>
@@ -162,7 +162,7 @@
                       <td>
                         <form method="POST" action="/sante-securite/accidents/<%= i.id %>/supprimer" class="inline-form" data-confirm="Retirer cette entrée du registre ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                         </form>
                       </td>
                     </tr>
@@ -181,10 +181,10 @@
               <div class="card-head"><h3>Déclarer un équipement</h3></div>
               <form method="POST" action="/sante-securite/protections" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="120" placeholder="Casque de chantier" /></label>
-                <label><span>Catégorie</span><input type="text" name="category" value="Protection" maxlength="60" /></label>
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="name" required maxlength="120" placeholder="Casque de chantier" /></label>
+                <label><span><%= t('common.category') %></span><input type="text" name="category" value="Protection" maxlength="60" /></label>
                 <label><span>Validité (mois)</span><input type="number" name="validity_months" min="1" max="600" placeholder="60" /></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déclarer</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.declare') %></button></div>
               </form>
             </div>
 
@@ -192,12 +192,12 @@
               <div class="card-head"><h3>Remettre à quelqu'un</h3></div>
               <form method="POST" action="/sante-securite/protections/remettre" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Équipement</span>
+                <label class="span-2"><span><%= t('common.equipment') %></span>
                   <select name="ppe_id" required><option value="">—</option>
                     <% ppeList.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
                   </select>
                 </label>
-                <label class="span-2"><span>Personne</span>
+                <label class="span-2"><span><%= t('common.person') %></span>
                   <select name="user_id" required><option value="">—</option>
                     <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
                   </select>
@@ -212,7 +212,7 @@
             <div class="card-head"><h3>Équipements en circulation (<%= ppeGiven.length %>)</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Équipement</th><th>Détenteur</th><th>Remis le</th><th>Échéance</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.equipment') %></th><th><%= t('common.holder') %></th><th>Remis le</th><th><%= t('erp.dueDate') %></th><th></th></tr></thead>
                 <tbody>
                   <% ppeGiven.forEach((a) => { %>
                     <tr>
@@ -242,7 +242,7 @@
                   <span><span class="cell-strong"><%= p.name %></span><br /><span class="cell-sub"><%= p.category %><%= p.validity_months ? ' · ' + p.validity_months + ' mois' : ' · sans échéance' %></span></span>
                   <form method="POST" action="/sante-securite/protections/<%= p.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet équipement et ses remises ?">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                    <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                   </form>
                 </li>
               <% }) %>
@@ -258,19 +258,19 @@
               <div class="card-head"><h3>Consigner une visite</h3></div>
               <form method="POST" action="/sante-securite/visites" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Personne</span>
+                <label class="span-2"><span><%= t('common.person') %></span>
                   <select name="user_id" required><option value="">—</option>
                     <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
                   </select>
                 </label>
-                <label class="span-2"><span>Type</span>
+                <label class="span-2"><span><%= t('common.type') %></span>
                   <select name="kind"><% visitKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
                 <label><span>Programmée le</span><input type="date" name="scheduled_on" /></label>
                 <label><span>Effectuée le</span><input type="date" name="done_on" /></label>
                 <label class="span-2"><span>Avis</span><input type="text" name="verdict" maxlength="200" placeholder="Apte, apte avec réserves…" /></label>
                 <label class="span-2"><span>Prochaine échéance</span><input type="date" name="next_due" /></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Consigner</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.record') %></button></div>
               </form>
               <p class="hint">Seul l'avis d'aptitude est consigné : aucune donnée de santé n'a à figurer ici.</p>
             </div>
@@ -286,7 +286,7 @@
                     </span>
                     <form method="POST" action="/sante-securite/visites/<%= v.id %>/supprimer" class="inline-form" data-confirm="Retirer cette visite ?">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                      <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                     </form>
                   </li>
                 <% }) %>

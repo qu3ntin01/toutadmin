@@ -55,7 +55,7 @@
                 <p class="stat-value"><%= q.average === null ? '—' : q.average %> <span class="cell-sub">/ 5 en moyenne</span></p>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Note</th><th>Réponses</th><th>Part</th></tr></thead>
+                    <thead><tr><th><%= t('common.note') %></th><th><%= t('common.answers') %></th><th>Part</th></tr></thead>
                     <tbody>
                       <% q.distribution.forEach((d) => { %>
                         <tr>
@@ -78,7 +78,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Réponse</th><th>Nombre</th><th>Part</th></tr></thead>
+                    <thead><tr><th>Réponse</th><th><%= t('common.count') %></th><th>Part</th></tr></thead>
                     <tbody>
                       <% q.distribution.forEach((d) => { %>
                         <tr>

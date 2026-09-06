@@ -6,13 +6,13 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Réunion',
+      panelLabel: t('common.meeting'),
       navItems: [
         { tab: 'ordre-du-jour', label: 'Ordre du jour', icon: 'inbox' },
-        { tab: 'participants', label: 'Participants', icon: 'users', badge: attendeeList.length },
+        { tab: 'participants', label: t('common.participants'), icon: 'users', badge: attendeeList.length },
         { tab: 'compte-rendu', label: 'Compte rendu', icon: 'ballot' },
         { tab: 'decisions', label: 'Décisions', icon: 'check', badge: decisionList.length },
-        { tab: 'actions', label: 'Actions', icon: 'clock', badge: actionList.filter((a) => a.status !== 'Faite').length }
+        { tab: 'actions', label: t('common.actions'), icon: 'clock', badge: actionList.filter((a) => a.status !== 'Faite').length }
       ],
       footLinks: [{ href: '/direction#reunions', label: 'Toutes les réunions', icon: 'back' }]
     }) %>
@@ -36,25 +36,25 @@
             <div class="card-head"><h3>Convocation</h3><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? 'tag-danger' : 'tag-warning') %>"><%= st(meeting.status) %></span></div>
             <form method="POST" action="/direction/reunions/<%= meeting.id %>/modifier" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" value="<%= meeting.title %>" /></label>
-              <label><span>Type</span>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" value="<%= meeting.title %>" /></label>
+              <label><span><%= t('common.type') %></span>
                 <select name="kind"><% meetingKinds.forEach((k) => { %><option value="<%= k %>" <%= k === meeting.kind ? 'selected' : '' %>><%= k %></option><% }) %></select>
               </label>
-              <label><span>Date</span><input type="date" name="held_on" value="<%= meeting.held_on %>" required /></label>
-              <label><span>Début</span><input type="time" name="starts_at" value="<%= meeting.starts_at %>" /></label>
-              <label><span>Fin</span><input type="time" name="ends_at" value="<%= meeting.ends_at %>" /></label>
-              <label><span>Lieu</span><input type="text" name="location" maxlength="160" value="<%= meeting.location %>" /></label>
+              <label><span><%= t('common.date') %></span><input type="date" name="held_on" value="<%= meeting.held_on %>" required /></label>
+              <label><span><%= t('common.start') %></span><input type="time" name="starts_at" value="<%= meeting.starts_at %>" /></label>
+              <label><span><%= t('common.end') %></span><input type="time" name="ends_at" value="<%= meeting.ends_at %>" /></label>
+              <label><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" value="<%= meeting.location %>" /></label>
               <label><span>Président de séance</span>
                 <select name="chair_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>" <%= e.id === meeting.chair_id ? 'selected' : '' %>><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>État</span>
+              <label><span><%= t('common.state') %></span>
                 <select name="status"><% meetingStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === meeting.status ? 'selected' : '' %>><%= s %></option><% }) %></select>
               </label>
               <label class="span-2"><span>Ordre du jour</span><textarea name="agenda" rows="6"><%= meeting.agenda %></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
           </div>
         </section>
@@ -81,7 +81,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Personne</th><th>Fonction</th><th>Présence</th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.person') %></th><th><%= t('common.role') %></th><th>Présence</th><th></th></tr></thead>
                   <tbody>
                     <% attendeeList.forEach((a) => { %>
                       <tr>
@@ -99,7 +99,7 @@
                         <td>
                           <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants/<%= a.user_id %>/retirer" class="inline-form">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                            <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                           </form>
                         </td>
                       </tr>
@@ -132,11 +132,11 @@
               <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
               <label class="span-2"><span>Décision</span><input type="text" name="title" required maxlength="200" /></label>
               <label><span>Prise le</span><input type="date" name="decided_on" value="<%= meeting.held_on %>" required /></label>
-              <label><span>Portée</span>
+              <label><span><%= t('common.scope') %></span>
                 <select name="scope"><% decisionScopes.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
-              <label class="span-2"><span>Contenu</span><textarea name="body" rows="3"></textarea></label>
-              <label class="span-2"><span>Motif</span><textarea name="rationale" rows="2"></textarea></label>
+              <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="3"></textarea></label>
+              <label class="span-2"><span><%= t('common.reason') %></span><textarea name="rationale" rows="2"></textarea></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire au registre</button></div>
             </form>
           </div>
@@ -169,7 +169,7 @@
             <form method="POST" action="/direction/actions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
-              <label class="span-2"><span>Action</span><input type="text" name="label" required maxlength="300" /></label>
+              <label class="span-2"><span><%= t('common.action') %></span><input type="text" name="label" required maxlength="300" /></label>
               <label><span>Confiée à</span>
                 <select name="assignee_id">
                   <option value="">—</option>
@@ -194,7 +194,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Échéance</th><th>Action</th><th>Porteur</th><th>État</th></tr></thead>
+                  <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.action') %></th><th>Porteur</th><th><%= t('common.state') %></th></tr></thead>
                   <tbody>
                     <% actionList.forEach((a) => { %>
                       <tr>
@@ -209,7 +209,7 @@
                             <select name="status" class="input-sm">
                               <% actionStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === a.status ? 'selected' : '' %>><%= s %></option><% }) %>
                             </select>
-                            <button type="submit" class="btn btn-outline btn-sm">Mettre à jour</button>
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('common.update') %></button>
                           </form>
                         </td>
                       </tr>

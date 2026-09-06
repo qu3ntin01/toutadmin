@@ -9,7 +9,7 @@
       panelLabel: 'Qualité',
       navItems: [
         { tab: 'non-conformites', label: 'Non-conformités', icon: 'ticket', badge: stats.open },
-        { tab: 'actions', label: 'Actions', icon: 'check', badge: stats.openActions },
+        { tab: 'actions', label: t('common.actions'), icon: 'check', badge: stats.openActions },
         { tab: 'audits', label: 'Audits internes', icon: 'ballot' }
       ],
       footLinks: [
@@ -54,8 +54,8 @@
             <div class="card-head"><h3>Constater un écart</h3></div>
             <form method="POST" action="/qualite/non-conformites" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" placeholder="Lot livré hors tolérance dimensionnelle" /></label>
-              <label><span>Origine</span>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="Lot livré hors tolérance dimensionnelle" /></label>
+              <label><span><%= t('common.origin') %></span>
                 <select name="source"><% sources.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
               <label><span>Gravité</span>
@@ -64,9 +64,9 @@
               <label><span>Constaté le</span><input type="date" name="detected_on" value="<%= today %>" required /></label>
               <label><span>Coût estimé (€)</span><input type="text" name="cost" inputmode="decimal" placeholder="0" /></label>
               <label class="span-2"><span>Objet concerné</span><input type="text" name="subject" maxlength="200" placeholder="Produit, service, processus ou fournisseur" /></label>
-              <label class="span-2"><span>Description</span><textarea name="description" rows="3"></textarea></label>
+              <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="3"></textarea></label>
               <label class="span-2"><span>Action immédiate</span><textarea name="immediate_action" rows="2" placeholder="Ce qui a été fait sur le champ pour contenir l'écart."></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
           </div>
 
@@ -107,7 +107,7 @@
                       </form>
                       <form method="POST" action="/qualite/non-conformites/<%= n.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette non-conformité et ses actions ?">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                        <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                       </form>
                     </div>
                   </li>
@@ -124,11 +124,11 @@
             <div class="card-head"><h3>Ouvrir une action</h3></div>
             <form method="POST" action="/qualite/actions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Action</span><input type="text" name="label" required maxlength="300" placeholder="Réétalonner le gabarit de contrôle et former l'équipe" /></label>
-              <label><span>Type</span>
+              <label class="span-2"><span><%= t('common.action') %></span><input type="text" name="label" required maxlength="300" placeholder="Réétalonner le gabarit de contrôle et former l'équipe" /></label>
+              <label><span><%= t('common.type') %></span>
                 <select name="kind"><% actionKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
               </label>
-              <label><span>Responsable</span>
+              <label><span><%= t('common.owner') %></span>
                 <select name="owner_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
@@ -158,7 +158,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Échéance</th><th>Action</th><th>Type</th><th>Responsable</th><th>Origine</th><th>État</th><th>Efficacité</th></tr></thead>
+                  <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.action') %></th><th><%= t('common.type') %></th><th><%= t('common.owner') %></th><th><%= t('common.origin') %></th><th><%= t('common.state') %></th><th>Efficacité</th></tr></thead>
                   <tbody>
                     <% actionList.forEach((a) => { %>
                       <tr>
@@ -173,7 +173,7 @@
                             <select name="status" class="input-sm">
                               <% actionStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === a.status ? 'selected' : '' %>><%= s %></option><% }) %>
                             </select>
-                            <button type="submit" class="btn btn-outline btn-sm">Mettre à jour</button>
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('common.update') %></button>
                           </form>
                         </td>
                         <td>
@@ -187,7 +187,7 @@
                                 <option value="Efficace">Efficace</option>
                                 <option value="Inefficace">Inefficace</option>
                               </select>
-                              <button type="submit" class="btn btn-outline btn-sm">Vérifier</button>
+                              <button type="submit" class="btn btn-outline btn-sm"><%= t('common.verify') %></button>
                             </form>
                           <% } else { %>
                             <span class="cell-sub">—</span>
@@ -244,7 +244,7 @@
                     <% if (list.length) { %>
                       <div class="table-wrap">
                         <table>
-                          <thead><tr><th>Type</th><th>Exigence</th><th>Constat</th><th></th></tr></thead>
+                          <thead><tr><th><%= t('common.type') %></th><th>Exigence</th><th>Constat</th><th></th></tr></thead>
                           <tbody>
                             <% list.forEach((f) => { %>
                               <tr>
@@ -261,7 +261,7 @@
                                     <% } %>
                                     <form method="POST" action="/qualite/constats/<%= f.id %>/supprimer" class="inline-form">
                                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                      <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                                      <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                                     </form>
                                   </div>
                                 </td>
@@ -294,7 +294,7 @@
                     <div class="row-actions">
                       <form method="POST" action="/qualite/audits/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet audit et ses constats ?">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                        <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                       </form>
                     </div>
                   </li>

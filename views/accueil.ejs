@@ -78,8 +78,8 @@
             <div class="card-head"><h3>Inscrire une arrivée</h3></div>
             <form method="POST" action="/accueil/visiteurs" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label><span>Prénom</span><input type="text" name="first_name" maxlength="120" /></label>
-              <label><span>Nom</span><input type="text" name="last_name" required maxlength="120" /></label>
+              <label><span><%= t('common.firstName') %></span><input type="text" name="first_name" maxlength="120" /></label>
+              <label><span><%= t('common.name') %></span><input type="text" name="last_name" required maxlength="120" /></label>
               <label><span>Société</span><input type="text" name="company" maxlength="160" /></label>
               <label><span>Reçu par</span>
                 <select name="host_id">
@@ -87,30 +87,30 @@
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Jour</span><input type="date" name="visited_on" value="<%= today %>" /></label>
+              <label><span><%= t('common.day') %></span><input type="date" name="visited_on" value="<%= today %>" /></label>
               <label><span>Heure d'arrivée</span><input type="time" name="arrived_at" value="<%= now %>" /></label>
               <label><span>Badge remis</span><input type="text" name="badge" maxlength="40" /></label>
-              <label><span>Motif</span><input type="text" name="purpose" maxlength="300" placeholder="Rendez-vous commercial" /></label>
-              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
+              <label><span><%= t('common.reason') %></span><input type="text" name="purpose" maxlength="300" placeholder="Rendez-vous commercial" /></label>
+              <label class="span-2"><span><%= t('common.remarks') %></span><textarea name="notes" rows="2"></textarea></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire</button></div>
             </form>
           </div>
 
           <div class="card">
             <div class="card-head">
-              <h3>Registre<%= filterDay ? ` du ${day(filterDay)}` : '' %></h3>
+              <h3><%= t('common.register') %><%= filterDay ? ` du ${day(filterDay)}` : '' %></h3>
               <span class="card-sub"><%= visitorList.length %> visite(s) · <%= stats.visitorsMonth %> sur 30 jours</span>
             </div>
             <form method="GET" action="/accueil" class="form-grid">
               <label><span>Filtrer sur un jour</span><input type="date" name="jour" value="<%= filterDay || '' %>" /></label>
-              <div><button type="submit" class="btn btn-outline btn-block">Filtrer</button></div>
+              <div><button type="submit" class="btn btn-outline btn-block"><%= t('common.filter') %></button></div>
             </form>
             <% if (!visitorList.length) { %>
               <p class="empty-state">Aucune visite enregistrée.</p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Jour</th><th>Visiteur</th><th>Société</th><th>Reçu par</th><th>Arrivée</th><th>Départ</th><th>Motif</th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.day') %></th><th>Visiteur</th><th>Société</th><th>Reçu par</th><th>Arrivée</th><th>Départ</th><th><%= t('common.reason') %></th><th></th></tr></thead>
                   <tbody>
                     <% visitorList.forEach((v) => { %>
                       <tr>
@@ -124,7 +124,7 @@
                         <td>
                           <form method="POST" action="/accueil/visiteurs/<%= v.id %>/supprimer" class="inline-form" data-confirm="Retirer cette visite du registre ?">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                            <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                           </form>
                         </td>
                       </tr>
@@ -142,10 +142,10 @@
             <div class="card-head"><h3>Enregistrer un courrier</h3></div>
             <form method="POST" action="/accueil/courrier" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label><span>Sens</span>
+              <label><span><%= t('common.direction') %></span>
                 <select name="direction"><% mailDirections.forEach((d) => { %><option value="<%= d %>"><%= d %></option><% }) %></select>
               </label>
-              <label><span>Nature</span>
+              <label><span><%= t('common.nature') %></span>
                 <select name="kind"><% mailKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
               </label>
               <label><span>Reçu ou envoyé le</span><input type="date" name="logged_on" value="<%= today %>" /></label>
@@ -157,9 +157,9 @@
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label class="span-2"><span>Objet</span><input type="text" name="subject" maxlength="300" /></label>
-              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <label class="span-2"><span><%= t('common.subject') %></span><input type="text" name="subject" maxlength="300" /></label>
+              <label class="span-2"><span><%= t('common.remarks') %></span><textarea name="notes" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
           </div>
 
@@ -171,7 +171,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Date</th><th>Nature</th><th>Correspondant</th><th>Destinataire</th><th>Objet</th><th>Suivi</th><th>État</th><th></th></tr></thead>
+                    <thead><tr><th><%= t('common.date') %></th><th><%= t('common.nature') %></th><th>Correspondant</th><th>Destinataire</th><th><%= t('common.subject') %></th><th>Suivi</th><th><%= t('common.state') %></th><th></th></tr></thead>
                     <tbody>
                       <% block.rows.forEach((m) => { %>
                         <tr>
@@ -190,7 +190,7 @@
                               <% if (m.status === 'À remettre') { %>
                                 <form method="POST" action="/accueil/courrier/<%= m.id %>/remise" class="inline-form">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                  <button type="submit" class="btn btn-outline btn-sm">Remis</button>
+                                  <button type="submit" class="btn btn-outline btn-sm"><%= t('status.handedOver') %></button>
                                 </form>
                               <% } else if (m.status === 'Remis') { %>
                                 <form method="POST" action="/accueil/courrier/<%= m.id %>/archiver" class="inline-form">
@@ -200,7 +200,7 @@
                               <% } %>
                               <form method="POST" action="/accueil/courrier/<%= m.id %>/supprimer" class="inline-form" data-confirm="Retirer ce courrier du registre ?">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                                <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                               </form>
                             </div>
                           </td>

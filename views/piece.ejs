@@ -10,7 +10,7 @@
       navItems: [{ href: '/pieces', label: 'Toutes les pièces', icon: 'inbox', active: true }],
       footLinks: [
         { href: '/pieces/' + document.id + '/fichier', label: 'Voir le fichier', icon: 'external' },
-        { href: '/gestion#factures', label: 'Factures', icon: 'card' }
+        { href: '/gestion#factures', label: t('erp.invoices'), icon: 'card' }
       ]
     }) %>
 
@@ -50,12 +50,12 @@
 
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Champ</th><th>Valeur lue</th><th>Origine</th></tr></thead>
+              <thead><tr><th>Champ</th><th>Valeur lue</th><th><%= t('common.origin') %></th></tr></thead>
               <tbody>
-                <tr><td class="cell-sub">Émetteur</td><td class="cell-strong"><%= value(document.partner_name || document.fields.supplierName) %></td><td class="cell-sub"><%= from('supplierName') %><%= document.fields.partnerReason ? ` · tiers reconnu par ${document.fields.partnerReason}` : '' %></td></tr>
-                <tr><td class="cell-sub">Numéro</td><td><%= value(document.fields.reference) %></td><td class="cell-sub"><%= from('reference') %></td></tr>
-                <tr><td class="cell-sub">Date</td><td><%= value(document.fields.issueDate) %></td><td class="cell-sub"><%= from('issueDate') %></td></tr>
-                <tr><td class="cell-sub">Échéance</td><td><%= value(document.fields.dueDate) %></td><td class="cell-sub"><%= from('dueDate') %></td></tr>
+                <tr><td class="cell-sub"><%= t('common.issuer') %></td><td class="cell-strong"><%= value(document.partner_name || document.fields.supplierName) %></td><td class="cell-sub"><%= from('supplierName') %><%= document.fields.partnerReason ? ` · tiers reconnu par ${document.fields.partnerReason}` : '' %></td></tr>
+                <tr><td class="cell-sub"><%= t('common.number') %></td><td><%= value(document.fields.reference) %></td><td class="cell-sub"><%= from('reference') %></td></tr>
+                <tr><td class="cell-sub"><%= t('common.date') %></td><td><%= value(document.fields.issueDate) %></td><td class="cell-sub"><%= from('issueDate') %></td></tr>
+                <tr><td class="cell-sub"><%= t('erp.dueDate') %></td><td><%= value(document.fields.dueDate) %></td><td class="cell-sub"><%= from('dueDate') %></td></tr>
                 <tr><td class="cell-sub">Total HT</td><td class="num"><%= value(document.fields.amountHt) %></td><td class="cell-sub"><%= from('amountHt') %></td></tr>
                 <tr><td class="cell-sub">TVA</td><td class="num"><%= value(document.fields.amountVat) %> <%= document.fields.vatRate ? `(${document.fields.vatRate} %)` : '' %></td><td class="cell-sub"><%= from('amountVat') %></td></tr>
                 <tr><td class="cell-sub">Total TTC</td><td class="num cell-strong"><%= value(document.fields.amountTtc) %> <%= document.fields.currency || '' %></td><td class="cell-sub"><%= from('amountTtc') %></td></tr>
@@ -81,8 +81,8 @@
             <table>
               <tbody>
                 <tr><td class="cell-sub">Expéditeur</td><td class="cell-strong"><%= value(document.mail_from) %></td></tr>
-                <tr><td class="cell-sub">Objet</td><td><%= value(document.mail_subject) %></td></tr>
-                <tr><td class="cell-sub">Date</td><td><%= document.mail_date ? new Date(document.mail_date).toLocaleString(locale) : '—' %></td></tr>
+                <tr><td class="cell-sub"><%= t('common.subject') %></td><td><%= value(document.mail_subject) %></td></tr>
+                <tr><td class="cell-sub"><%= t('common.date') %></td><td><%= document.mail_date ? new Date(document.mail_date).toLocaleString(locale) : '—' %></td></tr>
                 <tr><td class="cell-sub">Pièce jointe</td><td><%= document.original_name %> · <%= Math.round(document.byte_size / 1024) %> Ko</td></tr>
               </tbody>
             </table>
@@ -94,14 +94,14 @@
             <div class="card-head"><h3>Créer la facture</h3></div>
             <form method="POST" action="/pieces/<%= document.id %>/facturer" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label><span>Sens</span>
+              <label><span><%= t('common.direction') %></span>
                 <select name="direction">
                   <% invoiceDirections.forEach((d) => { %>
                     <option value="<%= d %>" <%= d === (document.analysis.direction || 'Fournisseur') ? 'selected' : '' %>><%= d %></option>
                   <% }) %>
                 </select>
               </label>
-              <label><span>Tiers</span>
+              <label><span><%= t('erp.partners') %></span>
                 <select name="partner_id">
                   <option value="">—</option>
                   <% partners.forEach((p) => { %>
@@ -109,11 +109,11 @@
                   <% }) %>
                 </select>
               </label>
-              <label class="span-2"><span>Intitulé</span>
+              <label class="span-2"><span><%= t('common.title') %></span>
                 <input type="text" name="label" required maxlength="160"
                        value="<%= document.fields.label || [document.partner_name || document.fields.supplierName, document.fields.reference].filter(Boolean).join(' — ') %>" />
               </label>
-              <label><span>Référence</span><input type="text" name="reference" maxlength="60" value="<%= document.fields.reference || '' %>" /></label>
+              <label><span><%= t('common.reference') %></span><input type="text" name="reference" maxlength="60" value="<%= document.fields.reference || '' %>" /></label>
               <label><span>Service imputé</span>
                 <select name="department_id">
                   <option value="">—</option>
@@ -121,10 +121,10 @@
                 </select>
               </label>
               <label><span>Émission</span><input type="date" name="issue_date" required value="<%= document.fields.issueDate || today %>" /></label>
-              <label><span>Échéance</span><input type="date" name="due_date" value="<%= document.fields.dueDate || '' %>" /></label>
+              <label><span><%= t('erp.dueDate') %></span><input type="date" name="due_date" value="<%= document.fields.dueDate || '' %>" /></label>
               <label><span>Montant HT</span><input type="text" name="amount_ht" inputmode="decimal" required value="<%= document.fields.amountHt === null || document.fields.amountHt === undefined ? '' : document.fields.amountHt %>" /></label>
               <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" required value="<%= document.fields.vatRate === null || document.fields.vatRate === undefined ? 20 : document.fields.vatRate %>" /></label>
-              <label><span>Devise</span>
+              <label><span><%= t('common.currency') %></span>
                 <select name="currency">
                   <% currencies.forEach((c) => { %>
                     <option value="<%= c.code %>" <%= c.code === (document.fields.currency || baseCurrency) ? 'selected' : '' %>><%= c.code %></option>
@@ -143,7 +143,7 @@
             <div class="card-head"><h3>Écarter</h3></div>
             <form method="POST" action="/pieces/<%= document.id %>/ecarter" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Motif</span><input type="text" name="note" maxlength="500" placeholder="Relance, doublon, document qui n'est pas une facture…" /></label>
+              <label class="span-2"><span><%= t('common.reason') %></span><input type="text" name="note" maxlength="500" placeholder="Relance, doublon, document qui n'est pas une facture…" /></label>
               <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Écarter la pièce</button></div>
             </form>
           </div>
@@ -163,7 +163,7 @@
               <div class="row-actions">
                 <form method="POST" action="/pieces/<%= document.id %>/supprimer" class="inline-form" data-confirm="Supprimer définitivement cette pièce et son fichier ?">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                  <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                 </form>
               </div>
             <% } else { %>

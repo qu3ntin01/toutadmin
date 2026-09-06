@@ -11,8 +11,8 @@
         { tab: 'taches', label: 'Tâches', icon: 'check' },
         { tab: 'jalons', label: 'Jalons', icon: 'calendar' },
         { tab: 'temps', label: 'Temps passé', icon: 'clock' },
-        { tab: 'equipe', label: 'Équipe', icon: 'users' },
-        { tab: 'reglages', label: 'Réglages', icon: 'settings' }
+        { tab: 'equipe', label: t('common.team'), icon: 'users' },
+        { tab: 'reglages', label: t('common.settings'), icon: 'settings' }
       ],
       footLinks: [{ href: '/projets', label: 'Tous les projets', icon: 'back' }]
     }) %>
@@ -40,7 +40,7 @@
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(profit.budget) %></span><span class="stat-label">Budget</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(profit.budget) %></span><span class="stat-label"><%= t('common.budget') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
@@ -57,13 +57,13 @@
             <div class="card-head"><h3>Ajouter une tâche</h3></div>
             <form method="POST" action="/projets/<%= project.id %>/taches" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" /></label>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" /></label>
               <label><span>Assignée à</span>
                 <select name="assignee_id"><option value="">—</option>
                   <% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Priorité</span>
+              <label><span><%= t('common.priority') %></span>
                 <select name="priority"><% priorities.forEach((p) => { %><option value="<%= p %>" <%= p === 'Normale' ? 'selected' : '' %>><%= p %></option><% }) %></select>
               </label>
               <label><span>Jalon</span>
@@ -71,10 +71,10 @@
                   <% milestoneList.forEach((m) => { %><option value="<%= m.id %>"><%= m.title %></option><% }) %>
                 </select>
               </label>
-              <label><span>Échéance</span><input type="date" name="due_date" /></label>
+              <label><span><%= t('erp.dueDate') %></span><input type="date" name="due_date" /></label>
               <label><span>Estimation (h)</span><input type="text" name="estimate_hours" inputmode="decimal" placeholder="8" /></label>
-              <label class="span-2"><span>Détail</span><textarea name="description" rows="2"></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+              <label class="span-2"><span><%= t('common.detail') %></span><textarea name="description" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
             </form>
           </div>
 
@@ -106,12 +106,12 @@
                           <option value="">—</option>
                           <% people.forEach((u) => { %><option value="<%= u.id %>" <%= task.assignee_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
                         </select>
-                        <button type="submit" class="btn btn-sm">Affecter</button>
+                        <button type="submit" class="btn btn-sm"><%= t('common.assign') %></button>
                       </form>
                       <% if (canManage) { %>
                         <form method="POST" action="/projets/taches/<%= task.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette tâche ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       <% } %>
                     </div>
@@ -131,9 +131,9 @@
                 <div class="card-head"><h3>Ajouter un jalon</h3></div>
                 <form method="POST" action="/projets/<%= project.id %>/jalons" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="160" /></label>
-                  <label class="span-2"><span>Échéance</span><input type="date" name="due_date" /></label>
-                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+                  <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="160" /></label>
+                  <label class="span-2"><span><%= t('erp.dueDate') %></span><input type="date" name="due_date" /></label>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
                 </form>
               </div>
             <% } %>
@@ -155,7 +155,7 @@
                         </form>
                         <form method="POST" action="/projets/jalons/<%= m.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce jalon ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </span>
                     <% } %>
@@ -174,19 +174,19 @@
               <div class="card-head"><h3>Saisir du temps</h3></div>
               <form method="POST" action="/projets/<%= project.id %>/temps" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label><span>Date</span><input type="date" name="spent_on" value="<%= today %>" max="<%= today %>" required /></label>
-                <label><span>Heures</span><input type="text" name="hours" inputmode="decimal" placeholder="3,5" required /></label>
-                <label class="span-2"><span>Tâche</span>
+                <label><span><%= t('common.date') %></span><input type="date" name="spent_on" value="<%= today %>" max="<%= today %>" required /></label>
+                <label><span><%= t('common.hours') %></span><input type="text" name="hours" inputmode="decimal" placeholder="3,5" required /></label>
+                <label class="span-2"><span><%= t('common.task') %></span>
                   <select name="task_id"><option value="">— sans tâche</option>
                     <% taskList.forEach((task) => { %><option value="<%= task.id %>"><%= task.title %></option><% }) %>
                   </select>
                 </label>
-                <label class="span-2"><span>Note</span><input type="text" name="note" maxlength="300" /></label>
+                <label class="span-2"><span><%= t('common.note') %></span><input type="text" name="note" maxlength="300" /></label>
                 <label class="check-row span-2">
                   <input type="checkbox" name="billable" value="1" checked />
                   <span>Temps facturable au client</span>
                 </label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
               <p class="hint">Une saisie porte au plus 24 heures et jamais une date à venir.</p>
             </div>
@@ -209,7 +209,7 @@
             <div class="card-head"><h3>Saisies (<%= entries.length %>)</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Date</th><th>Qui</th><th>Tâche</th><th>Heures</th><th>Note</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.date') %></th><th>Qui</th><th><%= t('common.task') %></th><th><%= t('common.hours') %></th><th><%= t('common.note') %></th><th></th></tr></thead>
                 <tbody>
                   <% entries.forEach((e) => { %>
                     <tr>
@@ -222,7 +222,7 @@
                         <% if (canManage || e.user_id === currentUser.id) { %>
                           <form method="POST" action="/projets/temps/<%= e.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette saisie ?">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
                         <% } %>
                       </td>
@@ -244,14 +244,14 @@
                 <div class="card-head"><h3>Ajouter au projet</h3></div>
                 <form method="POST" action="/projets/<%= project.id %>/membres" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <label class="span-2"><span>Membre</span>
+                  <label class="span-2"><span><%= t('common.member') %></span>
                     <select name="user_id" required>
                       <option value="">—</option>
                       <% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
                     </select>
                   </label>
                   <label class="span-2"><span>Rôle sur le projet</span><input type="text" name="role" maxlength="60" placeholder="Développeuse" /></label>
-                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
                 </form>
                 <p class="hint">Seuls les membres du projet, son responsable et la gestion y ont accès.</p>
               </div>
@@ -265,7 +265,7 @@
                     <% if (canManage) { %>
                       <form method="POST" action="/projets/<%= project.id %>/membres/<%= m.user_id %>/retirer" class="inline-form">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                        <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                       </form>
                     <% } %>
                   </li>
@@ -283,22 +283,22 @@
             <% if (canManage) { %>
               <form method="POST" action="/projets/<%= project.id %>/modifier" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label><span>Code</span><input type="text" name="code" maxlength="20" value="<%= project.code %>" /></label>
-                <label><span>Statut</span>
+                <label><span><%= t('common.code') %></span><input type="text" name="code" maxlength="20" value="<%= project.code %>" /></label>
+                <label><span><%= t('common.status') %></span>
                   <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= project.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
                 </label>
-                <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="160" value="<%= project.name %>" /></label>
-                <label><span>Responsable</span>
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="name" required maxlength="160" value="<%= project.name %>" /></label>
+                <label><span><%= t('common.owner') %></span>
                   <select name="lead_id"><option value="">—</option>
                     <% people.forEach((u) => { %><option value="<%= u.id %>" <%= project.lead_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
                   </select>
                 </label>
-                <label><span>Début</span><input type="date" name="start_date" value="<%= project.start_date || '' %>" /></label>
-                <label><span>Échéance</span><input type="date" name="due_date" value="<%= project.due_date || '' %>" /></label>
+                <label><span><%= t('common.start') %></span><input type="date" name="start_date" value="<%= project.start_date || '' %>" /></label>
+                <label><span><%= t('erp.dueDate') %></span><input type="date" name="due_date" value="<%= project.due_date || '' %>" /></label>
                 <label><span>Budget (€)</span><input type="text" name="budget_amount" inputmode="decimal" value="<%= project.budget_amount == null ? '' : project.budget_amount %>" /></label>
                 <label><span>Taux horaire (€)</span><input type="text" name="hourly_rate" inputmode="decimal" value="<%= project.hourly_rate == null ? '' : project.hourly_rate %>" /></label>
-                <label class="span-2"><span>Description</span><textarea name="description" rows="4"><%= project.description %></textarea></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+                <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="4"><%= project.description %></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
 
               <div class="row-actions">
@@ -308,7 +308,7 @@
                 </form>
                 <form method="POST" action="/projets/<%= project.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce projet, ses tâches et son temps passé ?">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                  <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                 </form>
               </div>
             <% } else { %>

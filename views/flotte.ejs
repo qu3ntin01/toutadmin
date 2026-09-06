@@ -10,7 +10,7 @@
       navItems: [
         { tab: 'flotte', label: 'Véhicules', icon: 'network' },
         { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: deadlines.length },
-        { tab: 'nouveau', label: 'Ajouter', icon: 'plus' }
+        { tab: 'nouveau', label: t('common.add'), icon: 'plus' }
       ],
       footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
     }) %>
@@ -55,7 +55,7 @@
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Immatriculation</th><th>Véhicule</th><th>Conducteur</th><th>Km</th><th>Contrôle</th><th>Assurance</th><th>Statut</th><th></th></tr></thead>
+                <thead><tr><th>Immatriculation</th><th>Véhicule</th><th>Conducteur</th><th>Km</th><th>Contrôle</th><th>Assurance</th><th><%= t('common.status') %></th><th></th></tr></thead>
                 <tbody>
                   <% vehicleList.forEach((v) => { %>
                     <tr>
@@ -66,7 +66,7 @@
                       <td class="<%= v.inspection_due && v.inspection_due < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(v.inspection_due) %></td>
                       <td class="<%= v.insurance_due && v.insurance_due < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(v.insurance_due) %></td>
                       <td><span class="tag <%= v.status === 'En service' ? 'tag-success' : (v.status === 'Cédé' ? '' : 'tag-warning') %>"><%= st(v.status) %></span></td>
-                      <td><a class="btn btn-outline btn-sm" href="/flotte/<%= v.id %>">Ouvrir</a></td>
+                      <td><a class="btn btn-outline btn-sm" href="/flotte/<%= v.id %>"><%= t('common.open') %></a></td>
                     </tr>
                   <% }) %>
                   <% if (vehicleList.length === 0) { %><tr><td colspan="8" class="cell-sub">Aucun véhicule.</td></tr><% } %>
@@ -101,13 +101,13 @@
             <form method="POST" action="/flotte" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label><span>Immatriculation</span><input type="text" name="registration" required maxlength="20" placeholder="AB-123-CD" /></label>
-              <label><span>Type</span>
+              <label><span><%= t('common.type') %></span>
                 <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
               </label>
-              <label><span>Marque</span><input type="text" name="brand" maxlength="60" /></label>
-              <label><span>Modèle</span><input type="text" name="model" maxlength="60" /></label>
+              <label><span><%= t('common.brand') %></span><input type="text" name="brand" maxlength="60" /></label>
+              <label><span><%= t('common.template') %></span><input type="text" name="model" maxlength="60" /></label>
               <label><span>Mise en service</span><input type="date" name="acquired_on" /></label>
-              <label><span>Kilométrage</span><input type="number" name="mileage" min="0" max="5000000" value="0" /></label>
+              <label><span><%= t('common.mileage') %></span><input type="number" name="mileage" min="0" max="5000000" value="0" /></label>
               <label class="span-2"><span>Conducteur attitré</span>
                 <select name="assigned_to"><option value="">—</option>
                   <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
@@ -116,7 +116,7 @@
               <label><span>Contrôle technique dû le</span><input type="date" name="inspection_due" /></label>
               <label><span>Assurance échéant le</span><input type="date" name="insurance_due" /></label>
               <label class="span-2"><span>Prochain entretien</span><input type="date" name="service_due" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
           </div>
         </section>

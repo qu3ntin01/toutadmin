@@ -9,7 +9,7 @@
       panelLabel: 'Trésorerie',
       navItems: [
         { tab: 'comptes', label: 'Comptes', icon: 'card' },
-        { tab: 'mouvements', label: 'Mouvements', icon: 'inbox' },
+        { tab: 'mouvements', label: t('common.movements'), icon: 'inbox' },
         { tab: 'rapprochement', label: 'Rapprochement', icon: 'link', badge: pending.length },
         { tab: 'previsions', label: 'Prévisionnel', icon: 'calendar' }
       ],
@@ -56,11 +56,11 @@
               <div class="card-head"><h3>Ajouter un compte</h3></div>
               <form method="POST" action="/tresorerie/comptes" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Compte courant" /></label>
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="Compte courant" /></label>
                 <label><span>Banque</span><input type="text" name="bank" maxlength="80" /></label>
                 <label><span>4 derniers chiffres</span><input type="text" name="iban_last4" maxlength="4" inputmode="numeric" /></label>
                 <label class="span-2"><span>Solde initial (€)</span><input type="text" name="opening_balance" inputmode="decimal" placeholder="0" /></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
               </form>
               <p class="hint">Seuls les quatre derniers chiffres de l'IBAN sont conservés : le reste n'a rien à faire ici.</p>
             </div>
@@ -83,7 +83,7 @@
                         </form>
                         <form method="POST" action="/tresorerie/comptes/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce compte et tous ses mouvements ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </span>
                     </span>
@@ -101,16 +101,16 @@
             <div class="card-head"><h3>Saisir un mouvement</h3></div>
             <form method="POST" action="/tresorerie/mouvements" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label><span>Compte</span>
+              <label><span><%= t('common.account') %></span>
                 <select name="account_id" required>
                   <% accountList.forEach((a) => { %><option value="<%= a.id %>"><%= a.label %></option><% }) %>
                 </select>
               </label>
               <label><span>Date de valeur</span><input type="date" name="value_date" value="<%= today %>" required /></label>
-              <label class="span-2"><span>Libellé</span><input type="text" name="label" required maxlength="160" /></label>
+              <label class="span-2"><span><%= t('common.label') %></span><input type="text" name="label" required maxlength="160" /></label>
               <label><span>Montant (€)</span><input type="text" name="amount" inputmode="decimal" required placeholder="-1250,00" /></label>
-              <label><span>Catégorie</span><input type="text" name="category" maxlength="60" placeholder="Loyer, salaires, client…" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <label><span><%= t('common.category') %></span><input type="text" name="category" maxlength="60" placeholder="Loyer, salaires, client…" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
             <p class="hint">Un montant négatif est une sortie. Le signe porte le sens, il n'y a pas de case à cocher.</p>
           </div>
@@ -119,7 +119,7 @@
             <div class="card-head"><h3>Derniers mouvements</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Date</th><th>Compte</th><th>Libellé</th><th>Catégorie</th><th>Montant</th><th>Rapproché</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.date') %></th><th><%= t('common.account') %></th><th><%= t('common.label') %></th><th><%= t('common.category') %></th><th><%= t('erp.amount') %></th><th>Rapproché</th><th></th></tr></thead>
                 <tbody>
                   <% movements.forEach((m) => { %>
                     <tr>
@@ -132,7 +132,7 @@
                       <td>
                         <form method="POST" action="/tresorerie/mouvements/<%= m.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce mouvement ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </td>
                     </tr>
@@ -180,14 +180,14 @@
               <div class="card-head"><h3>Ajouter une échéance</h3></div>
               <form method="POST" action="/tresorerie/previsions" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Libellé</span><input type="text" name="label" required maxlength="160" placeholder="Acompte marché public" /></label>
+                <label class="span-2"><span><%= t('common.label') %></span><input type="text" name="label" required maxlength="160" placeholder="Acompte marché public" /></label>
                 <label><span>Attendue le</span><input type="date" name="expected_on" required /></label>
                 <label><span>Montant (€)</span><input type="text" name="amount" inputmode="decimal" required /></label>
                 <label class="span-2"><span>Degré de certitude</span>
                   <select name="certainty"><% certainties.forEach((c) => { %><option value="<%= c %>" <%= c === 'Probable' ? 'selected' : '' %>><%= c %></option><% }) %></select>
                 </label>
-                <label class="span-2"><span>Note</span><input type="text" name="note" maxlength="300" /></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+                <label class="span-2"><span><%= t('common.note') %></span><input type="text" name="note" maxlength="300" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
               </form>
             </div>
 
@@ -203,7 +203,7 @@
                     </span>
                     <form method="POST" action="/tresorerie/previsions/<%= f.id %>/supprimer" class="inline-form">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                      <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                     </form>
                   </li>
                 <% }) %>
@@ -217,7 +217,7 @@
             <p class="hint">Solde de départ <%= money(projection.start) %>, puis chaque facture encore due et chaque échéance prévue, dans l'ordre.</p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Date</th><th>Origine</th><th>Libellé</th><th>Montant</th><th>Solde projeté</th></tr></thead>
+                <thead><tr><th><%= t('common.date') %></th><th><%= t('common.origin') %></th><th><%= t('common.label') %></th><th><%= t('erp.amount') %></th><th>Solde projeté</th></tr></thead>
                 <tbody>
                   <% projection.points.forEach((p) => { %>
                     <tr>

@@ -47,7 +47,7 @@
             <div class="card-head"><h3>Créer un jeton</h3></div>
             <form method="POST" action="/integrations/jetons" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Outil de paie — production" /></label>
+              <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="Outil de paie — production" /></label>
               <label><span>Durée de vie (jours)</span><input type="number" name="days" min="1" max="3650" value="<%= defaultDays %>" required /></label>
               <div class="span-2">
                 <p class="section-label">Portées</p>
@@ -73,7 +73,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Jeton</th><th>Portées</th><th>Expire</th><th>Dernier appel</th><th>Appels</th><th>État</th><th></th></tr></thead>
+                  <thead><tr><th>Jeton</th><th>Portées</th><th>Expire</th><th>Dernier appel</th><th>Appels</th><th><%= t('common.state') %></th><th></th></tr></thead>
                   <tbody>
                     <% tokenList.forEach((tk) => { %>
                       <tr>
@@ -97,7 +97,7 @@
                             <% } else { %>
                               <form method="POST" action="/integrations/jetons/<%= tk.id %>/supprimer" class="inline-form" data-confirm="Supprimer la ligne de ce jeton révoqué ?">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                                <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                               </form>
                             <% } %>
                           </div>
@@ -117,7 +117,7 @@
             <div class="card-head"><h3>Déclarer un webhook</h3></div>
             <form method="POST" action="/integrations/webhooks" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Notification Slack" /></label>
+              <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="Notification Slack" /></label>
               <label><span>Adresse (https)</span><input type="url" name="url" required maxlength="500" placeholder="https://exemple.fr/hooks/salarie-member" /></label>
               <div class="span-2">
                 <p class="section-label">Événements écoutés</p>
@@ -129,7 +129,7 @@
                 <input type="checkbox" name="allow_private" value="1" />
                 <span>Autoriser une adresse interne ou en clair (http) — à ne cocher que pour un service du réseau local</span>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déclarer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.declare') %></button></div>
             </form>
             <p class="hint">
               Chaque envoi porte un en-tête <span class="mono">x-salarie-member-signature</span> : un HMAC-SHA256
@@ -174,7 +174,7 @@
                       </form>
                       <form method="POST" action="/integrations/webhooks/<%= w.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce webhook et son journal ?">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                        <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                       </form>
                     </div>
                   </li>
@@ -196,7 +196,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Événement</th><th>Webhook</th><th>État</th><th>Tentatives</th><th>Créée</th><th>Livrée</th><th>Dernière erreur</th></tr></thead>
+                  <thead><tr><th>Événement</th><th>Webhook</th><th><%= t('common.state') %></th><th>Tentatives</th><th>Créée</th><th>Livrée</th><th>Dernière erreur</th></tr></thead>
                   <tbody>
                     <% deliveries.forEach((d) => { %>
                       <tr>
@@ -227,14 +227,14 @@
             <p class="mono cred-box">curl -H "Authorization: Bearer sm_…" https://votre-instance/api/v1/collaborateurs</p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Route</th><th>Portée requise</th><th>Contenu</th></tr></thead>
+                <thead><tr><th>Route</th><th>Portée requise</th><th><%= t('common.content') %></th></tr></thead>
                 <tbody>
                   <tr><td class="mono">/api/v1</td><td class="cell-sub">—</td><td class="cell-sub">Portées du jeton et liste des routes</td></tr>
                   <tr><td class="mono">/api/v1/collaborateurs</td><td class="cell-sub">annuaire</td><td class="cell-sub">Effectif visible à l'annuaire, avec service et équipe</td></tr>
                   <tr><td class="mono">/api/v1/services</td><td class="cell-sub">annuaire</td><td class="cell-sub">Services, effectifs, encadrants</td></tr>
                   <tr><td class="mono">/api/v1/equipes</td><td class="cell-sub">annuaire</td><td class="cell-sub">Équipes et leur service</td></tr>
                   <tr><td class="mono">/api/v1/absences</td><td class="cell-sub">rh</td><td class="cell-sub">Absences approuvées, sans le motif</td></tr>
-                  <tr><td class="mono">/api/v1/tiers</td><td class="cell-sub">gestion</td><td class="cell-sub">Clients et fournisseurs</td></tr>
+                  <tr><td class="mono">/api/v1/tiers</td><td class="cell-sub">gestion</td><td class="cell-sub"><%= t('erp.partnersSub') %></td></tr>
                   <tr><td class="mono">/api/v1/factures</td><td class="cell-sub">gestion</td><td class="cell-sub">Factures, montants dans leur devise et en devise de référence</td></tr>
                   <tr><td class="mono">/api/v1/abonnements</td><td class="cell-sub">gestion</td><td class="cell-sub">Facturation récurrente</td></tr>
                   <tr><td class="mono">/api/v1/projets</td><td class="cell-sub">projets</td><td class="cell-sub">Projets actifs, avancement, heures</td></tr>

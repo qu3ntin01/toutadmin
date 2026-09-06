@@ -112,7 +112,7 @@ qui relie le tout.
 
 ## L'état des traductions
 
-Le dictionnaire compte 415 clés déclinées dans les 16 langues. Sa cohérence est
+Le dictionnaire compte 516 clés déclinées dans les 16 langues. Sa cohérence est
 tenue par les tests : parité des clés, paramètres `{nom}` identiques d'une langue
 à l'autre, aucune valeur vide, et vérification que le russe, l'arabe, le hindi,
 le chinois, le japonais et le coréen sont bien écrits dans leur écriture — une
@@ -121,18 +121,22 @@ traduction oubliée se repère à ce qu'elle reste en caractères latins.
 Ce qui est traduit de bout en bout : l'écran de connexion, l'assistant
 d'installation, l'espace collaborateur, l'espace RH, la console d'administration,
 le chrome présent sur chaque page (en-tête, compte, déconnexion, sélecteur de
-thème, navigation latérale des quatre espaces) et **tous les statuts** affichés
-dans le produit.
+thème, navigation latérale des quatre espaces), **tous les statuts** affichés
+dans le produit, et le **vocabulaire générique** — les libellés de colonnes, de
+champs et de boutons qui reviennent d'un écran à l'autre : *Intitulé*,
+*Catégorie*, *Description*, *Montant*, *Échéance*, *Enregistrer*, *Supprimer*.
+Ces 101 termes couvrent 673 emplacements répartis sur 55 vues.
 
-Ce qui ne l'est pas encore : le corps des écrans ajoutés lors des derniers lots
-— direction, planning, qualité, accueil, parapheur, pièces reçues, trésorerie,
-immobilisations, flotte, CRM, projets, sauvegardes, interfaces. Cela représente
-**1 745 chaînes visibles réparties sur 64 des 76 vues**. Elles s'affichent en
-français quelle que soit la langue choisie ; rien n'est cassé, mais un acheteur
-allemand ou japonais verra ces pages dans une langue qui n'est pas la sienne.
-C'est un travail de traduction volumineux, à mener écran par écran plutôt qu'en
-une passe automatique : une traduction approximative dans un produit vendu coûte
-plus cher que son absence.
+Ce qui ne l'est pas encore : le vocabulaire propre à chaque écran des derniers
+lots — direction, planning, qualité, accueil, parapheur, pièces reçues,
+trésorerie, immobilisations, flotte, CRM, projets, sauvegardes, interfaces.
+Il reste **1 611 chaînes visibles sur 64 des 76 vues**, désormais des phrases et
+des termes métier apparaissant sur un ou deux écrans seulement — plus aucun mot
+générique. Elles s'affichent en français quelle que soit la langue choisie ;
+rien n'est cassé, mais un acheteur allemand ou japonais verra ces pages dans une
+langue qui n'est pas la sienne. C'est un travail à mener écran par écran plutôt
+qu'en une passe automatique : une traduction approximative dans un produit vendu
+coûte plus cher que son absence.
 
 ---
 

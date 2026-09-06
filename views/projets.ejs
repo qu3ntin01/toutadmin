@@ -12,7 +12,7 @@
         { tab: 'mes-taches', label: 'Mes tâches', icon: 'check', badge: myTasks.length },
         { tab: 'mon-temps', label: 'Mon temps', icon: 'clock' }
       ],
-      footLinks: [{ href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: 'Retour', icon: 'back' }]
+      footLinks: [{ href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('common.back'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -55,29 +55,29 @@
                 <div class="card-head"><h3>Ouvrir un projet</h3></div>
                 <form method="POST" action="/projets" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <label><span>Code</span><input type="text" name="code" maxlength="20" placeholder="PRJ-24" /></label>
-                  <label><span>Statut</span>
+                  <label><span><%= t('common.code') %></span><input type="text" name="code" maxlength="20" placeholder="PRJ-24" /></label>
+                  <label><span><%= t('common.status') %></span>
                     <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
                   </label>
-                  <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="160" /></label>
-                  <label><span>Client</span>
+                  <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="name" required maxlength="160" /></label>
+                  <label><span><%= t('common.client') %></span>
                     <select name="partner_id"><option value="">—</option><% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %></select>
                   </label>
-                  <label><span>Responsable</span>
+                  <label><span><%= t('common.owner') %></span>
                     <select name="lead_id"><option value="">—</option><% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %></select>
                   </label>
-                  <label><span>Service</span>
+                  <label><span><%= t('common.department') %></span>
                     <select name="department_id"><option value="">—</option><% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %></select>
                   </label>
-                  <label><span>Équipe</span>
+                  <label><span><%= t('common.team') %></span>
                     <select name="team_id"><option value="">—</option><% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %></select>
                   </label>
-                  <label><span>Début</span><input type="date" name="start_date" /></label>
-                  <label><span>Échéance</span><input type="date" name="due_date" /></label>
+                  <label><span><%= t('common.start') %></span><input type="date" name="start_date" /></label>
+                  <label><span><%= t('erp.dueDate') %></span><input type="date" name="due_date" /></label>
                   <label><span>Budget (€)</span><input type="text" name="budget_amount" inputmode="decimal" placeholder="25000" /></label>
                   <label><span>Taux horaire (€)</span><input type="text" name="hourly_rate" inputmode="decimal" placeholder="75" /></label>
-                  <label class="span-2"><span>Description</span><textarea name="description" rows="3"></textarea></label>
-                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer</button></div>
+                  <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="3"></textarea></label>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button></div>
                 </form>
                 <p class="hint">Le taux horaire sert à convertir le temps passé en coût : sans lui, seules les heures sont suivies.</p>
               </div>
@@ -115,7 +115,7 @@
                         <span class="cell-sub"><%= p.profit.consumed %> % du budget consommé</span>
                       <% } %>
                     </span>
-                    <a class="btn btn-outline btn-sm" href="/projets/<%= p.id %>">Ouvrir</a>
+                    <a class="btn btn-outline btn-sm" href="/projets/<%= p.id %>"><%= t('common.open') %></a>
                   </li>
                 <% }) %>
                 <% if (projectList.length === 0) { %><li class="cell-sub">Aucun projet pour l'instant.</li><% } %>
@@ -130,7 +130,7 @@
             <div class="card-head"><h3><%= myTasks.length %> tâche(s) à traiter</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Tâche</th><th>Projet</th><th>Priorité</th><th>Échéance</th><th>Statut</th></tr></thead>
+                <thead><tr><th><%= t('common.task') %></th><th><%= t('common.project') %></th><th><%= t('common.priority') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.status') %></th></tr></thead>
                 <tbody>
                   <% myTasks.forEach((task) => { %>
                     <tr>
@@ -165,7 +165,7 @@
             <p class="hint">Le temps se saisit depuis la fiche du projet, onglet « Temps passé ».</p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Date</th><th>Projet</th><th>Tâche</th><th>Heures</th><th>Note</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.date') %></th><th><%= t('common.project') %></th><th><%= t('common.task') %></th><th><%= t('common.hours') %></th><th><%= t('common.note') %></th><th></th></tr></thead>
                 <tbody>
                   <% myTime.forEach((e) => { %>
                     <tr>
@@ -177,7 +177,7 @@
                       <td>
                         <form method="POST" action="/projets/temps/<%= e.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette saisie ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </td>
                     </tr>

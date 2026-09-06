@@ -27,11 +27,11 @@
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= chart.departments.length %></span><span class="stat-label">Services</span></span>
+            <span class="stat-body"><span class="stat-value"><%= chart.departments.length %></span><span class="stat-label"><%= t('org.departments') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= chart.departments.reduce((n, d) => n + d.teams.length, 0) + chart.orphanTeams.length %></span><span class="stat-label">Équipes</span></span>
+            <span class="stat-body"><span class="stat-value"><%= chart.departments.reduce((n, d) => n + d.teams.length, 0) + chart.orphanTeams.length %></span><span class="stat-label"><%= t('org.teams') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>

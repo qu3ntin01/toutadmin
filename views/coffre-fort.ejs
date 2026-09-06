@@ -46,7 +46,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Document</th><th>Catégorie</th><th>Période</th><th>Déposé le</th><th>Conservé jusqu'au</th><th>Taille</th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th>Déposé le</th><th>Conservé jusqu'au</th><th><%= t('common.size') %></th><th></th></tr></thead>
                   <tbody>
                     <% documents.forEach((d) => { %>
                       <tr>
@@ -61,7 +61,7 @@
                         <td class="cell-sub nowrap"><%= moment(d.deposited_at) %></td>
                         <td class="cell-sub nowrap"><%= day(d.retention_until) %></td>
                         <td class="cell-sub nowrap"><%= size(d.byte_size) %></td>
-                        <td><a class="btn btn-primary btn-sm" href="/coffre-fort/documents/<%= d.id %>">Télécharger</a></td>
+                        <td><a class="btn btn-primary btn-sm" href="/coffre-fort/documents/<%= d.id %>"><%= t('common.download') %></a></td>
                       </tr>
                     <% }) %>
                   </tbody>
@@ -82,7 +82,7 @@
             </p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Période</th><th>Brut</th><th>Net</th><th>Statut</th><th>Document</th></tr></thead>
+                <thead><tr><th><%= t('common.period') %></th><th>Brut</th><th>Net</th><th><%= t('common.status') %></th><th><%= t('common.document') %></th></tr></thead>
                 <tbody>
                   <% payslips.forEach((p) => { %>
                     <% const doc = documents.find((d) => d.payslip_id === p.id) %>
@@ -93,7 +93,7 @@
                       <td><span class="tag <%= p.status === 'Payée' ? 'tag-success' : '' %>"><%= st(p.status) %></span></td>
                       <td>
                         <% if (doc) { %>
-                          <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= doc.id %>">Télécharger</a>
+                          <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= doc.id %>"><%= t('common.download') %></a>
                         <% } else { %>
                           <span class="cell-sub">non déposé</span>
                         <% } %>

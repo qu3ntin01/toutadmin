@@ -10,7 +10,7 @@
       navItems: entities.map((e) => ({ href: '#' + e.key, label: e.label, icon: 'inbox', active: e.key === selected })),
       footLinks: [
         { href: '/admin', label: "Console d'administration", icon: 'settings' },
-        { href: '/gestion', label: 'Gestion', icon: 'briefcase' }
+        { href: '/gestion', label: t('status.stageManagement'), icon: 'briefcase' }
       ]
     }) %>
 
@@ -34,7 +34,7 @@
               </p>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Identifiant</th><th>Mot de passe temporaire</th></tr></thead>
+                  <thead><tr><th><%= t('common.identifier') %></th><th><%= t('common.temporaryPassword') %></th></tr></thead>
                   <tbody>
                     <% result.credentials.forEach((c) => { %>
                       <tr><td class="cell-strong"><%= c.email %></td><td class="mono"><%= c.password %></td></tr>
@@ -63,7 +63,7 @@
 
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Ligne</th><th>Contenu</th><th>Verdict</th></tr></thead>
+                <thead><tr><th>Ligne</th><th><%= t('common.content') %></th><th>Verdict</th></tr></thead>
                 <tbody>
                   <% preview.rows.forEach((row) => { %>
                     <tr>
@@ -73,7 +73,7 @@
                         <% if (row.ok) { %>
                           <span class="tag tag-success">Prête</span>
                         <% } else { %>
-                          <span class="tag tag-danger">Refusée</span>
+                          <span class="tag tag-danger"><%= t('status.refused') %></span>
                           <div class="cell-sub"><%= row.message %></div>
                         <% } %>
                       </td>
@@ -129,7 +129,7 @@
             <p class="cell-sub"><%= e.hint %></p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Colonne</th><th>Contenu attendu</th><th>Obligatoire</th></tr></thead>
+                <thead><tr><th>Colonne</th><th>Contenu attendu</th><th><%= t('common.mandatory') %></th></tr></thead>
                 <tbody>
                   <% e.columns.forEach((c) => { %>
                     <tr>

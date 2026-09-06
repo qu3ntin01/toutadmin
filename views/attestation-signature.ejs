@@ -16,7 +16,7 @@
         headerTitle: 'Attestation de signature',
         headerSubtitle: request.title,
         backHref: '/parapheur/' + request.id,
-        backLabel: 'Document'
+        backLabel: t('common.document')
       }) %>
 
       <main class="page">
@@ -30,12 +30,12 @@
 
           <table>
             <tbody>
-              <tr><td class="cell-sub">Document</td><td class="cell-strong"><%= request.title %></td></tr>
-              <tr><td class="cell-sub">Nature</td><td><%= request.kind %></td></tr>
+              <tr><td class="cell-sub"><%= t('common.document') %></td><td class="cell-strong"><%= request.title %></td></tr>
+              <tr><td class="cell-sub"><%= t('common.nature') %></td><td><%= request.kind %></td></tr>
               <tr><td class="cell-sub">Support</td><td><%= request.file_name ? `${request.original_name} (${request.mime_type})` : 'Texte saisi dans le parapheur' %></td></tr>
               <tr><td class="cell-sub">Empreinte SHA-256</td><td class="mono"><%= request.sha256 %></td></tr>
               <tr><td class="cell-sub">Mis à la signature le</td><td><%= moment(request.created_at) %></td></tr>
-              <tr><td class="cell-sub">État</td><td><%= st(request.status) %><%= request.completed_at ? ` le ${moment(request.completed_at)}` : '' %></td></tr>
+              <tr><td class="cell-sub"><%= t('common.state') %></td><td><%= st(request.status) %><%= request.completed_at ? ` le ${moment(request.completed_at)}` : '' %></td></tr>
               <tr><td class="cell-sub">Attestation établie le</td><td><%= moment(generatedAt) %></td></tr>
             </tbody>
           </table>
@@ -45,7 +45,7 @@
           <div class="card-head"><h3>Signatures</h3></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Rang</th><th>Signataire</th><th>Qualité</th><th>État</th><th>Horodatage</th><th>Adresse</th><th>Sceau</th></tr></thead>
+              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th>Qualité</th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.address') %></th><th><%= t('common.seal') %></th></tr></thead>
               <tbody>
                 <% request.signers.forEach((s) => { %>
                   <% const check = verification.seals.find((v) => v.signer.id === s.id); %>

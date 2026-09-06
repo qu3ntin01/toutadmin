@@ -156,7 +156,7 @@
                       <input type="password" name="current_password" required autocomplete="current-password" />
                     </label>
                     <div class="span-2">
-                      <button type="submit" class="btn btn-danger btn-sm">Désactiver</button>
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.disable') %></button>
                     </div>
                   </form>
                 <% } %>
@@ -174,7 +174,7 @@
                     <input type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
                   </label>
                   <div class="span-2">
-                    <button type="submit" class="btn btn-primary btn-block">Activer</button>
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('common.enable') %></button>
                   </div>
                 </form>
 
