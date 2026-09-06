@@ -84,6 +84,9 @@ qui relie le tout.
 | **Déclarations de TVA** : collectée, déductible, ventilation par taux, crédit reportable | ✅ |
 | **Facturation récurrente et abonnements**, émis au balayage sans doublon possible | ✅ |
 | **Multidevise**, taux figé à l'émission de chaque pièce | ✅ |
+| **Lecture automatique des factures reçues** : montants, dates, identifiants vérifiés par leur clé | ✅ |
+| **Capture IMAP** d'une boîte aux lettres comptable, pièces jointes analysées | ✅ |
+| **Analyse assistée par modèle de langage**, optionnelle et éteinte par défaut | ✅ |
 
 ## Moyens généraux
 

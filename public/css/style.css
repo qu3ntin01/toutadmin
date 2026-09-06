@@ -658,6 +658,9 @@ textarea { resize: vertical; }
 /* ---------- Tableaux ---------- */
 
 .table-wrap { overflow-x: auto; margin: 0 -20px -18px; }
+/* Le retrait du bas ne vaut que si le tableau termine la carte. Sinon il fait
+   remonter ce qui suit par-dessus la dernière ligne. */
+.table-wrap:not(:last-child) { margin-bottom: 10px; }
 .table-wrap table { min-width: 100%; }
 
 table { width: 100%; border-collapse: collapse; }

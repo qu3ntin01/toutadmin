@@ -10,6 +10,7 @@ const { UPLOAD_DIR } = require('./uploads');
 const cv = require('./cv');
 const vault = require('./vault');
 const signing = require('./signing');
+const intake = require('./intake');
 
 /**
  * Export intégral de l'instance, dans un format que d'autres outils savent lire.
@@ -84,6 +85,7 @@ Ce dossier contient toutes les données de l'instance, dans un format ouvert.
   fichiers/cv/           CV reçus
   fichiers/coffre/       coffre-fort (bulletins et documents scellés)
   fichiers/parapheur/    documents mis à la signature
+  fichiers/pieces/       factures reçues (dépôts et captures de messagerie)
   meta/manifeste.json    inventaire, empreintes SHA-256, date de l'export
 
 Ce que l'export ne contient pas, volontairement :
@@ -118,6 +120,7 @@ function build() {
     ...collectFiles('cv', cv.CV_DIR),
     ...collectFiles('coffre', vault.VAULT_DIR),
     ...collectFiles('parapheur', signing.SIGN_DIR),
+    ...collectFiles('pieces', intake.DOCS_DIR),
   ];
   entries.push(...files);
 
@@ -175,6 +178,7 @@ function preview() {
       cv: count(cv.CV_DIR),
       coffre: count(vault.VAULT_DIR),
       parapheur: count(signing.SIGN_DIR),
+      pieces: count(intake.DOCS_DIR),
     },
     skipped: [...SKIPPED_TABLES],
     skippedColumns: SKIPPED_COLUMNS,

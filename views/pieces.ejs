@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: 'Pièces reçues — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: 'Pièces reçues',
+      navItems: [
+        { tab: 'a-traiter', label: 'À traiter', icon: 'inbox', badge: stats.waiting },
+        { tab: 'traitees', label: 'Traitées', icon: 'check' },
+        { tab: 'capture', label: 'Boîte aux lettres', icon: 'external' },
+        { tab: 'analyse', label: 'Analyse assistée', icon: 'network' }
+      ],
+      footLinks: [
+        { href: '/gestion', label: 'Gestion', icon: 'briefcase' },
+        { href: '/comptabilite', label: 'Comptabilité', icon: 'card' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'Pièces reçues',
+        headerSubtitle: 'Factures déposées ou relevées dans la boîte aux lettres'
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const moment = (iso) => (iso ? new Date(String(iso).replace(' ', 'T') + (String(iso).includes('Z') ? '' : 'Z')).toLocaleString(locale) : '—'); %>
+        <% const money = (n, code) => (n === null || n === undefined ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (code || '')); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.waiting %></span><span class="stat-label">Pièces à traiter</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.lowConfidence %></span><span class="stat-label">Lectures peu sûres</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.unreadable %></span><span class="stat-label">Sans texte lisible</span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.invoiced %></span><span class="stat-label">Devenues factures</span></span>
+          </div>
+        </section>
+
+        <% const pieceList = (rows, empty) => { %>
+          <% if (!rows.length) { %>
+            <p class="empty-state"><%= empty %></p>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Reçue</th><th>Pièce</th><th>Émetteur</th><th>Montant</th><th>Lecture</th><th>État</th></tr></thead>
+                <tbody>
+                  <% rows.forEach((d) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap">
+                        <%= day(d.received_at) %><br />
+                        <span class="cell-sub"><%= d.source %></span>
+                      </td>
+                      <td>
+                        <div class="cell-strong"><a href="/pieces/<%= d.id %>"><%= d.fields.reference || d.original_name || `Pièce ${d.id}` %></a></div>
+                        <div class="cell-sub"><%= d.original_name %></div>
+                        <% if (d.mail_from) { %><div class="cell-sub">de <%= d.mail_from %></div><% } %>
+                      </td>
+                      <td class="cell-sub">
+                        <%= d.partner_name || d.fields.supplierName || '—' %>
+                        <% if (d.partner_name) { %><br /><span class="tag tag-success">tiers connu</span><% } %>
+                      </td>
+                      <td class="num"><%= money(d.fields.amountTtc, d.fields.currency) %></td>
+                      <td>
+                        <span class="meter"><span class="meter-fill <%= d.confidence < 40 ? 'is-over' : (d.confidence < 70 ? 'is-warn' : '') %>" data-ratio="<%= d.confidence %>"></span></span>
+                        <span class="cell-sub"><%= d.confidence %> %<%= d.text_length ? '' : ' · sans texte' %></span>
+                      </td>
+                      <td>
+                        <span class="tag <%= d.status === 'Facturée' ? 'tag-success' : (d.status === 'Écartée' ? 'tag-danger' : 'tag-warning') %>"><%= d.status %></span>
+                        <% if (d.invoice_reference) { %><br /><span class="cell-sub mono"><%= d.invoice_reference %></span><% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        <% }; %>
+
+        <!-- ---------- À traiter ---------- -->
+        <section class="tab-panel is-active" id="a-traiter">
+          <div class="card">
+            <div class="card-head"><h3>Déposer une facture</h3></div>
+            <form method="POST" action="/pieces/deposer" enctype="multipart/form-data" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span>Fichier PDF, DOCX ou texte (<%= Math.round(maxBytes / 1048576) %> Mo maximum)</span>
+                <input type="file" name="document" accept=".pdf,.docx,.txt,application/pdf,text/plain" required />
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déposer et analyser</button></div>
+            </form>
+            <p class="hint">
+              Le fichier est conservé tel quel comme justificatif. Son texte est lu pour pré-remplir la facture :
+              émetteur, numéro, dates, montants, taux, IBAN. Rien n'entre en comptabilité sans votre validation.
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= waiting.length %> pièce(s) à traiter</h3></div>
+            <% pieceList(waiting, 'Rien en attente.') %>
+          </div>
+        </section>
+
+        <!-- ---------- Traitées ---------- -->
+        <section class="tab-panel" id="traitees">
+          <div class="card">
+            <div class="card-head"><h3>Pièces traitées</h3></div>
+            <% pieceList(handled, 'Aucune pièce traitée.') %>
+          </div>
+        </section>
+
+        <!-- ---------- Capture ---------- -->
+        <section class="tab-panel" id="capture">
+          <div class="card">
+            <div class="card-head">
+              <h3>Relever la boîte aux lettres</h3>
+              <span class="tag <%= mail.enabled ? 'tag-success' : '' %>"><%= mail.enabled ? 'Active' : 'Inactive' %></span>
+            </div>
+            <% if (mailStatus) { %>
+              <div class="flash flash-<%= mailStatus.ok ? 'success' : 'error' %>">
+                Dernière relève le <%= moment(mailStatus.at) %> : <%= mailStatus.message %>
+              </div>
+            <% } %>
+
+            <% if (admin) { %>
+              <form method="POST" action="/pieces/capture/reglages" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Serveur IMAP</span><input type="text" name="host" maxlength="200" value="<%= mail.host %>" placeholder="imap.exemple.fr" required /></label>
+                <label><span>Port</span><input type="number" name="port" min="1" max="65535" value="<%= mail.port %>" required /></label>
+                <label><span>Identifiant</span><input type="text" name="user" maxlength="200" value="<%= mail.user %>" placeholder="factures@exemple.fr" required /></label>
+                <label><span>Mot de passe</span><input type="password" name="password" placeholder="<%= mail.password || '' %>" autocomplete="new-password" /></label>
+                <label><span>Dossier relevé</span><input type="text" name="folder" maxlength="120" value="<%= mail.folder %>" /></label>
+                <label><span>Après traitement</span>
+                  <select name="action">
+                    <% mailActions.forEach((a) => { %><option value="<%= a.key %>" <%= a.key === mail.action ? 'selected' : '' %>><%= a.label %></option><% }) %>
+                  </select>
+                </label>
+                <label><span>Dossier de rangement</span><input type="text" name="move_folder" maxlength="120" value="<%= mail.moveFolder %>" /></label>
+                <label><span>Fenêtre de relève (jours)</span><input type="number" name="since_days" min="1" max="365" value="<%= mail.sinceDays %>" /></label>
+                <label><span>Messages par relève</span><input type="number" name="batch" min="1" max="100" value="<%= mail.batch %>" /></label>
+                <label class="check-row"><input type="checkbox" name="secure" value="1" <%= mail.secure ? 'checked' : '' %> /><span>Connexion chiffrée (IMAPS)</span></label>
+                <label class="check-row"><input type="checkbox" name="allow_self_signed" value="1" <%= mail.allowSelfSigned ? 'checked' : '' %> /><span>Accepter un certificat auto-signé</span></label>
+                <label class="check-row"><input type="checkbox" name="enabled" value="1" <%= mail.enabled ? 'checked' : '' %> /><span>Relever automatiquement</span></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              </form>
+            <% } else { %>
+              <p class="hint">Les accès à la boîte aux lettres se règlent depuis l'administration. Vous pouvez relever à la demande.</p>
+            <% } %>
+
+            <div class="row-actions">
+              <% if (mailReady) { %>
+                <form method="POST" action="/pieces/capture/tester" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm">Tester la connexion</button>
+                </form>
+                <form method="POST" action="/pieces/capture/relever" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm">Relever maintenant</button>
+                </form>
+              <% } %>
+            </div>
+
+            <p class="hint">
+              Seuls les messages <strong>non lus</strong> du dossier indiqué, dans la fenêtre de jours choisie, sont
+              relevés — et seules leurs pièces jointes PDF ou DOCX sont retenues. Aucun message n'est supprimé : la
+              boîte reste la source, le CMS n'en est qu'un lecteur.
+            </p>
+            <p class="hint">
+              Le mot de passe est chiffré en base, comme les autres secrets. Sur une boîte Gmail ou Microsoft 365,
+              utilisez un mot de passe d'application dédié plutôt que celui du compte.
+            </p>
+          </div>
+        </section>
+
+        <!-- ---------- Analyse assistée ---------- -->
+        <section class="tab-panel" id="analyse">
+          <div class="card">
+            <div class="card-head">
+              <h3>Analyse assistée par modèle</h3>
+              <span class="tag <%= aiConfig.enabled ? 'tag-success' : '' %>"><%= aiConfig.enabled ? 'Active' : 'Éteinte' %></span>
+            </div>
+
+            <p class="cell-sub">
+              La lecture par règles fonctionne toujours, hors ligne, et ne fait sortir aucune donnée. Un modèle de
+              langage vient par-dessus pour les documents que les règles lisent mal : mises en page inhabituelles,
+              factures étrangères, émetteurs inconnus.
+            </p>
+            <div class="flash flash-error">
+              Activer cette option envoie <strong>le texte des factures reçues</strong> au service choisi — noms,
+              montants, coordonnées bancaires. Choisissez un service dont le traitement des données vous convient,
+              ou un modèle hébergé sur votre propre réseau ; les identifiants d'accès restent chiffrés ici.
+            </div>
+
+            <% if (aiStatus) { %>
+              <div class="flash flash-<%= aiStatus.ok ? 'success' : 'error' %>">
+                Dernier essai le <%= moment(aiStatus.at) %> : <%= aiStatus.message %>
+              </div>
+            <% } %>
+
+            <% if (admin) { %>
+              <form method="POST" action="/pieces/analyse/reglages" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span>Service</span>
+                  <select name="provider">
+                    <% aiProviders.forEach((p) => { %><option value="<%= p.key %>" <%= p.key === aiConfig.provider ? 'selected' : '' %>><%= p.label %></option><% }) %>
+                  </select>
+                </label>
+                <label><span>Modèle</span><input type="text" name="model" maxlength="120" value="<%= aiConfig.model %>" /></label>
+                <label class="span-2"><span>Adresse de l'API (services compatibles OpenAI)</span><input type="url" name="base_url" maxlength="300" value="<%= aiConfig.baseUrl %>" placeholder="https://api.mistral.ai/v1" /></label>
+                <label><span>Clé d'accès</span><input type="password" name="key" placeholder="<%= aiConfig.key || '' %>" autocomplete="new-password" /></label>
+                <label><span>Profondeur d'analyse</span>
+                  <select name="effort">
+                    <% aiEfforts.forEach((e) => { %><option value="<%= e %>" <%= e === aiConfig.effort ? 'selected' : '' %>><%= e %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2 check-row"><input type="checkbox" name="enabled" value="1" <%= aiConfig.enabled ? 'checked' : '' %> /><span>Envoyer le texte des pièces au service pour analyse</span></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              </form>
+
+              <% aiProviders.forEach((p) => { %>
+                <p class="hint"><strong><%= p.label %></strong> — <%= p.hint %></p>
+              <% }) %>
+            <% } else { %>
+              <p class="hint">Ce réglage relève de l'administration : il décide de ce qui sort de l'entreprise.</p>
+            <% } %>
+
+            <% if (aiReady) { %>
+              <div class="row-actions">
+                <form method="POST" action="/pieces/analyse/tester" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm">Essayer sur une facture d'exemple</button>
+                </form>
+              </div>
+            <% } %>
+
+            <p class="hint">
+              Le modèle ne décide de rien : il propose des champs. Ce que les règles savent vérifier — clé de
+              contrôle d'un SIRET, d'un IBAN, cohérence HT + TVA = TTC — leur reste acquis, et vous validez avant
+              toute écriture.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/meter.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

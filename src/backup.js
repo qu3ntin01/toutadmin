@@ -11,6 +11,7 @@ const { UPLOAD_DIR } = require('./uploads');
 const cv = require('./cv');
 const vault = require('./vault');
 const signing = require('./signing');
+const intake = require('./intake');
 
 /**
  * Sauvegarde et restauration de l'instance.
@@ -47,10 +48,13 @@ function fileRoots() {
     // Les documents mis à la signature font preuve : une sauvegarde qui les
     // oublierait rendrait une instance dont les attestations pointent vers rien.
     { root: 'parapheur', dir: signing.SIGN_DIR },
+    // Les pièces reçues justifient des écritures : une sauvegarde sans elles
+    // rendrait une comptabilité sans justificatifs.
+    { root: 'pieces', dir: intake.DOCS_DIR },
   ];
 }
 
-const ARCHIVE_ROOTS = ['db', 'uploads', 'cv', 'coffre', 'parapheur', 'meta'];
+const ARCHIVE_ROOTS = ['db', 'uploads', 'cv', 'coffre', 'parapheur', 'pieces', 'meta'];
 
 function ensureDir() {
   if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR, { recursive: true, mode: 0o700 });

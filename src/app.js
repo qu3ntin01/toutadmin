@@ -67,6 +67,7 @@ const parapheurRoutes = require('./routes/parapheur');
 const apiRoutes = require('./routes/api');
 const integrationRoutes = require('./routes/integrations');
 const demandeRoutes = require('./routes/demandes');
+const pieceRoutes = require('./routes/pieces');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -270,6 +271,7 @@ function createApp() {
   app.use('/parapheur', parapheurRoutes);
   app.use('/integrations', integrationRoutes);
   app.use('/demandes', demandeRoutes);
+  app.use('/pieces', pieceRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);
