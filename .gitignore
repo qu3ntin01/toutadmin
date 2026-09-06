@@ -1,6 +1,10 @@
 node_modules/
-# data/ ne contient que de l'état d'exécution : base, secret de session, photos de
+# /data/ ne contient que de l'état d'exécution : base, secret de session, photos de
 # profil et CV. Des données personnelles n'ont rien à faire dans le dépôt.
-data/
+# La barre initiale est indispensable : sans elle, la règle vise n'importe quel
+# dossier « data » à n'importe quelle profondeur, et elle avalait notamment le
+# catalogue de .claude/skills/ui-ux-pro-max/data/.
+/data/
 .env
 *.log
+__pycache__/
