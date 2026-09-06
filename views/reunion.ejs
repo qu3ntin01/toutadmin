@@ -33,7 +33,7 @@
         <!-- ---------- Ordre du jour ---------- -->
         <section class="tab-panel is-active" id="ordre-du-jour">
           <div class="card">
-            <div class="card-head"><h3>Convocation</h3><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? 'tag-danger' : 'tag-warning') %>"><%= meeting.status %></span></div>
+            <div class="card-head"><h3>Convocation</h3><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? 'tag-danger' : 'tag-warning') %>"><%= st(meeting.status) %></span></div>
             <form method="POST" action="/direction/reunions/<%= meeting.id %>/modifier" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" value="<%= meeting.title %>" /></label>
@@ -151,7 +151,7 @@
                   <li class="meeting-item">
                     <div class="meeting-head">
                       <span class="meeting-title"><%= d.title %></span>
-                      <span class="tag <%= d.status === 'En vigueur' ? 'tag-success' : 'tag-warning' %>"><%= d.status %></span>
+                      <span class="tag <%= d.status === 'En vigueur' ? 'tag-success' : 'tag-warning' %>"><%= st(d.status) %></span>
                     </div>
                     <p class="cell-sub"><%= day(d.decided_on) %> · <%= d.scope %></p>
                     <% if (d.body) { %><p class="cell-sub"><%= d.body %></p><% } %>

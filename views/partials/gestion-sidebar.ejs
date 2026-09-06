@@ -5,9 +5,9 @@ const gestionSections = [
   { tab: 'tiers', label: t('erp.partners'), icon: 'briefcase' },
   { tab: 'contrats', label: t('erp.contracts'), icon: 'shield', badge: typeof stats !== 'undefined' && stats ? stats.renewalCount : 0 },
   { tab: 'factures', label: t('erp.invoices'), icon: 'card' },
-  { tab: 'abonnements', label: 'Abonnements', icon: 'clock', badge: typeof subscriptionDue !== 'undefined' && subscriptionDue ? subscriptionDue.length : 0 },
-  { tab: 'tva', label: 'TVA', icon: 'ballot', badge: typeof vatSummary !== 'undefined' && vatSummary ? vatSummary.pending : 0 },
-  { tab: 'devises', label: 'Devises', icon: 'network' },
+  { tab: 'abonnements', label: t('nav.subscriptions'), icon: 'clock', badge: typeof subscriptionDue !== 'undefined' && subscriptionDue ? subscriptionDue.length : 0 },
+  { tab: 'tva', label: t('nav.vat'), icon: 'ballot', badge: typeof vatSummary !== 'undefined' && vatSummary ? vatSummary.pending : 0 },
+  { tab: 'devises', label: t('nav.currencies'), icon: 'network' },
   { tab: 'budgets', label: t('erp.budgets'), icon: 'network' },
   { tab: 'frais', label: t('erp.claims'), icon: 'ticket', badge: typeof stats !== 'undefined' && stats ? stats.pendingClaims : 0 },
   { tab: 'equipements', label: t('erp.assets'), icon: 'tool' },
@@ -19,9 +19,9 @@ const gestionModules = enabledModules
   .map((m) => ({ href: m.href, label: m.label, icon: m.icon }));
 
 const gestionFootLinks = [
-  { href: '/pieces', label: 'Pièces reçues', icon: 'inbox' },
-  { href: '/flotte', label: 'Flotte de véhicules', icon: 'network' },
-  { href: '/import', label: 'Import de données', icon: 'plus' },
+  { href: '/pieces', label: t('nav.intake'), icon: 'inbox' },
+  { href: '/flotte', label: t('nav.fleet'), icon: 'network' },
+  { href: '/import', label: t('nav.dataImport'), icon: 'plus' },
   ...gestionModules,
   currentUser.role === 'admin'
     ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }

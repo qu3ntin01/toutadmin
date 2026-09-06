@@ -30,7 +30,7 @@
         <div class="card">
           <div class="card-head">
             <h3>État du circuit</h3>
-            <span class="tag <%= request.status === 'Signé' ? 'tag-success' : (request.status === 'En cours' ? 'tag-warning' : 'tag-danger') %>"><%= request.status %></span>
+            <span class="tag <%= request.status === 'Signé' ? 'tag-success' : (request.status === 'En cours' ? 'tag-warning' : 'tag-danger') %>"><%= st(request.status) %></span>
           </div>
           <p class="cell-sub">
             Ouvert le <%= day(request.created_at) %><%= request.deadline ? ` · à signer avant le ${day(request.deadline)}` : '' %>
@@ -76,7 +76,7 @@
                     <td class="cell-strong"><%= s.first_name %> <%= s.last_name %><br /><span class="cell-sub"><%= s.grade || '' %></span></td>
                     <td class="cell-sub"><%= s.role_label || '—' %></td>
                     <td>
-                      <span class="tag <%= s.status === 'Signé' ? 'tag-success' : (s.status === 'Refusé' ? 'tag-danger' : 'tag-warning') %>"><%= s.status %></span>
+                      <span class="tag <%= s.status === 'Signé' ? 'tag-success' : (s.status === 'Refusé' ? 'tag-danger' : 'tag-warning') %>"><%= st(s.status) %></span>
                       <% if (s.reason) { %><div class="cell-sub"><%= s.reason %></div><% } %>
                     </td>
                     <td class="cell-sub nowrap"><%= moment(s.signed_at) %><% if (s.ip) { %><br /><span class="cell-sub">depuis <%= s.ip %></span><% } %></td>

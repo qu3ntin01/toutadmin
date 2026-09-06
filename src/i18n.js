@@ -56,6 +56,96 @@ function translate(locale, key, params) {
   return value;
 }
 
+/*
+ * Les statuts sont stockés en français dans la base : c'est la valeur métier,
+ * elle sert aux contraintes CHECK et aux comparaisons, et elle ne bouge pas.
+ * Cette table ne traduit que ce qui est *affiché*. Les paires de genre du
+ * français (Annulé / Annulée) retombent sur une seule clé, les autres langues
+ * ne faisant pas la distinction.
+ */
+const STATUS_KEYS = {
+  'À faire': 'status.todo',
+  'À remettre': 'status.toHandOver',
+  'À traiter': 'status.toProcess',
+  'À verser': 'status.due',
+  Abandonné: 'status.abandoned',
+  Abandonnée: 'status.abandoned',
+  Accepté: 'status.accepted',
+  Actif: 'common.active',
+  Affecté: 'status.assigned',
+  Annulé: 'status.cancelled',
+  Annulée: 'status.cancelled',
+  Approuvée: 'status.approved',
+  Archivé: 'status.archived',
+  Atteint: 'status.reached',
+  Brouillon: 'status.draft',
+  Cadrage: 'status.framing',
+  Candidatures: 'status.applications',
+  Cédé: 'status.disposed',
+  Clos: 'status.closed',
+  Clôturé: 'status.closed',
+  Clôturée: 'status.closed',
+  Commandée: 'status.ordered',
+  Confirmée: 'status.confirmed',
+  Déclarée: 'status.declared',
+  Demandée: 'status.requested',
+  Disponible: 'status.available',
+  Écartée: 'status.discarded',
+  Échec: 'status.failed',
+  Échu: 'status.matured',
+  Émise: 'status.issued',
+  'En attente': 'status.pending',
+  'En cours': 'status.running',
+  'En maintenance': 'status.underMaintenance',
+  'En pause': 'status.paused',
+  'En réparation': 'status.underRepair',
+  'En revue': 'status.inReview',
+  'En service': 'status.inService',
+  'En traitement': 'status.processing',
+  'En vigueur': 'status.inForce',
+  Envoyé: 'status.sent',
+  Expiré: 'status.expired',
+  Facturée: 'status.invoiced',
+  Faite: 'status.done',
+  Gestion: 'status.stageManagement',
+  Immobilisé: 'status.grounded',
+  Inscrite: 'status.enrolled',
+  Livré: 'status.delivered',
+  Maîtrisé: 'status.mitigated',
+  Manager: 'status.stageManager',
+  Ouvert: 'status.open',
+  Ouverte: 'status.open',
+  Payée: 'status.paid',
+  Planifié: 'status.scheduled',
+  Planifiée: 'status.scheduled',
+  Pourvu: 'status.filled',
+  Réalisé: 'status.completed',
+  Réformé: 'status.writtenOff',
+  Refusé: 'status.refused',
+  Refusée: 'status.refused',
+  Remboursée: 'status.reimbursed',
+  Remis: 'status.handedOver',
+  Résilié: 'status.terminated',
+  Résolu: 'status.resolved',
+  Signé: 'status.signed',
+  Suspendue: 'status.suspended',
+  Tenue: 'status.held',
+  Terminée: 'status.finished',
+  Validée: 'status.validated',
+  Vote: 'status.voting',
+};
+
+/**
+ * Libellé affichable d'un statut stocké. Une valeur inconnue — un statut
+ * ajouté par l'exploitant, par exemple — ressort telle quelle : mieux vaut
+ * un mot français qu'une case vide.
+ */
+function statusLabel(locale, value) {
+  if (!value) return '';
+  const key = STATUS_KEYS[value];
+  return key ? translate(locale, key) : value;
+}
+
 // Ordre de résolution : choix du compte, puis cookie (visiteur non connecté), puis navigateur.
 function resolveLocale(req) {
   if (req.session && req.session.user && isSupported(req.session.user.locale)) {
@@ -81,7 +171,8 @@ function middleware(req, res, next) {
   res.locals.localeDir = info.dir;
   res.locals.locales = LOCALES;
   res.locals.t = (key, params) => translate(locale, key, params);
+  res.locals.st = (value) => statusLabel(locale, value);
   next();
 }
 
-module.exports = { LOCALES, DEFAULT_LOCALE, isSupported, localeInfo, translate, middleware };
+module.exports = { LOCALES, DEFAULT_LOCALE, STATUS_KEYS, isSupported, localeInfo, translate, statusLabel, middleware };

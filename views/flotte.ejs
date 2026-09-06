@@ -65,7 +65,7 @@
                       <td class="cell-sub nowrap"><%= v.mileage.toLocaleString(locale) %></td>
                       <td class="<%= v.inspection_due && v.inspection_due < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(v.inspection_due) %></td>
                       <td class="<%= v.insurance_due && v.insurance_due < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(v.insurance_due) %></td>
-                      <td><span class="tag <%= v.status === 'En service' ? 'tag-success' : (v.status === 'Cédé' ? '' : 'tag-warning') %>"><%= v.status %></span></td>
+                      <td><span class="tag <%= v.status === 'En service' ? 'tag-success' : (v.status === 'Cédé' ? '' : 'tag-warning') %>"><%= st(v.status) %></span></td>
                       <td><a class="btn btn-outline btn-sm" href="/flotte/<%= v.id %>">Ouvrir</a></td>
                     </tr>
                   <% }) %>

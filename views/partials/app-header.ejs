@@ -3,7 +3,7 @@
    Attend : headerTitle, headerSubtitle?, userRoleLabel?, backHref?, backLabel? */
 const roleLabel = typeof userRoleLabel !== 'undefined' && userRoleLabel
   ? userRoleLabel
-  : (currentUser.role === 'admin' ? 'Administration' : currentUser.grade);
+  : (currentUser.role === 'admin' ? t('common.adminRole') : currentUser.grade);
 %>
 <header class="app-header">
   <div class="app-header-title">
@@ -29,9 +29,9 @@ const roleLabel = typeof userRoleLabel !== 'undefined' && userRoleLabel
     </div>
     <form method="POST" action="/deconnexion">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-      <button type="submit" class="btn btn-quiet" title="Se déconnecter">
+      <button type="submit" class="btn btn-quiet" title="<%= t('common.logout') %>">
         <%- include('icon', { name: 'logout', iconSize: 16 }) %>
-        <span class="btn-label">Déconnexion</span>
+        <span class="btn-label"><%= t('common.logout') %></span>
       </button>
     </form>
   </div>

@@ -91,7 +91,7 @@
                         <td class="num"><%= r.days %> j</td>
                         <td class="cell-sub"><%= r.reason || '—' %></td>
                         <td>
-                          <span class="status <%= statusClass %>"><%= r.status %></span>
+                          <span class="status <%= statusClass %>"><%= st(r.status) %></span>
                           <% if (r.review_note) { %><div class="cell-sub">« <%= r.review_note %> »</div><% } %>
                         </td>
                         <td class="actions">
@@ -220,7 +220,7 @@
                           <td class="mono"><%= p.period %></td>
                           <td class="num cell-sub"><%= p.gross_amount.toFixed(2) %> €</td>
                           <td class="num cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
-                          <td><span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= p.status %></span></td>
+                          <td><span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= st(p.status) %></span></td>
                           <td class="actions">
                             <% if (p.status !== 'Payée') { %>
                               <form method="POST" action="/rh/paie/<%= p.id %>/marquer-payee">
@@ -445,7 +445,7 @@
                   <li class="meeting-item">
                     <div class="meeting-head">
                       <span class="meeting-title"><%= election.title %></span>
-                      <span class="status <%= election.status === 'Vote' ? 'status-on' : (election.status === 'Clôturée' ? 'status-off' : 'status-warning') %>"><%= election.status %></span>
+                      <span class="status <%= election.status === 'Vote' ? 'status-on' : (election.status === 'Clôturée' ? 'status-off' : 'status-warning') %>"><%= st(election.status) %></span>
                     </div>
                     <p class="cell-sub">
                       <%= t('cse.seats') %> : <%= election.seats %> · <%= t('cse.turnout') %> : <%= turnout.rate %> % (<%= turnout.voters %>/<%= turnout.electorate %>)
@@ -492,7 +492,7 @@
                                 </td>
                                 <td class="cell-sub"><%= candidate.statement || '—' %></td>
                                 <td>
-                                  <span class="status <%= candidate.status === 'Validée' ? 'status-on' : (candidate.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= candidate.status %></span>
+                                  <span class="status <%= candidate.status === 'Validée' ? 'status-on' : (candidate.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= st(candidate.status) %></span>
                                 </td>
                                 <% if (election.status === 'Clôturée') { %>
                                   <td><strong><%= (results.find((r) => r.id === candidate.id) || {}).votes || 0 %></strong></td>
@@ -716,7 +716,7 @@
                       <li class="meeting-item">
                         <div class="meeting-head">
                           <span class="meeting-title"><%= s.title %></span>
-                          <span class="status <%= s.status === 'Annulée' ? 'status-danger' : (s.status === 'Terminée' ? 'status-off' : 'status-on') %>"><%= s.status %></span>
+                          <span class="status <%= s.status === 'Annulée' ? 'status-danger' : (s.status === 'Terminée' ? 'status-off' : 'status-on') %>"><%= st(s.status) %></span>
                         </div>
                         <p class="cell-sub">
                           <%= new Date(s.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><%= s.end_date ? ' → ' + new Date(s.end_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '' %><%= s.location ? ' · ' + s.location : '' %>
@@ -760,7 +760,7 @@
                               <div class="cell-sub"><%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></div>
                             </td>
                             <td>
-                              <span class="status <%= r.status === 'Inscrite' ? 'status-on' : (r.status === 'Refusée' ? 'status-danger' : (r.status === 'Terminée' ? 'status-off' : 'status-warning')) %>"><%= r.status %></span>
+                              <span class="status <%= r.status === 'Inscrite' ? 'status-on' : (r.status === 'Refusée' ? 'status-danger' : (r.status === 'Terminée' ? 'status-off' : 'status-warning')) %>"><%= st(r.status) %></span>
                             </td>
                             <td class="actions">
                               <% if (r.status === 'Demandée') { %>
@@ -837,7 +837,7 @@
                     <li class="meeting-item">
                       <div class="meeting-head">
                         <span class="meeting-title"><%= r.first_name %> <%= r.last_name %> — <%= r.period %></span>
-                        <span class="status <%= r.status === 'Réalisé' ? 'status-on' : (r.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= r.status %></span>
+                        <span class="status <%= r.status === 'Réalisé' ? 'status-on' : (r.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= st(r.status) %></span>
                       </div>
                       <p class="cell-sub">
                         <%= r.scheduled_on ? new Date(r.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—' %>
@@ -1031,7 +1031,7 @@
                     <li class="meeting-item">
                       <div class="meeting-head">
                         <span class="meeting-title"><%= o.title %></span>
-                        <span class="status <%= o.status === 'Pourvu' ? 'status-on' : (o.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= o.status %></span>
+                        <span class="status <%= o.status === 'Pourvu' ? 'status-on' : (o.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= st(o.status) %></span>
                       </div>
                       <p class="cell-sub">
                         <%= [o.department_name, o.team_name, o.contract_type].filter(Boolean).join(' · ') || '—' %>

@@ -145,7 +145,7 @@
                   <% if (election.candidacy_deadline) { %> · <%= t('leave.to') %> <%= new Date(election.candidacy_deadline + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><% } %>
                 </p>
               </div>
-              <span class="status <%= election.status === 'Vote' ? 'status-on' : 'status-warning' %>"><%= t('cse.phase') %> : <%= election.status %></span>
+              <span class="status <%= election.status === 'Vote' ? 'status-on' : 'status-warning' %>"><%= t('cse.phase') %> : <%= st(election.status) %></span>
             </div>
 
             <% if (election.description) { %><p class="benefit-text"><%= election.description %></p><% } %>
@@ -154,7 +154,7 @@
               <% if (myCandidacy) { %>
                 <div class="banner">
                   <%- include('partials/icon', { name: 'check', iconSize: 17 }) %>
-                  <span><%= t('cse.myCandidacy') %> — <%= myCandidacy.status %></span>
+                  <span><%= t('cse.myCandidacy') %> — <%= st(myCandidacy.status) %></span>
                 </div>
                 <% if (myCandidacy.statement) { %><p class="benefit-text"><%= myCandidacy.statement %></p><% } %>
                 <form method="POST" action="/cse/candidature/retirer" data-confirm="Retirer votre candidature au CSE ?">
@@ -221,7 +221,7 @@
                       <span class="cell-sub"><%= candidate.grade %><%= candidate.department_name ? ' · ' + candidate.department_name : '' %></span>
                       <% if (candidate.statement) { %><span class="benefit-text"><%= candidate.statement %></span><% } %>
                     </span>
-                    <span class="status <%= candidate.status === 'Validée' ? 'status-on' : (candidate.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= candidate.status %></span>
+                    <span class="status <%= candidate.status === 'Validée' ? 'status-on' : (candidate.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= st(candidate.status) %></span>
                   </li>
                 <% }) %>
               </ul>

@@ -90,7 +90,7 @@
                       <td class="cell-strong nowrap"><%= p.period %></td>
                       <td><%= money(p.gross_amount) %></td>
                       <td class="cell-strong"><%= money(p.net_amount) %></td>
-                      <td><span class="tag <%= p.status === 'Payée' ? 'tag-success' : '' %>"><%= p.status %></span></td>
+                      <td><span class="tag <%= p.status === 'Payée' ? 'tag-success' : '' %>"><%= st(p.status) %></span></td>
                       <td>
                         <% if (doc) { %>
                           <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= doc.id %>">Télécharger</a>

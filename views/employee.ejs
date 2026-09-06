@@ -231,7 +231,7 @@
                           </td>
                           <td class="num"><%= r.days %></td>
                           <td>
-                            <span class="status <%= statusClass %>"><%= r.status %></span>
+                            <span class="status <%= statusClass %>"><%= st(r.status) %></span>
                             <% if (r.review_note) { %><div class="cell-sub">« <%= r.review_note %> »</div><% } %>
                           </td>
                           <td class="actions">
@@ -426,7 +426,7 @@
                         </td>
                         <td class="num cell-strong"><%= c.amount.toFixed(2) %> €</td>
                         <td>
-                          <span class="status <%= c.status === 'Remboursée' || c.status === 'Approuvée' ? 'status-on' : (c.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= c.status %></span>
+                          <span class="status <%= c.status === 'Remboursée' || c.status === 'Approuvée' ? 'status-on' : (c.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= st(c.status) %></span>
                           <% if (c.review_note) { %><div class="cell-sub"><%= c.review_note %></div><% } %>
                         </td>
                         <td class="actions">
@@ -489,7 +489,7 @@
                         </span>
                       </span>
                       <span class="row-actions">
-                        <span class="status <%= r.status === 'Inscrite' ? 'status-on' : (r.status === 'Refusée' ? 'status-danger' : (r.status === 'Terminée' ? 'status-off' : 'status-warning')) %>"><%= r.status %></span>
+                        <span class="status <%= r.status === 'Inscrite' ? 'status-on' : (r.status === 'Refusée' ? 'status-danger' : (r.status === 'Terminée' ? 'status-off' : 'status-warning')) %>"><%= st(r.status) %></span>
                         <% if (r.status === 'Demandée') { %>
                           <form method="POST" action="/mon-espace/formations/<%= r.id %>/annuler">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -536,7 +536,7 @@
                 <li class="meeting-item">
                   <div class="meeting-head">
                     <span class="meeting-title"><%= r.period %></span>
-                    <span class="status <%= r.status === 'Réalisé' ? 'status-on' : (r.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= r.status %></span>
+                    <span class="status <%= r.status === 'Réalisé' ? 'status-on' : (r.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= st(r.status) %></span>
                   </div>
                   <p class="cell-sub">
                     <%= r.scheduled_on ? new Date(r.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—' %>

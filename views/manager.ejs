@@ -144,7 +144,7 @@
                           <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale) %> →
                           <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString(locale) %>
                         </td>
-                        <td><span class="status <%= statusClass %>"><%= r.status %></span></td>
+                        <td><span class="status <%= statusClass %>"><%= st(r.status) %></span></td>
                       </tr>
                     <% }) %>
                   </tbody>

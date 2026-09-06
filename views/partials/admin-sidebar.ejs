@@ -4,12 +4,12 @@
    Attend : asLinks? (booléen), active? (nom de section) */
 const adminSections = [
   { tab: 'personnel', label: t('nav.personnel'), icon: 'users' },
-  { tab: 'organisation', label: 'Organisation', icon: 'network' },
+  { tab: 'organisation', label: t('nav.organisation'), icon: 'network' },
   { tab: 'outils', label: t('nav.tools'), icon: 'tool' },
   { tab: 'affectations', label: t('nav.assignments'), icon: 'link' },
   { tab: 'actualites', label: t('nav.news'), icon: 'megaphone' },
-  { tab: 'modules', label: 'Modules', icon: 'plus' },
-  { tab: 'apparence', label: 'Apparence', icon: 'settings' },
+  { tab: 'modules', label: t('nav.modules'), icon: 'plus' },
+  { tab: 'apparence', label: t('nav.appearance'), icon: 'settings' },
   {
     tab: 'rh',
     label: t('nav.hr'),
@@ -22,29 +22,29 @@ const adminAsLinks = typeof asLinks !== 'undefined' && asLinks;
 const adminActive = typeof active !== 'undefined' ? active : null;
 %>
 <%- include('sidebar', {
-  panelLabel: 'Administration',
+  panelLabel: t('common.adminRole'),
   navItems: adminAsLinks
     ? adminSections.map((s) => ({ href: '/admin#' + s.tab, label: s.label, icon: s.icon, badge: s.badge, active: s.tab === adminActive }))
     : adminSections,
   // Un administrateur n'a pas d'espace membre : /mon-espace le renverrait ici.
   footLinks: [
-    { href: '/pilotage', label: 'Pilotage', icon: 'home' },
-    { href: '/direction', label: 'Direction', icon: 'ballot' },
-    { href: '/planning', label: 'Planning', icon: 'clock' },
-    { href: '/qualite', label: 'Qualité', icon: 'check' },
-    { href: '/accueil', label: 'Accueil', icon: 'inbox' },
-    { href: '/import', label: 'Import de données', icon: 'plus' },
-    { href: '/parapheur', label: 'Parapheur', icon: 'check' },
-    { href: '/integrations', label: 'Interfaces', icon: 'link' },
-    { href: '/demandes', label: 'Demandes internes', icon: 'ballot' },
-    { href: '/pieces', label: 'Pièces reçues', icon: 'inbox' },
-    { href: '/organigramme', label: 'Organigramme', icon: 'network' },
-    { href: '/projets', label: 'Projets', icon: 'briefcase' },
-    { href: '/support', label: 'Support', icon: 'lifebuoy' },
-    { href: '/base-de-connaissances', label: 'Connaissances', icon: 'inbox' },
-    { href: '/securite', label: 'Sécurité', icon: 'shield' },
-    { href: '/sauvegardes', label: 'Sauvegardes', icon: 'inbox' },
-    { href: '/rgpd', label: 'Données personnelles', icon: 'user' },
+    { href: '/pilotage', label: t('nav.steering'), icon: 'home' },
+    { href: '/direction', label: t('nav.governance'), icon: 'ballot' },
+    { href: '/planning', label: t('nav.planning'), icon: 'clock' },
+    { href: '/qualite', label: t('nav.quality'), icon: 'check' },
+    { href: '/accueil', label: t('nav.frontDesk'), icon: 'inbox' },
+    { href: '/import', label: t('nav.dataImport'), icon: 'plus' },
+    { href: '/parapheur', label: t('nav.signing'), icon: 'check' },
+    { href: '/integrations', label: t('nav.integrations'), icon: 'link' },
+    { href: '/demandes', label: t('nav.internalRequests'), icon: 'ballot' },
+    { href: '/pieces', label: t('nav.intake'), icon: 'inbox' },
+    { href: '/organigramme', label: t('nav.orgChart'), icon: 'network' },
+    { href: '/projets', label: t('nav.projects'), icon: 'briefcase' },
+    { href: '/support', label: t('nav.support'), icon: 'lifebuoy' },
+    { href: '/base-de-connaissances', label: t('nav.knowledge'), icon: 'inbox' },
+    { href: '/securite', label: t('nav.security'), icon: 'shield' },
+    { href: '/sauvegardes', label: t('nav.backups'), icon: 'inbox' },
+    { href: '/rgpd', label: t('nav.privacy'), icon: 'user' },
     { href: '/rh', label: t('nav.openHrSpace'), icon: 'external' },
     { href: '/gestion', label: t('nav.gestion'), icon: 'briefcase' }
   ]

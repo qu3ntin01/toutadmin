@@ -98,7 +98,7 @@
                     <span class="project-main">
                       <a class="cell-strong" href="/projets/<%= p.id %>"><%= p.code ? p.code + ' · ' : '' %><%= p.name %></a>
                       <% if (p.archived) { %><span class="tag">archivé</span><% } %>
-                      <span class="tag <%= p.status === 'En cours' ? 'tag-accent' : '' %>"><%= p.status %></span>
+                      <span class="tag <%= p.status === 'En cours' ? 'tag-accent' : '' %>"><%= st(p.status) %></span>
                       <% if (p.due_date && p.due_date < today && !['Livré','Clôturé'].includes(p.status)) { %>
                         <span class="tag tag-danger">en retard</span>
                       <% } %>

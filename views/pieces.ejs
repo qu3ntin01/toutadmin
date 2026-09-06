@@ -79,7 +79,7 @@
                         <span class="cell-sub"><%= d.confidence %> %<%= d.text_length ? '' : ' · sans texte' %></span>
                       </td>
                       <td>
-                        <span class="tag <%= d.status === 'Facturée' ? 'tag-success' : (d.status === 'Écartée' ? 'tag-danger' : 'tag-warning') %>"><%= d.status %></span>
+                        <span class="tag <%= d.status === 'Facturée' ? 'tag-success' : (d.status === 'Écartée' ? 'tag-danger' : 'tag-warning') %>"><%= st(d.status) %></span>
                         <% if (d.invoice_reference) { %><br /><span class="cell-sub mono"><%= d.invoice_reference %></span><% } %>
                       </td>
                     </tr>

@@ -84,7 +84,7 @@
                     </div>
                     <p class="cell-sub">
                       <%= day(n.detected_on) %> · <%= n.source %><%= n.subject ? ` · ${n.subject}` : '' %> · constaté par <%= who(n) %>
-                      · <span class="tag <%= n.status === 'Clôturée' ? 'tag-success' : 'tag-warning' %>"><%= n.status %></span>
+                      · <span class="tag <%= n.status === 'Clôturée' ? 'tag-success' : 'tag-warning' %>"><%= st(n.status) %></span>
                       <% if (n.open_actions) { %> · <%= n.open_actions %> action(s) en cours<% } %>
                       <% if (n.cost) { %> · <%= n.cost.toLocaleString(locale) %> €<% } %>
                     </p>
@@ -232,7 +232,7 @@
                   <li class="meeting-item">
                     <div class="meeting-head">
                       <span class="meeting-title"><span class="mono"><%= a.reference %></span> — <%= a.scope %></span>
-                      <span class="tag <%= a.status === 'Planifié' ? 'tag-warning' : 'tag-success' %>"><%= a.status %></span>
+                      <span class="tag <%= a.status === 'Planifié' ? 'tag-warning' : 'tag-success' %>"><%= st(a.status) %></span>
                     </div>
                     <p class="cell-sub">
                       <%= a.standard || 'Sans référentiel' %> · prévu le <%= day(a.planned_on) %><%= a.done_on ? ` · réalisé le ${day(a.done_on)}` : '' %>

@@ -228,7 +228,7 @@
                             <% } %>
                           </td>
                           <td>
-                            <span class="status <%= c.status === 'Actif' ? 'status-on' : (c.status === 'Résilié' ? 'status-danger' : 'status-off') %>"><%= c.status %></span>
+                            <span class="status <%= c.status === 'Actif' ? 'status-on' : (c.status === 'Résilié' ? 'status-danger' : 'status-off') %>"><%= st(c.status) %></span>
                           </td>
                           <td class="actions">
                             <form method="POST" action="/gestion/contrats/<%= c.id %>/statut" class="inline-form">
@@ -358,7 +358,7 @@
                               <%= day(i.due_date) %>
                               <% if (i.overdue) { %><div class="cell-sub text-danger">En retard</div><% } %>
                             </td>
-                            <td><span class="status <%= i.status === 'Payée' ? 'status-on' : (i.overdue ? 'status-danger' : 'status-warning') %>"><%= i.status %></span></td>
+                            <td><span class="status <%= i.status === 'Payée' ? 'status-on' : (i.overdue ? 'status-danger' : 'status-warning') %>"><%= st(i.status) %></span></td>
                             <td class="actions">
                               <form method="POST" action="/gestion/factures/<%= i.id %>/statut" class="inline-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -549,7 +549,7 @@
                           <% if (!v.detail.length) { %>—<% } %>
                         </td>
                         <td>
-                          <span class="status <%= v.status === 'Payée' ? 'status-on' : (v.status === 'Déclarée' ? 'status-warning' : 'status-off') %>"><%= v.status %></span>
+                          <span class="status <%= v.status === 'Payée' ? 'status-on' : (v.status === 'Déclarée' ? 'status-warning' : 'status-off') %>"><%= st(v.status) %></span>
                           <% if (v.filed_on) { %><div class="cell-sub">déposée le <%= day(v.filed_on) %></div><% } %>
                         </td>
                         <td class="actions">
@@ -732,7 +732,7 @@
                         </td>
                         <td class="num cell-strong"><%= money(c.amount) %></td>
                         <td>
-                          <span class="status <%= c.status === 'Remboursée' ? 'status-on' : (c.status === 'Refusée' ? 'status-danger' : (c.status === 'Approuvée' ? 'status-on' : 'status-warning')) %>"><%= c.status %></span>
+                          <span class="status <%= c.status === 'Remboursée' ? 'status-on' : (c.status === 'Refusée' ? 'status-danger' : (c.status === 'Approuvée' ? 'status-on' : 'status-warning')) %>"><%= st(c.status) %></span>
                         </td>
                         <td class="actions">
                           <% if (c.status === 'En attente') { %>
@@ -824,7 +824,7 @@
                           </td>
                           <td><%= a.holder_id ? a.holder_first_name + ' ' + a.holder_last_name : '—' %></td>
                           <td>
-                            <span class="status <%= a.status === 'Affecté' ? 'status-on' : (a.status === 'Réformé' ? 'status-off' : (a.status === 'En maintenance' ? 'status-warning' : 'status-on')) %>"><%= a.status %></span>
+                            <span class="status <%= a.status === 'Affecté' ? 'status-on' : (a.status === 'Réformé' ? 'status-off' : (a.status === 'En maintenance' ? 'status-warning' : 'status-on')) %>"><%= st(a.status) %></span>
                           </td>
                           <td class="actions">
                             <% if (a.holder_id) { %>

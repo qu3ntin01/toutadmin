@@ -294,7 +294,9 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Effacement** : ce qui relève d'une obligation de conservation (bulletins, registre des accidents, journal d'audit) est gardé et le compte rendu le dit ; le reste est effacé et le compte anonymisé plutôt que supprimé, pour que les écritures qui le référencent restent cohérentes. L'adresse exacte est redemandée pour confirmer
 
 ### Confort
-- Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil ; l'arabe bascule l'interface en écriture de droite à gauche
+- Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil
+- **Les statuts se traduisent aussi.** Ils restent stockés en français — c'est la valeur métier, celle des contraintes de la base et des comparaisons — mais ce qui s'affiche passe par le dictionnaire : un dossier *Approuvée* se lit *Approved* en anglais, *承認済み* en japonais. Un statut ajouté au schéma sans traduction fait échouer les tests plutôt que de ressortir en français chez un utilisateur étranger
+- **L'arabe retourne réellement la page.** Le sens d'écriture bascule à droite, et la feuille de style n'emploie que des propriétés logiques (`inline-start` plutôt que `left`) : la barre latérale, le liseré de l'onglet actif, la pastille du compte et les marges des tableaux suivent le sens de lecture au lieu de rester figés à gauche
 - **Trois palettes**, choisies par l'administration pour toute l'instance (`/admin`, section Apparence) : *Bleu institutionnel* (sobre, angles droits), *Ardoise et indigo* (neutres contemporains, angles doux), *Magenta et violet* (couleurs franches, navigation en dégradé). L'écran de choix montre un aperçu qui emprunte les jetons de chaque palette — il ne peut pas mentir sur ce qu'il propose
 - Thème **clair / sombre / système**, mémorisé dans le navigateur et appliqué sans clignotement. Deux axes distincts : la palette engage l'identité de l'entreprise et se règle une fois ; le clair ou sombre est un confort de lecture et appartient à chaque personne. Les six combinaisons sont vérifiées au contraste par les tests
 - Interface responsive : la navigation latérale se replie en bandeau horizontal, les tableaux denses défilent, et la grille du calendrier tient en entier sur un téléphone
@@ -668,7 +670,7 @@ src/
   calendar.js        grille mensuelle, événements personnels et entrées dérivées
   announcements.js   actualités entreprise et équipe
   uploads.js         photos de profil (validation, stockage, suppression)
-  i18n.js            négociation de langue, traduction, sens d'écriture
+  i18n.js            négociation de langue, traduction, libellés de statut, sens d'écriture
   locales/           16 dictionnaires (fr de référence, 15 traductions)
   grades.js · contract-types.js · request-types.js   listes blanches métier
   middleware/auth.js contrôle d'accès admin / employé / RH / manager / CSE
