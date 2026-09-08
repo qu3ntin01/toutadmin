@@ -8,10 +8,10 @@
     <%- include('partials/sidebar', {
       panelLabel: t('nav.backups'),
       navItems: [
-        { tab: 'archives', label: 'Archives', icon: 'inbox', badge: summary.count },
-        { tab: 'externalisation', label: 'Externalisation', icon: 'external', badge: destinations.filter((d) => d.enabled && d.status && d.status.ok === false).length },
-        { tab: 'restauration', label: 'Restaurer', icon: 'back' },
-        { tab: 'export', label: 'Export intégral', icon: 'external' },
+        { tab: 'archives', label: t('bak.archives'), icon: 'inbox', badge: summary.count },
+        { tab: 'externalisation', label: t('bak.offsite'), icon: 'external', badge: destinations.filter((d) => d.enabled && d.status && d.status.ok === false).length },
+        { tab: 'restauration', label: t('bak.restore'), icon: 'back' },
+        { tab: 'export', label: t('bak.fullExport'), icon: 'external' },
         { tab: 'reglages', label: t('common.settings'), icon: 'settings' }
       ],
       footLinks: [
@@ -23,7 +23,7 @@
     <div class="app-main">
       <%- include('partials/app-header', {
         headerTitle: t('nav.backups'),
-        headerSubtitle: "Base de données, photos, CV et coffre-fort, dans une seule archive"
+        headerSubtitle: t('bak.subtitle')
       }) %>
 
       <main class="page">
@@ -34,7 +34,7 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= summary.count %></span><span class="stat-label">Archives conservées</span></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.count %></span><span class="stat-label"><%= t('bak.kept') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
@@ -45,13 +45,13 @@
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= size(summary.bytes) %></span><span class="stat-label">Occupation totale</span></span>
+            <span class="stat-body"><span class="stat-value"><%= size(summary.bytes) %></span><span class="stat-label"><%= t('bak.totalSize') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
             <span class="stat-body">
-              <span class="stat-value <%= summary.enabled ? '' : 'text-danger' %>"><%= summary.enabled ? 'Actives' : 'Arrêtées' %></span>
-              <span class="stat-label">Toutes les <%= summary.intervalMinutes %> min · <%= summary.keep %> gardées</span>
+              <span class="stat-value <%= summary.enabled ? '' : 'text-danger' %>"><%= summary.enabled ? t('bak.running') : t('bak.stopped') %></span>
+              <span class="stat-label"><%= t('bak.everyKept', { minutes: summary.intervalMinutes, count: summary.keep }) %></span>
             </span>
           </div>
         </section>
@@ -59,16 +59,14 @@
         <!-- ---------- Archives ---------- -->
         <section class="tab-panel is-active" id="archives">
           <div class="card">
-            <div class="card-head"><h3>Sauvegarder maintenant</h3></div>
+            <div class="card-head"><h3><%= t('bak.backupNow') %></h3></div>
             <form method="POST" action="/sauvegardes" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Motif (facultatif)</span><input type="text" name="label" maxlength="120" placeholder="Avant migration des services" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer une sauvegarde</button></div>
+              <label class="span-2"><span><%= t('bak.reasonOptional') %></span><input type="text" name="label" maxlength="120" placeholder="<%= t('bak.reasonExample') %>" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('bak.createBackup') %></button></div>
             </form>
             <p class="hint">
-              L'archive contient la base — copiée par le mécanisme de sauvegarde en ligne de SQLite,
-              donc cohérente même pendant l'écriture — ainsi que les photos de profil, les CV et le
-              coffre-fort. Chaque fichier y porte son empreinte, vérifiée à la restauration.
+              <%= t('bak.archiveHelp') %>
             </p>
           </div>
 
@@ -77,14 +75,12 @@
             <div class="banner is-warning">
               <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
               <span>
-                Une archive contient tout : empreintes de mots de passe, secrets de double
-                authentification, bulletins de paie. Elle se conserve comme la donnée la plus
-                sensible de l'entreprise, et se copie hors du serveur.
+                <%= t('bak.sensitiveNotice') %>
               </span>
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Archive</th><th>Créée le</th><th><%= t('common.size') %></th><th></th></tr></thead>
+                <thead><tr><th><%= t('bak.archive') %></th><th><%= t('bak.createdOn') %></th><th><%= t('common.size') %></th><th></th></tr></thead>
                 <tbody>
                   <% archives.forEach((a) => { %>
                     <tr>
@@ -98,10 +94,10 @@
                           <% if (destinations.some((d) => d.enabled)) { %>
                             <form method="POST" action="/sauvegardes/<%= a.fileName %>/externaliser" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-outline btn-sm">Externaliser</button>
+                              <button type="submit" class="btn btn-outline btn-sm"><%= t('bak.sendOffsite') %></button>
                             </form>
                           <% } %>
-                          <form method="POST" action="/sauvegardes/<%= a.fileName %>/supprimer" class="inline-form" data-confirm="Supprimer cette sauvegarde ?">
+                          <form method="POST" action="/sauvegardes/<%= a.fileName %>/supprimer" class="inline-form" data-confirm="<%= t('bak.deleteBackup') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -109,30 +105,25 @@
                       </td>
                     </tr>
                   <% }) %>
-                  <% if (archives.length === 0) { %><tr><td colspan="4" class="cell-sub">Aucune archive pour l'instant.</td></tr><% } %>
+                  <% if (archives.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('bak.noArchive') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>
-            <p class="hint">Dossier sur le serveur : <code class="totp-secret"><%= directory %></code></p>
+            <p class="hint"><%= t('bak.serverFolder') %> <code class="totp-secret"><%= directory %></code></p>
           </div>
         </section>
 
         <!-- ---------- Externalisation ---------- -->
         <section class="tab-panel" id="externalisation">
           <div class="card">
-            <div class="card-head"><h3>Pourquoi externaliser</h3></div>
+            <div class="card-head"><h3><%= t('bak.whyOffsite') %></h3></div>
             <p class="hint">
-              Une sauvegarde qui reste sur le serveur qu'elle protège ne protège de rien : la panne de
-              disque, l'incendie et le rançongiciel emportent les deux. Chaque archive est déposée sur
-              les destinations actives dès sa création, et le nombre d'archives conservées y est aligné
-              sur le réglage local.
+              <%= t('bak.whyOffsiteHelp') %>
             </p>
             <div class="banner is-warning">
               <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
               <span>
-                L'archive part telle quelle : elle contient les empreintes de mots de passe, les secrets
-                de double authentification et les bulletins de paie. Choisissez une destination dont
-                l'accès est aussi restreint que celui de ce serveur.
+                <%= t('bak.destinationNotice') %>
               </span>
             </div>
           </div>
@@ -151,8 +142,8 @@
 
               <% if (d.status) { %>
                 <div class="flash flash-<%= d.status.ok ? 'success' : 'error' %>">
-                  Dernier essai le <%= moment(d.status.at) %> :
-                  <%= d.status.ok ? 'réussi' : 'échec' %><%= d.status.message ? ' — ' + d.status.message : '' %>
+                  <%= t('bak.lastAttempt') %> <%= moment(d.status.at) %> :
+                  <%= d.status.ok ? t('bak.attemptOk') : t('bak.attemptFailed') %><%= d.status.message ? ' — ' + d.status.message : '' %>
                 </div>
               <% } %>
 
@@ -190,21 +181,19 @@
 
                 <label class="check-row span-2">
                   <input type="checkbox" name="enabled" value="1" <%= d.enabled ? 'checked' : '' %> />
-                  <span>Envoyer les sauvegardes vers cette destination</span>
+                  <span><%= t('bak.sendHere') %></span>
                 </label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
 
               <p class="hint">
-                Les secrets sont chiffrés en base avec une clé dérivée du secret de session, qui vit dans
-                un fichier à part : une copie de la base seule ne les livre pas. Un champ secret laissé
-                vide conserve la valeur en place.
+                <%= t('bak.secretsHelp') %>
               </p>
 
               <% if (d.configured) { %>
                 <form method="POST" action="/sauvegardes/destinations/<%= d.key %>/tester">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-outline btn-block">Tester la connexion et l'écriture</button>
+                  <button type="submit" class="btn btn-outline btn-block"><%= t('bak.testConnection') %></button>
                 </form>
               <% } %>
             </div>
@@ -215,17 +204,17 @@
         <section class="tab-panel" id="restauration">
           <% if (restoreReport) { %>
             <div class="card">
-              <div class="card-head"><h3>Dernière restauration</h3></div>
+              <div class="card-head"><h3><%= t('bak.lastRestore') %></h3></div>
               <table>
                 <tbody>
-                  <tr><td class="cell-sub">Archive</td><td class="cell-strong"><%= restoreReport.origin %></td></tr>
-                  <tr><td class="cell-sub">Sauvegarde datée du</td><td><%= moment(restoreReport.createdAt) %></td></tr>
-                  <tr><td class="cell-sub">Tables restaurées</td><td><%= restoreReport.tables %></td></tr>
-                  <tr><td class="cell-sub">Lignes réécrites</td><td><%= restoreReport.rows %></td></tr>
-                  <tr><td class="cell-sub">Fichiers remis en place</td><td><%= restoreReport.files %></td></tr>
-                  <tr><td class="cell-sub">État précédent sauvegardé sous</td><td class="fingerprint"><%= restoreReport.safety %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.archive') %></td><td class="cell-strong"><%= restoreReport.origin %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.backupDated') %></td><td><%= moment(restoreReport.createdAt) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.tablesRestored') %></td><td><%= restoreReport.tables %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.rowsRewritten') %></td><td><%= restoreReport.rows %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.filesRestored') %></td><td><%= restoreReport.files %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.previousSavedAs') %></td><td class="fingerprint"><%= restoreReport.safety %></td></tr>
                   <% if (restoreReport.skipped && restoreReport.skipped.length) { %>
-                    <tr><td class="cell-sub">Tables vidées (absentes de l'archive)</td><td class="cell-sub"><%= restoreReport.skipped.join(', ') %></td></tr>
+                    <tr><td class="cell-sub"><%= t('bak.tablesEmptied') %></td><td class="cell-sub"><%= restoreReport.skipped.join(', ') %></td></tr>
                   <% } %>
                 </tbody>
               </table>
@@ -233,26 +222,22 @@
           <% } %>
 
           <div class="card">
-            <div class="card-head"><h3>Ce qu'une restauration fait</h3></div>
+            <div class="card-head"><h3><%= t('bak.whatRestoreDoes') %></h3></div>
             <p class="hint">
-              Le contenu de la base est remplacé par celui de l'archive, table par table, en une seule
-              transaction : l'application reste debout et un échec en cours de route ne laisse pas une
-              base à moitié écrite. Les photos, CV et documents du coffre sont remis à l'état de
-              l'archive — ce qui n'y figure pas est supprimé.
+              <%= t('bak.restoreHelp') %>
             </p>
             <p class="hint">
-              Deux exceptions assumées : les <strong>sessions ouvertes</strong> ne sont pas restaurées,
-              pour ne pas vous déconnecter au milieu de l'opération ; et l'<strong>état actuel est
-              sauvegardé d'abord</strong>, si bien qu'une erreur de manipulation se rattrape.
-              Si votre compte n'existait pas encore dans l'archive, votre session tombera à la
-              requête suivante — c'est le comportement attendu.
+              <%- t('bak.twoExceptions', {
+                    sessions: `<strong>${t('bak.openSessions')}</strong>`,
+                    state: `<strong>${t('bak.stateSavedFirst')}</strong>`,
+                  }) %>
             </p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Restaurer depuis une archive du serveur</h3></div>
+            <div class="card-head"><h3><%= t('bak.restoreFromServer') %></h3></div>
             <% if (archives.length === 0) { %>
-              <p class="cell-sub">Aucune archive disponible.</p>
+              <p class="cell-sub"><%= t('bak.noArchiveAvailable') %></p>
             <% } else { %>
               <ul class="org-list">
                 <% archives.forEach((a) => { %>
@@ -262,30 +247,28 @@
                       <br /><span class="cell-sub"><%= moment(a.createdAt) %> · <%= size(a.bytes) %></span>
                     </span>
                     <form method="POST" action="/sauvegardes/<%= a.fileName %>/restaurer" class="inline-form"
-                          data-confirm="Remplacer l'état actuel par cette sauvegarde ?">
+                          data-confirm="<%= t('bak.confirmRestore') %>">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                      <input type="text" name="confirmation" class="input-sm confirm-name" placeholder="Nom exact de l'archive" required autocomplete="off" />
-                      <button type="submit" class="btn btn-danger btn-sm">Restaurer</button>
+                      <input type="text" name="confirmation" class="input-sm confirm-name" placeholder="<%= t('bak.exactName') %>" required autocomplete="off" />
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('bak.restore') %></button>
                     </form>
                   </li>
                 <% }) %>
               </ul>
-              <p class="hint">Le nom exact de l'archive est demandé : une restauration ne se déclenche pas d'un clic distrait.</p>
+              <p class="hint"><%= t('bak.exactNameHelp') %></p>
             <% } %>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Restaurer depuis une archive téléversée</h3></div>
+            <div class="card-head"><h3><%= t('bak.restoreFromUpload') %></h3></div>
             <form method="POST" action="/sauvegardes/televerser" enctype="multipart/form-data" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Archive (.tar.gz)</span><input type="file" name="archive" accept=".gz,.tgz" required /></label>
-              <label class="span-2"><span>Saisissez « RESTAURER » pour confirmer</span><input type="text" name="confirmation" required autocomplete="off" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-danger btn-block">Téléverser et restaurer</button></div>
+              <label class="span-2"><span><%= t('bak.archiveFile') %></span><input type="file" name="archive" accept=".gz,.tgz" required /></label>
+              <label class="span-2"><span><%= t('bak.typeRestore') %></span><input type="text" name="confirmation" required autocomplete="off" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-danger btn-block"><%= t('bak.uploadAndRestore') %></button></div>
             </form>
             <p class="hint">
-              <%= Math.round(maxUploadBytes / 1048576) %> Mo maximum par téléversement. Au-delà, déposez
-              le fichier directement dans le dossier des sauvegardes du serveur : il apparaîtra dans la
-              liste ci-dessus.
+              <%= t('bak.uploadLimit', { max: Math.round(maxUploadBytes / 1048576) }) %>
             </p>
           </div>
         </section>
@@ -295,41 +278,38 @@
         <section class="tab-panel" id="export">
           <div class="card">
             <div class="card-head">
-              <h3>Emporter toutes les données</h3>
+              <h3><%= t('bak.takeEverything') %></h3>
               <span class="card-sub"><%= exportPreview.tableCount %> tables · <%= exportPreview.rows.toLocaleString(locale) %> lignes</span>
             </div>
             <p class="cell-sub">
-              C'est la réversibilité : la garantie qu'on peut partir. Une sauvegarde sert à revenir dans ce
-              logiciel ; l'export sert à s'en aller. Il est écrit en JSON, une table par fichier, avec les
-              documents, et ne suppose ni SQLite ni ce CMS pour être relu.
+              <%= t('bak.reversibility') %>
             </p>
             <form method="POST" action="/sauvegardes/export">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-primary btn-block">Construire et télécharger l'export</button>
+              <button type="submit" class="btn btn-primary btn-block"><%= t('bak.buildExport') %></button>
             </form>
             <p class="hint">
-              L'archive part directement vers votre navigateur : elle ne laisse pas une copie de toute
-              l'entreprise dans un dossier du serveur. Chaque export est tracé au journal.
+              <%= t('bak.exportNotice') %>
             </p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Ce que l'export contient</h3></div>
+            <div class="card-head"><h3><%= t('bak.exportContains') %></h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Fichiers joints</th><th><%= t('common.count') %></th></tr></thead>
+                <thead><tr><th><%= t('bak.attachments') %></th><th><%= t('common.count') %></th></tr></thead>
                 <tbody>
-                  <tr><td class="cell-sub">Photos de profil</td><td><%= exportPreview.files.uploads %></td></tr>
-                  <tr><td class="cell-sub">CV reçus</td><td><%= exportPreview.files.cv %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.profilePhotos') %></td><td><%= exportPreview.files.uploads %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.cvsReceived') %></td><td><%= exportPreview.files.cv %></td></tr>
                   <tr><td class="cell-sub"><%= t('nav.vault') %></td><td><%= exportPreview.files.coffre %></td></tr>
                   <tr><td class="cell-sub"><%= t('nav.signing') %></td><td><%= exportPreview.files.parapheur %></td></tr>
                 </tbody>
               </table>
             </div>
-            <p class="section-label">Tables les mieux garnies</p>
+            <p class="section-label"><%= t('bak.largestTables') %></p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Table</th><th><%= t('common.lines') %></th></tr></thead>
+                <thead><tr><th><%= t('bak.table') %></th><th><%= t('common.lines') %></th></tr></thead>
                 <tbody>
                   <% exportPreview.tables.slice(0, 12).forEach((entry) => { %>
                     <tr><td class="mono cell-strong"><%= entry.table %></td><td><%= entry.lignes %></td></tr>
@@ -340,41 +320,38 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Ce que l'export ne contient pas</h3></div>
+            <div class="card-head"><h3><%= t('bak.exportExcludes') %></h3></div>
             <ul class="check-list">
-              <li class="check-item">Les empreintes de mots de passe et les secrets de double authentification</li>
-              <li class="check-item">Les jetons d'API et les secrets de signature des webhooks</li>
-              <li class="check-item">Les sessions ouvertes</li>
-              <li class="check-item">Les réglages chiffrés (identifiants d'externalisation)</li>
+              <li class="check-item"><%= t('bak.excludeHashes') %></li>
+              <li class="check-item"><%= t('bak.excludeTokens') %></li>
+              <li class="check-item"><%= t('bak.excludeSessions') %></li>
+              <li class="check-item"><%= t('bak.excludeSecrets') %></li>
             </ul>
             <p class="hint">
-              Ces éléments n'ont aucune valeur hors de cette instance : les recopier dans un fichier destiné à
-              circuler serait un risque sans contrepartie. Le fichier LISEZMOI de l'archive le dit aussi.
+              <%= t('bak.excludeHelp') %>
             </p>
           </div>
         </section>
 
         <section class="tab-panel" id="reglages">
           <div class="card">
-            <div class="card-head"><h3>Sauvegarde automatique</h3></div>
+            <div class="card-head"><h3><%= t('bak.automatic') %></h3></div>
             <form method="POST" action="/sauvegardes/reglages" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label class="check-row span-2">
                 <input type="checkbox" name="enabled" value="1" <%= summary.enabled ? 'checked' : '' %> />
-                <span>Sauvegarder automatiquement</span>
+                <span><%= t('bak.backUpAutomatically') %></span>
               </label>
-              <label><span>Intervalle (minutes)</span>
+              <label><span><%= t('bak.intervalMinutes') %></span>
                 <input type="number" name="interval_minutes" min="15" max="1440" value="<%= summary.intervalMinutes %>" required />
               </label>
-              <label><span>Archives conservées</span>
+              <label><span><%= t('bak.kept') %></span>
                 <input type="number" name="keep" min="2" max="500" value="<%= summary.keep %>" required />
               </label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
             <p class="hint">
-              Le balayage horaire du serveur déclenche la sauvegarde dès que l'intervalle est écoulé,
-              et supprime les archives au-delà du nombre conservé. Un intervalle plus court que le
-              balayage ne le rend pas plus fréquent.
+              <%= t('bak.sweepHelp') %>
             </p>
           </div>
         </section>
