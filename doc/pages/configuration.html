@@ -1,0 +1,110 @@
+title: Configuration
+nav: Configuration
+description: Variables d'environnement, emplacement des données, réglages de l'instance et messagerie externe.
+
+<h1>Configuration</h1>
+<p class="lede">
+  Tout se règle par variables d'environnement au démarrage, ou depuis les écrans
+  d'administration une fois l'instance installée. Les secrets ne transitent jamais par
+  la base en clair.
+</p>
+
+<h2>Variables d'environnement</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Variable</th><th>Rôle</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">PORT</td><td>Port d'écoute (défaut <code>3000</code>)</td></tr>
+    <tr><td class="mono">SESSION_SECRET</td><td>Secret de signature des sessions — généré dans <code>data/session.key</code> s'il n'est pas fourni</td></tr>
+    <tr><td class="mono">INSTALL_TOKEN</td><td>Jeton exigé par l'assistant d'installation — recommandé sur un serveur exposé</td></tr>
+    <tr><td class="mono">ADMIN_EMAIL</td><td>Installation sans interface : email du compte administrateur créé au démarrage</td></tr>
+    <tr><td class="mono">ADMIN_PASSWORD</td><td>Mot de passe de ce compte — fort et obligatoire en production</td></tr>
+    <tr><td class="mono">NODE_ENV</td><td><code>production</code> active les cookies sécurisés, les vérifications de secrets et le cache statique</td></tr>
+    <tr><td class="mono">TRUST_PROXY</td><td>À définir (ex. <code>1</code>) derrière un reverse proxy, pour que la limitation de débit voie la bonne adresse</td></tr>
+    <tr><td class="mono">DB_PATH</td><td>Emplacement de la base SQLite (défaut <code>data/app.sqlite</code>)</td></tr>
+    <tr><td class="mono">LOGIN_RATE_LIMIT</td><td>Tentatives de connexion par IP et par fenêtre</td></tr>
+    <tr><td class="mono">GLOBAL_RATE_LIMIT</td><td>Requêtes par minute, toutes routes confondues</td></tr>
+    <tr><td class="mono">API_RATE_LIMIT</td><td>Requêtes par minute et par adresse sur <code>/api/v1</code> (défaut <code>120</code>)</td></tr>
+    <tr><td class="mono">SESSION_IDLE_MINUTES</td><td>Expiration d'une session inactive (défaut <code>60</code>)</td></tr>
+    <tr><td class="mono">SESSION_MAX_HOURS</td><td>Durée de vie absolue d'une session, quelle que soit l'activité (défaut <code>12</code>)</td></tr>
+    <tr><td class="mono">UPLOAD_DIR</td><td>Photos de profil (défaut <code>data/uploads</code>)</td></tr>
+    <tr><td class="mono">CV_DIR</td><td>CV déposés (défaut <code>cv/</code> à côté de la base)</td></tr>
+    <tr><td class="mono">VAULT_DIR</td><td>Coffre-fort (défaut <code>coffre/</code>)</td></tr>
+    <tr><td class="mono">SIGN_DIR</td><td>Documents mis à la signature (défaut <code>parapheur/</code>)</td></tr>
+    <tr><td class="mono">DOCS_DIR</td><td>Pièces comptables reçues (défaut <code>pieces/</code>)</td></tr>
+    <tr><td class="mono">BACKUP_DIR</td><td>Sauvegardes (défaut <code>sauvegardes/</code>) — à recopier hors du serveur</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Où vivent les données</h2>
+
+<p>
+  Tout est sous <code>data/</code>, et rien n'est servi en statique sauf les photos de profil.
+  Les documents sensibles sont écrits <strong>hors du dépôt</strong>, en <code>0600</code>,
+  et ne sortent que par une route authentifiée.
+</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Chemin</th><th>Contenu</th><th>Servi en statique</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">data/app.sqlite</td><td>La base entière</td><td>non</td></tr>
+    <tr><td class="mono">data/session.key</td><td>Secret de session, <code>0600</code></td><td>non</td></tr>
+    <tr><td class="mono">data/install.lock</td><td>Marque l'instance installée</td><td>non</td></tr>
+    <tr><td class="mono">data/uploads/</td><td>Photos de profil</td><td>oui, en lecture seule</td></tr>
+    <tr><td class="mono">cv/</td><td>CV des candidats</td><td>non — route RH uniquement</td></tr>
+    <tr><td class="mono">coffre/</td><td>Bulletins, contrats, attestations</td><td>non</td></tr>
+    <tr><td class="mono">parapheur/</td><td>Documents mis à la signature</td><td>non</td></tr>
+    <tr><td class="mono">pieces/</td><td>Factures fournisseurs reçues</td><td>non</td></tr>
+    <tr><td class="mono">sauvegardes/</td><td>Archives, dossier en <code>0700</code>, fichiers en <code>0600</code></td><td>non</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Réglages de l'instance</h2>
+
+<p>Depuis <code>/admin</code>, une fois installé :</p>
+
+<ul>
+  <li><strong>Organisation</strong> : nom affiché, quota de congés annuels, devise de tenue des comptes.</li>
+  <li><strong>Apparence</strong> : palette de l'instance parmi trois, avec aperçu.</li>
+  <li><strong>Modules</strong> : activation des sept modules optionnels — voir <a href="modules.html">Modules</a>.</li>
+  <li><strong>Politique de sécurité</strong> (<code>/securite</code>) : exigence de double authentification, durée de conservation du journal d'audit.</li>
+</ul>
+
+<h2>Secrets rangés en base</h2>
+
+<p>
+  Certains réglages contiennent des secrets : mot de passe FTP, clé de compte de service
+  Google, mot de passe IMAP, clé d'accès au service d'analyse, secret de webhook. Ils sont
+  <strong>chiffrés en AES-256-GCM</strong> avec une clé dérivée du secret de session, qui vit
+  dans un fichier à part.
+</p>
+
+<div class="good">
+  <span class="note-title">Une copie de la base seule ne livre rien</span>
+  <p>
+    L'écran n'affiche jamais un secret enregistré : il montre <code>•••••••• (défini)</code>.
+    Un champ secret laissé vide <strong>conserve la valeur en place</strong> plutôt que de
+    l'effacer — sans quoi enregistrer un formulaire effacerait le mot de passe qu'on ne
+    voulait pas changer.
+  </p>
+</div>
+
+<h2>Messagerie externe (IMAP/SMTP)</h2>
+
+<p>
+  L'administration renseigne, pour chaque membre, son adresse professionnelle et les
+  serveurs IMAP/SMTP ; <strong>le membre les voit sans pouvoir les modifier</strong>. La
+  messagerie interne est pleinement fonctionnelle ; la synchronisation avec la boîte
+  externe n'est pas branchée. Le modèle de données et les écrans d'administration sont en
+  place pour l'accueillir.
+</p>
+
+<p>
+  À ne pas confondre avec la <a href="comptable.html">capture de la boîte aux lettres
+  comptable</a>, qui relève bien une boîte IMAP — mais une seule, dédiée aux factures
+  fournisseurs.
+</p>

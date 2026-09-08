@@ -1,0 +1,251 @@
+title: Traductions
+nav: Traductions
+description: Les 16 langues, la négociation, les statuts traduits, la mise en page arabe, les garanties de test et l'état réel de la couverture.
+
+<h1>Traductions</h1>
+<p class="lede">
+  L'interface existe en {{i18n.locales}} langues : le français, langue de référence du
+  produit, et les quinze langues les plus parlées. {{i18n.keys}} clés déclinées
+  {{i18n.locales}} fois, soit {{i18n.strings}} chaînes, dont la cohérence est tenue par les
+  tests plutôt que par la relecture.
+</p>
+
+<h2>Les langues disponibles</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Code</th><th>Langue</th><th>Sens d'écriture</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">fr</td><td>🇫🇷 Français <span class="tag">référence</span></td><td>gauche à droite</td></tr>
+    <tr><td class="mono">en</td><td>🇬🇧 English</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">es</td><td>🇪🇸 Español</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">de</td><td>🇩🇪 Deutsch</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">it</td><td>🇮🇹 Italiano</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">pt</td><td>🇵🇹 Português</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">nl</td><td>🇳🇱 Nederlands</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">pl</td><td>🇵🇱 Polski</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">ru</td><td>🇷🇺 Русский</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">tr</td><td>🇹🇷 Türkçe</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">ar</td><td>🇸🇦 العربية</td><td><strong>droite à gauche</strong></td></tr>
+    <tr><td class="mono">hi</td><td>🇮🇳 हिन्दी</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">zh</td><td>🇨🇳 中文</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">ja</td><td>🇯🇵 日本語</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">ko</td><td>🇰🇷 한국어</td><td>gauche à droite</td></tr>
+    <tr><td class="mono">vi</td><td>🇻🇳 Tiếng Việt</td><td>gauche à droite</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  La langue se choisit <strong>par drapeau sur l'écran de connexion</strong> — avant même
+  d'avoir un compte — et depuis le profil une fois connecté.
+</p>
+
+<h2>Comment la langue est choisie</h2>
+
+<p>Trois sources, dans cet ordre :</p>
+
+<ol>
+  <li><strong>Le choix du compte</strong>, enregistré dans le profil.</li>
+  <li><strong>Le cookie</strong>, pour un visiteur non connecté qui a cliqué un drapeau sur l'écran de connexion.</li>
+  <li><strong>L'en-tête <code>Accept-Language</code></strong> du navigateur.</li>
+</ol>
+
+<p>À défaut, le français.</p>
+
+<h3>Une clé absente ne casse jamais la page</h3>
+
+<pre><code>function translate(locale, key, params) {
+  const dict = dictionaries[locale] || {};
+  let value = dict[key];
+  if (value === undefined) value = dictionaries[DEFAULT_LOCALE][key];
+  if (value === undefined) return key;
+  …
+}</code></pre>
+
+<p>
+  Une traduction manquante retombe sur le français ; une clé inexistante ressort telle
+  quelle. Une traduction incomplète <strong>dégrade l'affichage, elle ne casse rien</strong>.
+</p>
+
+<h2>Les statuts se traduisent aussi</h2>
+
+<p>
+  C'est le point le moins évident du dispositif. Les statuts — <em>Approuvée</em>,
+  <em>Brouillon</em>, <em>En attente</em> — sont <strong>stockés en français dans la
+  base</strong>. C'est la valeur métier : elle sert aux contraintes <code>CHECK</code> du
+  schéma, aux comparaisons du code et aux paramètres d'URL. Elle ne doit pas bouger avec la
+  langue de l'utilisateur.
+</p>
+
+<p>
+  Mais ce qui <em>s'affiche</em> passe par le dictionnaire. Une table de correspondance
+  associe chaque valeur stockée à une clé de traduction, et un helper <code>st()</code>
+  disponible dans toutes les vues fait la conversion au moment du rendu.
+</p>
+
+<pre><code>function statusLabel(locale, value) {
+  if (!value) return '';
+  const key = STATUS_KEYS[value];
+  return key ? translate(locale, key) : value;
+}</code></pre>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Stocké en base</th><th>Clé</th><th>🇬🇧</th><th>🇩🇪</th><th>🇯🇵</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">Approuvée</td><td class="mono">status.approved</td><td>Approved</td><td>Genehmigt</td><td>承認済み</td></tr>
+    <tr><td class="mono">Brouillon</td><td class="mono">status.draft</td><td>Draft</td><td>Entwurf</td><td>下書き</td></tr>
+    <tr><td class="mono">En attente</td><td class="mono">status.pending</td><td>Pending</td><td>Ausstehend</td><td>保留中</td></tr>
+    <tr><td class="mono">Signé</td><td class="mono">status.signed</td><td>Signed</td><td>Unterzeichnet</td><td>署名済み</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  {{i18n.statuses}} valeurs de statut sont couvertes, ramenées à {{i18n.statusKeys}} clés :
+  les <strong>paires de genre du français</strong> (<em>Annulé</em> / <em>Annulée</em>,
+  <em>Refusé</em> / <em>Refusée</em>) partagent une traduction, les autres langues ne faisant
+  pas la distinction.
+</p>
+
+<div class="good">
+  <span class="note-title">Un statut inconnu ressort tel quel</span>
+  <p>
+    Une valeur absente de la table — un statut ajouté par l'exploitant, par exemple — s'affiche
+    telle quelle plutôt que de laisser une case vide. Mieux vaut un mot français qu'un blanc.
+  </p>
+</div>
+
+<h2>L'arabe retourne réellement la page</h2>
+
+<p>
+  Passer <code>dir="rtl"</code> sur la page ne suffit pas. Le navigateur inverse le texte et
+  l'ordre des éléments en flex, mais une marge déclarée <code>margin-left</code> reste à
+  gauche : le liseré de l'onglet actif, la pastille du compte et les marges de tableau se
+  retrouveraient du mauvais côté.
+</p>
+
+<p>
+  La feuille de style du produit n'emploie donc que des <strong>propriétés logiques</strong> :
+</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Au lieu de</th><th>On écrit</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">border-left</td><td class="mono">border-inline-start</td></tr>
+    <tr><td class="mono">padding-right</td><td class="mono">padding-inline-end</td></tr>
+    <tr><td class="mono">margin-right</td><td class="mono">margin-inline-end</td></tr>
+    <tr><td class="mono">text-align: left</td><td class="mono">text-align: start</td></tr>
+    <tr><td class="mono">padding: 0 8px 0 4px</td><td class="mono">padding-inline: 4px 8px</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Le résultat se vérifie géométriquement plutôt qu'à l'œil : en arabe, le liseré de l'onglet
+  actif passe de 3&nbsp;px à gauche à 3&nbsp;px à droite, et la barre latérale passe du bord
+  gauche au bord droit de la fenêtre.
+</p>
+
+<h2>Ce que les tests garantissent</h2>
+
+<p>
+  Un dictionnaire de {{i18n.strings}} chaînes ne se relit pas. Quinze tests vérifient à chaque
+  exécution de la suite :
+</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Vérification</th><th>Le défaut qu'elle attrape</th></tr></thead>
+  <tbody>
+    <tr><td>Parité des clés</td><td>Une langue à laquelle on a oublié d'ajouter une clé</td></tr>
+    <tr><td>Aucune valeur vide</td><td>Une chaîne laissée en blanc</td></tr>
+    <tr><td>Paramètres <code>{nom}</code> identiques</td><td>Un paramètre perdu à la traduction : la phrase s'affiche amputée, sans erreur</td></tr>
+    <tr><td>Écritures non latines</td><td>Une traduction oubliée se repère à ce qu'elle reste en caractères latins</td></tr>
+    <tr><td>Toute clé appelée existe</td><td>Une faute de frappe dans un <code>t('…')</code></td></tr>
+    <tr><td>Chaque statut pointe vers une clé existante</td><td>Une entrée de table qui ne mène nulle part</td></tr>
+    <tr><td>Tout statut du schéma est traduit</td><td>Un statut ajouté à une contrainte <code>CHECK</code> sans traduction</td></tr>
+    <tr><td>Aucune vue n'affiche un statut brut</td><td>Un <code>&lt;%= x.status %&gt;</code> qui a échappé au helper</td></tr>
+    <tr><td>Aucune vue ne masque le helper</td><td>Une boucle <code>forEach((t) =&gt; …)</code> qui rend <code>t()</code> inappelable</td></tr>
+    <tr><td>Le chrome partagé est traduit</td><td>Un libellé en dur dans l'en-tête ou la navigation, donc visible partout</td></tr>
+    <tr><td>Le CSS ne fige aucun côté</td><td>Un <code>margin-left</code> qui casserait la mise en page arabe</td></tr>
+    <tr><td>Rendu de bout en bout</td><td>Une page servie en allemand qui parle encore français</td></tr>
+    <tr><td>Bascule RTL</td><td>Une page arabe qui ne passe pas en <code>dir="rtl"</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="note-title">Le piège du masquage</span>
+  <p>
+    Une boucle écrite <code>tools.forEach((t) =&gt; …)</code> masque le helper de traduction :
+    à l'intérieur, <code>t('common.edit')</code> tente d'appeler l'objet de la boucle comme une
+    fonction et la page tombe. Le cas s'est produit ; un test l'interdit désormais dans toutes
+    les vues.
+  </p>
+</div>
+
+<h2>Où en est la couverture</h2>
+
+<p>
+  Traduit de bout en bout : l'écran de connexion, l'assistant d'installation, l'espace
+  collaborateur, l'espace RH, la console d'administration, le <strong>chrome présent sur
+  chaque page</strong> (en-tête, compte, déconnexion, sélecteur de thème, navigation latérale
+  des quatre espaces), <strong>tous les statuts</strong>, et le <strong>vocabulaire
+  générique</strong> — les libellés de colonnes, de champs et de boutons qui reviennent d'un
+  écran à l'autre : <em>Intitulé</em>, <em>Catégorie</em>, <em>Description</em>,
+  <em>Montant</em>, <em>Échéance</em>, <em>Enregistrer</em>, <em>Supprimer</em>.
+</p>
+
+<div class="warn">
+  <span class="note-title">Ce qui reste en français</span>
+  <p>
+    Le vocabulaire propre à chaque écran des derniers lots — direction, planning, qualité,
+    accueil, parapheur, pièces reçues, trésorerie, immobilisations, flotte, CRM, projets,
+    sauvegardes, interfaces — représente encore <strong>environ 1 600 chaînes visibles</strong>.
+    Ce sont désormais des phrases et des termes métier apparaissant sur un ou deux écrans
+    seulement, plus aucun mot générique. Ces pages s'affichent en français quelle que soit la
+    langue choisie : rien n'est cassé, mais un utilisateur étranger les verra dans une langue
+    qui n'est pas la sienne.
+  </p>
+</div>
+
+<p>
+  La suite se fait écran par écran plutôt qu'en une passe automatique : dans un produit vendu,
+  une traduction approximative coûte plus cher que son absence.
+</p>
+
+<h2>Ajouter ou corriger une traduction</h2>
+
+<p>
+  Les dictionnaires vivent dans <code>src/locales/</code>, un fichier par langue, exportant un
+  objet plat. Le français est la référence : c'est lui qui définit le jeu de clés.
+</p>
+
+<pre><code>module.exports = {
+  'common.save': 'Enregistrer',
+  'leave.available': 'Solde disponible : {days} jours',
+  …
+};</code></pre>
+
+<p>Pour ajouter une clé, trois règles :</p>
+
+<ol>
+  <li><strong>L'ajouter dans les {{i18n.locales}} fichiers</strong> — le test de parité échoue sinon.</li>
+  <li><strong>Reprendre les mêmes paramètres <code>{nom}</code></strong> dans chaque langue, quel que soit leur ordre dans la phrase.</li>
+  <li><strong>Écrire dans l'écriture de la langue</strong> — un test refuse une valeur restée en caractères latins pour le russe, l'arabe, le hindi, le chinois, le japonais ou le coréen. Les sigles techniques (<code>JPEG</code>, <code>PNG</code>) et la marque en sont exemptés.</li>
+</ol>
+
+<p>
+  Pour ajouter un <strong>statut</strong>, l'inscrire aussi dans la table
+  <code>STATUS_KEYS</code> de <code>src/i18n.js</code> : un statut déclaré au schéma mais
+  absent de la table fait échouer les tests plutôt que de ressortir en français chez un
+  utilisateur étranger.
+</p>
+
+<p>
+  Le <a href="lexique.html">lexique</a> permet de parcourir et chercher l'intégralité des
+  {{i18n.keys}} clés dans les {{i18n.locales}} langues.
+</p>

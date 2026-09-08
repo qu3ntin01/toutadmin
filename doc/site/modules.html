@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Sept modules livrés éteints — comptabilité, paie, facturation électronique, stock, trésorerie, immobilisations, CRM." />
+<title>Modules débloquables — Documentation Salarié Member</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Salarié Member<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html" class="is-active" aria-current="page">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Modules débloquables</h1>
+<p class="lede">
+  Sept modules sont livrés <strong>éteints par défaut</strong>. L'administration les débloque
+  un à un depuis <code>/admin</code>, section Modules : l'activation ouvre l'espace, ses routes
+  et son entrée de navigation ; la désactivation les referme <strong>sans rien effacer</strong>.
+  Tant qu'un module est éteint, ses URL répondent 404.
+</p>
+
+<div class="note">
+  <span class="note-title">Les limites sont sur l'écran</span>
+  <p>
+    Chaque module affiche à l'activation ce qu'il <strong>ne</strong> garantit pas. Une limite
+    enfouie dans une documentation se découvre au moment où elle coûte cher.
+  </p>
+</div>
+
+<h2 id="les-sept-modules">Les sept modules<a class="anchor" href="#les-sept-modules" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Module</th><th>Adresse</th><th>Ce qu'il fait</th><th>Ce qu'il ne fait pas</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Comptabilité</strong></td><td class="mono">/comptabilite</td>
+      <td>Plan comptable, journaux, écritures équilibrées, balance, grand livre, export CSV. Une facture se passe en écriture d'un clic.</td>
+      <td>Ni liasse fiscale, ni télétransmission : l'export alimente l'expert-comptable.</td>
+    </tr>
+    <tr>
+      <td><strong>Moteur de paie</strong></td><td class="mono">/paie</td>
+      <td>Barèmes paramétrables, calcul du brut au net, part patronale, coût employeur, bulletin détaillé, génération en lot, simulateur.</td>
+      <td>Les taux sont ceux que vous saisissez ; aucune DSN.</td>
+    </tr>
+    <tr>
+      <td><strong>Facturation électronique</strong></td><td class="mono">/facturation-electronique</td>
+      <td>Contrôle des mentions EN 16931 et export du XML CII (UN/CEFACT) de chaque facture client.</td>
+      <td>L'encapsulation PDF/A-3 (Factur-X) et le dépôt sur plateforme agréée restent à faire.</td>
+    </tr>
+    <tr>
+      <td><strong>Stock et achats</strong></td><td class="mono">/stock</td>
+      <td>Articles, mouvements, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà de 500 €.</td>
+      <td>Stock mono-dépôt au dernier prix connu ; ni FIFO, ni CUMP.</td>
+    </tr>
+    <tr>
+      <td><strong>Trésorerie</strong></td><td class="mono">/tresorerie</td>
+      <td>Comptes bancaires, mouvements, rapprochement des encaissements avec les factures, projection à douze semaines avec son point bas.</td>
+      <td>Saisie manuelle : aucune connexion bancaire (DSP2). Le solde est celui que vous avez saisi.</td>
+    </tr>
+    <tr>
+      <td><strong>Immobilisations</strong></td><td class="mono">/immobilisations</td>
+      <td>Registre, amortissement linéaire et dégressif avec bascule calculée, valeur nette comptable, dotation de l'exercice.</td>
+      <td>Outil de suivi : rattachement comptable, composants et dérogatoires restent à l'expert-comptable.</td>
+    </tr>
+    <tr>
+      <td><strong>CRM commercial</strong></td><td class="mono">/crm</td>
+      <td>Contacts, pipeline pondéré, devis convertibles en facture, relances à échéance.</td>
+      <td>Pas de synchronisation avec une messagerie ni d'automatisation marketing.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="ce-que-ces-modules-garantissent">Ce que ces modules garantissent<a class="anchor" href="#ce-que-ces-modules-garantissent" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Les règles suivantes sont appliquées côté serveur et couvertes par les tests. Ce ne sont
+  pas des messages d'avertissement : ce sont des refus.
+</p>
+
+<ul>
+  <li>
+    <strong>Une écriture comptable est refusée si elle n'est pas équilibrée</strong>, et le
+    message dit de combien : « 100,00 € au débit contre 80,00 € au crédit ». Une ligne porte
+    un débit <em>ou</em> un crédit, jamais les deux. Un compte mouvementé est désactivé,
+    jamais supprimé.
+  </li>
+  <li>
+    <strong>Le bulletin de paie est calculé, pas saisi</strong> : chaque cotisation s'applique
+    sur le brut ou sur la part plafonnée, et le bulletin garde le détail ligne à ligne. Un
+    freelance n'a pas de bulletin ; un doublon de période est refusé.
+  </li>
+  <li>
+    <strong>Le XML n'est produit que si la facture est conforme</strong> : sinon chaque mention
+    manquante est listée telle quelle, émetteur et client compris.
+  </li>
+  <li>
+    <strong>Le stock est la somme des mouvements</strong>, jamais une valeur saisie ; un
+    inventaire repose le compteur. Une sortie supérieure au stock est refusée.
+  </li>
+  <li>
+    <strong>Une demande d'achat suit deux niveaux</strong> : le manager du demandeur, puis la
+    gestion au-delà du seuil. Un manager n'arbitre que ses propres collaborateurs.
+  </li>
+  <li>
+    <strong>Un devis accepté devient une facture</strong>, une seule fois.
+  </li>
+</ul>
+
+<h2 id="eteindre-un-module">Éteindre un module<a class="anchor" href="#eteindre-un-module" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  La désactivation referme l'espace et ses routes, mais <strong>ne supprime rien</strong> :
+  les écritures, les bulletins et les mouvements restent en base et réapparaissent tels quels
+  si le module est rallumé. C'est voulu — un module éteint par erreur ne doit pas coûter un an
+  de comptabilité.
+</p>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="configuration.html">← Configuration</a><a href="securite.html">Sécurité →</a></nav>
+      <p class="foot">Documentation de Salarié Member — construite le 2026-09-08. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#les-sept-modules">Les sept modules</a>
+    <a class="lvl-2" href="#ce-que-ces-modules-garantissent">Ce que ces modules garantissent</a>
+    <a class="lvl-2" href="#eteindre-un-module">Éteindre un module</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

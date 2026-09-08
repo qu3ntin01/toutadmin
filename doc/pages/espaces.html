@@ -1,0 +1,101 @@
+title: Les espaces
+nav: Les espaces
+description: Les zones de l'application, leur adresse et qui y accède.
+
+<h1>Les espaces</h1>
+<p class="lede">
+  L'application se divise en espaces, chacun servant un rôle. Les droits ne sont pas
+  décidés à l'affichage : chaque route porte son garde-fou côté serveur, et les
+  rattachements sont relus à chaque requête.
+</p>
+
+<h2>Table des espaces</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Espace</th><th>Adresse</th><th>Qui y accède</th></tr></thead>
+  <tbody>
+    <tr><td>Administration</td><td class="mono">/admin</td><td>Administrateurs uniquement</td></tr>
+    <tr><td>Ressources humaines</td><td class="mono">/rh</td><td>Administrateurs et membres désignés RH</td></tr>
+    <tr><td>Manager</td><td class="mono">/mon-equipe</td><td>Tout membre encadrant au moins une équipe ou un service</td></tr>
+    <tr><td>Espace personnel</td><td class="mono">/mon-espace</td><td>Chaque membre, pour ses propres données</td></tr>
+    <tr><td>Profil</td><td class="mono">/mon-profil</td><td>Chaque membre, pour ses propres réglages</td></tr>
+    <tr><td>Annuaire</td><td class="mono">/annuaire</td><td>Tout membre connecté</td></tr>
+    <tr><td>Organigramme</td><td class="mono">/organigramme</td><td>Tout membre connecté</td></tr>
+    <tr><td>Messagerie</td><td class="mono">/messagerie</td><td>Tout membre connecté</td></tr>
+    <tr><td>Agenda</td><td class="mono">/agenda</td><td>Chaque membre, pour son propre calendrier</td></tr>
+    <tr><td>Salles</td><td class="mono">/salles</td><td>Tout membre connecté, pour réserver</td></tr>
+    <tr><td>CSE</td><td class="mono">/cse</td><td>Salariés représentés par le comité (hors freelances et administrateurs)</td></tr>
+    <tr><td>Gestion du CSE</td><td class="mono">/cse/gestion</td><td>Membres élus dont le mandat court encore</td></tr>
+    <tr><td>Gestion administrative et financière</td><td class="mono">/gestion</td><td>Administrateurs et membres désignés gestionnaires</td></tr>
+    <tr><td>Direction et gouvernance</td><td class="mono">/direction</td><td>Administration</td></tr>
+    <tr><td>Planning et astreintes</td><td class="mono">/planning</td><td>Encadrement pour planifier, chacun pour son propre planning</td></tr>
+    <tr><td>Qualité</td><td class="mono">/qualite</td><td>Encadrement et administration</td></tr>
+    <tr><td>Accueil et courrier</td><td class="mono">/accueil</td><td>RH et administration</td></tr>
+    <tr><td>Parapheur</td><td class="mono">/parapheur</td><td>Signataires convoqués, RH et administration</td></tr>
+    <tr><td>Pièces reçues</td><td class="mono">/pieces</td><td>Gestion et administration</td></tr>
+    <tr><td>Demandes internes</td><td class="mono">/demandes</td><td>Tout membre, et les validateurs de chaque circuit</td></tr>
+    <tr><td>Coffre-fort</td><td class="mono">/coffre-fort</td><td>Chaque membre, y compris après son départ</td></tr>
+    <tr><td>Sécurité</td><td class="mono">/securite</td><td>Administration</td></tr>
+    <tr><td>Sauvegardes</td><td class="mono">/sauvegardes</td><td>Administration</td></tr>
+    <tr><td>Données personnelles</td><td class="mono">/rgpd</td><td>Administration</td></tr>
+    <tr><td>Pilotage</td><td class="mono">/pilotage</td><td>Administration</td></tr>
+    <tr><td>Modules optionnels</td><td class="mono">voir <a href="modules.html">Modules</a></td><td>Éteints par défaut, ouverts par l'administration</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Comment les droits sont calculés</h2>
+
+<p>
+  Quatre rôles se cumulent sur un même compte : <strong>administrateur</strong>,
+  <strong>RH</strong>, <strong>gestionnaire</strong> et <strong>manager</strong>. Les trois
+  premiers sont accordés par un administrateur. Le quatrième ne s'accorde pas : il se
+  déduit. Qui encadre au moins une équipe ou un service obtient l'espace manager ;
+  retirer l'encadrement le referme aussitôt.
+</p>
+
+<div class="note">
+  <span class="note-title">La session suit les droits réels</span>
+  <p>
+    Désactivation, fin de contrat, verrouillage, promotion et rétrogradation sont relus
+    <strong>à chaque requête</strong>, pas à la connexion. Un départ coupe l'accès
+    immédiatement, sans attendre l'expiration du cookie.
+  </p>
+</div>
+
+<h3>Encadrement : une relation, pas une colonne</h3>
+
+<p>
+  Un service comme une équipe acceptent <strong>autant de managers que nécessaire</strong>.
+  Une équipe appartient à un service ; rattacher quelqu'un à une équipe le rattache
+  automatiquement à son service, et un manager de service encadre aussi les équipes que
+  ce service contient. Supprimer un service ou une équipe <strong>détache</strong> ses
+  membres, ne les supprime jamais.
+</p>
+
+<h3>Trois cercles pour les projets</h3>
+
+<p>
+  La gestion conduit tous les projets. Un manager peut en ouvrir, mais ne conduit que ceux
+  dont il est responsable : encadrer une équipe ne donne aucun droit sur le projet d'une
+  autre. Sans responsable désigné, c'est celui qui a ouvert le projet.
+</p>
+
+<h3>Le CSE représente les salariés</h3>
+
+<p>
+  Les freelances et les administrateurs n'ont accès ni à l'espace du comité, ni au corps
+  électoral. L'espace de gestion des élus se referme automatiquement lorsque le mandat
+  arrive à échéance.
+</p>
+
+<h2>Le cas du salarié parti</h2>
+
+<p>
+  Un compte fermé reste utilisable pour une seule chose : <strong>son coffre-fort</strong>.
+  L'ancien salarié se connecte avec ses identifiants habituels et n'atteint que ses
+  bulletins, ses contrats et ses attestations. Aucune autre page n'est accessible, aucune
+  écriture n'est possible. Les RH peuvent émettre un code d'accès pour qui a oublié son
+  mot de passe — ce qui arrivera, sur une conservation de cinquante ans.
+</p>

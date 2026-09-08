@@ -600,6 +600,20 @@ d'administration sont en place pour l'accueillir.
 | `DOCS_DIR` | Dossier des pièces comptables reçues (défaut : `pieces/` à côté de la base) |
 | `BACKUP_DIR` | Dossier des sauvegardes (défaut : `sauvegardes/` à côté de la base) — à recopier hors du serveur |
 
+## Documentation
+
+Le dossier `doc/` contient un **site de documentation autonome**, destiné à un hébergement
+séparé. Il ne partage aucun fichier avec l'application et n'est servi par aucune route :
+c'est un site statique que l'on dépose tel quel.
+
+```bash
+node doc/build.js     # écrit doc/site/, le dossier à publier
+```
+
+Le lexique des traductions et les décomptes affichés dans ces pages sont extraits du dépôt
+au moment de la construction : la documentation ne peut pas afficher un chiffre que le code
+contredit. Voir `doc/README.md`.
+
 ## Structure
 
 ```
@@ -685,5 +699,6 @@ views/
   employee-edit · employee-timesheet · tool-edit
 public/              feuille de style, thème, chronomètre, agenda, jauges, confirmations
 scripts/seed-demo.js jeu de données de démonstration
+doc/                 site de documentation autonome (hébergé séparément)
 tests/               suite d'intégration (node --test)
 ```
