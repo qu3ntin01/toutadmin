@@ -10,7 +10,7 @@
         panelLabel: 'Stock et achats',
         navItems: [
           { tab: 'articles', label: 'Articles', icon: 'network', badge: lowStock.length },
-          { tab: 'mouvements', label: 'Mouvements', icon: 'link' },
+          { tab: 'mouvements', label: t('common.movements'), icon: 'link' },
           { tab: 'demandes', label: "Demandes d'achat", icon: 'inbox', badge: financeRequests.length }
         ],
         footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
@@ -68,16 +68,16 @@
                 <form method="POST" action="/stock/articles" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
-                    <span>Désignation</span>
+                    <span><%= t('common.designation') %></span>
                     <input type="text" name="label" maxlength="160" required />
                   </label>
                   <div class="form-grid">
                     <label>
-                      <span>Référence</span>
+                      <span><%= t('common.reference') %></span>
                       <input type="text" name="reference" maxlength="60" />
                     </label>
                     <label>
-                      <span>Unité</span>
+                      <span><%= t('common.unit') %></span>
                       <input type="text" name="unit" maxlength="20" value="unité" />
                     </label>
                     <label>
@@ -111,7 +111,7 @@
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th>Article</th><th>Stock</th><th>Seuil</th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                      <thead><tr><th>Article</th><th>Stock</th><th><%= t('common.threshold') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
                       <tbody>
                         <% items.forEach((i) => { %>
                           <tr>
@@ -171,7 +171,7 @@
                         </select>
                       </label>
                       <label>
-                        <span>Quantité</span>
+                        <span><%= t('common.quantity') %></span>
                         <input type="text" name="quantity" inputmode="decimal" required />
                       </label>
                       <label>
@@ -179,7 +179,7 @@
                         <input type="date" name="moved_on" />
                       </label>
                       <label>
-                        <span>Motif</span>
+                        <span><%= t('common.reason') %></span>
                         <input type="text" name="reason" maxlength="200" />
                       </label>
                     </div>
@@ -196,7 +196,7 @@
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th><%= t('common.date') %></th><th>Article</th><th><%= t('common.type') %></th><th>Quantité</th><th>Par</th></tr></thead>
+                      <thead><tr><th><%= t('common.date') %></th><th>Article</th><th><%= t('common.type') %></th><th><%= t('common.quantity') %></th><th>Par</th></tr></thead>
                       <tbody>
                         <% movements.slice(0, 40).forEach((m) => { %>
                           <tr>
@@ -229,12 +229,12 @@
               <form method="POST" action="/stock/demandes" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Objet</span>
+                  <span><%= t('common.subject') %></span>
                   <input type="text" name="label" maxlength="160" required />
                 </label>
                 <div class="form-grid">
                   <label>
-                    <span>Quantité</span>
+                    <span><%= t('common.quantity') %></span>
                     <input type="text" name="quantity" inputmode="decimal" value="1" required />
                   </label>
                   <label>
@@ -267,7 +267,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Objet</th><th>Montant</th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                    <thead><tr><th><%= t('common.subject') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
                     <tbody>
                       <% myRequests.forEach((r) => { %>
                         <tr>
@@ -348,7 +348,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Demandeur</th><th>Objet</th><th>Montant</th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr></thead>
+                    <thead><tr><th><%= t('common.requester') %></th><th><%= t('common.subject') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr></thead>
                     <tbody>
                       <% allRequests.forEach((r) => { %>
                         <tr>

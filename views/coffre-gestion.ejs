@@ -9,7 +9,7 @@
       panelLabel: 'Coffre-fort',
       navItems: [
         { tab: 'depot', label: 'Déposer', icon: 'plus' },
-        { tab: 'documents', label: 'Documents', icon: 'shield' },
+        { tab: 'documents', label: t('erp.documents'), icon: 'shield' },
         { tab: 'acces', label: 'Accès après départ', icon: 'link', badge: summary.grants },
         { tab: 'integrite', label: 'Intégrité', icon: 'check', badge: integrity.broken.length }
       ],
@@ -53,7 +53,7 @@
         <div class="card">
           <div class="card-head"><h3>Choisir un titulaire</h3></div>
           <form method="GET" action="/coffre-fort/gestion" class="form-grid">
-            <label class="span-2"><span>Personne</span>
+            <label class="span-2"><span><%= t('common.person') %></span>
               <select name="personne" required>
                 <option value="">—</option>
                 <% people.forEach((u) => { %>
@@ -77,10 +77,10 @@
               <form method="POST" action="/coffre-fort/gestion/depots" enctype="multipart/form-data" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="user_id" value="<%= target.id %>" />
-                <label class="span-2"><span>Intitulé</span>
+                <label class="span-2"><span><%= t('common.title') %></span>
                   <input type="text" name="title" required maxlength="200" placeholder="Bulletin de paie — janvier 2026" />
                 </label>
-                <label><span>Catégorie</span>
+                <label><span><%= t('common.category') %></span>
                   <select name="category"><% categories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
                 </label>
                 <label><span>Période (AAAA ou AAAA-MM)</span><input type="text" name="period" maxlength="7" placeholder="2026-01" /></label>
@@ -92,7 +92,7 @@
                     <% }) %>
                   </select>
                 </label>
-                <label class="span-2"><span>Fichier</span>
+                <label class="span-2"><span><%= t('common.file') %></span>
                   <input type="file" name="document" accept=".pdf,.docx,.png,.jpg,.jpeg" required />
                 </label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déposer</button></div>
@@ -117,7 +117,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Document</th><th>Catégorie</th><th>Période</th><th>Déposé</th><th>Conservé jusqu'au</th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th>Déposé</th><th>Conservé jusqu'au</th><th></th></tr></thead>
                   <tbody>
                     <% documents.forEach((d) => { %>
                       <tr class="<%= d.removed_at ? 'is-muted' : '' %>">
@@ -138,13 +138,13 @@
                         <td class="cell-sub nowrap"><%= day(d.retention_until) %></td>
                         <td>
                           <% if (!d.removed_at) { %>
-                            <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= d.id %>">Ouvrir</a>
+                            <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= d.id %>"><%= t('common.open') %></a>
                             <% if (currentUser.role === 'admin') { %>
                               <form method="POST" action="/coffre-fort/gestion/documents/<%= d.id %>/retirer" class="inline-form"
                                     data-confirm="Retirer définitivement ce document du coffre ?">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <input type="text" name="reason" class="input-sm" placeholder="Motif du retrait" required minlength="5" />
-                                <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                                <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                               </form>
                             <% } %>
                           <% } %>

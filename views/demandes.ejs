@@ -43,7 +43,7 @@
                   </p>
                   <% if (r.status === 'En cours' && r.step) { %>
                     <p class="cell-sub">
-                      Étape <%= r.stepIndex + 1 %>/<%= r.steps.length %> —
+                      <%= t('common.step') %> <%= r.stepIndex + 1 %>/<%= r.steps.length %> —
                       <%= r.step.label || r.step.approver %> ·
                       <%= r.pendingApprovers.map((a) => `${a.first_name} ${a.last_name}`).join(', ') %>
                     </p>
@@ -116,9 +116,9 @@
               <div class="card-head"><h3>Créer un type de demande</h3></div>
               <form method="POST" action="/demandes/types" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label><span>Intitulé</span><input type="text" name="label" required maxlength="120" placeholder="Demande de déplacement" /></label>
+                <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="Demande de déplacement" /></label>
                 <label><span>Champ portant le montant</span><input type="text" name="amount_field" maxlength="60" placeholder="montant" /></label>
-                <label class="span-2"><span>Description</span><textarea name="description" rows="2" placeholder="Ce que la demande sert à obtenir, et ce qu'il faut y joindre."></textarea></label>
+                <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="2" placeholder="Ce que la demande sert à obtenir, et ce qu'il faut y joindre."></textarea></label>
 
                 <div class="span-2">
                   <p class="section-label">Champs à saisir (<%= maxFields %> au plus)</p>
@@ -130,7 +130,7 @@
                       <select name="field_types">
                         <% fieldTypes.forEach((ft) => { %><option value="<%= ft.key %>"><%= ft.label %></option><% }) %>
                       </select>
-                      <select name="field_required"><option value="0">Facultatif</option><option value="1">Obligatoire</option></select>
+                      <select name="field_required"><option value="0">Facultatif</option><option value="1"><%= t('common.mandatory') %></option></select>
                       <input type="text" name="field_options" maxlength="300" placeholder="Choix séparés par |" />
                     </div>
                   <% }) %>
@@ -156,7 +156,7 @@
 
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Étape</th><th>Validateur</th><th>Seuil</th><th></th></tr></thead>
+                    <thead><tr><th><%= t('common.step') %></th><th>Validateur</th><th><%= t('common.threshold') %></th><th></th></tr></thead>
                     <tbody>
                       <% form.steps.forEach((s) => { %>
                         <tr>
@@ -169,7 +169,7 @@
                           <td>
                             <form method="POST" action="/demandes/types/<%= form.id %>/etapes/<%= s.id %>/supprimer" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-link btn-sm">Retirer</button>
+                              <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                             </form>
                           </td>
                         </tr>
@@ -205,7 +205,7 @@
                   </form>
                   <form method="POST" action="/demandes/types/<%= form.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce type et son historique ?">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                    <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                    <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                   </form>
                 </div>
               </div>

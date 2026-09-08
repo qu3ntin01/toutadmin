@@ -25,7 +25,7 @@
           <form method="POST" action="/admin/employes/<%= employee.id %>/modifier" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label>
-              <span>Grade</span>
+              <span><%= t('common.grade') %></span>
               <select name="grade" required>
                 <% grades.forEach((g) => { %>
                   <option value="<%= g %>" <%= employee.grade === g ? 'selected' : '' %>><%= g %></option>
@@ -33,7 +33,7 @@
               </select>
             </label>
             <label>
-              <span>Service</span>
+              <span><%= t('common.department') %></span>
               <select name="department_id">
                 <option value="">— <%= t('common.none') %> —</option>
                 <% departments.forEach((d) => { %>
@@ -67,8 +67,8 @@
               <input type="number" name="daily_rate" min="0" step="0.01" value="<%= employee.daily_rate ?? '' %>" placeholder="Ex : 450" />
             </label>
             <div class="span-2 form-actions">
-              <button type="submit" class="btn btn-primary">Enregistrer</button>
-              <a href="/admin#personnel" class="btn btn-quiet">Annuler</a>
+              <button type="submit" class="btn btn-primary"><%= t('common.save') %></button>
+              <a href="/admin#personnel" class="btn btn-quiet"><%= t('common.cancel') %></a>
               <% if (employee.contract_type === 'Freelance') { %>
                 <a href="/rh/temps/<%= employee.id %>" class="btn">Voir le pointage</a>
               <% } %>

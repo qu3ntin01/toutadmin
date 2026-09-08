@@ -93,8 +93,8 @@
               <div class="card-head"><h3>Mettre un document à la signature</h3></div>
               <form method="POST" action="/parapheur" enctype="multipart/form-data" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" placeholder="Avenant au contrat de M. Dupont" /></label>
-                <label><span>Nature</span>
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="Avenant au contrat de M. Dupont" /></label>
+                <label><span><%= t('common.nature') %></span>
                   <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
                 <label><span>À signer avant le</span><input type="date" name="deadline" /></label>

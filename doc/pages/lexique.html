@@ -1,0 +1,95 @@
+title: Lexique
+nav: Lexique complet
+description: Les clés de traduction du produit, dans les 16 langues, avec recherche par clé ou par libellé.
+scripts: lexique.js
+wide: oui
+
+<h1>Lexique</h1>
+<p class="lede">
+  Les {{i18n.keys}} clés du produit, dans les {{i18n.locales}} langues. Ce tableau est
+  extrait de <code>src/locales/</code> au moment de la construction du site : il ne peut pas
+  diverger de ce que le logiciel affiche.
+</p>
+
+<div class="note">
+  <span class="note-title">Chercher par ce qu'on voit à l'écran</span>
+  <p>
+    La recherche porte sur la clé <em>et</em> sur les libellés, toutes langues confondues,
+    sans tenir compte des accents. Taper <code>enregistrer</code>, <code>Speichern</code> ou
+    <code>common.save</code> mène à la même ligne.
+  </p>
+</div>
+
+<div id="lex">
+  <div class="lex-controls">
+    <div class="field">
+      <label for="lex-search">Rechercher</label>
+      <input type="search" id="lex-search" placeholder="clé ou libellé…" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label for="lex-lang">Langue affichée</label>
+      <select id="lex-lang"><option>chargement…</option></select>
+    </div>
+    <div class="field">
+      <label for="lex-group">Famille de clés</label>
+      <select id="lex-group"><option>chargement…</option></select>
+    </div>
+    <span class="lex-count" id="lex-count"></span>
+  </div>
+
+  <div class="table-wrap">
+    <table id="lex-table">
+      <thead><tr><th>Clé</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <p class="lex-more" id="lex-more" hidden><button class="btn" type="button">Afficher la suite</button></p>
+</div>
+
+<h2>Comment lire une clé</h2>
+
+<p>
+  Une clé se compose d'une <strong>famille</strong> et d'un nom, séparés par un point. La
+  famille dit où la clé sert, ce qui évite qu'un même mot français porte deux sens.
+</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Famille</th><th>Ce qu'elle couvre</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">common</td><td>Vocabulaire générique : libellés de colonnes, de champs et de boutons, réutilisés partout</td></tr>
+    <tr><td class="mono">status</td><td>Libellés des statuts stockés en base</td></tr>
+    <tr><td class="mono">nav</td><td>Entrées de navigation des quatre barres latérales</td></tr>
+    <tr><td class="mono">erp</td><td>Gestion administrative et financière</td></tr>
+    <tr><td class="mono">org</td><td>Services, équipes, encadrement</td></tr>
+    <tr><td class="mono">auth</td><td>Écran de connexion</td></tr>
+    <tr><td class="mono">install</td><td>Assistant d'installation</td></tr>
+    <tr><td class="mono">hr</td><td>Espace ressources humaines</td></tr>
+    <tr><td class="mono">cse</td><td>Comité social et économique</td></tr>
+    <tr><td class="mono">agenda</td><td>Calendrier et agenda partagé</td></tr>
+    <tr><td class="mono">theme</td><td>Sélecteur de thème clair / sombre</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>
+  Un même libellé français peut porter plusieurs clés : <em>Objet</em> est
+  <code>messages.subject</code> côté messagerie et <code>common.subject</code> en en-tête de
+  colonne. C'est voulu — les deux se traduisent différemment selon la langue, et les
+  confondre produirait des faux amis.
+</p>
+
+<h2>Emporter le lexique</h2>
+
+<p>
+  Le fichier <a href="data/lexique.json"><code>data/lexique.json</code></a> contient les mêmes
+  données, prêtes à être relues par un outil de traduction. Sa structure&nbsp;:
+</p>
+
+<pre><code>{
+  "locales": [ { "code": "fr", "label": "Français", "flag": "🇫🇷", "dir": "ltr" }, … ],
+  "keys":    [ "app.name", "app.portal", … ],
+  "entries": { "common.save": { "fr": "Enregistrer", "en": "Save", … }, … },
+  "groups":  [ { "name": "common", "count": … }, … ]
+}</code></pre>

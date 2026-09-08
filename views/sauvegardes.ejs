@@ -12,7 +12,7 @@
         { tab: 'externalisation', label: 'Externalisation', icon: 'external', badge: destinations.filter((d) => d.enabled && d.status && d.status.ok === false).length },
         { tab: 'restauration', label: 'Restaurer', icon: 'back' },
         { tab: 'export', label: 'Export intégral', icon: 'external' },
-        { tab: 'reglages', label: 'Réglages', icon: 'settings' }
+        { tab: 'reglages', label: t('common.settings'), icon: 'settings' }
       ],
       footLinks: [
         { href: '/securite', label: 'Sécurité', icon: 'shield' },
@@ -84,7 +84,7 @@
             </div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Archive</th><th>Créée le</th><th>Taille</th><th></th></tr></thead>
+                <thead><tr><th>Archive</th><th>Créée le</th><th><%= t('common.size') %></th><th></th></tr></thead>
                 <tbody>
                   <% archives.forEach((a) => { %>
                     <tr>
@@ -93,8 +93,8 @@
                       <td class="cell-sub nowrap"><%= size(a.bytes) %></td>
                       <td>
                         <span class="row-actions">
-                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/telecharger">Télécharger</a>
-                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/verifier">Vérifier</a>
+                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/telecharger"><%= t('common.download') %></a>
+                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/verifier"><%= t('common.verify') %></a>
                           <% if (destinations.some((d) => d.enabled)) { %>
                             <form method="POST" action="/sauvegardes/<%= a.fileName %>/externaliser" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -103,7 +103,7 @@
                           <% } %>
                           <form method="POST" action="/sauvegardes/<%= a.fileName %>/supprimer" class="inline-form" data-confirm="Supprimer cette sauvegarde ?">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                            <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
                         </span>
                       </td>
@@ -192,7 +192,7 @@
                   <input type="checkbox" name="enabled" value="1" <%= d.enabled ? 'checked' : '' %> />
                   <span>Envoyer les sauvegardes vers cette destination</span>
                 </label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
 
               <p class="hint">
@@ -317,7 +317,7 @@
             <div class="card-head"><h3>Ce que l'export contient</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Fichiers joints</th><th>Nombre</th></tr></thead>
+                <thead><tr><th>Fichiers joints</th><th><%= t('common.count') %></th></tr></thead>
                 <tbody>
                   <tr><td class="cell-sub">Photos de profil</td><td><%= exportPreview.files.uploads %></td></tr>
                   <tr><td class="cell-sub">CV reçus</td><td><%= exportPreview.files.cv %></td></tr>
@@ -329,7 +329,7 @@
             <p class="section-label">Tables les mieux garnies</p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Table</th><th>Lignes</th></tr></thead>
+                <thead><tr><th>Table</th><th><%= t('common.lines') %></th></tr></thead>
                 <tbody>
                   <% exportPreview.tables.slice(0, 12).forEach((entry) => { %>
                     <tr><td class="mono cell-strong"><%= entry.table %></td><td><%= entry.lignes %></td></tr>
@@ -369,7 +369,7 @@
               <label><span>Archives conservées</span>
                 <input type="number" name="keep" min="2" max="500" value="<%= summary.keep %>" required />
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
             <p class="hint">
               Le balayage horaire du serveur déclenche la sauvegarde dès que l'intervalle est écoulé,

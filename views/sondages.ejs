@@ -32,7 +32,7 @@
                   <p class="cell-sub">
                     <%= s.kind %><% if (s.closes_on) { %> · jusqu'au <%= new Date(s.closes_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><% } %>
                   </p>
-                  <div class="row-actions"><a href="/sondages/<%= s.id %>" class="btn btn-primary btn-sm">Répondre</a></div>
+                  <div class="row-actions"><a href="/sondages/<%= s.id %>" class="btn btn-primary btn-sm"><%= t('common.reply') %></a></div>
                 </li>
               <% }) %>
             </ul>

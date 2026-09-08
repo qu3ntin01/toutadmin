@@ -71,7 +71,7 @@
           <% } else { %>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Date</th><th>Début</th><th>Fin</th><th>Durée</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.date') %></th><th><%= t('common.start') %></th><th><%= t('common.end') %></th><th><%= t('common.duration') %></th><th></th></tr></thead>
                 <tbody>
                   <% entries.forEach((e) => {
                     const start = new Date(e.clock_in);
@@ -85,12 +85,12 @@
                       <td class="cell-sub"><%= end ? end.toLocaleTimeString('fr-FR', timeOpts) : '—' %></td>
                       <td>
                         <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
-                        <% } else { %><span class="status status-on">En cours</span><% } %>
+                        <% } else { %><span class="status status-on"><%= t('status.running') %></span><% } %>
                       </td>
                       <td class="actions">
                         <form method="POST" action="/rh/temps/<%= employee.id %>/<%= e.id %>/supprimer" data-confirm="Supprimer cette entrée de pointage ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-sm btn-danger">Supprimer</button>
+                          <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
                         </form>
                       </td>
                     </tr>

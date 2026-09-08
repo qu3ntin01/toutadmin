@@ -82,7 +82,7 @@
                   </label>
                 </div>
                 <label>
-                  <span>Lien</span>
+                  <span><%= t('common.link') %></span>
                   <input type="url" name="url" maxlength="500" placeholder="https://" />
                 </label>
                 <label>
@@ -90,7 +90,7 @@
                   <input type="date" name="valid_until" />
                 </label>
                 <label>
-                  <span>Description</span>
+                  <span><%= t('common.description') %></span>
                   <textarea name="description" rows="3" maxlength="2000"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
@@ -134,10 +134,10 @@
                               <input type="hidden" name="url" value="<%= benefit.url %>" />
                               <input type="hidden" name="valid_until" value="<%= benefit.valid_until || '' %>" />
                               <% if (benefit.active) { %>
-                                <button type="submit" class="btn btn-sm">Désactiver</button>
+                                <button type="submit" class="btn btn-sm"><%= t('common.disable') %></button>
                               <% } else { %>
                                 <input type="hidden" name="active" value="on" />
-                                <button type="submit" class="btn btn-sm">Activer</button>
+                                <button type="submit" class="btn btn-sm"><%= t('common.enable') %></button>
                               <% } %>
                             </form>
                             <form method="POST" action="/cse/gestion/avantages/<%= benefit.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet avantage ?">

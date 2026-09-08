@@ -61,7 +61,7 @@
               <form method="POST" action="/gestion/tiers" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Nom</span>
+                  <span><%= t('common.name') %></span>
                   <input type="text" name="name" maxlength="160" required />
                 </label>
                 <label>
@@ -89,7 +89,7 @@
                   </label>
                 </div>
                 <label>
-                  <span>Adresse</span>
+                  <span><%= t('common.address') %></span>
                   <input type="text" name="address" maxlength="300" />
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
@@ -104,7 +104,7 @@
                 <div class="table-wrap">
                   <table>
                     <thead>
-                      <tr><th>Tiers</th><th><%= t('common.type') %></th><th><%= t('erp.contracts') %></th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                      <tr><th><%= t('erp.partners') %></th><th><%= t('common.type') %></th><th><%= t('erp.contracts') %></th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr>
                     </thead>
                     <tbody>
                       <% partners.forEach((p) => { %>
@@ -149,19 +149,19 @@
               <form method="POST" action="/gestion/contrats" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Tiers</span>
+                  <span><%= t('erp.partners') %></span>
                   <select name="partner_id" required>
                     <option value="">—</option>
                     <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
                   </select>
                 </label>
                 <label>
-                  <span>Intitulé</span>
+                  <span><%= t('common.title') %></span>
                   <input type="text" name="title" maxlength="160" required />
                 </label>
                 <div class="form-grid">
                   <label>
-                    <span>Référence</span>
+                    <span><%= t('common.reference') %></span>
                     <input type="text" name="reference" maxlength="60" />
                   </label>
                   <label>
@@ -207,7 +207,7 @@
                 <div class="table-wrap">
                   <table>
                     <thead>
-                      <tr><th>Contrat</th><th><%= t('erp.amount') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                      <tr><th><%= t('common.contract') %></th><th><%= t('erp.amount') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr>
                     </thead>
                     <tbody>
                       <% contracts.forEach((c) => {
@@ -263,18 +263,18 @@
               <form method="POST" action="/gestion/factures" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Sens</span>
+                  <span><%= t('common.direction') %></span>
                   <select name="direction" required>
                     <% invoiceDirections.forEach((d) => { %><option value="<%= d %>"><%= d === 'Client' ? t('erp.income') : t('erp.spending') %> — <%= d %></option><% }) %>
                   </select>
                 </label>
                 <label>
-                  <span>Intitulé</span>
+                  <span><%= t('common.title') %></span>
                   <input type="text" name="label" maxlength="160" required />
                 </label>
                 <div class="form-grid">
                   <label>
-                    <span>Tiers</span>
+                    <span><%= t('erp.partners') %></span>
                     <select name="partner_id">
                       <option value="">— <%= t('common.none') %> —</option>
                       <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
@@ -304,7 +304,7 @@
                     <input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required />
                   </label>
                   <label>
-                    <span>Devise</span>
+                    <span><%= t('common.currency') %></span>
                     <select name="currency">
                       <% usableCurrencies.forEach((c) => { %>
                         <option value="<%= c.code %>" <%= c.code === baseCurrency ? 'selected' : '' %>><%= c.code %> — <%= c.label %></option>
@@ -313,7 +313,7 @@
                   </label>
                 </div>
                 <label>
-                  <span>Référence</span>
+                  <span><%= t('common.reference') %></span>
                   <input type="text" name="reference" maxlength="60" />
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
@@ -411,11 +411,11 @@
             <div class="card-head"><h3>Nouvel abonnement</h3></div>
             <form method="POST" action="/gestion/abonnements" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Intitulé</span><input type="text" name="label" required maxlength="160" placeholder="Maintenance annuelle — site vitrine" /></label>
-              <label><span>Sens</span>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="160" placeholder="Maintenance annuelle — site vitrine" /></label>
+              <label><span><%= t('common.direction') %></span>
                 <select name="direction"><% invoiceDirections.forEach((d) => { %><option value="<%= d %>"><%= d %></option><% }) %></select>
               </label>
-              <label><span>Tiers</span>
+              <label><span><%= t('erp.partners') %></span>
                 <select name="partner_id">
                   <option value="">—</option>
                   <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
@@ -423,7 +423,7 @@
               </label>
               <label><span>Montant HT</span><input type="text" name="amount_ht" inputmode="decimal" required placeholder="Ex : 250,00" /></label>
               <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required /></label>
-              <label><span>Devise</span>
+              <label><span><%= t('common.currency') %></span>
                 <select name="currency">
                   <% usableCurrencies.forEach((c) => { %><option value="<%= c.code %>" <%= c.code === baseCurrency ? 'selected' : '' %>><%= c.code %></option><% }) %>
                 </select>
@@ -440,7 +440,7 @@
                   <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
                 </select>
               </label>
-              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
+              <label class="span-2"><span><%= t('common.remarks') %></span><textarea name="notes" rows="2"></textarea></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer l'abonnement</button></div>
             </form>
             <p class="hint">Rien n'est émis d'avance : la facture du mois prochain n'existe pas encore, et l'abonnement peut être arrêté d'ici là.</p>
@@ -459,7 +459,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Abonnement</th><th>Montant HT</th><th>Rythme</th><th>Prochaine</th><th>Fin</th><th>Émises</th><th>État</th><th class="actions"></th></tr></thead>
+                  <thead><tr><th>Abonnement</th><th>Montant HT</th><th>Rythme</th><th>Prochaine</th><th><%= t('common.end') %></th><th>Émises</th><th><%= t('common.state') %></th><th class="actions"></th></tr></thead>
                   <tbody>
                     <% subscriptions.forEach((a) => { %>
                       <tr>
@@ -482,7 +482,7 @@
                             </form>
                             <form method="POST" action="/gestion/abonnements/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet abonnement ? Les factures déjà émises restent dues.">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                              <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                             </form>
                           </div>
                         </td>
@@ -512,7 +512,7 @@
                   <% }) %>
                 </select>
               </label>
-              <label class="span-2"><span>Remarques</span><textarea name="notes" rows="2"></textarea></label>
+              <label class="span-2"><span><%= t('common.remarks') %></span><textarea name="notes" rows="2"></textarea></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Calculer et enregistrer</button></div>
             </form>
             <p class="hint">Une période se choisit dans la liste plutôt que de se saisir : trois jours de décalage feraient une déclaration fausse que personne ne verrait passer. Changez l'année en haut de page pour déclarer un exercice antérieur.</p>
@@ -530,7 +530,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Période</th><th>Collectée</th><th>Déductible</th><th>À payer</th><th>Crédit</th><th>Détail par taux</th><th>État</th><th class="actions"></th></tr></thead>
+                  <thead><tr><th><%= t('common.period') %></th><th>Collectée</th><th>Déductible</th><th>À payer</th><th><%= t('common.credit') %></th><th>Détail par taux</th><th><%= t('common.state') %></th><th class="actions"></th></tr></thead>
                   <tbody>
                     <% vatReturns.forEach((v) => { %>
                       <tr>
@@ -563,7 +563,7 @@
                             </form>
                             <form method="POST" action="/gestion/tva/<%= v.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette déclaration ?">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                              <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                             </form>
                           </div>
                         </td>
@@ -583,7 +583,7 @@
             <% if (currentUser.role === 'admin') { %>
               <form method="POST" action="/gestion/devises/reference" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label><span>Devise</span>
+                <label><span><%= t('common.currency') %></span>
                   <select name="code">
                     <% currencies.forEach((c) => { %><option value="<%= c.code %>" <%= c.isBase ? 'selected' : '' %>><%= c.code %> — <%= c.label %></option><% }) %>
                   </select>
@@ -603,13 +603,13 @@
             <div class="card-head"><h3>Taux de change</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Devise</th><th>1 unité vaut</th><th>Mise à jour</th><th class="actions"></th></tr></thead>
+                <thead><tr><th><%= t('common.currency') %></th><th>1 unité vaut</th><th>Mise à jour</th><th class="actions"></th></tr></thead>
                 <tbody>
                   <% currencies.forEach((c) => { %>
                     <tr>
                       <td><div class="cell-strong"><%= c.code %></div><div class="cell-sub"><%= c.label %></div></td>
                       <td class="num">
-                        <% if (c.isBase) { %><span class="tag tag-success">Référence</span>
+                        <% if (c.isBase) { %><span class="tag tag-success"><%= t('common.reference') %></span>
                         <% } else if (c.rate === null) { %><span class="cell-sub">Taux non renseigné</span>
                         <% } else { %><%= c.rate %> <%= baseCurrency %><% } %>
                       </td>
@@ -620,7 +620,7 @@
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <input type="hidden" name="code" value="<%= c.code %>" />
                             <input type="text" name="rate" inputmode="decimal" class="input-sm" value="<%= c.rate === null ? '' : c.rate %>" placeholder="0,92" />
-                            <button type="submit" class="btn btn-outline btn-sm">Enregistrer</button>
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('common.save') %></button>
                           </form>
                         <% } %>
                       </td>
@@ -648,7 +648,7 @@
                 </label>
                 <div class="form-grid">
                   <label>
-                    <span>Exercice</span>
+                    <span><%= t('common.fiscalYear') %></span>
                     <select name="year">
                       <% years.forEach((y) => { %><option value="<%= y %>" <%= y === year ? 'selected' : '' %>><%= y %></option><% }) %>
                     </select>
@@ -770,7 +770,7 @@
               <form method="POST" action="/gestion/equipements" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Désignation</span>
+                  <span><%= t('common.designation') %></span>
                   <input type="text" name="name" maxlength="160" required />
                 </label>
                 <div class="form-grid">
@@ -810,7 +810,7 @@
                 <div class="table-wrap">
                   <table>
                     <thead>
-                      <tr><th>Équipement</th><th>Détenteur</th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                      <tr><th><%= t('common.equipment') %></th><th><%= t('common.holder') %></th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr>
                     </thead>
                     <tbody>
                       <% assets.forEach((a) => { %>
@@ -839,7 +839,7 @@
                                   <option value="">Affecter à…</option>
                                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                                 </select>
-                                <button type="submit" class="btn btn-sm">Affecter</button>
+                                <button type="submit" class="btn btn-sm"><%= t('common.assign') %></button>
                               </form>
                             <% } %>
                             <form method="POST" action="/gestion/equipements/<%= a.id %>/supprimer" class="inline-form" data-confirm="Retirer cet équipement du parc ?">
@@ -865,7 +865,7 @@
               <form method="POST" action="/gestion/salles" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Nom</span>
+                  <span><%= t('common.name') %></span>
                   <input type="text" name="name" maxlength="120" required />
                 </label>
                 <div class="form-grid">
@@ -879,7 +879,7 @@
                   </label>
                 </div>
                 <label>
-                  <span>Équipement</span>
+                  <span><%= t('common.equipment') %></span>
                   <input type="text" name="equipment" maxlength="300" placeholder="Ex : vidéoprojecteur, visio" />
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>

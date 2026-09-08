@@ -68,7 +68,7 @@
                   </label>
                 </div>
                 <label>
-                  <span>Libellé</span>
+                  <span><%= t('common.label') %></span>
                   <input type="text" name="label" maxlength="160" required />
                 </label>
                 <label>
@@ -76,7 +76,7 @@
                   <input type="text" name="reference" maxlength="60" />
                 </label>
 
-                <h4 class="section-label">Lignes</h4>
+                <h4 class="section-label"><%= t('common.lines') %></h4>
                 <% for (let i = 0; i < 4; i++) { %>
                   <div class="entry-line">
                     <select name="account_id">
@@ -137,7 +137,7 @@
                         <p class="cell-sub"><%= day(e.entry_date) %><%= e.reference ? ' · ' + e.reference : '' %> · <%= money(e.total_debit) %></p>
                         <div class="table-wrap">
                           <table>
-                            <thead><tr><th>Compte</th><th>Libellé</th><th>Débit</th><th>Crédit</th></tr></thead>
+                            <thead><tr><th><%= t('common.account') %></th><th><%= t('common.label') %></th><th>Débit</th><th><%= t('common.credit') %></th></tr></thead>
                             <tbody>
                               <% linesOf(e.id).forEach((l) => { %>
                                 <tr>
@@ -188,7 +188,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Compte</th><th><%= t('common.type') %></th><th>Débit</th><th>Crédit</th><th>Solde</th></tr></thead>
+                  <thead><tr><th><%= t('common.account') %></th><th><%= t('common.type') %></th><th>Débit</th><th><%= t('common.credit') %></th><th><%= t('erp.balance') %></th></tr></thead>
                   <tbody>
                     <% balance.forEach((b) => { %>
                       <tr>
@@ -237,7 +237,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.date') %></th><th>Journal</th><th>Libellé</th><th>Débit</th><th>Crédit</th><th>Solde</th></tr></thead>
+                  <thead><tr><th><%= t('common.date') %></th><th>Journal</th><th><%= t('common.label') %></th><th>Débit</th><th><%= t('common.credit') %></th><th><%= t('erp.balance') %></th></tr></thead>
                   <tbody>
                     <% ledger.forEach((l) => { %>
                       <tr>
@@ -269,7 +269,7 @@
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <div class="form-grid">
                     <label>
-                      <span>Numéro</span>
+                      <span><%= t('common.number') %></span>
                       <input type="text" name="code" maxlength="10" placeholder="Ex : 627" required />
                     </label>
                     <label>
@@ -280,7 +280,7 @@
                     </label>
                   </div>
                   <label>
-                    <span>Intitulé</span>
+                    <span><%= t('common.title') %></span>
                     <input type="text" name="label" maxlength="160" required />
                   </label>
                   <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
@@ -293,11 +293,11 @@
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <div class="form-grid">
                     <label>
-                      <span>Code</span>
+                      <span><%= t('common.code') %></span>
                       <input type="text" name="code" maxlength="6" placeholder="Ex : CA" required />
                     </label>
                     <label>
-                      <span>Intitulé</span>
+                      <span><%= t('common.title') %></span>
                       <input type="text" name="label" maxlength="120" required />
                     </label>
                   </div>
@@ -310,7 +310,7 @@
               <div class="card-head"><h3>Plan comptable <span class="muted">(<%= accounts.length %>)</span></h3></div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Compte</th><th><%= t('common.type') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                  <thead><tr><th><%= t('common.account') %></th><th><%= t('common.type') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
                   <tbody>
                     <% accounts.forEach((a) => { %>
                       <tr>

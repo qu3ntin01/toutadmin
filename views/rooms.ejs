@@ -38,7 +38,7 @@
                   </select>
                 </label>
                 <label>
-                  <span>Objet</span>
+                  <span><%= t('common.subject') %></span>
                   <input type="text" name="title" maxlength="140" required />
                 </label>
                 <div class="form-grid">
@@ -122,7 +122,7 @@
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr><th><%= t('common.date') %></th><th>Objet</th><th><%= t('nav.rooms') %></th><th class="actions"><%= t('common.actions') %></th></tr>
+                  <tr><th><%= t('common.date') %></th><th><%= t('common.subject') %></th><th><%= t('nav.rooms') %></th><th class="actions"><%= t('common.actions') %></th></tr>
                 </thead>
                 <tbody>
                   <% myBookings.forEach((b) => { %>

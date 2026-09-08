@@ -1,0 +1,167 @@
+title: Journal des livraisons
+nav: Journal
+description: Ce qui a été livré, lot par lot, avec les décisions de conception et les défauts corrigés en chemin.
+
+<h1>Journal des livraisons</h1>
+<p class="lede">
+  L'ordre dans lequel le produit a été construit, et pourquoi chaque lot a été fait ainsi.
+  Les entrées les plus récentes d'abord.
+</p>
+
+<h2>Traductions : vocabulaire générique</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">6c27dd5</span></p>
+
+<p>
+  Après les statuts et le chrome, le gisement suivant était le vocabulaire qui revient d'un
+  écran à l'autre. <em>Intitulé</em> apparaissait 32 fois, <em>Supprimer</em> 33 fois :
+  traduire ce mot une fois le traduit partout.
+</p>
+
+<ul>
+  <li>101 clés génériques ajoutées dans les {{i18n.locales}} langues, branchées sur <strong>673 emplacements répartis sur 55 vues</strong>.</li>
+  <li>Substitution restreinte aux clés dont le libellé ne dépend pas du contexte : <em>Objet</em> côté messagerie et <em>Début</em> côté pointage gardent leur clé d'origine, sans quoi on produirait des faux amis.</li>
+  <li>Rien de fonctionnel ne bouge : aucune <code>&lt;option&gt;</code> ne se passe d'attribut <code>value</code>, aucun bouton ne porte de <code>name</code> sans <code>value</code>, et les URL de filtre gardent la valeur française stockée.</li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Un plantage trouvé par les tests</span>
+  <p>
+    Deux boucles écrites <code>tools.forEach((t) =&gt; …)</code> masquaient le helper de
+    traduction : à l'intérieur, <code>t('common.edit')</code> tentait d'appeler l'objet de la
+    boucle comme une fonction, et la console d'administration tombait. Variable renommée, et un
+    test interdit désormais ce masquage dans toutes les vues.
+  </p>
+</div>
+
+<h2>Traductions : statuts, chrome et mise en page arabe</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">93c4d4c</span></p>
+
+<p>
+  Un audit du dispositif d'internationalisation. Le dictionnaire lui-même était sain — parité
+  des {{i18n.locales}} langues, paramètres, écritures non latines. Le défaut était ailleurs, à
+  trois endroits.
+</p>
+
+<ul>
+  <li><strong>Les statuts s'affichaient en français dans les {{i18n.locales}} langues</strong>, sur 50 écrans. Ils restent stockés en français — valeur métier, contraintes <code>CHECK</code>, comparaisons — mais l'affichage passe désormais par un helper. Voir <a href="traductions.html#les-statuts-se-traduisent-aussi">Traductions</a>.</li>
+  <li><strong>Le chrome de chaque page était en dur</strong> : bouton de déconnexion, sélecteur de thème, et la navigation latérale des quatre espaces. Ironie, <code>common.logout</code> existait déjà en {{i18n.locales}} langues — l'en-tête ne l'appelait simplement pas.</li>
+  <li><strong>L'arabe ne se retournait qu'à moitié.</strong> La page passait bien en <code>dir="rtl"</code>, mais la feuille de style figeait les côtés. Bascule sur les propriétés logiques, vérifiée géométriquement.</li>
+</ul>
+
+<h2>Pièces reçues : lecture des factures et capture de la boîte aux lettres</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">bfdabd9</span></p>
+
+<p>
+  L'outil du comptable : une corbeille unique, une lecture par règles toujours active, une
+  analyse assistée optionnelle et une relève IMAP. Détail sur <a href="comptable.html">Pièces
+  reçues</a>.
+</p>
+
+<p>
+  Le point d'équilibre du lot : concilier « analyse par IA si possible » avec l'exigence de
+  sécurité. La lecture par règles est le chemin toujours disponible ; le modèle est une option
+  explicite, à identifiants chiffrés, qui peut pointer vers un service hébergé chez vous.
+  <strong>Le modèle ne décide de rien</strong> : ce que les règles savent vérifier leur reste
+  acquis.
+</p>
+
+<h2>Circuits d'approbation configurables et export intégral</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">4dc71da</span></p>
+
+<ul>
+  <li>Types de demande paramétrables, avec des étapes qui désignent une <strong>fonction et non une personne</strong> : le circuit survit aux départs.</li>
+  <li>Seuils par étape, et étape sautée plutôt que bloquée quand aucun validateur n'existe. Personne ne valide sa propre demande.</li>
+  <li>Export intégral en JSON, documents compris, secrets exclus — et la liste des exclusions est écrite dans l'archive elle-même.</li>
+</ul>
+
+<h2>API REST de lecture et webhooks sortants signés</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">2549c33</span></p>
+
+<p>
+  API volontairement en lecture seule, jetons à portées jamais conservés en clair, webhooks
+  signés en HMAC-SHA256 avec réessais et extinction automatique. Détail sur
+  <a href="api.html">API et webhooks</a>.
+</p>
+
+<h2>Parapheur : signature électronique</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">c215e2e</span></p>
+
+<p>
+  Document figé par son empreinte dès le dépôt, sceau HMAC par signature, circuit séquentiel,
+  mot de passe et consentement exigés, attestation imprimable. La signature est
+  <strong>simple</strong>, et l'attestation le dit elle-même.
+</p>
+
+<h2>Organigramme et import de données en masse</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">5dd49c7</span></p>
+
+<ul>
+  <li>Organigramme qui montre <strong>qui n'est rattaché nulle part</strong> — c'est ce qu'on découvre en le dessinant.</li>
+  <li>Import CSV avec aperçu qui n'écrit rien, puis écriture <strong>tout ou rien</strong>, revalidée au moment d'écrire.</li>
+  <li>Lecteur CSV écrit à la main : un import de masse est une porte d'entrée dans la base, la dépendance qui lit le fichier serait aussi sensible que celle qui l'écrit.</li>
+</ul>
+
+<h2>Multidevise, facturation récurrente et TVA</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">e3985c4</span></p>
+
+<ul>
+  <li><strong>Le taux vit dans la pièce, pas dans la table des taux</strong> : mettre un taux à jour ne réécrit pas le chiffre d'affaires de l'an dernier.</li>
+  <li>Un index unique interdit de facturer deux fois la même échéance d'abonnement, même si deux balayages se croisent.</li>
+  <li>La période de TVA se choisit dans une liste plutôt que de se saisir : trois jours de décalage feraient une déclaration fausse que personne ne verrait passer.</li>
+</ul>
+
+<h2>Direction, planning, qualité et accueil</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">f605bfe</span></p>
+
+<p>
+  Quatre espaces d'un coup : gouvernance (réunions, décisions, actions, registre des risques),
+  sondages anonymes, planning et astreintes, qualité, accueil et courrier.
+</p>
+
+<p>
+  Deux décisions structurantes : <strong>l'anonymat des sondages tient à la structure des
+  tables</strong> (les réponses ne portent aucun identifiant), et <strong>une décision peut
+  naître hors réunion</strong> — sinon la moitié des arbitrages n'entrerait jamais au registre.
+</p>
+
+<h2>Externalisation des sauvegardes</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">1208fac</span></p>
+
+<p>
+  FTP/FTPS et Google Drive par compte de service, secrets chiffrés, test de connexion qui écrit
+  réellement, alerte aux administrateurs en cas d'échec. Client FTP et jeton JWT écrits à la
+  main, éprouvés contre un vrai serveur FTP et un vrai couple de clés.
+</p>
+
+<h2>Sauvegarde automatique et restauration</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">ae1a8a1</span></p>
+
+<p>
+  Archive complète (base, photos, CV, coffre, parapheur), base copiée par le mécanisme en ligne
+  de SQLite, manifeste d'empreintes, restauration transactionnelle avec sauvegarde de sécurité
+  préalable.
+</p>
+
+<h2>Palettes et coffre-fort</h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">9921207</span> · <span class="mono">33d17b0</span></p>
+
+<ul>
+  <li>Trois palettes choisies par l'administration, avec un aperçu qui emprunte les vrais jetons — il ne peut pas mentir sur ce qu'il propose. Contraste vérifié sur les six combinaisons palette × thème.</li>
+  <li><strong>Les bulletins restent accessibles après le départ</strong> : le compte est fermé, mais ses identifiants ouvrent son coffre-fort et rien d'autre. Conservation de 50 ans, documents scellés par leur empreinte.</li>
+</ul>
+
+<h2>Ce qui reste ouvert</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Sujet</th><th>État</th></tr></thead>
+  <tbody>
+    <tr><td>Traduction du corps des écrans des derniers lots (~1 600 chaînes)</td><td><span class="tag tag-todo">à faire</span></td></tr>
+    <tr><td>Synchronisation de la messagerie externe (IMAP/SMTP par membre)</td><td><span class="tag tag-todo">à faire</span></td></tr>
+    <tr><td>Encapsulation PDF/A-3 (Factur-X) et dépôt sur plateforme agréée</td><td><span class="tag tag-todo">à faire</span></td></tr>
+    <tr><td>Archivage à valeur probante (NF Z42-020, horodatage qualifié)</td><td><span class="tag tag-off">hors périmètre</span></td></tr>
+    <tr><td>Télétransmission fiscale et sociale (DSN, TVA)</td><td><span class="tag tag-off">hors périmètre</span></td></tr>
+    <tr><td>Signature électronique qualifiée eIDAS</td><td><span class="tag tag-off">hors périmètre</span></td></tr>
+  </tbody>
+</table>
+</div>

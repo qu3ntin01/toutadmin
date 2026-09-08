@@ -8,12 +8,12 @@
     <%- include('partials/sidebar', {
       panelLabel: 'Pilotage',
       navItems: [
-        { tab: 'tableau', label: 'Tableau de bord', icon: 'home' },
+        { tab: 'tableau', label: t('common.dashboard'), icon: 'home' },
         { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: deadlines.overdue },
         { tab: 'projets', label: 'Santé des projets', icon: 'briefcase' },
-        { tab: 'objectifs', label: 'Objectifs', icon: 'check' }
+        { tab: 'objectifs', label: t('common.objectives'), icon: 'check' }
       ],
-      footLinks: [{ href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: 'Retour', icon: 'back' }]
+      footLinks: [{ href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('common.back'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -50,7 +50,7 @@
         <section class="tab-panel is-active" id="tableau">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Effectif</h3></div>
+              <div class="card-head"><h3><%= t('common.headcount') %></h3></div>
               <table>
                 <tbody>
                   <% overview.headcount.byContract.forEach((row) => { %>
@@ -101,7 +101,7 @@
           <div class="card">
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Échéance</th><th>Source</th><th>Objet</th><th>Détail</th><th></th></tr></thead>
+                <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.source') %></th><th><%= t('common.subject') %></th><th><%= t('common.detail') %></th><th></th></tr></thead>
                 <tbody>
                   <% deadlines.rows.forEach((row) => { %>
                     <tr>
@@ -109,7 +109,7 @@
                       <td><span class="tag <%= row.overdue ? 'tag-danger' : '' %>"><%= row.source %></span></td>
                       <td class="cell-strong"><%= row.label %></td>
                       <td class="cell-sub"><%= row.detail || '—' %></td>
-                      <td><% if (row.link) { %><a class="btn btn-outline btn-sm" href="<%= row.link %>">Ouvrir</a><% } %></td>
+                      <td><% if (row.link) { %><a class="btn btn-outline btn-sm" href="<%= row.link %>"><%= t('common.open') %></a><% } %></td>
                     </tr>
                   <% }) %>
                   <% if (deadlines.rows.length === 0) { %><tr><td colspan="5" class="cell-sub">Rien à 45 jours.</td></tr><% } %>
@@ -125,7 +125,7 @@
             <div class="card-head"><h3><%= overview.projects.length %> projet(s) en cours</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Projet</th><th>Statut</th><th>Échéance</th><th>Heures</th><th>Coût</th><th>Budget</th><th>Consommé</th></tr></thead>
+                <thead><tr><th><%= t('common.project') %></th><th><%= t('common.status') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.hours') %></th><th><%= t('common.cost') %></th><th><%= t('common.budget') %></th><th>Consommé</th></tr></thead>
                 <tbody>
                   <% overview.projects.forEach((p) => { %>
                     <tr>
@@ -158,11 +158,11 @@
             <div class="card-head"><h3>Fixer un objectif</h3></div>
             <form method="POST" action="/pilotage/objectifs" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Intitulé</span><input type="text" name="title" required maxlength="200" placeholder="Réduire le délai de réponse au support" /></label>
-              <label><span>Portée</span>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="Réduire le délai de réponse au support" /></label>
+              <label><span><%= t('common.scope') %></span>
                 <select name="scope"><% scopes.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
-              <label><span>Période</span><input type="text" name="period" maxlength="20" placeholder="2026-T1" /></label>
+              <label><span><%= t('common.period') %></span><input type="text" name="period" maxlength="20" placeholder="2026-T1" /></label>
               <label class="span-2"><span>Service ou équipe (si portée restreinte)</span>
                 <select name="scope_id">
                   <option value="">—</option>
@@ -175,8 +175,8 @@
                   <% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
                 </select>
               </label>
-              <label class="span-2"><span>Description</span><textarea name="description" rows="2"></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer</button></div>
+              <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button></div>
             </form>
           </div>
 
@@ -205,11 +205,11 @@
                       <form method="POST" action="/pilotage/resultats/<%= r.id %>" class="inline-form">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                         <input type="text" name="current_value" value="<%= r.current_value %>" class="input-sm" inputmode="decimal" />
-                        <button type="submit" class="btn btn-sm">Mettre à jour</button>
+                        <button type="submit" class="btn btn-sm"><%= t('common.update') %></button>
                       </form>
                       <form method="POST" action="/pilotage/resultats/<%= r.id %>/supprimer" class="inline-form">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                        <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                       </form>
                     </span>
                   </li>
@@ -223,7 +223,7 @@
                 <label><span>Départ</span><input type="text" name="start_value" inputmode="decimal" value="0" required /></label>
                 <label><span>Cible</span><input type="text" name="target_value" inputmode="decimal" required /></label>
                 <label><span>Actuel</span><input type="text" name="current_value" inputmode="decimal" /></label>
-                <label><span>Unité</span><input type="text" name="unit" maxlength="20" placeholder="h, %, €" /></label>
+                <label><span><%= t('common.unit') %></span><input type="text" name="unit" maxlength="20" placeholder="h, %, €" /></label>
                 <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Ajouter le résultat clé</button></div>
               </form>
 
@@ -237,7 +237,7 @@
                 </form>
                 <form method="POST" action="/pilotage/objectifs/<%= o.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet objectif et ses résultats clés ?">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                  <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                 </form>
               </div>
             </div>

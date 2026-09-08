@@ -56,14 +56,14 @@
             <div class="card-head"><h3>Journal d'audit</h3></div>
             <form method="GET" action="/securite" class="form-grid">
               <label>
-                <span>Action</span>
+                <span><%= t('common.action') %></span>
                 <input type="text" name="action" list="actions-connues" value="<%= filters.action %>" placeholder="connexion." />
                 <datalist id="actions-connues">
                   <% knownActions.forEach((a) => { %><option value="<%= a %>"></option><% }) %>
                 </datalist>
               </label>
               <label>
-                <span>Objet</span>
+                <span><%= t('common.subject') %></span>
                 <input type="text" name="objet" value="<%= filters.entity %>" placeholder="users" />
               </label>
               <label>
@@ -75,8 +75,8 @@
                 <input type="date" name="au" value="<%= filters.to %>" />
               </label>
               <div class="span-2 row-actions">
-                <button type="submit" class="btn btn-primary btn-sm">Filtrer</button>
-                <a class="btn btn-outline btn-sm" href="/securite">Tout voir</a>
+                <button type="submit" class="btn btn-primary btn-sm"><%= t('common.filter') %></button>
+                <a class="btn btn-outline btn-sm" href="/securite"><%= t('common.viewAll') %></a>
                 <a class="btn btn-outline btn-sm" href="/securite/journal.csv?action=<%= encodeURIComponent(filters.action) %>&objet=<%= encodeURIComponent(filters.entity) %>&du=<%= filters.from %>&au=<%= filters.to %>">Exporter en CSV</a>
               </div>
             </form>
@@ -89,7 +89,7 @@
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr><th>Date</th><th>Auteur</th><th>Action</th><th>Objet</th><th>Détail</th><th>IP</th></tr>
+                  <tr><th><%= t('common.date') %></th><th>Auteur</th><th><%= t('common.action') %></th><th><%= t('common.subject') %></th><th><%= t('common.detail') %></th><th>IP</th></tr>
                 </thead>
                 <tbody>
                   <% journal.rows.forEach((row) => { %>
@@ -137,7 +137,7 @@
             </p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Compte</th><th>Rôle</th><th>Expire</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.account') %></th><th>Rôle</th><th>Expire</th><th></th></tr></thead>
                 <tbody>
                   <% sessions.forEach((s) => { %>
                     <tr>
@@ -147,7 +147,7 @@
                       <td>
                         <form method="POST" action="/securite/sessions/<%= s.user_id %>/fermer" class="inline-form" data-confirm="Fermer toutes les sessions de ce compte ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Fermer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.close') %></button>
                         </form>
                       </td>
                     </tr>
@@ -230,7 +230,7 @@
               <form method="POST" action="/securite/administrateurs" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="span-2">
-                  <span>Membre</span>
+                  <span><%= t('common.member') %></span>
                   <select name="user_id" required>
                     <option value="">—</option>
                     <% promotable.forEach((u) => { %>
@@ -283,7 +283,7 @@
                 <span>Conservation du journal d'audit (jours)</span>
                 <input type="number" name="audit_retention_days" min="30" max="3650" value="<%= policy.audit_retention_days %>" required />
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
             <p class="hint">
               Expiration par inactivité et durée maximale d'une session se règlent au déploiement

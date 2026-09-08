@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Variables d'environnement, emplacement des données, réglages de l'instance et messagerie externe." />
+<title>Configuration — Documentation Salarié Member</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Salarié Member<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html" class="is-active" aria-current="page">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Configuration</h1>
+<p class="lede">
+  Tout se règle par variables d'environnement au démarrage, ou depuis les écrans
+  d'administration une fois l'instance installée. Les secrets ne transitent jamais par
+  la base en clair.
+</p>
+
+<h2 id="variables-d-environnement">Variables d'environnement<a class="anchor" href="#variables-d-environnement" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Variable</th><th>Rôle</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">PORT</td><td>Port d'écoute (défaut <code>3000</code>)</td></tr>
+    <tr><td class="mono">SESSION_SECRET</td><td>Secret de signature des sessions — généré dans <code>data/session.key</code> s'il n'est pas fourni</td></tr>
+    <tr><td class="mono">INSTALL_TOKEN</td><td>Jeton exigé par l'assistant d'installation — recommandé sur un serveur exposé</td></tr>
+    <tr><td class="mono">ADMIN_EMAIL</td><td>Installation sans interface : email du compte administrateur créé au démarrage</td></tr>
+    <tr><td class="mono">ADMIN_PASSWORD</td><td>Mot de passe de ce compte — fort et obligatoire en production</td></tr>
+    <tr><td class="mono">NODE_ENV</td><td><code>production</code> active les cookies sécurisés, les vérifications de secrets et le cache statique</td></tr>
+    <tr><td class="mono">TRUST_PROXY</td><td>À définir (ex. <code>1</code>) derrière un reverse proxy, pour que la limitation de débit voie la bonne adresse</td></tr>
+    <tr><td class="mono">DB_PATH</td><td>Emplacement de la base SQLite (défaut <code>data/app.sqlite</code>)</td></tr>
+    <tr><td class="mono">LOGIN_RATE_LIMIT</td><td>Tentatives de connexion par IP et par fenêtre</td></tr>
+    <tr><td class="mono">GLOBAL_RATE_LIMIT</td><td>Requêtes par minute, toutes routes confondues</td></tr>
+    <tr><td class="mono">API_RATE_LIMIT</td><td>Requêtes par minute et par adresse sur <code>/api/v1</code> (défaut <code>120</code>)</td></tr>
+    <tr><td class="mono">SESSION_IDLE_MINUTES</td><td>Expiration d'une session inactive (défaut <code>60</code>)</td></tr>
+    <tr><td class="mono">SESSION_MAX_HOURS</td><td>Durée de vie absolue d'une session, quelle que soit l'activité (défaut <code>12</code>)</td></tr>
+    <tr><td class="mono">UPLOAD_DIR</td><td>Photos de profil (défaut <code>data/uploads</code>)</td></tr>
+    <tr><td class="mono">CV_DIR</td><td>CV déposés (défaut <code>cv/</code> à côté de la base)</td></tr>
+    <tr><td class="mono">VAULT_DIR</td><td>Coffre-fort (défaut <code>coffre/</code>)</td></tr>
+    <tr><td class="mono">SIGN_DIR</td><td>Documents mis à la signature (défaut <code>parapheur/</code>)</td></tr>
+    <tr><td class="mono">DOCS_DIR</td><td>Pièces comptables reçues (défaut <code>pieces/</code>)</td></tr>
+    <tr><td class="mono">BACKUP_DIR</td><td>Sauvegardes (défaut <code>sauvegardes/</code>) — à recopier hors du serveur</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="ou-vivent-les-donnees">Où vivent les données<a class="anchor" href="#ou-vivent-les-donnees" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Tout est sous <code>data/</code>, et rien n'est servi en statique sauf les photos de profil.
+  Les documents sensibles sont écrits <strong>hors du dépôt</strong>, en <code>0600</code>,
+  et ne sortent que par une route authentifiée.
+</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Chemin</th><th>Contenu</th><th>Servi en statique</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">data/app.sqlite</td><td>La base entière</td><td>non</td></tr>
+    <tr><td class="mono">data/session.key</td><td>Secret de session, <code>0600</code></td><td>non</td></tr>
+    <tr><td class="mono">data/install.lock</td><td>Marque l'instance installée</td><td>non</td></tr>
+    <tr><td class="mono">data/uploads/</td><td>Photos de profil</td><td>oui, en lecture seule</td></tr>
+    <tr><td class="mono">cv/</td><td>CV des candidats</td><td>non — route RH uniquement</td></tr>
+    <tr><td class="mono">coffre/</td><td>Bulletins, contrats, attestations</td><td>non</td></tr>
+    <tr><td class="mono">parapheur/</td><td>Documents mis à la signature</td><td>non</td></tr>
+    <tr><td class="mono">pieces/</td><td>Factures fournisseurs reçues</td><td>non</td></tr>
+    <tr><td class="mono">sauvegardes/</td><td>Archives, dossier en <code>0700</code>, fichiers en <code>0600</code></td><td>non</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="reglages-de-l-instance">Réglages de l'instance<a class="anchor" href="#reglages-de-l-instance" aria-label="Lien vers cette section">#</a></h2>
+
+<p>Depuis <code>/admin</code>, une fois installé :</p>
+
+<ul>
+  <li><strong>Organisation</strong> : nom affiché, quota de congés annuels, devise de tenue des comptes.</li>
+  <li><strong>Apparence</strong> : palette de l'instance parmi trois, avec aperçu.</li>
+  <li><strong>Modules</strong> : activation des sept modules optionnels — voir <a href="modules.html">Modules</a>.</li>
+  <li><strong>Politique de sécurité</strong> (<code>/securite</code>) : exigence de double authentification, durée de conservation du journal d'audit.</li>
+</ul>
+
+<h2 id="secrets-ranges-en-base">Secrets rangés en base<a class="anchor" href="#secrets-ranges-en-base" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Certains réglages contiennent des secrets : mot de passe FTP, clé de compte de service
+  Google, mot de passe IMAP, clé d'accès au service d'analyse, secret de webhook. Ils sont
+  <strong>chiffrés en AES-256-GCM</strong> avec une clé dérivée du secret de session, qui vit
+  dans un fichier à part.
+</p>
+
+<div class="good">
+  <span class="note-title">Une copie de la base seule ne livre rien</span>
+  <p>
+    L'écran n'affiche jamais un secret enregistré : il montre <code>•••••••• (défini)</code>.
+    Un champ secret laissé vide <strong>conserve la valeur en place</strong> plutôt que de
+    l'effacer — sans quoi enregistrer un formulaire effacerait le mot de passe qu'on ne
+    voulait pas changer.
+  </p>
+</div>
+
+<h2 id="messagerie-externe-imap-smtp">Messagerie externe (IMAP/SMTP)<a class="anchor" href="#messagerie-externe-imap-smtp" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  L'administration renseigne, pour chaque membre, son adresse professionnelle et les
+  serveurs IMAP/SMTP ; <strong>le membre les voit sans pouvoir les modifier</strong>. La
+  messagerie interne est pleinement fonctionnelle ; la synchronisation avec la boîte
+  externe n'est pas branchée. Le modèle de données et les écrans d'administration sont en
+  place pour l'accueillir.
+</p>
+
+<p>
+  À ne pas confondre avec la <a href="comptable.html">capture de la boîte aux lettres
+  comptable</a>, qui relève bien une boîte IMAP — mais une seule, dédiée aux factures
+  fournisseurs.
+</p>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="installation.html">← Installation</a><a href="modules.html">Modules débloquables →</a></nav>
+      <p class="foot">Documentation de Salarié Member — construite le 2026-09-08. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#variables-d-environnement">Variables d'environnement</a>
+    <a class="lvl-2" href="#ou-vivent-les-donnees">Où vivent les données</a>
+    <a class="lvl-2" href="#reglages-de-l-instance">Réglages de l'instance</a>
+    <a class="lvl-2" href="#secrets-ranges-en-base">Secrets rangés en base</a>
+    <a class="lvl-2" href="#messagerie-externe-imap-smtp">Messagerie externe (IMAP/SMTP)</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

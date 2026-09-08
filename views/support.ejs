@@ -14,7 +14,7 @@
       ],
       footLinks: [
         { href: '/base-de-connaissances', label: 'Base de connaissances', icon: 'inbox' },
-        { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: 'Retour', icon: 'back' }
+        { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('common.back'), icon: 'back' }
       ]
     }) %>
 
@@ -54,12 +54,12 @@
           <div class="card">
             <div class="card-head"><h3><%= tickets.length %> ticket(s)</h3></div>
             <form method="GET" action="/support" class="form-grid">
-              <label><span>Statut</span>
+              <label><span><%= t('common.status') %></span>
                 <select name="statut"><option value="">Tous</option>
                   <% statuses.forEach((s) => { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
                 </select>
               </label>
-              <label><span>Catégorie</span>
+              <label><span><%= t('common.category') %></span>
                 <select name="categorie"><option value="">Toutes</option>
                   <% categories.forEach((c) => { %><option value="<%= c %>" <%= filters.category === c ? 'selected' : '' %>><%= c %></option><% }) %>
                 </select>
@@ -68,14 +68,14 @@
                 <input type="checkbox" name="tous" value="1" <%= filters.openOnly ? '' : 'checked' %> />
                 <span>Inclure les tickets résolus et clos</span>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Filtrer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.filter') %></button></div>
             </form>
           </div>
 
           <div class="card">
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Réf.</th><th>Objet</th><th>Demandeur</th><th>Priorité</th><th>Statut</th><th>Traité par</th><th>Délai</th></tr></thead>
+                <thead><tr><th>Réf.</th><th><%= t('common.subject') %></th><th><%= t('common.requester') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th><th>Traité par</th><th>Délai</th></tr></thead>
                 <tbody>
                   <% tickets.forEach((tk) => { %>
                     <tr>
@@ -107,15 +107,15 @@
               <div class="card-head"><h3>Ouvrir un ticket</h3></div>
               <form method="POST" action="/support/tickets" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Objet</span><input type="text" name="subject" required maxlength="200" /></label>
-                <label><span>Catégorie</span>
+                <label class="span-2"><span><%= t('common.subject') %></span><input type="text" name="subject" required maxlength="200" /></label>
+                <label><span><%= t('common.category') %></span>
                   <select name="category" required><% categories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
                 </label>
-                <label><span>Priorité</span>
+                <label><span><%= t('common.priority') %></span>
                   <select name="priority" required><% priorities.forEach((p) => { %><option value="<%= p %>" <%= p === 'Normale' ? 'selected' : '' %>><%= p %></option><% }) %></select>
                 </label>
                 <% if (isAgent) { %>
-                  <label><span>Origine</span>
+                  <label><span><%= t('common.origin') %></span>
                     <select name="origin"><% origins.forEach((o) => { %><option value="<%= o %>"><%= o %></option><% }) %></select>
                   </label>
                   <label><span>Client concerné</span>
@@ -124,8 +124,8 @@
                     </select>
                   </label>
                 <% } %>
-                <label class="span-2"><span>Description</span><textarea name="body" rows="5" placeholder="Ce qui se passe, depuis quand, ce que vous avez déjà tenté."></textarea></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ouvrir</button></div>
+                <label class="span-2"><span><%= t('common.description') %></span><textarea name="body" rows="5" placeholder="Ce qui se passe, depuis quand, ce que vous avez déjà tenté."></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.open') %></button></div>
               </form>
             </div>
 
@@ -150,7 +150,7 @@
             <div class="card-head"><h3><%= isAgent ? assigned.length + ' ticket(s) à traiter' : 'Mes demandes' %></h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Réf.</th><th>Objet</th><th>Priorité</th><th>Statut</th></tr></thead>
+                <thead><tr><th>Réf.</th><th><%= t('common.subject') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th></tr></thead>
                 <tbody>
                   <% (isAgent ? assigned : mine).forEach((tk) => { %>
                     <tr>

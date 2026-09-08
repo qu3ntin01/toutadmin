@@ -39,7 +39,7 @@
                     <form method="POST" action="/notifications/<%= n.id %>/lue" class="inline-form">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                       <input type="hidden" name="retour" value="<%= n.link %>" />
-                      <button type="submit" class="btn btn-outline btn-sm">Ouvrir</button>
+                      <button type="submit" class="btn btn-outline btn-sm"><%= t('common.open') %></button>
                     </form>
                   <% } else if (!n.read_at) { %>
                     <form method="POST" action="/notifications/<%= n.id %>/lue" class="inline-form">
@@ -49,7 +49,7 @@
                   <% } %>
                   <form method="POST" action="/notifications/<%= n.id %>/supprimer" class="inline-form">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                    <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                   </form>
                 </span>
               </li>

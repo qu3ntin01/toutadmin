@@ -8,7 +8,7 @@
     <%- include('partials/sidebar', {
       panelLabel: 'Immobilisations',
       navItems: [
-        { tab: 'registre', label: 'Registre', icon: 'briefcase' },
+        { tab: 'registre', label: t('common.register'), icon: 'briefcase' },
         { tab: 'tableaux', label: "Tableaux d'amortissement", icon: 'card' }
       ],
       footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
@@ -49,16 +49,16 @@
             <div class="card-head"><h3>Enregistrer une immobilisation</h3></div>
             <form method="POST" action="/immobilisations" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Intitulé</span><input type="text" name="label" required maxlength="160" placeholder="Serveur de production" /></label>
-              <label><span>Catégorie</span><input type="text" name="category" value="Matériel" maxlength="60" /></label>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="160" placeholder="Serveur de production" /></label>
+              <label><span><%= t('common.category') %></span><input type="text" name="category" value="Matériel" maxlength="60" /></label>
               <label><span>Acquise le</span><input type="date" name="acquired_on" value="<%= today %>" required /></label>
               <label><span>Montant HT (€)</span><input type="text" name="amount" inputmode="decimal" required /></label>
               <label><span>Durée (années)</span><input type="number" name="duration_years" min="1" max="50" value="3" required /></label>
               <label class="span-2"><span>Mode</span>
                 <select name="method"><% methods.forEach((m) => { %><option value="<%= m %>"><%= m %></option><% }) %></select>
               </label>
-              <label class="span-2"><span>Note</span><input type="text" name="note" maxlength="500" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer</button></div>
+              <label class="span-2"><span><%= t('common.note') %></span><input type="text" name="note" maxlength="500" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
             <p class="hint">
               En dégressif, la dotation s'applique à la valeur résiduelle jusqu'à ce que le linéaire sur les
@@ -70,7 +70,7 @@
             <div class="card-head"><h3><%= assetList.length %> immobilisation(s)</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Intitulé</th><th>Acquise</th><th>Brut</th><th>Mode</th><th>Cumul</th><th>Dotation <%= currentYear %></th><th>VNC</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.title') %></th><th>Acquise</th><th>Brut</th><th>Mode</th><th>Cumul</th><th>Dotation <%= currentYear %></th><th>VNC</th><th></th></tr></thead>
                 <tbody>
                   <% assetList.forEach((a) => { %>
                     <tr class="<%= a.disposed_on ? 'is-muted' : '' %>">
@@ -95,7 +95,7 @@
                         <% } %>
                         <form method="POST" action="/immobilisations/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette immobilisation ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </td>
                     </tr>
@@ -113,7 +113,7 @@
               <div class="card-head"><h3><%= a.label %> — <%= a.method %> sur <%= a.duration_years %> ans</h3></div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Exercice</th><th>Dotation</th><th>Valeur résiduelle</th></tr></thead>
+                  <thead><tr><th><%= t('common.fiscalYear') %></th><th>Dotation</th><th>Valeur résiduelle</th></tr></thead>
                   <tbody>
                     <% a.schedule.forEach((row) => { %>
                       <tr class="<%= row.year === currentYear ? 'is-current' : '' %>">

@@ -55,7 +55,7 @@
         </div>
 
         <div class="card">
-          <div class="card-head"><h3>Document</h3></div>
+          <div class="card-head"><h3><%= t('common.document') %></h3></div>
           <% if (request.file_name) { %>
             <p class="cell-sub"><%= request.original_name %> · <%= Math.round(request.byte_size / 1024) %> Ko</p>
             <div class="row-actions"><a href="/parapheur/<%= request.id %>/document" class="btn btn-outline btn-sm">Télécharger le document</a></div>
@@ -68,7 +68,7 @@
           <div class="card-head"><h3>Signataires</h3></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Rang</th><th>Signataire</th><th>Qualité</th><th>État</th><th>Horodatage</th><th>Sceau</th></tr></thead>
+              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th>Qualité</th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.seal') %></th></tr></thead>
               <tbody>
                 <% request.signers.forEach((s) => { %>
                   <tr>
@@ -110,7 +110,7 @@
             <div class="card-head"><h3>Refuser</h3></div>
             <form method="POST" action="/parapheur/<%= request.id %>/refuser" class="form-grid" data-confirm="Refuser de signer interrompt le circuit. Continuer ?">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Motif du refus</span><textarea name="reason" rows="2" required placeholder="Un refus se motive : c'est ce qui permet de corriger le document."></textarea></label>
+              <label class="span-2"><span><%= t('common.refusalReason') %></span><textarea name="reason" rows="2" required placeholder="Un refus se motive : c'est ce qui permet de corriger le document."></textarea></label>
               <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Refuser de signer</button></div>
             </form>
           </div>
@@ -126,13 +126,13 @@
               <% if (request.status === 'En cours') { %>
                 <form method="POST" action="/parapheur/<%= request.id %>/annuler" class="inline-field" data-confirm="Retirer ce document de la signature ?">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <input type="text" name="reason" class="input-sm" placeholder="Motif" maxlength="200" />
+                  <input type="text" name="reason" class="input-sm" placeholder="<%= t('common.reason') %>" maxlength="200" />
                   <button type="submit" class="btn btn-outline btn-sm">Annuler le circuit</button>
                 </form>
               <% } else if (request.signedCount === 0) { %>
                 <form method="POST" action="/parapheur/<%= request.id %>/supprimer" class="inline-form" data-confirm="Supprimer définitivement ce document ?">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-link btn-sm">Supprimer</button>
+                  <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                 </form>
               <% } %>
             </div>

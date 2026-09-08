@@ -64,19 +64,19 @@
               <form method="POST" action="/crm/opportunites" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Client</span>
+                  <span><%= t('common.client') %></span>
                   <select name="partner_id" required>
                     <option value="">—</option>
                     <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
                   </select>
                 </label>
                 <label>
-                  <span>Intitulé</span>
+                  <span><%= t('common.title') %></span>
                   <input type="text" name="title" maxlength="160" required />
                 </label>
                 <div class="form-grid">
                   <label>
-                    <span>Montant</span>
+                    <span><%= t('erp.amount') %></span>
                     <input type="text" name="amount" inputmode="decimal" value="0" required />
                   </label>
                   <label>
@@ -88,7 +88,7 @@
                     <input type="date" name="expected_close" />
                   </label>
                   <label>
-                    <span>Responsable</span>
+                    <span><%= t('common.owner') %></span>
                     <select name="owner_id">
                       <option value="">—</option>
                       <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
@@ -127,7 +127,7 @@
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th>Affaire</th><th>Montant</th><th>Étape</th><th class="actions"></th></tr></thead>
+                      <thead><tr><th>Affaire</th><th><%= t('erp.amount') %></th><th><%= t('common.step') %></th><th class="actions"></th></tr></thead>
                       <tbody>
                         <% opportunities.forEach((o) => { %>
                           <tr>
@@ -179,7 +179,7 @@
               <form method="POST" action="/crm/devis" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Client</span>
+                  <span><%= t('common.client') %></span>
                   <select name="partner_id" required>
                     <option value="">—</option>
                     <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
@@ -193,12 +193,12 @@
                   </select>
                 </label>
                 <label>
-                  <span>Intitulé</span>
+                  <span><%= t('common.title') %></span>
                   <input type="text" name="label" maxlength="160" required />
                 </label>
                 <div class="form-grid">
                   <label>
-                    <span>Référence</span>
+                    <span><%= t('common.reference') %></span>
                     <input type="text" name="reference" maxlength="60" />
                   </label>
                   <label>
@@ -289,7 +289,7 @@
               <form method="POST" action="/crm/relances" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Client</span>
+                  <span><%= t('common.client') %></span>
                   <select name="partner_id">
                     <option value="">—</option>
                     <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
@@ -310,12 +310,12 @@
                     </select>
                   </label>
                   <label>
-                    <span>Échéance</span>
+                    <span><%= t('erp.dueDate') %></span>
                     <input type="date" name="due_on" value="<%= today %>" required />
                   </label>
                 </div>
                 <label>
-                  <span>Note</span>
+                  <span><%= t('common.note') %></span>
                   <textarea name="note" rows="3" maxlength="1000"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
@@ -368,7 +368,7 @@
               <form method="POST" action="/crm/contacts" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
-                  <span>Client</span>
+                  <span><%= t('common.client') %></span>
                   <select name="partner_id" required>
                     <option value="">—</option>
                     <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
@@ -376,15 +376,15 @@
                 </label>
                 <div class="form-grid">
                   <label>
-                    <span>Prénom</span>
+                    <span><%= t('common.firstName') %></span>
                     <input type="text" name="first_name" maxlength="100" required />
                   </label>
                   <label>
-                    <span>Nom</span>
+                    <span><%= t('common.name') %></span>
                     <input type="text" name="last_name" maxlength="100" required />
                   </label>
                   <label>
-                    <span>Fonction</span>
+                    <span><%= t('common.role') %></span>
                     <input type="text" name="role" maxlength="100" />
                   </label>
                   <label>

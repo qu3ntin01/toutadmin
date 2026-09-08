@@ -29,11 +29,11 @@
               <input type="text" name="name" value="<%= tool.name %>" required />
             </label>
             <label>
-              <span>Catégorie</span>
+              <span><%= t('common.category') %></span>
               <input type="text" name="category" value="<%= tool.category %>" />
             </label>
             <label>
-              <span>Référence</span>
+              <span><%= t('common.reference') %></span>
               <input type="text" name="reference" value="<%= tool.reference %>" />
             </label>
             <label class="span-2">
@@ -41,12 +41,12 @@
               <input type="url" name="login_url" value="<%= tool.login_url %>" placeholder="https://outil.entreprise.com" />
             </label>
             <label class="span-2">
-              <span>Description</span>
+              <span><%= t('common.description') %></span>
               <textarea name="description" rows="3"><%= tool.description %></textarea>
             </label>
             <div class="span-2 form-actions">
-              <button type="submit" class="btn btn-primary">Enregistrer</button>
-              <a href="/admin#outils" class="btn btn-quiet">Annuler</a>
+              <button type="submit" class="btn btn-primary"><%= t('common.save') %></button>
+              <a href="/admin#outils" class="btn btn-quiet"><%= t('common.cancel') %></a>
             </div>
           </form>
         </div>

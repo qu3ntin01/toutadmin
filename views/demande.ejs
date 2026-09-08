@@ -54,7 +54,7 @@
                 <% const decision = request.decisions.find((d) => d.position === step.position); %>
                 <li class="timeline-item">
                   <div class="timeline-title">
-                    Étape <%= index + 1 %> — <%= step.label || step.approver %>
+                    <%= t('common.step') %> <%= index + 1 %> — <%= step.label || step.approver %>
                     <% if (step.threshold) { %><span class="cell-sub"> (au-delà de <%= step.threshold %>)</span><% } %>
                   </div>
                   <div class="timeline-body">
@@ -63,7 +63,7 @@
                       par <%= decision.first_name %> <%= decision.last_name %> le <%= moment(decision.decided_at) %>
                       <% if (decision.note) { %><div class="cell-sub"><%= decision.note %></div><% } %>
                     <% } else if (request.step && request.step.id === step.id) { %>
-                      <span class="tag tag-warning">En attente</span>
+                      <span class="tag tag-warning"><%= t('status.pending') %></span>
                       <%= request.pendingApprovers.map((a) => `${a.first_name} ${a.last_name}`).join(', ') %>
                     <% } else { %>
                       <span class="cell-sub">À venir</span>
@@ -87,7 +87,7 @@
             <form method="POST" action="/demandes/<%= request.id %>/decision" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="decision" value="Refusée" />
-              <label class="span-2"><span>Motif du refus</span><input type="text" name="note" maxlength="500" required placeholder="Un refus se motive." /></label>
+              <label class="span-2"><span><%= t('common.refusalReason') %></span><input type="text" name="note" maxlength="500" required placeholder="Un refus se motive." /></label>
               <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Refuser</button></div>
             </form>
           </div>

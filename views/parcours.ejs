@@ -53,7 +53,7 @@
               <div class="card-head"><h3>Lancer un parcours</h3></div>
               <form method="POST" action="/parcours/listes" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Modèle</span>
+                <label class="span-2"><span><%= t('common.template') %></span>
                   <select name="template_id" required>
                     <option value="">—</option>
                     <% templateList.forEach((tpl) => { %>
@@ -99,7 +99,7 @@
             <div class="card-head"><h3><%= checklistList.length %> parcours</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Personne</th><th>Type</th><th>Date pivot</th><th>Avancement</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.person') %></th><th><%= t('common.type') %></th><th>Date pivot</th><th>Avancement</th><th></th></tr></thead>
                 <tbody>
                   <% checklistList.forEach((c) => { %>
                     <tr>
@@ -113,7 +113,7 @@
                       <td>
                         <form method="POST" action="/parcours/listes/<%= c.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce parcours ?">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </td>
                     </tr>
@@ -131,11 +131,11 @@
             <div class="card-head"><h3>Créer un modèle</h3></div>
             <form method="POST" action="/parcours/modeles" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label><span>Nom</span><input type="text" name="name" required maxlength="120" placeholder="Arrivée — poste au siège" /></label>
-              <label><span>Type</span>
+              <label><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="120" placeholder="Arrivée — poste au siège" /></label>
+              <label><span><%= t('common.type') %></span>
                 <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button></div>
             </form>
           </div>
 
@@ -145,7 +145,7 @@
                 <h3><%= tpl.name %> <span class="tag"><%= tpl.kind %></span></h3>
                 <form method="POST" action="/parcours/modeles/<%= tpl.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce modèle ?">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                  <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                 </form>
               </div>
               <ul class="org-list">
@@ -157,7 +157,7 @@
                     </span>
                     <form method="POST" action="/parcours/modeles/points/<%= item.id %>/supprimer" class="inline-form">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                      <button type="submit" class="btn btn-danger btn-sm">Retirer</button>
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                     </form>
                   </li>
                 <% }) %>
@@ -167,7 +167,7 @@
               <form method="POST" action="/parcours/modeles/<%= tpl.id %>/points" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="span-2"><span>Point à faire</span><input type="text" name="label" required maxlength="200" placeholder="Créer les comptes et remettre le matériel" /></label>
-                <label><span>Responsable</span>
+                <label><span><%= t('common.owner') %></span>
                   <select name="owner_role"><% ownerRoles.forEach((r) => { %><option value="<%= r %>"><%= r %></option><% }) %></select>
                 </label>
                 <label><span>Écart au jour pivot</span><input type="number" name="offset_days" value="0" min="-365" max="365" required /></label>
@@ -187,14 +187,14 @@
               <div class="card-head"><h3>Déclarer une compétence</h3></div>
               <form method="POST" action="/parcours/competences" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Intitulé</span><input type="text" name="name" required maxlength="120" placeholder="Habilitation électrique B1V" /></label>
-                <label><span>Catégorie</span><input type="text" name="category" value="Générale" maxlength="60" /></label>
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="name" required maxlength="120" placeholder="Habilitation électrique B1V" /></label>
+                <label><span><%= t('common.category') %></span><input type="text" name="category" value="Générale" maxlength="60" /></label>
                 <label><span>Validité (mois)</span><input type="number" name="validity_months" min="1" max="600" placeholder="36" /></label>
                 <label class="check-row span-2">
                   <input type="checkbox" name="mandatory" value="1" />
                   <span>Obligatoire pour tout le personnel</span>
                 </label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ajouter</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
               </form>
               <p class="hint">Sans durée de validité, la compétence est acquise une fois pour toutes.</p>
             </div>
@@ -203,7 +203,7 @@
               <div class="card-head"><h3>Attribuer</h3></div>
               <form method="POST" action="/parcours/competences/attribuer" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Personne</span>
+                <label class="span-2"><span><%= t('common.person') %></span>
                   <select name="user_id" required><option value="">—</option>
                     <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
                   </select>
@@ -229,7 +229,7 @@
               <table>
                 <thead>
                   <tr>
-                    <th>Personne</th>
+                    <th><%= t('common.person') %></th>
                     <% skillList.forEach((s) => { %><th class="matrix-head"><%= s.name %></th><% }) %>
                   </tr>
                 </thead>
@@ -275,7 +275,7 @@
                   </span>
                   <form method="POST" action="/parcours/competences/<%= s.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette compétence et toutes ses attributions ?">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                    <button type="submit" class="btn btn-danger btn-sm">Supprimer</button>
+                    <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                   </form>
                 </li>
               <% }) %>

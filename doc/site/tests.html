@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="La suite d'intégration — ce qu'elle couvre, comment elle est écrite, et pourquoi elle n'emploie pas de simulacres." />
+<title>Tests — Documentation Salarié Member</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Salarié Member<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html" class="is-active" aria-current="page">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Tests</h1>
+<p class="lede">
+  725 cas répartis en 101 suites, dans 27 fichiers.
+  Des tests d'<strong>intégration</strong> : ils démarrent l'application, ouvrent une session
+  et parcourent les écrans, sur une base SQLite temporaire isolée.
+</p>
+
+<pre><code>npm test</code></pre>
+
+<h2 id="le-parti-pris-pas-de-simulacres">Le parti pris : pas de simulacres<a class="anchor" href="#le-parti-pris-pas-de-simulacres" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Un simulacre teste ce que le développeur croit que le protocole fait. Là où c'était
+  possible, le service extérieur est <strong>réécrit pour de vrai</strong>, en mémoire, et le
+  vrai client s'y connecte.
+</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Service</th><th>Ce que la suite fait</th><th>Ce que cela a permis de trouver</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>FTP</td>
+      <td>Un vrai serveur FTP tenu en mémoire ; le client du produit y dépose, liste et supprime</td>
+      <td>La connexion de données doit être attendue dès <code>PASV</code>, pas après le <code>150</code></td>
+    </tr>
+    <tr>
+      <td>IMAP</td>
+      <td>Un vrai serveur IMAP en mémoire ; <code>imapflow</code> s'y connecte, cherche, télécharge, marque lu et déplace</td>
+      <td>La réponse à <code>LIST "" ""</code> doit donner le séparateur, pas les dossiers — sinon tous les chemins sont doublés</td>
+    </tr>
+    <tr>
+      <td>Google Drive</td>
+      <td>Un vrai couple de clés RSA ; le jeton JWT signé RS256 est vérifié comme le ferait Google</td>
+      <td>Le jeton doit être réutilisé jusqu'à son expiration, pas redemandé à chaque dépôt</td>
+    </tr>
+    <tr>
+      <td>Service d'analyse</td>
+      <td>Un serveur compatible OpenAI rendu en local</td>
+      <td>L'arbitrage règles / modèle, vérifié sur des réponses contradictoires</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="ce-que-la-suite-couvre">Ce que la suite couvre<a class="anchor" href="#ce-que-la-suite-couvre" aria-label="Lien vers cette section">#</a></h2>
+
+<h3 id="sauvegarde-et-restauration">Sauvegarde et restauration<a class="anchor" href="#sauvegarde-et-restauration" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Aller-retour tar exact ; en-tête abîmé et archive tronquée refusés ; chemin sortant de sa
+  racine rejeté ; archive embarquant base et coffre-fort ; contenu altéré détecté par le
+  manifeste ; restauration qui remet base et fichiers et efface ce qui a suivi ; sauvegarde de
+  sécurité prise avant ; confirmation par nom exact ; colonne ajoutée après la sauvegarde
+  tolérée ; purge ; intervalle automatique respecté ; espace réservé à l'administration.
+</p>
+
+<h3 id="externalisation">Externalisation<a class="anchor" href="#externalisation" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Dépôt octet pour octet, liste, suppression, mot de passe refusé sans exception ; jeton Google
+  vérifié et réutilisé ; secret illisible après altération, jamais rendu à l'écran, conservé si
+  le champ est laissé vide ; destination incomplète non activable ; administrateurs alertés en
+  cas d'échec.
+</p>
+
+<h3 id="securite">Sécurité<a class="anchor" href="#securite" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Contrôle d'accès de chaque espace ; verrouillage après cinq échecs ; anti-énumération ;
+  CSRF, y compris sur les envois multipart ; redirections filtrées ; politique de mots de
+  passe ; TOTP et codes de secours ; révocation de session ; journal d'audit.
+</p>
+
+<h3 id="metier">Métier<a class="anchor" href="#metier" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Cycle RH complet (demande, approbation, décompte et recrédit du solde) ; scrutin CSE anonyme ;
+  conflits de planning ; clôture d'une non-conformité bloquée par ses actions ; facturation
+  récurrente non dupliquée ; TVA sur les débits ; sceau du parapheur ; circuits d'approbation
+  et étapes sautées ; import tout ou rien ; lecture de facture et arbitrage règles / modèle.
+</p>
+
+<h3 id="traductions">Traductions<a class="anchor" href="#traductions" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Quinze cas dédiés, détaillés sur la page <a href="traductions.html#ce-que-les-tests-garantissent">Traductions</a> :
+  parité des clés, paramètres, écritures non latines, couverture des statuts, chrome partagé,
+  absence de côté figé dans le CSS, rendu de bout en bout en allemand et bascule RTL en arabe.
+</p>
+
+<h3 id="apparence">Apparence<a class="anchor" href="#apparence" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Jetons complets dans chaque combinaison palette × thème, <strong>contraste minimal tenu sur
+  les six</strong>, aperçus sans couleur en dur.
+</p>
+
+<h2 id="comment-un-test-est-ecrit">Comment un test est écrit<a class="anchor" href="#comment-un-test-est-ecrit" aria-label="Lien vers cette section">#</a></h2>
+
+<pre><code>const { prepareEnvironment, startServer, Client } = require('./helpers');
+
+// L'environnement doit être préparé AVANT de charger la base :
+// elle est ouverte au require du module.
+prepareEnvironment();
+
+const createApp = require('../src/app');
+
+test.before(async () => {
+  server = await startServer(createApp());
+  baseUrl = `http://127.0.0.1:${server.address().port}`;
+});</code></pre>
+
+<p>
+  <code>Client</code> est un bocal à cookies : il se connecte, garde la session et le jeton
+  CSRF, poste des formulaires et relit les messages d'état. Un test parcourt donc les mêmes
+  écrans qu'un utilisateur, avec les mêmes contrôles.
+</p>
+
+<div class="note">
+  <span class="note-title">Chaque fichier a sa propre base</span>
+  <p>
+    <code>DB_PATH</code> pointe sur un fichier SQLite temporaire créé au démarrage du fichier
+    de test. Les suites ne se marchent pas dessus et peuvent tourner dans n'importe quel ordre.
+  </p>
+</div>
+
+<h2 id="verification-au-navigateur">Vérification au navigateur<a class="anchor" href="#verification-au-navigateur" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  La suite ne dit rien de la mise en page. Chaque livraison est en plus ouverte dans un
+  navigateur réel, où trois choses sont vérifiées :
+</p>
+
+<ul>
+  <li><strong>Aucune erreur console</strong> — une CSP qui bloque un script se voit là, pas dans les tests.</li>
+  <li><strong>Aucun débordement horizontal à 390 px</strong> : <code>scrollWidth</code> comparé à <code>clientWidth</code>, plutôt qu'un coup d'œil.</li>
+  <li><strong>Géométrie du RTL</strong> : en arabe, le liseré de l'onglet actif et la barre latérale doivent avoir changé de côté, mesures à l'appui.</li>
+</ul>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="architecture.html">← Architecture</a><a href="journal.html">Journal des livraisons →</a></nav>
+      <p class="foot">Documentation de Salarié Member — construite le 2026-09-08. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#le-parti-pris-pas-de-simulacres">Le parti pris : pas de simulacres</a>
+    <a class="lvl-2" href="#ce-que-la-suite-couvre">Ce que la suite couvre</a>
+    <a class="lvl-3" href="#sauvegarde-et-restauration">Sauvegarde et restauration</a>
+    <a class="lvl-3" href="#externalisation">Externalisation</a>
+    <a class="lvl-3" href="#securite">Sécurité</a>
+    <a class="lvl-3" href="#metier">Métier</a>
+    <a class="lvl-3" href="#traductions">Traductions</a>
+    <a class="lvl-3" href="#apparence">Apparence</a>
+    <a class="lvl-2" href="#comment-un-test-est-ecrit">Comment un test est écrit</a>
+    <a class="lvl-2" href="#verification-au-navigateur">Vérification au navigateur</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>
