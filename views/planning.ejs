@@ -8,10 +8,10 @@
     <%- include('partials/sidebar', {
       panelLabel: t('nav.planning'),
       navItems: [
-        { tab: 'semaine', label: 'Semaine', icon: 'calendar' },
-        { tab: 'astreintes', label: 'Astreintes', icon: 'shield', badge: onCallList.length },
-        { tab: 'roulements', label: 'Roulements', icon: 'clock' },
-        { tab: 'charge', label: 'Charge', icon: 'network' }
+        { tab: 'semaine', label: t('pln.tabWeek'), icon: 'calendar' },
+        { tab: 'astreintes', label: t('pln.tabOnCall'), icon: 'shield', badge: onCallList.length },
+        { tab: 'roulements', label: t('pln.tabRotations'), icon: 'clock' },
+        { tab: 'charge', label: t('pln.tabLoad'), icon: 'network' }
       ],
       footLinks: [
         { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' },
@@ -21,7 +21,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Planning et astreintes',
+        headerTitle: t('pln.title'),
         headerSubtitle: planner ? "Postes, roulements et astreintes de votre périmètre" : 'Vos créneaux planifiés'
       }) %>
 
@@ -34,13 +34,13 @@
         <section class="tab-panel is-active" id="semaine">
           <div class="card">
             <div class="card-head">
-              <h3>Semaine du <%= day(start) %> au <%= day(end) %></h3>
-              <span class="card-sub"><%= week.rows.length %> personne(s) planifiée(s)</span>
+              <h3><%= t('pln.weekOf', { start: day(start), end: day(end) }) %></h3>
+              <span class="card-sub"><%= t('pln.plannedPeople', { count: week.rows.length }) %></span>
             </div>
             <div class="pager">
-              <a href="/planning?semaine=<%= previousWeek %><%= teamId ? `&equipe=${teamId}` : '' %>" class="btn btn-outline btn-sm">Semaine précédente</a>
-              <a href="/planning?semaine=<%= today %><%= teamId ? `&equipe=${teamId}` : '' %>" class="btn btn-outline btn-sm">Cette semaine</a>
-              <a href="/planning?semaine=<%= nextWeek %><%= teamId ? `&equipe=${teamId}` : '' %>" class="btn btn-outline btn-sm">Semaine suivante</a>
+              <a href="/planning?semaine=<%= previousWeek %><%= teamId ? `&equipe=${teamId}` : '' %>" class="btn btn-outline btn-sm"><%= t('pln.previousWeek') %></a>
+              <a href="/planning?semaine=<%= today %><%= teamId ? `&equipe=${teamId}` : '' %>" class="btn btn-outline btn-sm"><%= t('pln.thisWeek') %></a>
+              <a href="/planning?semaine=<%= nextWeek %><%= teamId ? `&equipe=${teamId}` : '' %>" class="btn btn-outline btn-sm"><%= t('pln.nextWeek') %></a>
             </div>
 
             <% if (planner && teams.length) { %>
@@ -57,7 +57,7 @@
             <% } %>
 
             <% if (!week.rows.length) { %>
-              <p class="empty-state">Aucun créneau sur cette semaine.</p>
+              <p class="empty-state"><%= t('pln.noSlotThisWeek') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table class="planning-grid">
@@ -79,7 +79,7 @@
                                 <span class="shift-time"><%= hour(s.starts_at) %>–<%= hour(s.ends_at) %></span>
                                 <span class="shift-label"><%= s.label || s.kind %></span>
                                 <% if (planner) { %>
-                                  <form method="POST" action="/planning/creneaux/<%= s.id %>/supprimer" class="inline-form" data-confirm="Retirer ce créneau ?">
+                                  <form method="POST" action="/planning/creneaux/<%= s.id %>/supprimer" class="inline-form" data-confirm="<%= t('pln.confirmRemoveSlot') %>">
                                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                     <button type="submit" class="btn btn-link btn-sm">×</button>
                                   </form>
@@ -94,13 +94,13 @@
                   </tbody>
                 </table>
               </div>
-              <p class="hint">Un créneau en pointillé n'est pas publié : c'est un brouillon, personne ne doit organiser sa semaine dessus.</p>
+              <p class="hint"><%= t('pln.draftNote') %></p>
             <% } %>
           </div>
 
           <% if (planner) { %>
             <div class="card">
-              <div class="card-head"><h3>Poser un créneau</h3></div>
+              <div class="card-head"><h3><%= t('pln.addSlot') %></h3></div>
               <form method="POST" action="/planning/creneaux" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="week" value="<%= start %>" />
@@ -114,9 +114,9 @@
                 </label>
                 <label><span><%= t('common.day') %></span><input type="date" name="day" value="<%= start %>" required /></label>
                 <label><span><%= t('messages.from') %></span><input type="time" name="start_time" value="09:00" required /></label>
-                <label><span>Jour de fin</span><input type="date" name="end_day" /></label>
+                <label><span><%= t('pln.endDay') %></span><input type="date" name="end_day" /></label>
                 <label><span>À</span><input type="time" name="end_time" value="17:00" required /></label>
-                <label><span><%= t('common.label') %></span><input type="text" name="label" maxlength="160" placeholder="Ouverture magasin" /></label>
+                <label><span><%= t('common.label') %></span><input type="text" name="label" maxlength="160" placeholder="<%= t('pln.slotPlaceholder') %>" /></label>
                 <label><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" /></label>
                 <label><span><%= t('common.team') %></span>
                   <select name="team_id">
@@ -124,19 +124,19 @@
                     <% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %>
                   </select>
                 </label>
-                <label class="check-row"><input type="checkbox" name="published" value="1" /><span>Publier tout de suite</span></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Poser le créneau</button></div>
+                <label class="check-row"><input type="checkbox" name="published" value="1" /><span><%= t('pln.publishNow') %></span></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('pln.addTheSlot') %></button></div>
               </form>
-              <p class="hint">Un créneau qui chevauche une absence accordée ou un autre poste est refusé : mieux vaut le savoir maintenant que le jour même.</p>
+              <p class="hint"><%= t('pln.overlapNote') %></p>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Publier la semaine</h3></div>
+              <div class="card-head"><h3><%= t('pln.publishWeek') %></h3></div>
               <form method="POST" action="/planning/publier" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="week" value="<%= start %>" />
                 <% if (teamId) { %><input type="hidden" name="team_id" value="<%= teamId %>" /><% } %>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Publier les brouillons de la semaine du <%= day(start) %></button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('pln.publishDraftsOf', { date: day(start) }) %></button></div>
               </form>
             </div>
           <% } %>
@@ -145,16 +145,16 @@
         <!-- ---------- Astreintes ---------- -->
         <section class="tab-panel" id="astreintes">
           <div class="card">
-            <div class="card-head"><h3>D'astreinte en ce moment</h3></div>
+            <div class="card-head"><h3><%= t('pln.onCallNow') %></h3></div>
             <% if (!onCallNow.length) { %>
-              <p class="empty-state">Personne n'est d'astreinte à cet instant.</p>
+              <p class="empty-state"><%= t('pln.nobodyOnCall') %></p>
             <% } else { %>
               <ul class="person-list">
                 <% onCallNow.forEach((s) => { %>
                   <li class="person-row">
                     <span class="person-body">
                       <span class="person-name"><%= s.first_name %> <%= s.last_name %></span>
-                      <span class="person-role">jusqu'au <%= day(s.ends_at.slice(0, 10)) %> à <%= hour(s.ends_at) %><%= s.phone ? ` · ${s.phone}` : '' %></span>
+                      <span class="person-role"><%= t('pln.untilAt', { date: day(s.ends_at.slice(0, 10)), hour: hour(s.ends_at) }) %><%= s.phone ? ` · ${s.phone}` : '' %></span>
                     </span>
                     <span class="tag tag-success"><%= t('status.running') %></span>
                   </li>
@@ -164,9 +164,9 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Astreintes de la semaine</h3></div>
+            <div class="card-head"><h3><%= t('pln.weekOnCall') %></h3></div>
             <% if (!onCallList.length) { %>
-              <p class="empty-state">Aucune astreinte planifiée cette semaine.</p>
+              <p class="empty-state"><%= t('pln.noOnCall') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
@@ -192,11 +192,11 @@
         <section class="tab-panel" id="roulements">
           <% if (planner) { %>
             <div class="card">
-              <div class="card-head"><h3>Créer un roulement</h3></div>
+              <div class="card-head"><h3><%= t('pln.createRotation') %></h3></div>
               <form method="POST" action="/planning/roulements" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="week" value="<%= start %>" />
-                <label><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="120" placeholder="Équipe du matin" /></label>
+                <label><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="120" placeholder="<%= t('pln.rotationPlaceholder') %>" /></label>
                 <label><span><%= t('common.nature') %></span>
                   <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
@@ -210,16 +210,16 @@
                   </span>
                 </label>
                 <label class="span-2"><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" /></label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer le roulement</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('pln.saveRotation') %></button></div>
               </form>
-              <p class="hint">Une heure de fin plus petite que l'heure de début décrit un poste de nuit : il se termine le lendemain.</p>
+              <p class="hint"><%= t('pln.nightShiftNote') %></p>
             </div>
           <% } %>
 
           <div class="card">
             <div class="card-head"><h3><%= templateList.length %> roulement(s)</h3></div>
             <% if (!templateList.length) { %>
-              <p class="empty-state">Aucun roulement enregistré.</p>
+              <p class="empty-state"><%= t('pln.noRotation') %></p>
             <% } else { %>
               <ul class="meeting-list">
                 <% templateList.forEach((tp) => { %>
@@ -248,7 +248,7 @@
                         <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.apply') %></button></div>
                       </form>
                       <div class="row-actions">
-                        <form method="POST" action="/planning/roulements/<%= tp.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce roulement ? Les créneaux déjà posés restent.">
+                        <form method="POST" action="/planning/roulements/<%= tp.id %>/supprimer" class="inline-form" data-confirm="<%= t('pln.confirmDeleteRotation') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <input type="hidden" name="week" value="<%= start %>" />
                           <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
@@ -265,11 +265,11 @@
         <!-- ---------- Charge ---------- -->
         <section class="tab-panel" id="charge">
           <div class="card">
-            <div class="card-head"><h3>Heures planifiées, du <%= day(start) %> au <%= day(end) %></h3></div>
+            <div class="card-head"><h3><%= t('pln.plannedHours', { start: day(start), end: day(end) }) %></h3></div>
             <% if (!planner) { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.day') %></th><th>Créneau</th><th><%= t('common.nature') %></th><th><%= t('common.duration') %></th></tr></thead>
+                  <thead><tr><th><%= t('common.day') %></th><th><%= t('pln.slot') %></th><th><%= t('common.nature') %></th><th><%= t('common.duration') %></th></tr></thead>
                   <tbody>
                     <% mine.forEach((s) => { %>
                       <tr>
@@ -279,16 +279,16 @@
                         <td class="num"><%= s.hours %> h</td>
                       </tr>
                     <% }) %>
-                    <% if (!mine.length) { %><tr><td colspan="4" class="cell-sub">Aucun créneau cette semaine.</td></tr><% } %>
+                    <% if (!mine.length) { %><tr><td colspan="4" class="cell-sub"><%= t('pln.noSlotThisWeekShort') %></td></tr><% } %>
                   </tbody>
                 </table>
               </div>
             <% } else if (!loadList.length) { %>
-              <p class="empty-state">Rien de planifié sur cette semaine.</p>
+              <p class="empty-state"><%= t('pln.nothingPlanned') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.person') %></th><th>Créneaux</th><th>Astreintes</th><th><%= t('common.hours') %></th><th>Répartition</th></tr></thead>
+                  <thead><tr><th><%= t('common.person') %></th><th><%= t('pln.slots') %></th><th><%= t('pln.tabOnCall') %></th><th><%= t('common.hours') %></th><th><%= t('pln.distribution') %></th></tr></thead>
                   <tbody>
                     <% const maxHours = Math.max(...loadList.map((l) => l.hours), 1); %>
                     <% loadList.forEach((l) => { %>
@@ -303,7 +303,7 @@
                   </tbody>
                 </table>
               </div>
-              <p class="hint">Le déséquilibre se voit ici avant de se plaindre en réunion.</p>
+              <p class="hint"><%= t('pln.imbalanceNote') %></p>
             <% } %>
           </div>
         </section>
