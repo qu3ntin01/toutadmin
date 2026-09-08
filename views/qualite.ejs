@@ -6,21 +6,21 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Qualité',
+      panelLabel: t('nav.quality'),
       navItems: [
         { tab: 'non-conformites', label: 'Non-conformités', icon: 'ticket', badge: stats.open },
         { tab: 'actions', label: t('common.actions'), icon: 'check', badge: stats.openActions },
         { tab: 'audits', label: 'Audits internes', icon: 'ballot' }
       ],
       footLinks: [
-        { href: '/sante-securite', label: 'Santé-sécurité', icon: 'shield' },
-        { href: '/mon-espace', label: 'Mon espace', icon: 'home' }
+        { href: '/sante-securite', label: t('nav.healthSafety'), icon: 'shield' },
+        { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Qualité',
+        headerTitle: t('nav.quality'),
         headerSubtitle: 'Non-conformités, actions correctives et audits internes'
       }) %>
 
@@ -103,7 +103,7 @@
                         <select name="status" class="input-sm">
                           <% ncStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === n.status ? 'selected' : '' %>><%= s %></option><% }) %>
                         </select>
-                        <button type="submit" class="btn btn-outline btn-sm">Changer l'état</button>
+                        <button type="submit" class="btn btn-outline btn-sm"><%= t('gov.changeState') %></button>
                       </form>
                       <form method="POST" action="/qualite/non-conformites/<%= n.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette non-conformité et ses actions ?">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -134,7 +134,7 @@
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Pour le</span><input type="date" name="due_date" /></label>
+              <label><span><%= t('gov.forDate') %></span><input type="date" name="due_date" /></label>
               <label><span>Non-conformité</span>
                 <select name="nonconformity_id">
                   <option value="">—</option>

@@ -13,12 +13,12 @@
         { tab: 'competences', label: 'Compétences', icon: 'check' },
         { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: expiring.length + missing.length }
       ],
-      footLinks: [{ href: '/rh', label: 'Espace RH', icon: 'back' }]
+      footLinks: [{ href: '/rh', label: t('nav.hrSpace'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Parcours et compétences',
+        headerTitle: t('nav.careerPaths'),
         headerSubtitle: "Ce qu'il y a à faire à l'arrivée, au départ, et ce que chacun détient"
       }) %>
 

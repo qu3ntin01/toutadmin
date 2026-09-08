@@ -6,20 +6,20 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Accueil',
+      panelLabel: t('nav.frontDesk'),
       navItems: [
         { tab: 'visiteurs', label: 'Registre des visiteurs', icon: 'users', badge: stats.presentNow },
         { tab: 'courrier', label: 'Courrier', icon: 'inbox', badge: stats.pendingMail }
       ],
       footLinks: [
-        { href: '/rh', label: 'Espace RH', icon: 'shield' },
-        { href: '/salles', label: 'Salles', icon: 'calendar' }
+        { href: '/rh', label: t('nav.hrSpace'), icon: 'shield' },
+        { href: '/salles', label: t('nav.rooms'), icon: 'calendar' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: "Accueil",
+        headerTitle: t('nav.frontDesk'),
         headerSubtitle: 'Registre des visiteurs et suivi du courrier'
       }) %>
 
@@ -171,7 +171,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th><%= t('common.date') %></th><th><%= t('common.nature') %></th><th>Correspondant</th><th>Destinataire</th><th><%= t('common.subject') %></th><th>Suivi</th><th><%= t('common.state') %></th><th></th></tr></thead>
+                    <thead><tr><th><%= t('common.date') %></th><th><%= t('common.nature') %></th><th>Correspondant</th><th><%= t('messages.to') %></th><th><%= t('common.subject') %></th><th>Suivi</th><th><%= t('common.state') %></th><th></th></tr></thead>
                     <tbody>
                       <% block.rows.forEach((m) => { %>
                         <tr>

@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Parapheur',
+      panelLabel: t('nav.signing'),
       navItems: [
         { tab: 'a-signer', label: 'À signer', icon: 'check', badge: pending.length },
         { tab: 'mes-documents', label: 'Mes documents', icon: 'inbox', badge: mine.length }
@@ -14,12 +14,12 @@
         { tab: 'nouveau', label: 'Mettre à la signature', icon: 'plus' },
         { tab: 'documents', label: 'Tous les documents', icon: 'ballot', badge: stats.running }
       ] : []),
-      footLinks: [{ href: '/mon-espace', label: 'Mon espace', icon: 'home' }]
+      footLinks: [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Parapheur',
+        headerTitle: t('nav.signing'),
         headerSubtitle: 'Signature électronique des contrats, avenants et accords'
       }) %>
 

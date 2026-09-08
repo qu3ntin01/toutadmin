@@ -6,19 +6,19 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Coffre-fort',
+      panelLabel: t('nav.vault'),
       navItems: [
         { tab: 'depot', label: 'Déposer', icon: 'plus' },
         { tab: 'documents', label: t('erp.documents'), icon: 'shield' },
         { tab: 'acces', label: 'Accès après départ', icon: 'link', badge: summary.grants },
         { tab: 'integrite', label: 'Intégrité', icon: 'check', badge: integrity.broken.length }
       ],
-      footLinks: [{ href: '/rh', label: 'Espace RH', icon: 'back' }]
+      footLinks: [{ href: '/rh', label: t('nav.hrSpace'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Coffre-fort',
+        headerTitle: t('nav.vault'),
         headerSubtitle: 'Dépôt des bulletins et accès des anciens salariés'
       }) %>
 

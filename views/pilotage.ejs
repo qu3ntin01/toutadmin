@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Pilotage',
+      panelLabel: t('nav.steering'),
       navItems: [
         { tab: 'tableau', label: t('common.dashboard'), icon: 'home' },
         { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: deadlines.overdue },
@@ -18,7 +18,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Pilotage',
+        headerTitle: t('nav.steering'),
         headerSubtitle: "Ce que la direction regarde : effectif, activité, échéances et objectifs — exercice " + year
       }) %>
 
@@ -125,7 +125,7 @@
             <div class="card-head"><h3><%= overview.projects.length %> projet(s) en cours</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th><%= t('common.project') %></th><th><%= t('common.status') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.hours') %></th><th><%= t('common.cost') %></th><th><%= t('common.budget') %></th><th>Consommé</th></tr></thead>
+                <thead><tr><th><%= t('common.project') %></th><th><%= t('common.status') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.hours') %></th><th><%= t('common.cost') %></th><th><%= t('common.budget') %></th><th><%= t('erp.consumed') %></th></tr></thead>
                 <tbody>
                   <% overview.projects.forEach((p) => { %>
                     <tr>
@@ -170,7 +170,7 @@
                   <optgroup label="Équipes"><% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %></optgroup>
                 </select>
               </label>
-              <label class="span-2"><span>Porteur</span>
+              <label class="span-2"><span><%= t('gov.holder') %></span>
                 <select name="owner_id"><option value="">—</option>
                   <% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
                 </select>

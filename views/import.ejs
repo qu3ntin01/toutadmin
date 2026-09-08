@@ -9,14 +9,14 @@
       panelLabel: 'Import',
       navItems: entities.map((e) => ({ href: '#' + e.key, label: e.label, icon: 'inbox', active: e.key === selected })),
       footLinks: [
-        { href: '/admin', label: "Console d'administration", icon: 'settings' },
+        { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' },
         { href: '/gestion', label: t('status.stageManagement'), icon: 'briefcase' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Import de données',
+        headerTitle: t('nav.dataImport'),
         headerSubtitle: 'Reprendre un tableur sans le ressaisir'
       }) %>
 

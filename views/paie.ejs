@@ -113,7 +113,7 @@
                 <% if (simulation) { %>
                   <table>
                     <tbody>
-                      <tr><td class="cell-sub">Brut</td><td class="num cell-strong"><%= money(simulation.gross) %></td></tr>
+                      <tr><td class="cell-sub"><%= t('payslip.gross') %></td><td class="num cell-strong"><%= money(simulation.gross) %></td></tr>
                       <tr><td class="cell-sub">Cotisations salariales</td><td class="num">− <%= money(simulation.employeeTotal) %></td></tr>
                       <tr><td class="cell-sub">Net à payer</td><td class="num cell-strong"><%= money(simulation.net) %></td></tr>
                       <tr><td class="cell-sub">Charges patronales</td><td class="num"><%= money(simulation.employerTotal) %></td></tr>

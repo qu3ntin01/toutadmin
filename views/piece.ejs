@@ -57,7 +57,7 @@
                 <tr><td class="cell-sub"><%= t('common.date') %></td><td><%= value(document.fields.issueDate) %></td><td class="cell-sub"><%= from('issueDate') %></td></tr>
                 <tr><td class="cell-sub"><%= t('erp.dueDate') %></td><td><%= value(document.fields.dueDate) %></td><td class="cell-sub"><%= from('dueDate') %></td></tr>
                 <tr><td class="cell-sub">Total HT</td><td class="num"><%= value(document.fields.amountHt) %></td><td class="cell-sub"><%= from('amountHt') %></td></tr>
-                <tr><td class="cell-sub">TVA</td><td class="num"><%= value(document.fields.amountVat) %> <%= document.fields.vatRate ? `(${document.fields.vatRate} %)` : '' %></td><td class="cell-sub"><%= from('amountVat') %></td></tr>
+                <tr><td class="cell-sub"><%= t('nav.vat') %></td><td class="num"><%= value(document.fields.amountVat) %> <%= document.fields.vatRate ? `(${document.fields.vatRate} %)` : '' %></td><td class="cell-sub"><%= from('amountVat') %></td></tr>
                 <tr><td class="cell-sub">Total TTC</td><td class="num cell-strong"><%= value(document.fields.amountTtc) %> <%= document.fields.currency || '' %></td><td class="cell-sub"><%= from('amountTtc') %></td></tr>
                 <tr><td class="cell-sub">SIRET / TVA</td><td class="mono"><%= value(document.fields.siret || document.fields.siren) %> <%= value(document.fields.vatNumber) %></td><td class="cell-sub"><%= from('siret') %></td></tr>
                 <tr><td class="cell-sub">IBAN</td><td class="mono"><%= value(document.fields.iban) %></td><td class="cell-sub"><%= from('iban') %></td></tr>

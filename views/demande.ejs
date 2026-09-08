@@ -8,7 +8,7 @@
     <%- include('partials/sidebar', {
       panelLabel: 'Demande',
       navItems: [{ href: '/demandes', label: 'Toutes les demandes', icon: 'inbox', active: true }],
-      footLinks: [{ href: '/mon-espace', label: 'Mon espace', icon: 'home' }]
+      footLinks: [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }]
     }) %>
 
     <div class="app-main">
@@ -16,7 +16,7 @@
         headerTitle: request.form ? request.form.label : 'Demande',
         headerSubtitle: request.requesterName,
         backHref: '/demandes',
-        backLabel: 'Demandes'
+        backLabel: t('nav.requests')
       }) %>
 
       <main class="page">
@@ -66,7 +66,7 @@
                       <span class="tag tag-warning"><%= t('status.pending') %></span>
                       <%= request.pendingApprovers.map((a) => `${a.first_name} ${a.last_name}`).join(', ') %>
                     <% } else { %>
-                      <span class="cell-sub">À venir</span>
+                      <span class="cell-sub"><%= t('agenda.upcoming') %></span>
                     <% } %>
                   </div>
                 </li>
@@ -82,13 +82,13 @@
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="decision" value="Approuvée" />
               <label class="span-2"><span>Commentaire (facultatif)</span><input type="text" name="note" maxlength="500" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Approuver</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('hr.approve') %></button></div>
             </form>
             <form method="POST" action="/demandes/<%= request.id %>/decision" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="decision" value="Refusée" />
               <label class="span-2"><span><%= t('common.refusalReason') %></span><input type="text" name="note" maxlength="500" required placeholder="Un refus se motive." /></label>
-              <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Refuser</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('hr.refuse') %></button></div>
             </form>
           </div>
         <% } else if (request.status === 'En cours' && !isRequester) { %>

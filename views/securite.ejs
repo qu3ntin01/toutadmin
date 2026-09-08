@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Sécurité',
+      panelLabel: t('nav.security'),
       navItems: [
         { tab: 'journal', label: "Journal d'audit", icon: 'inbox' },
         { tab: 'sessions', label: 'Sessions ouvertes', icon: 'clock' },
@@ -14,12 +14,12 @@
         { tab: 'administrateurs', label: 'Administrateurs', icon: 'users' },
         { tab: 'politique', label: 'Politique', icon: 'settings' }
       ],
-      footLinks: [{ href: '/admin', label: "Console d'administration", icon: 'back' }]
+      footLinks: [{ href: '/admin', label: t('nav.adminConsole'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Sécurité',
+        headerTitle: t('nav.security'),
         headerSubtitle: "Traçabilité, sessions, comptes sensibles et politique de l'instance"
       }) %>
 
@@ -67,11 +67,11 @@
                 <input type="text" name="objet" value="<%= filters.entity %>" placeholder="users" />
               </label>
               <label>
-                <span>Du</span>
+                <span><%= t('leave.from') %></span>
                 <input type="date" name="du" value="<%= filters.from %>" />
               </label>
               <label>
-                <span>Au</span>
+                <span><%= t('leave.to') %></span>
                 <input type="date" name="au" value="<%= filters.to %>" />
               </label>
               <div class="span-2 row-actions">

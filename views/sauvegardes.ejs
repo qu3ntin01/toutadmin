@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Sauvegardes',
+      panelLabel: t('nav.backups'),
       navItems: [
         { tab: 'archives', label: 'Archives', icon: 'inbox', badge: summary.count },
         { tab: 'externalisation', label: 'Externalisation', icon: 'external', badge: destinations.filter((d) => d.enabled && d.status && d.status.ok === false).length },
@@ -15,14 +15,14 @@
         { tab: 'reglages', label: t('common.settings'), icon: 'settings' }
       ],
       footLinks: [
-        { href: '/securite', label: 'Sécurité', icon: 'shield' },
-        { href: '/admin', label: "Console d'administration", icon: 'back' }
+        { href: '/securite', label: t('nav.security'), icon: 'shield' },
+        { href: '/admin', label: t('nav.adminConsole'), icon: 'back' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Sauvegardes',
+        headerTitle: t('nav.backups'),
         headerSubtitle: "Base de données, photos, CV et coffre-fort, dans une seule archive"
       }) %>
 
@@ -321,8 +321,8 @@
                 <tbody>
                   <tr><td class="cell-sub">Photos de profil</td><td><%= exportPreview.files.uploads %></td></tr>
                   <tr><td class="cell-sub">CV reçus</td><td><%= exportPreview.files.cv %></td></tr>
-                  <tr><td class="cell-sub">Coffre-fort</td><td><%= exportPreview.files.coffre %></td></tr>
-                  <tr><td class="cell-sub">Parapheur</td><td><%= exportPreview.files.parapheur %></td></tr>
+                  <tr><td class="cell-sub"><%= t('nav.vault') %></td><td><%= exportPreview.files.coffre %></td></tr>
+                  <tr><td class="cell-sub"><%= t('nav.signing') %></td><td><%= exportPreview.files.parapheur %></td></tr>
                 </tbody>
               </table>
             </div>

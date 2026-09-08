@@ -6,8 +6,8 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Direction',
-      navItems: [{ href: '/direction#sondages', label: 'Sondages', icon: 'megaphone', active: true }],
+      panelLabel: t('nav.governance'),
+      navItems: [{ href: '/direction#sondages', label: t('nav.surveys'), icon: 'megaphone', active: true }],
       footLinks: [{ href: '/direction#sondages', label: 'Retour aux sondages', icon: 'back' }]
     }) %>
 
@@ -16,7 +16,7 @@
         headerTitle: result.survey.title,
         headerSubtitle: result.survey.kind + ' · ' + result.survey.status.toLowerCase(),
         backHref: '/direction#sondages',
-        backLabel: 'Sondages'
+        backLabel: t('nav.surveys')
       }) %>
 
       <main class="page">
@@ -29,7 +29,7 @@
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= result.rate %> %</span><span class="stat-label">Participation</span></span>
+            <span class="stat-body"><span class="stat-value"><%= result.rate %> %</span><span class="stat-label"><%= t('cse.turnout') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>

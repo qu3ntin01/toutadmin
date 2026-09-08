@@ -7,7 +7,7 @@
   <div class="app-shell">
     <% if (restricted) { %>
       <%- include('partials/sidebar', {
-        panelLabel: 'Coffre-fort',
+        panelLabel: t('nav.vault'),
         navItems: [{ tab: 'documents', label: 'Mes documents', icon: 'shield' }],
         footLinks: []
       }) %>
@@ -17,7 +17,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Coffre-fort',
+        headerTitle: t('nav.vault'),
         headerSubtitle: 'Vos bulletins et documents d\'emploi, conservés ' + retentionYears + ' ans'
       }) %>
 
@@ -82,7 +82,7 @@
             </p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th><%= t('common.period') %></th><th>Brut</th><th>Net</th><th><%= t('common.status') %></th><th><%= t('common.document') %></th></tr></thead>
+                <thead><tr><th><%= t('common.period') %></th><th><%= t('payslip.gross') %></th><th><%= t('payslip.net') %></th><th><%= t('common.status') %></th><th><%= t('common.document') %></th></tr></thead>
                 <tbody>
                   <% payslips.forEach((p) => { %>
                     <% const doc = documents.find((d) => d.payslip_id === p.id) %>
@@ -100,7 +100,7 @@
                       </td>
                     </tr>
                   <% }) %>
-                  <% if (payslips.length === 0) { %><tr><td colspan="5" class="cell-sub">Aucune fiche de paie enregistrée.</td></tr><% } %>
+                  <% if (payslips.length === 0) { %><tr><td colspan="5" class="cell-sub"><%= t('hr.noPayslipRecorded') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>

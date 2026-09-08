@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Connaissances',
+      panelLabel: t('nav.knowledge'),
       navItems: canWrite
         ? [{ tab: 'lecture', label: 'Article', icon: 'inbox' }, { tab: 'edition', label: t('common.edit'), icon: 'settings' }]
         : [{ tab: 'lecture', label: 'Article', icon: 'inbox' }],
@@ -35,7 +35,7 @@
               <div class="card-head"><h3><%= t('common.edit') %></h3></div>
               <form method="POST" action="/base-de-connaissances/<%= article.id %>/modifier" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Titre</span><input type="text" name="title" required maxlength="200" value="<%= article.title %>" /></label>
+                <label class="span-2"><span><%= t('team.newsTitle') %></span><input type="text" name="title" required maxlength="200" value="<%= article.title %>" /></label>
                 <label><span><%= t('common.category') %></span><input type="text" name="category" value="<%= article.category %>" maxlength="60" /></label>
                 <label><span><%= t('common.scope') %></span>
                   <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>" <%= article.visibility === v ? 'selected' : '' %>><%= v %></option><% }) %></select>
@@ -54,7 +54,7 @@
                 <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="16"><%= article.body %></textarea></label>
                 <label class="check-row span-2">
                   <input type="checkbox" name="published" value="1" <%= article.published ? 'checked' : '' %> />
-                  <span>Publié</span>
+                  <span><%= t('cse.published') %></span>
                 </label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>

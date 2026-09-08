@@ -8,10 +8,10 @@
     <%- include('partials/sidebar', {
       panelLabel: t('common.meeting'),
       navItems: [
-        { tab: 'ordre-du-jour', label: 'Ordre du jour', icon: 'inbox' },
+        { tab: 'ordre-du-jour', label: t('cse.agenda'), icon: 'inbox' },
         { tab: 'participants', label: t('common.participants'), icon: 'users', badge: attendeeList.length },
         { tab: 'compte-rendu', label: 'Compte rendu', icon: 'ballot' },
-        { tab: 'decisions', label: 'Décisions', icon: 'check', badge: decisionList.length },
+        { tab: 'decisions', label: t('gov.decisions'), icon: 'check', badge: decisionList.length },
         { tab: 'actions', label: t('common.actions'), icon: 'clock', badge: actionList.filter((a) => a.status !== 'Faite').length }
       ],
       footLinks: [{ href: '/direction#reunions', label: 'Toutes les réunions', icon: 'back' }]
@@ -22,7 +22,7 @@
         headerTitle: meeting.title,
         headerSubtitle: meeting.kind + ' · ' + new Date(meeting.held_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) + (meeting.location ? ' · ' + meeting.location : ''),
         backHref: '/direction#reunions',
-        backLabel: 'Direction'
+        backLabel: t('nav.governance')
       }) %>
 
       <main class="page">
@@ -44,7 +44,7 @@
               <label><span><%= t('common.start') %></span><input type="time" name="starts_at" value="<%= meeting.starts_at %>" /></label>
               <label><span><%= t('common.end') %></span><input type="time" name="ends_at" value="<%= meeting.ends_at %>" /></label>
               <label><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" value="<%= meeting.location %>" /></label>
-              <label><span>Président de séance</span>
+              <label><span><%= t('gov.chair') %></span>
                 <select name="chair_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>" <%= e.id === meeting.chair_id ? 'selected' : '' %>><%= e.first_name %> <%= e.last_name %></option><% }) %>
@@ -53,7 +53,7 @@
               <label><span><%= t('common.state') %></span>
                 <select name="status"><% meetingStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === meeting.status ? 'selected' : '' %>><%= s %></option><% }) %></select>
               </label>
-              <label class="span-2"><span>Ordre du jour</span><textarea name="agenda" rows="6"><%= meeting.agenda %></textarea></label>
+              <label class="span-2"><span><%= t('cse.agenda') %></span><textarea name="agenda" rows="6"><%= meeting.agenda %></textarea></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
           </div>
@@ -130,14 +130,14 @@
             <form method="POST" action="/direction/decisions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
-              <label class="span-2"><span>Décision</span><input type="text" name="title" required maxlength="200" /></label>
-              <label><span>Prise le</span><input type="date" name="decided_on" value="<%= meeting.held_on %>" required /></label>
+              <label class="span-2"><span><%= t('gov.decision') %></span><input type="text" name="title" required maxlength="200" /></label>
+              <label><span><%= t('gov.takenOn') %></span><input type="date" name="decided_on" value="<%= meeting.held_on %>" required /></label>
               <label><span><%= t('common.scope') %></span>
                 <select name="scope"><% decisionScopes.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
               <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="3"></textarea></label>
               <label class="span-2"><span><%= t('common.reason') %></span><textarea name="rationale" rows="2"></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire au registre</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.registerRisk') %></button></div>
             </form>
           </div>
 
@@ -165,25 +165,25 @@
         <!-- ---------- Actions ---------- -->
         <section class="tab-panel" id="actions">
           <div class="card">
-            <div class="card-head"><h3>Confier une action</h3></div>
+            <div class="card-head"><h3><%= t('gov.entrustAction') %></h3></div>
             <form method="POST" action="/direction/actions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
               <label class="span-2"><span><%= t('common.action') %></span><input type="text" name="label" required maxlength="300" /></label>
-              <label><span>Confiée à</span>
+              <label><span><%= t('gov.entrustedTo') %></span>
                 <select name="assignee_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Pour le</span><input type="date" name="due_date" /></label>
-              <label class="span-2"><span>Décision d'origine</span>
+              <label><span><%= t('gov.forDate') %></span><input type="date" name="due_date" /></label>
+              <label class="span-2"><span><%= t('gov.sourceDecision') %></span>
                 <select name="decision_id">
                   <option value="">—</option>
                   <% decisionList.forEach((d) => { %><option value="<%= d.id %>"><%= d.title %></option><% }) %>
                 </select>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Confier</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.entrust') %></button></div>
             </form>
           </div>
 
@@ -194,7 +194,7 @@
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.action') %></th><th>Porteur</th><th><%= t('common.state') %></th></tr></thead>
+                  <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.action') %></th><th><%= t('gov.holder') %></th><th><%= t('common.state') %></th></tr></thead>
                   <tbody>
                     <% actionList.forEach((a) => { %>
                       <tr>

@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Santé-sécurité',
+      panelLabel: t('nav.healthSafety'),
       navItems: [
         { tab: 'risques', label: 'Document unique', icon: 'shield' },
         { tab: 'accidents', label: 'Registre des accidents', icon: 'ticket' },
@@ -14,7 +14,7 @@
         { tab: 'visites', label: 'Visites médicales', icon: 'calendar' },
         { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: upcoming.visits.length + upcoming.ppe.length + upcoming.risks.length }
       ],
-      footLinks: [{ href: '/rh', label: 'Espace RH', icon: 'back' }]
+      footLinks: [{ href: '/rh', label: t('nav.hrSpace'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -64,7 +64,7 @@
               </label>
               <label class="span-2"><span>Mesures de prévention</span><textarea name="measures" rows="3" placeholder="Ce qui est déjà en place, et ce qui reste à faire."></textarea></label>
               <label><span>Évalué le</span><input type="date" name="reviewed_on" value="<%= today %>" /></label>
-              <label><span>Prochaine revue</span><input type="date" name="next_review" /></label>
+              <label><span><%= t('gov.nextReview') %></span><input type="date" name="next_review" /></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.record') %></button></div>
             </form>
             <p class="hint">La criticité est le produit gravité × probabilité. Au-delà de <%= actionThreshold %>, le risque appelle une action.</p>
@@ -235,7 +235,7 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Catalogue</h3></div>
+            <div class="card-head"><h3><%= t('hr.catalogue') %></h3></div>
             <ul class="org-list">
               <% ppeList.forEach((p) => { %>
                 <li class="org-item">

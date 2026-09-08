@@ -70,7 +70,7 @@
             <div class="card-head"><h3><%= assetList.length %> immobilisation(s)</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th><%= t('common.title') %></th><th>Acquise</th><th>Brut</th><th>Mode</th><th>Cumul</th><th>Dotation <%= currentYear %></th><th>VNC</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.title') %></th><th>Acquise</th><th><%= t('payslip.gross') %></th><th>Mode</th><th>Cumul</th><th>Dotation <%= currentYear %></th><th>VNC</th><th></th></tr></thead>
                 <tbody>
                   <% assetList.forEach((a) => { %>
                     <tr class="<%= a.disposed_on ? 'is-muted' : '' %>">

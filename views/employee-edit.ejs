@@ -51,7 +51,7 @@
               </select>
             </label>
             <label>
-              <span>Type de contrat</span>
+              <span><%= t('admin.contractType') %></span>
               <select name="contract_type" required>
                 <% contractTypes.forEach((c) => { %>
                   <option value="<%= c %>" <%= employee.contract_type === c ? 'selected' : '' %>><%= c %></option>
@@ -59,7 +59,7 @@
               </select>
             </label>
             <label>
-              <span>Fin de contrat</span>
+              <span><%= t('admin.contractEnd') %></span>
               <input type="date" name="contract_end_date" value="<%= employee.contract_end_date || '' %>" />
             </label>
             <label class="span-2">
@@ -90,7 +90,7 @@
           <form method="POST" action="/admin/employes/<%= employee.id %>/messagerie" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label class="span-2">
-              <span>Adresse professionnelle</span>
+              <span><%= t('messages.mailbox') %></span>
               <input type="email" name="mail_address" value="<%= employee.mail_address %>" placeholder="prenom.nom@entreprise.com" />
             </label>
             <label>

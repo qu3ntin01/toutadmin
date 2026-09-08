@@ -24,28 +24,28 @@
             <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.staffCount %></span>
-              <span class="stat-label">Membres suivis</span>
+              <span class="stat-label"><%= t('hr.staffTracked') %></span>
             </span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.pendingCount %></span>
-              <span class="stat-label">Demandes en attente</span>
+              <span class="stat-label"><%= t('hr.pendingRequests') %></span>
             </span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.payslipsDue %></span>
-              <span class="stat-label">Fiches de paie à verser</span>
+              <span class="stat-label"><%= t('hr.payslipsDue') %></span>
             </span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.totalLeaveBalance.toFixed(1) %> j</span>
-              <span class="stat-label">Solde de congés cumulé</span>
+              <span class="stat-label"><%= t('hr.totalLeave') %></span>
             </span>
           </div>
         </section>
@@ -55,7 +55,7 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Demandes <span class="muted">(<%= requests.length %>)</span></h3>
+                <h3><%= t('nav.requests') %> <span class="muted">(<%= requests.length %>)</span></h3>
                 <p class="card-sub"><%= t('hr.requestsSub') %></p>
               </div>
               <div class="filter-pills">
@@ -98,12 +98,12 @@
                           <% if (r.status === 'En attente') { %>
                             <form method="POST" action="/rh/demandes/<%= r.id %>/approuver">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-sm btn-outline">Approuver</button>
+                              <button type="submit" class="btn btn-sm btn-outline"><%= t('hr.approve') %></button>
                             </form>
                             <form method="POST" action="/rh/demandes/<%= r.id %>/refuser" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <input type="text" name="note" class="input-sm" placeholder="<%= t('common.reason') %>" />
-                              <button type="submit" class="btn btn-sm btn-danger">Refuser</button>
+                              <button type="submit" class="btn btn-sm btn-danger"><%= t('hr.refuse') %></button>
                             </form>
                           <% } else if (r.status === 'Approuvée') { %>
                             <form method="POST" action="/rh/demandes/<%= r.id %>/annuler" data-confirm="<%= t('hr.cancelApproved') %>">
@@ -212,7 +212,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th><%= t('common.member') %></th><th><%= t('common.period') %></th><th>Brut</th><th>Net</th><th><%= t('common.status') %></th><th></th></tr></thead>
+                    <thead><tr><th><%= t('common.member') %></th><th><%= t('common.period') %></th><th><%= t('payslip.gross') %></th><th><%= t('payslip.net') %></th><th><%= t('common.status') %></th><th></th></tr></thead>
                     <tbody>
                       <% payslips.forEach((p) => { %>
                         <tr>

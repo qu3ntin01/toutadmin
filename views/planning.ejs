@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Planning',
+      panelLabel: t('nav.planning'),
       navItems: [
         { tab: 'semaine', label: 'Semaine', icon: 'calendar' },
         { tab: 'astreintes', label: 'Astreintes', icon: 'shield', badge: onCallList.length },
@@ -14,8 +14,8 @@
         { tab: 'charge', label: 'Charge', icon: 'network' }
       ],
       footLinks: [
-        { href: '/mon-espace', label: 'Mon espace', icon: 'home' },
-        { href: '/agenda', label: 'Agenda', icon: 'calendar' }
+        { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' },
+        { href: '/agenda', label: t('nav.agenda'), icon: 'calendar' }
       ]
     }) %>
 
@@ -48,7 +48,7 @@
                 <input type="hidden" name="semaine" value="<%= start %>" />
                 <label><span><%= t('common.team') %></span>
                   <select name="equipe">
-                    <option value="">Toutes</option>
+                    <option value=""><%= t('hr.filterAll') %></option>
                     <% teams.forEach((tm) => { %><option value="<%= tm.id %>" <%= tm.id === teamId ? 'selected' : '' %>><%= tm.name %></option><% }) %>
                   </select>
                 </label>
@@ -113,7 +113,7 @@
                   <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
                 <label><span><%= t('common.day') %></span><input type="date" name="day" value="<%= start %>" required /></label>
-                <label><span>De</span><input type="time" name="start_time" value="09:00" required /></label>
+                <label><span><%= t('messages.from') %></span><input type="time" name="start_time" value="09:00" required /></label>
                 <label><span>Jour de fin</span><input type="date" name="end_day" /></label>
                 <label><span>À</span><input type="time" name="end_time" value="17:00" required /></label>
                 <label><span><%= t('common.label') %></span><input type="text" name="label" maxlength="160" placeholder="Ouverture magasin" /></label>
@@ -200,7 +200,7 @@
                 <label><span><%= t('common.nature') %></span>
                   <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
-                <label><span>De</span><input type="time" name="start_time" value="06:00" required /></label>
+                <label><span><%= t('messages.from') %></span><input type="time" name="start_time" value="06:00" required /></label>
                 <label><span>À</span><input type="time" name="end_time" value="14:00" required /></label>
                 <label class="span-2"><span><%= t('common.days') %></span>
                   <span class="filter-pills">
@@ -242,8 +242,8 @@
                             <% people.forEach((p) => { %><option value="<%= p.id %>"><%= p.first_name %> <%= p.last_name %></option><% }) %>
                           </select>
                         </label>
-                        <label><span>Du</span><input type="date" name="from" value="<%= start %>" required /></label>
-                        <label><span>Au</span><input type="date" name="to" value="<%= end %>" required /></label>
+                        <label><span><%= t('leave.from') %></span><input type="date" name="from" value="<%= start %>" required /></label>
+                        <label><span><%= t('leave.to') %></span><input type="date" name="to" value="<%= end %>" required /></label>
                         <label class="check-row"><input type="checkbox" name="published" value="1" /><span><%= t('common.publish') %></span></label>
                         <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.apply') %></button></div>
                       </form>

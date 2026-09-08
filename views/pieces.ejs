@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Pièces reçues',
+      panelLabel: t('nav.intake'),
       navItems: [
         { tab: 'a-traiter', label: t('status.toProcess'), icon: 'inbox', badge: stats.waiting },
         { tab: 'traitees', label: 'Traitées', icon: 'check' },
@@ -21,7 +21,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Pièces reçues',
+        headerTitle: t('nav.intake'),
         headerSubtitle: 'Factures déposées ou relevées dans la boîte aux lettres'
       }) %>
 
@@ -140,7 +140,7 @@
                 <label><span>Serveur IMAP</span><input type="text" name="host" maxlength="200" value="<%= mail.host %>" placeholder="imap.exemple.fr" required /></label>
                 <label><span>Port</span><input type="number" name="port" min="1" max="65535" value="<%= mail.port %>" required /></label>
                 <label><span><%= t('common.identifier') %></span><input type="text" name="user" maxlength="200" value="<%= mail.user %>" placeholder="factures@exemple.fr" required /></label>
-                <label><span>Mot de passe</span><input type="password" name="password" placeholder="<%= mail.password || '' %>" autocomplete="new-password" /></label>
+                <label><span><%= t('auth.password') %></span><input type="password" name="password" placeholder="<%= mail.password || '' %>" autocomplete="new-password" /></label>
                 <label><span>Dossier relevé</span><input type="text" name="folder" maxlength="120" value="<%= mail.folder %>" /></label>
                 <label><span>Après traitement</span>
                   <select name="action">
@@ -173,7 +173,7 @@
             </div>
 
             <p class="hint">
-              Seuls les messages <strong>non lus</strong> du dossier indiqué, dans la fenêtre de jours choisie, sont
+              Seuls les messages <strong><%= t('messages.unread') %></strong> du dossier indiqué, dans la fenêtre de jours choisie, sont
               relevés — et seules leurs pièces jointes PDF ou DOCX sont retenues. Aucun message n'est supprimé : la
               boîte reste la source, le CMS n'en est qu'un lecteur.
             </p>

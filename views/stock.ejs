@@ -7,7 +7,7 @@
   <div class="app-shell">
     <% if (isFinance) { %>
       <%- include('partials/sidebar', {
-        panelLabel: 'Stock et achats',
+        panelLabel: t('nav.stock'),
         navItems: [
           { tab: 'articles', label: 'Articles', icon: 'network', badge: lowStock.length },
           { tab: 'mouvements', label: t('common.movements'), icon: 'link' },
@@ -21,7 +21,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Stock et achats',
+        headerTitle: t('nav.stock'),
         headerSubtitle: isFinance ? "Articles, mouvements et demandes d'achat" : "Vos demandes d'achat"
       }) %>
 
@@ -196,7 +196,7 @@
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th><%= t('common.date') %></th><th>Article</th><th><%= t('common.type') %></th><th><%= t('common.quantity') %></th><th>Par</th></tr></thead>
+                      <thead><tr><th><%= t('common.date') %></th><th>Article</th><th><%= t('common.type') %></th><th><%= t('common.quantity') %></th><th><%= t('gov.by') %></th></tr></thead>
                       <tbody>
                         <% movements.slice(0, 40).forEach((m) => { %>
                           <tr>
@@ -261,7 +261,7 @@
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Mes demandes <span class="muted">(<%= myRequests.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('leave.myRequests') %> <span class="muted">(<%= myRequests.length %>)</span></h3></div>
               <% if (myRequests.length === 0) { %>
                 <div class="empty-state">Aucune demande envoyée.</div>
               <% } else { %>

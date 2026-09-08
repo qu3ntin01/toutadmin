@@ -6,24 +6,24 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Direction',
+      panelLabel: t('nav.governance'),
       navItems: [
-        { tab: 'reunions', label: 'Réunions', icon: 'calendar' },
-        { tab: 'decisions', label: 'Registre des décisions', icon: 'ballot', badge: stats.decisions },
-        { tab: 'actions', label: 'Actions à suivre', icon: 'check', badge: stats.overdueActions },
-        { tab: 'risques', label: 'Registre des risques', icon: 'shield', badge: stats.criticalRisks },
-        { tab: 'sondages', label: 'Sondages', icon: 'megaphone' }
+        { tab: 'reunions', label: t('cse.meetings'), icon: 'calendar' },
+        { tab: 'decisions', label: t('gov.decisionRegister'), icon: 'ballot', badge: stats.decisions },
+        { tab: 'actions', label: t('gov.actionsToFollow'), icon: 'check', badge: stats.overdueActions },
+        { tab: 'risques', label: t('gov.riskRegister'), icon: 'shield', badge: stats.criticalRisks },
+        { tab: 'sondages', label: t('nav.surveys'), icon: 'megaphone' }
       ],
       footLinks: [
         { href: '/pilotage', label: t('common.dashboard'), icon: 'home' },
-        { href: '/admin', label: "Console d'administration", icon: 'settings' }
+        { href: '/admin', label: t('admin.title'), icon: 'settings' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Direction et gouvernance',
-        headerSubtitle: 'Réunions, décisions, actions, risques et climat social'
+        headerTitle: t('gov.title'),
+        headerSubtitle: t('gov.subtitle')
       }) %>
 
       <main class="page">
@@ -34,55 +34,55 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.meetings %></span><span class="stat-label">Réunions (90 jours)</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.meetings %></span><span class="stat-label"><%= t('gov.meetings90') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.decisions %></span><span class="stat-label">Décisions en vigueur</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.decisions %></span><span class="stat-label"><%= t('gov.decisionsInForce') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.openActions %></span><span class="stat-label">Actions ouvertes<%= stats.overdueActions ? ` · ${stats.overdueActions} en retard` : '' %></span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.openActions %></span><span class="stat-label"><%= t('gov.openActions') %><%= stats.overdueActions ? ` · ${t('gov.overdueCount', { count: stats.overdueActions })}` : '' %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.criticalRisks %></span><span class="stat-label">Risques critiques sur <%= stats.risks %></span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.criticalRisks %></span><span class="stat-label"><%= t('gov.criticalRisks', { total: stats.risks }) %></span></span>
           </div>
         </section>
 
         <!-- ---------- Réunions ---------- -->
         <section class="tab-panel is-active" id="reunions">
           <div class="card">
-            <div class="card-head"><h3>Convoquer une réunion</h3></div>
+            <div class="card-head"><h3><%= t('cse.newMeeting') %></h3></div>
             <form method="POST" action="/direction/reunions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="Comité de direction — septembre" /></label>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="<%= t('gov.meetingExample') %>" /></label>
               <label><span><%= t('common.type') %></span>
                 <select name="kind"><% meetingKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
               </label>
               <label><span><%= t('common.date') %></span><input type="date" name="held_on" value="<%= today %>" required /></label>
               <label><span><%= t('common.start') %></span><input type="time" name="starts_at" /></label>
               <label><span><%= t('common.end') %></span><input type="time" name="ends_at" /></label>
-              <label><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" placeholder="Salle du conseil, ou visioconférence" /></label>
-              <label><span>Président de séance</span>
+              <label><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" placeholder="<%= t('gov.placeExample') %>" /></label>
+              <label><span><%= t('gov.chair') %></span>
                 <select name="chair_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label class="span-2"><span>Ordre du jour</span><textarea name="agenda" rows="4" placeholder="Un point par ligne."></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Convoquer</button></div>
+              <label class="span-2"><span><%= t('cse.agenda') %></span><textarea name="agenda" rows="4" placeholder="<%= t('gov.agendaExample') %>"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.convene') %></button></div>
             </form>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3><%= meetingList.length %> réunion(s)</h3></div>
+            <div class="card-head"><h3><%= t('gov.meetingsCount', { count: meetingList.length }) %></h3></div>
             <% if (!meetingList.length) { %>
-              <p class="empty-state">Aucune réunion inscrite. Une réunion sans relevé s'oublie : c'est ici qu'elle laisse une trace.</p>
+              <p class="empty-state"><%= t('gov.noMeeting') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.date') %></th><th><%= t('common.meeting') %></th><th>Président</th><th><%= t('common.participants') %></th><th>Décisions</th><th><%= t('common.actions') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.date') %></th><th><%= t('common.meeting') %></th><th><%= t('gov.chairShort') %></th><th><%= t('common.participants') %></th><th><%= t('gov.decisions') %></th><th><%= t('common.actions') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
                   <tbody>
                     <% meetingList.forEach((m) => { %>
                       <tr>
@@ -94,7 +94,7 @@
                         <td><% if (m.open_actions) { %><span class="tag tag-warning"><%= m.open_actions %> ouverte(s)</span><% } else { %><span class="cell-sub">—</span><% } %></td>
                         <td><span class="tag <%= m.status === 'Tenue' ? 'tag-success' : (m.status === 'Annulée' ? 'tag-danger' : '') %>"><%= st(m.status) %></span></td>
                         <td>
-                          <form method="POST" action="/direction/reunions/<%= m.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette réunion ? Les décisions prises restent au registre.">
+                          <form method="POST" action="/direction/reunions/<%= m.id %>/supprimer" class="inline-form" data-confirm="<%= t('gov.deleteMeeting') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -111,38 +111,38 @@
         <!-- ---------- Décisions ---------- -->
         <section class="tab-panel" id="decisions">
           <div class="card">
-            <div class="card-head"><h3>Inscrire une décision</h3></div>
+            <div class="card-head"><h3><%= t('gov.recordDecision') %></h3></div>
             <form method="POST" action="/direction/decisions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Décision</span><input type="text" name="title" required maxlength="200" placeholder="Ouvrir une agence à Nantes au premier trimestre" /></label>
-              <label><span>Prise le</span><input type="date" name="decided_on" value="<%= today %>" required /></label>
-              <label><span>Par</span>
+              <label class="span-2"><span><%= t('gov.decision') %></span><input type="text" name="title" required maxlength="200" placeholder="<%= t('gov.decisionExample') %>" /></label>
+              <label><span><%= t('gov.takenOn') %></span><input type="date" name="decided_on" value="<%= today %>" required /></label>
+              <label><span><%= t('gov.by') %></span>
                 <select name="decided_by">
-                  <option value="">Moi</option>
+                  <option value=""><%= t('gov.me') %></option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
               <label><span><%= t('common.scope') %></span>
                 <select name="scope"><% decisionScopes.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
-              <label><span>En réunion</span>
+              <label><span><%= t('gov.inMeeting') %></span>
                 <select name="meeting_id">
-                  <option value="">Hors réunion</option>
+                  <option value=""><%= t('gov.outsideMeeting') %></option>
                   <% meetingList.forEach((m) => { %><option value="<%= m.id %>"><%= day(m.held_on) %> — <%= m.title %></option><% }) %>
                 </select>
               </label>
-              <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="3" placeholder="Ce qui est décidé, précisément."></textarea></label>
-              <label class="span-2"><span><%= t('common.reason') %></span><textarea name="rationale" rows="2" placeholder="Pourquoi — c'est ce qu'on cherche deux ans plus tard."></textarea></label>
-              <label><span>À réexaminer le</span><input type="date" name="review_on" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire au registre</button></div>
+              <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="3" placeholder="<%= t('gov.decisionContent') %>"></textarea></label>
+              <label class="span-2"><span><%= t('common.reason') %></span><textarea name="rationale" rows="2" placeholder="<%= t('gov.decisionReason') %>"></textarea></label>
+              <label><span><%= t('gov.reviewOn') %></span><input type="date" name="review_on" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.registerRisk') %></button></div>
             </form>
-            <p class="hint">Une décision peut naître hors réunion : le rattachement est facultatif, sinon la moitié des arbitrages n'entrerait jamais au registre.</p>
+            <p class="hint"><%= t('gov.decisionHelp') %></p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3><%= decisionList.length %> décision(s)</h3></div>
+            <div class="card-head"><h3><%= t('gov.decisionsCount', { count: decisionList.length }) %></h3></div>
             <% if (!decisionList.length) { %>
-              <p class="empty-state">Registre vide.</p>
+              <p class="empty-state"><%= t('gov.registerEmpty') %></p>
             <% } else { %>
               <ul class="meeting-list">
                 <% decisionList.forEach((d) => { %>
@@ -155,7 +155,7 @@
                       <%= day(d.decided_on) %> · <%= d.scope %> · <%= who(d) %>
                       <% if (d.meeting_title) { %> · <a href="/direction/reunions/<%= d.meeting_id %>"><%= d.meeting_title %></a><% } %>
                       <% if (d.open_actions) { %> · <span class="text-warning"><%= d.open_actions %> action(s) ouverte(s)</span><% } %>
-                      <% if (d.review_on) { %> · à réexaminer le <%= day(d.review_on) %><% } %>
+                      <% if (d.review_on) { %> · <%= t('gov.reviewOn') %> <%= day(d.review_on) %><% } %>
                     </p>
                     <% if (d.body) { %><p class="cell-sub"><%= d.body %></p><% } %>
                     <% if (d.rationale) { %><details class="minutes"><summary><%= t('common.reason') %></summary><p><%= d.rationale %></p></details><% } %>
@@ -165,9 +165,9 @@
                         <select name="status" class="input-sm">
                           <% decisionStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === d.status ? 'selected' : '' %>><%= s %></option><% }) %>
                         </select>
-                        <button type="submit" class="btn btn-outline btn-sm">Changer l'état</button>
+                        <button type="submit" class="btn btn-outline btn-sm"><%= t('gov.changeState') %></button>
                       </form>
-                      <form method="POST" action="/direction/decisions/<%= d.id %>/supprimer" class="inline-form" data-confirm="Retirer cette décision du registre ?">
+                      <form method="POST" action="/direction/decisions/<%= d.id %>/supprimer" class="inline-form" data-confirm="<%= t('gov.deleteDecision') %>">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                         <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                       </form>
@@ -182,36 +182,36 @@
         <!-- ---------- Actions ---------- -->
         <section class="tab-panel" id="actions">
           <div class="card">
-            <div class="card-head"><h3>Confier une action</h3></div>
+            <div class="card-head"><h3><%= t('gov.entrustAction') %></h3></div>
             <form method="POST" action="/direction/actions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.action') %></span><input type="text" name="label" required maxlength="300" placeholder="Chiffrer le coût du local et revenir au comité" /></label>
-              <label><span>Confiée à</span>
+              <label class="span-2"><span><%= t('common.action') %></span><input type="text" name="label" required maxlength="300" placeholder="<%= t('gov.actionExample') %>" /></label>
+              <label><span><%= t('gov.entrustedTo') %></span>
                 <select name="assignee_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Pour le</span><input type="date" name="due_date" /></label>
-              <label class="span-2"><span>Décision d'origine</span>
+              <label><span><%= t('gov.forDate') %></span><input type="date" name="due_date" /></label>
+              <label class="span-2"><span><%= t('gov.sourceDecision') %></span>
                 <select name="decision_id">
                   <option value="">—</option>
                   <% decisionList.forEach((d) => { %><option value="<%= d.id %>"><%= d.title %></option><% }) %>
                 </select>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Confier</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.entrust') %></button></div>
             </form>
-            <p class="hint">Les actions datées rejoignent les échéances de l'entreprise et alertent leur porteur.</p>
+            <p class="hint"><%= t('gov.actionHelp') %></p>
           </div>
 
           <div class="card">
             <div class="card-head"><h3><%= actionList.length %> action(s) ouverte(s)</h3></div>
             <% if (!actionList.length) { %>
-              <p class="empty-state">Rien en cours.</p>
+              <p class="empty-state"><%= t('gov.nothingOngoing') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.action') %></th><th>Porteur</th><th><%= t('common.origin') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
+                  <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.action') %></th><th><%= t('gov.holder') %></th><th><%= t('common.origin') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
                   <tbody>
                     <% actionList.forEach((a) => { %>
                       <tr>
@@ -229,7 +229,7 @@
                           </form>
                         </td>
                         <td>
-                          <form method="POST" action="/direction/actions/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette action ?">
+                          <form method="POST" action="/direction/actions/<%= a.id %>/supprimer" class="inline-form" data-confirm="<%= t('gov.deleteAction') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -246,11 +246,11 @@
         <!-- ---------- Risques ---------- -->
         <section class="tab-panel" id="risques">
           <div class="card">
-            <div class="card-head"><h3>Matrice des risques</h3><span class="card-sub">Probabilité × impact, cotation résiduelle quand elle existe</span></div>
+            <div class="card-head"><h3><%= t('gov.riskMatrix') %></h3><span class="card-sub"><%= t('gov.matrixLegend') %></span></div>
             <div class="table-wrap">
               <table class="risk-matrix">
                 <thead>
-                  <tr><th class="matrix-head">Probabilité \ Impact</th><% scale.forEach((i) => { %><th class="matrix-head"><%= i %></th><% }) %></tr>
+                  <tr><th class="matrix-head"><%= t('gov.matrixAxes') %></th><% scale.forEach((i) => { %><th class="matrix-head"><%= i %></th><% }) %></tr>
                 </thead>
                 <tbody>
                   <% matrix.forEach((row, rowIndex) => { const likelihood = scale.length - rowIndex; %>
@@ -266,55 +266,55 @@
                 </tbody>
               </table>
             </div>
-            <p class="hint">Au-delà d'une criticité de <%= criticalThreshold %>, le risque remonte à la direction. La cotation résiduelle dit ce qu'il reste une fois le traitement en place — c'est elle qu'on relit.</p>
+            <p class="hint"><%= t('gov.criticalHelp', { threshold: criticalThreshold }) %></p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Inscrire un risque</h3></div>
+            <div class="card-head"><h3><%= t('gov.recordRisk') %></h3></div>
             <form method="POST" action="/direction/risques" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Risque</span><input type="text" name="title" required maxlength="200" placeholder="Dépendance à un client qui pèse 40 % du chiffre d'affaires" /></label>
+              <label class="span-2"><span><%= t('gov.risk') %></span><input type="text" name="title" required maxlength="200" placeholder="Dépendance à un client qui pèse 40 % du chiffre d'affaires" /></label>
               <label><span><%= t('common.category') %></span>
                 <select name="category"><% riskCategories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
               </label>
               <label><span><%= t('common.reference') %></span><input type="text" name="reference" maxlength="40" placeholder="R-2026-01" /></label>
-              <label><span>Probabilité (1 à 5)</span>
+              <label><span><%= t('gov.probability') %></span>
                 <select name="likelihood"><% scale.forEach((s) => { %><option value="<%= s %>" <%= s === 3 ? 'selected' : '' %>><%= s %></option><% }) %></select>
               </label>
-              <label><span>Impact (1 à 5)</span>
+              <label><span><%= t('gov.impact') %></span>
                 <select name="impact"><% scale.forEach((s) => { %><option value="<%= s %>" <%= s === 3 ? 'selected' : '' %>><%= s %></option><% }) %></select>
               </label>
-              <label><span>Porteur</span>
+              <label><span><%= t('gov.holder') %></span>
                 <select name="owner_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Traitement</span>
+              <label><span><%= t('gov.treatment') %></span>
                 <select name="treatment"><% treatments.forEach((tr) => { %><option value="<%= tr %>"><%= tr %></option><% }) %></select>
               </label>
               <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="2"></textarea></label>
-              <label class="span-2"><span>Plan d'action</span><textarea name="action_plan" rows="2" placeholder="Ce qui est engagé pour ramener le risque à un niveau acceptable."></textarea></label>
-              <label><span>Probabilité résiduelle</span>
+              <label class="span-2"><span><%= t('gov.actionPlan') %></span><textarea name="action_plan" rows="2" placeholder="<%= t('gov.actionPlanExample') %>"></textarea></label>
+              <label><span><%= t('gov.residualProbability') %></span>
                 <select name="residual_likelihood"><option value="">—</option><% scale.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
-              <label><span>Impact résiduel</span>
+              <label><span><%= t('gov.residualImpact') %></span>
                 <select name="residual_impact"><option value="">—</option><% scale.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
-              <label><span>Identifié le</span><input type="date" name="identified_on" value="<%= today %>" /></label>
-              <label><span>Prochaine revue</span><input type="date" name="next_review" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire au registre</button></div>
+              <label><span><%= t('gov.identifiedOn') %></span><input type="date" name="identified_on" value="<%= today %>" /></label>
+              <label><span><%= t('gov.nextReview') %></span><input type="date" name="next_review" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.registerRisk') %></button></div>
             </form>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3><%= riskList.length %> risque(s) au registre</h3></div>
+            <div class="card-head"><h3><%= t('gov.risksInRegister', { count: riskList.length }) %></h3></div>
             <% if (!riskList.length) { %>
-              <p class="empty-state">Un risque connu de deux personnes n'est pas un risque géré. Inscrivez le premier.</p>
+              <p class="empty-state"><%= t('gov.emptyRiskRegister') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Réf.</th><th>Risque</th><th><%= t('common.category') %></th><th>Brut</th><th>Résiduel</th><th>Traitement</th><th>Porteur</th><th><%= t('common.review') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
+                  <thead><tr><th><%= t('gov.reference') %></th><th><%= t('gov.risk') %></th><th><%= t('common.category') %></th><th><%= t('payslip.gross') %></th><th><%= t('gov.residual') %></th><th><%= t('gov.treatment') %></th><th><%= t('gov.holder') %></th><th><%= t('common.review') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
                   <tbody>
                     <% riskList.forEach((r) => { %>
                       <tr>
@@ -328,7 +328,7 @@
                         <td class="cell-sub nowrap"><%= day(r.next_review) %></td>
                         <td><span class="tag <%= r.status === 'Ouvert' ? 'tag-warning' : 'tag-success' %>"><%= st(r.status) %></span></td>
                         <td>
-                          <form method="POST" action="/direction/risques/<%= r.id %>/supprimer" class="inline-form" data-confirm="Retirer ce risque du registre ?">
+                          <form method="POST" action="/direction/risques/<%= r.id %>/supprimer" class="inline-form" data-confirm="<%= t('gov.deleteRisk') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                           </form>
@@ -345,36 +345,36 @@
         <!-- ---------- Sondages ---------- -->
         <section class="tab-panel" id="sondages">
           <div class="card">
-            <div class="card-head"><h3>Lancer un sondage</h3></div>
+            <div class="card-head"><h3><%= t('gov.launchSurvey') %></h3></div>
             <form method="POST" action="/direction/sondages" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="Baromètre social — automne" /></label>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="<%= t('gov.surveyExample') %>" /></label>
               <label><span><%= t('common.nature') %></span>
                 <select name="kind"><% surveyKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
               </label>
-              <label><span>Population</span>
+              <label><span><%= t('gov.population') %></span>
                 <select name="audience"><% surveyAudiences.forEach((a) => { %><option value="<%= a %>"><%= a %></option><% }) %></select>
               </label>
-              <label><span>Service ou équipe</span>
+              <label><span><%= t('gov.departmentOrTeam') %></span>
                 <select name="audience_id">
                   <option value="">— (si population restreinte)</option>
                   <optgroup label="Services"><% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %></optgroup>
                   <optgroup label="Équipes"><% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %></optgroup>
                 </select>
               </label>
-              <label><span>Clôture le</span><input type="date" name="closes_on" /></label>
-              <label class="span-2"><span>Introduction</span><textarea name="intro" rows="2" placeholder="Ce que vous en ferez, et pourquoi les réponses comptent."></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer le brouillon</button></div>
+              <label><span><%= t('gov.closesOn') %></span><input type="date" name="closes_on" /></label>
+              <label class="span-2"><span><%= t('gov.introduction') %></span><textarea name="intro" rows="2" placeholder="<%= t('gov.introExample') %>"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.createDraft') %></button></div>
             </form>
-            <p class="hint">Les réponses ne portent aucun identifiant de personne : la table qui les contient n'a pas de colonne pour cela. Sous <%= anonymityThreshold %> réponses, aucun résultat n'est affiché — dans une équipe de trois, une moyenne désigne quelqu'un.</p>
+            <p class="hint"><%= t('gov.anonymityHelp', { min: anonymityThreshold }) %></p>
           </div>
 
           <% if (barometer.length) { %>
             <div class="card">
-              <div class="card-head"><h3>Baromètre social</h3><span class="card-sub">Moyenne des échelles, sondage après sondage</span></div>
+              <div class="card-head"><h3><%= t('gov.barometer') %></h3><span class="card-sub"><%= t('gov.barometerLegend') %></span></div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Sondage</th><th>Clos le</th><th><%= t('common.answers') %></th><th>Participation</th><th>Indice /5</th></tr></thead>
+                  <thead><tr><th><%= t('gov.survey') %></th><th><%= t('gov.closedOn') %></th><th><%= t('common.answers') %></th><th><%= t('cse.turnout') %></th><th><%= t('gov.indexOutOf5') %></th></tr></thead>
                   <tbody>
                     <% barometer.forEach((b) => { %>
                       <tr>
@@ -394,7 +394,7 @@
           <div class="card">
             <div class="card-head"><h3><%= surveyList.length %> sondage(s)</h3></div>
             <% if (!surveyList.length) { %>
-              <p class="empty-state">Aucun sondage.</p>
+              <p class="empty-state"><%= t('gov.noSurvey') %></p>
             <% } else { %>
               <ul class="meeting-list">
                 <% surveyList.forEach((s) => { %>
@@ -405,19 +405,19 @@
                     </div>
                     <p class="cell-sub">
                       <%= s.kind %> · <%= s.audience %><%= s.closes_on ? ` · clôture le ${day(s.closes_on)}` : '' %>
-                      · <%= s.question_count %> question(s) · <%= s.answer_count %> réponse(s)
+                      · <%= t('gov.surveySummary', { questions: s.question_count, answers: s.answer_count }) %>
                     </p>
 
                     <% if (s.status === 'Brouillon') { %>
                       <form method="POST" action="/direction/sondages/<%= s.id %>/questions" class="form-grid">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <label class="span-2"><span>Question</span><input type="text" name="label" required maxlength="300" placeholder="Recommanderiez-vous l'entreprise à un proche ?" /></label>
+                        <label class="span-2"><span><%= t('gov.question') %></span><input type="text" name="label" required maxlength="300" placeholder="<%= t('gov.questionExample') %>" /></label>
                         <label><span><%= t('common.type') %></span>
                           <select name="type"><% questionTypes.forEach((q) => { %><option value="<%= q.key %>"><%= q.label %></option><% }) %></select>
                         </label>
-                        <label class="check-row"><input type="checkbox" name="required" value="1" checked /><span>Réponse obligatoire</span></label>
-                        <label class="span-2"><span>Choix possibles (un par ligne, pour un choix multiple)</span><textarea name="choices" rows="2"></textarea></label>
-                        <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Ajouter la question</button></div>
+                        <label class="check-row"><input type="checkbox" name="required" value="1" checked /><span><%= t('gov.requiredAnswer') %></span></label>
+                        <label class="span-2"><span><%= t('gov.choices') %></span><textarea name="choices" rows="2"></textarea></label>
+                        <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('gov.addQuestion') %></button></div>
                       </form>
                     <% } %>
 
@@ -430,11 +430,11 @@
                       <% } else if (s.status === 'Ouvert') { %>
                         <form method="POST" action="/direction/sondages/<%= s.id %>/clore" class="inline-form">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                          <button type="submit" class="btn btn-outline btn-sm">Clore</button>
+                          <button type="submit" class="btn btn-outline btn-sm"><%= t('gov.close') %></button>
                         </form>
                       <% } %>
-                      <a href="/direction/sondages/<%= s.id %>/resultats" class="btn btn-outline btn-sm">Résultats</a>
-                      <form method="POST" action="/direction/sondages/<%= s.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce sondage et toutes ses réponses ?">
+                      <a href="/direction/sondages/<%= s.id %>/resultats" class="btn btn-outline btn-sm"><%= t('cse.results') %></a>
+                      <form method="POST" action="/direction/sondages/<%= s.id %>/supprimer" class="inline-form" data-confirm="<%= t('gov.deleteSurvey') %>">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                         <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                       </form>

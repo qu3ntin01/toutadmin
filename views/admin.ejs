@@ -53,7 +53,7 @@
         <section class="tab-panel is-active" id="personnel">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Ajouter un membre</h3></div>
+              <div class="card-head"><h3><%= t('admin.addMember') %></h3></div>
               <form method="POST" action="/admin/employes" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
@@ -105,7 +105,7 @@
                   <input type="number" name="daily_rate" min="0" step="0.01" placeholder="Ex : 450" />
                 </label>
                 <div class="span-2">
-                  <button type="submit" class="btn btn-primary btn-block">Créer le compte</button>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('admin.createAccount') %></button>
                 </div>
               </form>
               <p class="hint">
@@ -122,7 +122,7 @@
                   <table>
                     <thead>
                       <tr>
-                        <th><%= t('common.member') %></th><th><%= t('common.grade') %></th><th><%= t('common.contract') %></th><th>Outils</th><th><%= t('common.status') %></th><th></th>
+                        <th><%= t('common.member') %></th><th><%= t('common.grade') %></th><th><%= t('common.contract') %></th><th><%= t('nav.tools') %></th><th><%= t('common.status') %></th><th></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -221,7 +221,7 @@
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Catalogue <span class="muted">(<%= tools.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('hr.catalogue') %> <span class="muted">(<%= tools.length %>)</span></h3></div>
               <% if (tools.length === 0) { %>
                 <div class="empty-state"><%= t('admin.noToolYet') %></div>
               <% } else { %>
@@ -573,7 +573,7 @@
         <section class="tab-panel" id="actualites">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Publier une actualité</h3></div>
+              <div class="card-head"><h3><%= t('team.publishNews') %></h3></div>
               <form method="POST" action="/admin/actualites" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="span-2">
@@ -632,10 +632,10 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Espace RH</h3>
+                <h3><%= t('nav.hrSpace') %></h3>
                 <p class="card-sub"><%= t('admin.hrScope') %></p>
               </div>
-              <a href="/rh" class="btn btn-primary">Ouvrir l'espace RH</a>
+              <a href="/rh" class="btn btn-primary"><%= t('nav.openHrSpace') %></a>
             </div>
           </div>
 
@@ -765,7 +765,7 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Modules <span class="muted">(<%= modules.filter((m) => m.enabled).length %>/<%= modules.length %>)</span></h3>
+                <h3><%= t('nav.modules') %> <span class="muted">(<%= modules.filter((m) => m.enabled).length %>/<%= modules.length %>)</span></h3>
                 <p class="card-sub"><%= t('admin.modulesHelp') %></p>
               </div>
             </div>

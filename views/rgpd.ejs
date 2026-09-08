@@ -6,20 +6,20 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Données personnelles',
+      panelLabel: t('nav.privacy'),
       navItems: [
         { tab: 'registre', label: 'Registre des traitements', icon: 'inbox' },
         { tab: 'acces', label: "Droit d'accès et effacement", icon: 'user' }
       ],
       footLinks: [
-        { href: '/securite', label: 'Sécurité', icon: 'shield' },
-        { href: '/admin', label: "Console d'administration", icon: 'back' }
+        { href: '/securite', label: t('nav.security'), icon: 'shield' },
+        { href: '/admin', label: t('nav.adminConsole'), icon: 'back' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Données personnelles',
+        headerTitle: t('nav.privacy'),
         headerSubtitle: "Registre des traitements, droit d'accès et effacement"
       }) %>
 

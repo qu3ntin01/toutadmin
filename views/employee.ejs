@@ -504,7 +504,7 @@
 
               <% const available = openSessions.filter((s) => !myTrainings.some((r) => r.session_id === s.id)); %>
               <% if (available.length) { %>
-                <h4 class="section-label">Catalogue</h4>
+                <h4 class="section-label"><%= t('hr.catalogue') %></h4>
                 <ul class="person-list">
                   <% available.forEach((s) => { %>
                     <li class="person-row">
@@ -543,9 +543,9 @@
                     <%= r.reviewer_first_name ? ' · ' + r.reviewer_first_name + ' ' + r.reviewer_last_name : '' %>
                     <%= r.rating ? ' · ' + r.rating + '/5' : '' %>
                   </p>
-                  <% if (r.strengths) { %><p class="cell-sub"><strong>Points forts :</strong> <%= r.strengths %></p><% } %>
-                  <% if (r.improvements) { %><p class="cell-sub"><strong>Axes de progrès :</strong> <%= r.improvements %></p><% } %>
-                  <% if (r.objectives) { %><p class="cell-sub"><strong>Objectifs :</strong> <%= r.objectives %></p><% } %>
+                  <% if (r.strengths) { %><p class="cell-sub"><strong><%= t('hr.strengthsLabel') %></strong> <%= r.strengths %></p><% } %>
+                  <% if (r.improvements) { %><p class="cell-sub"><strong><%= t('hr.improvementsLabel') %></strong> <%= r.improvements %></p><% } %>
+                  <% if (r.objectives) { %><p class="cell-sub"><strong><%= t('hr.objectivesLabel') %></strong> <%= r.objectives %></p><% } %>
 
                   <form method="POST" action="/mon-espace/entretiens/<%= r.id %>/commentaire" class="stack">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

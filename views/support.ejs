@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Support',
+      panelLabel: t('nav.support'),
       navItems: [
         { tab: 'tickets', label: isAgent ? 'File des tickets' : 'Mes tickets', icon: 'lifebuoy' },
         { tab: 'nouveau', label: 'Ouvrir un ticket', icon: 'plus' },
@@ -20,7 +20,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Support',
+        headerTitle: t('nav.support'),
         headerSubtitle: 'Demandes internes et clients, avec délai de première réponse'
       }) %>
 
@@ -60,7 +60,7 @@
                 </select>
               </label>
               <label><span><%= t('common.category') %></span>
-                <select name="categorie"><option value="">Toutes</option>
+                <select name="categorie"><option value=""><%= t('hr.filterAll') %></option>
                   <% categories.forEach((c) => { %><option value="<%= c %>" <%= filters.category === c ? 'selected' : '' %>><%= c %></option><% }) %>
                 </select>
               </label>
@@ -75,7 +75,7 @@
           <div class="card">
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Réf.</th><th><%= t('common.subject') %></th><th><%= t('common.requester') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th><th>Traité par</th><th>Délai</th></tr></thead>
+                <thead><tr><th><%= t('gov.reference') %></th><th><%= t('common.subject') %></th><th><%= t('common.requester') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th><th>Traité par</th><th>Délai</th></tr></thead>
                 <tbody>
                   <% tickets.forEach((tk) => { %>
                     <tr>
@@ -150,7 +150,7 @@
             <div class="card-head"><h3><%= isAgent ? assigned.length + ' ticket(s) à traiter' : 'Mes demandes' %></h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Réf.</th><th><%= t('common.subject') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th></tr></thead>
+                <thead><tr><th><%= t('gov.reference') %></th><th><%= t('common.subject') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th></tr></thead>
                 <tbody>
                   <% (isAgent ? assigned : mine).forEach((tk) => { %>
                     <tr>

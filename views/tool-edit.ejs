@@ -25,7 +25,7 @@
           <form method="POST" action="/admin/outils/<%= tool.id %>/modifier" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label class="span-2">
-              <span>Nom de l'outil</span>
+              <span><%= t('admin.toolName') %></span>
               <input type="text" name="name" value="<%= tool.name %>" required />
             </label>
             <label>
@@ -37,7 +37,7 @@
               <input type="text" name="reference" value="<%= tool.reference %>" />
             </label>
             <label class="span-2">
-              <span>URL de connexion</span>
+              <span><%= t('admin.loginUrl') %></span>
               <input type="url" name="login_url" value="<%= tool.login_url %>" placeholder="https://outil.entreprise.com" />
             </label>
             <label class="span-2">

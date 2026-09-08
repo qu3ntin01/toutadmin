@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Interfaces',
+      panelLabel: t('nav.integrations'),
       navItems: [
         { tab: 'jetons', label: "Jetons d'API", icon: 'link', badge: tokenList.filter((t2) => !t2.revoked && !t2.expired).length },
         { tab: 'webhooks', label: 'Webhooks', icon: 'external', badge: stats.active },
@@ -14,14 +14,14 @@
         { tab: 'documentation', label: 'Documentation', icon: 'inbox' }
       ],
       footLinks: [
-        { href: '/admin', label: "Console d'administration", icon: 'settings' },
-        { href: '/securite', label: 'Sécurité', icon: 'shield' }
+        { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' },
+        { href: '/securite', label: t('nav.security'), icon: 'shield' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Interfaces',
+        headerTitle: t('nav.integrations'),
         headerSubtitle: "API de lecture et webhooks sortants"
       }) %>
 

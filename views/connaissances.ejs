@@ -6,12 +6,12 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Connaissances',
+      panelLabel: t('nav.knowledge'),
       navItems: canWrite
         ? [{ tab: 'articles', label: 'Articles', icon: 'inbox' }, { tab: 'rediger', label: 'Rédiger', icon: 'plus' }]
         : [{ tab: 'articles', label: 'Articles', icon: 'inbox' }],
       footLinks: [
-        { href: '/support', label: 'Support', icon: 'lifebuoy' },
+        { href: '/support', label: t('nav.support'), icon: 'lifebuoy' },
         { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('common.back'), icon: 'back' }
       ]
     }) %>
@@ -31,7 +31,7 @@
             <form method="GET" action="/base-de-connaissances" class="form-grid">
               <label><span>Mots-clés</span><input type="search" name="q" value="<%= query %>" placeholder="télétravail, badge, note de frais" /></label>
               <label><span><%= t('common.category') %></span>
-                <select name="categorie"><option value="">Toutes</option>
+                <select name="categorie"><option value=""><%= t('hr.filterAll') %></option>
                   <% categoryList.forEach((c) => { %><option value="<%= c %>" <%= category === c ? 'selected' : '' %>><%= c %></option><% }) %>
                 </select>
               </label>
@@ -71,7 +71,7 @@
               <div class="card-head"><h3>Rédiger un article</h3></div>
               <form method="POST" action="/base-de-connaissances" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Titre</span><input type="text" name="title" required maxlength="200" /></label>
+                <label class="span-2"><span><%= t('team.newsTitle') %></span><input type="text" name="title" required maxlength="200" /></label>
                 <label><span><%= t('common.category') %></span><input type="text" name="category" list="kb-categories" value="Général" maxlength="60" />
                   <datalist id="kb-categories"><% categoryList.forEach((c) => { %><option value="<%= c %>"></option><% }) %></datalist>
                 </label>

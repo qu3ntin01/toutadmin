@@ -6,11 +6,11 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Parapheur',
+      panelLabel: t('nav.signing'),
       navItems: [{ href: '/parapheur', label: 'Tous les documents', icon: 'inbox', active: true }],
       footLinks: [
         { href: '/parapheur/' + request.id + '/attestation', label: 'Attestation', icon: 'shield' },
-        { href: '/mon-espace', label: 'Mon espace', icon: 'home' }
+        { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }
       ]
     }) %>
 
@@ -19,7 +19,7 @@
         headerTitle: request.title,
         headerSubtitle: request.kind + ' · ' + request.signedCount + '/' + request.total + ' signature(s)',
         backHref: '/parapheur',
-        backLabel: 'Parapheur'
+        backLabel: t('nav.signing')
       }) %>
 
       <main class="page">
@@ -68,7 +68,7 @@
           <div class="card-head"><h3>Signataires</h3></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th>Qualité</th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.seal') %></th></tr></thead>
+              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th><%= t('nav.quality') %></th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.seal') %></th></tr></thead>
               <tbody>
                 <% request.signers.forEach((s) => { %>
                   <tr>
@@ -107,7 +107,7 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Refuser</h3></div>
+            <div class="card-head"><h3><%= t('hr.refuse') %></h3></div>
             <form method="POST" action="/parapheur/<%= request.id %>/refuser" class="form-grid" data-confirm="Refuser de signer interrompt le circuit. Continuer ?">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label class="span-2"><span><%= t('common.refusalReason') %></span><textarea name="reason" rows="2" required placeholder="Un refus se motive : c'est ce qui permet de corriger le document."></textarea></label>

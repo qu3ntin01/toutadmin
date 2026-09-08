@@ -8,7 +8,7 @@
     <%- include('partials/sidebar', {
       panelLabel: 'Attestation',
       navItems: [{ href: '/parapheur/' + request.id, label: 'Retour au document', icon: 'back', active: true }],
-      footLinks: [{ href: '/parapheur', label: 'Parapheur', icon: 'inbox' }]
+      footLinks: [{ href: '/parapheur', label: t('nav.signing'), icon: 'inbox' }]
     }) %>
 
     <div class="app-main">
@@ -32,7 +32,7 @@
             <tbody>
               <tr><td class="cell-sub"><%= t('common.document') %></td><td class="cell-strong"><%= request.title %></td></tr>
               <tr><td class="cell-sub"><%= t('common.nature') %></td><td><%= request.kind %></td></tr>
-              <tr><td class="cell-sub">Support</td><td><%= request.file_name ? `${request.original_name} (${request.mime_type})` : 'Texte saisi dans le parapheur' %></td></tr>
+              <tr><td class="cell-sub"><%= t('nav.support') %></td><td><%= request.file_name ? `${request.original_name} (${request.mime_type})` : 'Texte saisi dans le parapheur' %></td></tr>
               <tr><td class="cell-sub">Empreinte SHA-256</td><td class="mono"><%= request.sha256 %></td></tr>
               <tr><td class="cell-sub">Mis à la signature le</td><td><%= moment(request.created_at) %></td></tr>
               <tr><td class="cell-sub"><%= t('common.state') %></td><td><%= st(request.status) %><%= request.completed_at ? ` le ${moment(request.completed_at)}` : '' %></td></tr>
@@ -45,7 +45,7 @@
           <div class="card-head"><h3>Signatures</h3></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th>Qualité</th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.address') %></th><th><%= t('common.seal') %></th></tr></thead>
+              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th><%= t('nav.quality') %></th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.address') %></th><th><%= t('common.seal') %></th></tr></thead>
               <tbody>
                 <% request.signers.forEach((s) => { %>
                   <% const check = verification.seals.find((v) => v.signer.id === s.id); %>

@@ -80,14 +80,14 @@
                   <tr><td class="cell-sub">Ouvert le</td><td><%= moment(ticket.created_at) %></td></tr>
                   <tr><td class="cell-sub">Délai de réponse</td><td><%= moment(ticket.due_at) %></td></tr>
                   <tr><td class="cell-sub">Première réponse</td><td><%= moment(ticket.first_reply_at) %></td></tr>
-                  <tr><td class="cell-sub">Clos le</td><td><%= moment(ticket.closed_at) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('gov.closedOn') %></td><td><%= moment(ticket.closed_at) %></td></tr>
                 </tbody>
               </table>
             </div>
 
             <% if (isAgent) { %>
               <div class="card">
-                <div class="card-head"><h3>Traitement</h3></div>
+                <div class="card-head"><h3><%= t('gov.treatment') %></h3></div>
                 <form method="POST" action="/support/tickets/<%= ticket.id %>/statut" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label class="span-2"><span><%= t('common.status') %></span>

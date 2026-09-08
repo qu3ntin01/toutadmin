@@ -6,7 +6,7 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Projets',
+      panelLabel: t('nav.projects'),
       navItems: [
         { tab: 'projets', label: 'Tous les projets', icon: 'briefcase' },
         { tab: 'mes-taches', label: 'Mes tâches', icon: 'check', badge: myTasks.length },
@@ -17,7 +17,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Projets',
+        headerTitle: t('nav.projects'),
         headerSubtitle: 'Jalons, tâches, temps passé et rentabilité'
       }) %>
 
