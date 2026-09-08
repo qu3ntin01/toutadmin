@@ -6,19 +6,19 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Moteur de paie',
+      panelLabel: t('pay.panel'),
       navItems: [
-        { tab: 'bulletins', label: 'Bulletins', icon: 'card' },
-        { tab: 'salaires', label: 'Salaires', icon: 'users' },
-        { tab: 'baremes', label: 'Barèmes', icon: 'settings' }
+        { tab: 'bulletins', label: t('pay.tabPayslips'), icon: 'card' },
+        { tab: 'salaires', label: t('pay.tabSalaries'), icon: 'users' },
+        { tab: 'baremes', label: t('pay.tabScales'), icon: 'settings' }
       ],
       footLinks: [{ href: '/rh', label: t('nav.hrSpace'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Moteur de paie',
-        headerSubtitle: 'Du brut au net, part patronale et coût employeur'
+        headerTitle: t('pay.panel'),
+        headerSubtitle: t('pay.headerSub')
       }) %>
 
       <main class="page">
@@ -31,27 +31,26 @@
         <div class="banner is-warning">
           <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
           <span>
-            Les taux ci-dessous sont ceux que vous saisissez. Ils sont pré-remplis à titre indicatif
-            et doivent être vérifiés par votre gestionnaire de paie. Aucune DSN n'est produite.
+            <%= t('pay.disclaimer') %>
           </span>
         </div>
 
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(cost.gross) %></span><span class="stat-label">Brut <%= period %></span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(cost.gross) %></span><span class="stat-label"><%= t('payslip.gross') %> <%= period %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(cost.net) %></span><span class="stat-label">Net à payer</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(cost.net) %></span><span class="stat-label"><%= t('pay.netToPay') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(cost.employer) %></span><span class="stat-label">Charges patronales</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(cost.employer) %></span><span class="stat-label"><%= t('pay.employerCharges') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(cost.cost) %></span><span class="stat-label">Coût employeur</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(cost.cost) %></span><span class="stat-label"><%= t('pay.employerCost') %></span></span>
           </div>
         </section>
 
@@ -60,7 +59,7 @@
           <div class="grid-2">
             <div class="stack">
               <div class="card">
-                <div class="card-head"><h3>Calculer un bulletin</h3></div>
+                <div class="card-head"><h3><%= t('pay.computePayslip') %></h3></div>
                 <form method="POST" action="/paie/bulletins" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
@@ -78,46 +77,46 @@
                       <input type="text" name="period" value="<%= period %>" pattern="\d{4}-\d{2}" placeholder="AAAA-MM" required />
                     </label>
                     <label>
-                      <span>Brut mensuel</span>
+                      <span><%= t('pay.monthlyGross') %></span>
                       <input type="text" name="gross_salary" inputmode="decimal" required />
                     </label>
                   </div>
-                  <button type="submit" class="btn btn-primary btn-block">Calculer</button>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('pay.compute') %></button>
                 </form>
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Génération en lot</h3></div>
+                <div class="card-head"><h3><%= t('pay.batch') %></h3></div>
                 <form method="POST" action="/paie/bulletins/lot" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
                     <span><%= t('common.period') %></span>
                     <input type="text" name="period" value="<%= period %>" pattern="\d{4}-\d{2}" required />
                   </label>
-                  <button type="submit" class="btn btn-primary btn-block">Générer pour tout le personnel</button>
-                  <p class="hint">Seuls les salariés dont le brut est renseigné sont traités. Un bulletin déjà émis n'est pas recalculé.</p>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('pay.generateForAll') %></button>
+                  <p class="hint"><%= t('pay.batchNote') %></p>
                 </form>
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Simulateur</h3></div>
+                <div class="card-head"><h3><%= t('pay.simulator') %></h3></div>
                 <form method="GET" action="/paie" class="stack">
                   <input type="hidden" name="periode" value="<%= period %>" />
                   <label>
-                    <span>Brut mensuel</span>
+                    <span><%= t('pay.monthlyGross') %></span>
                     <input type="number" name="brut" step="0.01" min="0" value="<%= simulationGross || '' %>" required />
                   </label>
-                  <button type="submit" class="btn btn-block">Simuler</button>
+                  <button type="submit" class="btn btn-block"><%= t('pay.simulate') %></button>
                 </form>
 
                 <% if (simulation) { %>
                   <table>
                     <tbody>
                       <tr><td class="cell-sub"><%= t('payslip.gross') %></td><td class="num cell-strong"><%= money(simulation.gross) %></td></tr>
-                      <tr><td class="cell-sub">Cotisations salariales</td><td class="num">− <%= money(simulation.employeeTotal) %></td></tr>
-                      <tr><td class="cell-sub">Net à payer</td><td class="num cell-strong"><%= money(simulation.net) %></td></tr>
-                      <tr><td class="cell-sub">Charges patronales</td><td class="num"><%= money(simulation.employerTotal) %></td></tr>
-                      <tr><td class="cell-sub">Coût employeur</td><td class="num cell-strong"><%= money(simulation.employerCost) %></td></tr>
+                      <tr><td class="cell-sub"><%= t('pay.employeeContributions') %></td><td class="num">− <%= money(simulation.employeeTotal) %></td></tr>
+                      <tr><td class="cell-sub"><%= t('pay.netToPay') %></td><td class="num cell-strong"><%= money(simulation.net) %></td></tr>
+                      <tr><td class="cell-sub"><%= t('pay.employerCharges') %></td><td class="num"><%= money(simulation.employerTotal) %></td></tr>
+                      <tr><td class="cell-sub"><%= t('pay.employerCost') %></td><td class="num cell-strong"><%= money(simulation.employerCost) %></td></tr>
                     </tbody>
                   </table>
                 <% } %>
@@ -127,12 +126,12 @@
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h3>Bulletins <span class="muted">(<%= payslips.length %>)</span></h3>
-                  <p class="card-sub">Un bulletin calculé porte le détail de ses cotisations ; une fiche saisie à la main n'en a pas.</p>
+                  <h3><%= t('pay.tabPayslips') %> <span class="muted">(<%= payslips.length %>)</span></h3>
+                  <p class="card-sub"><%= t('pay.payslipsNote') %></p>
                 </div>
               </div>
               <% if (payslips.length === 0) { %>
-                <div class="empty-state">Aucun bulletin.</div>
+                <div class="empty-state"><%= t('pay.noPayslip') %></div>
               <% } else { %>
                 <ul class="meeting-list">
                   <% payslips.slice(0, 20).forEach((p) => { %>
@@ -142,15 +141,15 @@
                         <span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>"><%= st(p.status) %></span>
                       </div>
                       <p class="cell-sub">
-                        Brut <%= money(p.gross_amount) %> · Net <%= money(p.net_amount) %>
-                        <%= p.line_count ? ' · Coût employeur ' + money(p.employer_cost) : '' %>
+                        <%= t('payslip.gross') %> <%= money(p.gross_amount) %> · <%= t('payslip.net') %> <%= money(p.net_amount) %>
+                        <%= p.line_count ? ` · ${t('pay.employerCost')} ${money(p.employer_cost)}` : '' %>
                       </p>
                       <% if (p.line_count) { %>
                         <details class="minutes">
-                          <summary>Détail des cotisations (<%= p.line_count %>)</summary>
+                          <summary><%= t('pay.contributionDetail', { count: p.line_count }) %></summary>
                           <div class="table-wrap">
                             <table>
-                              <thead><tr><th>Cotisation</th><th>Base</th><th>Salarial</th><th>Patronal</th></tr></thead>
+                              <thead><tr><th><%= t('pay.contribution') %></th><th><%= t('pay.base') %></th><th><%= t('pay.employeeShare') %></th><th><%= t('pay.employerShare') %></th></tr></thead>
                               <tbody>
                                 <% linesOf(p.id).forEach((l) => { %>
                                   <tr>
@@ -165,7 +164,7 @@
                           </div>
                         </details>
                       <% } else { %>
-                        <p class="cell-sub">Fiche saisie manuellement, sans détail de cotisations.</p>
+                        <p class="cell-sub"><%= t('pay.manualEntry') %></p>
                       <% } %>
                     </li>
                   <% }) %>
@@ -180,16 +179,16 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Salaires bruts <span class="muted">(<%= staff.length %>)</span></h3>
-                <p class="card-sub">Le brut mensuel de référence, repris par la génération en lot.</p>
+                <h3><%= t('pay.grossSalaries') %> <span class="muted">(<%= staff.length %>)</span></h3>
+                <p class="card-sub"><%= t('pay.grossSalariesNote') %></p>
               </div>
             </div>
             <% if (staff.length === 0) { %>
-              <div class="empty-state">Aucun salarié non-freelance.</div>
+              <div class="empty-state"><%= t('pay.noEmployee') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.member') %></th><th><%= t('common.contract') %></th><th>Brut mensuel</th><th>Net estimé</th></tr></thead>
+                  <thead><tr><th><%= t('common.member') %></th><th><%= t('common.contract') %></th><th><%= t('pay.monthlyGross') %></th><th><%= t('pay.estimatedNet') %></th></tr></thead>
                   <tbody>
                     <% staff.forEach((e) => { %>
                       <tr>
@@ -222,7 +221,7 @@
           <div class="grid-2">
             <div class="stack">
               <div class="card">
-                <div class="card-head"><h3>Ajouter une cotisation</h3></div>
+                <div class="card-head"><h3><%= t('pay.addContribution') %></h3></div>
                 <form method="POST" action="/paie/baremes" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
@@ -231,48 +230,48 @@
                   </label>
                   <div class="form-grid">
                     <label>
-                      <span>Base</span>
+                      <span><%= t('pay.base') %></span>
                       <select name="base">
                         <% rateBases.forEach((b) => { %><option value="<%= b %>"><%= b %></option><% }) %>
                       </select>
                     </label>
                     <label>
-                      <span>Ordre</span>
+                      <span><%= t('pay.order') %></span>
                       <input type="number" name="sort_order" min="0" max="999" value="90" />
                     </label>
                     <label>
-                      <span>Taux salarial (%)</span>
+                      <span><%= t('pay.employeeRate') %></span>
                       <input type="text" name="employee_rate" inputmode="decimal" value="0" />
                     </label>
                     <label>
-                      <span>Taux patronal (%)</span>
+                      <span><%= t('pay.employerRate') %></span>
                       <input type="text" name="employer_rate" inputmode="decimal" value="0" />
                     </label>
                   </div>
                   <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                  <p class="hint">« Plafond » applique le taux sur la part du brut limitée au plafond mensuel.</p>
+                  <p class="hint"><%= t('pay.ceilingNote') %></p>
                 </form>
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Plafond mensuel</h3></div>
+                <div class="card-head"><h3><%= t('pay.monthlyCeiling') %></h3></div>
                 <form method="POST" action="/paie/plafond" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
-                    <span>Plafond de la sécurité sociale</span>
+                    <span><%= t('pay.socialCeiling') %></span>
                     <input type="text" name="ceiling" inputmode="decimal" value="<%= ceiling %>" required />
                   </label>
                   <button type="submit" class="btn btn-block"><%= t('common.save') %></button>
-                  <p class="hint">Il change chaque année : c'est un paramètre, pas une constante du logiciel.</p>
+                  <p class="hint"><%= t('pay.ceilingChanges') %></p>
                 </form>
               </div>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Barème <span class="muted">(<%= rates.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('pay.scale') %> <span class="muted">(<%= rates.length %>)</span></h3></div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Cotisation</th><th>Base</th><th>Salarial</th><th>Patronal</th><th class="actions"></th></tr></thead>
+                  <thead><tr><th><%= t('pay.contribution') %></th><th><%= t('pay.base') %></th><th><%= t('pay.employeeShare') %></th><th><%= t('pay.employerShare') %></th><th class="actions"></th></tr></thead>
                   <tbody>
                     <% rates.forEach((r) => { %>
                       <tr class="<%= r.active ? '' : 'muted' %>">
@@ -285,7 +284,7 @@
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-sm"><%= r.active ? 'Désactiver' : 'Activer' %></button>
                           </form>
-                          <form method="POST" action="/paie/baremes/<%= r.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette cotisation du barème ?">
+                          <form method="POST" action="/paie/baremes/<%= r.id %>/supprimer" class="inline-form" data-confirm="<%= t('pay.confirmDeleteContribution') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
