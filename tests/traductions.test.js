@@ -175,6 +175,35 @@ test('aucune vue ne masque le helper de traduction', () => {
   assert.deepEqual(offenders, [], 'renommer la variable de boucle');
 });
 
+test('toutes les vues compilent', () => {
+  // Un remplacement maladroit peut imbriquer un <%= dans un autre : le moteur
+  // refuse alors le gabarit, et l'écran devient une erreur 500.
+  const ejs = require('ejs');
+  const broken = [];
+  for (const file of viewFiles()) {
+    const full = path.join(ROOT, file);
+    try {
+      ejs.compile(fs.readFileSync(full, 'utf8'), { filename: full });
+    } catch (error) {
+      broken.push(`${file} : ${error.message.split('\n')[0]}`);
+    }
+  }
+  assert.deepEqual(broken, []);
+});
+
+test('les dates suivent la langue de l\'utilisateur', () => {
+  // Une date formatée en « fr-FR » en dur reste française quelle que soit la
+  // langue choisie — le mois s'affiche en toutes lettres dans la mauvaise.
+  const offenders = [];
+  for (const file of viewFiles()) {
+    const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    for (const m of src.matchAll(/toLocale\w*\(\s*['"][a-z]{2}-[A-Z]{2}['"]/g)) {
+      offenders.push(`${file} : ${m[0]}`);
+    }
+  }
+  assert.deepEqual(offenders, [], 'passer « locale » plutôt qu\'une langue figée');
+});
+
 // ---------------------------------------------------------------- chrome partagé
 
 test('le chrome présent sur chaque page est entièrement traduit', () => {

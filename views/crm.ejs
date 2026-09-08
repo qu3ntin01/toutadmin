@@ -149,8 +149,8 @@
                               <form method="POST" action="/crm/opportunites/<%= o.id %>/etape" class="inline-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <select name="stage" class="input-sm">
-                                  <% stages.forEach((st) => { %>
-                                    <option value="<%= st %>" <%= o.stage === st ? 'selected' : '' %>><%= st %></option>
+                                  <% stages.forEach((value) => { %>
+                                    <option value="<%= value %>" <%= o.stage === value ? 'selected' : '' %>><%= st(value) %></option>
                                   <% }) %>
                                 </select>
                                 <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
@@ -252,8 +252,8 @@
                               <form method="POST" action="/crm/devis/<%= q.id %>/statut" class="inline-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <select name="status" class="input-sm">
-                                  <% quoteStatuses.forEach((st) => { %>
-                                    <option value="<%= st %>" <%= q.status === st ? 'selected' : '' %>><%= st %></option>
+                                  <% quoteStatuses.forEach((value) => { %>
+                                    <option value="<%= value %>" <%= q.status === value ? 'selected' : '' %>><%= st(value) %></option>
                                   <% }) %>
                                 </select>
                                 <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>

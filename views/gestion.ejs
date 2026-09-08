@@ -234,8 +234,8 @@
                             <form method="POST" action="/gestion/contrats/<%= c.id %>/statut" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <select name="status" class="input-sm">
-                                <% contractStatuses.forEach((st) => { %>
-                                  <option value="<%= st %>" <%= c.status === st ? 'selected' : '' %>><%= st %></option>
+                                <% contractStatuses.forEach((value) => { %>
+                                  <option value="<%= value %>" <%= c.status === value ? 'selected' : '' %>><%= st(value) %></option>
                                 <% }) %>
                               </select>
                               <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
@@ -363,8 +363,8 @@
                               <form method="POST" action="/gestion/factures/<%= i.id %>/statut" class="inline-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <select name="status" class="input-sm">
-                                  <% invoiceStatuses.forEach((st) => { %>
-                                    <option value="<%= st %>" <%= i.status === st ? 'selected' : '' %>><%= st %></option>
+                                  <% invoiceStatuses.forEach((value) => { %>
+                                    <option value="<%= value %>" <%= i.status === value ? 'selected' : '' %>><%= st(value) %></option>
                                   <% }) %>
                                 </select>
                                 <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
@@ -557,7 +557,7 @@
                             <form method="POST" action="/gestion/tva/<%= v.id %>/statut" class="inline-field">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <select name="status" class="input-sm">
-                                <% vatStatuses.forEach((st) => { %><option value="<%= st %>" <%= st === v.status ? 'selected' : '' %>><%= st %></option><% }) %>
+                                <% vatStatuses.forEach((value) => { %><option value="<%= value %>" <%= value === v.status ? 'selected' : '' %>><%= st(value) %></option><% }) %>
                               </select>
                               <button type="submit" class="btn btn-outline btn-sm">Changer</button>
                             </form>

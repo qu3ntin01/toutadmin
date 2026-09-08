@@ -50,7 +50,7 @@
         <% if (openEntry) { %>
           <div class="banner is-warning">
             <%- include('partials/icon', { name: 'clock', iconSize: 17 }) %>
-            <span>Pointage en cours depuis le <%= new Date(openEntry.clock_in).toLocaleString('fr-FR') %>.</span>
+            <span>Pointage en cours depuis le <%= new Date(openEntry.clock_in).toLocaleString(locale) %>.</span>
             <form method="POST" action="/rh/temps/<%= employee.id %>/cloturer">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <button type="submit" class="btn btn-sm">Clôturer maintenant</button>
@@ -80,9 +80,9 @@
                     const timeOpts = { hour: '2-digit', minute: '2-digit' };
                   %>
                     <tr>
-                      <td class="cell-strong"><%= start.toLocaleDateString('fr-FR') %></td>
-                      <td class="cell-sub"><%= start.toLocaleTimeString('fr-FR', timeOpts) %></td>
-                      <td class="cell-sub"><%= end ? end.toLocaleTimeString('fr-FR', timeOpts) : '—' %></td>
+                      <td class="cell-strong"><%= start.toLocaleDateString(locale) %></td>
+                      <td class="cell-sub"><%= start.toLocaleTimeString(locale, timeOpts) %></td>
+                      <td class="cell-sub"><%= end ? end.toLocaleTimeString(locale, timeOpts) : '—' %></td>
                       <td>
                         <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
                         <% } else { %><span class="status status-on"><%= t('status.running') %></span><% } %>

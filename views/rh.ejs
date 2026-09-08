@@ -56,19 +56,19 @@
             <div class="card-head">
               <div>
                 <h3>Demandes <span class="muted">(<%= requests.length %>)</span></h3>
-                <p class="card-sub">Congés, absences et télétravail déposés par le personnel.</p>
+                <p class="card-sub"><%= t('hr.requestsSub') %></p>
               </div>
               <div class="filter-pills">
-                <a href="/rh#demandes" class="tag <%= !statusFilter ? 'tag-accent' : '' %>">Toutes</a>
+                <a href="/rh#demandes" class="tag <%= !statusFilter ? 'tag-accent' : '' %>"><%= t('hr.filterAll') %></a>
                 <a href="/rh?statut=En+attente#demandes" class="tag <%= statusFilter === 'En attente' ? 'tag-accent' : '' %>"><%= t('status.pending') %></a>
-                <a href="/rh?statut=Approuvée#demandes" class="tag <%= statusFilter === 'Approuvée' ? 'tag-accent' : '' %>">Approuvées</a>
-                <a href="/rh?statut=Refusée#demandes" class="tag <%= statusFilter === 'Refusée' ? 'tag-accent' : '' %>">Refusées</a>
-                <a href="/rh?statut=Annulée#demandes" class="tag <%= statusFilter === 'Annulée' ? 'tag-accent' : '' %>">Annulées</a>
+                <a href="/rh?statut=Approuvée#demandes" class="tag <%= statusFilter === 'Approuvée' ? 'tag-accent' : '' %>"><%= t('hr.filterApproved') %></a>
+                <a href="/rh?statut=Refusée#demandes" class="tag <%= statusFilter === 'Refusée' ? 'tag-accent' : '' %>"><%= t('hr.filterRefused') %></a>
+                <a href="/rh?statut=Annulée#demandes" class="tag <%= statusFilter === 'Annulée' ? 'tag-accent' : '' %>"><%= t('hr.filterCancelled') %></a>
               </div>
             </div>
 
             <% if (requests.length === 0) { %>
-              <div class="empty-state">Aucune demande à afficher pour ce filtre.</div>
+              <div class="empty-state"><%= t('hr.noRequestForFilter') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
@@ -85,8 +85,8 @@
                         <td class="cell-strong"><%= r.first_name %> <%= r.last_name %></td>
                         <td><span class="tag"><%= r.type %></span></td>
                         <td class="cell-sub">
-                          <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %> →
-                          <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %>
+                          <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale) %> →
+                          <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString(locale) %>
                         </td>
                         <td class="num"><%= r.days %> j</td>
                         <td class="cell-sub"><%= r.reason || '—' %></td>
@@ -106,7 +106,7 @@
                               <button type="submit" class="btn btn-sm btn-danger">Refuser</button>
                             </form>
                           <% } else if (r.status === 'Approuvée') { %>
-                            <form method="POST" action="/rh/demandes/<%= r.id %>/annuler" data-confirm="Annuler cette demande approuvée ? Le solde sera recrédité si nécessaire.">
+                            <form method="POST" action="/rh/demandes/<%= r.id %>/annuler" data-confirm="<%= t('hr.cancelApproved') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-sm btn-danger"><%= t('common.cancel') %></button>
                             </form>
@@ -126,16 +126,16 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Soldes de congés <span class="muted">(<%= staff.length %>)</span></h3>
-                <p class="card-sub">Un ajustement positif crédite des jours, un ajustement négatif en retire.</p>
+                <h3><%= t('hr.leaveBalances') %> <span class="muted">(<%= staff.length %>)</span></h3>
+                <p class="card-sub"><%= t('hr.adjustmentHelp') %></p>
               </div>
             </div>
             <% if (staff.length === 0) { %>
-              <div class="empty-state">Aucun membre non-freelance à suivre pour le moment.</div>
+              <div class="empty-state"><%= t('hr.noStaffToTrack') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.member') %></th><th><%= t('common.contract') %></th><th><%= t('erp.balance') %></th><th>Ajustement</th></tr></thead>
+                  <thead><tr><th><%= t('common.member') %></th><th><%= t('common.contract') %></th><th><%= t('erp.balance') %></th><th><%= t('hr.adjustment') %></th></tr></thead>
                   <tbody>
                     <% staff.forEach((e) => { %>
                       <tr>
@@ -159,7 +159,7 @@
                 </table>
               </div>
             <% } %>
-            <p class="hint">L'approbation d'une demande « Congés payés » décompte automatiquement le solde ; son annulation le recrédite.</p>
+            <p class="hint"><%= t('hr.leaveRule') %></p>
           </div>
         </section>
 
@@ -167,9 +167,9 @@
         <section class="tab-panel" id="paie">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Créer une fiche de paie</h3></div>
+              <div class="card-head"><h3><%= t('hr.createPayslip') %></h3></div>
               <% if (staff.length === 0) { %>
-                <div class="empty-state">Aucun membre éligible.</div>
+                <div class="empty-state"><%= t('hr.noEligibleMember') %></div>
               <% } else { %>
                 <form method="POST" action="/rh/paie" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -187,11 +187,11 @@
                     <input type="month" name="period" required />
                   </label>
                   <label>
-                    <span>Brut (€)</span>
+                    <span><%= t('hr.grossEuro') %></span>
                     <input type="number" name="gross_amount" min="0" step="0.01" required />
                   </label>
                   <label class="span-2">
-                    <span>Net (€)</span>
+                    <span><%= t('hr.netEuro') %></span>
                     <input type="number" name="net_amount" min="0" step="0.01" required />
                   </label>
                   <label class="span-2">
@@ -199,16 +199,16 @@
                     <input type="text" name="note" placeholder="Ex : prime incluse" />
                   </label>
                   <div class="span-2">
-                    <button type="submit" class="btn btn-primary btn-block">Créer la fiche</button>
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('hr.createSheet') %></button>
                   </div>
                 </form>
               <% } %>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Fiches de paie <span class="muted">(<%= payslips.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('hr.payslips') %> <span class="muted">(<%= payslips.length %>)</span></h3></div>
               <% if (payslips.length === 0) { %>
-                <div class="empty-state">Aucune fiche de paie enregistrée.</div>
+                <div class="empty-state"><%= t('hr.noPayslipRecorded') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
@@ -225,10 +225,10 @@
                             <% if (p.status !== 'Payée') { %>
                               <form method="POST" action="/rh/paie/<%= p.id %>/marquer-payee">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button type="submit" class="btn btn-sm btn-outline">Marquer payée</button>
+                                <button type="submit" class="btn btn-sm btn-outline"><%= t('hr.markPaid') %></button>
                               </form>
                             <% } %>
-                            <form method="POST" action="/rh/paie/<%= p.id %>/supprimer" data-confirm="Supprimer cette fiche de paie ?">
+                            <form method="POST" action="/rh/paie/<%= p.id %>/supprimer" data-confirm="<%= t('hr.deletePayslip') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
                             </form>
@@ -239,7 +239,7 @@
                   </table>
                 </div>
               <% } %>
-              <p class="hint">Enregistrements internes de pilotage (montants et statut de versement), pas des bulletins de paie légaux.</p>
+              <p class="hint"><%= t('hr.payslipNotice') %></p>
             </div>
           </div>
         </section>
@@ -250,18 +250,18 @@
             <div class="card-head">
               <div>
                 <h3><%= t('nav.remuneration') %> — freelances</h3>
-                <p class="card-sub">Temps pointé et estimation calculée sur la base du TJM ÷ 8 h.</p>
+                <p class="card-sub"><%= t('hr.timeNotice') %></p>
               </div>
             </div>
             <% if (freelancers.length === 0) { %>
-              <div class="empty-state">Aucun membre en freelance. Passez le contrat d'un membre en « Freelance » pour activer son pointage.</div>
+              <div class="empty-state"><%= t('hr.noFreelance') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
                   <thead>
                     <tr>
-                      <th><%= t('common.member') %></th><th>TJM</th><th>Heures (mois)</th><th>Est. (mois)</th>
-                      <th>Heures (total)</th><th>Est. (total)</th><th></th>
+                      <th><%= t('common.member') %></th><th>TJM</th><th><%= t('hr.hoursMonth') %></th><th><%= t('hr.estMonth') %></th>
+                      <th><%= t('hr.hoursTotal') %></th><th><%= t('hr.estTotal') %></th><th></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -283,7 +283,7 @@
                 </table>
               </div>
             <% } %>
-            <p class="hint">Ces montants sont des estimations de pilotage, pas des bulletins de paie.</p>
+            <p class="hint"><%= t('hr.estimateNotice') %></p>
           </div>
         </section>
 
@@ -320,7 +320,7 @@
                   </label>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
-                <p class="hint">Un mandat échu ferme automatiquement l'espace de gestion du CSE à son titulaire.</p>
+                <p class="hint"><%= t('hr.mandateNotice') %></p>
               </form>
             </div>
 
@@ -347,7 +347,7 @@
                             <%= member.ends_on ? ' → ' + new Date(member.ends_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '' %>
                           </td>
                           <td class="actions">
-                            <form method="POST" action="/rh/cse/mandats/<%= member.user_id %>/retirer" data-confirm="Retirer ce mandat ?">
+                            <form method="POST" action="/rh/cse/mandats/<%= member.user_id %>/retirer" data-confirm="<%= t('hr.removeMandate') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -368,7 +368,7 @@
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
                   <span><%= t('agenda.eventTitle') %></span>
-                  <input type="text" name="title" maxlength="160" placeholder="Ex : Élection du CSE 2026" required />
+                  <input type="text" name="title" maxlength="160" placeholder="<%= t('hr.electionExample') %>" required />
                 </label>
                 <div class="form-grid">
                   <label>
@@ -376,17 +376,17 @@
                     <input type="number" name="seats" min="1" max="100" value="4" required />
                   </label>
                   <label>
-                    <span>Clôture des candidatures</span>
+                    <span><%= t('hr.applicationsClose') %></span>
                     <input type="date" name="candidacy_deadline" />
                   </label>
                 </div>
                 <div class="form-grid">
                   <label>
-                    <span>Ouverture du vote</span>
+                    <span><%= t('hr.voteOpens') %></span>
                     <input type="date" name="vote_start" />
                   </label>
                   <label>
-                    <span>Clôture du vote</span>
+                    <span><%= t('hr.voteCloses') %></span>
                     <input type="date" name="vote_end" />
                   </label>
                 </div>
@@ -395,7 +395,7 @@
                   <textarea name="description" rows="3" maxlength="2000"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                <p class="hint">L'élection s'ouvre en phase de candidatures. Le vote ne peut démarrer qu'avec au moins une candidature validée.</p>
+                <p class="hint"><%= t('hr.electionHelp') %></p>
               </form>
             </div>
 
@@ -405,7 +405,7 @@
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
                   <span><%= t('agenda.eventTitle') %></span>
-                  <input type="text" name="title" maxlength="160" placeholder="Ex : Réunion mensuelle" required />
+                  <input type="text" name="title" maxlength="160" placeholder="<%= t('hr.meetingExample') %>" required />
                 </label>
                 <div class="form-grid">
                   <label>
@@ -426,7 +426,7 @@
                   <textarea name="agenda" rows="3" maxlength="4000"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                <p class="hint">La réunion apparaît aussitôt dans l'agenda des salariés représentés ; les élus y déposeront le compte-rendu.</p>
+                <p class="hint"><%= t('hr.meetingHelp') %></p>
               </form>
             </div>
           </div>
@@ -460,12 +460,12 @@
                             <button type="submit" class="btn btn-primary btn-sm"><%= t('cse.openVote') %></button>
                           </form>
                         <% } %>
-                        <form method="POST" action="/rh/cse/elections/<%= election.id %>/statut" class="inline-form" data-confirm="Clôturer ce scrutin ? Les résultats deviendront définitifs.">
+                        <form method="POST" action="/rh/cse/elections/<%= election.id %>/statut" class="inline-form" data-confirm="<%= t('hr.closeBallot') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <input type="hidden" name="status" value="Clôturée" />
                           <button type="submit" class="btn btn-outline btn-sm"><%= t('cse.closeElection') %></button>
                         </form>
-                        <form method="POST" action="/rh/cse/elections/<%= election.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette élection et toutes ses candidatures ?">
+                        <form method="POST" action="/rh/cse/elections/<%= election.id %>/supprimer" class="inline-form" data-confirm="<%= t('hr.deleteElection') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
@@ -550,7 +550,7 @@
                           </span>
                         </td>
                         <td class="actions">
-                          <form method="POST" action="/rh/cse/reunions/<%= meeting.id %>/supprimer" data-confirm="Supprimer cette réunion ?">
+                          <form method="POST" action="/rh/cse/reunions/<%= meeting.id %>/supprimer" data-confirm="<%= t('hr.deleteMeeting') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -593,10 +593,10 @@
                 </label>
                 <label class="check-row">
                   <input type="checkbox" name="requires_ack" />
-                  <span>Exiger un accusé de réception</span>
+                  <span><%= t('hr.requireAck') %></span>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
-                <p class="hint">Un document à accuser reste signalé dans l'espace de chaque salarié tant qu'il ne l'a pas lu.</p>
+                <p class="hint"><%= t('hr.ackHelp') %></p>
               </form>
             </div>
 
@@ -607,7 +607,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th><%= t('common.document') %></th><th><%= t('common.date') %></th><th>Accusés</th><th class="actions"></th></tr></thead>
+                    <thead><tr><th><%= t('common.document') %></th><th><%= t('common.date') %></th><th><%= t('hr.acknowledgements') %></th><th class="actions"></th></tr></thead>
                     <tbody>
                       <% talent.documents.forEach((d) => { %>
                         <tr>
@@ -618,7 +618,7 @@
                           <td><%= new Date(d.published_at + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></td>
                           <td class="num"><%= d.requires_ack ? d.ack_count : '—' %></td>
                           <td class="actions">
-                            <form method="POST" action="/rh/documents/<%= d.id %>/supprimer" data-confirm="Supprimer ce document et ses accusés de réception ?">
+                            <form method="POST" action="/rh/documents/<%= d.id %>/supprimer" data-confirm="<%= t('hr.deleteDocument') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -638,7 +638,7 @@
           <div class="grid-2">
             <div class="stack">
               <div class="card">
-                <div class="card-head"><h3>Catalogue</h3></div>
+                <div class="card-head"><h3><%= t('hr.catalogue') %></h3></div>
                 <form method="POST" action="/rh/formations" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
@@ -651,11 +651,11 @@
                       <input type="text" name="category" maxlength="80" />
                     </label>
                     <label>
-                      <span>Organisme</span>
+                      <span><%= t('hr.provider') %></span>
                       <input type="text" name="provider" maxlength="120" />
                     </label>
                     <label>
-                      <span>Durée (h)</span>
+                      <span><%= t('hr.durationHours') %></span>
                       <input type="text" name="duration_hours" inputmode="decimal" />
                     </label>
                     <label>
@@ -668,14 +668,14 @@
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Programmer une session</h3></div>
+                <div class="card-head"><h3><%= t('hr.scheduleSession') %></h3></div>
                 <% if (talent.trainings.length === 0) { %>
                   <div class="empty-state"><%= t('erp.noTraining') %></div>
                 <% } else { %>
                   <form method="POST" action="/rh/sessions" class="stack">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <label>
-                      <span>Formation</span>
+                      <span><%= t('hr.training') %></span>
                       <select name="training_id" required>
                         <% talent.trainings.forEach((tr) => { %><option value="<%= tr.id %>"><%= tr.title %></option><% }) %>
                       </select>
@@ -699,7 +699,7 @@
                       </label>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                    <p class="hint">Zéro place signifie « sans limite ». Une session pleine refuse toute inscription de plus.</p>
+                    <p class="hint"><%= t('hr.seatsHelp') %></p>
                   </form>
                 <% } %>
               </div>
@@ -707,9 +707,9 @@
 
             <div class="stack">
               <div class="card">
-                <div class="card-head"><h3>Sessions <span class="muted">(<%= talent.sessions.length %>)</span></h3></div>
+                <div class="card-head"><h3><%= t('hr.sessions') %> <span class="muted">(<%= talent.sessions.length %>)</span></h3></div>
                 <% if (talent.sessions.length === 0) { %>
-                  <div class="empty-state">Aucune session programmée.</div>
+                  <div class="empty-state"><%= t('hr.noSession') %></div>
                 <% } else { %>
                   <ul class="meeting-list">
                     <% talent.sessions.forEach((s) => { %>
@@ -726,13 +726,13 @@
                           <form method="POST" action="/rh/sessions/<%= s.id %>/statut" class="inline-form">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <select name="status" class="input-sm">
-                              <% talent.sessionStatuses.forEach((st) => { %>
-                                <option value="<%= st %>" <%= s.status === st ? 'selected' : '' %>><%= st %></option>
+                              <% talent.sessionStatuses.forEach((value) => { %>
+                                <option value="<%= value %>" <%= s.status === value ? 'selected' : '' %>><%= st(value) %></option>
                               <% }) %>
                             </select>
                             <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
                           </form>
-                          <form method="POST" action="/rh/sessions/<%= s.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette session ?">
+                          <form method="POST" action="/rh/sessions/<%= s.id %>/supprimer" class="inline-form" data-confirm="<%= t('hr.deleteSession') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -744,13 +744,13 @@
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Inscriptions <span class="muted">(<%= talent.registrations.length %>)</span></h3></div>
+                <div class="card-head"><h3><%= t('hr.enrolments') %> <span class="muted">(<%= talent.registrations.length %>)</span></h3></div>
                 <% if (talent.registrations.length === 0) { %>
-                  <div class="empty-state">Aucune inscription.</div>
+                  <div class="empty-state"><%= t('hr.noEnrolment') %></div>
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th><%= t('common.member') %></th><th>Session</th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                      <thead><tr><th><%= t('common.member') %></th><th><%= t('hr.session') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
                       <tbody>
                         <% talent.registrations.forEach((r) => { %>
                           <tr>
@@ -775,7 +775,7 @@
                                 <form method="POST" action="/rh/inscriptions/<%= r.id %>/statut" class="inline-form">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                   <input type="hidden" name="status" value="Terminée" />
-                                  <button type="submit" class="btn btn-sm">Marquer terminée</button>
+                                  <button type="submit" class="btn btn-sm"><%= t('hr.markFinished') %></button>
                                 </form>
                               <% } else { %>
                                 <span class="cell-sub">—</span>
@@ -796,7 +796,7 @@
         <section class="tab-panel" id="entretiens">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Planifier un entretien</h3></div>
+              <div class="card-head"><h3><%= t('hr.planReview') %></h3></div>
               <form method="POST" action="/rh/entretiens" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
@@ -817,7 +817,7 @@
                   </label>
                 </div>
                 <label>
-                  <span>Évaluateur</span>
+                  <span><%= t('hr.reviewer') %></span>
                   <select name="reviewer_id">
                     <option value="">— <%= t('common.none') %> —</option>
                     <% staff.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
@@ -845,18 +845,18 @@
                         <%= r.rating ? ' · ' + r.rating + '/5' : '' %>
                       </p>
                       <% if (r.employee_comment) { %>
-                        <p class="cell-sub"><strong>Commentaire du salarié :</strong> <%= r.employee_comment %></p>
+                        <p class="cell-sub"><strong><%= t('hr.memberComment') %></strong> <%= r.employee_comment %></p>
                       <% } %>
 
                       <% if (r.status === 'Planifié') { %>
                         <form method="POST" action="/rh/entretiens/<%= r.id %>/conclure" class="stack">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <label>
-                            <span>Points forts</span>
+                            <span><%= t('hr.strengths') %></span>
                             <textarea name="strengths" rows="2" maxlength="2000"></textarea>
                           </label>
                           <label>
-                            <span>Axes de progrès</span>
+                            <span><%= t('hr.improvements') %></span>
                             <textarea name="improvements" rows="2" maxlength="2000"></textarea>
                           </label>
                           <label>
@@ -864,11 +864,11 @@
                             <textarea name="objectives" rows="2" maxlength="2000"></textarea>
                           </label>
                           <label>
-                            <span>Appréciation (1 à 5)</span>
+                            <span><%= t('hr.rating') %></span>
                             <input type="number" name="rating" min="1" max="5" />
                           </label>
                           <div class="row-actions">
-                            <button type="submit" class="btn btn-primary btn-sm">Conclure l'entretien</button>
+                            <button type="submit" class="btn btn-primary btn-sm"><%= t('hr.concludeReview') %></button>
                           </div>
                         </form>
                         <div class="row-actions">
@@ -876,17 +876,17 @@
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-sm"><%= t('common.cancel') %></button>
                           </form>
-                          <form method="POST" action="/rh/entretiens/<%= r.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet entretien ?">
+                          <form method="POST" action="/rh/entretiens/<%= r.id %>/supprimer" class="inline-form" data-confirm="<%= t('hr.deleteReview') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
                         </div>
                       <% } else { %>
-                        <% if (r.strengths) { %><p class="cell-sub"><strong>Points forts :</strong> <%= r.strengths %></p><% } %>
-                        <% if (r.improvements) { %><p class="cell-sub"><strong>Axes de progrès :</strong> <%= r.improvements %></p><% } %>
-                        <% if (r.objectives) { %><p class="cell-sub"><strong>Objectifs :</strong> <%= r.objectives %></p><% } %>
+                        <% if (r.strengths) { %><p class="cell-sub"><strong><%= t('hr.strengthsLabel') %></strong> <%= r.strengths %></p><% } %>
+                        <% if (r.improvements) { %><p class="cell-sub"><strong><%= t('hr.improvementsLabel') %></strong> <%= r.improvements %></p><% } %>
+                        <% if (r.objectives) { %><p class="cell-sub"><strong><%= t('hr.objectivesLabel') %></strong> <%= r.objectives %></p><% } %>
                         <div class="row-actions">
-                          <form method="POST" action="/rh/entretiens/<%= r.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet entretien ?">
+                          <form method="POST" action="/rh/entretiens/<%= r.id %>/supprimer" class="inline-form" data-confirm="<%= t('hr.deleteReview') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -905,7 +905,7 @@
           <div class="grid-2">
             <div class="stack">
               <div class="card">
-                <div class="card-head"><h3>Ouvrir un poste</h3></div>
+                <div class="card-head"><h3><%= t('hr.openPosition') %></h3></div>
                 <form method="POST" action="/rh/postes" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
@@ -945,11 +945,11 @@
 
               <% if (talent.openings.length) { %>
                 <div class="card">
-                  <div class="card-head"><h3>Ajouter une candidature</h3></div>
+                  <div class="card-head"><h3><%= t('hr.addApplication') %></h3></div>
                   <form method="POST" action="/rh/candidats" class="stack">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <label>
-                      <span>Poste</span>
+                      <span><%= t('hr.position') %></span>
                       <select name="opening_id" required>
                         <% talent.openings.forEach((o) => { %><option value="<%= o.id %>"><%= o.title %></option><% }) %>
                       </select>
@@ -973,7 +973,7 @@
                       </label>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                    <p class="hint">Le CV se dépose ensuite depuis la fiche de la candidature.</p>
+                    <p class="hint"><%= t('hr.cvLater') %></p>
                   </form>
                 </div>
               <% } %>
@@ -982,8 +982,8 @@
               <div class="card" id="cvtheque">
                 <div class="card-head">
                   <div>
-                    <h3>CVthèque</h3>
-                    <p class="card-sub">Recherche plein texte dans tous les CV reçus, tous postes confondus.</p>
+                    <h3><%= t('hr.cvLibrary') %></h3>
+                    <p class="card-sub"><%= t('hr.cvSearchHelp') %></p>
                   </div>
                 </div>
                 <form method="GET" action="/rh" class="search-bar">
@@ -993,7 +993,7 @@
 
                 <% if (cvQuery) { %>
                   <% if (cvResults.length === 0) { %>
-                    <div class="empty-state">Aucun CV ne contient ces termes.</div>
+                    <div class="empty-state"><%= t('hr.noCvMatches') %></div>
                   <% } else { %>
                     <ul class="person-list">
                       <% cvResults.forEach((r) => { %>
@@ -1035,20 +1035,20 @@
                       </div>
                       <p class="cell-sub">
                         <%= [o.department_name, o.team_name, o.contract_type].filter(Boolean).join(' · ') || '—' %>
-                        · <%= applicants.length %> candidature(s), <%= shortlisted %> retenue(s) par le filtre
+                        · <%= t('hr.applicationsRetained', { total: applicants.length, kept: shortlisted }) %>
                       </p>
 
                       <div class="row-actions">
                         <form method="POST" action="/rh/postes/<%= o.id %>/statut" class="inline-form">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <select name="status" class="input-sm">
-                            <% talent.openingStatuses.forEach((st) => { %>
-                              <option value="<%= st %>" <%= o.status === st ? 'selected' : '' %>><%= st %></option>
+                            <% talent.openingStatuses.forEach((value) => { %>
+                              <option value="<%= value %>" <%= o.status === value ? 'selected' : '' %>><%= st(value) %></option>
                             <% }) %>
                           </select>
                           <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
                         </form>
-                        <form method="POST" action="/rh/postes/<%= o.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce poste, ses critères et ses candidatures ?">
+                        <form method="POST" action="/rh/postes/<%= o.id %>/supprimer" class="inline-form" data-confirm="<%= t('hr.deletePosition') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
@@ -1056,16 +1056,16 @@
 
                       <!-- Réglages et critères ATS -->
                       <details class="minutes">
-                        <summary>Filtre ATS — <%= criteria.length %> critère(s), seuil <%= o.ats_threshold %> %</summary>
+                        <summary><%= t('hr.atsSummary', { count: criteria.length, threshold: o.ats_threshold }) %></summary>
 
                         <form method="POST" action="/rh/postes/<%= o.id %>/ats" class="inline-form">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <label class="inline-field">
-                            <span class="cell-sub">Seuil (%)</span>
+                            <span class="cell-sub"><%= t('hr.threshold') %></span>
                             <input type="number" name="ats_threshold" class="input-sm" min="0" max="100" value="<%= o.ats_threshold %>" />
                           </label>
                           <label class="inline-field">
-                            <span class="cell-sub">Expérience min. (ans)</span>
+                            <span class="cell-sub"><%= t('hr.minExperience') %></span>
                             <input type="text" name="min_experience" class="input-sm" inputmode="decimal" value="<%= o.min_experience %>" />
                           </label>
                           <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
@@ -1074,7 +1074,7 @@
                         <% if (criteria.length) { %>
                           <div class="table-wrap">
                             <table>
-                              <thead><tr><th>Critère</th><th>Synonymes</th><th><%= t('common.type') %></th><th>Poids</th><th class="actions"></th></tr></thead>
+                              <thead><tr><th><%= t('hr.criterion') %></th><th><%= t('hr.synonyms') %></th><th><%= t('common.type') %></th><th><%= t('hr.weight') %></th><th class="actions"></th></tr></thead>
                               <tbody>
                                 <% criteria.forEach((c) => { %>
                                   <tr>
@@ -1099,11 +1099,11 @@
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <div class="form-grid">
                             <label>
-                              <span>Critère</span>
+                              <span><%= t('hr.criterion') %></span>
                               <input type="text" name="label" maxlength="120" placeholder="Ex : Automatisme" required />
                             </label>
                             <label>
-                              <span>Synonymes <span class="cell-sub">(séparés par des virgules)</span></span>
+                              <span><%= t('hr.synonyms') %> <span class="cell-sub"><%= t('hr.commaSeparated') %></span></span>
                               <input type="text" name="keywords" maxlength="500" placeholder="API, automate, Siemens" />
                             </label>
                             <label>
@@ -1113,31 +1113,29 @@
                               </select>
                             </label>
                             <label>
-                              <span>Poids (1 à <%= maxWeight %>)</span>
+                              <span><%= t('hr.weightRange', { max: maxWeight }) %></span>
                               <input type="number" name="weight" min="1" max="<%= maxWeight %>" value="1" />
                             </label>
                           </div>
                           <div class="form-actions">
-                            <button type="submit" class="btn btn-sm">Ajouter le critère</button>
+                            <button type="submit" class="btn btn-sm"><%= t('hr.addCriterion') %></button>
                           </div>
                           <p class="hint">
-                            Un critère « Requis » manquant écarte la candidature quel que soit son score.
-                            La recherche est insensible aux accents et respecte les frontières de mots :
-                            « java » ne se déclenche pas sur « javascript ».
+                            <%= t('hr.atsHelp') %>
                           </p>
                         </form>
                       </details>
 
                       <!-- Candidatures classées -->
                       <% if (applicants.length) { %>
-                        <h4 class="section-label">Candidatures classées</h4>
+                        <h4 class="section-label"><%= t('hr.rankedApplications') %></h4>
                         <ul class="candidate-list">
                           <% applicants.forEach((c) => { %>
                             <li class="candidate-row">
                               <div class="meeting-head">
                                 <span class="person-name">
                                   <%= c.first_name %> <%= c.last_name %>
-                                  <% if (c.ats.shortlisted) { %><span class="tag tag-accent">Retenu</span><% } %>
+                                  <% if (c.ats.shortlisted) { %><span class="tag tag-accent"><%= t('hr.retained') %></span><% } %>
                                 </span>
                                 <span class="score-badge <%= c.ats.shortlisted ? 'is-ok' : (c.ats.hasCv ? 'is-low' : 'is-none') %>">
                                   <%= c.ats.hasCv ? c.ats.score + ' %' : 'sans CV' %>
@@ -1160,26 +1158,26 @@
                                   <% }) %>
                                 </p>
                                 <% if (c.ats.missingRequired.length) { %>
-                                  <p class="cell-sub text-danger">Critère(s) requis manquant(s) : <%= c.ats.missingRequired.join(', ') %></p>
+                                  <p class="cell-sub text-danger"><%= t('hr.missingRequired', { list: c.ats.missingRequired.join(', ') }) %></p>
                                 <% } %>
                                 <% if (c.ats.experienceShort) { %>
-                                  <p class="cell-sub text-warning">Expérience sous le minimum demandé (<%= o.min_experience %> ans).</p>
+                                  <p class="cell-sub text-warning"><%= t('hr.experienceBelow', { years: o.min_experience }) %></p>
                                 <% } %>
                               <% } else { %>
-                                <p class="cell-sub">Aucun CV déposé : la candidature n'est pas évaluée.</p>
+                                <p class="cell-sub"><%= t('hr.noCvNotEvaluated') %></p>
                               <% } %>
 
                               <div class="row-actions">
                                 <form method="POST" action="/rh/candidats/<%= c.id %>/cv" enctype="multipart/form-data" class="inline-form">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                   <input type="file" name="cv" class="input-sm" accept=".pdf,.docx,.txt,.md" required />
-                                  <button type="submit" class="btn btn-sm"><%= c.cv_file ? 'Remplacer' : 'Déposer' %> le CV</button>
+                                  <button type="submit" class="btn btn-sm"><%= c.cv_file ? t('hr.replaceCv') : t('hr.uploadCv') %></button>
                                 </form>
                                 <% if (c.cv_file) { %>
                                   <a href="/rh/candidats/<%= c.id %>/cv" class="btn btn-outline btn-sm"><%= c.cv_name || 'CV' %></a>
-                                  <form method="POST" action="/rh/candidats/<%= c.id %>/cv/supprimer" class="inline-form" data-confirm="Supprimer ce CV, fichier et texte compris ?">
+                                  <form method="POST" action="/rh/candidats/<%= c.id %>/cv/supprimer" class="inline-form" data-confirm="<%= t('hr.deleteCv') %>">
                                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                    <button type="submit" class="btn btn-danger btn-sm">Supprimer le CV</button>
+                                    <button type="submit" class="btn btn-danger btn-sm"><%= t('hr.deleteCvButton') %></button>
                                   </form>
                                 <% } %>
                               </div>
@@ -1188,7 +1186,7 @@
                                 <form method="POST" action="/rh/candidats/<%= c.id %>/experience" class="inline-form">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                   <label class="inline-field">
-                                    <span class="cell-sub">Expérience (ans)</span>
+                                    <span class="cell-sub"><%= t('hr.experienceYears') %></span>
                                     <input type="text" name="experience_years" class="input-sm" inputmode="decimal" value="<%= c.experience_years != null ? c.experience_years : '' %>" />
                                   </label>
                                   <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
@@ -1196,13 +1194,13 @@
                                 <form method="POST" action="/rh/candidats/<%= c.id %>/etape" class="inline-form">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                   <select name="stage" class="input-sm">
-                                    <% talent.candidateStages.forEach((st) => { %>
-                                      <option value="<%= st %>" <%= c.stage === st ? 'selected' : '' %>><%= st %></option>
+                                    <% talent.candidateStages.forEach((value) => { %>
+                                      <option value="<%= value %>" <%= c.stage === value ? 'selected' : '' %>><%= st(value) %></option>
                                     <% }) %>
                                   </select>
                                   <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
                                 </form>
-                                <form method="POST" action="/rh/candidats/<%= c.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette candidature et son CV ?">
+                                <form method="POST" action="/rh/candidats/<%= c.id %>/supprimer" class="inline-form" data-confirm="<%= t('hr.deleteApplication') %>">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                   <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                                 </form>
@@ -1211,8 +1209,7 @@
                           <% }) %>
                         </ul>
                         <p class="hint">
-                          Le score aide à trier, il ne décide de rien : un dossier écarté par le filtre
-                          reste consultable et son CV téléchargeable.
+                          <%= t('hr.scoreNotice') %>
                         </p>
                       <% } %>
                     </li>

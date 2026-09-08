@@ -23,28 +23,28 @@
             <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.employeeCount %></span>
-              <span class="stat-label">Membres du personnel</span>
+              <span class="stat-label"><%= t('admin.staffMembers') %></span>
             </span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'tool', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.toolCount %></span>
-              <span class="stat-label">Outils au catalogue</span>
+              <span class="stat-label"><%= t('admin.catalogueTools') %></span>
             </span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'link', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.assignedCount %></span>
-              <span class="stat-label">Affectations actives</span>
+              <span class="stat-label"><%= t('admin.activeAssignments') %></span>
             </span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'plus', iconSize: 17 }) %></span>
             <span class="stat-body">
               <span class="stat-value"><%= stats.availableCount %></span>
-              <span class="stat-label">Outils non affectés</span>
+              <span class="stat-label"><%= t('admin.unassignedTools') %></span>
             </span>
           </div>
         </section>
@@ -65,7 +65,7 @@
                   <input type="text" name="last_name" required />
                 </label>
                 <label class="span-2">
-                  <span>Email (identifiant de connexion)</span>
+                  <span><%= t('admin.loginEmail') %></span>
                   <input type="email" name="email" required />
                 </label>
                 <label>
@@ -90,14 +90,14 @@
                   </select>
                 </label>
                 <label>
-                  <span>Type de contrat</span>
+                  <span><%= t('admin.contractType') %></span>
                   <select name="contract_type" required>
                     <option value="" disabled selected><%= t('common.choose') %></option>
                     <% contractTypes.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %>
                   </select>
                 </label>
                 <label>
-                  <span>Fin de contrat</span>
+                  <span><%= t('admin.contractEnd') %></span>
                   <input type="date" name="contract_end_date" />
                 </label>
                 <label class="span-2">
@@ -109,16 +109,14 @@
                 </div>
               </form>
               <p class="hint">
-                Un mot de passe temporaire est généré et affiché une seule fois. Si une date de fin
-                est renseignée, le compte se désactive automatiquement à l'échéance. Un membre
-                non-freelance démarre avec <%= annualLeaveDays %> jours de congés.
+                <%= t('admin.newMemberHelp', { days: annualLeaveDays }) %>
               </p>
             </div>
 
             <div class="card">
               <div class="card-head"><h3><%= t('common.team') %> <span class="muted">(<%= employees.length %>)</span></h3></div>
               <% if (employees.length === 0) { %>
-                <div class="empty-state">Aucun membre enregistré pour le moment.</div>
+                <div class="empty-state"><%= t('admin.noMemberYet') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
@@ -149,10 +147,10 @@
                             <% if (e.contract_end_date) { %>
                               <div class="small <%= dateClass %>">
                                 <%= isExpired ? 'Expiré le' : "Jusqu'au" %>
-                                <%= new Date(e.contract_end_date + 'T00:00:00Z').toLocaleDateString('fr-FR') %><% if (!isExpired) { %> · <%= daysLeft %> j<% } %>
+                                <%= new Date(e.contract_end_date + 'T00:00:00Z').toLocaleDateString(locale) %><% if (!isExpired) { %> · <%= daysLeft %> j<% } %>
                               </div>
                             <% } else { %>
-                              <div class="cell-sub">Durée indéterminée</div>
+                              <div class="cell-sub"><%= t('admin.openEnded') %></div>
                             <% } %>
                           </td>
                           <td class="num"><%= (toolsByEmployee[e.id] || []).length %></td>
@@ -172,9 +170,9 @@
                             </form>
                             <form method="POST" action="/admin/employes/<%= e.id %>/reinitialiser">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-sm">Réinit. mdp</button>
+                              <button type="submit" class="btn btn-sm"><%= t('admin.resetPassword') %></button>
                             </form>
-                            <form method="POST" action="/admin/employes/<%= e.id %>/supprimer" data-confirm="Supprimer définitivement ce membre ?">
+                            <form method="POST" action="/admin/employes/<%= e.id %>/supprimer" data-confirm="<%= t('admin.deleteMember') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
                             </form>
@@ -193,11 +191,11 @@
         <section class="tab-panel" id="outils">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Ajouter un outil</h3></div>
+              <div class="card-head"><h3><%= t('admin.addTool') %></h3></div>
               <form method="POST" action="/admin/outils" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="span-2">
-                  <span>Nom de l'outil</span>
+                  <span><%= t('admin.toolName') %></span>
                   <input type="text" name="name" required />
                 </label>
                 <label>
@@ -209,7 +207,7 @@
                   <input type="text" name="reference" placeholder="Ex : REF-2031" />
                 </label>
                 <label class="span-2">
-                  <span>URL de connexion</span>
+                  <span><%= t('admin.loginUrl') %></span>
                   <input type="url" name="login_url" placeholder="https://outil.entreprise.com" />
                 </label>
                 <label class="span-2">
@@ -217,7 +215,7 @@
                   <textarea name="description" rows="3"></textarea>
                 </label>
                 <div class="span-2">
-                  <button type="submit" class="btn btn-primary btn-block">Ajouter au catalogue</button>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('admin.addToCatalogue') %></button>
                 </div>
               </form>
             </div>
@@ -225,26 +223,26 @@
             <div class="card">
               <div class="card-head"><h3>Catalogue <span class="muted">(<%= tools.length %>)</span></h3></div>
               <% if (tools.length === 0) { %>
-                <div class="empty-state">Aucun outil au catalogue pour le moment.</div>
+                <div class="empty-state"><%= t('admin.noToolYet') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
                     <thead>
-                      <tr><th>Outil</th><th><%= t('common.category') %></th><th><%= t('common.reference') %></th><th>Affecté à</th><th></th></tr>
+                      <tr><th><%= t('admin.tool') %></th><th><%= t('common.category') %></th><th><%= t('common.reference') %></th><th><%= t('admin.assignedTo') %></th><th></th></tr>
                     </thead>
                     <tbody>
                       <% tools.forEach((tool) => { %>
                         <tr>
                           <td>
                             <div class="cell-strong"><%= tool.name %></div>
-                            <% if (tool.login_url) { %><div class="cell-sub">Accès configuré</div><% } %>
+                            <% if (tool.login_url) { %><div class="cell-sub"><%= t('admin.accessConfigured') %></div><% } %>
                           </td>
                           <td><span class="tag"><%= tool.category || '—' %></span></td>
                           <td class="cell-sub"><%= tool.reference || '—' %></td>
                           <td class="num"><%= (employeesByTool[tool.id] || []).length %></td>
                           <td class="actions">
                             <a href="/admin/outils/<%= tool.id %>/modifier" class="btn btn-sm"><%= t('common.edit') %></a>
-                            <form method="POST" action="/admin/outils/<%= tool.id %>/supprimer" data-confirm="Supprimer cet outil du catalogue ?">
+                            <form method="POST" action="/admin/outils/<%= tool.id %>/supprimer" data-confirm="<%= t('admin.deleteTool') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
                             </form>
@@ -263,7 +261,7 @@
         <section class="tab-panel" id="affectations">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Affecter un outil</h3></div>
+              <div class="card-head"><h3><%= t('admin.assignTool') %></h3></div>
               <form method="POST" action="/admin/affectations" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="span-2">
@@ -276,7 +274,7 @@
                   </select>
                 </label>
                 <label class="span-2">
-                  <span>Outil</span>
+                  <span><%= t('admin.tool') %></span>
                   <select name="tool_id" required>
                     <option value="" disabled selected><%= t('common.choose') %></option>
                     <% tools.forEach((tool) => { %>
@@ -296,19 +294,19 @@
                   <button type="submit" class="btn btn-primary btn-block"><%= t('common.assign') %></button>
                 </div>
               </form>
-              <p class="hint">L'identifiant est visible par le membre dans son espace, à côté de l'URL de connexion de l'outil.</p>
+              <p class="hint"><%= t('admin.identifierHelp') %></p>
             </div>
 
             <div class="card">
               <% const rows = Object.values(toolsByEmployee).flat(); %>
-              <div class="card-head"><h3>Affectations actives <span class="muted">(<%= rows.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('admin.activeAssignments') %> <span class="muted">(<%= rows.length %>)</span></h3></div>
               <% if (rows.length === 0) { %>
-                <div class="empty-state">Aucune affectation pour le moment.</div>
+                <div class="empty-state"><%= t('admin.noAssignment') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
                     <thead>
-                      <tr><th><%= t('common.member') %></th><th>Outil</th><th><%= t('common.identifier') %></th><th>Depuis</th><th></th></tr>
+                      <tr><th><%= t('common.member') %></th><th><%= t('admin.tool') %></th><th><%= t('common.identifier') %></th><th><%= t('admin.since') %></th><th></th></tr>
                     </thead>
                     <tbody>
                       <% rows.sort((a, b) => new Date(b.assigned_at) - new Date(a.assigned_at)).forEach((row) => { %>
@@ -316,7 +314,7 @@
                           <td class="cell-strong"><%= employeesMap[row.employee_id].first_name %> <%= employeesMap[row.employee_id].last_name %></td>
                           <td><%= toolsMap[row.tool_id].name %></td>
                           <td class="mono"><%= row.username || '—' %></td>
-                          <td class="cell-sub"><%= new Date(row.assigned_at).toLocaleDateString('fr-FR') %></td>
+                          <td class="cell-sub"><%= new Date(row.assigned_at).toLocaleDateString(locale) %></td>
                           <td class="actions">
                             <form method="POST" action="/admin/affectations/<%= row.id %>/supprimer">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -373,7 +371,7 @@
                     <input type="text" name="description" maxlength="500" />
                   </label>
                   <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                  <p class="hint">Une équipe appartient à un service : rattacher un membre à l'équipe le rattache aussi à ce service.</p>
+                  <p class="hint"><%= t('admin.teamHelp') %></p>
                 </form>
               </div>
             </div>
@@ -393,7 +391,7 @@
                             <span class="org-name"><%= d.name %></span>
                             <span class="cell-sub"><%= t('org.members') %> : <%= d.member_count %> · <%= t('org.teams') %> : <%= d.team_count %></span>
                           </div>
-                          <form method="POST" action="/admin/services/<%= d.id %>/supprimer" data-confirm="Supprimer ce service ? Ses membres et ses équipes en seront détachés.">
+                          <form method="POST" action="/admin/services/<%= d.id %>/supprimer" data-confirm="<%= t('admin.deleteDepartment') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -449,7 +447,7 @@
                             <span class="org-name"><%= tm.name %></span>
                             <span class="cell-sub"><%= tm.department_name || t('common.none') %> · <%= t('org.members') %> : <%= tm.member_count %></span>
                           </div>
-                          <form method="POST" action="/admin/equipes/<%= tm.id %>/supprimer" data-confirm="Supprimer cette équipe ? Ses membres en seront détachés.">
+                          <form method="POST" action="/admin/equipes/<%= tm.id %>/supprimer" data-confirm="<%= t('admin.deleteTeam') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -498,12 +496,12 @@
             <div class="card-head">
               <div>
                 <h3><%= t('org.assignment') %></h3>
-                <p class="card-sub">Un membre appartient à une équipe et à un service. Un manager de service encadre aussi les équipes qu'il contient. La visibilité dans l'annuaire se pilote ici uniquement.</p>
+                <p class="card-sub"><%= t('admin.orgHelp') %></p>
               </div>
             </div>
 
             <% if (employees.length === 0) { %>
-              <div class="empty-state">Aucun membre enregistré pour le moment.</div>
+              <div class="empty-state"><%= t('admin.noMemberYet') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
@@ -602,7 +600,7 @@
                   <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
                 </div>
               </form>
-              <p class="hint">Une actualité peut viser toute l'entreprise, un service ou une seule équipe. Les managers publient de leur côté sur les périmètres qu'ils encadrent.</p>
+              <p class="hint"><%= t('admin.newsHelp') %></p>
             </div>
 
             <div class="card">
@@ -635,7 +633,7 @@
             <div class="card-head">
               <div>
                 <h3>Espace RH</h3>
-                <p class="card-sub">Demandes, soldes de congés et fiches de paie de tout le personnel non-freelance.</p>
+                <p class="card-sub"><%= t('admin.hrScope') %></p>
               </div>
               <a href="/rh" class="btn btn-primary">Ouvrir l'espace RH</a>
             </div>
@@ -643,9 +641,9 @@
 
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Nommer un responsable RH</h3></div>
+              <div class="card-head"><h3><%= t('admin.appointHr') %></h3></div>
               <% if (hrEligibleEmployees.length === 0) { %>
-                <div class="empty-state">Tous les membres disposent déjà de l'accès RH.</div>
+                <div class="empty-state"><%= t('admin.allHaveHr') %></div>
               <% } else { %>
                 <form method="POST" action="/admin/rh/nommer" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -659,17 +657,17 @@
                     </select>
                   </label>
                   <div class="span-2">
-                    <button type="submit" class="btn btn-primary btn-block">Donner l'accès RH</button>
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('admin.grantHr') %></button>
                   </div>
                 </form>
               <% } %>
-              <p class="hint">Un membre RH conserve son espace personnel et obtient en plus le panneau de gestion RH. Les droits prennent effet immédiatement, sans reconnexion.</p>
+              <p class="hint"><%= t('admin.hrHelp') %></p>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Membres RH <span class="muted">(<%= hrMembers.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('admin.hrMembers') %> <span class="muted">(<%= hrMembers.length %>)</span></h3></div>
               <% if (hrMembers.length === 0) { %>
-                <div class="empty-state">Aucun responsable RH désigné.</div>
+                <div class="empty-state"><%= t('admin.noHrYet') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
@@ -683,9 +681,9 @@
                           </td>
                           <td><span class="tag"><%= e.grade %></span></td>
                           <td class="actions">
-                            <form method="POST" action="/admin/rh/<%= e.id %>/retirer" data-confirm="Retirer l'accès RH à ce membre ?">
+                            <form method="POST" action="/admin/rh/<%= e.id %>/retirer" data-confirm="<%= t('admin.revokeHr') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-sm btn-danger">Retirer l'accès</button>
+                              <button type="submit" class="btn btn-sm btn-danger"><%= t('admin.revokeAccess') %></button>
                             </form>
                           </td>
                         </tr>
@@ -700,18 +698,18 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Gestion administrative et financière</h3>
-                <p class="card-sub">Tiers, contrats, factures, budgets, notes de frais, parc matériel et salles.</p>
+                <h3><%= t('admin.financeTitle') %></h3>
+                <p class="card-sub"><%= t('admin.financeScope') %></p>
               </div>
-              <a href="/gestion" class="btn btn-primary">Ouvrir la gestion</a>
+              <a href="/gestion" class="btn btn-primary"><%= t('admin.openFinance') %></a>
             </div>
           </div>
 
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Nommer un gestionnaire</h3></div>
+              <div class="card-head"><h3><%= t('admin.appointManager') %></h3></div>
               <% if (financeEligibleEmployees.length === 0) { %>
-                <div class="empty-state">Tous les membres disposent déjà de cet accès.</div>
+                <div class="empty-state"><%= t('admin.allHaveFinance') %></div>
               <% } else { %>
                 <form method="POST" action="/admin/gestion/nommer" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -725,17 +723,17 @@
                     </select>
                   </label>
                   <div class="span-2">
-                    <button type="submit" class="btn btn-primary btn-block">Donner l'accès gestion</button>
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('admin.grantFinance') %></button>
                   </div>
                 </form>
               <% } %>
-              <p class="hint">Cet accès ouvre les tiers, les contrats, les factures, les budgets, les notes de frais, le parc et les salles.</p>
+              <p class="hint"><%= t('admin.financeHelp') %></p>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Gestionnaires <span class="muted">(<%= financeMembers.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('admin.managers') %> <span class="muted">(<%= financeMembers.length %>)</span></h3></div>
               <% if (financeMembers.length === 0) { %>
-                <div class="empty-state">Aucun gestionnaire désigné.</div>
+                <div class="empty-state"><%= t('admin.noManagerYet') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
@@ -749,9 +747,9 @@
                           </td>
                           <td><span class="tag"><%= e.grade %></span></td>
                           <td class="actions">
-                            <form method="POST" action="/admin/gestion/<%= e.id %>/retirer" data-confirm="Retirer l'accès gestion à ce membre ?">
+                            <form method="POST" action="/admin/gestion/<%= e.id %>/retirer" data-confirm="<%= t('admin.revokeFinance') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-sm btn-danger">Retirer l'accès</button>
+                              <button type="submit" class="btn btn-sm btn-danger"><%= t('admin.revokeAccess') %></button>
                             </form>
                           </td>
                         </tr>
@@ -768,7 +766,7 @@
             <div class="card-head">
               <div>
                 <h3>Modules <span class="muted">(<%= modules.filter((m) => m.enabled).length %>/<%= modules.length %>)</span></h3>
-                <p class="card-sub">Chaque module est éteint par défaut. L'activer ouvre son espace, ses routes et son entrée de navigation ; le désactiver les referme sans rien effacer.</p>
+                <p class="card-sub"><%= t('admin.modulesHelp') %></p>
               </div>
             </div>
 
@@ -790,7 +788,7 @@
                     <span><%= m.caveat %></span>
                   </div>
                   <div class="row-actions">
-                    <form method="POST" action="/admin/modules/<%= m.key %>" class="inline-form"<%= m.enabled ? ' data-confirm="Désactiver ce module ? Ses écrans disparaissent, ses données restent."' : '' %>>
+                    <form method="POST" action="/admin/modules/<%= m.key %>" class="inline-form"<%= m.enabled ? ` data-confirm="${t('admin.disableModule')}"` : '' %>>
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                       <% if (!m.enabled) { %><input type="hidden" name="enabled" value="on" /><% } %>
                       <button type="submit" class="btn btn-sm <%= m.enabled ? '' : 'btn-primary' %>">
@@ -811,11 +809,9 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Palette de l'instance</h3>
+                <h3><%= t('admin.instancePalette') %></h3>
                 <p class="card-sub">
-                  La palette engage l'identité visuelle de l'entreprise : elle vaut pour tout le monde,
-                  y compris sur l'écran de connexion. Le choix entre clair, sombre et système reste
-                  celui de chaque personne, dans la barre de navigation.
+                  <%= t('admin.paletteHelp') %>
                 </p>
               </div>
             </div>

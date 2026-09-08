@@ -10,7 +10,7 @@
     <div class="app-main">
       <%- include('partials/app-header', {
         headerTitle: tool.name,
-        headerSubtitle: 'Ajouté le ' + new Date(tool.created_at).toLocaleDateString('fr-FR'),
+        headerSubtitle: 'Ajouté le ' + new Date(tool.created_at).toLocaleDateString(locale),
         backHref: '/admin#outils'
       }) %>
 
