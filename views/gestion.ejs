@@ -47,7 +47,7 @@
           <div class="banner is-warning">
             <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
             <span>
-              <%= renewals.length %> contrat(s) approchent de leur préavis :
+              <%= t('ges.noticeApproaching', { count: renewals.length }) %>
               <%= renewals.slice(0, 3).map((c) => c.title).join(', ') %><%= renewals.length > 3 ? '…' : '' %>
             </span>
           </div>
@@ -76,7 +76,7 @@
                     <input type="text" name="registration" maxlength="60" />
                   </label>
                   <label>
-                    <span>Contact</span>
+                    <span><%= t('ges.contact') %></span>
                     <input type="text" name="contact_name" maxlength="120" />
                   </label>
                   <label>
@@ -125,7 +125,7 @@
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-sm"><%= p.active ? 'Désactiver' : 'Activer' %></button>
                             </form>
-                            <form method="POST" action="/gestion/tiers/<%= p.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce tiers et tous ses contrats ?">
+                            <form method="POST" action="/gestion/tiers/<%= p.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deletePartner') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -135,7 +135,7 @@
                     </tbody>
                   </table>
                 </div>
-                <p class="hint">La colonne chiffrée indique le nombre de contrats et de factures rattachés.</p>
+                <p class="hint"><%= t('ges.partnerHelp') %></p>
               <% } %>
             </div>
           </div>
@@ -181,21 +181,21 @@
                     <input type="number" name="notice_days" min="0" max="365" value="90" />
                   </label>
                   <label>
-                    <span>Périodicité</span>
+                    <span><%= t('ges.frequency') %></span>
                     <select name="billing_period">
                       <% billingPeriods.forEach((b) => { %><option value="<%= b %>" <%= b === 'Annuel' ? 'selected' : '' %>><%= b %></option><% }) %>
                     </select>
                   </label>
                 </div>
                 <label>
-                  <span>Référent interne</span>
+                  <span><%= t('ges.internalContact') %></span>
                   <select name="owner_id">
                     <option value="">— <%= t('common.none') %> —</option>
                     <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                   </select>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                <p class="hint">Le préavis calcule la date limite de dénonciation : passé ce jour, le contrat se reconduit.</p>
+                <p class="hint"><%= t('ges.noticeHelp') %></p>
               </form>
             </div>
 
@@ -240,7 +240,7 @@
                               </select>
                               <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
                             </form>
-                            <form method="POST" action="/gestion/contrats/<%= c.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce contrat ?">
+                            <form method="POST" action="/gestion/contrats/<%= c.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deleteContract') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -288,7 +288,7 @@
                     </select>
                   </label>
                   <label>
-                    <span>Émission</span>
+                    <span><%= t('ges.issue') %></span>
                     <input type="date" name="issue_date" required />
                   </label>
                   <label>
@@ -296,7 +296,7 @@
                     <input type="date" name="due_date" />
                   </label>
                   <label>
-                    <span>Montant HT</span>
+                    <span><%= t('ges.amountExclVat') %></span>
                     <input type="text" name="amount_ht" inputmode="decimal" required placeholder="Ex : 850,00" />
                   </label>
                   <label>
@@ -317,7 +317,7 @@
                   <input type="text" name="reference" maxlength="60" />
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                <p class="hint">Le service renseigné impute la facture fournisseur sur son budget.</p>
+                <p class="hint"><%= t('ges.invoiceDeptHelp') %></p>
               </form>
             </div>
 
@@ -328,7 +328,7 @@
                   <tbody>
                     <tr><td class="cell-sub"><%= t('erp.income') %></td><td class="cell-strong num"><%= money(summary.unpaidIncome) %></td></tr>
                     <tr><td class="cell-sub"><%= t('erp.spending') %></td><td class="cell-strong num"><%= money(summary.unpaidSpending) %></td></tr>
-                    <tr><td class="cell-sub">En retard</td><td class="cell-strong num"><%= summary.overdue %></td></tr>
+                    <tr><td class="cell-sub"><%= t('ges.overdue') %></td><td class="cell-strong num"><%= summary.overdue %></td></tr>
                   </tbody>
                 </table>
               </div>
@@ -341,7 +341,7 @@
                   <div class="table-wrap">
                     <table>
                       <thead>
-                        <tr><th>Facture</th><th>TTC</th><th><%= t('erp.dueDate') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr>
+                        <tr><th><%= t('ges.invoice') %></th><th>TTC</th><th><%= t('erp.dueDate') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr>
                       </thead>
                       <tbody>
                         <% invoices.forEach((i) => { %>
@@ -352,11 +352,11 @@
                             </td>
                             <td class="num cell-strong">
                               <%= inCurrency(i.amount_ttc, i.currency) %>
-                              <% if (i.foreign) { %><div class="cell-sub"><%= money(i.amount_base_ttc) %> au taux du jour d'émission</div><% } %>
+                              <% if (i.foreign) { %><div class="cell-sub"><%= money(i.amount_base_ttc) %> <%= t('ges.atIssueRate') %></div><% } %>
                             </td>
                             <td>
                               <%= day(i.due_date) %>
-                              <% if (i.overdue) { %><div class="cell-sub text-danger">En retard</div><% } %>
+                              <% if (i.overdue) { %><div class="cell-sub text-danger"><%= t('ges.overdue') %></div><% } %>
                             </td>
                             <td><span class="status <%= i.status === 'Payée' ? 'status-on' : (i.overdue ? 'status-danger' : 'status-warning') %>"><%= st(i.status) %></span></td>
                             <td class="actions">
@@ -369,7 +369,7 @@
                                 </select>
                                 <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
                               </form>
-                              <form method="POST" action="/gestion/factures/<%= i.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette facture ?">
+                              <form method="POST" action="/gestion/factures/<%= i.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deleteInvoice') %>">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                               </form>
@@ -391,27 +391,27 @@
           <section class="stats-grid">
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= subscriptions.filter((a) => a.active).length %></span><span class="stat-label">Abonnements actifs</span></span>
+              <span class="stat-body"><span class="stat-value"><%= subscriptions.filter((a) => a.active).length %></span><span class="stat-label"><%= t('ges.activeSubscriptions') %></span></span>
             </div>
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= money(subscriptionValue.client) %></span><span class="stat-label">Récurrent client sur 12 mois</span></span>
+              <span class="stat-body"><span class="stat-value"><%= money(subscriptionValue.client) %></span><span class="stat-label"><%= t('ges.recurringClient') %></span></span>
             </div>
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= money(subscriptionValue.supplier) %></span><span class="stat-label">Récurrent fournisseur</span></span>
+              <span class="stat-body"><span class="stat-value"><%= money(subscriptionValue.supplier) %></span><span class="stat-label"><%= t('ges.recurringSupplier') %></span></span>
             </div>
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= subscriptionDue.length %></span><span class="stat-label">Échéance(s) à facturer</span></span>
+              <span class="stat-body"><span class="stat-value"><%= subscriptionDue.length %></span><span class="stat-label"><%= t('ges.dueToInvoice') %></span></span>
             </div>
           </section>
 
           <div class="card">
-            <div class="card-head"><h3>Nouvel abonnement</h3></div>
+            <div class="card-head"><h3><%= t('ges.newSubscription') %></h3></div>
             <form method="POST" action="/gestion/abonnements" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="160" placeholder="Maintenance annuelle — site vitrine" /></label>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="160" placeholder="<%= t('ges.subscriptionExample') %>" /></label>
               <label><span><%= t('common.direction') %></span>
                 <select name="direction"><% invoiceDirections.forEach((d) => { %><option value="<%= d %>"><%= d %></option><% }) %></select>
               </label>
@@ -421,29 +421,29 @@
                   <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Montant HT</span><input type="text" name="amount_ht" inputmode="decimal" required placeholder="Ex : 250,00" /></label>
+              <label><span><%= t('ges.amountExclVat') %></span><input type="text" name="amount_ht" inputmode="decimal" required placeholder="Ex : 250,00" /></label>
               <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required /></label>
               <label><span><%= t('common.currency') %></span>
                 <select name="currency">
                   <% usableCurrencies.forEach((c) => { %><option value="<%= c.code %>" <%= c.code === baseCurrency ? 'selected' : '' %>><%= c.code %></option><% }) %>
                 </select>
               </label>
-              <label><span>Périodicité</span>
+              <label><span><%= t('ges.frequency') %></span>
                 <select name="period"><% subscriptionPeriods.forEach((p) => { %><option value="<%= p.key %>"><%= p.key %></option><% }) %></select>
               </label>
-              <label><span>Première échéance</span><input type="date" name="start_date" required /></label>
-              <label><span>Fin (facultative)</span><input type="date" name="end_date" /></label>
-              <label><span>Délai de paiement (jours)</span><input type="number" name="payment_days" min="0" max="180" value="30" required /></label>
-              <label><span>Service imputé</span>
+              <label><span><%= t('ges.firstInstalment') %></span><input type="date" name="start_date" required /></label>
+              <label><span><%= t('ges.endOptional') %></span><input type="date" name="end_date" /></label>
+              <label><span><%= t('ges.paymentTerms') %></span><input type="number" name="payment_days" min="0" max="180" value="30" required /></label>
+              <label><span><%= t('ges.chargedDepartment') %></span>
                 <select name="department_id">
                   <option value="">—</option>
                   <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
                 </select>
               </label>
               <label class="span-2"><span><%= t('common.remarks') %></span><textarea name="notes" rows="2"></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer l'abonnement</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('ges.saveSubscription') %></button></div>
             </form>
-            <p class="hint">Rien n'est émis d'avance : la facture du mois prochain n'existe pas encore, et l'abonnement peut être arrêté d'ici là.</p>
+            <p class="hint"><%= t('ges.subscriptionHelp') %></p>
           </div>
 
           <div class="card">
@@ -451,15 +451,15 @@
               <h3><%= subscriptions.length %> abonnement(s)</h3>
               <form method="POST" action="/gestion/abonnements/emettre" class="inline-form">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <button type="submit" class="btn btn-outline btn-sm">Émettre les échéances dues</button>
+                <button type="submit" class="btn btn-outline btn-sm"><%= t('ges.issueDue') %></button>
               </form>
             </div>
             <% if (!subscriptions.length) { %>
-              <div class="empty-state">Aucun abonnement.</div>
+              <div class="empty-state"><%= t('ges.noSubscription') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th>Abonnement</th><th>Montant HT</th><th>Rythme</th><th>Prochaine</th><th><%= t('common.end') %></th><th>Émises</th><th><%= t('common.state') %></th><th class="actions"></th></tr></thead>
+                  <thead><tr><th><%= t('ges.subscription') %></th><th><%= t('ges.amountExclVat') %></th><th><%= t('ges.rhythm') %></th><th><%= t('ges.next') %></th><th><%= t('common.end') %></th><th><%= t('ges.issued') %></th><th><%= t('common.state') %></th><th class="actions"></th></tr></thead>
                   <tbody>
                     <% subscriptions.forEach((a) => { %>
                       <tr>
@@ -480,7 +480,7 @@
                               <input type="hidden" name="active" value="<%= a.active ? '0' : '1' %>" />
                               <button type="submit" class="btn btn-outline btn-sm"><%= a.active ? 'Suspendre' : 'Réactiver' %></button>
                             </form>
-                            <form method="POST" action="/gestion/abonnements/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet abonnement ? Les factures déjà émises restent dues.">
+                            <form method="POST" action="/gestion/abonnements/<%= a.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deleteSubscription') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -498,10 +498,10 @@
         <!-- ---------- TVA ---------- -->
         <section class="tab-panel" id="tva">
           <div class="card">
-            <div class="card-head"><h3>Arrêter une période</h3><span class="card-sub">Déclaration sur les débits</span></div>
+            <div class="card-head"><h3><%= t('ges.closePeriod') %></h3><span class="card-sub"><%= t('ges.cashBasisNote') %></span></div>
             <form method="POST" action="/gestion/tva" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Période de <%= year %></span>
+              <label class="span-2"><span><%= t('ges.periodOf') %> <%= year %></span>
                 <select name="periode" required>
                   <% vatRegimes.forEach((r) => { %>
                     <optgroup label="<%= r.key %>">
@@ -513,24 +513,22 @@
                 </select>
               </label>
               <label class="span-2"><span><%= t('common.remarks') %></span><textarea name="notes" rows="2"></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Calculer et enregistrer</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('ges.computeAndSave') %></button></div>
             </form>
-            <p class="hint">Une période se choisit dans la liste plutôt que de se saisir : trois jours de décalage feraient une déclaration fausse que personne ne verrait passer. Changez l'année en haut de page pour déclarer un exercice antérieur.</p>
+            <p class="hint"><%= t('ges.periodHelp') %></p>
             <p class="hint">
-              La TVA collectée vient des factures client, la déductible des factures fournisseur ; les brouillons et
-              les factures annulées sont ignorés. Le CMS calcule et conserve : le dépôt à l'administration reste
-              l'affaire de votre expert-comptable ou d'un tiers déclarant.
+              <%= t('ges.vatHelp') %>
             </p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3><%= vatReturns.length %> déclaration(s)</h3><span class="card-sub"><%= vatSummary.pending %> en attente · <%= money(vatSummary.pendingAmount) %></span></div>
+            <div class="card-head"><h3><%= t('ges.vatSummary', { count: vatReturns.length, pending: vatSummary.pending }) %></h3><span class="card-sub"><%= money(vatSummary.pendingAmount) %></span></div>
             <% if (!vatReturns.length) { %>
-              <div class="empty-state">Aucune déclaration enregistrée.</div>
+              <div class="empty-state"><%= t('ges.noVatReturn') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.period') %></th><th>Collectée</th><th>Déductible</th><th>À payer</th><th><%= t('common.credit') %></th><th>Détail par taux</th><th><%= t('common.state') %></th><th class="actions"></th></tr></thead>
+                  <thead><tr><th><%= t('common.period') %></th><th><%= t('ges.collected') %></th><th><%= t('ges.deductible') %></th><th><%= t('ges.toPay') %></th><th><%= t('common.credit') %></th><th><%= t('ges.byRate') %></th><th><%= t('common.state') %></th><th class="actions"></th></tr></thead>
                   <tbody>
                     <% vatReturns.forEach((v) => { %>
                       <tr>
@@ -544,13 +542,13 @@
                         <td class="num"><%= v.credit ? money(v.credit) : '—' %></td>
                         <td class="cell-sub">
                           <% v.detail.forEach((line) => { %>
-                            <div><%= line.rate %> % : <%= money(line.collected) %> collectée, <%= money(line.deductible) %> déductible</div>
+                            <div><%= line.rate %> % : <%= t('ges.vatAmounts', { collected: money(line.collected), deductible: money(line.deductible) }) %></div>
                           <% }) %>
                           <% if (!v.detail.length) { %>—<% } %>
                         </td>
                         <td>
                           <span class="status <%= v.status === 'Payée' ? 'status-on' : (v.status === 'Déclarée' ? 'status-warning' : 'status-off') %>"><%= st(v.status) %></span>
-                          <% if (v.filed_on) { %><div class="cell-sub">déposée le <%= day(v.filed_on) %></div><% } %>
+                          <% if (v.filed_on) { %><div class="cell-sub"><%= t('ges.filedOn') %> <%= day(v.filed_on) %></div><% } %>
                         </td>
                         <td class="actions">
                           <div class="row-actions">
@@ -559,9 +557,9 @@
                               <select name="status" class="input-sm">
                                 <% vatStatuses.forEach((value) => { %><option value="<%= value %>" <%= value === v.status ? 'selected' : '' %>><%= st(value) %></option><% }) %>
                               </select>
-                              <button type="submit" class="btn btn-outline btn-sm">Changer</button>
+                              <button type="submit" class="btn btn-outline btn-sm"><%= t('ges.change') %></button>
                             </form>
-                            <form method="POST" action="/gestion/tva/<%= v.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette déclaration ?">
+                            <form method="POST" action="/gestion/tva/<%= v.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deleteVatReturn') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -579,7 +577,7 @@
         <!-- ---------- Devises ---------- -->
         <section class="tab-panel" id="devises">
           <div class="card">
-            <div class="card-head"><h3>Devise de tenue des comptes</h3><span class="card-sub">Actuellement <%= baseCurrency %></span></div>
+            <div class="card-head"><h3><%= t('ges.accountingCurrency') %></h3><span class="card-sub"><%= t('ges.currently') %> <%= baseCurrency %></span></div>
             <% if (currentUser.role === 'admin') { %>
               <form method="POST" action="/gestion/devises/reference" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -588,29 +586,28 @@
                     <% currencies.forEach((c) => { %><option value="<%= c.code %>" <%= c.isBase ? 'selected' : '' %>><%= c.code %> — <%= c.label %></option><% }) %>
                   </select>
                 </label>
-                <div><button type="submit" class="btn btn-primary btn-block">Changer la devise de référence</button></div>
+                <div><button type="submit" class="btn btn-primary btn-block"><%= t('ges.changeCurrency') %></button></div>
               </form>
             <% } else { %>
-              <p class="hint">La devise de tenue des comptes relève de l'administration.</p>
+              <p class="hint"><%= t('ges.currencyAdminOnly') %></p>
             <% } %>
             <p class="hint">
-              Les totaux sont exprimés dans cette devise. Une pièce déjà émise garde le taux figé le jour de son
-              émission : changer un taux aujourd'hui ne réécrit pas le chiffre d'affaires de l'an dernier.
+              <%= t('ges.currencyHelp') %>
             </p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Taux de change</h3></div>
+            <div class="card-head"><h3><%= t('ges.exchangeRates') %></h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th><%= t('common.currency') %></th><th>1 unité vaut</th><th>Mise à jour</th><th class="actions"></th></tr></thead>
+                <thead><tr><th><%= t('common.currency') %></th><th><%= t('ges.oneUnitEquals') %></th><th><%= t('common.update') %></th><th class="actions"></th></tr></thead>
                 <tbody>
                   <% currencies.forEach((c) => { %>
                     <tr>
                       <td><div class="cell-strong"><%= c.code %></div><div class="cell-sub"><%= c.label %></div></td>
                       <td class="num">
                         <% if (c.isBase) { %><span class="tag tag-success"><%= t('common.reference') %></span>
-                        <% } else if (c.rate === null) { %><span class="cell-sub">Taux non renseigné</span>
+                        <% } else if (c.rate === null) { %><span class="cell-sub"><%= t('ges.noRate') %></span>
                         <% } else { %><%= c.rate %> <%= baseCurrency %><% } %>
                       </td>
                       <td class="cell-sub nowrap"><%= c.updatedAt ? c.updatedAt.slice(0, 10) : '—' %></td>
@@ -629,7 +626,7 @@
                 </tbody>
               </table>
             </div>
-            <p class="hint">Une devise sans taux connu n'est pas proposée à la facturation : mieux vaut refuser que convertir au petit bonheur.</p>
+            <p class="hint"><%= t('ges.rateHelp') %></p>
           </div>
         </section>
 
@@ -659,7 +656,7 @@
                   </label>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
-                <p class="hint">Le consommé agrège les factures fournisseurs du service et les notes de frais de ses membres.</p>
+                <p class="hint"><%= t('ges.budgetHelp') %></p>
               </form>
             </div>
 
@@ -684,7 +681,7 @@
                           <span class="org-name"><%= b.department_name %></span>
                           <span class="cell-sub"><%= t('erp.consumed') %> : <%= money(b.consumed) %> / <%= money(b.amount) %></span>
                         </div>
-                        <form method="POST" action="/gestion/budgets/<%= b.id %>/supprimer" data-confirm="Supprimer ce budget ?">
+                        <form method="POST" action="/gestion/budgets/<%= b.id %>/supprimer" data-confirm="<%= t('ges.deleteBudget') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
@@ -707,7 +704,7 @@
             <div class="card-head">
               <div>
                 <h3><%= t('erp.claims') %> <span class="muted">(<%= claims.length %>)</span></h3>
-                <p class="card-sub">Une note approuvée s'impute au budget du service de son auteur. Le remboursement suppose une approbation préalable.</p>
+                <p class="card-sub"><%= t('ges.claimHelp') %></p>
               </div>
             </div>
             <% if (claims.length === 0) { %>
@@ -747,7 +744,7 @@
                             <form method="POST" action="/gestion/frais/<%= c.id %>/statut" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <input type="hidden" name="status" value="Remboursée" />
-                              <button type="submit" class="btn btn-primary btn-sm">Marquer remboursée</button>
+                              <button type="submit" class="btn btn-primary btn-sm"><%= t('ges.markReimbursed') %></button>
                             </form>
                           <% } else { %>
                             <span class="cell-sub">—</span>
@@ -782,20 +779,20 @@
                     </select>
                   </label>
                   <label>
-                    <span>Numéro de série</span>
+                    <span><%= t('ges.serialNumber') %></span>
                     <input type="text" name="serial_number" maxlength="80" />
                   </label>
                   <label>
-                    <span>Achat</span>
+                    <span><%= t('ges.purchase') %></span>
                     <input type="date" name="purchase_date" />
                   </label>
                   <label>
-                    <span>Fin de garantie</span>
+                    <span><%= t('ges.warrantyEnd') %></span>
                     <input type="date" name="warranty_end" />
                   </label>
                 </div>
                 <label>
-                  <span>Valeur</span>
+                  <span><%= t('ges.value') %></span>
                   <input type="text" name="value" inputmode="decimal" />
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
@@ -819,7 +816,7 @@
                             <div class="cell-strong"><%= a.name %></div>
                             <div class="cell-sub"><%= [a.category, a.serial_number].filter(Boolean).join(' · ') || '—' %></div>
                             <% if (a.warranty_end) { %>
-                              <div class="cell-sub <%= a.warranty_end < new Date().toISOString().slice(0, 10) ? 'text-warning' : '' %>">Garantie : <%= day(a.warranty_end) %></div>
+                              <div class="cell-sub <%= a.warranty_end < new Date().toISOString().slice(0, 10) ? 'text-warning' : '' %>"><%= t('ges.warranty') %> <%= day(a.warranty_end) %></div>
                             <% } %>
                           </td>
                           <td><%= a.holder_id ? a.holder_first_name + ' ' + a.holder_last_name : '—' %></td>
@@ -830,19 +827,19 @@
                             <% if (a.holder_id) { %>
                               <form method="POST" action="/gestion/equipements/<%= a.id %>/reprendre" class="inline-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button type="submit" class="btn btn-sm">Reprendre</button>
+                                <button type="submit" class="btn btn-sm"><%= t('ges.takeBack') %></button>
                               </form>
                             <% } else { %>
                               <form method="POST" action="/gestion/equipements/<%= a.id %>/affecter" class="inline-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <select name="employee_id" class="input-sm" required>
-                                  <option value="">Affecter à…</option>
+                                  <option value=""><%= t('ges.assignTo') %></option>
                                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                                 </select>
                                 <button type="submit" class="btn btn-sm"><%= t('common.assign') %></button>
                               </form>
                             <% } %>
-                            <form method="POST" action="/gestion/equipements/<%= a.id %>/supprimer" class="inline-form" data-confirm="Retirer cet équipement du parc ?">
+                            <form method="POST" action="/gestion/equipements/<%= a.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deleteEquipment') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -874,13 +871,13 @@
                     <input type="text" name="location" maxlength="140" />
                   </label>
                   <label>
-                    <span>Capacité</span>
+                    <span><%= t('ges.capacity') %></span>
                     <input type="number" name="capacity" min="0" max="10000" value="8" />
                   </label>
                 </div>
                 <label>
                   <span><%= t('common.equipment') %></span>
-                  <input type="text" name="equipment" maxlength="300" placeholder="Ex : vidéoprojecteur, visio" />
+                  <input type="text" name="equipment" maxlength="300" placeholder="<%= t('ges.roomEquipmentExample') %>" />
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
               </form>
@@ -894,7 +891,7 @@
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th>Salle</th><th>Capacité</th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                      <thead><tr><th><%= t('ges.room') %></th><th><%= t('ges.capacity') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
                       <tbody>
                         <% rooms.forEach((r) => { %>
                           <tr>
@@ -911,7 +908,7 @@
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button type="submit" class="btn btn-sm"><%= r.active ? 'Désactiver' : 'Activer' %></button>
                               </form>
-                              <form method="POST" action="/gestion/salles/<%= r.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette salle et ses réservations ?">
+                              <form method="POST" action="/gestion/salles/<%= r.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deleteRoom') %>">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                               </form>
@@ -927,7 +924,7 @@
               <div class="card">
                 <div class="card-head"><h3><%= t('erp.bookings') %> <span class="muted">(<%= bookings.length %>)</span></h3></div>
                 <% if (bookings.length === 0) { %>
-                  <div class="empty-state">Aucune réservation à venir.</div>
+                  <div class="empty-state"><%= t('ges.noUpcomingBooking') %></div>
                 <% } else { %>
                   <ul class="person-list">
                     <% bookings.slice(0, 20).forEach((b) => { %>
@@ -936,7 +933,7 @@
                           <span class="person-name"><%= b.title %></span>
                           <span class="cell-sub"><%= b.room_name %> · <%= day(b.booking_date) %> · <%= b.start_time %> – <%= b.end_time %> · <%= b.first_name %> <%= b.last_name %></span>
                         </span>
-                        <form method="POST" action="/gestion/reservations/<%= b.id %>/annuler" data-confirm="Annuler cette réservation ?">
+                        <form method="POST" action="/gestion/reservations/<%= b.id %>/annuler" data-confirm="<%= t('ges.cancelBooking') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
                         </form>
