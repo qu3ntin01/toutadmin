@@ -176,6 +176,91 @@
             <% }) %>
           <% } %>
         </div>
+
+        <!-- ---------- Points individuels ---------- -->
+        <div class="card" id="points">
+          <div class="card-head">
+            <div>
+              <h3><%= t('oto.title') %></h3>
+              <p class="card-sub"><%= t('oto.subtitle', { planned: pointStats.planned, overdue: pointStats.overdue, never: pointStats.neverMet }) %></p>
+            </div>
+          </div>
+          <p class="hint"><%= t('oto.privacyHint') %></p>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th><%= t('common.member') %></th><th><%= t('oto.lastHeld') %></th><th><%= t('oto.nextOn') %></th></tr></thead>
+              <tbody>
+                <% cadence.forEach((row) => { %>
+                  <tr>
+                    <td class="cell-strong"><%= row.first_name %> <%= row.last_name %></td>
+                    <td class="<%= row.last_held ? 'cell-sub' : 'text-danger' %> nowrap">
+                      <%= row.last_held ? new Date(row.last_held + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : t('oto.neverMet') %>
+                    </td>
+                    <td class="cell-sub nowrap">
+                      <%= row.next_on ? new Date(row.next_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—' %>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (cadence.length === 0) { %><tr><td colspan="3" class="cell-sub"><%= t('team.empty') %></td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <form method="POST" action="/mon-equipe/points" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label><span><%= t('common.member') %></span>
+              <select name="employee_id" required>
+                <option value="" disabled selected><%= t('common.choose') %></option>
+                <% team.forEach((m) => { %><option value="<%= m.id %>"><%= m.first_name %> <%= m.last_name %></option><% }) %>
+              </select>
+            </label>
+            <label><span><%= t('oto.scheduledOn') %></span><input type="date" name="scheduled_on" required /></label>
+            <label class="span-2"><span><%= t('oto.topics') %></span><textarea name="topics" rows="2" maxlength="2000"></textarea></label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('oto.plan') %></button></div>
+          </form>
+        </div>
+
+        <% points.forEach((point) => { %>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= point.first_name %> <%= point.last_name %></h3>
+                <p class="card-sub">
+                  <span class="tag <%= point.status === 'Tenu' ? 'tag-success' : (point.status === 'Annulé' ? '' : 'tag-warning') %>"><%= st(point.status) %></span>
+                  <%= new Date(point.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %>
+                  <% if (point.status === 'Planifié' && point.scheduled_on < today) { %> · <span class="text-danger"><%= t('oto.late') %></span><% } %>
+                </p>
+              </div>
+              <form method="POST" action="/mon-equipe/points/<%= point.id %>/supprimer" data-confirm="<%= t('oto.confirmDelete') %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+              </form>
+            </div>
+            <form method="POST" action="/mon-equipe/points/<%= point.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('oto.scheduledOn') %></span><input type="date" name="scheduled_on" value="<%= point.scheduled_on %>" required /></label>
+              <label><span><%= t('oto.heldOn') %></span><input type="date" name="held_on" value="<%= point.held_on || '' %>" /></label>
+              <label><span><%= t('common.status') %></span>
+                <select name="status"><% pointStatuses.forEach((s) => { %><option value="<%= s %>" <%= point.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('oto.nextOn') %></span><input type="date" name="next_on" value="<%= point.next_on || '' %>" /></label>
+              <label class="span-2"><span><%= t('oto.topics') %></span><textarea name="topics" rows="2" maxlength="2000"><%= point.topics %></textarea></label>
+              <label class="span-2"><span><%= t('oto.sharedNote') %></span><textarea name="shared_note" rows="3" maxlength="4000"><%= point.shared_note %></textarea></label>
+              <label class="span-2"><span><%= t('oto.privateNote') %></span><textarea name="private_note" rows="3" maxlength="4000"><%= point.private_note %></textarea></label>
+              <label><span><%= t('oto.mood') %></span>
+                <select name="mood">
+                  <option value=""><%= t('oto.moodUnset') %></option>
+                  <% [1, 2, 3, 4, 5].forEach((level) => { %>
+                    <option value="<%= level %>" <%= point.mood === level ? 'selected' : '' %>><%= t('oto.moodLevel', { level: level }) %></option>
+                  <% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+        <% }) %>
+
       </main>
     </div>
   </div>

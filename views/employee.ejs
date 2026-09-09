@@ -563,6 +563,30 @@
           </div>
         <% } %>
 
+        <!-- ---------- Points individuels avec le manager ---------- -->
+        <% if (myPoints.length) { %>
+          <div class="card" id="points">
+            <div class="card-head"><h3><%= t('oto.mine') %> <span class="muted">(<%= myPoints.length %>)</span></h3></div>
+            <ul class="meeting-list">
+              <% myPoints.forEach((point) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><%= new Date(point.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></span>
+                    <span class="status <%= point.status === 'Tenu' ? 'status-on' : 'status-warning' %>"><%= st(point.status) %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= point.manager_first_name ? point.manager_first_name + ' ' + point.manager_last_name : '—' %>
+                    <% if (point.next_on) { %> · <%= t('oto.nextOnValue', { date: new Date(point.next_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) }) %><% } %>
+                  </p>
+                  <% if (point.topics) { %><p class="cell-sub"><strong><%= t('oto.topics') %></strong> <%= point.topics %></p><% } %>
+                  <% if (point.shared_note) { %><p class="cell-sub"><strong><%= t('oto.sharedNote') %></strong> <%= point.shared_note %></p><% } %>
+                </li>
+              <% }) %>
+            </ul>
+            <p class="hint"><%= t('oto.mineHint') %></p>
+          </div>
+        <% } %>
+
       </main>
     </div>
   </div>

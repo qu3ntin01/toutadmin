@@ -165,6 +165,17 @@ const PERSONAL_SOURCES = [
     query: 'SELECT id, kind, reference_date, completed_at FROM checklists WHERE user_id = ?' },
   { key: 'notifications', table: 'notifications', column: 'user_id', label: 'Notifications', erasable: true,
     query: 'SELECT id, title, body, created_at, read_at FROM notifications WHERE user_id = ?' },
+  { key: 'evenements', table: 'event_registrations', column: 'user_id', label: 'Inscriptions aux événements', erasable: true,
+    query: 'SELECT id, event_id, status, registered_at FROM event_registrations WHERE user_id = ?' },
+  // Les notes que le manager garde pour lui sont invisibles dans l'application,
+  // mais elles parlent de la personne : une demande d'accès les rend. Un manager
+  // écrit donc en sachant que ce texte peut lui être communiqué un jour.
+  { key: 'points_individuels', table: 'one_on_ones', column: 'employee_id', label: 'Points individuels', erasable: true,
+    query: 'SELECT id, scheduled_on, held_on, topics, shared_note, private_note, mood, status FROM one_on_ones WHERE employee_id = ?' },
+  // Ouvertures et révocations d'accès applicatifs : conservées comme le journal
+  // d'audit, faute de quoi plus rien ne prouve qu'un accès a bien été fermé.
+  { key: 'acces_logiciels', table: 'software_accesses', column: 'user_id', label: 'Accès aux logiciels', erasable: false,
+    query: 'SELECT id, licence_id, level, granted_on, revoked_on FROM software_accesses WHERE user_id = ?' },
   { key: 'journal', table: 'audit_log', column: 'actor_id', label: "Journal d'audit", erasable: false,
     query: 'SELECT id, occurred_at, action, entity, entity_id, ip FROM audit_log WHERE actor_id = ?' },
 ];

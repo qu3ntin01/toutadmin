@@ -59,6 +59,8 @@ router.get('/', (req, res) => {
     openSessions: talent.sessions().filter((session) => !['Terminée', 'Annulée'].includes(session.status)),
     myDocuments: talent.documentsFor(employeeId),
     myReviews: talent.reviews({ employeeId }),
+    // Les points individuels, privés de ce que le manager garde pour lui.
+    myPoints: require('../oneonone').forEmployee(employeeId),
   });
 });
 
