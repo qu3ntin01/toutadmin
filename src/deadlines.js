@@ -202,11 +202,14 @@ function collect({ withinDays = HORIZON_DAYS } = {}) {
     add('Conformité tiers', document.name, document.kind, document.expires_on, '/gestion#tiers', financeStewards());
   }
 
-  // --- Évaluations de tiers à refaire
+  // --- Évaluations de tiers à refaire. Seule la dernière évaluation compte :
+  //     sans cela, un tiers évalué dix fois ferait dix échéances.
   for (const review of db.prepare(`
     SELECT r.next_review, p.id, p.name FROM partner_reviews r
     JOIN partners p ON p.id = r.partner_id
-    WHERE r.next_review IS NOT NULL AND r.next_review <= ?
+    WHERE r.id = (SELECT r2.id FROM partner_reviews r2 WHERE r2.partner_id = p.id
+                  ORDER BY r2.reviewed_on DESC, r2.id DESC LIMIT 1)
+      AND r.next_review IS NOT NULL AND r.next_review <= ?
   `).all(limit)) {
     add('Évaluation tiers', review.name, 'Revue à refaire', review.next_review, `/partenaires/${review.id}#evaluations`, financeStewards());
   }

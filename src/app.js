@@ -71,6 +71,7 @@ const pieceRoutes = require('./routes/pieces');
 const informatiqueRoutes = require('./routes/informatique');
 const developpementRoutes = require('./routes/developpement');
 const evenementRoutes = require('./routes/evenements');
+const partenaireRoutes = require('./routes/partenaires');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -280,6 +281,7 @@ function createApp() {
   app.use('/informatique', informatiqueRoutes);
   app.use('/developpement', developpementRoutes);
   app.use('/evenements', evenementRoutes);
+  app.use('/partenaires', partenaireRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

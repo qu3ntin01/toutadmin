@@ -110,10 +110,10 @@
                       <% partners.forEach((p) => { %>
                         <tr>
                           <td>
-                            <div class="cell-strong"><%= p.name %></div>
+                            <div class="cell-strong"><a href="/partenaires/<%= p.id %>"><%= p.name %></a></div>
                             <div class="cell-sub"><%= [p.contact_name, p.email, p.phone].filter(Boolean).join(' · ') || '—' %></div>
                           </td>
-                          <td><span class="tag"><%= p.kind %></span></td>
+                          <td><span class="tag"><%= st(p.kind) %></span></td>
                           <td class="num"><%= p.contract_count %> / <%= p.invoice_count %></td>
                           <td>
                             <span class="status <%= p.active ? 'status-on' : 'status-off' %>">
@@ -121,9 +121,10 @@
                             </span>
                           </td>
                           <td class="actions">
+                            <a class="btn btn-outline btn-sm" href="/partenaires/<%= p.id %>"><%= t('ptn.openSheet') %></a>
                             <form method="POST" action="/gestion/tiers/<%= p.id %>/statut" class="inline-form">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                              <button type="submit" class="btn btn-sm"><%= p.active ? 'Désactiver' : 'Activer' %></button>
+                              <button type="submit" class="btn btn-sm"><%= p.active ? t('common.deactivate') : t('common.activate') %></button>
                             </form>
                             <form method="POST" action="/gestion/tiers/<%= p.id %>/supprimer" class="inline-form" data-confirm="<%= t('ges.deletePartner') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />

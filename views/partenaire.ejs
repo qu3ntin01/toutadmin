@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: partner.name + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: t('ptn.panel'),
+      navItems: [
+        { tab: 'fiche', label: t('ptn.sheet'), icon: 'briefcase' },
+        { tab: 'contacts', label: t('ptn.contacts'), icon: 'users', badge: contacts.length },
+        { tab: 'conformite', label: t('ptn.compliance'), icon: 'shield', badge: compliance.expired + compliance.soon },
+        { tab: 'evaluations', label: t('ptn.reviews'), icon: 'check', badge: reviews.length }
+      ],
+      footLinks: [{ href: '/gestion#tiers', label: t('nav.gestion'), icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: partner.name,
+        headerSubtitle: t('ptn.sheetSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const stateTag = (state) => (state === 'perime' ? 'tag-danger' : (state === 'bientot' ? 'tag-warning' : (state === 'valable' ? 'tag-success' : ''))); %>
+        <% const stateLabel = (state) => (state === 'perime' ? t('ptn.expired') : (state === 'bientot' ? t('ptn.expiringSoon') : (state === 'valable' ? t('ptn.valid') : t('ptn.noExpiry')))); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= compliance.expired %></span><span class="stat-label"><%= t('ptn.expiredDocs') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= compliance.soon %></span><span class="stat-label"><%= t('ptn.expiringDocs', { days: warningDays }) %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= lastScore == null ? '—' : lastScore.toLocaleString(locale) %></span><span class="stat-label"><%= t('ptn.lastScore') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= contracts.length %></span><span class="stat-label"><%= t('erp.contracts') %></span></span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="fiche">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= partner.name %></h3>
+                <p class="card-sub">
+                  <span class="tag"><%= st(partner.kind) %></span>
+                  <span class="tag <%= partner.active ? 'tag-success' : '' %>"><%= partner.active ? t('common.active') : t('common.inactive') %></span>
+                  <%= partner.registration || '' %>
+                </p>
+              </div>
+              <a class="btn btn-outline btn-sm" href="/gestion#tiers"><%= t('ptn.editInGestion') %></a>
+            </div>
+            <ul class="org-list">
+              <li class="org-item"><span><%= t('ptn.mainContact') %></span><span class="cell-strong"><%= partner.contact_name || '—' %></span></li>
+              <li class="org-item"><span><%= t('common.email') %></span><span class="cell-strong"><%= partner.email || '—' %></span></li>
+              <li class="org-item"><span><%= t('common.phone') %></span><span class="cell-strong"><%= partner.phone || '—' %></span></li>
+              <li class="org-item"><span><%= t('ptn.address') %></span><span class="cell-strong"><%= partner.address || '—' %></span></li>
+              <% if (nextReview) { %>
+                <li class="org-item"><span><%= t('ptn.nextReview') %></span><span class="cell-strong"><%= day(nextReview) %></span></li>
+              <% } %>
+            </ul>
+            <% if (partner.notes) { %><p class="article-body"><%= partner.notes %></p><% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('erp.contracts') %> <span class="muted">(<%= contracts.length %>)</span></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.title') %></th><th><%= t('ptn.period') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th></tr></thead>
+                <tbody>
+                  <% contracts.forEach((c) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= c.title %><% if (c.reference) { %><br /><span class="cell-sub"><%= c.reference %></span><% } %></td>
+                      <td class="cell-sub nowrap"><%= day(c.start_date) %> → <%= day(c.end_date) %></td>
+                      <td class="cell-sub nowrap"><%= money(c.amount) %></td>
+                      <td><span class="tag"><%= st(c.status) %></span></td>
+                    </tr>
+                  <% }) %>
+                  <% if (contracts.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('ptn.noContract') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('erp.invoices') %> <span class="muted">(<%= invoices.length %>)</span></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.reference') %></th><th><%= t('common.date') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th></tr></thead>
+                <tbody>
+                  <% invoices.forEach((i) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= i.reference || i.label %><br /><span class="cell-sub"><%= st(i.direction) %></span></td>
+                      <td class="cell-sub nowrap"><%= day(i.issue_date) %></td>
+                      <td class="cell-sub nowrap"><%= money(i.amount_ht) %></td>
+                      <td><span class="tag"><%= st(i.status) %></span></td>
+                    </tr>
+                  <% }) %>
+                  <% if (invoices.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('ptn.noInvoice') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="contacts">
+          <div class="card">
+            <div class="card-head"><h3><%= t('ptn.addContact') %></h3></div>
+            <form method="POST" action="/partenaires/<%= partner.id %>/contacts" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="120" /></label>
+              <label><span><%= t('ptn.role') %></span><input type="text" name="role" maxlength="80" /></label>
+              <label><span><%= t('common.email') %></span><input type="email" name="email" maxlength="254" /></label>
+              <label><span><%= t('common.phone') %></span><input type="text" name="phone" maxlength="40" /></label>
+              <label class="span-2 check-row">
+                <input type="checkbox" name="is_primary" value="1" />
+                <span><%= t('ptn.setPrimary') %></span>
+              </label>
+              <label class="span-2"><span><%= t('common.notes') %></span><textarea name="notes" rows="2" maxlength="500"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('ptn.contactCount', { count: contacts.length }) %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.name') %></th><th><%= t('ptn.role') %></th><th><%= t('ptn.reach') %></th><th></th></tr></thead>
+                <tbody>
+                  <% contacts.forEach((c) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= c.name %>
+                        <% if (c.is_primary) { %> <span class="tag tag-success"><%= t('ptn.primary') %></span><% } %>
+                        <% if (c.notes) { %><br /><span class="cell-sub"><%= c.notes %></span><% } %>
+                      </td>
+                      <td class="cell-sub"><%= c.role || '—' %></td>
+                      <td class="cell-sub"><%= [c.email, c.phone].filter(Boolean).join(' · ') || '—' %></td>
+                      <td class="actions">
+                        <% if (!c.is_primary) { %>
+                          <form method="POST" action="/partenaires/contacts/<%= c.id %>/principal">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="partner_id" value="<%= partner.id %>" />
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('ptn.makePrimary') %></button>
+                          </form>
+                        <% } %>
+                        <form method="POST" action="/partenaires/contacts/<%= c.id %>/supprimer" data-confirm="<%= t('ptn.confirmDeleteContact') %>">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (contacts.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('ptn.noContact') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="conformite">
+          <div class="card">
+            <div class="card-head"><h3><%= t('ptn.addDocument') %></h3></div>
+            <p class="hint"><%= t('ptn.complianceHint', { days: warningDays }) %></p>
+            <form method="POST" action="/partenaires/<%= partner.id %>/pieces" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('ptn.documentKind') %></span>
+                <select name="kind"><% documentKinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('common.reference') %></span><input type="text" name="reference" maxlength="80" /></label>
+              <label><span><%= t('ptn.issuedOn') %></span><input type="date" name="issued_on" /></label>
+              <label><span><%= t('ptn.expiresOn') %></span><input type="date" name="expires_on" /></label>
+              <label class="span-2"><span><%= t('common.notes') %></span><textarea name="notes" rows="2" maxlength="500"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('ptn.documentCount', { count: documents.length }) %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('ptn.documentKind') %></th><th><%= t('common.reference') %></th><th><%= t('ptn.issuedOn') %></th><th><%= t('ptn.expiresOn') %></th><th><%= t('common.status') %></th><th></th></tr></thead>
+                <tbody>
+                  <% documents.forEach((d) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= st(d.kind) %><% if (d.notes) { %><br /><span class="cell-sub"><%= d.notes %></span><% } %></td>
+                      <td class="cell-sub"><%= d.reference || '—' %></td>
+                      <td class="cell-sub nowrap"><%= day(d.issued_on) %></td>
+                      <td class="cell-sub nowrap"><%= day(d.expires_on) %></td>
+                      <td><span class="tag <%= stateTag(d.state) %>"><%= stateLabel(d.state) %></span></td>
+                      <td class="actions">
+                        <form method="POST" action="/partenaires/pieces/<%= d.id %>/supprimer" data-confirm="<%= t('ptn.confirmDeleteDocument') %>">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (documents.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('ptn.noDocument') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="evaluations">
+          <div class="card">
+            <div class="card-head"><h3><%= t('ptn.addReview') %></h3></div>
+            <p class="hint"><%= t('ptn.reviewHint') %></p>
+            <form method="POST" action="/partenaires/<%= partner.id %>/evaluations" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('ptn.reviewedOn') %></span><input type="date" name="reviewed_on" value="<%= today %>" required /></label>
+              <label><span><%= t('ptn.nextReview') %></span><input type="date" name="next_review" /></label>
+              <label><span><%= t('ptn.quality') %></span><input type="number" name="quality" min="1" max="5" /></label>
+              <label><span><%= t('ptn.leadTime') %></span><input type="number" name="lead_time" min="1" max="5" /></label>
+              <label><span><%= t('ptn.price') %></span><input type="number" name="price" min="1" max="5" /></label>
+              <label class="span-2"><span><%= t('ptn.comment') %></span><textarea name="comment" rows="3" maxlength="2000"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+
+          <% reviews.forEach((review) => { %>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= day(review.reviewed_on) %> — <%= review.score == null ? '—' : t('ptn.scoreOf', { score: review.score }) %></h3>
+                  <p class="card-sub">
+                    <%= t('ptn.quality') %> <%= review.quality || '—' %> ·
+                    <%= t('ptn.leadTime') %> <%= review.lead_time || '—' %> ·
+                    <%= t('ptn.price') %> <%= review.price || '—' %>
+                    <% if (review.first_name) { %> · <%= review.first_name %> <%= review.last_name %><% } %>
+                    <% if (review.next_review) { %> · <%= t('ptn.nextReviewOn', { date: day(review.next_review) }) %><% } %>
+                  </p>
+                </div>
+                <form method="POST" action="/partenaires/evaluations/<%= review.id %>/supprimer" data-confirm="<%= t('ptn.confirmDeleteReview') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                </form>
+              </div>
+              <% if (review.comment) { %><p class="article-body"><%= review.comment %></p><% } %>
+            </div>
+          <% }) %>
+          <% if (reviews.length === 0) { %><div class="card"><div class="empty-state"><%= t('ptn.noReview') %></div></div><% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>
