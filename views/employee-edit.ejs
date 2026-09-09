@@ -21,7 +21,7 @@
         <% } %>
 
         <div class="card">
-          <div class="card-head"><h3>Profil du membre</h3></div>
+          <div class="card-head"><h3><%= t('emp.profile') %></h3></div>
           <form method="POST" action="/admin/employes/<%= employee.id %>/modifier" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label>
@@ -51,7 +51,7 @@
               </select>
             </label>
             <label>
-              <span>Type de contrat</span>
+              <span><%= t('admin.contractType') %></span>
               <select name="contract_type" required>
                 <% contractTypes.forEach((c) => { %>
                   <option value="<%= c %>" <%= employee.contract_type === c ? 'selected' : '' %>><%= c %></option>
@@ -59,63 +59,61 @@
               </select>
             </label>
             <label>
-              <span>Fin de contrat</span>
+              <span><%= t('admin.contractEnd') %></span>
               <input type="date" name="contract_end_date" value="<%= employee.contract_end_date || '' %>" />
             </label>
             <label class="span-2">
-              <span>TJM en € (freelance uniquement)</span>
+              <span><%= t('emp.dailyRate') %></span>
               <input type="number" name="daily_rate" min="0" step="0.01" value="<%= employee.daily_rate ?? '' %>" placeholder="Ex : 450" />
             </label>
             <div class="span-2 form-actions">
               <button type="submit" class="btn btn-primary"><%= t('common.save') %></button>
               <a href="/admin#personnel" class="btn btn-quiet"><%= t('common.cancel') %></a>
               <% if (employee.contract_type === 'Freelance') { %>
-                <a href="/rh/temps/<%= employee.id %>" class="btn">Voir le pointage</a>
+                <a href="/rh/temps/<%= employee.id %>" class="btn"><%= t('emp.viewTimesheet') %></a>
               <% } %>
             </div>
           </form>
           <p class="hint">
-            Videz le champ « Fin de contrat » pour repasser en durée indéterminée. Le compte se désactive
-            automatiquement le lendemain de la date de fin. Le TJM sert au calcul du taux horaire (TJM ÷ 8 h).
+            <%= t('emp.contractNote') %>
           </p>
         </div>
 
         <div class="card">
           <div class="card-head">
             <div>
-              <h3>Messagerie professionnelle</h3>
-              <p class="card-sub">Adresse et serveurs du membre. Ces réglages ne sont modifiables que par l'administration.</p>
+              <h3><%= t('emp.mailbox') %></h3>
+              <p class="card-sub"><%= t('emp.mailboxAdminNote') %></p>
             </div>
           </div>
           <form method="POST" action="/admin/employes/<%= employee.id %>/messagerie" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label class="span-2">
-              <span>Adresse professionnelle</span>
+              <span><%= t('messages.mailbox') %></span>
               <input type="email" name="mail_address" value="<%= employee.mail_address %>" placeholder="prenom.nom@entreprise.com" />
             </label>
             <label>
-              <span>Serveur IMAP (réception)</span>
+              <span><%= t('emp.imapServer') %></span>
               <input type="text" name="mail_imap_host" value="<%= employee.mail_imap_host %>" placeholder="imap.entreprise.com" />
             </label>
             <label>
-              <span>Port IMAP</span>
+              <span><%= t('emp.imapPort') %></span>
               <input type="number" name="mail_imap_port" min="1" max="65535" value="<%= employee.mail_imap_port ?? '' %>" placeholder="993" />
             </label>
             <label>
-              <span>Serveur SMTP (envoi)</span>
+              <span><%= t('emp.smtpServer') %></span>
               <input type="text" name="mail_smtp_host" value="<%= employee.mail_smtp_host %>" placeholder="smtp.entreprise.com" />
             </label>
             <label>
-              <span>Port SMTP</span>
+              <span><%= t('emp.smtpPort') %></span>
               <input type="number" name="mail_smtp_port" min="1" max="65535" value="<%= employee.mail_smtp_port ?? '' %>" placeholder="587" />
             </label>
             <div class="span-2 form-actions">
-              <button type="submit" class="btn btn-primary">Enregistrer la messagerie</button>
+              <button type="submit" class="btn btn-primary"><%= t('emp.saveMailbox') %></button>
             </div>
           </form>
           <p class="hint">
-            Le membre voit son adresse dans sa messagerie mais ne peut pas la modifier. La synchronisation
-            effective avec la boîte externe nécessite de connecter ces serveurs (voir le README).
+            <%= t('emp.mailboxReadOnly') %>
           </p>
         </div>
       </main>

@@ -17,10 +17,9 @@
 
   <main class="auth-main">
     <div class="auth-card">
-      <h1>Choisissez votre mot de passe</h1>
+      <h1><%= t('fa.choosePassword') %></h1>
       <p class="auth-sub">
-        Le mot de passe qui vous a été transmis est temporaire : il a circulé hors de l'application.
-        Remplacez-le pour ouvrir votre espace.
+        <%= t('fa.temporaryNote') %>
       </p>
 
       <% if (flash) { %>
@@ -34,25 +33,24 @@
           <input type="password" name="current_password" required autofocus autocomplete="current-password" />
         </label>
         <label>
-          <span>Nouveau mot de passe</span>
+          <span><%= t('profile.newPassword') %></span>
           <input type="password" name="new_password" required autocomplete="new-password" />
         </label>
         <label>
-          <span>Confirmation</span>
+          <span><%= t('fa.confirmation') %></span>
           <input type="password" name="confirm_password" required autocomplete="new-password" />
         </label>
-        <button type="submit" class="btn btn-primary btn-block">Enregistrer et continuer</button>
+        <button type="submit" class="btn btn-primary btn-block"><%= t('fa.saveAndContinue') %></button>
       </form>
 
       <p class="auth-note">
-        Au moins <%= minPasswordLength %> caractères, mêlant trois catégories parmi minuscules,
-        majuscules, chiffres et symboles. Ni votre nom, ni votre identifiant.
+        <%= t('fa.rules', { min: minPasswordLength }) %>
       </p>
 
       <div class="auth-foot">
         <form method="POST" action="/deconnexion">
           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-          <button type="submit" class="btn-link">Se déconnecter</button>
+          <button type="submit" class="btn-link"><%= t('fa.signOut') %></button>
         </form>
       </div>
     </div>

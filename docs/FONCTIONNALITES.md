@@ -112,31 +112,36 @@ qui relie le tout.
 
 ## L'état des traductions
 
-Le dictionnaire compte 516 clés déclinées dans les 16 langues. Sa cohérence est
+Le dictionnaire compte 2 144 clés déclinées dans les 16 langues. Sa cohérence est
 tenue par les tests : parité des clés, paramètres `{nom}` identiques d'une langue
 à l'autre, aucune valeur vide, et vérification que le russe, l'arabe, le hindi,
 le chinois, le japonais et le coréen sont bien écrits dans leur écriture — une
 traduction oubliée se repère à ce qu'elle reste en caractères latins.
 
-Ce qui est traduit de bout en bout : l'écran de connexion, l'assistant
-d'installation, l'espace collaborateur, l'espace RH, la console d'administration,
-le chrome présent sur chaque page (en-tête, compte, déconnexion, sélecteur de
-thème, navigation latérale des quatre espaces), **tous les statuts** affichés
-dans le produit, et le **vocabulaire générique** — les libellés de colonnes, de
-champs et de boutons qui reviennent d'un écran à l'autre : *Intitulé*,
-*Catégorie*, *Description*, *Montant*, *Échéance*, *Enregistrer*, *Supprimer*.
-Ces 101 termes couvrent 673 emplacements répartis sur 55 vues.
+**Les 76 vues du produit sont traduites**, du premier écran de connexion à la
+dernière boîte de dialogue de confirmation : les quatre espaces, le chrome de
+chaque page, tous les statuts affichés, le vocabulaire générique et le
+vocabulaire propre à chaque métier — comptabilité, paie, trésorerie, qualité,
+parapheur, sauvegardes, interfaces, données personnelles.
 
-Ce qui ne l'est pas encore : le vocabulaire propre à chaque écran des derniers
-lots — direction, planning, qualité, accueil, parapheur, pièces reçues,
-trésorerie, immobilisations, flotte, CRM, projets, sauvegardes, interfaces.
-Il reste **1 611 chaînes visibles sur 64 des 76 vues**, désormais des phrases et
-des termes métier apparaissant sur un ou deux écrans seulement — plus aucun mot
-générique. Elles s'affichent en français quelle que soit la langue choisie ;
-rien n'est cassé, mais un acheteur allemand ou japonais verra ces pages dans une
-langue qui n'est pas la sienne. C'est un travail à mener écran par écran plutôt
-qu'en une passe automatique : une traduction approximative dans un produit vendu
-coûte plus cher que son absence.
+Ce qui reste en français dans les gabarits n'est pas du texte affiché : les
+paramètres d'URL du journal d'audit (`&du=`, `&au=`), l'exemple de commande
+`curl` de la documentation d'API, et un commentaire dans le script qui applique
+le thème avant le premier rendu.
+
+### Deux règles tenues d'un bout à l'autre
+
+**Les valeurs stockées ne bougent pas.** Un statut est écrit en français dans la
+base — c'est la valeur métier, celle qui sert aux contraintes `CHECK`, aux
+comparaisons et aux URL de filtre. Seul l'affichage passe par le dictionnaire.
+Les attributs `value` d'un `<select>`, les chaînes comparées dans une condition
+et les identifiants de filtre gardent leur libellé français.
+
+**Une phrase coupée par une donnée devient une clé paramétrée.** « {count}
+échec(s) consécutif(s) », « Pagination par {limit} (200 au plus) et {since} »,
+« {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) » : l'ordre des mots
+n'est pas le même d'une langue à l'autre, et un nombre collé entre deux fragments
+ne se traduit nulle part.
 
 ---
 

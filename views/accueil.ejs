@@ -6,21 +6,21 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Accueil',
+      panelLabel: t('nav.frontDesk'),
       navItems: [
-        { tab: 'visiteurs', label: 'Registre des visiteurs', icon: 'users', badge: stats.presentNow },
-        { tab: 'courrier', label: 'Courrier', icon: 'inbox', badge: stats.pendingMail }
+        { tab: 'visiteurs', label: t('acc.tabVisitors'), icon: 'users', badge: stats.presentNow },
+        { tab: 'courrier', label: t('acc.tabMail'), icon: 'inbox', badge: stats.pendingMail }
       ],
       footLinks: [
-        { href: '/rh', label: 'Espace RH', icon: 'shield' },
-        { href: '/salles', label: 'Salles', icon: 'calendar' }
+        { href: '/rh', label: t('nav.hrSpace'), icon: 'shield' },
+        { href: '/salles', label: t('nav.rooms'), icon: 'calendar' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: "Accueil",
-        headerSubtitle: 'Registre des visiteurs et suivi du courrier'
+        headerTitle: t('nav.frontDesk'),
+        headerSubtitle: t('acc.headerSub')
       }) %>
 
       <main class="page">
@@ -31,28 +31,28 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.presentNow %></span><span class="stat-label">Visiteurs dans les murs</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.presentNow %></span><span class="stat-label"><%= t('acc.visitorsInside') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.visitorsToday %></span><span class="stat-label">Visites aujourd'hui</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.visitorsToday %></span><span class="stat-label"><%= t('acc.visitsToday') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.pendingMail %></span><span class="stat-label">Courriers à remettre</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.pendingMail %></span><span class="stat-label"><%= t('acc.mailToHand') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.registered %></span><span class="stat-label">Recommandés en attente</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.registered %></span><span class="stat-label"><%= t('acc.registeredPending') %></span></span>
           </div>
         </section>
 
         <!-- ---------- Visiteurs ---------- -->
         <section class="tab-panel is-active" id="visiteurs">
           <div class="card">
-            <div class="card-head"><h3>Dans les murs</h3><span class="card-sub">La liste qu'on emporte en cas d'évacuation</span></div>
+            <div class="card-head"><h3><%= t('acc.inside') %></h3><span class="card-sub"><%= t('acc.evacuationList') %></span></div>
             <% if (!presentList.length) { %>
-              <p class="empty-state">Aucun visiteur présent.</p>
+              <p class="empty-state"><%= t('acc.noVisitor') %></p>
             <% } else { %>
               <ul class="person-list">
                 <% presentList.forEach((v) => { %>
@@ -60,13 +60,13 @@
                     <span class="person-body">
                       <span class="person-name"><%= v.first_name %> <%= v.last_name %><%= v.company ? ` — ${v.company}` : '' %></span>
                       <span class="person-role">
-                        arrivé à <%= v.arrived_at %><%= v.host_last ? ` · reçu par ${v.host_first} ${v.host_last}` : '' %><%= v.badge ? ` · badge ${v.badge}` : '' %>
+                        <%= t('acc.arrivedAt', { time: v.arrived_at }) %><%= v.host_last ? ` · ${t('acc.receivedBy', { name: `${v.host_first} ${v.host_last}` })}` : '' %><%= v.badge ? ` · ${t('acc.badgeNumber', { number: v.badge })}` : '' %>
                       </span>
                     </span>
                     <form method="POST" action="/accueil/visiteurs/<%= v.id %>/sortie" class="inline-field">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                       <input type="time" name="departed_at" value="<%= now %>" class="input-sm" />
-                      <button type="submit" class="btn btn-outline btn-sm">Sortie</button>
+                      <button type="submit" class="btn btn-outline btn-sm"><%= t('acc.exit') %></button>
                     </form>
                   </li>
                 <% }) %>
@@ -75,42 +75,42 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Inscrire une arrivée</h3></div>
+            <div class="card-head"><h3><%= t('acc.registerArrival') %></h3></div>
             <form method="POST" action="/accueil/visiteurs" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label><span><%= t('common.firstName') %></span><input type="text" name="first_name" maxlength="120" /></label>
               <label><span><%= t('common.name') %></span><input type="text" name="last_name" required maxlength="120" /></label>
-              <label><span>Société</span><input type="text" name="company" maxlength="160" /></label>
-              <label><span>Reçu par</span>
+              <label><span><%= t('acc.company') %></span><input type="text" name="company" maxlength="160" /></label>
+              <label><span><%= t('acc.host') %></span>
                 <select name="host_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                 </select>
               </label>
               <label><span><%= t('common.day') %></span><input type="date" name="visited_on" value="<%= today %>" /></label>
-              <label><span>Heure d'arrivée</span><input type="time" name="arrived_at" value="<%= now %>" /></label>
-              <label><span>Badge remis</span><input type="text" name="badge" maxlength="40" /></label>
-              <label><span><%= t('common.reason') %></span><input type="text" name="purpose" maxlength="300" placeholder="Rendez-vous commercial" /></label>
+              <label><span><%= t('acc.arrivalTime') %></span><input type="time" name="arrived_at" value="<%= now %>" /></label>
+              <label><span><%= t('acc.badgeGiven') %></span><input type="text" name="badge" maxlength="40" /></label>
+              <label><span><%= t('common.reason') %></span><input type="text" name="purpose" maxlength="300" placeholder="<%= t('acc.visitPlaceholder') %>" /></label>
               <label class="span-2"><span><%= t('common.remarks') %></span><textarea name="notes" rows="2"></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('acc.register') %></button></div>
             </form>
           </div>
 
           <div class="card">
             <div class="card-head">
-              <h3><%= t('common.register') %><%= filterDay ? ` du ${day(filterDay)}` : '' %></h3>
-              <span class="card-sub"><%= visitorList.length %> visite(s) · <%= stats.visitorsMonth %> sur 30 jours</span>
+              <h3><%= filterDay ? t('acc.registerOfDay', { register: t('common.register'), date: day(filterDay) }) : t('common.register') %></h3>
+              <span class="card-sub"><%= t('acc.visitCount', { count: visitorList.length }) %> · <%= t('acc.overThirtyDays', { count: stats.visitorsMonth }) %></span>
             </div>
             <form method="GET" action="/accueil" class="form-grid">
-              <label><span>Filtrer sur un jour</span><input type="date" name="jour" value="<%= filterDay || '' %>" /></label>
+              <label><span><%= t('acc.filterByDay') %></span><input type="date" name="jour" value="<%= filterDay || '' %>" /></label>
               <div><button type="submit" class="btn btn-outline btn-block"><%= t('common.filter') %></button></div>
             </form>
             <% if (!visitorList.length) { %>
-              <p class="empty-state">Aucune visite enregistrée.</p>
+              <p class="empty-state"><%= t('acc.noVisitRecorded') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.day') %></th><th>Visiteur</th><th>Société</th><th>Reçu par</th><th>Arrivée</th><th>Départ</th><th><%= t('common.reason') %></th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.day') %></th><th><%= t('acc.visitor') %></th><th><%= t('acc.company') %></th><th><%= t('acc.host') %></th><th><%= t('acc.arrival') %></th><th><%= t('acc.departure') %></th><th><%= t('common.reason') %></th><th></th></tr></thead>
                   <tbody>
                     <% visitorList.forEach((v) => { %>
                       <tr>
@@ -122,7 +122,7 @@
                         <td class="cell-sub"><%= v.departed_at || '—' %></td>
                         <td class="cell-sub audit-detail"><%= v.purpose || '—' %></td>
                         <td>
-                          <form method="POST" action="/accueil/visiteurs/<%= v.id %>/supprimer" class="inline-form" data-confirm="Retirer cette visite du registre ?">
+                          <form method="POST" action="/accueil/visiteurs/<%= v.id %>/supprimer" class="inline-form" data-confirm="<%= t('acc.confirmRemoveVisit') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                           </form>
@@ -139,7 +139,7 @@
         <!-- ---------- Courrier ---------- -->
         <section class="tab-panel" id="courrier">
           <div class="card">
-            <div class="card-head"><h3>Enregistrer un courrier</h3></div>
+            <div class="card-head"><h3><%= t('acc.recordMail') %></h3></div>
             <form method="POST" action="/accueil/courrier" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label><span><%= t('common.direction') %></span>
@@ -148,10 +148,10 @@
               <label><span><%= t('common.nature') %></span>
                 <select name="kind"><% mailKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
               </label>
-              <label><span>Reçu ou envoyé le</span><input type="date" name="logged_on" value="<%= today %>" /></label>
-              <label><span>Numéro de suivi</span><input type="text" name="tracking" maxlength="80" /></label>
-              <label><span>Correspondant</span><input type="text" name="correspondent" maxlength="200" placeholder="Expéditeur ou destinataire externe" /></label>
-              <label><span>Destinataire interne</span>
+              <label><span><%= t('acc.receivedOrSentOn') %></span><input type="date" name="logged_on" value="<%= today %>" /></label>
+              <label><span><%= t('acc.trackingNumber') %></span><input type="text" name="tracking" maxlength="80" /></label>
+              <label><span><%= t('acc.correspondent') %></span><input type="text" name="correspondent" maxlength="200" placeholder="<%= t('acc.correspondentPlaceholder') %>" /></label>
+              <label><span><%= t('acc.internalRecipient') %></span>
                 <select name="recipient_id">
                   <option value="">—</option>
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
@@ -163,15 +163,15 @@
             </form>
           </div>
 
-          <% [{ label: 'Courrier entrant', rows: incoming }, { label: 'Courrier sortant', rows: outgoing }].forEach((block) => { %>
+          <% [{ label: t('acc.incomingMail'), rows: incoming }, { label: t('acc.outgoingMail'), rows: outgoing }].forEach((block) => { %>
             <div class="card">
-              <div class="card-head"><h3><%= block.label %></h3><span class="card-sub"><%= block.rows.length %> pli(s)</span></div>
+              <div class="card-head"><h3><%= block.label %></h3><span class="card-sub"><%= t('acc.itemCount', { count: block.rows.length }) %></span></div>
               <% if (!block.rows.length) { %>
-                <p class="empty-state">Rien d'enregistré.</p>
+                <p class="empty-state"><%= t('acc.nothingRecorded') %></p>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th><%= t('common.date') %></th><th><%= t('common.nature') %></th><th>Correspondant</th><th>Destinataire</th><th><%= t('common.subject') %></th><th>Suivi</th><th><%= t('common.state') %></th><th></th></tr></thead>
+                    <thead><tr><th><%= t('common.date') %></th><th><%= t('common.nature') %></th><th><%= t('acc.correspondent') %></th><th><%= t('messages.to') %></th><th><%= t('common.subject') %></th><th><%= t('acc.tracking') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
                     <tbody>
                       <% block.rows.forEach((m) => { %>
                         <tr>
@@ -195,10 +195,10 @@
                               <% } else if (m.status === 'Remis') { %>
                                 <form method="POST" action="/accueil/courrier/<%= m.id %>/archiver" class="inline-form">
                                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                  <button type="submit" class="btn btn-outline btn-sm">Archiver</button>
+                                  <button type="submit" class="btn btn-outline btn-sm"><%= t('acc.archive') %></button>
                                 </form>
                               <% } %>
-                              <form method="POST" action="/accueil/courrier/<%= m.id %>/supprimer" class="inline-form" data-confirm="Retirer ce courrier du registre ?">
+                              <form method="POST" action="/accueil/courrier/<%= m.id %>/supprimer" class="inline-form" data-confirm="<%= t('acc.confirmRemoveMail') %>">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
                               </form>

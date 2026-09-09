@@ -6,18 +6,18 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Import',
+      panelLabel: t('imp.panel'),
       navItems: entities.map((e) => ({ href: '#' + e.key, label: e.label, icon: 'inbox', active: e.key === selected })),
       footLinks: [
-        { href: '/admin', label: "Console d'administration", icon: 'settings' },
+        { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' },
         { href: '/gestion', label: t('status.stageManagement'), icon: 'briefcase' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Import de données',
-        headerSubtitle: 'Reprendre un tableur sans le ressaisir'
+        headerTitle: t('nav.dataImport'),
+        headerSubtitle: t('imp.headerSub')
       }) %>
 
       <main class="page">
@@ -25,12 +25,10 @@
 
         <% if (result) { %>
           <div class="card">
-            <div class="card-head"><h3><%= result.imported %> ligne(s) importée(s)</h3><span class="card-sub"><%= result.entity.label %></span></div>
+            <div class="card-head"><h3><%= t('imp.importedRows', { count: result.imported }) %></h3><span class="card-sub"><%= result.entity.label %></span></div>
             <% if (result.credentials.length) { %>
               <p class="hint">
-                Les mots de passe temporaires ci-dessous ne sont affichés qu'une fois : ils ne sont stockés nulle
-                part en clair, pas même dans le journal. Remettez-les à leurs titulaires, qui devront en choisir
-                un autre à la première connexion.
+                <%= t('imp.temporaryPasswords') %>
               </p>
               <div class="table-wrap">
                 <table>
@@ -43,27 +41,26 @@
                 </table>
               </div>
             <% } %>
-            <div class="row-actions"><a href="/import" class="btn btn-outline btn-sm">Nouvel import</a></div>
+            <div class="row-actions"><a href="/import" class="btn btn-outline btn-sm"><%= t('imp.newImport') %></a></div>
           </div>
         <% } %>
 
         <% if (preview) { %>
           <div class="card">
             <div class="card-head">
-              <h3>Aperçu — <%= preview.entity.label %></h3>
-              <span class="card-sub"><%= preview.rows.length %> ligne(s) · séparateur « <%= preview.delimiter === '\t' ? 'tabulation' : preview.delimiter %> »</span>
+              <h3><%= t('imp.previewOf', { label: preview.entity.label }) %></h3>
+              <span class="card-sub"><%= t('imp.rowsAndDelimiter', { count: preview.rows.length, delimiter: preview.delimiter === '\t' ? t('imp.tab') : preview.delimiter }) %></span>
             </div>
 
             <% if (preview.errors.length) { %>
               <div class="flash flash-error">
-                <%= preview.errors.length %> ligne(s) en erreur. Rien ne sera importé tant qu'elles subsistent :
-                un import à moitié fait est plus long à rattraper qu'un fichier à corriger.
+                <%= t('imp.errorRows', { count: preview.errors.length }) %>
               </div>
             <% } %>
 
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Ligne</th><th><%= t('common.content') %></th><th>Verdict</th></tr></thead>
+                <thead><tr><th><%= t('imp.line') %></th><th><%= t('common.content') %></th><th><%= t('imp.verdict') %></th></tr></thead>
                 <tbody>
                   <% preview.rows.forEach((row) => { %>
                     <tr>
@@ -71,7 +68,7 @@
                       <td class="cell-strong"><%= row.summary || '—' %></td>
                       <td>
                         <% if (row.ok) { %>
-                          <span class="tag tag-success">Prête</span>
+                          <span class="tag tag-success"><%= t('imp.ready') %></span>
                         <% } else { %>
                           <span class="tag tag-danger"><%= t('status.refused') %></span>
                           <div class="cell-sub"><%= row.message %></div>
@@ -89,47 +86,45 @@
                 <input type="hidden" name="entity" value="<%= preview.entity.key %>" />
                 <textarea name="content" hidden><%= content %></textarea>
                 <div class="span-2">
-                  <button type="submit" class="btn btn-primary btn-block">Importer les <%= preview.valid %> ligne(s)</button>
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('imp.importRows', { count: preview.valid }) %></button>
                 </div>
               </form>
-              <p class="hint">Le contrôle est refait au moment d'écrire : entre l'aperçu et la confirmation, la base a pu changer.</p>
+              <p class="hint"><%= t('imp.recheckNote') %></p>
             <% } %>
           </div>
         <% } %>
 
         <div class="card">
-          <div class="card-head"><h3>Déposer un fichier</h3></div>
+          <div class="card-head"><h3><%= t('imp.uploadFile') %></h3></div>
           <form method="POST" action="/import/apercu" enctype="multipart/form-data" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-            <label class="span-2"><span>Type de données</span>
+            <label class="span-2"><span><%= t('imp.dataType') %></span>
               <select name="entity" required>
                 <% entities.forEach((e) => { %>
                   <option value="<%= e.key %>" <%= e.key === selected ? 'selected' : '' %>><%= e.label %></option>
                 <% }) %>
               </select>
             </label>
-            <label class="span-2"><span>Fichier CSV (<%= Math.round(maxBytes / 1048576) %> Mo maximum)</span>
+            <label class="span-2"><span><%= t('imp.csvFile', { max: Math.round(maxBytes / 1048576) }) %></span>
               <input type="file" name="fichier" accept=".csv,text/csv,text/plain" />
             </label>
-            <label class="span-2"><span>… ou collez le contenu</span>
+            <label class="span-2"><span><%= t('imp.orPaste') %></span>
               <textarea name="content" rows="6" placeholder="prenom;nom;email;grade;type_contrat"><%= content %></textarea>
             </label>
-            <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Contrôler le fichier</button></div>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('imp.checkFile') %></button></div>
           </form>
           <p class="hint">
-            Point-virgule, virgule, tabulation : le séparateur est reconnu tout seul. Les accents des en-têtes et
-            la casse n'ont pas d'importance — « Prénom », « prenom » et « PRENOM » désignent la même colonne.
-            L'import crée des lignes ; il ne met jamais à jour l'existant, et un doublon est signalé plutôt que fondu.
+            <%= t('imp.formatNote') %>
           </p>
         </div>
 
         <% entities.forEach((e) => { %>
           <div class="card" id="<%= e.key %>">
-            <div class="card-head"><h3><%= e.label %></h3><a href="/import/<%= e.key %>/modele.csv" class="btn btn-outline btn-sm">Télécharger le modèle</a></div>
+            <div class="card-head"><h3><%= e.label %></h3><a href="/import/<%= e.key %>/modele.csv" class="btn btn-outline btn-sm"><%= t('imp.downloadTemplate') %></a></div>
             <p class="cell-sub"><%= e.hint %></p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Colonne</th><th>Contenu attendu</th><th><%= t('common.mandatory') %></th></tr></thead>
+                <thead><tr><th><%= t('imp.column') %></th><th><%= t('imp.expectedContent') %></th><th><%= t('common.mandatory') %></th></tr></thead>
                 <tbody>
                   <% e.columns.forEach((c) => { %>
                     <tr>

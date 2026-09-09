@@ -6,11 +6,11 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Connaissances',
+      panelLabel: t('nav.knowledge'),
       navItems: canWrite
-        ? [{ tab: 'lecture', label: 'Article', icon: 'inbox' }, { tab: 'edition', label: t('common.edit'), icon: 'settings' }]
-        : [{ tab: 'lecture', label: 'Article', icon: 'inbox' }],
-      footLinks: [{ href: '/base-de-connaissances', label: 'Tous les articles', icon: 'back' }]
+        ? [{ tab: 'lecture', label: t('stk.item'), icon: 'inbox' }, { tab: 'edition', label: t('common.edit'), icon: 'settings' }]
+        : [{ tab: 'lecture', label: t('stk.item'), icon: 'inbox' }],
+      footLinks: [{ href: '/base-de-connaissances', label: t('art.allArticles'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -24,7 +24,7 @@
 
         <section class="tab-panel is-active" id="lecture">
           <div class="card">
-            <% if (!article.published) { %><div class="flash flash-error">Brouillon : cet article n'est pas visible des lecteurs.</div><% } %>
+            <% if (!article.published) { %><div class="flash flash-error"><%= t('art.draftNote') %></div><% } %>
             <p class="article-body"><%= article.body || 'Cet article est vide.' %></p>
           </div>
         </section>
@@ -35,12 +35,12 @@
               <div class="card-head"><h3><%= t('common.edit') %></h3></div>
               <form method="POST" action="/base-de-connaissances/<%= article.id %>/modifier" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Titre</span><input type="text" name="title" required maxlength="200" value="<%= article.title %>" /></label>
+                <label class="span-2"><span><%= t('team.newsTitle') %></span><input type="text" name="title" required maxlength="200" value="<%= article.title %>" /></label>
                 <label><span><%= t('common.category') %></span><input type="text" name="category" value="<%= article.category %>" maxlength="60" /></label>
                 <label><span><%= t('common.scope') %></span>
                   <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>" <%= article.visibility === v ? 'selected' : '' %>><%= v %></option><% }) %></select>
                 </label>
-                <label class="span-2"><span>Service ou équipe concerné</span>
+                <label class="span-2"><span><%= t('art.scope') %></span>
                   <select name="scope_id">
                     <option value="">—</option>
                     <optgroup label="Services">
@@ -54,12 +54,12 @@
                 <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="16"><%= article.body %></textarea></label>
                 <label class="check-row span-2">
                   <input type="checkbox" name="published" value="1" <%= article.published ? 'checked' : '' %> />
-                  <span>Publié</span>
+                  <span><%= t('cse.published') %></span>
                 </label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
 
-              <form method="POST" action="/base-de-connaissances/<%= article.id %>/supprimer" data-confirm="Supprimer cet article ?">
+              <form method="POST" action="/base-de-connaissances/<%= article.id %>/supprimer" data-confirm="<%= t('art.confirmDelete') %>">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <button type="submit" class="btn btn-danger btn-block"><%= t('common.delete') %></button>
               </form>

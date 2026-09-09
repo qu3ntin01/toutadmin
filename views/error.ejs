@@ -9,16 +9,16 @@
       <span class="brand-mark"><%= brandInitials %></span>
       <span class="brand-text">
         <span class="brand-name"><%= companyName %></span>
-        <span class="brand-panel">Portail interne</span>
+        <span class="brand-panel"><%= t('app.portal') %></span>
       </span>
     </div>
     <%- include('partials/theme-toggle') %>
   </header>
 
   <main class="error-page">
-    <h1>Cette page n'est pas accessible</h1>
+    <h1><%= t('err.notAccessible') %></h1>
     <p class="muted"><%= message %></p>
-    <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+    <a href="/" class="btn btn-primary"><%= t('err.backHome') %></a>
   </main>
 
   <script src="/js/theme.js"></script>

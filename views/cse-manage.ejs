@@ -73,7 +73,7 @@
                 </div>
                 <div class="form-grid">
                   <label>
-                    <span>Réduction</span>
+                    <span><%= t('cse.discount') %></span>
                     <input type="text" name="discount" maxlength="60" placeholder="Ex : -30 %" />
                   </label>
                   <label>
@@ -94,7 +94,7 @@
                   <textarea name="description" rows="3" maxlength="2000"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
-                <p class="hint">Un avantage dont la date de validité est passée disparaît automatiquement de l'espace salarié.</p>
+                <p class="hint"><%= t('cse.expiredNote') %></p>
               </form>
             </div>
 
@@ -140,7 +140,7 @@
                                 <button type="submit" class="btn btn-sm"><%= t('common.enable') %></button>
                               <% } %>
                             </form>
-                            <form method="POST" action="/cse/gestion/avantages/<%= benefit.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet avantage ?">
+                            <form method="POST" action="/cse/gestion/avantages/<%= benefit.id %>/supprimer" class="inline-form" data-confirm="<%= t('cse.confirmDeleteBenefit') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                             </form>
@@ -161,7 +161,7 @@
             <div class="card-head">
               <div>
                 <h3><%= t('cse.meetings') %></h3>
-                <p class="card-sub">Les réunions sont convoquées par les ressources humaines ; le compte-rendu est rédigé ici.</p>
+                <p class="card-sub"><%= t('cse.meetingsNote') %></p>
               </div>
             </div>
             <% if (meetings.length === 0) { %>
@@ -208,7 +208,7 @@
             <div class="card-head">
               <div>
                 <h3><%= t('cse.elected') %> <span class="muted">(<%= mandates.length %>)</span></h3>
-                <p class="card-sub">La composition du comité est tenue par les ressources humaines.</p>
+                <p class="card-sub"><%= t('cse.membershipNote') %></p>
               </div>
             </div>
             <% if (mandates.length === 0) { %>

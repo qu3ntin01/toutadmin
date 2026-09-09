@@ -8,7 +8,7 @@
     <div class="auth-brand">
       <span class="brand-mark">SM</span>
       <span class="brand-text">
-        <span class="brand-name">Salarié Member</span>
+        <span class="brand-name"><%= t('app.name') %></span>
         <span class="brand-panel"><%= t('install.title') %> · v<%= version %></span>
       </span>
     </div>
@@ -89,7 +89,7 @@
             <label>
               <span><%= t('install.company.name') %></span>
               <input type="text" name="company_name" required maxlength="120"
-                     value="<%= draft.companyName || '' %>" placeholder="Entreprise SAS" autofocus />
+                     value="<%= draft.companyName || '' %>" placeholder="<%= t('ins.companyPlaceholder') %>" autofocus />
             </label>
             <label>
               <span><%= t('install.company.leave') %></span>

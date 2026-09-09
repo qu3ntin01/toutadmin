@@ -6,23 +6,23 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Pièces reçues',
+      panelLabel: t('nav.intake'),
       navItems: [
         { tab: 'a-traiter', label: t('status.toProcess'), icon: 'inbox', badge: stats.waiting },
-        { tab: 'traitees', label: 'Traitées', icon: 'check' },
-        { tab: 'capture', label: 'Boîte aux lettres', icon: 'external' },
-        { tab: 'analyse', label: 'Analyse assistée', icon: 'network' }
+        { tab: 'traitees', label: t('pcs.tabHandled'), icon: 'check' },
+        { tab: 'capture', label: t('pcs.tabMailbox'), icon: 'external' },
+        { tab: 'analyse', label: t('pcs.tabAssisted'), icon: 'network' }
       ],
       footLinks: [
         { href: '/gestion', label: t('status.stageManagement'), icon: 'briefcase' },
-        { href: '/comptabilite', label: 'Comptabilité', icon: 'card' }
+        { href: '/comptabilite', label: t('pcs.tabAccounting'), icon: 'card' }
       ]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Pièces reçues',
-        headerSubtitle: 'Factures déposées ou relevées dans la boîte aux lettres'
+        headerTitle: t('nav.intake'),
+        headerSubtitle: t('pcs.headerSub')
       }) %>
 
       <main class="page">
@@ -34,19 +34,19 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.waiting %></span><span class="stat-label">Pièces à traiter</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.waiting %></span><span class="stat-label"><%= t('pcs.toHandle') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.lowConfidence %></span><span class="stat-label">Lectures peu sûres</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.lowConfidence %></span><span class="stat-label"><%= t('pcs.unsureReads') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.unreadable %></span><span class="stat-label">Sans texte lisible</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.unreadable %></span><span class="stat-label"><%= t('pcs.noReadableText') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= stats.invoiced %></span><span class="stat-label">Devenues factures</span></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.invoiced %></span><span class="stat-label"><%= t('pcs.becameInvoices') %></span></span>
           </div>
         </section>
 
@@ -56,7 +56,7 @@
           <% } else { %>
             <div class="table-wrap">
               <table>
-                <thead><tr><th>Reçue</th><th>Pièce</th><th><%= t('common.issuer') %></th><th><%= t('erp.amount') %></th><th>Lecture</th><th><%= t('common.state') %></th></tr></thead>
+                <thead><tr><th><%= t('pcs.received') %></th><th><%= t('pcs.piece') %></th><th><%= t('common.issuer') %></th><th><%= t('erp.amount') %></th><th><%= t('pcs.reading') %></th><th><%= t('common.state') %></th></tr></thead>
                 <tbody>
                   <% rows.forEach((d) => { %>
                     <tr>
@@ -65,13 +65,13 @@
                         <span class="cell-sub"><%= d.source %></span>
                       </td>
                       <td>
-                        <div class="cell-strong"><a href="/pieces/<%= d.id %>"><%= d.fields.reference || d.original_name || `Pièce ${d.id}` %></a></div>
+                        <div class="cell-strong"><a href="/pieces/<%= d.id %>"><%= d.fields.reference || d.original_name || t('pcs.pieceNumber', { id: d.id }) %></a></div>
                         <div class="cell-sub"><%= d.original_name %></div>
-                        <% if (d.mail_from) { %><div class="cell-sub">de <%= d.mail_from %></div><% } %>
+                        <% if (d.mail_from) { %><div class="cell-sub"><%= t('pcs.from') %> <%= d.mail_from %></div><% } %>
                       </td>
                       <td class="cell-sub">
                         <%= d.partner_name || d.fields.supplierName || '—' %>
-                        <% if (d.partner_name) { %><br /><span class="tag tag-success">tiers connu</span><% } %>
+                        <% if (d.partner_name) { %><br /><span class="tag tag-success"><%= t('pcs.knownPartner') %></span><% } %>
                       </td>
                       <td class="num"><%= money(d.fields.amountTtc, d.fields.currency) %></td>
                       <td>
@@ -93,31 +93,30 @@
         <!-- ---------- À traiter ---------- -->
         <section class="tab-panel is-active" id="a-traiter">
           <div class="card">
-            <div class="card-head"><h3>Déposer une facture</h3></div>
+            <div class="card-head"><h3><%= t('pcs.uploadInvoice') %></h3></div>
             <form method="POST" action="/pieces/deposer" enctype="multipart/form-data" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Fichier PDF, DOCX ou texte (<%= Math.round(maxBytes / 1048576) %> Mo maximum)</span>
+              <label class="span-2"><span><%= t('pcs.fileLabel', { max: Math.round(maxBytes / 1048576) }) %></span>
                 <input type="file" name="document" accept=".pdf,.docx,.txt,application/pdf,text/plain" required />
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déposer et analyser</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('pcs.uploadAndAnalyse') %></button></div>
             </form>
             <p class="hint">
-              Le fichier est conservé tel quel comme justificatif. Son texte est lu pour pré-remplir la facture :
-              émetteur, numéro, dates, montants, taux, IBAN. Rien n'entre en comptabilité sans votre validation.
+              <%= t('pcs.uploadNote') %>
             </p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3><%= waiting.length %> pièce(s) à traiter</h3></div>
-            <% pieceList(waiting, 'Rien en attente.') %>
+            <div class="card-head"><h3><%= t('pcs.toHandleCount', { count: waiting.length }) %></h3></div>
+            <% pieceList(waiting, t('pcs.nothingWaiting')) %>
           </div>
         </section>
 
         <!-- ---------- Traitées ---------- -->
         <section class="tab-panel" id="traitees">
           <div class="card">
-            <div class="card-head"><h3>Pièces traitées</h3></div>
-            <% pieceList(handled, 'Aucune pièce traitée.') %>
+            <div class="card-head"><h3><%= t('pcs.handledTitle') %></h3></div>
+            <% pieceList(handled, t('pcs.noHandled')) %>
           </div>
         </section>
 
@@ -125,61 +124,58 @@
         <section class="tab-panel" id="capture">
           <div class="card">
             <div class="card-head">
-              <h3>Relever la boîte aux lettres</h3>
-              <span class="tag <%= mail.enabled ? 'tag-success' : '' %>"><%= mail.enabled ? 'Active' : 'Inactive' %></span>
+              <h3><%= t('pcs.fetchMailbox') %></h3>
+              <span class="tag <%= mail.enabled ? 'tag-success' : '' %>"><%= mail.enabled ? t('pcs.mailActive') : t('pcs.mailInactive') %></span>
             </div>
             <% if (mailStatus) { %>
               <div class="flash flash-<%= mailStatus.ok ? 'success' : 'error' %>">
-                Dernière relève le <%= moment(mailStatus.at) %> : <%= mailStatus.message %>
+                <%= t('pcs.lastFetch') %> <%= moment(mailStatus.at) %> : <%= mailStatus.message %>
               </div>
             <% } %>
 
             <% if (admin) { %>
               <form method="POST" action="/pieces/capture/reglages" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label><span>Serveur IMAP</span><input type="text" name="host" maxlength="200" value="<%= mail.host %>" placeholder="imap.exemple.fr" required /></label>
-                <label><span>Port</span><input type="number" name="port" min="1" max="65535" value="<%= mail.port %>" required /></label>
+                <label><span><%= t('pcs.imapServer') %></span><input type="text" name="host" maxlength="200" value="<%= mail.host %>" placeholder="imap.exemple.fr" required /></label>
+                <label><span><%= t('pcs.port') %></span><input type="number" name="port" min="1" max="65535" value="<%= mail.port %>" required /></label>
                 <label><span><%= t('common.identifier') %></span><input type="text" name="user" maxlength="200" value="<%= mail.user %>" placeholder="factures@exemple.fr" required /></label>
-                <label><span>Mot de passe</span><input type="password" name="password" placeholder="<%= mail.password || '' %>" autocomplete="new-password" /></label>
-                <label><span>Dossier relevé</span><input type="text" name="folder" maxlength="120" value="<%= mail.folder %>" /></label>
-                <label><span>Après traitement</span>
+                <label><span><%= t('auth.password') %></span><input type="password" name="password" placeholder="<%= mail.password || '' %>" autocomplete="new-password" /></label>
+                <label><span><%= t('pcs.folderFetched') %></span><input type="text" name="folder" maxlength="120" value="<%= mail.folder %>" /></label>
+                <label><span><%= t('pcs.afterHandling') %></span>
                   <select name="action">
                     <% mailActions.forEach((a) => { %><option value="<%= a.key %>" <%= a.key === mail.action ? 'selected' : '' %>><%= a.label %></option><% }) %>
                   </select>
                 </label>
-                <label><span>Dossier de rangement</span><input type="text" name="move_folder" maxlength="120" value="<%= mail.moveFolder %>" /></label>
-                <label><span>Fenêtre de relève (jours)</span><input type="number" name="since_days" min="1" max="365" value="<%= mail.sinceDays %>" /></label>
-                <label><span>Messages par relève</span><input type="number" name="batch" min="1" max="100" value="<%= mail.batch %>" /></label>
-                <label class="check-row"><input type="checkbox" name="secure" value="1" <%= mail.secure ? 'checked' : '' %> /><span>Connexion chiffrée (IMAPS)</span></label>
-                <label class="check-row"><input type="checkbox" name="allow_self_signed" value="1" <%= mail.allowSelfSigned ? 'checked' : '' %> /><span>Accepter un certificat auto-signé</span></label>
-                <label class="check-row"><input type="checkbox" name="enabled" value="1" <%= mail.enabled ? 'checked' : '' %> /><span>Relever automatiquement</span></label>
+                <label><span><%= t('pcs.filingFolder') %></span><input type="text" name="move_folder" maxlength="120" value="<%= mail.moveFolder %>" /></label>
+                <label><span><%= t('pcs.fetchWindowDays') %></span><input type="number" name="since_days" min="1" max="365" value="<%= mail.sinceDays %>" /></label>
+                <label><span><%= t('pcs.messagesPerFetch') %></span><input type="number" name="batch" min="1" max="100" value="<%= mail.batch %>" /></label>
+                <label class="check-row"><input type="checkbox" name="secure" value="1" <%= mail.secure ? 'checked' : '' %> /><span><%= t('pcs.imaps') %></span></label>
+                <label class="check-row"><input type="checkbox" name="allow_self_signed" value="1" <%= mail.allowSelfSigned ? 'checked' : '' %> /><span><%= t('pcs.selfSigned') %></span></label>
+                <label class="check-row"><input type="checkbox" name="enabled" value="1" <%= mail.enabled ? 'checked' : '' %> /><span><%= t('pcs.autoFetch') %></span></label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
             <% } else { %>
-              <p class="hint">Les accès à la boîte aux lettres se règlent depuis l'administration. Vous pouvez relever à la demande.</p>
+              <p class="hint"><%= t('pcs.mailAdminNote') %></p>
             <% } %>
 
             <div class="row-actions">
               <% if (mailReady) { %>
                 <form method="POST" action="/pieces/capture/tester" class="inline-form">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-outline btn-sm">Tester la connexion</button>
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('pcs.testConnection') %></button>
                 </form>
                 <form method="POST" action="/pieces/capture/relever" class="inline-form">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-outline btn-sm">Relever maintenant</button>
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('pcs.fetchNow') %></button>
                 </form>
               <% } %>
             </div>
 
             <p class="hint">
-              Seuls les messages <strong>non lus</strong> du dossier indiqué, dans la fenêtre de jours choisie, sont
-              relevés — et seules leurs pièces jointes PDF ou DOCX sont retenues. Aucun message n'est supprimé : la
-              boîte reste la source, le CMS n'en est qu'un lecteur.
+              <%- t('pcs.mailScopeNote', { unread: `<strong>${t('messages.unread')}</strong>` }) %>
             </p>
             <p class="hint">
-              Le mot de passe est chiffré en base, comme les autres secrets. Sur une boîte Gmail ou Microsoft 365,
-              utilisez un mot de passe d'application dédié plutôt que celui du compte.
+              <%= t('pcs.passwordNote') %>
             </p>
           </div>
         </section>
@@ -188,24 +184,20 @@
         <section class="tab-panel" id="analyse">
           <div class="card">
             <div class="card-head">
-              <h3>Analyse assistée par modèle</h3>
+              <h3><%= t('pcs.aiTitle') %></h3>
               <span class="tag <%= aiConfig.enabled ? 'tag-success' : '' %>"><%= aiConfig.enabled ? 'Active' : 'Éteinte' %></span>
             </div>
 
             <p class="cell-sub">
-              La lecture par règles fonctionne toujours, hors ligne, et ne fait sortir aucune donnée. Un modèle de
-              langage vient par-dessus pour les documents que les règles lisent mal : mises en page inhabituelles,
-              factures étrangères, émetteurs inconnus.
+              <%= t('pcs.aiNote') %>
             </p>
             <div class="flash flash-error">
-              Activer cette option envoie <strong>le texte des factures reçues</strong> au service choisi — noms,
-              montants, coordonnées bancaires. Choisissez un service dont le traitement des données vous convient,
-              ou un modèle hébergé sur votre propre réseau ; les identifiants d'accès restent chiffrés ici.
+              <%- t('pcs.aiWarning', { what: `<strong>${t('pcs.invoiceText')}</strong>` }) %>
             </div>
 
             <% if (aiStatus) { %>
               <div class="flash flash-<%= aiStatus.ok ? 'success' : 'error' %>">
-                Dernier essai le <%= moment(aiStatus.at) %> : <%= aiStatus.message %>
+                <%= t('bak.lastAttempt') %> <%= moment(aiStatus.at) %> : <%= aiStatus.message %>
               </div>
             <% } %>
 
@@ -218,14 +210,14 @@
                   </select>
                 </label>
                 <label><span><%= t('common.template') %></span><input type="text" name="model" maxlength="120" value="<%= aiConfig.model %>" /></label>
-                <label class="span-2"><span>Adresse de l'API (services compatibles OpenAI)</span><input type="url" name="base_url" maxlength="300" value="<%= aiConfig.baseUrl %>" placeholder="https://api.mistral.ai/v1" /></label>
-                <label><span>Clé d'accès</span><input type="password" name="key" placeholder="<%= aiConfig.key || '' %>" autocomplete="new-password" /></label>
-                <label><span>Profondeur d'analyse</span>
+                <label class="span-2"><span><%= t('pcs.apiAddress') %></span><input type="url" name="base_url" maxlength="300" value="<%= aiConfig.baseUrl %>" placeholder="https://api.mistral.ai/v1" /></label>
+                <label><span><%= t('pcs.apiKey') %></span><input type="password" name="key" placeholder="<%= aiConfig.key || '' %>" autocomplete="new-password" /></label>
+                <label><span><%= t('pcs.analysisDepth') %></span>
                   <select name="effort">
                     <% aiEfforts.forEach((e) => { %><option value="<%= e %>" <%= e === aiConfig.effort ? 'selected' : '' %>><%= e %></option><% }) %>
                   </select>
                 </label>
-                <label class="span-2 check-row"><input type="checkbox" name="enabled" value="1" <%= aiConfig.enabled ? 'checked' : '' %> /><span>Envoyer le texte des pièces au service pour analyse</span></label>
+                <label class="span-2 check-row"><input type="checkbox" name="enabled" value="1" <%= aiConfig.enabled ? 'checked' : '' %> /><span><%= t('pcs.sendText') %></span></label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
 
@@ -233,22 +225,20 @@
                 <p class="hint"><strong><%= p.label %></strong> — <%= p.hint %></p>
               <% }) %>
             <% } else { %>
-              <p class="hint">Ce réglage relève de l'administration : il décide de ce qui sort de l'entreprise.</p>
+              <p class="hint"><%= t('pcs.settingAdminOnly') %></p>
             <% } %>
 
             <% if (aiReady) { %>
               <div class="row-actions">
                 <form method="POST" action="/pieces/analyse/tester" class="inline-form">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-outline btn-sm">Essayer sur une facture d'exemple</button>
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('pcs.trySample') %></button>
                 </form>
               </div>
             <% } %>
 
             <p class="hint">
-              Le modèle ne décide de rien : il propose des champs. Ce que les règles savent vérifier — clé de
-              contrôle d'un SIRET, d'un IBAN, cohérence HT + TVA = TTC — leur reste acquis, et vous validez avant
-              toute écriture.
+              <%= t('pcs.modelDecidesNothing') %>
             </p>
           </div>
         </section>

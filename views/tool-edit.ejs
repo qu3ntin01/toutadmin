@@ -10,7 +10,7 @@
     <div class="app-main">
       <%- include('partials/app-header', {
         headerTitle: tool.name,
-        headerSubtitle: 'Ajouté le ' + new Date(tool.created_at).toLocaleDateString('fr-FR'),
+        headerSubtitle: t('tol.addedOn', { date: new Date(tool.created_at).toLocaleDateString(locale) }),
         backHref: '/admin#outils'
       }) %>
 
@@ -21,11 +21,11 @@
         <% } %>
 
         <div class="card">
-          <div class="card-head"><h3>Fiche outil</h3></div>
+          <div class="card-head"><h3><%= t('tol.card') %></h3></div>
           <form method="POST" action="/admin/outils/<%= tool.id %>/modifier" class="form-grid">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
             <label class="span-2">
-              <span>Nom de l'outil</span>
+              <span><%= t('admin.toolName') %></span>
               <input type="text" name="name" value="<%= tool.name %>" required />
             </label>
             <label>
@@ -37,7 +37,7 @@
               <input type="text" name="reference" value="<%= tool.reference %>" />
             </label>
             <label class="span-2">
-              <span>URL de connexion</span>
+              <span><%= t('admin.loginUrl') %></span>
               <input type="url" name="login_url" value="<%= tool.login_url %>" placeholder="https://outil.entreprise.com" />
             </label>
             <label class="span-2">

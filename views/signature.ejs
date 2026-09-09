@@ -6,11 +6,11 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Parapheur',
-      navItems: [{ href: '/parapheur', label: 'Tous les documents', icon: 'inbox', active: true }],
+      panelLabel: t('nav.signing'),
+      navItems: [{ href: '/parapheur', label: t('sig.tabAllDocuments'), icon: 'inbox', active: true }],
       footLinks: [
-        { href: '/parapheur/' + request.id + '/attestation', label: 'Attestation', icon: 'shield' },
-        { href: '/mon-espace', label: 'Mon espace', icon: 'home' }
+        { href: '/parapheur/' + request.id + '/attestation', label: t('sig.tabAttestation'), icon: 'shield' },
+        { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }
       ]
     }) %>
 
@@ -19,7 +19,7 @@
         headerTitle: request.title,
         headerSubtitle: request.kind + ' · ' + request.signedCount + '/' + request.total + ' signature(s)',
         backHref: '/parapheur',
-        backLabel: 'Parapheur'
+        backLabel: t('nav.signing')
       }) %>
 
       <main class="page">
@@ -29,28 +29,31 @@
 
         <div class="card">
           <div class="card-head">
-            <h3>État du circuit</h3>
+            <h3><%= t('sig.flowState') %></h3>
             <span class="tag <%= request.status === 'Signé' ? 'tag-success' : (request.status === 'En cours' ? 'tag-warning' : 'tag-danger') %>"><%= st(request.status) %></span>
           </div>
           <p class="cell-sub">
-            Ouvert le <%= day(request.created_at) %><%= request.deadline ? ` · à signer avant le ${day(request.deadline)}` : '' %>
-            <%= request.overdue ? ' · échéance dépassée' : '' %>
+            <%= t('sig.openedOnCap', { date: day(request.created_at) }) %><%= request.deadline ? ` · ${t('sig.signBeforeDate', { date: day(request.deadline) })}` : '' %>
+            <%= request.overdue ? ` · ${t('sig.deadlinePassed')}` : '' %>
           </p>
           <span class="meter"><span class="meter-fill" data-ratio="<%= request.progress %>"></span></span>
 
           <% if (!verification.ok) { %>
             <div class="flash flash-error">
-              Intégrité mise en défaut :
-              <%= verification.document.ok ? '' : verification.document.reason %>
-              <%= verification.broken.length ? `sceau invalide pour ${verification.broken.join(', ')}` : '' %>.
+              <%= t('sig.integrityFailed', {
+                    detail: [
+                      verification.document.ok ? '' : verification.document.reason,
+                      verification.broken.length ? t('sig.invalidSeal', { names: verification.broken.join(', ') }) : '',
+                    ].filter(Boolean).join(' '),
+                  }) %>
             </div>
           <% } else { %>
-            <p class="hint">Empreinte du document vérifiée, sceaux des signatures vérifiés.</p>
+            <p class="hint"><%= t('sig.integrityOk') %></p>
           <% } %>
           <p class="cell-sub mono">SHA-256 : <%= request.sha256 %></p>
 
           <% if (request.closing_reason) { %>
-            <p class="cell-sub">Motif : <%= request.closing_reason %></p>
+            <p class="cell-sub"><%= t('sig.closingReason', { reason: request.closing_reason }) %></p>
           <% } %>
         </div>
 
@@ -58,17 +61,17 @@
           <div class="card-head"><h3><%= t('common.document') %></h3></div>
           <% if (request.file_name) { %>
             <p class="cell-sub"><%= request.original_name %> · <%= Math.round(request.byte_size / 1024) %> Ko</p>
-            <div class="row-actions"><a href="/parapheur/<%= request.id %>/document" class="btn btn-outline btn-sm">Télécharger le document</a></div>
+            <div class="row-actions"><a href="/parapheur/<%= request.id %>/document" class="btn btn-outline btn-sm"><%= t('sig.download') %></a></div>
           <% } else { %>
             <div class="minutes"><p><%= request.body %></p></div>
           <% } %>
         </div>
 
         <div class="card">
-          <div class="card-head"><h3>Signataires</h3></div>
+          <div class="card-head"><h3><%= t('sig.signatories') %></h3></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th>Qualité</th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.seal') %></th></tr></thead>
+              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th><%= t('nav.quality') %></th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.seal') %></th></tr></thead>
               <tbody>
                 <% request.signers.forEach((s) => { %>
                   <tr>
@@ -79,7 +82,7 @@
                       <span class="tag <%= s.status === 'Signé' ? 'tag-success' : (s.status === 'Refusé' ? 'tag-danger' : 'tag-warning') %>"><%= st(s.status) %></span>
                       <% if (s.reason) { %><div class="cell-sub"><%= s.reason %></div><% } %>
                     </td>
-                    <td class="cell-sub nowrap"><%= moment(s.signed_at) %><% if (s.ip) { %><br /><span class="cell-sub">depuis <%= s.ip %></span><% } %></td>
+                    <td class="cell-sub nowrap"><%= moment(s.signed_at) %><% if (s.ip) { %><br /><span class="cell-sub"><%= t('sig.fromIp', { ip: s.ip }) %></span><% } %></td>
                     <td class="cell-sub mono"><%= s.seal ? s.seal.slice(0, 16) + '…' : '—' %></td>
                   </tr>
                 <% }) %>
@@ -90,28 +93,27 @@
 
         <% if (myTurn.ok) { %>
           <div class="card">
-            <div class="card-head"><h3>Signer</h3></div>
+            <div class="card-head"><h3><%= t('sig.sign') %></h3></div>
             <form method="POST" action="/parapheur/<%= request.id %>/signer" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label class="span-2 check-row">
                 <input type="checkbox" name="consent" value="1" required />
-                <span>J'ai lu le document et je consens à le signer électroniquement.</span>
+                <span><%= t('sig.consent') %></span>
               </label>
-              <label class="span-2"><span>Votre mot de passe</span><input type="password" name="password" required autocomplete="current-password" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Apposer ma signature</button></div>
+              <label class="span-2"><span><%= t('sig.yourPassword') %></span><input type="password" name="password" required autocomplete="current-password" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('sig.affix') %></button></div>
             </form>
             <p class="hint">
-              Le mot de passe est redemandé à dessein : une session ouverte sur un poste laissé sans surveillance
-              ne doit pas suffire à engager quelqu'un.
+              <%= t('sig.passwordNote') %>
             </p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Refuser</h3></div>
-            <form method="POST" action="/parapheur/<%= request.id %>/refuser" class="form-grid" data-confirm="Refuser de signer interrompt le circuit. Continuer ?">
+            <div class="card-head"><h3><%= t('hr.refuse') %></h3></div>
+            <form method="POST" action="/parapheur/<%= request.id %>/refuser" class="form-grid" data-confirm="<%= t('sig.confirmRefuse') %>">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.refusalReason') %></span><textarea name="reason" rows="2" required placeholder="Un refus se motive : c'est ce qui permet de corriger le document."></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Refuser de signer</button></div>
+              <label class="span-2"><span><%= t('common.refusalReason') %></span><textarea name="reason" rows="2" required placeholder="<%= t('sig.refusePlaceholder') %>"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('sig.refuse') %></button></div>
             </form>
           </div>
         <% } else if (request.status === 'En cours') { %>
@@ -120,24 +122,24 @@
 
         <% if (opener) { %>
           <div class="card">
-            <div class="card-head"><h3>Administration du circuit</h3></div>
+            <div class="card-head"><h3><%= t('sig.flowAdmin') %></h3></div>
             <div class="row-actions">
-              <a href="/parapheur/<%= request.id %>/attestation" class="btn btn-outline btn-sm">Attestation de signature</a>
+              <a href="/parapheur/<%= request.id %>/attestation" class="btn btn-outline btn-sm"><%= t('sig.attestation') %></a>
               <% if (request.status === 'En cours') { %>
-                <form method="POST" action="/parapheur/<%= request.id %>/annuler" class="inline-field" data-confirm="Retirer ce document de la signature ?">
+                <form method="POST" action="/parapheur/<%= request.id %>/annuler" class="inline-field" data-confirm="<%= t('sig.confirmWithdraw') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <input type="text" name="reason" class="input-sm" placeholder="<%= t('common.reason') %>" maxlength="200" />
-                  <button type="submit" class="btn btn-outline btn-sm">Annuler le circuit</button>
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('sig.cancelFlow') %></button>
                 </form>
               <% } else if (request.signedCount === 0) { %>
-                <form method="POST" action="/parapheur/<%= request.id %>/supprimer" class="inline-form" data-confirm="Supprimer définitivement ce document ?">
+                <form method="POST" action="/parapheur/<%= request.id %>/supprimer" class="inline-form" data-confirm="<%= t('sig.confirmDelete') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                 </form>
               <% } %>
             </div>
             <% if (request.signedCount > 0) { %>
-              <p class="hint">Un document déjà signé ne se supprime pas : il fait preuve de l'engagement pris.</p>
+              <p class="hint"><%= t('sig.signedNotDeletable') %></p>
             <% } %>
           </div>
         <% } %>

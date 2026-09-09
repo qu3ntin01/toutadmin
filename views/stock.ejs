@@ -7,11 +7,11 @@
   <div class="app-shell">
     <% if (isFinance) { %>
       <%- include('partials/sidebar', {
-        panelLabel: 'Stock et achats',
+        panelLabel: t('nav.stock'),
         navItems: [
-          { tab: 'articles', label: 'Articles', icon: 'network', badge: lowStock.length },
+          { tab: 'articles', label: t('stk.tabItems'), icon: 'network', badge: lowStock.length },
           { tab: 'mouvements', label: t('common.movements'), icon: 'link' },
-          { tab: 'demandes', label: "Demandes d'achat", icon: 'inbox', badge: financeRequests.length }
+          { tab: 'demandes', label: t('stk.tabRequests'), icon: 'inbox', badge: financeRequests.length }
         ],
         footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
       }) %>
@@ -21,7 +21,7 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Stock et achats',
+        headerTitle: t('nav.stock'),
         headerSubtitle: isFinance ? "Articles, mouvements et demandes d'achat" : "Vos demandes d'achat"
       }) %>
 
@@ -37,26 +37,26 @@
           <section class="stats-grid">
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= items.length %></span><span class="stat-label">Articles</span></span>
+              <span class="stat-body"><span class="stat-value"><%= items.length %></span><span class="stat-label"><%= t('stk.tabItems') %></span></span>
             </div>
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= lowStock.length %></span><span class="stat-label">Sous le seuil</span></span>
+              <span class="stat-body"><span class="stat-value"><%= lowStock.length %></span><span class="stat-label"><%= t('stk.belowThreshold') %></span></span>
             </div>
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= money(stockValue) %></span><span class="stat-label">Valeur du stock</span></span>
+              <span class="stat-body"><span class="stat-value"><%= money(stockValue) %></span><span class="stat-label"><%= t('stk.stockValue') %></span></span>
             </div>
             <div class="stat-card">
               <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
-              <span class="stat-body"><span class="stat-value"><%= financeRequests.length %></span><span class="stat-label">À valider</span></span>
+              <span class="stat-body"><span class="stat-value"><%= financeRequests.length %></span><span class="stat-label"><%= t('stk.toApprove') %></span></span>
             </div>
           </section>
 
           <% if (lowStock.length) { %>
             <div class="banner is-warning">
               <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
-              <span><%= lowStock.length %> article(s) sous le seuil d'alerte : <%= lowStock.slice(0, 4).map((i) => i.label).join(', ') %><%= lowStock.length > 4 ? '…' : '' %></span>
+              <span><%= t('stk.lowStockBanner', { count: lowStock.length, list: lowStock.slice(0, 4).map((i) => i.label).join(', ') + (lowStock.length > 4 ? '…' : '') }) %></span>
             </div>
           <% } %>
 
@@ -64,7 +64,7 @@
           <section class="tab-panel is-active" id="articles">
             <div class="grid-2">
               <div class="card">
-                <div class="card-head"><h3>Nouvel article</h3></div>
+                <div class="card-head"><h3><%= t('stk.newItem') %></h3></div>
                 <form method="POST" action="/stock/articles" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <label>
@@ -85,15 +85,15 @@
                       <input type="text" name="category" maxlength="80" />
                     </label>
                     <label>
-                      <span>Seuil d'alerte</span>
+                      <span><%= t('stk.alertThreshold') %></span>
                       <input type="text" name="stock_min" inputmode="decimal" value="0" />
                     </label>
                     <label>
-                      <span>Prix unitaire</span>
+                      <span><%= t('stk.unitPrice') %></span>
                       <input type="text" name="unit_price" inputmode="decimal" />
                     </label>
                     <label>
-                      <span>Fournisseur</span>
+                      <span><%= t('stk.supplier') %></span>
                       <select name="partner_id">
                         <option value="">—</option>
                         <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
@@ -105,13 +105,13 @@
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Stock <span class="muted">(<%= items.length %>)</span></h3></div>
+                <div class="card-head"><h3><%= t('stk.stockCount', { count: items.length }) %></h3></div>
                 <% if (items.length === 0) { %>
-                  <div class="empty-state">Aucun article.</div>
+                  <div class="empty-state"><%= t('stk.noItem') %></div>
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th>Article</th><th>Stock</th><th><%= t('common.threshold') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                      <thead><tr><th><%= t('stk.item') %></th><th><%= t('stk.stock') %></th><th><%= t('common.threshold') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
                       <tbody>
                         <% items.forEach((i) => { %>
                           <tr>
@@ -131,7 +131,7 @@
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button type="submit" class="btn btn-sm"><%= i.active ? 'Désactiver' : 'Activer' %></button>
                               </form>
-                              <form method="POST" action="/stock/articles/<%= i.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet article et ses mouvements ?">
+                              <form method="POST" action="/stock/articles/<%= i.id %>/supprimer" class="inline-form" data-confirm="<%= t('stk.confirmDeleteItem') %>">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                               </form>
@@ -141,7 +141,7 @@
                       </tbody>
                     </table>
                   </div>
-                  <p class="hint">Le stock est la somme des mouvements depuis le dernier inventaire, jamais une valeur saisie.</p>
+                  <p class="hint"><%= t('stk.stockIsSum') %></p>
                 <% } %>
               </div>
             </div>
@@ -151,14 +151,14 @@
           <section class="tab-panel" id="mouvements">
             <div class="grid-2">
               <div class="card">
-                <div class="card-head"><h3>Enregistrer un mouvement</h3></div>
+                <div class="card-head"><h3><%= t('stk.recordMovement') %></h3></div>
                 <% if (items.length === 0) { %>
-                  <div class="empty-state">Créez d'abord un article.</div>
+                  <div class="empty-state"><%= t('stk.createItemFirst') %></div>
                 <% } else { %>
                   <form method="POST" action="/stock/mouvements" class="stack">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <label>
-                      <span>Article</span>
+                      <span><%= t('stk.item') %></span>
                       <select name="item_id" required>
                         <% items.forEach((i) => { %><option value="<%= i.id %>"><%= i.label %> (<%= i.stock %> <%= i.unit %>)</option><% }) %>
                       </select>
@@ -184,19 +184,19 @@
                       </label>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
-                    <p class="hint">Une sortie supérieure au stock est refusée. Un inventaire repose le compteur à la quantité saisie.</p>
+                    <p class="hint"><%= t('stk.movementRule') %></p>
                   </form>
                 <% } %>
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Derniers mouvements <span class="muted">(<%= movements.length %>)</span></h3></div>
+                <div class="card-head"><h3><%= t('stk.lastMovements') %> <span class="muted">(<%= movements.length %>)</span></h3></div>
                 <% if (movements.length === 0) { %>
-                  <div class="empty-state">Aucun mouvement.</div>
+                  <div class="empty-state"><%= t('stk.noMovement') %></div>
                 <% } else { %>
                   <div class="table-wrap">
                     <table>
-                      <thead><tr><th><%= t('common.date') %></th><th>Article</th><th><%= t('common.type') %></th><th><%= t('common.quantity') %></th><th>Par</th></tr></thead>
+                      <thead><tr><th><%= t('common.date') %></th><th><%= t('stk.item') %></th><th><%= t('common.type') %></th><th><%= t('common.quantity') %></th><th><%= t('gov.by') %></th></tr></thead>
                       <tbody>
                         <% movements.slice(0, 40).forEach((m) => { %>
                           <tr>
@@ -225,7 +225,7 @@
         <section class="tab-panel <%= isFinance ? '' : 'is-active' %>" id="demandes">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Nouvelle demande d'achat</h3></div>
+              <div class="card-head"><h3><%= t('stk.newRequest') %></h3></div>
               <form method="POST" action="/stock/demandes" class="stack">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label>
@@ -238,13 +238,13 @@
                     <input type="text" name="quantity" inputmode="decimal" value="1" required />
                   </label>
                   <label>
-                    <span>Montant estimé</span>
+                    <span><%= t('stk.estimatedAmount') %></span>
                     <input type="text" name="estimated_amount" inputmode="decimal" value="0" required />
                   </label>
                 </div>
                 <% if (items.length) { %>
                   <label>
-                    <span>Article du catalogue <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                    <span><%= t('stk.catalogItem') %> <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
                     <select name="item_id">
                       <option value="">—</option>
                       <% items.filter((i) => i.active).forEach((i) => { %><option value="<%= i.id %>"><%= i.label %></option><% }) %>
@@ -252,18 +252,18 @@
                   </label>
                 <% } %>
                 <label>
-                  <span>Justification</span>
+                  <span><%= t('stk.justification') %></span>
                   <textarea name="justification" rows="3" maxlength="1000"></textarea>
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.send') %></button>
-                <p class="hint">Votre manager valide d'abord. Au-delà de <%= threshold %> €, la gestion valide ensuite.</p>
+                <p class="hint"><%= t('stk.twoLevelNote', { threshold }) %></p>
               </form>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Mes demandes <span class="muted">(<%= myRequests.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('leave.myRequests') %> <span class="muted">(<%= myRequests.length %>)</span></h3></div>
               <% if (myRequests.length === 0) { %>
-                <div class="empty-state">Aucune demande envoyée.</div>
+                <div class="empty-state"><%= t('stk.noRequestSent') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
@@ -284,7 +284,7 @@
                           </td>
                           <td class="actions">
                             <% if (r.status === 'Manager') { %>
-                              <form method="POST" action="/stock/demandes/<%= r.id %>/annuler" data-confirm="Annuler cette demande ?">
+                              <form method="POST" action="/stock/demandes/<%= r.id %>/annuler" data-confirm="<%= t('stk.confirmCancelRequest') %>">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
                               </form>
@@ -305,8 +305,8 @@
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h3>À arbitrer — vos collaborateurs <span class="muted">(<%= managerRequests.length %>)</span></h3>
-                  <p class="card-sub">Premier niveau de validation. Au-delà de <%= threshold %> €, votre accord envoie la demande à la gestion.</p>
+                  <h3><%= t('stk.toArbitrate', { count: managerRequests.length }) %></h3>
+                  <p class="card-sub"><%= t('stk.firstLevelNote', { threshold }) %></p>
                 </div>
               </div>
               <ul class="meeting-list">
@@ -316,7 +316,7 @@
                       <span class="meeting-title"><%= r.label %></span>
                       <span class="tag"><%= money(r.estimated_amount) %></span>
                     </div>
-                    <p class="cell-sub"><%= r.first_name %> <%= r.last_name %> · <%= r.quantity %> unité(s)<%= r.department_name ? ' · ' + r.department_name : '' %></p>
+                    <p class="cell-sub"><%= r.first_name %> <%= r.last_name %> · <%= t('stk.unitCount', { count: r.quantity }) %><%= r.department_name ? ' · ' + r.department_name : '' %></p>
                     <% if (r.justification) { %><p class="benefit-text"><%= r.justification %></p><% } %>
                     <div class="row-actions">
                       <% ['approuver', 'refuser'].forEach((decision) => { %>
@@ -339,12 +339,12 @@
             <div class="card">
               <div class="card-head">
                 <div>
-                  <h3>Toutes les demandes <span class="muted">(<%= allRequests.length %>)</span></h3>
-                  <p class="card-sub">Second niveau : la gestion tranche au-delà de <%= threshold %> €, puis passe la commande.</p>
+                  <h3><%= t('stk.allRequests', { count: allRequests.length }) %></h3>
+                  <p class="card-sub"><%= t('stk.secondLevelNote', { threshold }) %></p>
                 </div>
               </div>
               <% if (allRequests.length === 0) { %>
-                <div class="empty-state">Aucune demande d'achat.</div>
+                <div class="empty-state"><%= t('stk.noPurchaseRequest') %></div>
               <% } else { %>
                 <div class="table-wrap">
                   <table>
@@ -358,7 +358,7 @@
                           </td>
                           <td>
                             <%= r.label %>
-                            <div class="cell-sub"><%= r.quantity %> unité(s)</div>
+                            <div class="cell-sub"><%= t('stk.unitCount', { count: r.quantity }) %></div>
                           </td>
                           <td class="num cell-strong"><%= money(r.estimated_amount) %></td>
                           <td>
@@ -380,7 +380,7 @@
                             <% } else if (r.status === 'Approuvée') { %>
                               <form method="POST" action="/stock/demandes/<%= r.id %>/commander" class="inline-form">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <button type="submit" class="btn btn-primary btn-sm">Commander</button>
+                                <button type="submit" class="btn btn-primary btn-sm"><%= t('stk.order') %></button>
                               </form>
                             <% } else { %>
                               <span class="cell-sub">—</span>

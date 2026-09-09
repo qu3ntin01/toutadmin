@@ -9,22 +9,21 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Recherche',
-        headerSubtitle: 'Dans tous les espaces auxquels vous avez accès'
+        headerTitle: t('nav.search'),
+        headerSubtitle: t('rch.headerSub')
       }) %>
 
       <main class="page">
         <div class="card">
           <form method="GET" action="/recherche" class="form-grid">
             <label class="span-2">
-              <span>Que cherchez-vous ?</span>
-              <input type="search" name="q" value="<%= query %>" placeholder="un collègue, un projet, un ticket, une procédure…" autofocus minlength="2" required />
+              <span><%= t('rch.what') %></span>
+              <input type="search" name="q" value="<%= query %>" placeholder="<%= t('rch.placeholder') %>" autofocus minlength="2" required />
             </label>
-            <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Chercher</button></div>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('kb.search') %></button></div>
           </form>
           <p class="hint">
-            La recherche n'interroge que les espaces qui vous sont ouverts : ce que vous n'avez pas le
-            droit de voir n'est pas cherché du tout.
+            <%= t('rch.scopeNote') %>
           </p>
         </div>
 
@@ -46,7 +45,7 @@
             </div>
           <% }) %>
           <% if (groups.length === 0) { %>
-            <div class="card"><p class="cell-sub">Rien ne correspond à « <%= query %> ».</p></div>
+            <div class="card"><p class="cell-sub"><%= t('rch.noMatch', { query }) %></p></div>
           <% } %>
         <% } %>
       </main>

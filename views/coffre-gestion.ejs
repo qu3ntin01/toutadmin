@@ -6,20 +6,20 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Coffre-fort',
+      panelLabel: t('nav.vault'),
       navItems: [
-        { tab: 'depot', label: 'Déposer', icon: 'plus' },
+        { tab: 'depot', label: t('cfg.tabDeposit'), icon: 'plus' },
         { tab: 'documents', label: t('erp.documents'), icon: 'shield' },
-        { tab: 'acces', label: 'Accès après départ', icon: 'link', badge: summary.grants },
-        { tab: 'integrite', label: 'Intégrité', icon: 'check', badge: integrity.broken.length }
+        { tab: 'acces', label: t('cfg.tabAccess'), icon: 'link', badge: summary.grants },
+        { tab: 'integrite', label: t('cfg.tabIntegrity'), icon: 'check', badge: integrity.broken.length }
       ],
-      footLinks: [{ href: '/rh', label: 'Espace RH', icon: 'back' }]
+      footLinks: [{ href: '/rh', label: t('nav.hrSpace'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Coffre-fort',
-        headerSubtitle: 'Dépôt des bulletins et accès des anciens salariés'
+        headerTitle: t('nav.vault'),
+        headerSubtitle: t('cfg.headerSub')
       }) %>
 
       <main class="page">
@@ -31,62 +31,62 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= summary.documents %></span><span class="stat-label">Documents au coffre</span></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.documents %></span><span class="stat-label"><%= t('cfg.documentsInVault') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= summary.holders %></span><span class="stat-label">Titulaires</span></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.holders %></span><span class="stat-label"><%= t('cfg.holders') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'logout', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= summary.departed %></span><span class="stat-label">Dont partis</span></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.departed %></span><span class="stat-label"><%= t('cfg.ofWhichGone') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
             <span class="stat-body">
               <span class="stat-value <%= integrity.broken.length ? 'text-danger' : '' %>"><%= integrity.total - integrity.broken.length %>/<%= integrity.total %></span>
-              <span class="stat-label">Empreintes vérifiées</span>
+              <span class="stat-label"><%= t('cfg.checkedFingerprints') %></span>
             </span>
           </div>
         </section>
 
         <div class="card">
-          <div class="card-head"><h3>Choisir un titulaire</h3></div>
+          <div class="card-head"><h3><%= t('cfg.chooseHolder') %></h3></div>
           <form method="GET" action="/coffre-fort/gestion" class="form-grid">
             <label class="span-2"><span><%= t('common.person') %></span>
               <select name="personne" required>
                 <option value="">—</option>
                 <% people.forEach((u) => { %>
                   <option value="<%= u.id %>" <%= target && target.id === u.id ? 'selected' : '' %>>
-                    <%= fullName(u) %> — <%= u.email %><%= u.active ? '' : ' (parti)' %> · <%= u.documents %> doc.
+                    <%= fullName(u) %> — <%= u.email %><%= u.active ? '' : ` (${t('cfg.gone')})` %> · <%= t('cfg.docCount', { count: u.documents }) %>
                   </option>
                 <% }) %>
               </select>
             </label>
-            <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Ouvrir son coffre</button></div>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('cfg.openVault') %></button></div>
           </form>
         </div>
 
         <!-- ---------- Dépôt ---------- -->
         <section class="tab-panel is-active" id="depot">
           <div class="card">
-            <div class="card-head"><h3>Déposer un document</h3></div>
+            <div class="card-head"><h3><%= t('cfg.depositDocument') %></h3></div>
             <% if (!target) { %>
-              <p class="cell-sub">Choisissez d'abord un titulaire ci-dessus.</p>
+              <p class="cell-sub"><%= t('cfg.chooseHolderFirst') %></p>
             <% } else { %>
               <form method="POST" action="/coffre-fort/gestion/depots" enctype="multipart/form-data" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <input type="hidden" name="user_id" value="<%= target.id %>" />
                 <label class="span-2"><span><%= t('common.title') %></span>
-                  <input type="text" name="title" required maxlength="200" placeholder="Bulletin de paie — janvier 2026" />
+                  <input type="text" name="title" required maxlength="200" placeholder="<%= t('cfg.titlePlaceholder') %>" />
                 </label>
                 <label><span><%= t('common.category') %></span>
                   <select name="category"><% categories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
                 </label>
-                <label><span>Période (AAAA ou AAAA-MM)</span><input type="text" name="period" maxlength="7" placeholder="2026-01" /></label>
-                <label class="span-2"><span>Rattacher à une fiche de paie</span>
+                <label><span><%= t('cfg.period') %></span><input type="text" name="period" maxlength="7" placeholder="2026-01" /></label>
+                <label class="span-2"><span><%= t('cfg.linkToPayslip') %></span>
                   <select name="payslip_id">
-                    <option value="">— aucune</option>
+                    <option value=""><%= t('cfg.noneOption') %></option>
                     <% payslips.forEach((p) => { %>
                       <option value="<%= p.id %>"><%= p.period %> · net <%= p.net_amount %> €</option>
                     <% }) %>
@@ -95,12 +95,10 @@
                 <label class="span-2"><span><%= t('common.file') %></span>
                   <input type="file" name="document" accept=".pdf,.docx,.png,.jpg,.jpeg" required />
                 </label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déposer</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('cfg.tabDeposit') %></button></div>
               </form>
               <p class="hint">
-                PDF, DOCX, PNG ou JPEG, 10 Mo maximum. Le document est scellé par son empreinte et
-                conservé <%= retentionYears %> ans : il ne pourra plus être modifié, seulement retiré
-                par l'administration, avec un motif.
+                <%= t('cfg.depositNote', { years: retentionYears }) %>
               </p>
             <% } %>
           </div>
@@ -110,23 +108,23 @@
         <section class="tab-panel" id="documents">
           <div class="card">
             <div class="card-head">
-              <h3><%= target ? 'Coffre de ' + fullName(target) : 'Documents' %></h3>
+              <h3><%= target ? t('cfg.vaultOf', { name: fullName(target) }) : t('cfg.documents') %></h3>
             </div>
             <% if (!target) { %>
-              <p class="cell-sub">Choisissez un titulaire pour voir son coffre.</p>
+              <p class="cell-sub"><%= t('cfg.chooseHolderToView') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th>Déposé</th><th>Conservé jusqu'au</th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th><%= t('cfg.depositedOn') %></th><th><%= t('cfg.keptUntil') %></th><th></th></tr></thead>
                   <tbody>
                     <% documents.forEach((d) => { %>
                       <tr class="<%= d.removed_at ? 'is-muted' : '' %>">
                         <td>
                           <span class="cell-strong"><%= d.title %></span>
-                          <% if (d.removed_at) { %><span class="tag tag-danger">retiré</span><% } %>
+                          <% if (d.removed_at) { %><span class="tag tag-danger"><%= t('cfg.withdrawnTag') %></span><% } %>
                           <br /><span class="cell-sub fingerprint"><%= d.sha256.slice(0, 24) %>…</span>
                           <% if (d.removed_at) { %>
-                            <br /><span class="cell-sub">retiré le <%= moment(d.removed_at) %> — <%= d.removal_reason %></span>
+                            <br /><span class="cell-sub"><%= t('cfg.withdrawnOn') %> <%= moment(d.removed_at) %> — <%= d.removal_reason %></span>
                           <% } %>
                         </td>
                         <td><span class="tag"><%= d.category %></span></td>
@@ -141,9 +139,9 @@
                             <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= d.id %>"><%= t('common.open') %></a>
                             <% if (currentUser.role === 'admin') { %>
                               <form method="POST" action="/coffre-fort/gestion/documents/<%= d.id %>/retirer" class="inline-form"
-                                    data-confirm="Retirer définitivement ce document du coffre ?">
+                                    data-confirm="<%= t('cfg.confirmWithdraw') %>">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                                <input type="text" name="reason" class="input-sm" placeholder="Motif du retrait" required minlength="5" />
+                                <input type="text" name="reason" class="input-sm" placeholder="<%= t('cfg.withdrawReason') %>" required minlength="5" />
                                 <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                               </form>
                             <% } %>
@@ -151,12 +149,12 @@
                         </td>
                       </tr>
                     <% }) %>
-                    <% if (documents.length === 0) { %><tr><td colspan="6" class="cell-sub">Coffre vide.</td></tr><% } %>
+                    <% if (documents.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('cfg.emptyVault') %></td></tr><% } %>
                   </tbody>
                 </table>
               </div>
               <% if (currentUser.role !== 'admin') { %>
-                <p class="hint">Le retrait d'un document est réservé à l'administration.</p>
+                <p class="hint"><%= t('cfg.withdrawalAdminOnly') %></p>
               <% } %>
             <% } %>
           </div>
@@ -167,58 +165,58 @@
           <% if (issuedCode) { %>
             <div class="card">
               <div class="flash flash-success">
-                Code d'accès pour <%= issuedCode.email %> — affiché une seule fois.
+                <%= t('cfg.codeFor', { email: issuedCode.email }) %>
               </div>
               <ul class="code-list"><li><%= issuedCode.code %></li></ul>
               <p class="cell-sub">
-                Valable jusqu'au <%= moment(issuedCode.expiresAt) %>. La personne le saisit sur
-                <code class="totp-secret">/coffre-fort/acces</code>, avec l'adresse de son ancien compte.
+                <%- t('cfg.validUntilNote', {
+                      date: moment(issuedCode.expiresAt),
+                      url: '<code class="totp-secret">/coffre-fort/acces</code>',
+                    }) %>
               </p>
             </div>
           <% } %>
 
           <div class="card">
-            <div class="card-head"><h3>Codes d'accès</h3></div>
+            <div class="card-head"><h3><%= t('cfg.accessCodes') %></h3></div>
             <p class="hint">
-              Un ancien salarié qui se souvient de son mot de passe entre par la connexion habituelle :
-              elle ouvre directement son coffre, et rien d'autre. Le code sert à qui l'a oublié — ce qui
-              arrivera, sur <%= retentionYears %> ans.
+              <%= t('cfg.codesNote', { years: retentionYears }) %>
             </p>
 
             <% if (!target) { %>
-              <p class="cell-sub">Choisissez un titulaire pour lui émettre un code.</p>
+              <p class="cell-sub"><%= t('cfg.chooseHolderToIssue') %></p>
             <% } else { %>
               <form method="POST" action="/coffre-fort/gestion/acces/<%= target.id %>" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Validité (jours)</span>
+                <label class="span-2"><span><%= t('cfg.validityDays') %></span>
                   <input type="number" name="days" min="1" max="<%= maxGrantDays %>" value="<%= defaultGrantDays %>" required />
                 </label>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Émettre un code pour <%= fullName(target) %></button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('cfg.issueCodeFor', { name: fullName(target) }) %></button></div>
               </form>
-              <p class="hint">Émettre un nouveau code révoque le précédent : un seul vaut à la fois.</p>
+              <p class="hint"><%= t('cfg.issueRevokes') %></p>
 
               <ul class="org-list">
                 <% grants.forEach((g) => { %>
                   <li class="org-item">
                     <span>
-                      <span class="cell-strong">Code du <%= moment(g.created_at) %></span>
-                      <% if (g.revoked_at) { %><span class="tag tag-danger">révoqué</span>
-                      <% } else if (new Date(g.expires_at) < new Date()) { %><span class="tag">expiré</span>
-                      <% } else { %><span class="tag tag-success">actif</span><% } %>
+                      <span class="cell-strong"><%= t('cfg.codeOf', { date: moment(g.created_at) }) %></span>
+                      <% if (g.revoked_at) { %><span class="tag tag-danger"><%= t('cfg.revoked') %></span>
+                      <% } else if (new Date(g.expires_at) < new Date()) { %><span class="tag"><%= t('cfg.expired') %></span>
+                      <% } else { %><span class="tag tag-success"><%= t('cfg.activeCode') %></span><% } %>
                       <br /><span class="cell-sub">
-                        expire le <%= moment(g.expires_at) %> · <%= g.uses %> utilisation(s)
-                        <%= g.last_used_at ? ' · dernière le ' + moment(g.last_used_at) : '' %>
+                        <%= t('par.expiresOn') %> <%= moment(g.expires_at) %> · <%= t('cfg.useCount', { count: g.uses }) %>
+                        <%= g.last_used_at ? ` · ${t('cfg.lastUse', { date: moment(g.last_used_at) })}` : '' %>
                       </span>
                     </span>
                   </li>
                 <% }) %>
-                <% if (grants.length === 0) { %><li class="cell-sub">Aucun code émis.</li><% } %>
+                <% if (grants.length === 0) { %><li class="cell-sub"><%= t('cfg.noCode') %></li><% } %>
               </ul>
 
               <% if (grants.some((g) => !g.revoked_at)) { %>
-                <form method="POST" action="/coffre-fort/gestion/acces/<%= target.id %>/revoquer" data-confirm="Révoquer les codes actifs ?">
+                <form method="POST" action="/coffre-fort/gestion/acces/<%= target.id %>/revoquer" data-confirm="<%= t('cfg.confirmRevokeCodes') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-outline btn-block">Révoquer les codes actifs</button>
+                  <button type="submit" class="btn btn-outline btn-block"><%= t('cfg.revokeActiveCodes') %></button>
                 </form>
               <% } %>
             <% } %>
@@ -228,20 +226,19 @@
         <!-- ---------- Intégrité ---------- -->
         <section class="tab-panel" id="integrite">
           <div class="card">
-            <div class="card-head"><h3>Contrôle d'intégrité</h3></div>
+            <div class="card-head"><h3><%= t('cfg.integrityCheck') %></h3></div>
             <p class="hint">
-              Chaque document porte l'empreinte SHA-256 de son contenu au moment du dépôt. Le contrôle
-              la recalcule : un écart signale un fichier altéré ou disparu, et le document n'est plus servi.
+              <%= t('cfg.integrityNote') %>
             </p>
             <% if (integrity.broken.length === 0) { %>
-              <p class="cell-strong"><%= integrity.total %> document(s) contrôlé(s), aucune anomalie.</p>
+              <p class="cell-strong"><%= t('cfg.checkedNoAnomaly', { count: integrity.total }) %></p>
             <% } else { %>
-              <div class="flash flash-error"><%= integrity.broken.length %> document(s) en anomalie.</div>
+              <div class="flash flash-error"><%= t('cfg.anomalyCount', { count: integrity.broken.length }) %></div>
               <ul class="org-list">
                 <% integrity.broken.forEach((d) => { %>
                   <li class="org-item">
-                    <span><span class="cell-strong"><%= d.title %></span><br /><span class="cell-sub">titulaire #<%= d.user_id %> · déposé le <%= moment(d.deposited_at) %></span></span>
-                    <span class="tag tag-danger">à vérifier</span>
+                    <span><span class="cell-strong"><%= d.title %></span><br /><span class="cell-sub"><%= t('cfg.holderNumber', { id: d.user_id }) %> · <%= t('cfg.depositedLower') %> <%= moment(d.deposited_at) %></span></span>
+                    <span class="tag tag-danger"><%= t('cfg.toCheck') %></span>
                   </li>
                 <% }) %>
               </ul>

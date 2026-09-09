@@ -6,9 +6,9 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Direction',
-      navItems: [{ href: '/direction#sondages', label: 'Sondages', icon: 'megaphone', active: true }],
-      footLinks: [{ href: '/direction#sondages', label: 'Retour aux sondages', icon: 'back' }]
+      panelLabel: t('nav.governance'),
+      navItems: [{ href: '/direction#sondages', label: t('nav.surveys'), icon: 'megaphone', active: true }],
+      footLinks: [{ href: '/direction#sondages', label: t('srz.backToPolls'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -16,7 +16,7 @@
         headerTitle: result.survey.title,
         headerSubtitle: result.survey.kind + ' · ' + result.survey.status.toLowerCase(),
         backHref: '/direction#sondages',
-        backLabel: 'Sondages'
+        backLabel: t('nav.surveys')
       }) %>
 
       <main class="page">
@@ -25,37 +25,35 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= result.answered %></span><span class="stat-label">Réponses sur <%= result.invited %> conviés</span></span>
+            <span class="stat-body"><span class="stat-value"><%= result.answered %></span><span class="stat-label"><%= t('srz.answeredOf', { invited: result.invited }) %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= result.rate %> %</span><span class="stat-label">Participation</span></span>
+            <span class="stat-body"><span class="stat-value"><%= result.rate %> %</span><span class="stat-label"><%= t('cse.turnout') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= result.questions.length %></span><span class="stat-label">Questions</span></span>
+            <span class="stat-body"><span class="stat-value"><%= result.questions.length %></span><span class="stat-label"><%= t('srz.questions') %></span></span>
           </div>
         </section>
 
         <% if (result.withheld) { %>
           <div class="card">
-            <div class="card-head"><h3>Résultats non affichés</h3></div>
+            <div class="card-head"><h3><%= t('srz.notShown') %></h3></div>
             <p class="empty-state">
-              <%= result.answered %> réponse(s) reçue(s) : sous <%= result.threshold %>, rien n'est montré.
-              Dans un petit groupe, une moyenne suffit à désigner quelqu'un — et un sondage dont l'anonymat
-              se laisse contourner ne mesure plus que la prudence des gens.
+              <%= t('srz.thresholdNote', { count: result.answered, threshold: result.threshold }) %>
             </p>
           </div>
         <% } else { %>
           <% result.questions.forEach((q) => { %>
             <div class="card">
-              <div class="card-head"><h3><%= q.label %></h3><span class="card-sub"><%= q.count %> réponse(s)</span></div>
+              <div class="card-head"><h3><%= q.label %></h3><span class="card-sub"><%= t('srz.answerCount', { count: q.count }) %></span></div>
 
               <% if (q.type === 'echelle') { %>
-                <p class="stat-value"><%= q.average === null ? '—' : q.average %> <span class="cell-sub">/ 5 en moyenne</span></p>
+                <p class="stat-value"><%= q.average === null ? '—' : q.average %> <span class="cell-sub"><%= t('srz.outOfFive') %></span></p>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th><%= t('common.note') %></th><th><%= t('common.answers') %></th><th>Part</th></tr></thead>
+                    <thead><tr><th><%= t('common.note') %></th><th><%= t('common.answers') %></th><th><%= t('srz.share') %></th></tr></thead>
                     <tbody>
                       <% q.distribution.forEach((d) => { %>
                         <tr>
@@ -69,7 +67,7 @@
                 </div>
               <% } else if (q.type === 'texte') { %>
                 <% if (!q.verbatims.length) { %>
-                  <p class="empty-state">Aucune réponse libre.</p>
+                  <p class="empty-state"><%= t('srz.noFreeAnswer') %></p>
                 <% } else { %>
                   <ul class="meeting-list">
                     <% q.verbatims.forEach((v) => { %><li class="meeting-item"><p class="cell-sub"><%= v %></p></li><% }) %>
@@ -78,7 +76,7 @@
               <% } else { %>
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th>Réponse</th><th><%= t('common.count') %></th><th>Part</th></tr></thead>
+                    <thead><tr><th><%= t('srz.answer') %></th><th><%= t('common.count') %></th><th><%= t('srz.share') %></th></tr></thead>
                     <tbody>
                       <% q.distribution.forEach((d) => { %>
                         <tr>

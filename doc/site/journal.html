@@ -76,6 +76,31 @@
   Les entrées les plus récentes d'abord.
 </p>
 
+<h2 id="traductions-les-76-vues-ecran-par-ecran">Traductions : les 76 vues, écran par écran<a class="anchor" href="#traductions-les-76-vues-ecran-par-ecran" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span></p>
+
+<p>
+  Le vocabulaire générique traité, il restait le vocabulaire métier : environ 1&nbsp;600 chaînes
+  réparties sur une soixantaine d'écrans, chacune n'apparaissant que sur un ou deux d'entre eux.
+  Ce lot les a prises une par une, de la comptabilité au parapheur.
+</p>
+
+<ul>
+  <li>Le dictionnaire passe à <strong>2144 clés par langue</strong> ; plus une seule vue n'affiche de texte français en dur.</li>
+  <li>Les phrases qu'une donnée coupait en deux deviennent des clés paramétrées — <em>« {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) »</em> — plutôt que des fragments concaténés, qui ne se traduisent dans aucune langue à l'ordre des mots différent.</li>
+  <li>Rien de fonctionnel ne bouge : les valeurs stockées, les attributs <code>value</code>, les comparaisons de chaînes et les URL de filtre gardent leur libellé français, qui est la donnée.</li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Ce que l'échappement HTML a révélé</span>
+  <p>
+    Un libellé passé par le dictionnaire traverse <code>&lt;%= %&gt;</code>, qui échappe
+    l'apostrophe en <code>&amp;#39;</code>. À l'écran, rien ne change ; un test qui cherchait la
+    phrase littéralement dans le HTML brut, lui, a cessé de la trouver. L'assertion accepte
+    désormais les deux écritures et dit pourquoi.
+  </p>
+</div>
+
 <h2 id="traductions-vocabulaire-generique">Traductions : vocabulaire générique<a class="anchor" href="#traductions-vocabulaire-generique" aria-label="Lien vers cette section">#</a></h2>
 <p><span class="tag tag-done">livré</span> <span class="mono">6c27dd5</span></p>
 
@@ -235,12 +260,13 @@
 </div>
 
       <nav class="pager" aria-label="Pages voisines"><a href="tests.html">← Tests</a><span></span></nav>
-      <p class="foot">Documentation de Salarié Member — construite le 2026-09-08. Site autonome, indépendant du logiciel.</p>
+      <p class="foot">Documentation de Salarié Member — construite le 2026-09-09. Site autonome, indépendant du logiciel.</p>
     </article>
   </main>
 
   <aside class="toc" aria-label="Sur cette page">
     <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#traductions-les-76-vues-ecran-par-ecran">Traductions : les 76 vues, écran par écran</a>
     <a class="lvl-2" href="#traductions-vocabulaire-generique">Traductions : vocabulaire générique</a>
     <a class="lvl-2" href="#traductions-statuts-chrome-et-mise-en-page-arabe">Traductions : statuts, chrome et mise en page arabe</a>
     <a class="lvl-2" href="#pieces-recues-lecture-des-factures-et-capture-de-la-boite-aux-lettres">Pièces reçues : lecture des factures et capture de la boîte aux lettres</a>

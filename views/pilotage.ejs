@@ -6,11 +6,11 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Pilotage',
+      panelLabel: t('nav.steering'),
       navItems: [
         { tab: 'tableau', label: t('common.dashboard'), icon: 'home' },
-        { tab: 'echeances', label: 'Échéances', icon: 'clock', badge: deadlines.overdue },
-        { tab: 'projets', label: 'Santé des projets', icon: 'briefcase' },
+        { tab: 'echeances', label: t('sst.deadlines'), icon: 'clock', badge: deadlines.overdue },
+        { tab: 'projets', label: t('pil.tabProjectHealth'), icon: 'briefcase' },
         { tab: 'objectifs', label: t('common.objectives'), icon: 'check' }
       ],
       footLinks: [{ href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('common.back'), icon: 'back' }]
@@ -18,8 +18,8 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Pilotage',
-        headerSubtitle: "Ce que la direction regarde : effectif, activité, échéances et objectifs — exercice " + year
+        headerTitle: t('nav.steering'),
+        headerSubtitle: t('pil.headerSub', { year })
       }) %>
 
       <main class="page">
@@ -30,19 +30,19 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= overview.headcount.total %></span><span class="stat-label">Effectif actif</span></span>
+            <span class="stat-body"><span class="stat-value"><%= overview.headcount.total %></span><span class="stat-label"><%= t('pil.activeStaff') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(overview.revenue.sales) %></span><span class="stat-label">Facturé <%= year %></span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(overview.revenue.sales) %></span><span class="stat-label"><%= t('crm.invoiced') %> <%= year %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(overview.unpaid.total) %></span><span class="stat-label"><%= overview.unpaid.count %> facture(s) client en attente</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(overview.unpaid.total) %></span><span class="stat-label"><%= t('pil.unpaidInvoices', { count: overview.unpaid.count }) %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value <%= deadlines.overdue ? 'text-danger' : '' %>"><%= deadlines.overdue %></span><span class="stat-label">Échéances dépassées</span></span>
+            <span class="stat-body"><span class="stat-value <%= deadlines.overdue ? 'text-danger' : '' %>"><%= deadlines.overdue %></span><span class="stat-label"><%= t('pil.overdueDeadlines') %></span></span>
           </div>
         </section>
 
@@ -56,33 +56,33 @@
                   <% overview.headcount.byContract.forEach((row) => { %>
                     <tr><td class="cell-sub"><%= row.contract_type || 'Non renseigné' %></td><td class="cell-strong"><%= row.n %></td></tr>
                   <% }) %>
-                  <tr><td class="cell-sub">Absents aujourd'hui</td><td class="cell-strong"><%= overview.absentToday %></td></tr>
-                  <% if (overview.headcount.byContract.length === 0) { %><tr><td class="cell-sub" colspan="2">Aucun membre actif.</td></tr><% } %>
+                  <tr><td class="cell-sub"><%= t('pil.absentToday') %></td><td class="cell-strong"><%= overview.absentToday %></td></tr>
+                  <% if (overview.headcount.byContract.length === 0) { %><tr><td class="cell-sub" colspan="2"><%= t('pil.noActiveMember') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Activité <%= year %></h3></div>
+              <div class="card-head"><h3><%= t('pil.activity') %> <%= year %></h3></div>
               <table>
                 <tbody>
-                  <tr><td class="cell-sub">Facturé client (HT)</td><td class="cell-strong"><%= money(overview.revenue.sales) %></td></tr>
-                  <tr><td class="cell-sub">Achats fournisseurs (HT)</td><td><%= money(overview.revenue.purchases) %></td></tr>
-                  <tr><td class="cell-sub">Marge brute</td><td class="cell-strong <%= overview.revenue.margin < 0 ? 'text-danger' : '' %>"><%= money(overview.revenue.margin) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('pil.billedExclVat') %></td><td class="cell-strong"><%= money(overview.revenue.sales) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('pil.supplierPurchases') %></td><td><%= money(overview.revenue.purchases) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('pil.grossMargin') %></td><td class="cell-strong <%= overview.revenue.margin < 0 ? 'text-danger' : '' %>"><%= money(overview.revenue.margin) %></td></tr>
                   <tr>
-                    <td class="cell-sub">Masse salariale mensuelle</td>
+                    <td class="cell-sub"><%= t('pil.payrollCost') %></td>
                     <td><%= overview.payroll ? money(overview.payroll.monthly) + ' (' + overview.payroll.known + ' salaires connus)' : '— non renseignée' %></td>
                   </tr>
                   <tr>
-                    <td class="cell-sub">Trésorerie</td>
+                    <td class="cell-sub"><%= t('tre.panel') %></td>
                     <td class="<%= overview.treasury != null && overview.treasury < 0 ? 'text-danger' : '' %>">
-                      <%= overview.treasury == null ? '— module éteint' : money(overview.treasury) %>
+                      <%= overview.treasury == null ? t('pil.moduleOff') : money(overview.treasury) %>
                     </td>
                   </tr>
-                  <tr><td class="cell-sub">Tickets ouverts</td><td><%= overview.tickets.open %> (<%= overview.tickets.month %> ce mois-ci)</td></tr>
+                  <tr><td class="cell-sub"><%= t('pil.openTickets') %></td><td><%= overview.tickets.open %> (<%= t('pil.thisMonth', { count: overview.tickets.month }) %>)</td></tr>
                 </tbody>
               </table>
-              <p class="hint">Un tiret marque une donnée absente, pas un zéro : c'est ce qu'il faut renseigner.</p>
+              <p class="hint"><%= t('pil.dashNote') %></p>
             </div>
           </div>
         </section>
@@ -90,10 +90,10 @@
         <!-- ---------- Échéances ---------- -->
         <section class="tab-panel" id="echeances">
           <div class="card">
-            <div class="card-head"><h3><%= deadlines.total %> échéance(s) à 45 jours, dont <%= deadlines.overdue %> dépassée(s)</h3></div>
+            <div class="card-head"><h3><%= t('pil.deadlineSummary', { total: deadlines.total, overdue: deadlines.overdue }) %></h3></div>
             <div class="row-actions">
               <% Object.entries(deadlines.bySource).forEach(([source, counts]) => { %>
-                <span class="tag <%= counts.overdue ? 'tag-danger' : '' %>"><%= source %> : <%= counts.total %><%= counts.overdue ? ' (' + counts.overdue + ' en retard)' : '' %></span>
+                <span class="tag <%= counts.overdue ? 'tag-danger' : '' %>"><%= source %> : <%= counts.total %><%= counts.overdue ? ` (${t('pil.lateCount', { count: counts.overdue })})` : '' %></span>
               <% }) %>
             </div>
           </div>
@@ -112,7 +112,7 @@
                       <td><% if (row.link) { %><a class="btn btn-outline btn-sm" href="<%= row.link %>"><%= t('common.open') %></a><% } %></td>
                     </tr>
                   <% }) %>
-                  <% if (deadlines.rows.length === 0) { %><tr><td colspan="5" class="cell-sub">Rien à 45 jours.</td></tr><% } %>
+                  <% if (deadlines.rows.length === 0) { %><tr><td colspan="5" class="cell-sub"><%= t('pil.nothing45') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>
@@ -122,10 +122,10 @@
         <!-- ---------- Projets ---------- -->
         <section class="tab-panel" id="projets">
           <div class="card">
-            <div class="card-head"><h3><%= overview.projects.length %> projet(s) en cours</h3></div>
+            <div class="card-head"><h3><%= t('pil.projectsInProgress', { count: overview.projects.length }) %></h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th><%= t('common.project') %></th><th><%= t('common.status') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.hours') %></th><th><%= t('common.cost') %></th><th><%= t('common.budget') %></th><th>Consommé</th></tr></thead>
+                <thead><tr><th><%= t('common.project') %></th><th><%= t('common.status') %></th><th><%= t('erp.dueDate') %></th><th><%= t('common.hours') %></th><th><%= t('common.cost') %></th><th><%= t('common.budget') %></th><th><%= t('erp.consumed') %></th></tr></thead>
                 <tbody>
                   <% overview.projects.forEach((p) => { %>
                     <tr>
@@ -145,7 +145,7 @@
                       </td>
                     </tr>
                   <% }) %>
-                  <% if (overview.projects.length === 0) { %><tr><td colspan="7" class="cell-sub">Aucun projet en cours.</td></tr><% } %>
+                  <% if (overview.projects.length === 0) { %><tr><td colspan="7" class="cell-sub"><%= t('pil.noProjectInProgress') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>
@@ -155,22 +155,22 @@
         <!-- ---------- Objectifs ---------- -->
         <section class="tab-panel" id="objectifs">
           <div class="card">
-            <div class="card-head"><h3>Fixer un objectif</h3></div>
+            <div class="card-head"><h3><%= t('pil.setObjective') %></h3></div>
             <form method="POST" action="/pilotage/objectifs" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="Réduire le délai de réponse au support" /></label>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="<%= t('pil.objectivePlaceholder') %>" /></label>
               <label><span><%= t('common.scope') %></span>
                 <select name="scope"><% scopes.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
               </label>
               <label><span><%= t('common.period') %></span><input type="text" name="period" maxlength="20" placeholder="2026-T1" /></label>
-              <label class="span-2"><span>Service ou équipe (si portée restreinte)</span>
+              <label class="span-2"><span><%= t('pil.scopeIfLimited') %></span>
                 <select name="scope_id">
                   <option value="">—</option>
                   <optgroup label="Services"><% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %></optgroup>
                   <optgroup label="Équipes"><% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %></optgroup>
                 </select>
               </label>
-              <label class="span-2"><span>Porteur</span>
+              <label class="span-2"><span><%= t('gov.holder') %></span>
                 <select name="owner_id"><option value="">—</option>
                   <% people.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
                 </select>
@@ -192,14 +192,14 @@
                 <%= o.description ? ' · ' + o.description : '' %>
               </p>
               <span class="meter"><span class="meter-fill <%= o.progress >= 100 ? '' : (o.progress < 34 ? 'is-warn' : '') %>" data-ratio="<%= o.progress %>"></span></span>
-              <p class="cell-sub"><%= o.progress %> % — moyenne des résultats clés, chacun sur sa propre échelle.</p>
+              <p class="cell-sub"><%= t('pil.progressNote', { percent: o.progress }) %></p>
 
               <ul class="org-list">
                 <% o.results.forEach((r) => { %>
                   <li class="org-item">
                     <span>
                       <span class="cell-strong"><%= r.title %></span>
-                      <br /><span class="cell-sub">de <%= r.start_value %> à <%= r.target_value %> <%= r.unit %> — actuellement <%= r.current_value %></span>
+                      <br /><span class="cell-sub"><%= t('pil.fromToCurrent', { start: r.start_value, target: r.target_value, unit: r.unit, current: r.current_value }) %></span>
                     </span>
                     <span class="row-actions">
                       <form method="POST" action="/pilotage/resultats/<%= r.id %>" class="inline-form">
@@ -214,17 +214,17 @@
                     </span>
                   </li>
                 <% }) %>
-                <% if (o.results.length === 0) { %><li class="cell-sub">Aucun résultat clé : l'objectif n'est pas mesurable en l'état.</li><% } %>
+                <% if (o.results.length === 0) { %><li class="cell-sub"><%= t('pil.noKeyResult') %></li><% } %>
               </ul>
 
               <form method="POST" action="/pilotage/objectifs/<%= o.id %>/resultats" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label class="span-2"><span>Résultat clé</span><input type="text" name="title" required maxlength="200" placeholder="Délai médian de première réponse" /></label>
-                <label><span>Départ</span><input type="text" name="start_value" inputmode="decimal" value="0" required /></label>
-                <label><span>Cible</span><input type="text" name="target_value" inputmode="decimal" required /></label>
-                <label><span>Actuel</span><input type="text" name="current_value" inputmode="decimal" /></label>
+                <label class="span-2"><span><%= t('pil.keyResult') %></span><input type="text" name="title" required maxlength="200" placeholder="<%= t('pil.keyResultPlaceholder') %>" /></label>
+                <label><span><%= t('acc.departure') %></span><input type="text" name="start_value" inputmode="decimal" value="0" required /></label>
+                <label><span><%= t('pil.target') %></span><input type="text" name="target_value" inputmode="decimal" required /></label>
+                <label><span><%= t('pil.current') %></span><input type="text" name="current_value" inputmode="decimal" /></label>
                 <label><span><%= t('common.unit') %></span><input type="text" name="unit" maxlength="20" placeholder="h, %, €" /></label>
-                <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Ajouter le résultat clé</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('pil.addKeyResult') %></button></div>
               </form>
 
               <div class="row-actions">
@@ -233,9 +233,9 @@
                   <select name="status" class="input-sm">
                     <% statuses.forEach((s) => { %><option value="<%= s %>" <%= o.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
                   </select>
-                  <button type="submit" class="btn btn-sm">Changer le statut</button>
+                  <button type="submit" class="btn btn-sm"><%= t('pil.changeStatus') %></button>
                 </form>
-                <form method="POST" action="/pilotage/objectifs/<%= o.id %>/supprimer" class="inline-form" data-confirm="Supprimer cet objectif et ses résultats clés ?">
+                <form method="POST" action="/pilotage/objectifs/<%= o.id %>/supprimer" class="inline-form" data-confirm="<%= t('pil.confirmDeleteObjective') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                 </form>
@@ -243,7 +243,7 @@
             </div>
           <% }) %>
           <% if (objectiveList.length === 0) { %>
-            <div class="card"><p class="cell-sub">Aucun objectif fixé.</p></div>
+            <div class="card"><p class="cell-sub"><%= t('pil.noObjective') %></p></div>
           <% } %>
         </section>
       </main>

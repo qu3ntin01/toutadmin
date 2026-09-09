@@ -6,9 +6,9 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Demande',
-      navItems: [{ href: '/demandes', label: 'Toutes les demandes', icon: 'inbox', active: true }],
-      footLinks: [{ href: '/mon-espace', label: 'Mon espace', icon: 'home' }]
+      panelLabel: t('req.panel'),
+      navItems: [{ href: '/demandes', label: t('req.allRequests'), icon: 'inbox', active: true }],
+      footLinks: [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }]
     }) %>
 
     <div class="app-main">
@@ -16,7 +16,7 @@
         headerTitle: request.form ? request.form.label : 'Demande',
         headerSubtitle: request.requesterName,
         backHref: '/demandes',
-        backLabel: 'Demandes'
+        backLabel: t('nav.requests')
       }) %>
 
       <main class="page">
@@ -25,7 +25,7 @@
 
         <div class="card">
           <div class="card-head">
-            <h3>Contenu de la demande</h3>
+            <h3><%= t('req.content') %></h3>
             <span class="tag <%= request.status === 'Approuvée' ? 'tag-success' : (request.status === 'En cours' ? 'tag-warning' : 'tag-danger') %>"><%= st(request.status) %></span>
           </div>
           <div class="table-wrap">
@@ -37,17 +37,17 @@
                     <td class="cell-strong"><%= request.values[field.name] === '' || request.values[field.name] === undefined ? '—' : request.values[field.name] %></td>
                   </tr>
                 <% }) %>
-                <tr><td class="cell-sub">Déposée</td><td><%= moment(request.created_at) %></td></tr>
-                <% if (request.closed_at) { %><tr><td class="cell-sub">Close</td><td><%= moment(request.closed_at) %></td></tr><% } %>
+                <tr><td class="cell-sub"><%= t('req.submitted') %></td><td><%= moment(request.created_at) %></td></tr>
+                <% if (request.closed_at) { %><tr><td class="cell-sub"><%= t('req.closed') %></td><td><%= moment(request.closed_at) %></td></tr><% } %>
               </tbody>
             </table>
           </div>
         </div>
 
         <div class="card">
-          <div class="card-head"><h3>Circuit</h3></div>
+          <div class="card-head"><h3><%= t('req.flow') %></h3></div>
           <% if (!request.steps.length) { %>
-            <p class="empty-state">Aucune validation requise pour ce cas : la demande a été approuvée d'emblée.</p>
+            <p class="empty-state"><%= t('req.noApprovalNeeded') %></p>
           <% } else { %>
             <ul class="timeline">
               <% request.steps.forEach((step, index) => { %>
@@ -55,18 +55,18 @@
                 <li class="timeline-item">
                   <div class="timeline-title">
                     <%= t('common.step') %> <%= index + 1 %> — <%= step.label || step.approver %>
-                    <% if (step.threshold) { %><span class="cell-sub"> (au-delà de <%= step.threshold %>)</span><% } %>
+                    <% if (step.threshold) { %><span class="cell-sub"> (<%= t('dmd.aboveThreshold', { threshold: step.threshold }) %>)</span><% } %>
                   </div>
                   <div class="timeline-body">
                     <% if (decision) { %>
                       <span class="tag <%= decision.decision === 'Approuvée' ? 'tag-success' : 'tag-danger' %>"><%= decision.decision %></span>
-                      par <%= decision.first_name %> <%= decision.last_name %> le <%= moment(decision.decided_at) %>
+                      <%= t('req.byOn', { name: `${decision.first_name} ${decision.last_name}`, date: moment(decision.decided_at) }) %>
                       <% if (decision.note) { %><div class="cell-sub"><%= decision.note %></div><% } %>
                     <% } else if (request.step && request.step.id === step.id) { %>
                       <span class="tag tag-warning"><%= t('status.pending') %></span>
                       <%= request.pendingApprovers.map((a) => `${a.first_name} ${a.last_name}`).join(', ') %>
                     <% } else { %>
-                      <span class="cell-sub">À venir</span>
+                      <span class="cell-sub"><%= t('agenda.upcoming') %></span>
                     <% } %>
                   </div>
                 </li>
@@ -77,18 +77,18 @@
 
         <% if (canDecide.ok) { %>
           <div class="card">
-            <div class="card-head"><h3>Votre décision</h3></div>
+            <div class="card-head"><h3><%= t('req.yourDecision') %></h3></div>
             <form method="POST" action="/demandes/<%= request.id %>/decision" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="decision" value="Approuvée" />
-              <label class="span-2"><span>Commentaire (facultatif)</span><input type="text" name="note" maxlength="500" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Approuver</button></div>
+              <label class="span-2"><span><%= t('req.commentOptional') %></span><input type="text" name="note" maxlength="500" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('hr.approve') %></button></div>
             </form>
             <form method="POST" action="/demandes/<%= request.id %>/decision" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="decision" value="Refusée" />
-              <label class="span-2"><span><%= t('common.refusalReason') %></span><input type="text" name="note" maxlength="500" required placeholder="Un refus se motive." /></label>
-              <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Refuser</button></div>
+              <label class="span-2"><span><%= t('common.refusalReason') %></span><input type="text" name="note" maxlength="500" required placeholder="<%= t('req.refusalPlaceholder') %>" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('hr.refuse') %></button></div>
             </form>
           </div>
         <% } else if (request.status === 'En cours' && !isRequester) { %>
@@ -97,11 +97,11 @@
 
         <% if (isRequester && request.status === 'En cours' && !request.decisions.length) { %>
           <div class="card">
-            <form method="POST" action="/demandes/<%= request.id %>/annuler" class="inline-form" data-confirm="Retirer votre demande ?">
+            <form method="POST" action="/demandes/<%= request.id %>/annuler" class="inline-form" data-confirm="<%= t('req.confirmWithdraw') %>">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-outline btn-sm">Retirer ma demande</button>
+              <button type="submit" class="btn btn-outline btn-sm"><%= t('req.withdraw') %></button>
             </form>
-            <p class="hint">Possible tant que personne ne s'est prononcé.</p>
+            <p class="hint"><%= t('req.withdrawNote') %></p>
           </div>
         <% } %>
       </main>

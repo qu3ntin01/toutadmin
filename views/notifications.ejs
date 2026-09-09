@@ -9,8 +9,8 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Notifications',
-        headerSubtitle: 'Ce qui arrive à échéance et vous concerne'
+        headerTitle: t('nav.notifications'),
+        headerSubtitle: t('ntf.headerSub')
       }) %>
 
       <main class="page">
@@ -19,10 +19,10 @@
 
         <div class="card">
           <div class="card-head">
-            <h3><%= items.filter((i) => !i.read_at).length %> non lue(s) sur <%= items.length %></h3>
+            <h3><%= t('ntf.unreadOf', { unread: items.filter((i) => !i.read_at).length, total: items.length }) %></h3>
             <form method="POST" action="/notifications/tout-lu" class="inline-form">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-outline btn-sm">Tout marquer comme lu</button>
+              <button type="submit" class="btn btn-outline btn-sm"><%= t('ntf.markAllRead') %></button>
             </form>
           </div>
 
@@ -44,7 +44,7 @@
                   <% } else if (!n.read_at) { %>
                     <form method="POST" action="/notifications/<%= n.id %>/lue" class="inline-form">
                       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                      <button type="submit" class="btn btn-outline btn-sm">Marquer lue</button>
+                      <button type="submit" class="btn btn-outline btn-sm"><%= t('ntf.markRead') %></button>
                     </form>
                   <% } %>
                   <form method="POST" action="/notifications/<%= n.id %>/supprimer" class="inline-form">
@@ -54,7 +54,7 @@
                 </span>
               </li>
             <% }) %>
-            <% if (items.length === 0) { %><li class="cell-sub">Rien à signaler.</li><% } %>
+            <% if (items.length === 0) { %><li class="cell-sub"><%= t('ntf.nothing') %></li><% } %>
           </ul>
         </div>
       </main>
