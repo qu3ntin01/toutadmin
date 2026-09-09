@@ -6,20 +6,20 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Comptabilité',
+      panelLabel: t('pcs.tabAccounting'),
       navItems: [
-        { tab: 'ecritures', label: 'Écritures', icon: 'card' },
-        { tab: 'balance', label: 'Balance', icon: 'network' },
-        { tab: 'grand-livre', label: 'Grand livre', icon: 'inbox' },
-        { tab: 'plan', label: 'Plan comptable', icon: 'settings' }
+        { tab: 'ecritures', label: t('cpt.tabEntries'), icon: 'card' },
+        { tab: 'balance', label: t('cpt.tabBalance'), icon: 'network' },
+        { tab: 'grand-livre', label: t('cpt.tabLedger'), icon: 'inbox' },
+        { tab: 'plan', label: t('cpt.tabChart'), icon: 'settings' }
       ],
       footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Comptabilité',
-        headerSubtitle: 'Écritures équilibrées, balance et grand livre — exercice ' + year
+        headerTitle: t('pcs.tabAccounting'),
+        headerSubtitle: t('cpt.headerSub', { year })
       }) %>
 
       <main class="page">
@@ -33,31 +33,31 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(income.revenue) %></span><span class="stat-label">Produits <%= year %></span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(income.revenue) %></span><span class="stat-label"><%= t('cpt.revenue') %> <%= year %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(income.expenses) %></span><span class="stat-label">Charges <%= year %></span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(income.expenses) %></span><span class="stat-label"><%= t('cpt.expenses') %> <%= year %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(income.result) %></span><span class="stat-label">Résultat</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(income.result) %></span><span class="stat-label"><%= t('cpt.result') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= unposted.length %></span><span class="stat-label">Factures à comptabiliser</span></span>
+            <span class="stat-body"><span class="stat-value"><%= unposted.length %></span><span class="stat-label"><%= t('cpt.toPost') %></span></span>
           </div>
         </section>
 
         <!-- ---------- Écritures ---------- -->
         <section class="tab-panel is-active" id="ecritures">
           <div class="card">
-            <div class="card-head"><h3>Saisir une écriture</h3></div>
+            <div class="card-head"><h3><%= t('cpt.newEntry') %></h3></div>
             <form method="POST" action="/comptabilite/ecritures" class="stack">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <div class="form-grid">
                   <label>
-                    <span>Journal</span>
+                    <span><%= t('cpt.journal') %></span>
                     <select name="journal_id" required>
                       <% journals.forEach((j) => { %><option value="<%= j.id %>"><%= j.code %> — <%= j.label %></option><% }) %>
                     </select>
@@ -72,7 +72,7 @@
                   <input type="text" name="label" maxlength="160" required />
                 </label>
                 <label>
-                  <span>Pièce</span>
+                  <span><%= t('pcs.piece') %></span>
                   <input type="text" name="reference" maxlength="60" />
                 </label>
 
@@ -85,24 +85,24 @@
                         <option value="<%= a.id %>"><%= a.code %> <%= a.label %></option>
                       <% }) %>
                     </select>
-                    <input type="text" name="line_label" placeholder="libellé" maxlength="160" />
-                    <input type="text" name="debit" inputmode="decimal" placeholder="débit" />
-                    <input type="text" name="credit" inputmode="decimal" placeholder="crédit" />
+                    <input type="text" name="line_label" placeholder="<%= t('cpt.labelPlaceholder') %>" maxlength="160" />
+                    <input type="text" name="debit" inputmode="decimal" placeholder="<%= t('cpt.debitPlaceholder') %>" />
+                    <input type="text" name="credit" inputmode="decimal" placeholder="<%= t('cpt.creditPlaceholder') %>" />
                   </div>
                 <% } %>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Enregistrer l'écriture</button>
+                <button type="submit" class="btn btn-primary"><%= t('cpt.saveEntry') %></button>
               </div>
-              <p class="hint">L'écriture n'est acceptée que si le total des débits égale celui des crédits. Une ligne porte un débit ou un crédit, jamais les deux.</p>
+              <p class="hint"><%= t('cpt.balanceRule') %></p>
             </form>
           </div>
 
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Factures à comptabiliser <span class="muted">(<%= unposted.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('cpt.toPost') %> <span class="muted">(<%= unposted.length %>)</span></h3></div>
               <% if (unposted.length === 0) { %>
-                <div class="empty-state">Toutes les factures sont comptabilisées.</div>
+                <div class="empty-state"><%= t('cpt.allPosted') %></div>
               <% } else { %>
                 <ul class="person-list">
                   <% unposted.slice(0, 12).forEach((i) => { %>
@@ -113,19 +113,19 @@
                       </span>
                       <form method="POST" action="/comptabilite/factures/<%= i.id %>/comptabiliser">
                         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                        <button type="submit" class="btn btn-outline btn-sm">Comptabiliser</button>
+                        <button type="submit" class="btn btn-outline btn-sm"><%= t('cpt.post') %></button>
                       </form>
                     </li>
                   <% }) %>
                 </ul>
-                <p class="hint">Une vente débite le client et crédite le produit et la TVA collectée ; un achat fait l'inverse.</p>
+                <p class="hint"><%= t('cpt.postingRule') %></p>
               <% } %>
             </div>
 
             <div class="card">
-                <div class="card-head"><h3>Journal des écritures <span class="muted">(<%= entries.length %>)</span></h3></div>
+                <div class="card-head"><h3><%= t('cpt.entryJournal') %> <span class="muted">(<%= entries.length %>)</span></h3></div>
                 <% if (entries.length === 0) { %>
-                  <div class="empty-state">Aucune écriture enregistrée.</div>
+                  <div class="empty-state"><%= t('cpt.noEntry') %></div>
                 <% } else { %>
                   <ul class="meeting-list">
                     <% entries.slice(0, 25).forEach((e) => { %>
@@ -137,7 +137,7 @@
                         <p class="cell-sub"><%= day(e.entry_date) %><%= e.reference ? ' · ' + e.reference : '' %> · <%= money(e.total_debit) %></p>
                         <div class="table-wrap">
                           <table>
-                            <thead><tr><th><%= t('common.account') %></th><th><%= t('common.label') %></th><th>Débit</th><th><%= t('common.credit') %></th></tr></thead>
+                            <thead><tr><th><%= t('common.account') %></th><th><%= t('common.label') %></th><th><%= t('cpt.debit') %></th><th><%= t('common.credit') %></th></tr></thead>
                             <tbody>
                               <% linesOf(e.id).forEach((l) => { %>
                                 <tr>
@@ -151,7 +151,7 @@
                           </table>
                         </div>
                         <div class="row-actions">
-                          <form method="POST" action="/comptabilite/ecritures/<%= e.id %>/supprimer" data-confirm="Supprimer cette écriture ?">
+                          <form method="POST" action="/comptabilite/ecritures/<%= e.id %>/supprimer" data-confirm="<%= t('cpt.confirmDeleteEntry') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
@@ -169,8 +169,8 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Balance générale <%= year %></h3>
-                <p class="card-sub">Un solde par compte mouvementé sur l'exercice.</p>
+                <h3><%= t('cpt.trialBalance') %> <%= year %></h3>
+                <p class="card-sub"><%= t('cpt.balanceNote') %></p>
               </div>
               <div class="row-actions">
                 <form method="GET" action="/comptabilite" class="inline-form">
@@ -179,16 +179,16 @@
                   </select>
                   <button type="submit" class="btn btn-sm"><%= t('common.open') %></button>
                 </form>
-                <a href="/comptabilite/balance.csv?annee=<%= year %>" class="btn btn-outline btn-sm">Export CSV</a>
+                <a href="/comptabilite/balance.csv?annee=<%= year %>" class="btn btn-outline btn-sm"><%= t('cpt.exportCsv') %></a>
               </div>
             </div>
 
             <% if (balance.length === 0) { %>
-              <div class="empty-state">Aucun mouvement sur cet exercice.</div>
+              <div class="empty-state"><%= t('cpt.noMovementYear') %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.account') %></th><th><%= t('common.type') %></th><th>Débit</th><th><%= t('common.credit') %></th><th><%= t('erp.balance') %></th></tr></thead>
+                  <thead><tr><th><%= t('common.account') %></th><th><%= t('common.type') %></th><th><%= t('cpt.debit') %></th><th><%= t('common.credit') %></th><th><%= t('erp.balance') %></th></tr></thead>
                   <tbody>
                     <% balance.forEach((b) => { %>
                       <tr>
@@ -205,7 +205,7 @@
                   </tbody>
                 </table>
               </div>
-              <p class="hint">L'export CSV alimente votre expert-comptable : ce module tient les comptes, il ne produit ni liasse ni télétransmission.</p>
+              <p class="hint"><%= t('cpt.exportNote') %></p>
             <% } %>
           </div>
         </section>
@@ -215,8 +215,8 @@
           <div class="card">
             <div class="card-head">
               <div>
-                <h3>Grand livre</h3>
-                <p class="card-sub">Le détail qui explique le solde d'un compte.</p>
+                <h3><%= t('cpt.tabLedger') %></h3>
+                <p class="card-sub"><%= t('cpt.ledgerNote') %></p>
               </div>
               <form method="GET" action="/comptabilite" class="inline-form">
                 <input type="hidden" name="annee" value="<%= year %>" />
@@ -231,13 +231,13 @@
             </div>
 
             <% if (!selectedAccount) { %>
-              <div class="empty-state">Choisissez un compte pour voir son grand livre.</div>
+              <div class="empty-state"><%= t('cpt.chooseAccount') %></div>
             <% } else if (ledger.length === 0) { %>
-              <div class="empty-state">Aucun mouvement sur ce compte pour l'exercice <%= year %>.</div>
+              <div class="empty-state"><%= t('cpt.noMovementAccount', { year }) %></div>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.date') %></th><th>Journal</th><th><%= t('common.label') %></th><th>Débit</th><th><%= t('common.credit') %></th><th><%= t('erp.balance') %></th></tr></thead>
+                  <thead><tr><th><%= t('common.date') %></th><th><%= t('cpt.journal') %></th><th><%= t('common.label') %></th><th><%= t('cpt.debit') %></th><th><%= t('common.credit') %></th><th><%= t('erp.balance') %></th></tr></thead>
                   <tbody>
                     <% ledger.forEach((l) => { %>
                       <tr>
@@ -264,7 +264,7 @@
           <div class="grid-2">
             <div class="stack">
               <div class="card">
-                <div class="card-head"><h3>Ajouter un compte</h3></div>
+                <div class="card-head"><h3><%= t('cpt.addAccount') %></h3></div>
                 <form method="POST" action="/comptabilite/comptes" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <div class="form-grid">
@@ -288,7 +288,7 @@
               </div>
 
               <div class="card">
-                <div class="card-head"><h3>Ajouter un journal</h3></div>
+                <div class="card-head"><h3><%= t('cpt.addJournal') %></h3></div>
                 <form method="POST" action="/comptabilite/journaux" class="stack">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <div class="form-grid">
@@ -307,7 +307,7 @@
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Plan comptable <span class="muted">(<%= accounts.length %>)</span></h3></div>
+              <div class="card-head"><h3><%= t('cpt.tabChart') %> <span class="muted">(<%= accounts.length %>)</span></h3></div>
               <div class="table-wrap">
                 <table>
                   <thead><tr><th><%= t('common.account') %></th><th><%= t('common.type') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
@@ -323,7 +323,7 @@
                           <span class="status <%= a.active ? 'status-on' : 'status-off' %>"><%= a.active ? t('common.active') : t('common.inactive') %></span>
                         </td>
                         <td class="actions">
-                          <form method="POST" action="/comptabilite/comptes/<%= a.id %>/supprimer" data-confirm="Supprimer ce compte ? S'il est mouvementé, il sera désactivé.">
+                          <form method="POST" action="/comptabilite/comptes/<%= a.id %>/supprimer" data-confirm="<%= t('cpt.confirmDeleteAccount') %>">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                           </form>
