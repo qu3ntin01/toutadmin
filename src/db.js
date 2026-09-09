@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS users (
   daily_rate REAL,
   is_hr INTEGER NOT NULL DEFAULT 0,
   is_finance INTEGER NOT NULL DEFAULT 0,
+  is_it INTEGER NOT NULL DEFAULT 0,
   gross_salary REAL,
   leave_balance REAL NOT NULL DEFAULT 0,
   department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
@@ -745,6 +746,7 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN daily_rate REAL",
   "ALTER TABLE users ADD COLUMN is_hr INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN is_finance INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN is_it INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN gross_salary REAL",
   // CV et évaluation ATS d'une candidature.
   "ALTER TABLE candidates ADD COLUMN cv_file TEXT",
@@ -1676,6 +1678,185 @@ CREATE TABLE IF NOT EXISTS incoming_documents (
   created_by INTEGER REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- ---------------------------------------------------------------- Service informatique
+-- Le parc logiciel : ce que l'entreprise paie, qui y a accès, et ce qui casse.
+-- Un logiciel n'est pas un équipement (assets) : il n'a pas de numéro de série,
+-- il a des sièges, un renouvellement, et une liste de personnes qui y entrent.
+CREATE TABLE IF NOT EXISTS software_licences (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  publisher TEXT NOT NULL DEFAULT '',
+  kind TEXT NOT NULL DEFAULT 'Abonnement' CHECK(kind IN ('Abonnement','Licence perpétuelle','Logiciel libre','Développement interne')),
+  -- 0 vaut « sans limite » : un logiciel libre n'a pas de sièges à compter.
+  seats INTEGER NOT NULL DEFAULT 0,
+  unit_cost REAL,
+  billing_period TEXT NOT NULL DEFAULT 'Annuel',
+  renewal_date TEXT,
+  owner_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  criticality TEXT NOT NULL DEFAULT 'Importante' CHECK(criticality IN ('Vitale','Importante','Secondaire')),
+  -- Marque un traitement de données personnelles : le registre RGPD s'y adosse.
+  personal_data INTEGER NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'Actif' CHECK(status IN ('Actif','En test','Retiré')),
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Qui a accès à quoi. Un accès retiré n'est pas effacé : la date de révocation
+-- est précisément ce qu'une revue d'accès a besoin de lire.
+CREATE TABLE IF NOT EXISTS software_accesses (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  licence_id INTEGER NOT NULL REFERENCES software_licences(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  level TEXT NOT NULL DEFAULT 'Utilisateur' CHECK(level IN ('Utilisateur','Gestionnaire','Administrateur')),
+  granted_on TEXT NOT NULL DEFAULT (date('now')),
+  granted_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  revoked_on TEXT,
+  reviewed_on TEXT,
+  note TEXT NOT NULL DEFAULT ''
+);
+
+-- Incidents du système d'information : l'horodatage sert au délai de
+-- rétablissement, qui n'a de sens que mesuré, pas raconté.
+CREATE TABLE IF NOT EXISTS it_incidents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL DEFAULT '',
+  title TEXT NOT NULL,
+  service_id INTEGER REFERENCES app_services(id) ON DELETE SET NULL,
+  severity TEXT NOT NULL DEFAULT 'Majeur' CHECK(severity IN ('Critique','Majeur','Mineur')),
+  started_at TEXT NOT NULL,
+  detected_at TEXT,
+  resolved_at TEXT,
+  impact TEXT NOT NULL DEFAULT '',
+  cause TEXT NOT NULL DEFAULT '',
+  remediation TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Ouvert' CHECK(status IN ('Ouvert','En cours','Résolu','Clos')),
+  declared_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------------------------------------------------------------- Développement
+-- Le référentiel applicatif : ce que l'entreprise fait tourner et qui en répond.
+CREATE TABLE IF NOT EXISTS app_services (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  code TEXT NOT NULL DEFAULT '',
+  description TEXT NOT NULL DEFAULT '',
+  repository TEXT NOT NULL DEFAULT '',
+  documentation TEXT NOT NULL DEFAULT '',
+  stack TEXT NOT NULL DEFAULT '',
+  criticality TEXT NOT NULL DEFAULT 'Importante' CHECK(criticality IN ('Vitale','Importante','Secondaire')),
+  lead_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  project_id INTEGER REFERENCES projects(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'En service' CHECK(status IN ('En construction','En service','Retiré')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Les livraisons. Une livraison retirée reste inscrite : c'est elle qui fait le
+-- taux d'échec, et une ligne effacée embellirait l'indicateur sans rien réparer.
+CREATE TABLE IF NOT EXISTS releases (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  service_id INTEGER NOT NULL REFERENCES app_services(id) ON DELETE CASCADE,
+  version TEXT NOT NULL,
+  environment TEXT NOT NULL DEFAULT 'Production' CHECK(environment IN ('Développement','Recette','Préproduction','Production')),
+  planned_on TEXT,
+  released_on TEXT,
+  status TEXT NOT NULL DEFAULT 'Planifiée' CHECK(status IN ('Planifiée','Livrée','Échouée','Retirée')),
+  changelog TEXT NOT NULL DEFAULT '',
+  author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  incident_id INTEGER REFERENCES it_incidents(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------------------------------------------------------------- Événements
+CREATE TABLE IF NOT EXISTS company_events (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  title TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Séminaire' CHECK(kind IN ('Séminaire','Formation','Réunion générale','Atelier','Salon','Convivialité')),
+  description TEXT NOT NULL DEFAULT '',
+  location TEXT NOT NULL DEFAULT '',
+  starts_at TEXT NOT NULL,
+  ends_at TEXT,
+  -- Portée : reprise du modèle des actualités, pour que le périmètre d'un
+  -- événement se lise comme celui d'une annonce.
+  scope TEXT NOT NULL DEFAULT 'company' CHECK(scope IN ('company','department','team')),
+  scope_id INTEGER,
+  -- 0 vaut « sans limite » : pas de liste d'attente pour une réunion générale.
+  capacity INTEGER NOT NULL DEFAULT 0,
+  registration_closes_on TEXT,
+  budget REAL,
+  cost REAL,
+  organizer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'Brouillon' CHECK(status IN ('Brouillon','Ouvert','Complet','Clos','Annulé')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS event_registrations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id INTEGER NOT NULL REFERENCES company_events(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'Inscrit' CHECK(status IN ('Inscrit','Liste d''attente','Annulée','Présent','Absent')),
+  registered_at TEXT NOT NULL DEFAULT (datetime('now')),
+  note TEXT NOT NULL DEFAULT '',
+  UNIQUE(event_id, user_id)
+);
+
+-- ---------------------------------------------------------------- Points individuels
+-- Le point d'un manager avec un collaborateur. Deux comptes rendus : celui que
+-- les deux lisent, et les notes du manager, qui ne sortent jamais de son écran.
+CREATE TABLE IF NOT EXISTS one_on_ones (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  manager_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  employee_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  scheduled_on TEXT NOT NULL,
+  held_on TEXT,
+  topics TEXT NOT NULL DEFAULT '',
+  shared_note TEXT NOT NULL DEFAULT '',
+  private_note TEXT NOT NULL DEFAULT '',
+  mood INTEGER,
+  next_on TEXT,
+  status TEXT NOT NULL DEFAULT 'Planifié' CHECK(status IN ('Planifié','Tenu','Annulé')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------------------------------------------------------------- Partenaires
+CREATE TABLE IF NOT EXISTS partner_contacts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
+  phone TEXT NOT NULL DEFAULT '',
+  is_primary INTEGER NOT NULL DEFAULT 0,
+  notes TEXT NOT NULL DEFAULT ''
+);
+
+-- Les pièces qu'un tiers doit fournir, et jusqu'à quand elles valent. Une
+-- attestation de vigilance périmée engage la responsabilité du donneur d'ordre :
+-- c'est une échéance, pas une pièce jointe.
+CREATE TABLE IF NOT EXISTS partner_documents (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Attestation de vigilance' CHECK(kind IN ('Attestation de vigilance','Assurance','Kbis','Coordonnées bancaires','Certification','Autre')),
+  reference TEXT NOT NULL DEFAULT '',
+  issued_on TEXT,
+  expires_on TEXT,
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS partner_reviews (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE CASCADE,
+  reviewed_on TEXT NOT NULL,
+  reviewer_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  quality INTEGER,
+  lead_time INTEGER,
+  price INTEGER,
+  comment TEXT NOT NULL DEFAULT '',
+  next_review TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_incoming_documents_sha ON incoming_documents(sha256);
 CREATE INDEX IF NOT EXISTS idx_incoming_documents_status ON incoming_documents(status, received_at);
 CREATE INDEX IF NOT EXISTS idx_workflow_requests_state ON workflow_requests(status, form_id);
@@ -1711,6 +1892,22 @@ CREATE INDEX IF NOT EXISTS idx_vehicle_events_vehicle ON vehicle_events(vehicle_
 CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_dedupe ON notifications(user_id, dedupe_key) WHERE dedupe_key != '';
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read_at);
 CREATE INDEX IF NOT EXISTS idx_vault_documents_user ON vault_documents(user_id, removed_at);
+CREATE INDEX IF NOT EXISTS idx_software_accesses_licence ON software_accesses(licence_id, revoked_on);
+CREATE INDEX IF NOT EXISTS idx_software_accesses_user ON software_accesses(user_id, revoked_on);
+-- Une même personne ne peut pas détenir deux accès ouverts au même logiciel ;
+-- un accès révoqué, lui, ne bloque pas une nouvelle attribution.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_software_accesses_open ON software_accesses(licence_id, user_id) WHERE revoked_on IS NULL;
+CREATE INDEX IF NOT EXISTS idx_it_incidents_state ON it_incidents(status, started_at);
+CREATE INDEX IF NOT EXISTS idx_releases_service ON releases(service_id, released_on);
+CREATE INDEX IF NOT EXISTS idx_releases_env ON releases(environment, status, released_on);
+CREATE INDEX IF NOT EXISTS idx_company_events_start ON company_events(starts_at, status);
+CREATE INDEX IF NOT EXISTS idx_event_registrations_event ON event_registrations(event_id, status);
+CREATE INDEX IF NOT EXISTS idx_event_registrations_user ON event_registrations(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_one_on_ones_pair ON one_on_ones(manager_id, employee_id, scheduled_on);
+CREATE INDEX IF NOT EXISTS idx_one_on_ones_employee ON one_on_ones(employee_id, scheduled_on);
+CREATE INDEX IF NOT EXISTS idx_partner_contacts_partner ON partner_contacts(partner_id);
+CREATE INDEX IF NOT EXISTS idx_partner_documents_partner ON partner_documents(partner_id, expires_on);
+CREATE INDEX IF NOT EXISTS idx_partner_reviews_partner ON partner_reviews(partner_id, reviewed_on);
 CREATE INDEX IF NOT EXISTS idx_vault_grants_user ON vault_access_grants(user_id);
 `);
 

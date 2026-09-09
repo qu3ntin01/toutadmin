@@ -7,7 +7,7 @@ const MAX_SESSION_HOURS = Number(process.env.SESSION_MAX_HOURS) || 12;
 
 // Colonnes de droit relues à chaque requête. Liste fermée : le nom d'une colonne
 // ne doit jamais venir d'ailleurs que d'ici, il entre dans le SQL.
-const FLAG_COLUMNS = new Set(['is_hr', 'is_finance']);
+const FLAG_COLUMNS = new Set(['is_hr', 'is_finance', 'is_it']);
 
 /**
  * Une session ne fige pas les droits qu'elle avait à la connexion.
@@ -149,6 +149,17 @@ function requireFinance(req, res, next) {
   next();
 }
 
+// Service informatique : administrateurs et membres qu'ils ont désignés. Le parc
+// logiciel, les accès applicatifs et les incidents du SI n'ont pas à être ouverts
+// à la gestion financière, qui n'en répond pas.
+function requireIt(req, res, next) {
+  if (!req.session.user) return res.redirect('/connexion');
+  if (req.session.user.role !== 'admin' && !hasFlag(req, 'is_it')) {
+    return res.status(403).render('error', { message: "Accès réservé au service informatique." });
+  }
+  next();
+}
+
 // Espace CSE : réservé aux salariés que le comité représente (ni administrateurs, ni freelances).
 function requireCseMember(req, res, next) {
   if (!req.session.user) return res.redirect('/connexion');
@@ -183,4 +194,4 @@ function requireManager(req, res, next) {
   next();
 }
 
-module.exports = { revalidateSession, requirePasswordChange, restrictToVault, requireAuth, requireAdmin, requireEmployee, requireHR, requireFinance, requireManager, requireCseMember, requireCseElected };
+module.exports = { revalidateSession, requirePasswordChange, restrictToVault, requireAuth, requireAdmin, requireEmployee, requireHR, requireFinance, requireIt, requireManager, requireCseMember, requireCseElected };

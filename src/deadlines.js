@@ -27,6 +27,11 @@ function stewards() {
   return db.prepare("SELECT id FROM users WHERE active = 1 AND (role = 'admin' OR is_hr = 1)").all().map((r) => r.id);
 }
 
+/** Le service informatique : destinataire de ce qui touche au parc logiciel. */
+function itStewards() {
+  return db.prepare("SELECT id FROM users WHERE active = 1 AND (role = 'admin' OR is_it = 1)").all().map((r) => r.id);
+}
+
 function financeStewards() {
   return db.prepare("SELECT id FROM users WHERE active = 1 AND (role = 'admin' OR is_finance = 1)").all().map((r) => r.id);
 }
@@ -176,6 +181,54 @@ function collect({ withinDays = HORIZON_DAYS } = {}) {
     WHERE i.done_at IS NULL AND i.due_date IS NOT NULL AND i.due_date <= ?
   `).all(limit)) {
     add('Parcours', item.label, `${item.kind} — ${item.first_name} ${item.last_name}`, item.due_date, '/parcours#parcours', stewards());
+  }
+
+  // --- Renouvellement des licences logicielles
+  for (const licence of db.prepare(`
+    SELECT id, name, billing_period, renewal_date, owner_id FROM software_licences
+    WHERE status != 'Retiré' AND renewal_date IS NOT NULL AND renewal_date <= ?
+  `).all(limit)) {
+    add('Licence', licence.name, `Renouvellement — ${licence.billing_period}`, licence.renewal_date,
+      '/informatique#logiciels', [...new Set([licence.owner_id, ...itStewards()].filter(Boolean))]);
+  }
+
+  // --- Pièces de conformité d'un tiers : une attestation périmée engage le
+  //     donneur d'ordre, c'est donc une échéance et non une pièce jointe.
+  for (const document of db.prepare(`
+    SELECT d.kind, d.expires_on, p.name FROM partner_documents d
+    JOIN partners p ON p.id = d.partner_id
+    WHERE d.expires_on IS NOT NULL AND d.expires_on <= ?
+  `).all(limit)) {
+    add('Conformité tiers', document.name, document.kind, document.expires_on, '/gestion#tiers', financeStewards());
+  }
+
+  // --- Évaluations de tiers à refaire
+  for (const review of db.prepare(`
+    SELECT r.next_review, p.id, p.name FROM partner_reviews r
+    JOIN partners p ON p.id = r.partner_id
+    WHERE r.next_review IS NOT NULL AND r.next_review <= ?
+  `).all(limit)) {
+    add('Évaluation tiers', review.name, 'Revue à refaire', review.next_review, `/partenaires/${review.id}#evaluations`, financeStewards());
+  }
+
+  // --- Clôture des inscriptions à un événement : c'est l'organisateur qui
+  //     arrête la liste, et lui seul est prévenu.
+  for (const event of db.prepare(`
+    SELECT id, title, registration_closes_on, organizer_id FROM company_events
+    WHERE status = 'Ouvert' AND registration_closes_on IS NOT NULL AND registration_closes_on <= ?
+  `).all(limit)) {
+    add('Événement', event.title, 'Clôture des inscriptions', event.registration_closes_on,
+      `/evenements/${event.id}`, event.organizer_id ? [event.organizer_id] : stewards());
+  }
+
+  // --- Points individuels à tenir
+  for (const point of db.prepare(`
+    SELECT o.id, o.scheduled_on, o.manager_id, u.first_name, u.last_name
+    FROM one_on_ones o JOIN users u ON u.id = o.employee_id
+    WHERE o.status = 'Planifié' AND o.scheduled_on <= ?
+  `).all(limit)) {
+    add('Point individuel', `${point.first_name} ${point.last_name}`, 'À tenir', point.scheduled_on,
+      '/mon-equipe#points', [point.manager_id]);
   }
 
   return rows.sort((a, b) => a.due.localeCompare(b.due));

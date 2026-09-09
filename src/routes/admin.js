@@ -71,6 +71,8 @@ router.get('/', (req, res) => {
     hrEligibleEmployees: employees.filter((e) => !e.is_hr),
     financeMembers: employees.filter((e) => e.is_finance),
     financeEligibleEmployees: employees.filter((e) => !e.is_finance),
+    itMembers: employees.filter((e) => e.is_it),
+    itEligibleEmployees: employees.filter((e) => !e.is_it),
     companyNews: announcements.all(),
     modules: modules.list(),
     palettes: themes.list(),
@@ -587,6 +589,28 @@ router.post('/gestion/nommer', (req, res) => {
 router.post('/gestion/:id/retirer', (req, res) => {
   db.prepare('UPDATE users SET is_finance = 0 WHERE id = ?').run(Number(req.params.id));
   setFlash(req, 'success', "Accès à la gestion retiré.");
+  res.redirect('/admin#rh');
+});
+
+router.post('/informatique/nommer', (req, res) => {
+  const id = Number(req.body.employee_id);
+  const employee = findEmployee(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#rh');
+  }
+
+  db.prepare('UPDATE users SET is_it = 1 WHERE id = ?').run(id);
+  audit.log(req, 'admin.informatique_nomme', 'users', id);
+  setFlash(req, 'success', `${employee.first_name} ${employee.last_name} rejoint le service informatique.`);
+  res.redirect('/admin#rh');
+});
+
+router.post('/informatique/:id/retirer', (req, res) => {
+  const id = Number(req.params.id);
+  db.prepare('UPDATE users SET is_it = 0 WHERE id = ?').run(id);
+  audit.log(req, 'admin.informatique_retire', 'users', id);
+  setFlash(req, 'success', "Accès au service informatique retiré.");
   res.redirect('/admin#rh');
 });
 

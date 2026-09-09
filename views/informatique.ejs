@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: t('nav.it') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: t('inf.panel'),
+      navItems: [
+        { tab: 'logiciels', label: t('inf.tabSoftware'), icon: 'network' },
+        { tab: 'acces', label: t('inf.tabAccess'), icon: 'shield', badge: review.flagged.length },
+        { tab: 'incidents', label: t('inf.tabIncidents'), icon: 'lifebuoy', badge: summary.incidents.open },
+        { tab: 'nouveau', label: t('inf.addSoftware'), icon: 'plus' }
+      ],
+      footLinks: [
+        { href: '/developpement', label: t('nav.development'), icon: 'tool' },
+        currentUser.role === 'admin'
+          ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }
+          : { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.it'),
+        headerSubtitle: t('inf.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const moment = (value) => (value ? new Date(value.replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC', dateStyle: 'short', timeStyle: 'short' }) : '—'); %>
+        <% const formMoment = (value) => (value ? value.replace(' ', 'T') : ''); %>
+        <% const spell = (minutes) => (minutes == null ? '—' : (minutes < 90 ? t('inf.minutes', { count: minutes }) : t('inf.hours', { count: Math.round(minutes / 6) / 10 }))); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.licences %></span><span class="stat-label"><%= t('inf.softwareInPark') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.flagged %></span><span class="stat-label"><%= t('inf.accessesToReview') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'lifebuoy', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.incidents.open %></span><span class="stat-label"><%= t('inf.openIncidents') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(summary.yearlyCost) %></span><span class="stat-label"><%= t('inf.yearlyCost') %></span></span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="logiciels">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('inf.softwareCount', { count: licenceList.length }) %></h3>
+              <a class="btn btn-outline btn-sm" href="/informatique<%= showRetired ? '' : '?retires=1' %>">
+                <%= showRetired ? t('inf.hideRetired') : t('inf.showRetired') %>
+              </a>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('inf.software') %></th><th><%= t('common.type') %></th><th><%= t('inf.seats') %></th>
+                  <th><%= t('inf.criticality') %></th><th><%= t('inf.renewal') %></th><th><%= t('inf.owner') %></th>
+                  <th><%= t('common.status') %></th><th></th>
+                </tr></thead>
+                <tbody>
+                  <% licenceList.forEach((l) => { %>
+                    <tr>
+                      <td class="cell-strong"><a href="/informatique/logiciels/<%= l.id %>"><%= l.name %></a>
+                        <% if (l.publisher) { %><br /><span class="cell-sub"><%= l.publisher %></span><% } %>
+                        <% if (l.personal_data) { %> <span class="tag tag-warning"><%= t('inf.personalData') %></span><% } %>
+                      </td>
+                      <td class="cell-sub"><%= st(l.kind) %></td>
+                      <td class="<%= l.seats > 0 && l.seats_used >= l.seats ? 'text-danger' : 'cell-sub' %> nowrap">
+                        <%= l.seats > 0 ? t('inf.seatsOf', { used: l.seats_used, total: l.seats }) : l.seats_used %>
+                      </td>
+                      <td><span class="tag <%= l.criticality === 'Vitale' ? 'tag-danger' : '' %>"><%= st(l.criticality) %></span></td>
+                      <td class="<%= l.renewal_date && l.renewal_date < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(l.renewal_date) %></td>
+                      <td class="cell-sub"><%= l.owner_first_name ? l.owner_first_name + ' ' + l.owner_last_name : '—' %></td>
+                      <td><span class="tag <%= l.status === 'Actif' ? 'tag-success' : '' %>"><%= st(l.status) %></span></td>
+                      <td><a class="btn btn-outline btn-sm" href="/informatique/logiciels/<%= l.id %>"><%= t('common.open') %></a></td>
+                    </tr>
+                  <% }) %>
+                  <% if (licenceList.length === 0) { %><tr><td colspan="8" class="cell-sub"><%= t('inf.noSoftware') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="acces">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('inf.reviewTitle', { flagged: review.flagged.length, total: review.total }) %></h3>
+                <p class="card-sub"><%= t('inf.reviewHint', { months: 12 }) %></p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('common.member') %></th><th><%= t('inf.software') %></th><th><%= t('inf.level') %></th>
+                  <th><%= t('inf.reason') %></th><th><%= t('inf.lastLook') %></th><th></th>
+                </tr></thead>
+                <tbody>
+                  <% review.flagged.forEach((row) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= row.first_name %> <%= row.last_name %>
+                        <% if (!row.active) { %><br /><span class="cell-sub"><%= t('inf.accountClosed') %></span><% } %>
+                      </td>
+                      <td><a href="/informatique/logiciels/<%= row.licence_id %>"><%= row.licence_name %></a></td>
+                      <td class="cell-sub"><%= st(row.level) %></td>
+                      <td>
+                        <span class="tag <%= row.severity === 'Critique' ? 'tag-danger' : (row.severity === 'Majeur' ? 'tag-warning' : '') %>">
+                          <%= row.reason === 'inactif' ? t('inf.reasonInactive') : (row.reason === 'admin' ? t('inf.reasonAdmin') : t('inf.reasonStale', { months: 12 })) %>
+                        </span>
+                      </td>
+                      <td class="cell-sub nowrap"><%= day(row.reviewed_on || row.granted_on) %></td>
+                      <td class="actions">
+                        <form method="POST" action="/informatique/acces/<%= row.id %>/revu">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-outline btn-sm"><%= t('inf.markReviewed') %></button>
+                        </form>
+                        <form method="POST" action="/informatique/acces/<%= row.id %>/revoquer" data-confirm="<%= t('inf.confirmRevoke') %>">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <input type="hidden" name="retour" value="revue" />
+                          <button type="submit" class="btn btn-sm btn-danger"><%= t('inf.revoke') %></button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (review.flagged.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('inf.reviewNothing') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="incidents">
+          <section class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= spell(summary.incidents.meanMinutes) %></span><span class="stat-label"><%= t('inf.meanRestore') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'lifebuoy', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.incidents.total %></span><span class="stat-label"><%= t('inf.incidentsWindow', { days: summary.incidents.days }) %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.incidents.critical %></span><span class="stat-label"><%= t('inf.criticalIncidents') %></span></span>
+            </div>
+          </section>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('inf.declareIncident') %></h3></div>
+            <form method="POST" action="/informatique/incidents" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="150" /></label>
+              <label><span><%= t('inf.service') %></span>
+                <select name="service_id"><option value="">—</option>
+                  <% serviceList.forEach((s) => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('inf.severity') %></span>
+                <select name="severity"><% severities.forEach((sev) => { %><option value="<%= sev %>"><%= st(sev) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('inf.startedAt') %></span><input type="datetime-local" name="started_at" required /></label>
+              <label><span><%= t('inf.detectedAt') %></span><input type="datetime-local" name="detected_at" /></label>
+              <label class="span-2"><span><%= t('inf.impact') %></span><textarea name="impact" rows="2" maxlength="1000"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+
+          <% incidentList.forEach((incident) => { %>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= incident.title %></h3>
+                  <p class="card-sub">
+                    <span class="tag <%= incident.severity === 'Critique' ? 'tag-danger' : (incident.severity === 'Majeur' ? 'tag-warning' : '') %>"><%= st(incident.severity) %></span>
+                    <span class="tag"><%= st(incident.status) %></span>
+                    <%= incident.service_name || t('inf.noService') %> · <%= moment(incident.started_at) %>
+                    <% if (downtime(incident) != null) { %> · <%= t('inf.downtime') %> <%= spell(downtime(incident)) %><% } %>
+                  </p>
+                </div>
+                <form method="POST" action="/informatique/incidents/<%= incident.id %>/supprimer" data-confirm="<%= t('inf.confirmDeleteIncident') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                </form>
+              </div>
+              <form method="POST" action="/informatique/incidents/<%= incident.id %>/modifier" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" value="<%= incident.title %>" maxlength="150" /></label>
+                <label><span><%= t('inf.service') %></span>
+                  <select name="service_id"><option value="">—</option>
+                    <% serviceList.forEach((s) => { %><option value="<%= s.id %>" <%= incident.service_id === s.id ? 'selected' : '' %>><%= s.name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span><%= t('inf.severity') %></span>
+                  <select name="severity"><% severities.forEach((sev) => { %><option value="<%= sev %>" <%= incident.severity === sev ? 'selected' : '' %>><%= st(sev) %></option><% }) %></select>
+                </label>
+                <label><span><%= t('inf.startedAt') %></span><input type="datetime-local" name="started_at" value="<%= formMoment(incident.started_at) %>" required /></label>
+                <label><span><%= t('inf.detectedAt') %></span><input type="datetime-local" name="detected_at" value="<%= formMoment(incident.detected_at) %>" /></label>
+                <label><span><%= t('inf.resolvedAt') %></span><input type="datetime-local" name="resolved_at" value="<%= formMoment(incident.resolved_at) %>" /></label>
+                <label><span><%= t('common.status') %></span>
+                  <select name="status"><% incidentStatuses.forEach((s) => { %><option value="<%= s %>" <%= incident.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span><%= t('inf.impact') %></span><textarea name="impact" rows="2" maxlength="1000"><%= incident.impact %></textarea></label>
+                <label class="span-2"><span><%= t('inf.cause') %></span><textarea name="cause" rows="2" maxlength="1000"><%= incident.cause %></textarea></label>
+                <label class="span-2"><span><%= t('inf.remediation') %></span><textarea name="remediation" rows="2" maxlength="1000"><%= incident.remediation %></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+              </form>
+            </div>
+          <% }) %>
+          <% if (incidentList.length === 0) { %><div class="card"><div class="empty-state"><%= t('inf.noIncident') %></div></div><% } %>
+        </section>
+
+        <section class="tab-panel" id="nouveau">
+          <div class="card">
+            <div class="card-head"><h3><%= t('inf.addSoftware') %></h3></div>
+            <form method="POST" action="/informatique/logiciels" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('inf.software') %></span><input type="text" name="name" required maxlength="120" /></label>
+              <label><span><%= t('inf.publisher') %></span><input type="text" name="publisher" maxlength="120" /></label>
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('inf.criticality') %></span>
+                <select name="criticality"><% criticalities.forEach((c) => { %><option value="<%= c %>" <%= c === 'Importante' ? 'selected' : '' %>><%= st(c) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('inf.seats') %></span><input type="number" name="seats" min="0" max="100000" value="0" /></label>
+              <label><span><%= t('inf.unitCost') %></span><input type="text" name="unit_cost" inputmode="decimal" /></label>
+              <label><span><%= t('inf.billingPeriod') %></span>
+                <select name="billing_period"><% billingPeriods.forEach((b) => { %><option value="<%= b %>" <%= b === 'Annuel' ? 'selected' : '' %>><%= st(b) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('inf.renewal') %></span><input type="date" name="renewal_date" /></label>
+              <label class="span-2"><span><%= t('inf.owner') %></span>
+                <select name="owner_id"><option value="">—</option>
+                  <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label class="span-2 check-row">
+                <input type="checkbox" name="personal_data" value="1" />
+                <span><%= t('inf.personalDataLabel') %></span>
+              </label>
+              <label class="span-2"><span><%= t('common.notes') %></span><textarea name="notes" rows="2" maxlength="1000"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('inf.seatsHint') %></p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

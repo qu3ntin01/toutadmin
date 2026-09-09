@@ -25,6 +25,12 @@ if (pendingSignatures || isHr || currentUser.role === 'admin') {
 }
 // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
 if (isCseMember) memberLinks.push({ key: 'cse', href: '/cse', label: t('nav.cse'), icon: 'lifebuoy' });
+// Le service informatique : le parc logiciel, les accès applicatifs et le
+// référentiel des services vont ensemble, et n'ont qu'un seul public.
+if (isIt || currentUser.role === 'admin') {
+  memberLinks.push({ key: 'informatique', href: '/informatique', label: t('nav.it'), icon: 'shield' });
+  memberLinks.push({ key: 'developpement', href: '/developpement', label: t('nav.development'), icon: 'tool' });
+}
 if (isManager) {
   memberLinks.push({ key: 'equipe', href: '/mon-equipe', label: t('nav.team'), icon: 'shield' });
   memberLinks.push({ key: 'qualite', href: '/qualite', label: t('nav.quality'), icon: 'check' });

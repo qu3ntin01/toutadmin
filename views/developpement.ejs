@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: t('nav.development') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: t('dvp.panel'),
+      navItems: [
+        { tab: 'services', label: t('dvp.tabServices'), icon: 'network' },
+        { tab: 'livraisons', label: t('dvp.tabReleases'), icon: 'check', badge: summary.delivery.planned },
+        { tab: 'indicateurs', label: t('dvp.tabMetrics'), icon: 'ballot' },
+        { tab: 'nouveau', label: t('dvp.addService'), icon: 'plus' }
+      ],
+      footLinks: [
+        { href: '/informatique', label: t('nav.it'), icon: 'shield' },
+        currentUser.role === 'admin'
+          ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }
+          : { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.development'),
+        headerSubtitle: t('dvp.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const spell = (minutes) => (minutes == null ? '—' : (minutes < 90 ? t('inf.minutes', { count: minutes }) : t('inf.hours', { count: Math.round(minutes / 6) / 10 }))); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.live %></span><span class="stat-label"><%= t('dvp.servicesLive') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.vital %></span><span class="stat-label"><%= t('dvp.vitalServices') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'user', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.orphan %></span><span class="stat-label"><%= t('dvp.noLead') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.delivery.delivered %></span><span class="stat-label"><%= t('dvp.deliveredWindow', { days: summary.delivery.days }) %></span></span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="services">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('dvp.serviceCount', { count: serviceList.length }) %></h3>
+              <a class="btn btn-outline btn-sm" href="/developpement<%= showRetired ? '' : '?retires=1' %>">
+                <%= showRetired ? t('dvp.hideRetired') : t('dvp.showRetired') %>
+              </a>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('dvp.service') %></th><th><%= t('dvp.criticality') %></th><th><%= t('dvp.lead') %></th>
+                  <th><%= t('dvp.liveVersion') %></th><th><%= t('dvp.incidents') %></th><th><%= t('common.status') %></th><th></th>
+                </tr></thead>
+                <tbody>
+                  <% serviceList.forEach((s) => { %>
+                    <tr>
+                      <td class="cell-strong"><a href="/developpement/services/<%= s.id %>"><%= s.name %></a>
+                        <% if (s.code) { %> <span class="tag"><%= s.code %></span><% } %>
+                        <% if (s.stack) { %><br /><span class="cell-sub"><%= s.stack %></span><% } %>
+                      </td>
+                      <td><span class="tag <%= s.criticality === 'Vitale' ? 'tag-danger' : '' %>"><%= st(s.criticality) %></span></td>
+                      <td class="cell-sub"><%= s.lead_first_name ? s.lead_first_name + ' ' + s.lead_last_name : '—' %></td>
+                      <td class="cell-sub nowrap">
+                        <%= s.live_version || '—' %>
+                        <% if (s.live_since) { %><br /><span class="cell-sub"><%= day(s.live_since) %></span><% } %>
+                      </td>
+                      <td class="<%= s.open_incidents ? 'text-danger' : 'cell-sub' %>"><%= s.open_incidents %></td>
+                      <td><span class="tag <%= s.status === 'En service' ? 'tag-success' : '' %>"><%= st(s.status) %></span></td>
+                      <td><a class="btn btn-outline btn-sm" href="/developpement/services/<%= s.id %>"><%= t('common.open') %></a></td>
+                    </tr>
+                  <% }) %>
+                  <% if (serviceList.length === 0) { %><tr><td colspan="7" class="cell-sub"><%= t('dvp.noService') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="livraisons">
+          <div class="card">
+            <div class="card-head"><h3><%= t('dvp.lastReleases', { count: releaseList.length }) %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('dvp.service') %></th><th><%= t('dvp.version') %></th><th><%= t('dvp.environment') %></th>
+                  <th><%= t('common.date') %></th><th><%= t('dvp.author') %></th><th><%= t('common.status') %></th>
+                </tr></thead>
+                <tbody>
+                  <% releaseList.forEach((r) => { %>
+                    <tr>
+                      <td><a href="/developpement/services/<%= r.service_id %>"><%= r.service_name %></a></td>
+                      <td class="cell-strong nowrap"><%= r.version %></td>
+                      <td class="cell-sub"><%= st(r.environment) %></td>
+                      <td class="cell-sub nowrap"><%= day(r.released_on || r.planned_on) %></td>
+                      <td class="cell-sub"><%= r.first_name ? r.first_name + ' ' + r.last_name : '—' %></td>
+                      <td>
+                        <span class="tag <%= r.status === 'Livrée' ? 'tag-success' : (r.status === 'Planifiée' ? '' : 'tag-danger') %>"><%= st(r.status) %></span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (releaseList.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('dvp.noRelease') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="indicateurs">
+          <section class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.delivery.perWeek.toLocaleString(locale) %></span><span class="stat-label"><%= t('dvp.perWeek') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.delivery.failureRate %> %</span><span class="stat-label"><%= t('dvp.failureRate') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'lifebuoy', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= spell(restore.meanMinutes) %></span><span class="stat-label"><%= t('inf.meanRestore') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.delivery.planned %></span><span class="stat-label"><%= t('dvp.plannedReleases') %></span></span>
+            </div>
+          </section>
+          <div class="card">
+            <div class="card-head"><h3><%= t('dvp.metricsTitle', { days: summary.delivery.days }) %></h3></div>
+            <p class="hint"><%= t('dvp.metricsHint') %></p>
+            <ul class="org-list">
+              <li class="org-item"><span><%= t('dvp.attempts') %></span><span class="cell-strong"><%= summary.delivery.attempts %></span></li>
+              <li class="org-item"><span><%= t('dvp.delivered') %></span><span class="cell-strong"><%= summary.delivery.delivered %></span></li>
+              <li class="org-item"><span><%= t('dvp.failed') %></span><span class="cell-strong"><%= summary.delivery.failed %></span></li>
+              <li class="org-item"><span><%= t('inf.incidentsWindow', { days: restore.days }) %></span><span class="cell-strong"><%= restore.total %></span></li>
+              <li class="org-item"><span><%= t('dvp.restoredIncidents') %></span><span class="cell-strong"><%= restore.resolved %></span></li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="nouveau">
+          <div class="card">
+            <div class="card-head"><h3><%= t('dvp.addService') %></h3></div>
+            <form method="POST" action="/developpement/services" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('dvp.service') %></span><input type="text" name="name" required maxlength="120" /></label>
+              <label><span><%= t('dvp.code') %></span><input type="text" name="code" maxlength="30" /></label>
+              <label><span><%= t('dvp.stack') %></span><input type="text" name="stack" maxlength="120" placeholder="Node 22, PostgreSQL" /></label>
+              <label><span><%= t('dvp.criticality') %></span>
+                <select name="criticality"><% criticalities.forEach((c) => { %><option value="<%= c %>" <%= c === 'Importante' ? 'selected' : '' %>><%= st(c) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('dvp.repository') %></span><input type="url" name="repository" maxlength="300" placeholder="https://" /></label>
+              <label><span><%= t('dvp.documentation') %></span><input type="url" name="documentation" maxlength="300" placeholder="https://" /></label>
+              <label><span><%= t('dvp.lead') %></span>
+                <select name="lead_id"><option value="">—</option>
+                  <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('nav.projects') %></span>
+                <select name="project_id"><option value="">—</option>
+                  <% projectList.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
+                </select>
+              </label>
+              <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="3" maxlength="1000"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('dvp.leadHint') %></p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

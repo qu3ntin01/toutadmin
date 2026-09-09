@@ -68,6 +68,8 @@ const apiRoutes = require('./routes/api');
 const integrationRoutes = require('./routes/integrations');
 const demandeRoutes = require('./routes/demandes');
 const pieceRoutes = require('./routes/pieces');
+const informatiqueRoutes = require('./routes/informatique');
+const developpementRoutes = require('./routes/developpement');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -185,6 +187,7 @@ function createApp() {
       // Les rôles désignés sont relus ici : une désignation vaut sans reconnexion.
       res.locals.isHr = Boolean(row && row.is_hr);
       res.locals.isFinance = Boolean(row && row.is_finance);
+      res.locals.isIt = Boolean(row && row.is_it);
       res.locals.pendingAcks = talent.pendingAckCount(user.id);
       res.locals.pendingSurveys = surveys.pendingCountFor(user.id);
       res.locals.pendingSignatures = signing.pendingCountFor(user.id);
@@ -199,6 +202,7 @@ function createApp() {
       res.locals.isCseElected = false;
       res.locals.isHr = false;
       res.locals.isFinance = false;
+      res.locals.isIt = false;
       res.locals.pendingAcks = 0;
       res.locals.pendingSurveys = 0;
       res.locals.pendingSignatures = 0;
@@ -272,6 +276,8 @@ function createApp() {
   app.use('/integrations', integrationRoutes);
   app.use('/demandes', demandeRoutes);
   app.use('/pieces', pieceRoutes);
+  app.use('/informatique', informatiqueRoutes);
+  app.use('/developpement', developpementRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

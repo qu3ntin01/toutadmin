@@ -760,6 +760,72 @@
               <% } %>
             </div>
           </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('admin.itTitle') %></h3>
+                <p class="card-sub"><%= t('admin.itScope') %></p>
+              </div>
+              <a href="/informatique" class="btn btn-primary"><%= t('admin.openIt') %></a>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('admin.appointIt') %></h3></div>
+              <% if (itEligibleEmployees.length === 0) { %>
+                <div class="empty-state"><%= t('admin.allHaveIt') %></div>
+              <% } else { %>
+                <form method="POST" action="/admin/informatique/nommer" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2">
+                    <span><%= t('common.member') %></span>
+                    <select name="employee_id" required>
+                      <option value="" disabled selected><%= t('common.choose') %></option>
+                      <% itEligibleEmployees.forEach((e) => { %>
+                        <option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %> — <%= e.grade %></option>
+                      <% }) %>
+                    </select>
+                  </label>
+                  <div class="span-2">
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('admin.grantIt') %></button>
+                  </div>
+                </form>
+              <% } %>
+              <p class="hint"><%= t('admin.itHelp') %></p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('admin.itMembers') %> <span class="muted">(<%= itMembers.length %>)</span></h3></div>
+              <% if (itMembers.length === 0) { %>
+                <div class="empty-state"><%= t('admin.noItYet') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('common.member') %></th><th><%= t('common.grade') %></th><th></th></tr></thead>
+                    <tbody>
+                      <% itMembers.forEach((e) => { %>
+                        <tr>
+                          <td>
+                            <div class="cell-strong"><%= e.first_name %> <%= e.last_name %></div>
+                            <div class="cell-sub"><%= e.email %></div>
+                          </td>
+                          <td><span class="tag"><%= e.grade %></span></td>
+                          <td class="actions">
+                            <form method="POST" action="/admin/informatique/<%= e.id %>/retirer" data-confirm="<%= t('admin.revokeIt') %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-sm btn-danger"><%= t('admin.revokeAccess') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
         </section>
         <section class="tab-panel" id="modules">
           <div class="card">

@@ -20,6 +20,7 @@ function can(user, right) {
   if (user.role === 'admin') return true;
   if (right === 'hr') return Boolean(user.is_hr);
   if (right === 'finance') return Boolean(user.is_finance);
+  if (right === 'it') return Boolean(user.is_it);
   return false;
 }
 
@@ -105,6 +106,28 @@ function search(query, user, { org = require('./org') } = {}) {
       SELECT id, registration AS label, brand || ' ' || model AS detail FROM vehicles
       WHERE registration LIKE ? OR brand LIKE ? OR model LIKE ? ORDER BY registration LIMIT ?
     `).all(pattern, pattern, pattern, MAX_PER_SOURCE).map((v) => ({ ...v, link: `/flotte/${v.id}` })));
+  }
+
+  // --- Événements ouverts : chacun cherche ceux auxquels il peut s'inscrire.
+  //     Un brouillon n'existe pas encore pour l'entreprise, il reste hors recherche.
+  add('Événements', db.prepare(`
+    SELECT id, title AS label, kind || ' · ' || substr(starts_at, 1, 10) AS detail FROM company_events
+    WHERE status IN ('Ouvert','Complet','Clos') AND (title LIKE ? OR description LIKE ? OR location LIKE ?)
+    ORDER BY starts_at DESC LIMIT ?
+  `).all(pattern, pattern, pattern, MAX_PER_SOURCE).map((e) => ({ ...e, link: `/evenements/${e.id}` })));
+
+  // --- Informatique : parc logiciel et référentiel applicatif.
+  if (can(user, 'it')) {
+    add('Logiciels', db.prepare(`
+      SELECT id, name AS label, publisher || ' · ' || kind AS detail FROM software_licences
+      WHERE name LIKE ? OR publisher LIKE ? OR notes LIKE ? ORDER BY name COLLATE NOCASE LIMIT ?
+    `).all(pattern, pattern, pattern, MAX_PER_SOURCE).map((l) => ({ ...l, link: `/informatique/logiciels/${l.id}` })));
+
+    add('Services applicatifs', db.prepare(`
+      SELECT id, name AS label, COALESCE(NULLIF(stack, ''), criticality) AS detail FROM app_services
+      WHERE name LIKE ? OR code LIKE ? OR description LIKE ? OR stack LIKE ?
+      ORDER BY name COLLATE NOCASE LIMIT ?
+    `).all(pattern, pattern, pattern, pattern, MAX_PER_SOURCE).map((a) => ({ ...a, link: `/developpement/services/${a.id}` })));
   }
 
   // --- Gouvernance : décisions et réunions, réservées à l'administration.

@@ -122,12 +122,13 @@ test('tout statut stocké par le schéma a une traduction', () => {
       if (entry.isDirectory()) { walk(full); continue; }
       if (!entry.name.endsWith('.js')) continue;
       const src = fs.readFileSync(full, 'utf8');
-      for (const m of src.matchAll(/CHECK\(\s*status\s+IN\s*\(([^)]*)\)/g)) {
-        for (const v of m[1].matchAll(/'([^']+)'/g)) stored.add(v[1]);
-      }
-      for (const m of src.matchAll(/[A-Z_]*STATUSES\s*=\s*\[([^\]]*)\]/g)) {
-        for (const v of m[1].matchAll(/'([^']+)'/g)) stored.add(v[1]);
-      }
+      // Une apostrophe dans une valeur SQL s'écrit doublée (« Liste d''attente ») :
+      // la relever comme deux valeurs ferait échouer le test sur des mots coupés.
+      const values = (list) => {
+        for (const v of list.matchAll(/'((?:[^']|'')+)'/g)) stored.add(v[1].replace(/''/g, "'"));
+      };
+      for (const m of src.matchAll(/CHECK\(\s*status\s+IN\s*\(([^)]*)\)/g)) values(m[1]);
+      for (const m of src.matchAll(/[A-Z_]*STATUSES\s*=\s*\[([^\]]*)\]/g)) values(m[1]);
     }
   };
   walk(path.join(ROOT, 'src'));
