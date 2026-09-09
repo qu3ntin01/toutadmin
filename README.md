@@ -19,6 +19,9 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 | CSE | `/cse` | Salariés représentés par le comité (hors freelances et administrateurs) |
 | Gestion du CSE | `/cse/gestion` | Membres élus dont le mandat court encore |
 | Gestion administrative et financière | `/gestion` | Administrateurs et membres désignés gestionnaires |
+| Service informatique | `/informatique` | Administrateurs et membres désignés au service informatique |
+| Développement | `/developpement` | Administrateurs et membres désignés au service informatique |
+| Événements | `/evenements` | Chacun pour ceux qui le concernent ; RH et administration pour les créer |
 | Comptabilité, Paie, Facturation électronique, Stock, CRM | voir « Modules débloquables » | Modules optionnels, éteints par défaut |
 | Salles | `/salles` | Tout membre connecté, pour réserver et voir le planning |
 
@@ -115,6 +118,36 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Rentabilité** : heures, coût au taux horaire, marge restante et part du budget consommée
 - Un projet n'est ouvert qu'à **son équipe**, son responsable et la gestion ; chacun n'efface que ses propres saisies
 - **Trois cercles, pas deux** : la gestion conduit tous les projets, un manager peut en ouvrir mais ne conduit que ceux dont il est responsable — encadrer une équipe ne donne aucun droit sur le projet d'une autre. Sans responsable désigné, c'est celui qui ouvre le projet
+
+### Service informatique : parc logiciel et accès applicatifs
+- **Un logiciel n'est pas un équipement** : pas de numéro de série, mais des sièges qu'on paie, un renouvellement qui tombe et une liste de gens qui entrent dedans. Éditeur, criticité, coût par siège annualisé selon la périodicité, mention du traitement de données personnelles
+- **Les sièges sont une contrainte, pas une indication** : attribuer au-delà de ce qui est payé est refusé, et réduire les sièges sous le nombre d'accès ouverts aussi. Un défaut de licence ne se découvre qu'à l'audit de l'éditeur, jamais avant
+- **Revue des accès** : un compte fermé qui garde un accès applicatif remonte en premier — c'est la faille la plus banale, le départ ayant été traité côté RH et jamais côté informatique. Viennent ensuite les droits d'administration, puis ce qui n'a pas été réexaminé depuis un an. Un accès révoqué n'est pas effacé : la date de révocation est précisément ce qui prouve la fermeture
+- **Incidents du SI** horodatés au début et au rétablissement, d'où sort un **délai moyen de rétablissement** calculé sur les incidents réellement rétablis. Clore sans heure de rétablissement est refusé : sinon l'indicateur ne mesure que les bons jours
+- **Le rôle est distinct de la gestion financière** : elle paie les abonnements, elle n'ouvre pas les habilitations qu'ils accordent
+
+### Développement : services applicatifs et livraisons
+- **Référentiel applicatif** : ce qui tourne et qui en répond — criticité, responsable, technologies, dépôt de code et documentation (adresses vérifiées : ni `javascript:`, ni `data:`), rattachement au projet
+- **Registre des livraisons** par environnement (développement, recette, préproduction, production), avec le contenu de version et le lien vers l'incident qu'une livraison a provoqué
+- **Indicateurs** : fréquence de livraison, **taux d'échec comptant les livraisons retirées autant que les échouées** — une livraison annulée en catastrophe a coûté autant qu'une panne — et délai de rétablissement repris des incidents, seule source de vérité pour cette durée
+- La version affichée « en production » est la dernière **livrée**, pas la dernière saisie
+
+### Événements d'entreprise
+- **Séminaires, formations, réunions générales, ateliers, salons**, à portée entreprise, service ou équipe — le même modèle que les actualités
+- **La capacité tient toute seule** : au-delà des places on n'est pas refusé, on entre en liste d'attente ; un désistement fait monter le premier qui attend, avec une notification. Le statut « Complet » se pose et se retire de lui-même
+- **Un brouillon n'existe pour personne**, y compris pour ceux qu'il concernera. Réduire la capacité sous le nombre d'inscrits est refusé, faute de quoi le logiciel déciderait en silence qui reste dehors. Annuler prévient les inscrits
+- **La liste nominative reste à l'organisateur** : l'annuaire laisse chacun s'y retirer, un émargement ne doit pas contourner ce choix
+
+### Points individuels manager–collaborateur
+- **Deux comptes rendus** : le résumé partagé, que le collaborateur lit depuis son espace, et les notes du manager, qui ne quittent pas son écran
+- **Le périmètre est vérifié à l'écriture**, pas seulement à l'affichage : un manager qui n'encadre plus la personne ne peut plus toucher au compte rendu, sans attendre de reconnexion
+- **Cadence visible** : dernier point tenu et prochain prévu par collaborateur, ceux qu'on n'a jamais vus en tête-à-tête en premier
+- Les notes du manager **figurent dans l'export RGPD** : elles parlent de la personne, et une demande d'accès les lui rend. L'écran le dit au manager au moment où il écrit
+
+### Fiche tiers : interlocuteurs, conformité, évaluation
+- **Une fiche par partenaire** rassemblant contrats, factures, interlocuteurs (un seul principal à la fois), pièces de conformité et évaluations
+- **Les pièces sont des échéances, pas des pièces jointes** : une attestation de vigilance périmée engage la responsabilité du donneur d'ordre. Attestation, assurance, Kbis, coordonnées bancaires, certification — datées, signalées quarante-cinq jours avant leur terme et versées au moteur d'échéances
+- **Évaluations notées** sur la qualité, les délais et le prix. La note affichée est celle de la dernière revue, pas la moyenne de l'historique : une moyenne lisserait exactement ce qu'on cherche à voir, une dégradation. Et seule la dernière évaluation porte une échéance de revue
 
 ### Support et base de connaissances
 - **Tickets** internes et clients dans un même circuit, avec **délai de première réponse déduit de la priorité** (2 h à 72 h). Changer la priorité recalcule le délai depuis l'ouverture, pas depuis maintenant
@@ -295,7 +328,7 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 
 ### Confort
 - Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil
-- **Les 76 vues sont traduites**, pas seulement les écrans d'accueil : 2 144 clés par langue couvrent la comptabilité, la paie, la trésorerie, la qualité, le parapheur, les sauvegardes, les interfaces et les données personnelles jusqu'aux boîtes de dialogue de confirmation. Une phrase coupée par un chiffre devient une clé paramétrée — « {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) » — parce que l'ordre des mots change d'une langue à l'autre
+- **Les 83 vues sont traduites**, pas seulement les écrans d'accueil : 2 448 clés par langue couvrent la comptabilité, la paie, la trésorerie, la qualité, le parapheur, les sauvegardes, les interfaces, les données personnelles, le parc logiciel, les livraisons, les événements et la conformité des tiers, jusqu'aux boîtes de dialogue de confirmation. Une phrase coupée par un chiffre devient une clé paramétrée — « {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) » — parce que l'ordre des mots change d'une langue à l'autre
 - **Les statuts se traduisent aussi.** Ils restent stockés en français — c'est la valeur métier, celle des contraintes de la base et des comparaisons — mais ce qui s'affiche passe par le dictionnaire : un dossier *Approuvée* se lit *Approved* en anglais, *承認済み* en japonais. Un statut ajouté au schéma sans traduction fait échouer les tests plutôt que de ressortir en français chez un utilisateur étranger
 - **L'arabe retourne réellement la page.** Le sens d'écriture bascule à droite, et la feuille de style n'emploie que des propriétés logiques (`inline-start` plutôt que `left`) : la barre latérale, le liseré de l'onglet actif, la pastille du compte et les marges des tableaux suivent le sens de lecture au lieu de rester figés à gauche
 - **Trois palettes**, choisies par l'administration pour toute l'instance (`/admin`, section Apparence) : *Bleu institutionnel* (sobre, angles droits), *Ardoise et indigo* (neutres contemporains, angles doux), *Magenta et violet* (couleurs franches, navigation en dégradé). L'écran de choix montre un aperçu qui emprunte les jetons de chaque palette — il ne peut pas mentir sur ce qu'il propose

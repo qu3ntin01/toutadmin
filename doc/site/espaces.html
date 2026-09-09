@@ -104,6 +104,10 @@
     <tr><td>Pièces reçues</td><td class="mono">/pieces</td><td>Gestion et administration</td></tr>
     <tr><td>Demandes internes</td><td class="mono">/demandes</td><td>Tout membre, et les validateurs de chaque circuit</td></tr>
     <tr><td>Coffre-fort</td><td class="mono">/coffre-fort</td><td>Chaque membre, y compris après son départ</td></tr>
+    <tr><td>Service informatique</td><td class="mono">/informatique</td><td>Administrateurs et membres désignés au service informatique</td></tr>
+    <tr><td>Développement</td><td class="mono">/developpement</td><td>Administrateurs et membres désignés au service informatique</td></tr>
+    <tr><td>Événements</td><td class="mono">/evenements</td><td>Chacun pour ceux qui le concernent ; RH et administration pour les créer</td></tr>
+    <tr><td>Fiche tiers</td><td class="mono">/partenaires/:id</td><td>Administrateurs et membres désignés gestionnaires</td></tr>
     <tr><td>Sécurité</td><td class="mono">/securite</td><td>Administration</td></tr>
     <tr><td>Sauvegardes</td><td class="mono">/sauvegardes</td><td>Administration</td></tr>
     <tr><td>Données personnelles</td><td class="mono">/rgpd</td><td>Administration</td></tr>
@@ -116,11 +120,18 @@
 <h2 id="comment-les-droits-sont-calcules">Comment les droits sont calculés<a class="anchor" href="#comment-les-droits-sont-calcules" aria-label="Lien vers cette section">#</a></h2>
 
 <p>
-  Quatre rôles se cumulent sur un même compte : <strong>administrateur</strong>,
-  <strong>RH</strong>, <strong>gestionnaire</strong> et <strong>manager</strong>. Les trois
-  premiers sont accordés par un administrateur. Le quatrième ne s'accorde pas : il se
-  déduit. Qui encadre au moins une équipe ou un service obtient l'espace manager ;
-  retirer l'encadrement le referme aussitôt.
+  Cinq rôles se cumulent sur un même compte : <strong>administrateur</strong>,
+  <strong>RH</strong>, <strong>gestionnaire</strong>, <strong>service informatique</strong>
+  et <strong>manager</strong>. Les quatre premiers sont accordés par un administrateur.
+  Le cinquième ne s'accorde pas : il se déduit. Qui encadre au moins une équipe ou un
+  service obtient l'espace manager ; retirer l'encadrement le referme aussitôt.
+</p>
+
+<p>
+  Ces rôles ne se recouvrent pas. Le service informatique tient le parc logiciel et
+  les accès applicatifs sans voir la paie ; la gestion financière paie les
+  abonnements sans ouvrir les habilitations qu'ils accordent. Séparer les deux est
+  précisément ce qui permet à la revue des accès de servir à quelque chose.
 </p>
 
 <div class="note">

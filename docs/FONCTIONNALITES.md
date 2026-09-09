@@ -14,11 +14,12 @@ qui relie le tout.
 | Fonction | État |
 | --- | --- |
 | Comptes, rôles, rattachements (services, équipes, managers multiples) | ✅ |
+| **Service informatique désigné par l'administration**, distinct de la gestion financière | ✅ |
 | Authentification durcie, double authentification, journal d'audit, console de sécurité | ✅ |
 | Modules débloquables par l'administration | ✅ |
 | Interface en 16 langues, trois palettes au choix de l'administration, mode clair/sombre/système par personne, responsive | ✅ |
 | **Statuts traduits** dans les 16 langues, mise en page retournée en arabe | ✅ |
-| Traduction de l'intégralité des écrans métier | ⬜ |
+| Traduction de l'intégralité des écrans métier | ✅ |
 | Assistant d'installation | ✅ |
 | **Échéances et alertes** — un seul moteur pour tout ce qui arrive à terme | ✅ |
 | **Centre de notifications** par personne, avec accusé de lecture | ✅ |
@@ -40,6 +41,7 @@ qui relie le tout.
 | **Réunions : convocation, ordre du jour, présences, compte rendu** | ✅ |
 | **Registre des décisions et actions confiées, avec échéance et porteur** | ✅ |
 | **Registre des risques : cotation brute et résiduelle, matrice, traitement, revue** | ✅ |
+| **Événements d'entreprise : capacité, liste d'attente automatique, émargement, budget** | ✅ |
 
 ## Opérations
 
@@ -51,6 +53,11 @@ qui relie le tout.
 | **Base de connaissances** interne, par catégorie, avec recherche | ✅ |
 | **Qualité : non-conformités, actions correctives, vérification d'efficacité, audits internes** | ✅ |
 | **Planning d'équipe, roulements et astreintes, avec détection des conflits** | ✅ |
+| **Parc logiciel : licences, sièges tenus comme contrainte, coût annualisé, renouvellements** | ✅ |
+| **Revue des accès applicatifs** : comptes fermés, droits d'administration, accès jamais réexaminés | ✅ |
+| **Incidents du système d'information**, avec délai moyen de rétablissement mesuré | ✅ |
+| **Référentiel des services applicatifs** : criticité, responsable, dépôt, documentation | ✅ |
+| **Registre des livraisons** par environnement, et indicateurs de livraison | ✅ |
 
 ## Ressources humaines
 
@@ -70,12 +77,14 @@ qui relie le tout.
 | **Organigramme visuel**, encadrement compris, et personnes sans rattachement | ✅ |
 | **Coffre-fort numérique : bulletins accessibles après le départ, scellés et conservés 50 ans** | ✅ |
 | **Signature électronique simple** des contrats et avenants : circuit ordonné, empreinte, sceau, attestation | ✅ |
+| **Points individuels manager-collaborateur** : résumé partagé, notes du manager séparées | ✅ |
 
 ## Finance et gestion
 
 | Fonction | État |
 | --- | --- |
 | Partenaires, contrats, factures, budgets, notes de frais | ✅ |
+| **Fiche tiers** : interlocuteurs, pièces de conformité datées, évaluations notées | ✅ |
 | Comptabilité en partie double, balance, grand livre | ✅ (module) |
 | Moteur de paie | ✅ (module) |
 | Facturation électronique (EN 16931, Factur-X) | ✅ (module) |
@@ -112,17 +121,18 @@ qui relie le tout.
 
 ## L'état des traductions
 
-Le dictionnaire compte 2 144 clés déclinées dans les 16 langues. Sa cohérence est
+Le dictionnaire compte 2 448 clés déclinées dans les 16 langues. Sa cohérence est
 tenue par les tests : parité des clés, paramètres `{nom}` identiques d'une langue
 à l'autre, aucune valeur vide, et vérification que le russe, l'arabe, le hindi,
 le chinois, le japonais et le coréen sont bien écrits dans leur écriture — une
 traduction oubliée se repère à ce qu'elle reste en caractères latins.
 
-**Les 76 vues du produit sont traduites**, du premier écran de connexion à la
+**Les 83 vues du produit sont traduites**, du premier écran de connexion à la
 dernière boîte de dialogue de confirmation : les quatre espaces, le chrome de
 chaque page, tous les statuts affichés, le vocabulaire générique et le
 vocabulaire propre à chaque métier — comptabilité, paie, trésorerie, qualité,
-parapheur, sauvegardes, interfaces, données personnelles.
+parapheur, sauvegardes, interfaces, données personnelles, parc logiciel,
+livraisons, événements, points individuels, conformité des tiers.
 
 Ce qui reste en français dans les gabarits n'est pas du texte affiché : les
 paramètres d'URL du journal d'audit (`&du=`, `&au=`), l'exemple de commande
