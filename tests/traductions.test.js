@@ -77,7 +77,9 @@ test('les langues non latines sont écrites dans leur écriture', () => {
     const dict = require(`../src/locales/${code}.js`);
     for (const [key, value] of Object.entries(dict)) {
       if (EXEMPT.has(key)) continue;
-      if (!/[A-Za-zÀ-ÿ]/.test(value)) continue;
+      // Le nom d'un paramètre est du code, pas du texte affiché : « {used} / {total} »
+      // ne contient rien à traduire, et le relever ferait crier le garde-fou à tort.
+      if (!/[A-Za-zÀ-ÿ]/.test(value.replace(/\{[a-zA-Z0-9_]+\}/g, ''))) continue;
       assert.ok(script.test(value), `${code}/${key} n'utilise pas son écriture : ${value}`);
     }
   }
