@@ -16,9 +16,9 @@
   </header>
 
   <main class="error-page">
-    <h1>Cette page n'est pas accessible</h1>
+    <h1><%= t('err.notAccessible') %></h1>
     <p class="muted"><%= message %></p>
-    <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+    <a href="/" class="btn btn-primary"><%= t('err.backHome') %></a>
   </main>
 
   <script src="/js/theme.js"></script>

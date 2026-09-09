@@ -56,7 +56,7 @@
                   </label>
                 </div>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('erp.book') %></button>
-                <p class="hint">Un créneau déjà pris est refusé, en indiquant qui l'occupe.</p>
+                <p class="hint"><%= t('rms.slotTaken') %></p>
               </form>
             <% } %>
           </div>
@@ -87,7 +87,7 @@
                       <span class="tag"><%= slots.length %></span>
                     </div>
                     <% if (slots.length === 0) { %>
-                      <p class="cell-sub">Libre toute la journée.</p>
+                      <p class="cell-sub"><%= t('rms.freeAllDay') %></p>
                     <% } else { %>
                       <ul class="person-list">
                         <% slots.forEach((b) => { %>
@@ -97,7 +97,7 @@
                               <span class="cell-sub"><%= b.first_name %> <%= b.last_name %></span>
                             </span>
                             <% if (b.user_id === currentUser.id) { %>
-                              <form method="POST" action="/salles/<%= b.id %>/annuler" data-confirm="Annuler cette réservation ?">
+                              <form method="POST" action="/salles/<%= b.id %>/annuler" data-confirm="<%= t('ges.cancelBooking') %>">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                                 <input type="hidden" name="jour" value="<%= date %>" />
                                 <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
@@ -117,7 +117,7 @@
         <div class="card">
           <div class="card-head"><h3><%= t('erp.bookings') %> <span class="muted">(<%= myBookings.length %>)</span></h3></div>
           <% if (myBookings.length === 0) { %>
-            <div class="empty-state">Vous n'avez aucune réservation à venir.</div>
+            <div class="empty-state"><%= t('rms.noBooking') %></div>
           <% } else { %>
             <div class="table-wrap">
               <table>
@@ -134,7 +134,7 @@
                       <td><%= b.title %></td>
                       <td><%= b.room_name %><% if (b.location) { %><div class="cell-sub"><%= b.location %></div><% } %></td>
                       <td class="actions">
-                        <form method="POST" action="/salles/<%= b.id %>/annuler" data-confirm="Annuler cette réservation ?">
+                        <form method="POST" action="/salles/<%= b.id %>/annuler" data-confirm="<%= t('ges.cancelBooking') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <input type="hidden" name="jour" value="<%= date %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>

@@ -7,14 +7,14 @@
   <div class="app-shell">
     <%- include('partials/sidebar', {
       panelLabel: checklist.kind,
-      navItems: [{ tab: 'points', label: 'Points à faire', icon: 'check' }],
-      footLinks: [{ href: '/parcours', label: 'Tous les parcours', icon: 'back' }]
+      navItems: [{ tab: 'points', label: t('plst.tabItems'), icon: 'check' }],
+      footLinks: [{ href: '/parcours', label: t('plst.tabAll'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
         headerTitle: checklist.kind + ' — ' + person.first_name + ' ' + person.last_name,
-        headerSubtitle: 'Jour pivot : ' + checklist.reference_date
+        headerSubtitle: t('plst.pivotDay', { date: checklist.reference_date })
       }) %>
 
       <main class="page">
@@ -26,7 +26,7 @@
           <div class="card">
             <div class="card-head">
               <h3><%= items.filter((i) => i.done_at).length %>/<%= items.length %> point(s) faits</h3>
-              <% if (checklist.completed_at) { %><span class="tag tag-success">terminé</span><% } %>
+              <% if (checklist.completed_at) { %><span class="tag tag-success"><%= t('par.finished') %></span><% } %>
             </div>
             <ul class="org-list">
               <% items.forEach((item) => { %>
@@ -35,9 +35,9 @@
                     <span class="cell-strong"><%= item.label %></span>
                     <br />
                     <span class="cell-sub">
-                      <%= item.owner_role %> · échéance
+                      <%= item.owner_role %> · <%= t('plst.dueLower') %>
                       <span class="<%= !item.done_at && item.due_date && item.due_date < today ? 'text-danger' : '' %>"><%= day(item.due_date) %></span>
-                      <% if (item.done_at) { %> · fait par <%= item.first_name %> <%= item.last_name %><% } %>
+                      <% if (item.done_at) { %> · <%= t('plst.doneBy', { name: `${item.first_name} ${item.last_name}` }) %><% } %>
                     </span>
                   </span>
                   <form method="POST" action="/parcours/listes/points/<%= item.id %>/basculer" class="inline-form">
@@ -48,7 +48,7 @@
                   </form>
                 </li>
               <% }) %>
-              <% if (items.length === 0) { %><li class="cell-sub">Ce modèle ne comportait aucun point.</li><% } %>
+              <% if (items.length === 0) { %><li class="cell-sub"><%= t('plst.noItem') %></li><% } %>
             </ul>
           </div>
         </section>

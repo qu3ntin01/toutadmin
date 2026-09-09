@@ -33,7 +33,7 @@
               <% } else if (q.type === 'oui_non') { %>
                 <label class="span-2"><span><%= q.label %><%= q.required ? ' *' : '' %></span>
                   <select name="q_<%= q.id %>" <%= q.required ? 'required' : '' %>>
-                    <option value="">—</option><option value="Oui">Oui</option><option value="Non">Non</option>
+                    <option value="">—</option><option value="Oui"><%= t('srp.yes') %></option><option value="Non"><%= t('srp.no') %></option>
                   </select>
                 </label>
               <% } else if (q.type === 'choix') { %>
@@ -49,9 +49,9 @@
                 </label>
               <% } %>
             <% }) %>
-            <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Envoyer ma réponse</button></div>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('srp.send') %></button></div>
           </form>
-          <p class="hint">Une fois envoyée, votre réponse ne peut plus être modifiée : elle n'est plus rattachable à vous.</p>
+          <p class="hint"><%= t('srp.finalNote') %></p>
         </div>
       </main>
     </div>

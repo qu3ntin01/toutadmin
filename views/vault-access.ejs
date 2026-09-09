@@ -17,10 +17,9 @@
 
   <main class="auth-main">
     <div class="auth-card">
-      <h1>Accéder à vos bulletins</h1>
+      <h1><%= t('va.title') %></h1>
       <p class="auth-sub">
-        Vous avez quitté l'entreprise et cherchez vos fiches de paie ? Saisissez l'adresse
-        de votre ancien compte et le code que le service des ressources humaines vous a remis.
+        <%= t('va.intro') %>
       </p>
 
       <% if (flash) { %>
@@ -30,23 +29,22 @@
       <form method="POST" action="/coffre-fort/acces" class="auth-form">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <label>
-          <span>Adresse de votre ancien compte</span>
+          <span><%= t('va.formerAddress') %></span>
           <input type="email" name="email" required autofocus autocomplete="username" placeholder="nom@entreprise.com" />
         </label>
         <label>
-          <span>Code d'accès</span>
+          <span><%= t('va.accessCode') %></span>
           <input type="text" name="code" required autocomplete="one-time-code" placeholder="ABCDE-FGHIJ-KLMNO" />
         </label>
-        <button type="submit" class="btn btn-primary btn-block">Ouvrir le coffre</button>
+        <button type="submit" class="btn btn-primary btn-block"><%= t('va.openVault') %></button>
       </form>
 
       <p class="auth-note">
-        Si vous vous souvenez de votre mot de passe, la connexion habituelle suffit : elle ouvre
-        directement le coffre-fort. Le code n'est utile qu'à défaut.
+        <%= t('va.passwordNote') %>
       </p>
 
       <div class="auth-foot">
-        <a href="/connexion">Revenir à la connexion</a>
+        <a href="/connexion"><%= t('va.backToLogin') %></a>
       </div>
     </div>
   </main>

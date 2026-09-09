@@ -8,9 +8,9 @@
     <%- include('partials/sidebar', {
       panelLabel: t('nav.knowledge'),
       navItems: canWrite
-        ? [{ tab: 'lecture', label: 'Article', icon: 'inbox' }, { tab: 'edition', label: t('common.edit'), icon: 'settings' }]
-        : [{ tab: 'lecture', label: 'Article', icon: 'inbox' }],
-      footLinks: [{ href: '/base-de-connaissances', label: 'Tous les articles', icon: 'back' }]
+        ? [{ tab: 'lecture', label: t('stk.item'), icon: 'inbox' }, { tab: 'edition', label: t('common.edit'), icon: 'settings' }]
+        : [{ tab: 'lecture', label: t('stk.item'), icon: 'inbox' }],
+      footLinks: [{ href: '/base-de-connaissances', label: t('art.allArticles'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -24,7 +24,7 @@
 
         <section class="tab-panel is-active" id="lecture">
           <div class="card">
-            <% if (!article.published) { %><div class="flash flash-error">Brouillon : cet article n'est pas visible des lecteurs.</div><% } %>
+            <% if (!article.published) { %><div class="flash flash-error"><%= t('art.draftNote') %></div><% } %>
             <p class="article-body"><%= article.body || 'Cet article est vide.' %></p>
           </div>
         </section>
@@ -40,7 +40,7 @@
                 <label><span><%= t('common.scope') %></span>
                   <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>" <%= article.visibility === v ? 'selected' : '' %>><%= v %></option><% }) %></select>
                 </label>
-                <label class="span-2"><span>Service ou équipe concerné</span>
+                <label class="span-2"><span><%= t('art.scope') %></span>
                   <select name="scope_id">
                     <option value="">—</option>
                     <optgroup label="Services">
@@ -59,7 +59,7 @@
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
               </form>
 
-              <form method="POST" action="/base-de-connaissances/<%= article.id %>/supprimer" data-confirm="Supprimer cet article ?">
+              <form method="POST" action="/base-de-connaissances/<%= article.id %>/supprimer" data-confirm="<%= t('art.confirmDelete') %>">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <button type="submit" class="btn btn-danger btn-block"><%= t('common.delete') %></button>
               </form>

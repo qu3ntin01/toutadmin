@@ -101,7 +101,7 @@
                   <input type="date" name="contract_end_date" />
                 </label>
                 <label class="span-2">
-                  <span>TJM en € (freelance uniquement)</span>
+                  <span><%= t('emp.dailyRate') %></span>
                   <input type="number" name="daily_rate" min="0" step="0.01" placeholder="Ex : 450" />
                 </label>
                 <div class="span-2">
@@ -839,7 +839,7 @@
 
                   <span class="palette-name">
                     <%= p.label %>
-                    <% if (p.active) { %><span class="tag tag-accent">en service</span><% } %>
+                    <% if (p.active) { %><span class="tag tag-accent"><%= t('adm.inService') %></span><% } %>
                   </span>
                   <span class="palette-text"><%= p.description %></span>
 

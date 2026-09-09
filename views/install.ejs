@@ -89,7 +89,7 @@
             <label>
               <span><%= t('install.company.name') %></span>
               <input type="text" name="company_name" required maxlength="120"
-                     value="<%= draft.companyName || '' %>" placeholder="Entreprise SAS" autofocus />
+                     value="<%= draft.companyName || '' %>" placeholder="<%= t('ins.companyPlaceholder') %>" autofocus />
             </label>
             <label>
               <span><%= t('install.company.leave') %></span>

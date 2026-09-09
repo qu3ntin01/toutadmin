@@ -22,7 +22,7 @@
         <% if (isElected) { %>
           <div class="banner">
             <%- include('partials/icon', { name: 'lifebuoy', iconSize: 17 }) %>
-            <span>Vous siégez au comité. <a href="/cse/gestion"><%= t('nav.cseManage') %></a></span>
+            <span><%= t('cse.youSit') %> <a href="/cse/gestion"><%= t('nav.cseManage') %></a></span>
           </div>
         <% } %>
 
@@ -157,7 +157,7 @@
                   <span><%= t('cse.myCandidacy') %> — <%= st(myCandidacy.status) %></span>
                 </div>
                 <% if (myCandidacy.statement) { %><p class="benefit-text"><%= myCandidacy.statement %></p><% } %>
-                <form method="POST" action="/cse/candidature/retirer" data-confirm="Retirer votre candidature au CSE ?">
+                <form method="POST" action="/cse/candidature/retirer" data-confirm="<%= t('cse.confirmWithdrawCandidacy') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <button type="submit" class="btn btn-danger btn-sm"><%= t('cse.withdraw') %></button>
                 </form>
@@ -199,7 +199,7 @@
                   <% }) %>
                 </ul>
                 <div class="form-actions">
-                  <button type="submit" class="btn btn-primary" data-confirm="Confirmer votre vote ? Il ne pourra pas être modifié.">
+                  <button type="submit" class="btn btn-primary" data-confirm="<%= t('cse.confirmVote') %>">
                     <%- include('partials/icon', { name: 'ballot', iconSize: 16 }) %>
                     <span class="btn-label"><%= t('cse.vote') %></span>
                   </button>

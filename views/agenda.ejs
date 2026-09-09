@@ -142,8 +142,8 @@
                 </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
                 <p class="hint">
-                  Les heures ne sont prises en compte que si « <%= t('agenda.allDay') %> » est décoché.
-                  <% if (canShare) { %>Un événement « Équipe » est visible de vos collègues d'équipe, « Service » de tout le service.<% } else { %>Le partage demande d'être rattaché à une équipe ou à un service.<% } %>
+                  <%= t('agd.hoursNote', { allDay: t('agenda.allDay') }) %>
+                  <% if (canShare) { %><%= t('agd.shareNote') %><% } else { %><%= t('agd.shareRequires') %><% } %>
                 </p>
               </form>
             </div>
@@ -223,7 +223,7 @@
                         </td>
                         <td class="actions">
                           <% if (entry.removable) { %>
-                            <form method="POST" action="/agenda/<%= entry.id %>/supprimer" data-confirm="Supprimer cet événement ?">
+                            <form method="POST" action="/agenda/<%= entry.id %>/supprimer" data-confirm="<%= t('agd.confirmDelete') %>">
                               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                               <input type="hidden" name="mois" value="<%= month %>" />
                               <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
