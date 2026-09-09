@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: t('nav.legal') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%
+      const legalTabs = isAdmin
+        ? [
+            { tab: 'capital', label: t('jur.tabCapital'), icon: 'briefcase' },
+            { tab: 'mandats', label: t('jur.tabMandates'), icon: 'shield' },
+            { tab: 'assemblees', label: t('jur.tabMeetings'), icon: 'ballot' },
+            { tab: 'delegations', label: t('jur.tabDelegations'), icon: 'link' },
+            { tab: 'interets', label: t('jur.tabInterests'), icon: 'users', badge: summary.openDeclarations },
+            { tab: 'cadeaux', label: t('jur.tabGifts'), icon: 'ticket', badge: summary.giftsToReview },
+          ]
+        : [
+            { tab: 'interets', label: t('jur.tabMyInterests'), icon: 'users' },
+            { tab: 'cadeaux', label: t('jur.tabMyGifts'), icon: 'ticket' },
+          ];
+    %>
+    <%- include('partials/sidebar', {
+      panelLabel: t('jur.panel'),
+      navItems: legalTabs,
+      footLinks: [
+        currentUser.role === 'admin'
+          ? { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' }
+          : { href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.legal'),
+        headerSubtitle: isAdmin ? t('jur.headerSub') : t('jur.headerSubMember')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const num = (n) => Number(n).toLocaleString(locale, { maximumFractionDigits: 2 }); %>
+
+        <% if (isAdmin) { %>
+          <section class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.shareholders %></span><span class="stat-label"><%= t('jur.shareholders') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= num(summary.shares) %></span><span class="stat-label"><%= t('jur.shares') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.mandates %></span><span class="stat-label"><%= t('jur.liveMandates') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.giftsToReview %></span><span class="stat-label"><%= t('jur.giftsToReview') %></span></span>
+            </div>
+          </section>
+
+          <section class="tab-panel is-active" id="capital">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= t('jur.capitalTitle', { total: num(capital.total) }) %></h3>
+                  <p class="card-sub"><%= t('jur.capitalHint') %></p>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th><%= t('jur.shareholder') %></th><th><%= t('common.type') %></th><th><%= t('jur.shares') %></th>
+                    <th><%= t('jur.stake') %></th><th></th>
+                  </tr></thead>
+                  <tbody>
+                    <% capital.holders.forEach((holder) => { %>
+                      <tr>
+                        <td class="cell-strong"><%= holder.name %>
+                          <% if (holder.registration) { %><br /><span class="cell-sub"><%= holder.registration %></span><% } %>
+                        </td>
+                        <td class="cell-sub"><%= st(holder.kind) %></td>
+                        <td class="cell-sub nowrap"><%= num(holder.shares) %></td>
+                        <td class="<%= holder.share > 50 ? 'cell-strong' : 'cell-sub' %> nowrap"><%= num(holder.share) %> %</td>
+                        <td class="actions">
+                          <form method="POST" action="/juridique/associes/<%= holder.id %>/supprimer" data-confirm="<%= t('jur.confirmDeleteShareholder') %>">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                    <% if (capital.holders.length === 0) { %><tr><td colspan="5" class="cell-sub"><%= t('jur.noShareholder') %></td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+              <% if (capital.majority.length) { %>
+                <p class="hint"><%= t('jur.majorityHolder', { name: capital.majority.join(', ') }) %></p>
+              <% } %>
+            </div>
+
+            <div class="grid-2">
+              <div class="card">
+                <div class="card-head"><h3><%= t('jur.addShareholder') %></h3></div>
+                <form method="POST" action="/juridique/associes" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="150" /></label>
+                  <label><span><%= t('common.type') %></span>
+                    <select name="kind"><% shareholderKinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+                  </label>
+                  <label><span><%= t('jur.registration') %></span><input type="text" name="registration" maxlength="40" /></label>
+                  <label><span><%= t('common.email') %></span><input type="email" name="email" maxlength="254" /></label>
+                  <label><span><%= t('jur.linkedAccount') %></span>
+                    <select name="user_id"><option value="">—</option>
+                      <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                    </select>
+                  </label>
+                  <label class="span-2"><span><%= t('ptn.address') %></span><input type="text" name="address" maxlength="300" /></label>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+                </form>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3><%= t('jur.addMovement') %></h3></div>
+                <form method="POST" action="/juridique/mouvements" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span><%= t('jur.shareholder') %></span>
+                    <select name="shareholder_id" required>
+                      <option value="" disabled selected><%= t('common.choose') %></option>
+                      <% shareholderList.forEach((s) => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+                    </select>
+                  </label>
+                  <label><span><%= t('common.type') %></span>
+                    <select name="kind"><% movementKinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+                  </label>
+                  <label><span><%= t('common.date') %></span><input type="date" name="moved_on" value="<%= today %>" required /></label>
+                  <label><span><%= t('jur.shares') %></span><input type="text" name="shares" inputmode="decimal" required /></label>
+                  <label><span><%= t('jur.unitPrice') %></span><input type="text" name="unit_price" inputmode="decimal" /></label>
+                  <label class="span-2"><span><%= t('jur.counterparty') %></span>
+                    <select name="counterparty_id"><option value="">—</option>
+                      <% shareholderList.forEach((s) => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+                    </select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('jur.record') %></button></div>
+                </form>
+                <p class="hint"><%= t('jur.transferHint') %></p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('jur.movementRegister', { count: movementList.length }) %></h3></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th><%= t('common.date') %></th><th><%= t('jur.shareholder') %></th><th><%= t('common.type') %></th>
+                    <th><%= t('jur.shares') %></th><th><%= t('jur.counterparty') %></th><th></th>
+                  </tr></thead>
+                  <tbody>
+                    <% movementList.forEach((movement) => { %>
+                      <tr>
+                        <td class="cell-sub nowrap"><%= day(movement.moved_on) %></td>
+                        <td class="cell-strong"><%= movement.shareholder_name %></td>
+                        <td class="cell-sub"><%= st(movement.kind) %></td>
+                        <td class="<%= movement.shares < 0 ? 'text-danger' : 'cell-sub' %> nowrap"><%= num(movement.shares) %></td>
+                        <td class="cell-sub"><%= movement.counterparty_name || '—' %></td>
+                        <td class="actions">
+                          <form method="POST" action="/juridique/mouvements/<%= movement.id %>/supprimer" data-confirm="<%= t('jur.confirmDeleteMovement') %>">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                    <% if (movementList.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('jur.noMovement') %></td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="mandats">
+            <div class="card">
+              <div class="card-head"><h3><%= t('jur.mandateCount', { count: mandateList.length }) %></h3></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th><%= t('jur.holder') %></th><th><%= t('jur.role') %></th><th><%= t('jur.period') %></th>
+                    <th><%= t('jur.appointedBy') %></th><th><%= t('common.status') %></th><th></th>
+                  </tr></thead>
+                  <tbody>
+                    <% mandateList.forEach((mandate) => { %>
+                      <tr>
+                        <td class="cell-strong"><%= mandate.holder_name %></td>
+                        <td class="cell-sub"><%= st(mandate.role) %></td>
+                        <td class="cell-sub nowrap"><%= day(mandate.started_on) %> → <%= day(mandate.ends_on) %></td>
+                        <td class="cell-sub"><%= mandate.appointed_by || '—' %></td>
+                        <td><span class="tag <%= mandate.status === 'En cours' ? 'tag-success' : '' %>"><%= st(mandate.status) %></span></td>
+                        <td class="actions">
+                          <form method="POST" action="/juridique/mandats/<%= mandate.id %>/statut" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="status" class="inline-select">
+                              <% mandateStatuses.forEach((s) => { %><option value="<%= s %>" <%= mandate.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                          </form>
+                          <form method="POST" action="/juridique/mandats/<%= mandate.id %>/supprimer" data-confirm="<%= t('jur.confirmDeleteMandate') %>">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                    <% if (mandateList.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('jur.noMandate') %></td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('jur.addMandate') %></h3></div>
+              <form method="POST" action="/juridique/mandats" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span><%= t('jur.holder') %></span><input type="text" name="holder_name" required maxlength="150" /></label>
+                <label><span><%= t('jur.role') %></span>
+                  <select name="role"><% mandateRoles.forEach((r) => { %><option value="<%= r %>"><%= st(r) %></option><% }) %></select>
+                </label>
+                <label><span><%= t('jur.startedOn') %></span><input type="date" name="started_on" value="<%= today %>" required /></label>
+                <label><span><%= t('jur.endsOn') %></span><input type="date" name="ends_on" /></label>
+                <label><span><%= t('jur.linkedAccount') %></span>
+                  <select name="user_id"><option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span><%= t('jur.appointedBy') %></span><input type="text" name="appointed_by" maxlength="150" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+              </form>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="assemblees">
+            <div class="card">
+              <div class="card-head"><h3><%= t('jur.meetingCount', { count: meetingList.length }) %></h3></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th><%= t('common.reference') %></th><th><%= t('common.type') %></th><th><%= t('common.date') %></th>
+                    <th><%= t('jur.resolutions') %></th><th><%= t('common.status') %></th><th></th>
+                  </tr></thead>
+                  <tbody>
+                    <% meetingList.forEach((meeting) => { %>
+                      <tr>
+                        <td class="cell-strong mono"><a href="/juridique/assemblees/<%= meeting.id %>"><%= meeting.reference %></a></td>
+                        <td class="cell-sub"><%= st(meeting.kind) %></td>
+                        <td class="cell-sub nowrap"><%= day(meeting.held_on) %></td>
+                        <td class="cell-sub"><%= meeting.resolution_count %></td>
+                        <td><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : '' %>"><%= st(meeting.status) %></span></td>
+                        <td><a class="btn btn-outline btn-sm" href="/juridique/assemblees/<%= meeting.id %>"><%= t('common.open') %></a></td>
+                      </tr>
+                    <% }) %>
+                    <% if (meetingList.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('jur.noMeeting') %></td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('jur.callMeeting') %></h3></div>
+              <form method="POST" action="/juridique/assemblees" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.type') %></span>
+                  <select name="kind"><% meetingKinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+                </label>
+                <label><span><%= t('common.date') %></span><input type="date" name="held_on" value="<%= today %>" required /></label>
+                <label><span><%= t('evt.location') %></span><input type="text" name="location" maxlength="200" /></label>
+                <label class="span-2"><span><%= t('jur.quorumRequired') %></span><input type="text" name="quorum_required" inputmode="decimal" value="0" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('jur.call') %></button></div>
+              </form>
+              <p class="hint"><%= t('jur.quorumHint') %></p>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="delegations">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= t('jur.delegationCount', { count: delegationList.length }) %></h3>
+                  <p class="card-sub"><%= t('jur.delegationHint') %></p>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th><%= t('jur.delegate') %></th><th><%= t('jur.scope') %></th><th><%= t('jur.limit') %></th>
+                    <th><%= t('jur.period') %></th><th><%= t('common.status') %></th><th></th>
+                  </tr></thead>
+                  <tbody>
+                    <% delegationList.forEach((delegation) => { %>
+                      <tr>
+                        <td class="cell-strong"><%= delegation.first_name %> <%= delegation.last_name %>
+                          <% if (delegation.granted_first_name) { %><br /><span class="cell-sub"><%= t('jur.grantedBy', { name: delegation.granted_first_name + ' ' + delegation.granted_last_name }) %></span><% } %>
+                        </td>
+                        <td><%= delegation.scope %></td>
+                        <td class="cell-sub nowrap"><%= delegation.amount_limit == null ? t('jur.noLimit') : money(delegation.amount_limit) %></td>
+                        <td class="cell-sub nowrap"><%= day(delegation.starts_on) %> → <%= day(delegation.ends_on) %></td>
+                        <td><span class="tag <%= delegation.status === 'En vigueur' ? 'tag-success' : '' %>"><%= st(delegation.status) %></span></td>
+                        <td class="actions">
+                          <form method="POST" action="/juridique/delegations/<%= delegation.id %>/statut" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="status" class="inline-select">
+                              <% delegationStatuses.forEach((s) => { %><option value="<%= s %>" <%= delegation.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                    <% if (delegationList.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('jur.noDelegation') %></td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('jur.addDelegation') %></h3></div>
+              <form method="POST" action="/juridique/delegations" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('jur.delegate') %></span>
+                  <select name="holder_id" required>
+                    <option value="" disabled selected><%= t('common.choose') %></option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('jur.scope') %></span><input type="text" name="scope" required maxlength="300" /></label>
+                <label><span><%= t('jur.limit') %></span><input type="text" name="amount_limit" inputmode="decimal" /></label>
+                <label><span><%= t('jur.startedOn') %></span><input type="date" name="starts_on" value="<%= today %>" required /></label>
+                <label><span><%= t('jur.endsOn') %></span><input type="date" name="ends_on" /></label>
+                <label class="span-2"><span><%= t('common.notes') %></span><textarea name="notes" rows="2" maxlength="1000"></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+              </form>
+            </div>
+          </section>
+        <% } %>
+
+        <section class="tab-panel <%= isAdmin ? '' : 'is-active' %>" id="interets">
+          <div class="card">
+            <div class="card-head"><h3><%= isAdmin ? t('jur.interestRegister', { count: declarationList.length }) : t('jur.myInterests') %></h3></div>
+            <p class="hint"><%= t('jur.interestHint') %></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <% if (isAdmin) { %><th><%= t('common.member') %></th><% } %>
+                  <th><%= t('common.type') %></th><th><%= t('jur.entity') %></th><th><%= t('jur.declaredOn') %></th>
+                  <th><%= t('common.status') %></th><% if (isAdmin) { %><th></th><% } %>
+                </tr></thead>
+                <tbody>
+                  <% declarationList.forEach((declaration) => { %>
+                    <tr>
+                      <% if (isAdmin) { %><td class="cell-strong"><%= declaration.first_name %> <%= declaration.last_name %></td><% } %>
+                      <td class="cell-sub"><%= st(declaration.kind) %></td>
+                      <td><%= declaration.entity %>
+                        <% if (declaration.description) { %><br /><span class="cell-sub"><%= declaration.description %></span><% } %>
+                        <% if (declaration.measure) { %><br /><span class="cell-sub"><%= t('jur.measure') %> : <%= declaration.measure %></span><% } %>
+                      </td>
+                      <td class="cell-sub nowrap"><%= day(declaration.declared_on) %></td>
+                      <td><span class="tag <%= declaration.status === 'Déclaré' ? 'tag-warning' : '' %>"><%= st(declaration.status) %></span></td>
+                      <% if (isAdmin) { %>
+                        <td>
+                          <form method="POST" action="/juridique/interets/<%= declaration.id %>/examen" class="form-grid">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <label><span><%= t('common.status') %></span>
+                              <select name="status">
+                                <% interestStatuses.forEach((s) => { %><option value="<%= s %>" <%= declaration.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %>
+                              </select>
+                            </label>
+                            <label><span><%= t('jur.measure') %></span><input type="text" name="measure" value="<%= declaration.measure %>" maxlength="1000" /></label>
+                            <div><button type="submit" class="btn btn-primary btn-block btn-sm"><%= t('common.save') %></button></div>
+                          </form>
+                        </td>
+                      <% } %>
+                    </tr>
+                  <% }) %>
+                  <% if (declarationList.length === 0) { %><tr><td colspan="<%= isAdmin ? 6 : 4 %>" class="cell-sub"><%= t('jur.noDeclaration') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('jur.declareInterest') %></h3></div>
+            <form method="POST" action="/juridique/interets" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% interestKinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('jur.entity') %></span><input type="text" name="entity" required maxlength="200" /></label>
+              <label><span><%= t('jur.relatedPartner') %></span>
+                <select name="partner_id"><option value="">—</option>
+                  <% partners.forEach((partner) => { %><option value="<%= partner.id %>"><%= partner.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('jur.declaredOn') %></span><input type="date" name="declared_on" value="<%= today %>" required /></label>
+              <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="3" maxlength="2000"></textarea></label>
+              <label class="span-2"><span><%= t('jur.endsOn') %></span><input type="date" name="ends_on" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('jur.declare') %></button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="cadeaux">
+          <div class="card">
+            <div class="card-head"><h3><%= isAdmin ? t('jur.giftRegister', { count: giftList.length }) : t('jur.myGifts') %></h3></div>
+            <p class="hint"><%= t('jur.giftHint', { threshold: money(giftThreshold) }) %></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <% if (isAdmin) { %><th><%= t('common.member') %></th><% } %>
+                  <th><%= t('jur.direction') %></th><th><%= t('common.type') %></th><th><%= t('jur.thirdParty') %></th>
+                  <th><%= t('common.date') %></th><th><%= t('jur.value') %></th><th><%= t('common.status') %></th>
+                  <% if (isAdmin) { %><th></th><% } %>
+                </tr></thead>
+                <tbody>
+                  <% giftList.forEach((gift) => { %>
+                    <tr>
+                      <% if (isAdmin) { %><td class="cell-strong"><%= gift.first_name %> <%= gift.last_name %></td><% } %>
+                      <td class="cell-sub"><%= st(gift.direction) %></td>
+                      <td class="cell-sub"><%= st(gift.kind) %></td>
+                      <td><%= gift.partner_name || gift.third_party || '—' %>
+                        <% if (gift.description) { %><br /><span class="cell-sub"><%= gift.description %></span><% } %>
+                      </td>
+                      <td class="cell-sub nowrap"><%= day(gift.occurred_on) %></td>
+                      <td class="<%= gift.value > giftThreshold ? 'text-danger' : 'cell-sub' %> nowrap"><%= money(gift.value) %></td>
+                      <td><span class="tag <%= gift.status === 'Déclaré' && gift.value > giftThreshold ? 'tag-warning' : '' %>"><%= st(gift.status) %></span></td>
+                      <% if (isAdmin) { %>
+                        <td>
+                          <form method="POST" action="/juridique/cadeaux/<%= gift.id %>/examen" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="status" class="inline-select">
+                              <% giftStatuses.forEach((s) => { %><option value="<%= s %>" <%= gift.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                          </form>
+                        </td>
+                      <% } %>
+                    </tr>
+                  <% }) %>
+                  <% if (giftList.length === 0) { %><tr><td colspan="<%= isAdmin ? 8 : 6 %>" class="cell-sub"><%= t('jur.noGift') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('jur.declareGift') %></h3></div>
+            <form method="POST" action="/juridique/cadeaux" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('jur.direction') %></span>
+                <select name="direction"><% giftDirections.forEach((d) => { %><option value="<%= d %>"><%= st(d) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% giftKinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('jur.relatedPartner') %></span>
+                <select name="partner_id"><option value="">—</option>
+                  <% partners.forEach((partner) => { %><option value="<%= partner.id %>"><%= partner.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('jur.thirdParty') %></span><input type="text" name="third_party" maxlength="200" /></label>
+              <label><span><%= t('common.date') %></span><input type="date" name="occurred_on" value="<%= today %>" required /></label>
+              <label><span><%= t('jur.value') %></span><input type="text" name="value" inputmode="decimal" value="0" /></label>
+              <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="2" maxlength="1000"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('jur.declare') %></button></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

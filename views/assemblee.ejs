@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: meeting.reference + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: t('jur.panel'),
+      navItems: [
+        { tab: 'resolutions', label: t('jur.resolutions'), icon: 'ballot', badge: resolutionList.length },
+        { tab: 'proces-verbal', label: t('jur.minutes'), icon: 'network' },
+        { tab: 'fiche', label: t('jur.meetingSheet'), icon: 'settings' }
+      ],
+      footLinks: [{ href: '/juridique#assemblees', label: t('jur.tabMeetings'), icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: meeting.reference,
+        headerSubtitle: st(meeting.kind)
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const num = (n) => Number(n).toLocaleString(locale, { maximumFractionDigits: 2 }); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= day(meeting.held_on) %></span><span class="stat-label"><%= t('common.date') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= num(quorum.present) %></span>
+              <span class="stat-label"><%= t('jur.sharesPresent') %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value <%= quorum.reached ? '' : 'text-danger' %>">
+                <%= quorum.reached ? t('jur.quorumReached') : t('jur.quorumMissing', { shares: num(quorum.missing) }) %>
+              </span>
+              <span class="stat-label"><%= t('jur.quorumRequired') %> <%= num(quorum.required) %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= resolutionList.length %></span><span class="stat-label"><%= t('jur.resolutions') %></span></span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="resolutions">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('jur.resolutions') %></h3>
+                <p class="card-sub"><%= t('jur.voteHint') %></p>
+              </div>
+              <span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? '' : 'tag-warning') %>"><%= st(meeting.status) %></span>
+            </div>
+
+            <ul class="org-list">
+              <% resolutionList.forEach((resolution) => { %>
+                <% const expressed = resolution.votes_for + resolution.votes_against; %>
+                <li class="org-item">
+                  <div class="org-head">
+                    <div>
+                      <span class="org-name"><%= t('jur.resolutionNumber', { number: resolution.position }) %> — <%= resolution.label %></span>
+                      <span class="cell-sub"><%= t('jur.majorityRequired', { percent: num(resolution.majority_required) }) %></span>
+                    </div>
+                    <span class="tag <%= resolution.outcome === 'Adoptée' ? 'tag-success' : (resolution.outcome === 'Rejetée' ? 'tag-danger' : '') %>"><%= st(resolution.outcome) %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= t('jur.votesFor') %> <%= num(resolution.votes_for) %> ·
+                    <%= t('jur.votesAgainst') %> <%= num(resolution.votes_against) %> ·
+                    <%= t('jur.votesAbstain') %> <%= num(resolution.votes_abstain) %>
+                    <% if (expressed) { %> · <%= t('jur.expressedShare', { percent: num(Math.round((resolution.votes_for / expressed) * 1000) / 10) }) %><% } %>
+                  </p>
+                  <form method="POST" action="/juridique/resolutions/<%= resolution.id %>/vote" class="form-grid">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label><span><%= t('jur.votesFor') %></span><input type="text" name="votes_for" inputmode="decimal" value="<%= resolution.votes_for %>" /></label>
+                    <label><span><%= t('jur.votesAgainst') %></span><input type="text" name="votes_against" inputmode="decimal" value="<%= resolution.votes_against %>" /></label>
+                    <label><span><%= t('jur.votesAbstain') %></span><input type="text" name="votes_abstain" inputmode="decimal" value="<%= resolution.votes_abstain %>" /></label>
+                    <div><button type="submit" class="btn btn-primary btn-block"><%= t('jur.recordVote') %></button></div>
+                  </form>
+                  <div class="actions">
+                    <form method="POST" action="/juridique/resolutions/<%= resolution.id %>/supprimer" data-confirm="<%= t('jur.confirmDeleteResolution') %>">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                    </form>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
+            <% if (resolutionList.length === 0) { %><p class="cell-sub"><%= t('jur.noResolution') %></p><% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('jur.addResolution') %></h3></div>
+            <form method="POST" action="/juridique/assemblees/<%= meeting.id %>/resolutions" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('jur.resolutionLabel') %></span><input type="text" name="label" required maxlength="300" /></label>
+              <label><span><%= t('jur.majorityPercent') %></span><input type="text" name="majority_required" inputmode="decimal" value="50" required /></label>
+              <div><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
+            </form>
+            <p class="hint"><%= t('jur.majorityHint') %></p>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="proces-verbal">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('jur.minutes') %></h3>
+                <p class="card-sub"><%= t('jur.minutesHint') %></p>
+              </div>
+            </div>
+            <form method="POST" action="/juridique/assemblees/<%= meeting.id %>/proces-verbal" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('jur.minutes') %></span><textarea name="minutes" rows="16" maxlength="20000"><%= meeting.minutes %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="fiche">
+          <div class="card">
+            <div class="card-head"><h3><%= t('jur.meetingSheet') %></h3></div>
+            <form method="POST" action="/juridique/assemblees/<%= meeting.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('common.type') %></span>
+                <select name="kind">
+                  <% kinds.forEach((k) => { %><option value="<%= k %>" <%= meeting.kind === k ? 'selected' : '' %>><%= st(k) %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('common.status') %></span>
+                <select name="status">
+                  <% statuses.forEach((s) => { %><option value="<%= s %>" <%= meeting.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('common.date') %></span><input type="date" name="held_on" value="<%= meeting.held_on %>" required /></label>
+              <label><span><%= t('evt.location') %></span><input type="text" name="location" value="<%= meeting.location %>" maxlength="200" /></label>
+              <label><span><%= t('jur.quorumRequired') %></span><input type="text" name="quorum_required" inputmode="decimal" value="<%= meeting.quorum_required %>" /></label>
+              <label><span><%= t('jur.sharesPresent') %></span><input type="text" name="shares_present" inputmode="decimal" value="<%= meeting.shares_present %>" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('jur.presentHint', { total: num(quorum.total) }) %></p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('common.delete') %></h3></div>
+            <form method="POST" action="/juridique/assemblees/<%= meeting.id %>/supprimer" data-confirm="<%= t('jur.confirmDeleteMeeting') %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-danger"><%= t('jur.deleteMeeting') %></button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

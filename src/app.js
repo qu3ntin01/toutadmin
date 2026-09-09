@@ -73,6 +73,7 @@ const developpementRoutes = require('./routes/developpement');
 const evenementRoutes = require('./routes/evenements');
 const partenaireRoutes = require('./routes/partenaires');
 const alerteRoutes = require('./routes/alertes');
+const juridiqueRoutes = require('./routes/juridique');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -286,6 +287,7 @@ function createApp() {
   app.use('/evenements', evenementRoutes);
   app.use('/partenaires', partenaireRoutes);
   app.use('/alertes', alerteRoutes);
+  app.use('/juridique', juridiqueRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

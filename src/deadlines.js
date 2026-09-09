@@ -32,6 +32,11 @@ function itStewards() {
   return db.prepare("SELECT id FROM users WHERE active = 1 AND (role = 'admin' OR is_it = 1)").all().map((r) => r.id);
 }
 
+/** L'administration seule : la vie sociale de la société ne se délègue pas. */
+function admins() {
+  return db.prepare("SELECT id FROM users WHERE active = 1 AND role = 'admin'").all().map((r) => r.id);
+}
+
 function financeStewards() {
   return db.prepare("SELECT id FROM users WHERE active = 1 AND (role = 'admin' OR is_finance = 1)").all().map((r) => r.id);
 }
@@ -250,6 +255,29 @@ function collect({ withinDays = HORIZON_DAYS } = {}) {
       }
       const outcome = shiftFrom(filed, 90);
       if (outcome <= limit) add('Alerte', report.reference, 'Retour sur les suites', outcome, `/alertes/signalements/${report.id}`, referents);
+    }
+  }
+
+  // --- Mandats sociaux et délégations de pouvoir arrivant à terme. Un mandat
+  //     échu qui continue d'être exercé engage la société sur des actes que
+  //     personne n'avait le pouvoir de signer : c'est l'échéance qu'on oublie
+  //     parce qu'elle ne se rappelle à personne.
+  const boards = admins();
+  if (boards.length) {
+    for (const mandate of db.prepare(`
+      SELECT id, holder_name, role, ends_on FROM corporate_mandates
+      WHERE status = 'En cours' AND ends_on IS NOT NULL AND ends_on <= ?
+    `).all(limit)) {
+      add('Mandat social', mandate.holder_name, `Fin de mandat — ${mandate.role}`, mandate.ends_on, '/juridique#mandats', boards);
+    }
+
+    for (const delegation of db.prepare(`
+      SELECT d.id, d.scope, d.ends_on, u.first_name, u.last_name
+      FROM power_delegations d JOIN users u ON u.id = d.holder_id
+      WHERE d.status = 'En vigueur' AND d.ends_on IS NOT NULL AND d.ends_on <= ?
+    `).all(limit)) {
+      add('Délégation de pouvoir', `${delegation.first_name} ${delegation.last_name}`,
+        delegation.scope, delegation.ends_on, '/juridique#delegations', boards);
     }
   }
 

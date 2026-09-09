@@ -176,6 +176,13 @@ const PERSONAL_SOURCES = [
   // d'audit, faute de quoi plus rien ne prouve qu'un accès a bien été fermé.
   { key: 'acces_logiciels', table: 'software_accesses', column: 'user_id', label: 'Accès aux logiciels', erasable: false,
     query: 'SELECT id, licence_id, level, granted_on, revoked_on FROM software_accesses WHERE user_id = ?' },
+  // Déclarations d'intérêts et de cadeaux : des registres de conformité, que
+  // l'entreprise doit pouvoir produire à un contrôle. Ils sont communiqués à
+  // qui les a déposés, mais ne s'effacent pas à sa demande.
+  { key: 'declarations_interets', table: 'interest_declarations', column: 'user_id', label: "Déclarations d'intérêts", erasable: false,
+    query: 'SELECT id, kind, entity, description, declared_on, ends_on, status, measure FROM interest_declarations WHERE user_id = ?' },
+  { key: 'cadeaux', table: 'gift_records', column: 'user_id', label: 'Cadeaux et invitations déclarés', erasable: false,
+    query: 'SELECT id, direction, kind, third_party, occurred_on, value, description, status FROM gift_records WHERE user_id = ?' },
   { key: 'journal', table: 'audit_log', column: 'actor_id', label: "Journal d'audit", erasable: false,
     query: 'SELECT id, occurred_at, action, entity, entity_id, ip FROM audit_log WHERE actor_id = ?' },
 ];

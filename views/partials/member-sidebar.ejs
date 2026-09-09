@@ -44,6 +44,10 @@ if (enabledModules.some((m) => m.key === 'stock')) {
 if (hasVault) memberLinks.push({ key: 'coffre', href: '/coffre-fort', label: t('nav.vault'), icon: 'shield' });
 // Le canal d'alerte est ouvert à tous : le cacher reviendrait à le fermer.
 memberLinks.push({ key: 'alertes', href: '/alertes', label: t('nav.whistleblow'), icon: 'lifebuoy' });
+// Déclarer un intérêt ou un cadeau est l'affaire de chacun : l'entrée est
+// ouverte à tous, et c'est la page qui ne montre à un membre que ses propres
+// déclarations, sans rien lui laisser voir des registres de la société.
+memberLinks.push({ key: 'juridique', href: '/juridique', label: t('nav.legal'), icon: 'ballot' });
 memberLinks.push({ key: 'profil', href: '/mon-profil', label: t('nav.profile'), icon: 'user' });
 
 // Les espaces d'encadrement restent au pied de la barre, séparés du parcours du membre.

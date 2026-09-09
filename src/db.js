@@ -2003,6 +2003,134 @@ CREATE TABLE IF NOT EXISTS dunning_notices (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ---------------------------------------------------------------- Vie juridique
+-- La couche sociétaire : qui détient la société, qui la dirige, et ce que les
+-- assemblées ont décidé. Rien de tout cela ne vivait dans le produit, alors que
+-- c'est ce qui répond à « qui peut engager l'entreprise ».
+CREATE TABLE IF NOT EXISTS shareholders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  kind TEXT NOT NULL DEFAULT 'Personne physique' CHECK(kind IN ('Personne physique','Personne morale')),
+  -- Rattachement au compte quand l'associé est aussi salarié.
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  registration TEXT NOT NULL DEFAULT '',
+  email TEXT NOT NULL DEFAULT '',
+  address TEXT NOT NULL DEFAULT '',
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Registre des mouvements de titres. La détention n'est pas une colonne mais
+-- une somme : elle se recalcule des mouvements, comme un solde bancaire, si
+-- bien qu'aucune cession ne peut modifier un capital sans laisser sa ligne.
+CREATE TABLE IF NOT EXISTS share_movements (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  shareholder_id INTEGER NOT NULL REFERENCES shareholders(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL CHECK(kind IN ('Souscription','Cession','Acquisition','Réduction')),
+  moved_on TEXT NOT NULL,
+  -- Signé : une cession retire, une acquisition ajoute.
+  shares REAL NOT NULL,
+  unit_price REAL,
+  counterparty_id INTEGER REFERENCES shareholders(id) ON DELETE SET NULL,
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS corporate_mandates (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  holder_name TEXT NOT NULL,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  role TEXT NOT NULL CHECK(role IN ('Président','Directeur général','Directeur général délégué','Gérant','Membre du conseil','Commissaire aux comptes')),
+  started_on TEXT NOT NULL,
+  ends_on TEXT,
+  appointed_by TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'En cours' CHECK(status IN ('En cours','Échu','Révoqué')),
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS general_meetings (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL UNIQUE,
+  kind TEXT NOT NULL DEFAULT 'Assemblée générale ordinaire' CHECK(kind IN ('Assemblée générale ordinaire','Assemblée générale extraordinaire','Assemblée générale mixte')),
+  held_on TEXT NOT NULL,
+  location TEXT NOT NULL DEFAULT '',
+  -- Quorum exigé et parts effectivement présentes ou représentées, en titres.
+  quorum_required REAL NOT NULL DEFAULT 0,
+  shares_present REAL NOT NULL DEFAULT 0,
+  status TEXT NOT NULL DEFAULT 'Convoquée' CHECK(status IN ('Convoquée','Tenue','Annulée')),
+  minutes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS meeting_resolutions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  meeting_id INTEGER NOT NULL REFERENCES general_meetings(id) ON DELETE CASCADE,
+  position INTEGER NOT NULL DEFAULT 1,
+  label TEXT NOT NULL,
+  -- Majorité exigée, en pourcentage des voix exprimées.
+  majority_required REAL NOT NULL DEFAULT 50,
+  votes_for REAL NOT NULL DEFAULT 0,
+  votes_against REAL NOT NULL DEFAULT 0,
+  votes_abstain REAL NOT NULL DEFAULT 0,
+  outcome TEXT NOT NULL DEFAULT 'En attente' CHECK(outcome IN ('En attente','Adoptée','Rejetée'))
+);
+
+-- ---------------------------------------------------------------- Conformité
+-- Déclarations de conflits d'intérêts. Ce registre n'a de valeur que si chacun
+-- déclare le sien : il est donc ouvert à tous en écriture, et fermé en lecture.
+CREATE TABLE IF NOT EXISTS interest_declarations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  kind TEXT NOT NULL DEFAULT 'Autre' CHECK(kind IN ('Intérêt financier','Mandat externe','Lien familial','Activité accessoire','Autre')),
+  entity TEXT NOT NULL,
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  description TEXT NOT NULL DEFAULT '',
+  declared_on TEXT NOT NULL,
+  ends_on TEXT,
+  status TEXT NOT NULL DEFAULT 'Déclaré' CHECK(status IN ('Déclaré','Examiné','Mesure prise','Clos')),
+  measure TEXT NOT NULL DEFAULT '',
+  reviewed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  reviewed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS gift_records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  direction TEXT NOT NULL DEFAULT 'Reçu' CHECK(direction IN ('Reçu','Offert')),
+  kind TEXT NOT NULL DEFAULT 'Cadeau' CHECK(kind IN ('Cadeau','Invitation','Voyage','Autre')),
+  partner_id INTEGER REFERENCES partners(id) ON DELETE SET NULL,
+  third_party TEXT NOT NULL DEFAULT '',
+  occurred_on TEXT NOT NULL,
+  value REAL NOT NULL DEFAULT 0,
+  description TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Déclaré' CHECK(status IN ('Déclaré','Accepté','Refusé','Restitué')),
+  reviewed_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  reviewed_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Délégations de pouvoir et de signature : qui peut engager l'entreprise, sur
+-- quel objet, jusqu'à quel montant, et jusqu'à quand.
+CREATE TABLE IF NOT EXISTS power_delegations (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  holder_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  granted_by_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  scope TEXT NOT NULL,
+  amount_limit REAL,
+  starts_on TEXT NOT NULL,
+  ends_on TEXT,
+  status TEXT NOT NULL DEFAULT 'En vigueur' CHECK(status IN ('En vigueur','Suspendue','Échue','Révoquée')),
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_share_movements_holder ON share_movements(shareholder_id, moved_on);
+CREATE INDEX IF NOT EXISTS idx_meeting_resolutions_meeting ON meeting_resolutions(meeting_id, position);
+CREATE INDEX IF NOT EXISTS idx_interest_declarations_user ON interest_declarations(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_gift_records_user ON gift_records(user_id, occurred_on);
+CREATE INDEX IF NOT EXISTS idx_power_delegations_holder ON power_delegations(holder_id, status);
 CREATE INDEX IF NOT EXISTS idx_purchase_orders_partner ON purchase_orders(partner_id, status);
 CREATE INDEX IF NOT EXISTS idx_purchase_order_lines_order ON purchase_order_lines(order_id);
 CREATE INDEX IF NOT EXISTS idx_purchase_receipts_line ON purchase_receipts(line_id, received_on);
