@@ -1,8 +1,11 @@
 const express = require('express');
 
+const db = require('../db');
 const org = require('../org');
 const finance = require('../finance');
 const inventory = require('../inventory');
+const purchasing = require('../purchasing');
+const audit = require('../audit');
 const modules = require('../modules');
 const { requireAuth, requireFinance } = require('../middleware/auth');
 const { setFlash, isValidDateString, parseAmount } = require('../utils');
@@ -42,7 +45,160 @@ router.get('/', (req, res) => {
     financeRequests: isFinance ? inventory.requests({ status: 'Gestion' }) : [],
     allRequests: isFinance ? inventory.requests() : [],
     threshold: inventory.FINANCE_THRESHOLD,
+    orderList: isFinance ? purchasing.orders() : [],
+    purchaseSummary: isFinance ? purchasing.summary() : null,
+    discrepancies: isFinance ? purchasing.discrepancies() : [],
+    today: new Date().toISOString().slice(0, 10),
   });
+});
+
+// ---------- Bons de commande : le rapprochement à trois vit ici ----------
+
+router.get('/commandes/:id', requireFinance, (req, res) => {
+  const order = purchasing.orderById(req.params.id);
+  if (!order) return res.status(404).render('error', { message: 'Bon de commande introuvable.' });
+
+  res.render('commande', {
+    order,
+    lineList: purchasing.lines(order.id),
+    receiptList: purchasing.receipts(order.id),
+    invoiceList: purchasing.invoicesOf(order.id),
+    reconciliation: purchasing.match(order),
+    statuses: purchasing.ORDER_STATUSES,
+    partners: finance.partners(),
+    departments: org.departments(),
+    items: inventory.items({ activeOnly: true }),
+    today: new Date().toISOString().slice(0, 10),
+  });
+});
+
+function readDate(raw, { required = false } = {}) {
+  const trimmed = (raw || '').trim();
+  if (!trimmed) return { ok: !required, value: null };
+  if (!isValidDateString(trimmed)) return { ok: false };
+  return { ok: true, value: trimmed };
+}
+
+router.post('/commandes', requireFinance, (req, res) => {
+  const partnerId = Number(req.body.partner_id);
+  if (!finance.partnerById(partnerId)) return fail(req, res, 'commandes', 'Fournisseur introuvable.');
+
+  const ordered = readDate(req.body.ordered_on, { required: true });
+  const expected = readDate(req.body.expected_on);
+  if (!ordered.ok || !expected.ok) return fail(req, res, 'commandes', 'Date invalide.');
+
+  const id = purchasing.createOrder({
+    partnerId,
+    departmentId: Number(req.body.department_id) || null,
+    orderedOn: ordered.value,
+    expectedOn: expected.value,
+    notes: (req.body.notes || '').trim().slice(0, 1000),
+    createdBy: req.session.user.id,
+  });
+  audit.log(req, 'achats.commande_creee', 'purchase_orders', id);
+  setFlash(req, 'success', 'Bon de commande créé. Ajoutez ses lignes, puis envoyez-le.');
+  res.redirect(`/stock/commandes/${id}`);
+});
+
+router.post('/commandes/:id/modifier', requireFinance, (req, res) => {
+  const order = purchasing.orderById(req.params.id);
+  if (!order) return fail(req, res, 'commandes', 'Bon de commande introuvable.');
+
+  const target = `/stock/commandes/${order.id}`;
+  if (!purchasing.ORDER_STATUSES.includes(req.body.status)) {
+    setFlash(req, 'error', 'Statut invalide.');
+    return res.redirect(target);
+  }
+  const ordered = readDate(req.body.ordered_on, { required: true });
+  const expected = readDate(req.body.expected_on);
+  if (!ordered.ok || !expected.ok) {
+    setFlash(req, 'error', 'Date invalide.');
+    return res.redirect(target);
+  }
+
+  purchasing.updateOrder(order.id, {
+    partnerId: Number(req.body.partner_id) || order.partner_id,
+    departmentId: Number(req.body.department_id) || null,
+    orderedOn: ordered.value,
+    expectedOn: expected.value,
+    notes: (req.body.notes || '').trim().slice(0, 1000),
+    status: req.body.status,
+  });
+  purchasing.syncOrderStatus(order.id);
+  setFlash(req, 'success', 'Bon de commande mis à jour.');
+  res.redirect(target);
+});
+
+router.post('/commandes/:id/supprimer', requireFinance, (req, res) => {
+  const order = purchasing.orderById(req.params.id);
+  if (!order) return fail(req, res, 'commandes', 'Bon de commande introuvable.');
+  // Une commande déjà réceptionnée a laissé des mouvements de stock : la
+  // supprimer laisserait ces entrées sans origine.
+  if (order.received_amount > 0) return fail(req, res, 'commandes', 'Cette commande a été réceptionnée : elle ne peut plus être supprimée.');
+
+  purchasing.removeOrder(order.id);
+  audit.log(req, 'achats.commande_supprimee', 'purchase_orders', order.id, { reference: order.reference });
+  setFlash(req, 'success', 'Bon de commande supprimé.');
+  res.redirect(back('commandes'));
+});
+
+router.post('/commandes/:id/lignes', requireFinance, (req, res) => {
+  const order = purchasing.orderById(req.params.id);
+  if (!order) return fail(req, res, 'commandes', 'Bon de commande introuvable.');
+
+  const target = `/stock/commandes/${order.id}`;
+  const label = (req.body.label || '').trim().slice(0, 160);
+  const quantity = parseAmount(req.body.quantity || '');
+  const unitPrice = parseAmount(req.body.unit_price || '0');
+  if (!label) { setFlash(req, 'error', "L'intitulé de la ligne est obligatoire."); return res.redirect(target); }
+  if (!Number.isFinite(quantity) || quantity <= 0) { setFlash(req, 'error', 'Quantité invalide.'); return res.redirect(target); }
+  if (!Number.isFinite(unitPrice) || unitPrice < 0) { setFlash(req, 'error', 'Prix unitaire invalide.'); return res.redirect(target); }
+
+  purchasing.addLine({
+    orderId: order.id,
+    itemId: Number(req.body.item_id) || null,
+    label, quantity, unitPrice,
+  });
+  setFlash(req, 'success', 'Ligne ajoutée.');
+  res.redirect(target);
+});
+
+router.post('/lignes/:id/supprimer', requireFinance, (req, res) => {
+  const line = db.prepare('SELECT * FROM purchase_order_lines WHERE id = ?').get(Number(req.params.id));
+  if (!line) return fail(req, res, 'commandes', 'Ligne introuvable.');
+
+  const target = `/stock/commandes/${line.order_id}`;
+  if (!purchasing.removeLine(line.id)) {
+    setFlash(req, 'error', 'Cette ligne a déjà été réceptionnée : elle ne se retire plus.');
+  } else {
+    setFlash(req, 'success', 'Ligne retirée.');
+  }
+  res.redirect(target);
+});
+
+router.post('/lignes/:id/reception', requireFinance, (req, res) => {
+  const line = db.prepare('SELECT * FROM purchase_order_lines WHERE id = ?').get(Number(req.params.id));
+  if (!line) return fail(req, res, 'commandes', 'Ligne introuvable.');
+
+  const target = `/stock/commandes/${line.order_id}`;
+  const quantity = parseAmount(req.body.quantity || '');
+  const on = readDate(req.body.received_on, { required: true });
+  if (!Number.isFinite(quantity) || quantity <= 0) { setFlash(req, 'error', 'Quantité invalide.'); return res.redirect(target); }
+  if (!on.ok) { setFlash(req, 'error', 'Date invalide.'); return res.redirect(target); }
+
+  const result = purchasing.receive({
+    lineId: line.id, quantity, receivedOn: on.value,
+    receivedBy: req.session.user.id, note: (req.body.note || '').trim(),
+  });
+  if (!result.ok) {
+    setFlash(req, 'error', result.reason === 'depassement'
+      ? `Il ne reste que ${result.remaining} à recevoir sur cette ligne.`
+      : 'Réception impossible.');
+    return res.redirect(target);
+  }
+  audit.log(req, 'achats.reception', 'purchase_order_lines', line.id, { quantite: quantity });
+  setFlash(req, 'success', 'Réception enregistrée.');
+  res.redirect(target);
 });
 
 // ---------- Articles et mouvements : réservés à la gestion ----------

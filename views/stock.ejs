@@ -11,7 +11,8 @@
         navItems: [
           { tab: 'articles', label: t('stk.tabItems'), icon: 'network', badge: lowStock.length },
           { tab: 'mouvements', label: t('common.movements'), icon: 'link' },
-          { tab: 'demandes', label: t('stk.tabRequests'), icon: 'inbox', badge: financeRequests.length }
+          { tab: 'demandes', label: t('stk.tabRequests'), icon: 'inbox', badge: financeRequests.length },
+          { tab: 'commandes', label: t('ach.tabOrders'), icon: 'briefcase', badge: purchaseSummary.discrepancies }
         ],
         footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
       }) %>
@@ -395,6 +396,108 @@
             </div>
           <% } %>
         </section>
+
+        <% if (isFinance) { %>
+          <section class="tab-panel" id="commandes">
+            <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+            <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+            <section class="stats-grid">
+              <div class="stat-card">
+                <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
+                <span class="stat-body"><span class="stat-value"><%= purchaseSummary.open %></span><span class="stat-label"><%= t('ach.openOrders') %></span></span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+                <span class="stat-body"><span class="stat-value"><%= money(purchaseSummary.engaged) %></span><span class="stat-label"><%= t('ach.engaged') %></span></span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+                <span class="stat-body"><span class="stat-value"><%= money(purchaseSummary.awaited) %></span><span class="stat-label"><%= t('ach.awaited') %></span></span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+                <span class="stat-body"><span class="stat-value"><%= purchaseSummary.discrepancies %></span><span class="stat-label"><%= t('ach.gaps') %></span></span>
+              </div>
+            </section>
+
+            <% if (discrepancies.length) { %>
+              <div class="card">
+                <div class="card-head"><h3><%= t('ach.gapsTitle', { count: discrepancies.length }) %></h3></div>
+                <p class="hint"><%= t('ach.gapsHint') %></p>
+                <ul class="org-list">
+                  <% discrepancies.forEach((row) => { %>
+                    <li class="org-item">
+                      <span>
+                        <a class="cell-strong" href="/stock/commandes/<%= row.order.id %>"><%= row.order.reference %></a>
+                        <span class="cell-sub"> · <%= row.order.partner_name %></span>
+                        <br />
+                        <% row.match.issues.forEach((issue) => { %>
+                          <span class="tag tag-danger">
+                            <%= issue.kind === 'sur_commande'
+                              ? t('ach.gapOverOrdered', { amount: money(issue.gap) })
+                              : t('ach.gapOverReceived', { amount: money(issue.gap) }) %>
+                          </span>
+                        <% }) %>
+                      </span>
+                      <a class="btn btn-outline btn-sm" href="/stock/commandes/<%= row.order.id %>"><%= t('common.open') %></a>
+                    </li>
+                  <% }) %>
+                </ul>
+              </div>
+            <% } %>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('ach.orderCount', { count: orderList.length }) %></h3></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr>
+                    <th><%= t('ach.reference') %></th><th><%= t('erp.partners') %></th><th><%= t('ach.orderedOn') %></th>
+                    <th><%= t('ach.ordered') %></th><th><%= t('ach.received') %></th><th><%= t('ach.invoiced') %></th>
+                    <th><%= t('common.status') %></th><th></th>
+                  </tr></thead>
+                  <tbody>
+                    <% orderList.forEach((order) => { %>
+                      <tr>
+                        <td class="cell-strong mono"><a href="/stock/commandes/<%= order.id %>"><%= order.reference %></a></td>
+                        <td><%= order.partner_name %><% if (order.department_name) { %><br /><span class="cell-sub"><%= order.department_name %></span><% } %></td>
+                        <td class="cell-sub nowrap"><%= day(order.ordered_on) %></td>
+                        <td class="cell-sub nowrap"><%= money(order.ordered_amount) %></td>
+                        <td class="cell-sub nowrap"><%= money(order.received_amount) %></td>
+                        <td class="cell-sub nowrap"><%= money(order.invoiced_amount) %></td>
+                        <td><span class="tag <%= order.status === 'Reçue' ? 'tag-success' : (order.status === 'Annulée' ? '' : 'tag-warning') %>"><%= st(order.status) %></span></td>
+                        <td><a class="btn btn-outline btn-sm" href="/stock/commandes/<%= order.id %>"><%= t('common.open') %></a></td>
+                      </tr>
+                    <% }) %>
+                    <% if (orderList.length === 0) { %><tr><td colspan="8" class="cell-sub"><%= t('ach.noOrder') %></td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('ach.newOrder') %></h3></div>
+              <form method="POST" action="/stock/commandes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span><%= t('ach.supplier') %></span>
+                  <select name="partner_id" required>
+                    <option value="" disabled selected><%= t('common.choose') %></option>
+                    <% partners.forEach((partner) => { %><option value="<%= partner.id %>"><%= partner.name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span><%= t('common.department') %></span>
+                  <select name="department_id"><option value="">—</option>
+                    <% departments.forEach((department) => { %><option value="<%= department.id %>"><%= department.name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span><%= t('ach.orderedOn') %></span><input type="date" name="ordered_on" value="<%= today %>" required /></label>
+                <label><span><%= t('ach.expectedOn') %></span><input type="date" name="expected_on" /></label>
+                <label class="span-2"><span><%= t('common.notes') %></span><textarea name="notes" rows="2" maxlength="1000"></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button></div>
+              </form>
+            </div>
+          </section>
+        <% } %>
       </main>
     </div>
   </div>

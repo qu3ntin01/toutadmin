@@ -148,6 +148,9 @@ CREATE TABLE IF NOT EXISTS leave_adjustments (
   amount REAL NOT NULL,
   reason TEXT NOT NULL DEFAULT '',
   created_by INTEGER REFERENCES users(id),
+  -- Rattachement au bon de commande : c'est lui qui rend possible le
+  -- rapprochement entre commandé, reçu et facturé.
+  purchase_order_id INTEGER REFERENCES purchase_orders(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -755,6 +758,7 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN is_referent INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE audit_log ADD COLUMN prev_hash TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE audit_log ADD COLUMN hash TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE invoices ADD COLUMN purchase_order_id INTEGER REFERENCES purchase_orders(id) ON DELETE SET NULL",
   "ALTER TABLE users ADD COLUMN gross_salary REAL",
   // CV et évaluation ATS d'une candidature.
   "ALTER TABLE candidates ADD COLUMN cv_file TEXT",
@@ -1945,6 +1949,64 @@ CREATE TABLE IF NOT EXISTS whistleblow_access_log (
   occurred_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- ---------------------------------------------------------------- Achats
+-- Bon de commande fournisseur. Le contrôle qui compte n'est pas la commande
+-- elle-même, mais le rapprochement à trois : ce qui a été commandé, ce qui a
+-- été reçu, ce qui est facturé. Une facture qui dépasse la commande, ou qui
+-- porte sur ce qui n'est jamais arrivé, se voit avant le règlement.
+CREATE TABLE IF NOT EXISTS purchase_orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL UNIQUE,
+  partner_id INTEGER NOT NULL REFERENCES partners(id) ON DELETE RESTRICT,
+  request_id INTEGER REFERENCES purchase_requests(id) ON DELETE SET NULL,
+  department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
+  ordered_on TEXT NOT NULL,
+  expected_on TEXT,
+  notes TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Brouillon' CHECK(status IN ('Brouillon','Envoyée','Reçue partiellement','Reçue','Annulée')),
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS purchase_order_lines (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  order_id INTEGER NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
+  item_id INTEGER REFERENCES items(id) ON DELETE SET NULL,
+  label TEXT NOT NULL,
+  quantity REAL NOT NULL DEFAULT 1,
+  unit_price REAL NOT NULL DEFAULT 0,
+  -- Cumul des réceptions : recalculé à chaque bon de réception, jamais saisi.
+  received_quantity REAL NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS purchase_receipts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  line_id INTEGER NOT NULL REFERENCES purchase_order_lines(id) ON DELETE CASCADE,
+  quantity REAL NOT NULL,
+  received_on TEXT NOT NULL,
+  received_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- ---------------------------------------------------------------- Recouvrement
+-- Les relances envoyées sur une facture client. Le niveau ne se déduit pas du
+-- retard mais de ce qui a déjà été envoyé : on ne met pas en demeure quelqu'un
+-- à qui l'on n'a jamais écrit.
+CREATE TABLE IF NOT EXISTS dunning_notices (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  invoice_id INTEGER NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
+  level INTEGER NOT NULL CHECK(level BETWEEN 1 AND 3),
+  sent_on TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_purchase_orders_partner ON purchase_orders(partner_id, status);
+CREATE INDEX IF NOT EXISTS idx_purchase_order_lines_order ON purchase_order_lines(order_id);
+CREATE INDEX IF NOT EXISTS idx_purchase_receipts_line ON purchase_receipts(line_id, received_on);
+CREATE INDEX IF NOT EXISTS idx_dunning_invoice ON dunning_notices(invoice_id, level);
 CREATE INDEX IF NOT EXISTS idx_whistleblow_status ON whistleblow_reports(status, submitted_at);
 CREATE INDEX IF NOT EXISTS idx_whistleblow_messages_report ON whistleblow_messages(report_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_software_accesses_licence ON software_accesses(licence_id, revoked_on);

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: order.reference + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/sidebar', {
+      panelLabel: t('nav.stock'),
+      navItems: [
+        { tab: 'lignes', label: t('ach.tabLines'), icon: 'network', badge: lineList.length },
+        { tab: 'receptions', label: t('ach.tabReceipts'), icon: 'inbox', badge: receiptList.length },
+        { tab: 'rapprochement', label: t('ach.tabMatch'), icon: 'shield', badge: reconciliation.issues.length },
+        { tab: 'fiche', label: t('ach.tabSheet'), icon: 'briefcase' }
+      ],
+      footLinks: [{ href: '/stock#commandes', label: t('ach.tabOrders'), icon: 'back' }]
+    }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: order.reference,
+        headerSubtitle: t('ach.sheetSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const qty = (n) => Number(n).toLocaleString(locale, { maximumFractionDigits: 2 }); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(reconciliation.ordered) %></span><span class="stat-label"><%= t('ach.ordered') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(reconciliation.received) %></span><span class="stat-label"><%= t('ach.received') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(reconciliation.invoiced) %></span><span class="stat-label"><%= t('ach.invoiced') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= reconciliation.ok ? t('ach.matchOk') : reconciliation.issues.length %></span>
+              <span class="stat-label"><%= t('ach.tabMatch') %></span>
+            </span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="lignes">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= order.partner_name %></h3>
+                <p class="card-sub">
+                  <span class="tag <%= order.status === 'Reçue' ? 'tag-success' : (order.status === 'Annulée' ? '' : 'tag-warning') %>"><%= st(order.status) %></span>
+                  <%= t('ach.orderedOnValue', { date: day(order.ordered_on) }) %>
+                  <% if (order.expected_on) { %> · <%= t('ach.expectedOnValue', { date: day(order.expected_on) }) %><% } %>
+                </p>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('ach.line') %></th><th><%= t('ach.quantity') %></th><th><%= t('ach.unitPrice') %></th>
+                  <th><%= t('ach.receivedQty') %></th><th><%= t('erp.amount') %></th><th></th>
+                </tr></thead>
+                <tbody>
+                  <% lineList.forEach((line) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= line.label %>
+                        <% if (line.item_name) { %><br /><span class="cell-sub"><%= line.item_name %></span><% } %>
+                      </td>
+                      <td class="cell-sub nowrap"><%= qty(line.quantity) %></td>
+                      <td class="cell-sub nowrap"><%= money(line.unit_price) %></td>
+                      <td class="<%= line.received_quantity >= line.quantity ? 'cell-sub' : 'text-danger' %> nowrap">
+                        <%= qty(line.received_quantity) %> / <%= qty(line.quantity) %>
+                      </td>
+                      <td class="cell-sub nowrap"><%= money(line.quantity * line.unit_price) %></td>
+                      <td class="actions">
+                        <% if (line.received_quantity === 0) { %>
+                          <form method="POST" action="/stock/lignes/<%= line.id %>/supprimer" data-confirm="<%= t('ach.confirmDeleteLine') %>">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                          </form>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (lineList.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('ach.noLine') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('ach.addLine') %></h3></div>
+            <form method="POST" action="/stock/commandes/<%= order.id %>/lignes" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('ach.line') %></span><input type="text" name="label" required maxlength="160" /></label>
+              <label><span><%= t('ach.linkedItem') %></span>
+                <select name="item_id"><option value="">—</option>
+                  <% items.forEach((item) => { %><option value="<%= item.id %>"><%= item.label %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('ach.quantity') %></span><input type="text" name="quantity" inputmode="decimal" required /></label>
+              <label><span><%= t('ach.unitPrice') %></span><input type="text" name="unit_price" inputmode="decimal" value="0" /></label>
+              <div><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
+            </form>
+            <p class="hint"><%= t('ach.itemHint') %></p>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="receptions">
+          <div class="card">
+            <div class="card-head"><h3><%= t('ach.receive') %></h3></div>
+            <p class="hint"><%= t('ach.receiveHint') %></p>
+            <% lineList.filter((line) => line.received_quantity < line.quantity).forEach((line) => { %>
+              <form method="POST" action="/stock/lignes/<%= line.id %>/reception" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= line.label %></span>
+                  <input type="text" value="<%= t('ach.remaining', { count: qty(line.quantity - line.received_quantity) }) %>" readonly />
+                </label>
+                <label><span><%= t('ach.quantity') %></span><input type="text" name="quantity" inputmode="decimal" required /></label>
+                <label><span><%= t('ach.receivedOn') %></span><input type="date" name="received_on" value="<%= today %>" required /></label>
+                <label class="span-2"><span><%= t('common.notes') %></span><input type="text" name="note" maxlength="300" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('ach.recordReceipt') %></button></div>
+              </form>
+            <% }) %>
+            <% if (lineList.every((line) => line.received_quantity >= line.quantity)) { %>
+              <div class="empty-state"><%= lineList.length ? t('ach.allReceived') : t('ach.noLine') %></div>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('ach.receiptCount', { count: receiptList.length }) %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('ach.line') %></th><th><%= t('ach.quantity') %></th><th><%= t('common.date') %></th><th><%= t('ach.receivedBy') %></th></tr></thead>
+                <tbody>
+                  <% receiptList.forEach((receipt) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= receipt.label %><% if (receipt.note) { %><br /><span class="cell-sub"><%= receipt.note %></span><% } %></td>
+                      <td class="cell-sub nowrap"><%= qty(receipt.quantity) %></td>
+                      <td class="cell-sub nowrap"><%= day(receipt.received_on) %></td>
+                      <td class="cell-sub"><%= receipt.first_name ? receipt.first_name + ' ' + receipt.last_name : '—' %></td>
+                    </tr>
+                  <% }) %>
+                  <% if (receiptList.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('ach.noReceipt') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="rapprochement">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('ach.matchTitle') %></h3>
+                <p class="card-sub"><%= t('ach.matchExplain') %></p>
+              </div>
+              <span class="tag <%= reconciliation.ok ? 'tag-success' : 'tag-danger' %>">
+                <%= reconciliation.ok ? t('ach.matchOk') : t('ach.matchKo') %>
+              </span>
+            </div>
+            <ul class="org-list">
+              <li class="org-item"><span><%= t('ach.ordered') %></span><span class="cell-strong"><%= money(reconciliation.ordered) %></span></li>
+              <li class="org-item"><span><%= t('ach.received') %></span><span class="cell-strong"><%= money(reconciliation.received) %></span></li>
+              <li class="org-item"><span><%= t('ach.invoiced') %></span><span class="cell-strong"><%= money(reconciliation.invoiced) %></span></li>
+              <li class="org-item"><span><%= t('ach.pending') %></span><span class="cell-strong"><%= money(reconciliation.pending) %></span></li>
+            </ul>
+
+            <% reconciliation.issues.forEach((issue) => { %>
+              <div class="flash flash-error">
+                <%= issue.kind === 'sur_commande'
+                  ? t('ach.issueOverOrdered', { amount: money(issue.gap) })
+                  : t('ach.issueOverReceived', { amount: money(issue.gap) }) %>
+              </div>
+            <% }) %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('ach.linkedInvoices', { count: invoiceList.length }) %></h3></div>
+            <p class="hint"><%= t('ach.linkInvoiceHint') %></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.reference') %></th><th><%= t('common.date') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th></tr></thead>
+                <tbody>
+                  <% invoiceList.forEach((invoice) => { %>
+                    <tr>
+                      <td class="cell-strong"><%= invoice.reference || invoice.label %></td>
+                      <td class="cell-sub nowrap"><%= day(invoice.issue_date) %></td>
+                      <td class="cell-sub nowrap"><%= money(invoice.amount_ht) %></td>
+                      <td><span class="tag"><%= st(invoice.status) %></span></td>
+                    </tr>
+                  <% }) %>
+                  <% if (invoiceList.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('ach.noLinkedInvoice') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="fiche">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('ach.tabSheet') %></h3>
+              <% if (reconciliation.received === 0) { %>
+                <form method="POST" action="/stock/commandes/<%= order.id %>/supprimer" data-confirm="<%= t('ach.confirmDelete') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                </form>
+              <% } %>
+            </div>
+            <form method="POST" action="/stock/commandes/<%= order.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('ach.supplier') %></span>
+                <select name="partner_id">
+                  <% partners.forEach((partner) => { %><option value="<%= partner.id %>" <%= order.partner_id === partner.id ? 'selected' : '' %>><%= partner.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('common.department') %></span>
+                <select name="department_id"><option value="">—</option>
+                  <% departments.forEach((department) => { %><option value="<%= department.id %>" <%= order.department_id === department.id ? 'selected' : '' %>><%= department.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('ach.orderedOn') %></span><input type="date" name="ordered_on" value="<%= order.ordered_on %>" required /></label>
+              <label><span><%= t('ach.expectedOn') %></span><input type="date" name="expected_on" value="<%= order.expected_on || '' %>" /></label>
+              <label class="span-2"><span><%= t('common.status') %></span>
+                <select name="status">
+                  <% statuses.forEach((status) => { %><option value="<%= status %>" <%= order.status === status ? 'selected' : '' %>><%= st(status) %></option><% }) %>
+                </select>
+              </label>
+              <label class="span-2"><span><%= t('common.notes') %></span><textarea name="notes" rows="3" maxlength="1000"><%= order.notes %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('ach.statusHint') %></p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

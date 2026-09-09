@@ -2,6 +2,7 @@ const express = require('express');
 
 const org = require('../org');
 const finance = require('../finance');
+const dunning = require('../dunning');
 const resources = require('../resources');
 const currency = require('../currency');
 const billing = require('../billing');
@@ -44,6 +45,13 @@ router.get('/', (req, res) => {
 
   res.render('gestion', {
     year,
+    dunningDue: dunning.due(),
+    dunningOutstanding: dunning.outstanding(),
+    dunningLevels: dunning.LEVELS,
+    agedBalance: dunning.agedBalance(),
+    dunningSummary: dunning.summary(),
+    dunningNoticesFor: dunning.noticesFor,
+    today: new Date().toISOString().slice(0, 10),
     years: [year + 1, year, year - 1, year - 2],
     summary,
     partners: finance.partners(),
@@ -487,6 +495,45 @@ router.post('/tva/:id/supprimer', (req, res) => {
   vat.remove(Number(req.params.id));
   audit.log(req, 'tva.supprimee', 'vat_returns', Number(req.params.id), {});
   return ok(req, res, 'tva', 'Déclaration supprimée.');
+});
+
+// ---------- Recouvrement : relances échelonnées des factures clients ----------
+
+router.post('/relances', requireFinance, (req, res) => {
+  const invoiceId = Number(req.body.invoice_id);
+  const sentOn = (req.body.sent_on || '').trim();
+  if (!isValidDateString(sentOn)) {
+    setFlash(req, 'error', 'Date invalide.');
+    return res.redirect('/gestion#recouvrement');
+  }
+
+  const result = dunning.record({
+    invoiceId,
+    level: Number(req.body.level),
+    sentOn,
+    note: req.body.note || '',
+    createdBy: req.session.user.id,
+  });
+  if (!result.ok) {
+    const messages = {
+      introuvable: 'Facture introuvable.',
+      reglee: 'Cette facture est réglée ou annulée : elle ne se relance plus.',
+      niveau: 'Niveau de relance invalide.',
+      saut: `Le niveau ${result.expected} doit être envoyé avant celui-ci : une mise en demeure suppose des rappels restés sans effet.`,
+    };
+    setFlash(req, 'error', messages[result.reason] || 'Relance impossible.');
+    return res.redirect('/gestion#recouvrement');
+  }
+
+  audit.log(req, 'recouvrement.relance', 'invoices', invoiceId, { niveau: Number(req.body.level) });
+  setFlash(req, 'success', 'Relance consignée.');
+  res.redirect('/gestion#recouvrement');
+});
+
+router.post('/relances/:id/supprimer', requireFinance, (req, res) => {
+  if (!dunning.remove(Number(req.params.id))) setFlash(req, 'error', 'Relance introuvable.');
+  else setFlash(req, 'success', 'Relance retirée.');
+  res.redirect('/gestion#recouvrement');
 });
 
 module.exports = router;

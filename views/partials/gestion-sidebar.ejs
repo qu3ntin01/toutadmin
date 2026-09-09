@@ -5,6 +5,7 @@ const gestionSections = [
   { tab: 'tiers', label: t('erp.partners'), icon: 'briefcase' },
   { tab: 'contrats', label: t('erp.contracts'), icon: 'shield', badge: typeof stats !== 'undefined' && stats ? stats.renewalCount : 0 },
   { tab: 'factures', label: t('erp.invoices'), icon: 'card' },
+  { tab: 'recouvrement', label: t('rec.tab'), icon: 'megaphone', badge: typeof dunningSummary !== 'undefined' && dunningSummary ? dunningSummary.toSend : 0 },
   { tab: 'abonnements', label: t('nav.subscriptions'), icon: 'clock', badge: typeof subscriptionDue !== 'undefined' && subscriptionDue ? subscriptionDue.length : 0 },
   { tab: 'tva', label: t('nav.vat'), icon: 'ballot', badge: typeof vatSummary !== 'undefined' && vatSummary ? vatSummary.pending : 0 },
   { tab: 'devises', label: t('nav.currencies'), icon: 'network' },
