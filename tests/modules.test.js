@@ -306,7 +306,9 @@ test('Facturation électronique', async (t) => {
 
   await t.test("liste les mentions manquantes plutôt que de dire « non conforme »", async () => {
     const { body } = await admin.html('/facturation-electronique');
-    assert.match(body, /Identité de l'émetteur incomplète/);
+    // Le libellé passe désormais par le dictionnaire, et EJS échappe
+    // l'apostrophe en « &#39; » : le rendu à l'écran est le même.
+    assert.match(body, /Identité de l(&#39;|')émetteur incomplète/);
     assert.match(body, /SIREN/);
   });
 
