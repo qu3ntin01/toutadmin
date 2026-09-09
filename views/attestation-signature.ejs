@@ -6,14 +6,14 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Attestation',
-      navItems: [{ href: '/parapheur/' + request.id, label: 'Retour au document', icon: 'back', active: true }],
+      panelLabel: t('sig.tabAttestation'),
+      navItems: [{ href: '/parapheur/' + request.id, label: t('att.backToDocument'), icon: 'back', active: true }],
       footLinks: [{ href: '/parapheur', label: t('nav.signing'), icon: 'inbox' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Attestation de signature',
+        headerTitle: t('sig.attestation'),
         headerSubtitle: request.title,
         backHref: '/parapheur/' + request.id,
         backLabel: t('common.document')
@@ -33,16 +33,16 @@
               <tr><td class="cell-sub"><%= t('common.document') %></td><td class="cell-strong"><%= request.title %></td></tr>
               <tr><td class="cell-sub"><%= t('common.nature') %></td><td><%= request.kind %></td></tr>
               <tr><td class="cell-sub"><%= t('nav.support') %></td><td><%= request.file_name ? `${request.original_name} (${request.mime_type})` : 'Texte saisi dans le parapheur' %></td></tr>
-              <tr><td class="cell-sub">Empreinte SHA-256</td><td class="mono"><%= request.sha256 %></td></tr>
-              <tr><td class="cell-sub">Mis à la signature le</td><td><%= moment(request.created_at) %></td></tr>
+              <tr><td class="cell-sub"><%= t('att.fingerprint') %></td><td class="mono"><%= request.sha256 %></td></tr>
+              <tr><td class="cell-sub"><%= t('att.putToSignOn') %></td><td><%= moment(request.created_at) %></td></tr>
               <tr><td class="cell-sub"><%= t('common.state') %></td><td><%= st(request.status) %><%= request.completed_at ? ` le ${moment(request.completed_at)}` : '' %></td></tr>
-              <tr><td class="cell-sub">Attestation établie le</td><td><%= moment(generatedAt) %></td></tr>
+              <tr><td class="cell-sub"><%= t('att.issuedOn') %></td><td><%= moment(generatedAt) %></td></tr>
             </tbody>
           </table>
         </div>
 
         <div class="card">
-          <div class="card-head"><h3>Signatures</h3></div>
+          <div class="card-head"><h3><%= t('att.signatures') %></h3></div>
           <div class="table-wrap">
             <table>
               <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th><%= t('nav.quality') %></th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.address') %></th><th><%= t('common.seal') %></th></tr></thead>
@@ -68,18 +68,15 @@
         </div>
 
         <div class="card">
-          <div class="card-head"><h3>Portée de cette attestation</h3></div>
+          <div class="card-head"><h3><%= t('att.scope') %></h3></div>
           <p class="cell-sub">
-            Chaque sceau est un HMAC-SHA256 de l'empreinte du document, de l'identifiant du signataire et de
-            l'horodatage, calculé avec une clé propre à cette instance, conservée hors de la base. Recalculé à
-            l'ouverture de cette page, il établit que la signature a bien été apposée ici, sur ce document-là, à ce
-            moment-là. Une ligne ajoutée directement en base ne passerait pas la vérification.
+            <%= t('att.sealNote') %>
           </p>
           <p class="cell-sub">
-            Il s'agit d'une signature électronique <strong>simple</strong> : l'identité du signataire est celle de
-            son compte, confirmée par la ressaisie de son mot de passe. Une signature <em>qualifiée</em> au sens du
-            règlement eIDAS suppose un prestataire de service de confiance certifié et une vérification d'identité
-            en face-à-face, qui sortent du périmètre de ce logiciel.
+            <%- t('att.simpleNote', {
+                  simple: `<strong>${t('sig.simple')}</strong>`,
+                  qualified: `<em>${t('sig.qualified')}</em>`,
+                }) %>
           </p>
         </div>
       </main>

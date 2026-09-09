@@ -8,8 +8,8 @@
     <%- include('partials/sidebar', {
       panelLabel: t('nav.knowledge'),
       navItems: canWrite
-        ? [{ tab: 'articles', label: 'Articles', icon: 'inbox' }, { tab: 'rediger', label: 'Rédiger', icon: 'plus' }]
-        : [{ tab: 'articles', label: 'Articles', icon: 'inbox' }],
+        ? [{ tab: 'articles', label: t('stk.tabItems'), icon: 'inbox' }, { tab: 'rediger', label: t('kb.tabWrite'), icon: 'plus' }]
+        : [{ tab: 'articles', label: t('stk.tabItems'), icon: 'inbox' }],
       footLinks: [
         { href: '/support', label: t('nav.support'), icon: 'lifebuoy' },
         { href: currentUser.role === 'admin' ? '/admin' : '/mon-espace', label: t('common.back'), icon: 'back' }
@@ -18,8 +18,8 @@
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Base de connaissances',
-        headerSubtitle: 'Procédures, modes opératoires et réponses aux questions récurrentes'
+        headerTitle: t('sup.tabKb'),
+        headerSubtitle: t('kb.headerSub')
       }) %>
 
       <main class="page">
@@ -27,16 +27,16 @@
 
         <section class="tab-panel is-active" id="articles">
           <div class="card">
-            <div class="card-head"><h3>Chercher</h3></div>
+            <div class="card-head"><h3><%= t('kb.search') %></h3></div>
             <form method="GET" action="/base-de-connaissances" class="form-grid">
-              <label><span>Mots-clés</span><input type="search" name="q" value="<%= query %>" placeholder="télétravail, badge, note de frais" /></label>
+              <label><span><%= t('kb.keywords') %></span><input type="search" name="q" value="<%= query %>" placeholder="<%= t('kb.keywordsPlaceholder') %>" /></label>
               <label><span><%= t('common.category') %></span>
                 <select name="categorie"><option value=""><%= t('hr.filterAll') %></option>
                   <% categoryList.forEach((c) => { %><option value="<%= c %>" <%= category === c ? 'selected' : '' %>><%= c %></option><% }) %>
                 </select>
               </label>
               <div class="span-2 row-actions">
-                <button type="submit" class="btn btn-primary btn-sm">Chercher</button>
+                <button type="submit" class="btn btn-primary btn-sm"><%= t('kb.search') %></button>
                 <a class="btn btn-outline btn-sm" href="/base-de-connaissances"><%= t('common.viewAll') %></a>
               </div>
             </form>
@@ -57,10 +57,10 @@
                       <%= a.views %> lecture(s)
                     </span>
                   </span>
-                  <a class="btn btn-outline btn-sm" href="/base-de-connaissances/<%= a.id %>">Lire</a>
+                  <a class="btn btn-outline btn-sm" href="/base-de-connaissances/<%= a.id %>"><%= t('kb.read') %></a>
                 </li>
               <% }) %>
-              <% if (articleList.length === 0) { %><li class="cell-sub">Aucun article ne correspond.</li><% } %>
+              <% if (articleList.length === 0) { %><li class="cell-sub"><%= t('kb.noMatch') %></li><% } %>
             </ul>
           </div>
         </section>
@@ -68,7 +68,7 @@
         <% if (canWrite) { %>
           <section class="tab-panel" id="rediger">
             <div class="card">
-              <div class="card-head"><h3>Rédiger un article</h3></div>
+              <div class="card-head"><h3><%= t('kb.writeArticle') %></h3></div>
               <form method="POST" action="/base-de-connaissances" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="span-2"><span><%= t('team.newsTitle') %></span><input type="text" name="title" required maxlength="200" /></label>
@@ -78,7 +78,7 @@
                 <label><span><%= t('common.scope') %></span>
                   <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>"><%= v %></option><% }) %></select>
                 </label>
-                <label class="span-2"><span>Service ou équipe concerné (si portée restreinte)</span>
+                <label class="span-2"><span><%= t('kb.scopeIfLimited') %></span>
                   <select name="scope_id">
                     <option value="">—</option>
                     <optgroup label="Services">
@@ -89,10 +89,10 @@
                     </optgroup>
                   </select>
                 </label>
-                <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="12" placeholder="Les étapes, dans l'ordre, avec ce qu'il faut avoir sous la main."></textarea></label>
+                <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="12" placeholder="<%= t('kb.bodyPlaceholder') %>"></textarea></label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.publish') %></button></div>
               </form>
-              <p class="hint">Une portée « Administration » réserve l'article à la console d'administration : un salarié ne le voit pas.</p>
+              <p class="hint"><%= t('kb.adminScopeNote') %></p>
             </div>
           </section>
         <% } %>

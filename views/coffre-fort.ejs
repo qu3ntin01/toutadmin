@@ -8,7 +8,7 @@
     <% if (restricted) { %>
       <%- include('partials/sidebar', {
         panelLabel: t('nav.vault'),
-        navItems: [{ tab: 'documents', label: 'Mes documents', icon: 'shield' }],
+        navItems: [{ tab: 'documents', label: t('sig.tabMyDocuments'), icon: 'shield' }],
         footLinks: []
       }) %>
     <% } else { %>
@@ -18,7 +18,7 @@
     <div class="app-main">
       <%- include('partials/app-header', {
         headerTitle: t('nav.vault'),
-        headerSubtitle: 'Vos bulletins et documents d\'emploi, conservés ' + retentionYears + ' ans'
+        headerSubtitle: t('cf.headerSub', { years: retentionYears })
       }) %>
 
       <main class="page">
@@ -30,29 +30,27 @@
 
         <% if (restricted) { %>
           <div class="flash flash-success">
-            Vous consultez le coffre-fort de <%= holder.first_name %> <%= holder.last_name %>.
-            Cet accès ne donne rien d'autre que vos documents : téléchargez-les et conservez-en une copie.
+            <%= t('cf.consulting', { name: `${holder.first_name} ${holder.last_name}` }) %>
           </div>
         <% } %>
 
         <section class="tab-panel is-active" id="documents">
           <div class="card">
-            <div class="card-head"><h3><%= documents.length %> document(s) au coffre</h3></div>
+            <div class="card-head"><h3><%= t('cf.documentCount', { count: documents.length }) %></h3></div>
             <% if (documents.length === 0) { %>
               <p class="cell-sub">
-                Aucun document déposé pour l'instant. Les bulletins y sont versés par le service des
-                ressources humaines au fur et à mesure.
+                <%= t('cf.noDocument') %>
               </p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th>Déposé le</th><th>Conservé jusqu'au</th><th><%= t('common.size') %></th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th><%= t('cf.depositedOn') %></th><th><%= t('cfg.keptUntil') %></th><th><%= t('common.size') %></th><th></th></tr></thead>
                   <tbody>
                     <% documents.forEach((d) => { %>
                       <tr>
                         <td>
                           <span class="cell-strong"><%= d.title %></span>
-                          <br /><span class="cell-sub fingerprint" title="Empreinte SHA-256 du document">
+                          <br /><span class="cell-sub fingerprint" title="<%= t('cf.fingerprintTitle') %>">
                             empreinte <%= d.sha256.slice(0, 16) %>…
                           </span>
                         </td>
@@ -68,17 +66,15 @@
                 </table>
               </div>
               <p class="hint">
-                L'empreinte est recalculée à chaque téléchargement : un document dont le contenu aurait
-                bougé ne vous serait pas remis.
+                <%= t('cf.recomputeNote') %>
               </p>
             <% } %>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Historique des paies (<%= payslips.length %>)</h3></div>
+            <div class="card-head"><h3><%= t('cf.payHistory', { count: payslips.length }) %></h3></div>
             <p class="hint">
-              Le récapitulatif de vos fiches de paie. La colonne « document » indique si le bulletin
-              lui-même a été versé au coffre.
+              <%= t('cf.payHistoryNote') %>
             </p>
             <div class="table-wrap">
               <table>
@@ -95,7 +91,7 @@
                         <% if (doc) { %>
                           <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= doc.id %>"><%= t('common.download') %></a>
                         <% } else { %>
-                          <span class="cell-sub">non déposé</span>
+                          <span class="cell-sub"><%= t('cf.notDeposited') %></span>
                         <% } %>
                       </td>
                     </tr>
@@ -110,7 +106,7 @@
             <div class="card">
               <form method="POST" action="/deconnexion">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <button type="submit" class="btn btn-outline btn-block">Fermer l'accès</button>
+                <button type="submit" class="btn btn-outline btn-block"><%= t('cf.closeAccess') %></button>
               </form>
             </div>
           <% } %>
