@@ -8,10 +8,10 @@
     <%- include('partials/sidebar', {
       panelLabel: vehicle.registration,
       navItems: [
-        { tab: 'historique', label: 'Historique', icon: 'inbox' },
+        { tab: 'historique', label: t('flo.tabHistory'), icon: 'inbox' },
         { tab: 'fiche', label: t('common.form'), icon: 'settings' }
       ],
-      footLinks: [{ href: '/flotte', label: 'Toute la flotte', icon: 'back' }]
+      footLinks: [{ href: '/flotte', label: t('flo.tabWholeFleet'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -28,28 +28,28 @@
         <section class="tab-panel is-active" id="historique">
           <div class="grid-2">
             <div class="card">
-              <div class="card-head"><h3>Consigner un événement</h3></div>
+              <div class="card-head"><h3><%= t('sst.recordEvent') %></h3></div>
               <form method="POST" action="/flotte/<%= vehicle.id %>/evenements" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label><span><%= t('common.nature') %></span>
                   <select name="kind"><% eventKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
                 </label>
                 <label><span><%= t('common.date') %></span><input type="date" name="occurred_on" value="<%= today %>" required /></label>
-                <label><span>Kilométrage relevé</span><input type="number" name="mileage" min="0" max="5000000" placeholder="<%= vehicle.mileage %>" /></label>
-                <label><span>Coût (€)</span><input type="text" name="cost" inputmode="decimal" /></label>
+                <label><span><%= t('flo.mileage') %></span><input type="number" name="mileage" min="0" max="5000000" placeholder="<%= vehicle.mileage %>" /></label>
+                <label><span><%= t('flo.costEuro') %></span><input type="text" name="cost" inputmode="decimal" /></label>
                 <label class="span-2"><span><%= t('common.note') %></span><input type="text" name="note" maxlength="500" /></label>
                 <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.record') %></button></div>
               </form>
-              <p class="hint">Le compteur du véhicule suit le relevé le plus élevé : il ne recule jamais.</p>
+              <p class="hint"><%= t('flo.odometerNote') %></p>
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Échéances</h3></div>
+              <div class="card-head"><h3><%= t('sst.deadlines') %></h3></div>
               <table>
                 <tbody>
-                  <tr><td class="cell-sub">Contrôle technique</td><td class="<%= vehicle.inspection_due && vehicle.inspection_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.inspection_due) %></td></tr>
-                  <tr><td class="cell-sub">Assurance</td><td class="<%= vehicle.insurance_due && vehicle.insurance_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.insurance_due) %></td></tr>
-                  <tr><td class="cell-sub">Prochain entretien</td><td class="<%= vehicle.service_due && vehicle.service_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.service_due) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('flo.inspectionLabel') %></td><td class="<%= vehicle.inspection_due && vehicle.inspection_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.inspection_due) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('flo.insurance') %></td><td class="<%= vehicle.insurance_due && vehicle.insurance_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.insurance_due) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('flo.nextService') %></td><td class="<%= vehicle.service_due && vehicle.service_due < today ? 'text-danger cell-strong' : '' %>"><%= day(vehicle.service_due) %></td></tr>
                   <tr><td class="cell-sub"><%= t('common.mileage') %></td><td class="cell-strong"><%= vehicle.mileage.toLocaleString(locale) %> km</td></tr>
                 </tbody>
               </table>
@@ -57,7 +57,7 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3><%= eventList.length %> événement(s)</h3></div>
+            <div class="card-head"><h3><%= t('flo.eventCount', { count: eventList.length }) %></h3></div>
             <div class="table-wrap">
               <table>
                 <thead><tr><th><%= t('common.date') %></th><th><%= t('common.nature') %></th><th>Km</th><th><%= t('common.cost') %></th><th><%= t('common.note') %></th><th></th></tr></thead>
@@ -70,14 +70,14 @@
                       <td><%= money(e.cost) %></td>
                       <td class="cell-sub"><%= e.note || '—' %></td>
                       <td>
-                        <form method="POST" action="/flotte/evenements/<%= e.id %>/supprimer" class="inline-form" data-confirm="Retirer cet événement ?">
+                        <form method="POST" action="/flotte/evenements/<%= e.id %>/supprimer" class="inline-form" data-confirm="<%= t('flo.confirmRemoveEvent') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
                         </form>
                       </td>
                     </tr>
                   <% }) %>
-                  <% if (eventList.length === 0) { %><tr><td colspan="6" class="cell-sub">Aucun événement.</td></tr><% } %>
+                  <% if (eventList.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('flo.noEvent') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>
@@ -86,7 +86,7 @@
 
         <section class="tab-panel" id="fiche">
           <div class="card">
-            <div class="card-head"><h3>Fiche du véhicule</h3></div>
+            <div class="card-head"><h3><%= t('flo.vehicleCard') %></h3></div>
             <form method="POST" action="/flotte/<%= vehicle.id %>/modifier" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label><span><%= t('common.brand') %></span><input type="text" name="brand" maxlength="60" value="<%= vehicle.brand %>" /></label>
@@ -97,22 +97,22 @@
               <label><span><%= t('common.status') %></span>
                 <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= vehicle.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
               </label>
-              <label><span>Mise en service</span><input type="date" name="acquired_on" value="<%= vehicle.acquired_on || '' %>" /></label>
+              <label><span><%= t('flo.inService') %></span><input type="date" name="acquired_on" value="<%= vehicle.acquired_on || '' %>" /></label>
               <label><span><%= t('common.mileage') %></span><input type="number" name="mileage" min="0" max="5000000" value="<%= vehicle.mileage %>" /></label>
-              <label class="span-2"><span>Conducteur attitré</span>
+              <label class="span-2"><span><%= t('flo.assignedDriver') %></span>
                 <select name="assigned_to"><option value="">—</option>
                   <% employees.forEach((u) => { %><option value="<%= u.id %>" <%= vehicle.assigned_to === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Contrôle technique</span><input type="date" name="inspection_due" value="<%= vehicle.inspection_due || '' %>" /></label>
-              <label><span>Assurance</span><input type="date" name="insurance_due" value="<%= vehicle.insurance_due || '' %>" /></label>
-              <label class="span-2"><span>Prochain entretien</span><input type="date" name="service_due" value="<%= vehicle.service_due || '' %>" /></label>
+              <label><span><%= t('flo.inspectionLabel') %></span><input type="date" name="inspection_due" value="<%= vehicle.inspection_due || '' %>" /></label>
+              <label><span><%= t('flo.insurance') %></span><input type="date" name="insurance_due" value="<%= vehicle.insurance_due || '' %>" /></label>
+              <label class="span-2"><span><%= t('flo.nextService') %></span><input type="date" name="service_due" value="<%= vehicle.service_due || '' %>" /></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
 
-            <form method="POST" action="/flotte/<%= vehicle.id %>/supprimer" data-confirm="Supprimer ce véhicule et tout son historique ?">
+            <form method="POST" action="/flotte/<%= vehicle.id %>/supprimer" data-confirm="<%= t('flo.confirmDeleteVehicle') %>">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-danger btn-block">Supprimer le véhicule</button>
+              <button type="submit" class="btn btn-danger btn-block"><%= t('flo.deleteVehicle') %></button>
             </form>
           </div>
         </section>
