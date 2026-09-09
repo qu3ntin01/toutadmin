@@ -8,8 +8,8 @@
     <%- include('partials/sidebar', {
       panelLabel: t('nav.privacy'),
       navItems: [
-        { tab: 'registre', label: 'Registre des traitements', icon: 'inbox' },
-        { tab: 'acces', label: "Droit d'accès et effacement", icon: 'user' }
+        { tab: 'registre', label: t('gdpr.tabRegister'), icon: 'inbox' },
+        { tab: 'acces', label: t('gdpr.tabAccess'), icon: 'user' }
       ],
       footLinks: [
         { href: '/securite', label: t('nav.security'), icon: 'shield' },
@@ -20,7 +20,7 @@
     <div class="app-main">
       <%- include('partials/app-header', {
         headerTitle: t('nav.privacy'),
-        headerSubtitle: "Registre des traitements, droit d'accès et effacement"
+        headerSubtitle: t('gdpr.headerSub')
       }) %>
 
       <main class="page">
@@ -35,13 +35,12 @@
               <% if (recordList.length === 0) { %>
                 <form method="POST" action="/rgpd/traitements/amorcer" class="inline-form">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-outline btn-sm">Préremplir le registre</button>
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('gdpr.prefill') %></button>
                 </form>
               <% } %>
             </div>
             <p class="hint">
-              Le préremplissage décrit ce que <em>ce logiciel</em> fait de données personnelles. Il ne
-              décrit pas ce que votre entreprise en fait par ailleurs : à relire et à compléter.
+              <%- t('gdpr.prefillNote', { software: `<em>${t('gdpr.thisSoftware')}</em>` }) %>
             </p>
           </div>
 
@@ -53,14 +52,14 @@
               </div>
               <table>
                 <tbody>
-                  <tr><td class="cell-sub">Finalité</td><td><%= r.purpose || '—' %></td></tr>
-                  <tr><td class="cell-sub">Catégories de données</td><td><%= r.data_categories || '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('gdpr.purpose') %></td><td><%= r.purpose || '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('gdpr.dataCategories') %></td><td><%= r.data_categories || '—' %></td></tr>
                   <tr><td class="cell-sub"><%= t('common.recipients') %></td><td><%= r.recipients || '—' %></td></tr>
-                  <tr><td class="cell-sub">Durée de conservation</td><td><%= r.retention || '—' %></td></tr>
-                  <tr><td class="cell-sub">Mesures de sécurité</td><td><%= r.measures || '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('gdpr.retentionPeriod') %></td><td><%= r.retention || '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('gdpr.securityMeasures') %></td><td><%= r.measures || '—' %></td></tr>
                 </tbody>
               </table>
-              <form method="POST" action="/rgpd/traitements/<%= r.id %>/supprimer" class="inline-form" data-confirm="Retirer ce traitement du registre ?">
+              <form method="POST" action="/rgpd/traitements/<%= r.id %>/supprimer" class="inline-form" data-confirm="<%= t('gdpr.confirmRemoveProcessing') %>">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
               </form>
@@ -68,19 +67,19 @@
           <% }) %>
 
           <div class="card">
-            <div class="card-head"><h3>Inscrire un traitement</h3></div>
+            <div class="card-head"><h3><%= t('gdpr.addProcessing') %></h3></div>
             <form method="POST" action="/rgpd/traitements" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="name" required maxlength="160" /></label>
-              <label class="span-2"><span>Base légale</span>
+              <label class="span-2"><span><%= t('gdpr.legalBasis') %></span>
                 <select name="legal_basis"><% legalBases.forEach((b) => { %><option value="<%= b %>"><%= b %></option><% }) %></select>
               </label>
-              <label class="span-2"><span>Finalité</span><textarea name="purpose" rows="2"></textarea></label>
-              <label class="span-2"><span>Catégories de données</span><textarea name="data_categories" rows="2"></textarea></label>
+              <label class="span-2"><span><%= t('gdpr.purpose') %></span><textarea name="purpose" rows="2"></textarea></label>
+              <label class="span-2"><span><%= t('gdpr.dataCategories') %></span><textarea name="data_categories" rows="2"></textarea></label>
               <label class="span-2"><span><%= t('common.recipients') %></span><textarea name="recipients" rows="2"></textarea></label>
-              <label><span>Conservation</span><input type="text" name="retention" maxlength="300" /></label>
+              <label><span><%= t('gdpr.retention') %></span><input type="text" name="retention" maxlength="300" /></label>
               <label><span><%= t('common.measures') %></span><input type="text" name="measures" maxlength="1000" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Inscrire</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('acc.register') %></button></div>
             </form>
           </div>
         </section>
@@ -89,24 +88,24 @@
         <section class="tab-panel" id="acces">
           <% if (eraseReport) { %>
             <div class="card">
-              <div class="card-head"><h3>Effacement de <%= eraseReport.email %></h3></div>
+              <div class="card-head"><h3><%= t('gdpr.erasureOf', { email: eraseReport.email }) %></h3></div>
               <div class="grid-2">
                 <div>
-                  <p class="cell-strong">Effacé</p>
+                  <p class="cell-strong"><%= t('gdpr.erased') %></p>
                   <ul class="org-list">
                     <% eraseReport.erased.forEach((e) => { %>
                       <li class="org-item"><span><%= e.label %></span><span class="cell-sub"><%= e.count %></span></li>
                     <% }) %>
-                    <% if (eraseReport.erased.length === 0) { %><li class="cell-sub">Rien à effacer.</li><% } %>
+                    <% if (eraseReport.erased.length === 0) { %><li class="cell-sub"><%= t('gdpr.nothingToErase') %></li><% } %>
                   </ul>
                 </div>
                 <div>
-                  <p class="cell-strong">Conservé par obligation</p>
+                  <p class="cell-strong"><%= t('gdpr.keptByObligation') %></p>
                   <ul class="org-list">
                     <% eraseReport.kept.forEach((k) => { %>
                       <li class="org-item"><span><%= k.label %></span><span class="cell-sub"><%= k.count %></span></li>
                     <% }) %>
-                    <% if (eraseReport.kept.length === 0) { %><li class="cell-sub">Rien de conservé.</li><% } %>
+                    <% if (eraseReport.kept.length === 0) { %><li class="cell-sub"><%= t('gdpr.nothingKept') %></li><% } %>
                   </ul>
                 </div>
               </div>
@@ -114,7 +113,7 @@
           <% } %>
 
           <div class="card">
-            <div class="card-head"><h3>Choisir une personne</h3></div>
+            <div class="card-head"><h3><%= t('gdpr.choosePerson') %></h3></div>
             <form method="GET" action="/rgpd" class="form-grid">
               <label class="span-2"><span><%= t('common.person') %></span>
                 <select name="personne" required>
@@ -126,7 +125,7 @@
                   <% }) %>
                 </select>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Voir ce que l'instance détient</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gdpr.seeWhatHeld') %></button></div>
             </form>
           </div>
 
@@ -134,11 +133,11 @@
             <div class="card">
               <div class="card-head">
                 <h3><%= fullName(target) %> — <%= target.email %></h3>
-                <a class="btn btn-outline btn-sm" href="/rgpd/personnes/<%= target.id %>/export.json">Exporter en JSON</a>
+                <a class="btn btn-outline btn-sm" href="/rgpd/personnes/<%= target.id %>/export.json"><%= t('gdpr.exportJson') %></a>
               </div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.source') %></th><th>Enregistrements</th><th>Sur demande d'effacement</th></tr></thead>
+                  <thead><tr><th><%= t('common.source') %></th><th><%= t('gdpr.records') %></th><th><%= t('gdpr.onErasureRequest') %></th></tr></thead>
                   <tbody>
                     <% held.forEach((s) => { %>
                       <tr>
@@ -157,21 +156,18 @@
             </div>
 
             <div class="card">
-              <div class="card-head"><h3>Effacer les données de cette personne</h3></div>
+              <div class="card-head"><h3><%= t('gdpr.eraseTitle') %></h3></div>
               <p class="hint">
-                Ce qui relève d'une obligation légale de conservation — bulletins, registre des accidents,
-                journal d'audit — n'est pas effacé, et le compte rendu le dira. Le compte lui-même est
-                anonymisé plutôt que supprimé, pour que les écritures qui le référencent restent cohérentes.
-                L'opération est définitive.
+                <%= t('gdpr.eraseNote') %>
               </p>
               <form method="POST" action="/rgpd/personnes/<%= target.id %>/effacer" class="form-grid"
-                    data-confirm="Effacer définitivement les données effaçables de ce compte ?">
+                    data-confirm="<%= t('gdpr.confirmErase') %>">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                 <label class="span-2">
-                  <span>Saisissez « <%= target.email %> » pour confirmer</span>
+                  <span><%= t('gdpr.typeToConfirm', { email: target.email }) %></span>
                   <input type="text" name="confirmation" required autocomplete="off" />
                 </label>
-                <div class="span-2"><button type="submit" class="btn btn-danger btn-block">Effacer</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-danger btn-block"><%= t('gdpr.erase') %></button></div>
               </form>
             </div>
           <% } %>

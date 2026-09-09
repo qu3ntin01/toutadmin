@@ -10,15 +10,15 @@
       navItems: [
         { tab: 'nouvelle', label: t('leave.newRequest'), icon: 'plus' },
         { tab: 'mes-demandes', label: t('leave.myRequests'), icon: 'inbox', badge: mine.filter((r) => r.status === 'En cours').length },
-        { tab: 'a-valider', label: 'À valider', icon: 'check', badge: toDecide.length }
-      ].concat(admin ? [{ tab: 'types', label: 'Circuits', icon: 'settings', badge: stats.forms }] : []),
+        { tab: 'a-valider', label: t('stk.toApprove'), icon: 'check', badge: toDecide.length }
+      ].concat(admin ? [{ tab: 'types', label: t('dmd.tabFlows'), icon: 'settings', badge: stats.forms }] : []),
       footLinks: [{ href: '/mon-espace', label: t('nav.mySpace'), icon: 'home' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
         headerTitle: t('nav.internalRequests'),
-        headerSubtitle: "Circuits d'approbation paramétrables"
+        headerSubtitle: t('dmd.headerSub')
       }) %>
 
       <main class="page">
@@ -38,7 +38,7 @@
                     <span class="tag <%= stateTag(r.status) %>"><%= st(r.status) %></span>
                   </div>
                   <p class="cell-sub">
-                    <%= r.requesterName %> · déposée le <%= day(r.created_at) %>
+                    <%= r.requesterName %> · <%= t('dmd.submittedOn', { date: day(r.created_at) }) %>
                     <% if (r.summary) { %> · <%= r.summary %><% } %>
                   </p>
                   <% if (r.status === 'En cours' && r.step) { %>
@@ -56,11 +56,11 @@
 
         <section class="tab-panel is-active" id="nouvelle">
           <% if (!openForms.length) { %>
-            <div class="card"><p class="empty-state">Aucun type de demande n'est ouvert pour le moment.</p></div>
+            <div class="card"><p class="empty-state"><%= t('dmd.noOpenType') %></p></div>
           <% } %>
           <% openForms.forEach((form) => { %>
             <div class="card">
-              <div class="card-head"><h3><%= form.label %></h3><span class="card-sub"><%= form.steps.length %> étape(s) de validation</span></div>
+              <div class="card-head"><h3><%= form.label %></h3><span class="card-sub"><%= t('dmd.stepCount', { count: form.steps.length }) %></span></div>
               <% if (form.description) { %><p class="cell-sub"><%= form.description %></p><% } %>
               <form method="POST" action="/demandes" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
@@ -84,12 +84,12 @@
                     <% } %>
                   </label>
                 <% }) %>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Déposer la demande</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('dmd.submit') %></button></div>
               </form>
               <% if (form.steps.length) { %>
                 <p class="hint">
-                  Circuit :
-                  <% form.steps.forEach((s, index) => { %><%= index ? ' → ' : '' %><%= s.label || s.approver %><% if (s.threshold) { %> (au-delà de <%= s.threshold %>)<% } %><% }) %>
+                  <%= t('dmd.flowLabel') %>
+                  <% form.steps.forEach((s, index) => { %><%= index ? ' → ' : '' %><%= s.label || s.approver %><% if (s.threshold) { %> (<%= t('dmd.aboveThreshold', { threshold: s.threshold }) %>)<% } %><% }) %>
                 </p>
               <% } %>
             </div>
@@ -105,7 +105,7 @@
 
         <section class="tab-panel" id="a-valider">
           <div class="card">
-            <div class="card-head"><h3>Attendent votre décision</h3></div>
+            <div class="card-head"><h3><%= t('dmd.awaitingYou') %></h3></div>
             <% requestList(toDecide, 'Rien à valider.') %>
           </div>
         </section>
@@ -113,33 +113,32 @@
         <% if (admin) { %>
           <section class="tab-panel" id="types">
             <div class="card">
-              <div class="card-head"><h3>Créer un type de demande</h3></div>
+              <div class="card-head"><h3><%= t('dmd.createType') %></h3></div>
               <form method="POST" action="/demandes/types" class="form-grid">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="Demande de déplacement" /></label>
-                <label><span>Champ portant le montant</span><input type="text" name="amount_field" maxlength="60" placeholder="montant" /></label>
-                <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="2" placeholder="Ce que la demande sert à obtenir, et ce qu'il faut y joindre."></textarea></label>
+                <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="<%= t('dmd.typePlaceholder') %>" /></label>
+                <label><span><%= t('dmd.amountField') %></span><input type="text" name="amount_field" maxlength="60" placeholder="montant" /></label>
+                <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="2" placeholder="<%= t('dmd.descriptionPlaceholder') %>"></textarea></label>
 
                 <div class="span-2">
-                  <p class="section-label">Champs à saisir (<%= maxFields %> au plus)</p>
+                  <p class="section-label"><%= t('dmd.fieldsToFill', { max: maxFields }) %></p>
                   <% [1, 2, 3, 4, 5].forEach((rank) => { %>
                     <div class="signer-row">
                       <span class="signer-rank"><%= rank %></span>
                       <input type="text" name="field_names" maxlength="60" placeholder="nom_technique" />
-                      <input type="text" name="field_labels" maxlength="120" placeholder="Libellé affiché" />
+                      <input type="text" name="field_labels" maxlength="120" placeholder="<%= t('dmd.displayedLabel') %>" />
                       <select name="field_types">
                         <% fieldTypes.forEach((ft) => { %><option value="<%= ft.key %>"><%= ft.label %></option><% }) %>
                       </select>
-                      <select name="field_required"><option value="0">Facultatif</option><option value="1"><%= t('common.mandatory') %></option></select>
-                      <input type="text" name="field_options" maxlength="300" placeholder="Choix séparés par |" />
+                      <select name="field_required"><option value="0"><%= t('dmd.optional') %></option><option value="1"><%= t('common.mandatory') %></option></select>
+                      <input type="text" name="field_options" maxlength="300" placeholder="<%= t('dmd.choicesPlaceholder') %>" />
                     </div>
                   <% }) %>
                 </div>
-                <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer le type</button></div>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('dmd.createTheType') %></button></div>
               </form>
               <p class="hint">
-                Le champ de montant sert aux seuils : une demande de 40 € et une demande de 40 000 € ne méritent
-                pas le même nombre de signatures.
+                <%= t('dmd.thresholdNote') %>
               </p>
             </div>
 
@@ -156,7 +155,7 @@
 
                 <div class="table-wrap">
                   <table>
-                    <thead><tr><th><%= t('common.step') %></th><th>Validateur</th><th><%= t('common.threshold') %></th><th></th></tr></thead>
+                    <thead><tr><th><%= t('common.step') %></th><th><%= t('dmd.approver') %></th><th><%= t('common.threshold') %></th><th></th></tr></thead>
                     <tbody>
                       <% form.steps.forEach((s) => { %>
                         <tr>
@@ -175,7 +174,7 @@
                         </tr>
                       <% }) %>
                       <% if (!form.steps.length) { %>
-                        <tr><td colspan="4" class="cell-sub">Aucune étape : une demande de ce type serait approuvée d'emblée.</td></tr>
+                        <tr><td colspan="4" class="cell-sub"><%= t('dmd.noStep') %></td></tr>
                       <% } %>
                     </tbody>
                   </table>
@@ -183,18 +182,18 @@
 
                 <form method="POST" action="/demandes/types/<%= form.id %>/etapes" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <label><span>Validateur</span>
+                  <label><span><%= t('dmd.approver') %></span>
                     <select name="approver"><% approvers.forEach((a) => { %><option value="<%= a.key %>"><%= a.label %></option><% }) %></select>
                   </label>
-                  <label><span>Personne désignée</span>
+                  <label><span><%= t('dmd.designatedPerson') %></span>
                     <select name="approver_id">
                       <option value="">—</option>
                       <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
                     </select>
                   </label>
-                  <label><span>Intitulé de l'étape</span><input type="text" name="label" maxlength="80" placeholder="Accord du manager" /></label>
-                  <label><span>Seuil de déclenchement</span><input type="number" name="threshold" min="0" step="1" value="0" /></label>
-                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Ajouter l'étape</button></div>
+                  <label><span><%= t('dmd.stepLabel') %></span><input type="text" name="label" maxlength="80" placeholder="<%= t('dmd.stepPlaceholder') %>" /></label>
+                  <label><span><%= t('dmd.triggerThreshold') %></span><input type="number" name="threshold" min="0" step="1" value="0" /></label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('dmd.addStep') %></button></div>
                 </form>
 
                 <div class="row-actions">
@@ -203,7 +202,7 @@
                     <input type="hidden" name="active" value="<%= form.active ? '0' : '1' %>" />
                     <button type="submit" class="btn btn-outline btn-sm"><%= form.active ? 'Fermer aux demandes' : 'Ouvrir aux demandes' %></button>
                   </form>
-                  <form method="POST" action="/demandes/types/<%= form.id %>/supprimer" class="inline-form" data-confirm="Supprimer ce type et son historique ?">
+                  <form method="POST" action="/demandes/types/<%= form.id %>/supprimer" class="inline-form" data-confirm="<%= t('dmd.confirmDeleteType') %>">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                   </form>
