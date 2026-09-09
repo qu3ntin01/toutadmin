@@ -8,10 +8,10 @@
     <%- include('partials/sidebar', {
       panelLabel: ticket.reference,
       navItems: [
-        { tab: 'echange', label: 'Échange', icon: 'inbox' },
+        { tab: 'echange', label: t('tkt.tabExchange'), icon: 'inbox' },
         { tab: 'fiche', label: t('common.form'), icon: 'settings' }
       ],
-      footLinks: [{ href: '/support', label: 'Retour au support', icon: 'back' }]
+      footLinks: [{ href: '/support', label: t('tkt.backToSupport'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -25,12 +25,12 @@
         <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + (iso.endsWith('Z') ? '' : 'Z')).toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
 
         <% if (overdue) { %>
-          <div class="flash flash-error">Ce ticket a dépassé son délai de première réponse (<%= moment(ticket.due_at) %>).</div>
+          <div class="flash flash-error"><%= t('tkt.overdueBanner', { date: moment(ticket.due_at) }) %></div>
         <% } %>
 
         <section class="tab-panel is-active" id="echange">
           <div class="card">
-            <div class="card-head"><h3>Demande initiale</h3></div>
+            <div class="card-head"><h3><%= t('tkt.initialRequest') %></h3></div>
             <p class="cell-sub">
               <%= ticket.requester_first_name ? ticket.requester_first_name + ' ' + ticket.requester_last_name : 'Demandeur inconnu' %>
               · <%= moment(ticket.created_at) %>
@@ -51,7 +51,7 @@
                   <p class="ticket-body"><%= m.body %></p>
                 </li>
               <% }) %>
-              <% if (messageList.length === 0) { %><li class="cell-sub">Aucune réponse pour l'instant.</li><% } %>
+              <% if (messageList.length === 0) { %><li class="cell-sub"><%= t('tkt.noReply') %></li><% } %>
             </ul>
 
             <form method="POST" action="/support/tickets/<%= ticket.id %>/repondre" class="form-grid">
@@ -60,7 +60,7 @@
               <% if (isAgent) { %>
                 <label class="check-row span-2">
                   <input type="checkbox" name="internal" value="1" />
-                  <span>Note interne — invisible pour le demandeur</span>
+                  <span><%= t('tkt.internalNote') %></span>
                 </label>
               <% } %>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.send') %></button></div>
@@ -77,9 +77,9 @@
                   <tr><td class="cell-sub"><%= t('common.reference') %></td><td class="cell-strong"><%= ticket.reference %></td></tr>
                   <tr><td class="cell-sub"><%= t('common.origin') %></td><td><%= ticket.origin %></td></tr>
                   <tr><td class="cell-sub"><%= t('common.client') %></td><td><%= ticket.partner_name || '—' %></td></tr>
-                  <tr><td class="cell-sub">Ouvert le</td><td><%= moment(ticket.created_at) %></td></tr>
-                  <tr><td class="cell-sub">Délai de réponse</td><td><%= moment(ticket.due_at) %></td></tr>
-                  <tr><td class="cell-sub">Première réponse</td><td><%= moment(ticket.first_reply_at) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('tkt.openedOn') %></td><td><%= moment(ticket.created_at) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('tkt.responseDeadline') %></td><td><%= moment(ticket.due_at) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('tkt.firstReply') %></td><td><%= moment(ticket.first_reply_at) %></td></tr>
                   <tr><td class="cell-sub"><%= t('gov.closedOn') %></td><td><%= moment(ticket.closed_at) %></td></tr>
                 </tbody>
               </table>
@@ -93,7 +93,7 @@
                   <label class="span-2"><span><%= t('common.status') %></span>
                     <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= ticket.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
                   </label>
-                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Enregistrer le statut</button></div>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('tkt.saveStatus') %></button></div>
                 </form>
 
                 <form method="POST" action="/support/tickets/<%= ticket.id %>/priorite" class="form-grid">
@@ -101,13 +101,13 @@
                   <label class="span-2"><span><%= t('common.priority') %></span>
                     <select name="priority"><% priorities.forEach((p) => { %><option value="<%= p %>" <%= ticket.priority === p ? 'selected' : '' %>><%= p %></option><% }) %></select>
                   </label>
-                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Changer la priorité</button></div>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('tkt.changePriority') %></button></div>
                 </form>
-                <p class="hint">Changer la priorité recalcule le délai depuis l'ouverture, pas depuis maintenant.</p>
+                <p class="hint"><%= t('tkt.priorityNote') %></p>
 
                 <form method="POST" action="/support/tickets/<%= ticket.id %>/affecter" class="form-grid">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <label class="span-2"><span>Traité par</span>
+                  <label class="span-2"><span><%= t('sup.handledBy') %></span>
                     <select name="assignee_id"><option value="">—</option>
                       <% people.forEach((u) => { %><option value="<%= u.id %>" <%= ticket.assignee_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
                     </select>
@@ -115,9 +115,9 @@
                   <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.assign') %></button></div>
                 </form>
 
-                <form method="POST" action="/support/tickets/<%= ticket.id %>/supprimer" data-confirm="Supprimer ce ticket et tout son échange ?">
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/supprimer" data-confirm="<%= t('tkt.confirmDelete') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-                  <button type="submit" class="btn btn-danger btn-block">Supprimer le ticket</button>
+                  <button type="submit" class="btn btn-danger btn-block"><%= t('tkt.deleteTicket') %></button>
                 </form>
               </div>
             <% } %>

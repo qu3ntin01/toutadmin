@@ -10,11 +10,11 @@
       navItems: [
         { tab: 'ordre-du-jour', label: t('cse.agenda'), icon: 'inbox' },
         { tab: 'participants', label: t('common.participants'), icon: 'users', badge: attendeeList.length },
-        { tab: 'compte-rendu', label: 'Compte rendu', icon: 'ballot' },
+        { tab: 'compte-rendu', label: t('reu.minutes'), icon: 'ballot' },
         { tab: 'decisions', label: t('gov.decisions'), icon: 'check', badge: decisionList.length },
         { tab: 'actions', label: t('common.actions'), icon: 'clock', badge: actionList.filter((a) => a.status !== 'Faite').length }
       ],
-      footLinks: [{ href: '/direction#reunions', label: 'Toutes les réunions', icon: 'back' }]
+      footLinks: [{ href: '/direction#reunions', label: t('reu.allMeetings'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
@@ -33,7 +33,7 @@
         <!-- ---------- Ordre du jour ---------- -->
         <section class="tab-panel is-active" id="ordre-du-jour">
           <div class="card">
-            <div class="card-head"><h3>Convocation</h3><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? 'tag-danger' : 'tag-warning') %>"><%= st(meeting.status) %></span></div>
+            <div class="card-head"><h3><%= t('reu.convocation') %></h3><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? 'tag-danger' : 'tag-warning') %>"><%= st(meeting.status) %></span></div>
             <form method="POST" action="/direction/reunions/<%= meeting.id %>/modifier" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" value="<%= meeting.title %>" /></label>
@@ -62,26 +62,26 @@
         <!-- ---------- Participants ---------- -->
         <section class="tab-panel" id="participants">
           <div class="card">
-            <div class="card-head"><h3>Convier</h3></div>
+            <div class="card-head"><h3><%= t('reu.invite') %></h3></div>
             <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Personnes</span>
+              <label class="span-2"><span><%= t('reu.people') %></span>
                 <select name="user_ids" multiple size="8">
                   <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %><%= e.grade ? ` — ${e.grade}` : '' %></option><% }) %>
                 </select>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Convier</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('reu.invite') %></button></div>
             </form>
           </div>
 
           <div class="card">
             <div class="card-head"><h3><%= attendeeList.length %> participant(s)</h3></div>
             <% if (!attendeeList.length) { %>
-              <p class="empty-state">Personne n'est encore convié.</p>
+              <p class="empty-state"><%= t('reu.nobodyInvited') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.person') %></th><th><%= t('common.role') %></th><th>Présence</th><th></th></tr></thead>
+                  <thead><tr><th><%= t('common.person') %></th><th><%= t('common.role') %></th><th><%= t('reu.attendance') %></th><th></th></tr></thead>
                   <tbody>
                     <% attendeeList.forEach((a) => { %>
                       <tr>
@@ -93,7 +93,7 @@
                             <select name="attendance" class="input-sm">
                               <% attendances.forEach((att) => { %><option value="<%= att %>" <%= att === a.attendance ? 'selected' : '' %>><%= att %></option><% }) %>
                             </select>
-                            <button type="submit" class="btn btn-outline btn-sm">Noter</button>
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('reu.note') %></button>
                           </form>
                         </td>
                         <td>
@@ -114,11 +114,11 @@
         <!-- ---------- Compte rendu ---------- -->
         <section class="tab-panel" id="compte-rendu">
           <div class="card">
-            <div class="card-head"><h3>Compte rendu</h3></div>
+            <div class="card-head"><h3><%= t('reu.minutes') %></h3></div>
             <form method="POST" action="/direction/reunions/<%= meeting.id %>/compte-rendu" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span>Relevé de séance</span><textarea name="minutes" rows="14" placeholder="Ce qui a été dit, ce qui a été tranché, ce qui reste ouvert."><%= meeting.minutes %></textarea></label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Enregistrer et marquer la réunion tenue</button></div>
+              <label class="span-2"><span><%= t('reu.record') %></span><textarea name="minutes" rows="14" placeholder="<%= t('reu.minutesPlaceholder') %>"><%= meeting.minutes %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('reu.saveAndHeld') %></button></div>
             </form>
           </div>
         </section>
@@ -126,7 +126,7 @@
         <!-- ---------- Décisions ---------- -->
         <section class="tab-panel" id="decisions">
           <div class="card">
-            <div class="card-head"><h3>Décision prise en séance</h3></div>
+            <div class="card-head"><h3><%= t('reu.decisionTaken') %></h3></div>
             <form method="POST" action="/direction/decisions" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
@@ -142,9 +142,9 @@
           </div>
 
           <div class="card">
-            <div class="card-head"><h3><%= decisionList.length %> décision(s)</h3></div>
+            <div class="card-head"><h3><%= t('reu.decisionCount', { count: decisionList.length }) %></h3></div>
             <% if (!decisionList.length) { %>
-              <p class="empty-state">Aucune décision consignée pour cette réunion.</p>
+              <p class="empty-state"><%= t('reu.noDecision') %></p>
             <% } else { %>
               <ul class="meeting-list">
                 <% decisionList.forEach((d) => { %>
@@ -190,7 +190,7 @@
           <div class="card">
             <div class="card-head"><h3><%= actionList.length %> action(s)</h3></div>
             <% if (!actionList.length) { %>
-              <p class="empty-state">Aucune action issue de cette réunion.</p>
+              <p class="empty-state"><%= t('reu.noAction') %></p>
             <% } else { %>
               <div class="table-wrap">
                 <table>
