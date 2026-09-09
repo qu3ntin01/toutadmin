@@ -190,31 +190,42 @@ description: Les 16 langues, la négociation, les statuts traduits, la mise en p
 <h2>Où en est la couverture</h2>
 
 <p>
-  Traduit de bout en bout : l'écran de connexion, l'assistant d'installation, l'espace
-  collaborateur, l'espace RH, la console d'administration, le <strong>chrome présent sur
-  chaque page</strong> (en-tête, compte, déconnexion, sélecteur de thème, navigation latérale
-  des quatre espaces), <strong>tous les statuts</strong>, et le <strong>vocabulaire
-  générique</strong> — les libellés de colonnes, de champs et de boutons qui reviennent d'un
-  écran à l'autre : <em>Intitulé</em>, <em>Catégorie</em>, <em>Description</em>,
-  <em>Montant</em>, <em>Échéance</em>, <em>Enregistrer</em>, <em>Supprimer</em>.
+  <strong>Les {{views.count}} vues du produit sont traduites</strong>, du premier écran de
+  connexion à la dernière boîte de dialogue de confirmation. Les quatre espaces, le
+  <strong>chrome présent sur chaque page</strong> (en-tête, compte, déconnexion, sélecteur de
+  thème, navigation latérale), <strong>tous les statuts</strong>, le vocabulaire générique et
+  le vocabulaire propre à chaque métier : comptabilité, paie, trésorerie, qualité, parapheur,
+  sauvegardes, interfaces, données personnelles.
 </p>
 
-<div class="warn">
-  <span class="note-title">Ce qui reste en français</span>
+<div class="note">
+  <span class="note-title">Ce qui reste en français, et pourquoi</span>
   <p>
-    Le vocabulaire propre à chaque écran des derniers lots — direction, planning, qualité,
-    accueil, parapheur, pièces reçues, trésorerie, immobilisations, flotte, CRM, projets,
-    sauvegardes, interfaces — représente encore <strong>environ 1 600 chaînes visibles</strong>.
-    Ce sont désormais des phrases et des termes métier apparaissant sur un ou deux écrans
-    seulement, plus aucun mot générique. Ces pages s'affichent en français quelle que soit la
-    langue choisie : rien n'est cassé, mais un utilisateur étranger les verra dans une langue
-    qui n'est pas la sienne.
+    Trois choses, aucune n'étant du texte affiché : les paramètres d'URL du journal d'audit
+    (<code>&amp;du=</code>, <code>&amp;au=</code>), l'exemple de commande <code>curl</code> de
+    la documentation d'API, et un commentaire dans le script qui applique le thème avant le
+    premier rendu. Traduire un identifiant de requête casserait le filtre ; traduire une
+    commande la rendrait incopiable.
   </p>
 </div>
 
+<h3>Deux règles tenues d'un bout à l'autre</h3>
+
 <p>
-  La suite se fait écran par écran plutôt qu'en une passe automatique : dans un produit vendu,
-  une traduction approximative coûte plus cher que son absence.
+  <strong>Les valeurs stockées ne bougent pas.</strong> Un statut est écrit en français dans la
+  base : c'est la valeur métier, celle des contraintes <code>CHECK</code>, des comparaisons et
+  des URL de filtre. Seul l'affichage passe par le dictionnaire. Les attributs
+  <code>value</code> d'un <code>&lt;select&gt;</code>, les chaînes comparées dans une condition
+  et les identifiants de filtre gardent leur libellé français — traduire la donnée aurait cassé
+  le produit dans quinze langues sur seize.
+</p>
+
+<p>
+  <strong>Une phrase coupée par une donnée devient une clé paramétrée.</strong>
+  <em>« {count} échec(s) consécutif(s) »</em>, <em>« Pagination par {limit} (200 au plus) et
+  {since} »</em>, <em>« {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) »</em> :
+  l'ordre des mots n'est pas le même d'une langue à l'autre, et un nombre collé entre deux
+  fragments traduits séparément ne se lit correctement nulle part.
 </p>
 
 <h2>Ajouter ou corriger une traduction</h2>
