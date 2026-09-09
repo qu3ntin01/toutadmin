@@ -6,18 +6,18 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Immobilisations',
+      panelLabel: t('imm.panel'),
       navItems: [
         { tab: 'registre', label: t('common.register'), icon: 'briefcase' },
-        { tab: 'tableaux', label: "Tableaux d'amortissement", icon: 'card' }
+        { tab: 'tableaux', label: t('imm.tabSchedules'), icon: 'card' }
       ],
       footLinks: [{ href: '/gestion', label: t('nav.gestion'), icon: 'back' }]
     }) %>
 
     <div class="app-main">
       <%- include('partials/app-header', {
-        headerTitle: 'Immobilisations',
-        headerSubtitle: "Registre, amortissements et valeur nette comptable"
+        headerTitle: t('imm.panel'),
+        headerSubtitle: t('imm.headerSub')
       }) %>
 
       <main class="page">
@@ -28,41 +28,40 @@
         <section class="stats-grid">
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'briefcase', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= summary.count %></span><span class="stat-label">Immobilisations en service</span></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.count %></span><span class="stat-label"><%= t('imm.inService') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(summary.gross) %></span><span class="stat-label">Valeur brute</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(summary.gross) %></span><span class="stat-label"><%= t('imm.grossValue') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(summary.net) %></span><span class="stat-label">Valeur nette comptable</span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(summary.net) %></span><span class="stat-label"><%= t('imm.netBookValue') %></span></span>
           </div>
           <div class="stat-card">
             <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
-            <span class="stat-body"><span class="stat-value"><%= money(summary.charge) %></span><span class="stat-label">Dotation <%= currentYear %></span></span>
+            <span class="stat-body"><span class="stat-value"><%= money(summary.charge) %></span><span class="stat-label"><%= t('imm.charge') %> <%= currentYear %></span></span>
           </div>
         </section>
 
         <section class="tab-panel is-active" id="registre">
           <div class="card">
-            <div class="card-head"><h3>Enregistrer une immobilisation</h3></div>
+            <div class="card-head"><h3><%= t('imm.record') %></h3></div>
             <form method="POST" action="/immobilisations" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="160" placeholder="Serveur de production" /></label>
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="160" placeholder="<%= t('imm.assetPlaceholder') %>" /></label>
               <label><span><%= t('common.category') %></span><input type="text" name="category" value="Matériel" maxlength="60" /></label>
-              <label><span>Acquise le</span><input type="date" name="acquired_on" value="<%= today %>" required /></label>
-              <label><span>Montant HT (€)</span><input type="text" name="amount" inputmode="decimal" required /></label>
-              <label><span>Durée (années)</span><input type="number" name="duration_years" min="1" max="50" value="3" required /></label>
-              <label class="span-2"><span>Mode</span>
+              <label><span><%= t('imm.acquiredOn') %></span><input type="date" name="acquired_on" value="<%= today %>" required /></label>
+              <label><span><%= t('imm.amountExclVat') %></span><input type="text" name="amount" inputmode="decimal" required /></label>
+              <label><span><%= t('imm.durationYears') %></span><input type="number" name="duration_years" min="1" max="50" value="3" required /></label>
+              <label class="span-2"><span><%= t('imm.method') %></span>
                 <select name="method"><% methods.forEach((m) => { %><option value="<%= m %>"><%= m %></option><% }) %></select>
               </label>
               <label class="span-2"><span><%= t('common.note') %></span><input type="text" name="note" maxlength="500" /></label>
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
             </form>
             <p class="hint">
-              En dégressif, la dotation s'applique à la valeur résiduelle jusqu'à ce que le linéaire sur les
-              années restantes devienne plus favorable : la bascule est calculée, pas saisie.
+              <%= t('imm.decliningNote') %>
             </p>
           </div>
 
@@ -70,13 +69,13 @@
             <div class="card-head"><h3><%= assetList.length %> immobilisation(s)</h3></div>
             <div class="table-wrap">
               <table>
-                <thead><tr><th><%= t('common.title') %></th><th>Acquise</th><th><%= t('payslip.gross') %></th><th>Mode</th><th>Cumul</th><th>Dotation <%= currentYear %></th><th>VNC</th><th></th></tr></thead>
+                <thead><tr><th><%= t('common.title') %></th><th><%= t('imm.acquired') %></th><th><%= t('payslip.gross') %></th><th><%= t('imm.method') %></th><th><%= t('imm.accumulated') %></th><th><%= t('imm.charge') %> <%= currentYear %></th><th>VNC</th><th></th></tr></thead>
                 <tbody>
                   <% assetList.forEach((a) => { %>
                     <tr class="<%= a.disposed_on ? 'is-muted' : '' %>">
                       <td>
                         <span class="cell-strong"><%= a.label %></span>
-                        <% if (a.disposed_on) { %><span class="tag">cédée le <%= day(a.disposed_on) %></span><% } %>
+                        <% if (a.disposed_on) { %><span class="tag"><%= t('imm.disposedOn', { date: day(a.disposed_on) }) %></span><% } %>
                         <br /><span class="cell-sub"><%= a.category %><%= a.note ? ' · ' + a.note : '' %></span>
                       </td>
                       <td class="cell-sub nowrap"><%= day(a.acquired_on) %></td>
@@ -90,17 +89,17 @@
                           <form method="POST" action="/immobilisations/<%= a.id %>/ceder" class="inline-form">
                             <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                             <input type="date" name="disposed_on" value="<%= today %>" class="input-sm" required />
-                            <button type="submit" class="btn btn-outline btn-sm">Céder</button>
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('imm.dispose') %></button>
                           </form>
                         <% } %>
-                        <form method="POST" action="/immobilisations/<%= a.id %>/supprimer" class="inline-form" data-confirm="Supprimer cette immobilisation ?">
+                        <form method="POST" action="/immobilisations/<%= a.id %>/supprimer" class="inline-form" data-confirm="<%= t('imm.confirmDelete') %>">
                           <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                           <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
                         </form>
                       </td>
                     </tr>
                   <% }) %>
-                  <% if (assetList.length === 0) { %><tr><td colspan="8" class="cell-sub">Aucune immobilisation.</td></tr><% } %>
+                  <% if (assetList.length === 0) { %><tr><td colspan="8" class="cell-sub"><%= t('imm.noAsset') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>
@@ -110,10 +109,10 @@
         <section class="tab-panel" id="tableaux">
           <% assetList.forEach((a) => { %>
             <div class="card">
-              <div class="card-head"><h3><%= a.label %> — <%= a.method %> sur <%= a.duration_years %> ans</h3></div>
+              <div class="card-head"><h3><%= t('imm.scheduleTitle', { label: a.label, method: a.method, years: a.duration_years }) %></h3></div>
               <div class="table-wrap">
                 <table>
-                  <thead><tr><th><%= t('common.fiscalYear') %></th><th>Dotation</th><th>Valeur résiduelle</th></tr></thead>
+                  <thead><tr><th><%= t('common.fiscalYear') %></th><th><%= t('imm.charge') %></th><th><%= t('imm.residualValue') %></th></tr></thead>
                   <tbody>
                     <% a.schedule.forEach((row) => { %>
                       <tr class="<%= row.year === currentYear ? 'is-current' : '' %>">
@@ -128,7 +127,7 @@
             </div>
           <% }) %>
           <% if (assetList.length === 0) { %>
-            <div class="card"><p class="cell-sub">Enregistrez une immobilisation pour voir son tableau.</p></div>
+            <div class="card"><p class="cell-sub"><%= t('imm.recordFirst') %></p></div>
           <% } %>
         </section>
       </main>

@@ -6,10 +6,10 @@
 <body class="app-body">
   <div class="app-shell">
     <%- include('partials/sidebar', {
-      panelLabel: 'Pièce reçue',
-      navItems: [{ href: '/pieces', label: 'Toutes les pièces', icon: 'inbox', active: true }],
+      panelLabel: t('pce.panel'),
+      navItems: [{ href: '/pieces', label: t('pce.allPieces'), icon: 'inbox', active: true }],
       footLinks: [
-        { href: '/pieces/' + document.id + '/fichier', label: 'Voir le fichier', icon: 'external' },
+        { href: '/pieces/' + document.id + '/fichier', label: t('pce.viewFile'), icon: 'external' },
         { href: '/gestion#factures', label: t('erp.invoices'), icon: 'card' }
       ]
     }) %>
@@ -19,7 +19,7 @@
         headerTitle: document.fields.reference || document.original_name || ('Pièce ' + document.id),
         headerSubtitle: document.source + ' · reçue le ' + new Date(String(document.received_at).replace(' ', 'T') + 'Z').toLocaleString(locale),
         backHref: '/pieces',
-        backLabel: 'Pièces'
+        backLabel: t('pce.pieces')
       }) %>
 
       <main class="page">
@@ -29,36 +29,34 @@
 
         <div class="card">
           <div class="card-head">
-            <h3>Lecture automatique</h3>
+            <h3><%= t('pce.autoRead') %></h3>
             <span class="tag <%= document.confidence >= 70 ? 'tag-success' : (document.confidence >= 40 ? 'tag-warning' : 'tag-danger') %>">
               confiance <%= document.confidence %> %
             </span>
           </div>
 
           <% if (!integrity.ok) { %>
-            <div class="flash flash-error">Fichier non conforme à son empreinte : <%= integrity.reason %>.</div>
+            <div class="flash flash-error"><%= t('pce.integrityFailed', { reason: integrity.reason }) %></div>
           <% } %>
           <% if (!document.text_length) { %>
-            <div class="flash flash-error">
-              Aucun texte n'a pu être lu : ce PDF est probablement une image scannée. Les champs sont à saisir à la main.
-            </div>
+            <div class="flash flash-error"><%= t('pce.noTextRead') %></div>
           <% } %>
           <% document.notes.forEach((note) => { %><p class="hint"><%= note %></p><% }) %>
           <% if (document.analysis.aiError) { %>
-            <p class="hint">Analyse assistée indisponible : <%= document.analysis.aiError %></p>
+            <p class="hint"><%= t('pce.aiUnavailable', { reason: document.analysis.aiError }) %></p>
           <% } %>
 
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Champ</th><th>Valeur lue</th><th><%= t('common.origin') %></th></tr></thead>
+              <thead><tr><th><%= t('pce.field') %></th><th><%= t('pce.readValue') %></th><th><%= t('common.origin') %></th></tr></thead>
               <tbody>
                 <tr><td class="cell-sub"><%= t('common.issuer') %></td><td class="cell-strong"><%= value(document.partner_name || document.fields.supplierName) %></td><td class="cell-sub"><%= from('supplierName') %><%= document.fields.partnerReason ? ` · tiers reconnu par ${document.fields.partnerReason}` : '' %></td></tr>
                 <tr><td class="cell-sub"><%= t('common.number') %></td><td><%= value(document.fields.reference) %></td><td class="cell-sub"><%= from('reference') %></td></tr>
                 <tr><td class="cell-sub"><%= t('common.date') %></td><td><%= value(document.fields.issueDate) %></td><td class="cell-sub"><%= from('issueDate') %></td></tr>
                 <tr><td class="cell-sub"><%= t('erp.dueDate') %></td><td><%= value(document.fields.dueDate) %></td><td class="cell-sub"><%= from('dueDate') %></td></tr>
-                <tr><td class="cell-sub">Total HT</td><td class="num"><%= value(document.fields.amountHt) %></td><td class="cell-sub"><%= from('amountHt') %></td></tr>
+                <tr><td class="cell-sub"><%= t('pce.totalExclVat') %></td><td class="num"><%= value(document.fields.amountHt) %></td><td class="cell-sub"><%= from('amountHt') %></td></tr>
                 <tr><td class="cell-sub"><%= t('nav.vat') %></td><td class="num"><%= value(document.fields.amountVat) %> <%= document.fields.vatRate ? `(${document.fields.vatRate} %)` : '' %></td><td class="cell-sub"><%= from('amountVat') %></td></tr>
-                <tr><td class="cell-sub">Total TTC</td><td class="num cell-strong"><%= value(document.fields.amountTtc) %> <%= document.fields.currency || '' %></td><td class="cell-sub"><%= from('amountTtc') %></td></tr>
+                <tr><td class="cell-sub"><%= t('pce.totalInclVat') %></td><td class="num cell-strong"><%= value(document.fields.amountTtc) %> <%= document.fields.currency || '' %></td><td class="cell-sub"><%= from('amountTtc') %></td></tr>
                 <tr><td class="cell-sub">SIRET / TVA</td><td class="mono"><%= value(document.fields.siret || document.fields.siren) %> <%= value(document.fields.vatNumber) %></td><td class="cell-sub"><%= from('siret') %></td></tr>
                 <tr><td class="cell-sub">IBAN</td><td class="mono"><%= value(document.fields.iban) %></td><td class="cell-sub"><%= from('iban') %></td></tr>
               </tbody>
@@ -66,10 +64,10 @@
           </div>
 
           <div class="row-actions">
-            <a href="/pieces/<%= document.id %>/fichier" class="btn btn-outline btn-sm">Ouvrir le fichier</a>
+            <a href="/pieces/<%= document.id %>/fichier" class="btn btn-outline btn-sm"><%= t('pce.openFile') %></a>
             <form method="POST" action="/pieces/<%= document.id %>/analyser" class="inline-form">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <button type="submit" class="btn btn-outline btn-sm">Relire la pièce<%= aiReady ? ' (avec le modèle)' : '' %></button>
+              <button type="submit" class="btn btn-outline btn-sm"><%= t('pce.reRead') %><%= aiReady ? ` (${t('pce.withModel')})` : '' %></button>
             </form>
           </div>
           <p class="cell-sub mono">SHA-256 : <%= document.sha256 %></p>
@@ -77,13 +75,13 @@
 
         <% if (document.mail_subject || document.mail_from) { %>
           <div class="card">
-            <div class="card-head"><h3>Courriel d'origine</h3></div>
+            <div class="card-head"><h3><%= t('pce.sourceEmail') %></h3></div>
             <table>
               <tbody>
-                <tr><td class="cell-sub">Expéditeur</td><td class="cell-strong"><%= value(document.mail_from) %></td></tr>
+                <tr><td class="cell-sub"><%= t('pce.sender') %></td><td class="cell-strong"><%= value(document.mail_from) %></td></tr>
                 <tr><td class="cell-sub"><%= t('common.subject') %></td><td><%= value(document.mail_subject) %></td></tr>
                 <tr><td class="cell-sub"><%= t('common.date') %></td><td><%= document.mail_date ? new Date(document.mail_date).toLocaleString(locale) : '—' %></td></tr>
-                <tr><td class="cell-sub">Pièce jointe</td><td><%= document.original_name %> · <%= Math.round(document.byte_size / 1024) %> Ko</td></tr>
+                <tr><td class="cell-sub"><%= t('pce.attachment') %></td><td><%= document.original_name %> · <%= Math.round(document.byte_size / 1024) %> Ko</td></tr>
               </tbody>
             </table>
           </div>
@@ -91,7 +89,7 @@
 
         <% if (document.status === 'À traiter') { %>
           <div class="card">
-            <div class="card-head"><h3>Créer la facture</h3></div>
+            <div class="card-head"><h3><%= t('pce.createInvoice') %></h3></div>
             <form method="POST" action="/pieces/<%= document.id %>/facturer" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label><span><%= t('common.direction') %></span>
@@ -114,15 +112,15 @@
                        value="<%= document.fields.label || [document.partner_name || document.fields.supplierName, document.fields.reference].filter(Boolean).join(' — ') %>" />
               </label>
               <label><span><%= t('common.reference') %></span><input type="text" name="reference" maxlength="60" value="<%= document.fields.reference || '' %>" /></label>
-              <label><span>Service imputé</span>
+              <label><span><%= t('ges.chargedDepartment') %></span>
                 <select name="department_id">
                   <option value="">—</option>
                   <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
                 </select>
               </label>
-              <label><span>Émission</span><input type="date" name="issue_date" required value="<%= document.fields.issueDate || today %>" /></label>
+              <label><span><%= t('ges.issue') %></span><input type="date" name="issue_date" required value="<%= document.fields.issueDate || today %>" /></label>
               <label><span><%= t('erp.dueDate') %></span><input type="date" name="due_date" value="<%= document.fields.dueDate || '' %>" /></label>
-              <label><span>Montant HT</span><input type="text" name="amount_ht" inputmode="decimal" required value="<%= document.fields.amountHt === null || document.fields.amountHt === undefined ? '' : document.fields.amountHt %>" /></label>
+              <label><span><%= t('ges.amountExclVat') %></span><input type="text" name="amount_ht" inputmode="decimal" required value="<%= document.fields.amountHt === null || document.fields.amountHt === undefined ? '' : document.fields.amountHt %>" /></label>
               <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" required value="<%= document.fields.vatRate === null || document.fields.vatRate === undefined ? 20 : document.fields.vatRate %>" /></label>
               <label><span><%= t('common.currency') %></span>
                 <select name="currency">
@@ -131,43 +129,42 @@
                   <% }) %>
                 </select>
               </label>
-              <div class="span-2"><button type="submit" class="btn btn-primary btn-block">Créer la facture et classer la pièce</button></div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('pce.createAndFile') %></button></div>
             </form>
             <p class="hint">
-              Ce sont les valeurs affichées ici qui seront enregistrées — corrigez-les au besoin. La pièce reste
-              attachée à la facture comme justificatif.
+              <%= t('pce.valuesNote') %>
             </p>
           </div>
 
           <div class="card">
-            <div class="card-head"><h3>Écarter</h3></div>
+            <div class="card-head"><h3><%= t('pce.setAside') %></h3></div>
             <form method="POST" action="/pieces/<%= document.id %>/ecarter" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
-              <label class="span-2"><span><%= t('common.reason') %></span><input type="text" name="note" maxlength="500" placeholder="Relance, doublon, document qui n'est pas une facture…" /></label>
-              <div class="span-2"><button type="submit" class="btn btn-outline btn-block">Écarter la pièce</button></div>
+              <label class="span-2"><span><%= t('common.reason') %></span><input type="text" name="note" maxlength="500" placeholder="<%= t('pce.setAsidePlaceholder') %>" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('pce.setAsidePiece') %></button></div>
             </form>
           </div>
         <% } else { %>
           <div class="card">
             <div class="card-head">
-              <h3>Pièce traitée</h3>
+              <h3><%= t('pce.handled') %></h3>
               <span class="tag <%= document.status === 'Facturée' ? 'tag-success' : 'tag-danger' %>"><%= st(document.status) %></span>
             </div>
             <p class="cell-sub">
-              <%= document.handled_at ? `Traitée le ${new Date(String(document.handled_at).replace(' ', 'T') + 'Z').toLocaleString(locale)}` : '' %>
-              <% if (document.invoice_reference) { %> · facture <span class="mono"><%= document.invoice_reference %></span><% } %>
+              <%= document.handled_at ? t('pce.handledOn', { date: new Date(String(document.handled_at).replace(' ', 'T') + 'Z').toLocaleString(locale) }) : '' %>
+              <% if (document.invoice_reference) { %> · <%- t('pce.invoiceRef', { reference: `<span class="mono">${document.invoice_reference}</span>` }) %><% } %>
             </p>
-            <% if (document.note) { %><p class="cell-sub">Motif : <%= document.note %></p><% } %>
+            <% if (document.note) { %><p class="cell-sub"><%= t('pce.reason', { reason: document.note }) %></p><% } %>
 
             <% if (document.status !== 'Facturée') { %>
               <div class="row-actions">
-                <form method="POST" action="/pieces/<%= document.id %>/supprimer" class="inline-form" data-confirm="Supprimer définitivement cette pièce et son fichier ?">
+                <form method="POST" action="/pieces/<%= document.id %>/supprimer" class="inline-form" data-confirm="<%= t('pce.confirmDelete') %>">
                   <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
                 </form>
               </div>
             <% } else { %>
-              <p class="hint">Une pièce qui justifie une facture ne se supprime pas.</p>
+              <p class="hint"><%= t('pce.notDeletable') %></p>
             <% } %>
           </div>
         <% } %>
