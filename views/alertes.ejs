@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: t('nav.whistleblow') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'alertes' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.whistleblow'),
+        headerSubtitle: t('alr.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (value) => (value ? new Date(String(value).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' }) : '—'); %>
+
+        <% if (issued) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= t('alr.filed') %></h3></div>
+            <ul class="org-list">
+              <li class="org-item"><span><%= t('alr.reference') %></span><span class="cell-strong mono"><%= issued.reference %></span></li>
+              <li class="org-item"><span><%= t('alr.followCode') %></span><span class="cell-strong mono"><%= issued.code %></span></li>
+            </ul>
+            <div class="flash flash-error"><%= t('alr.codeShownOnce') %></div>
+            <p class="hint"><%= t('alr.codeUse') %> <a href="/alertes/suivi">/alertes/suivi</a></p>
+          </div>
+        <% } %>
+
+        <% if (isReferent) { %>
+          <section class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.open %></span><span class="stat-label"><%= t('alr.openReports') %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.lateAck %></span><span class="stat-label"><%= t('alr.lateAck', { days: ackDays }) %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.lateOutcome %></span><span class="stat-label"><%= t('alr.lateOutcome', { days: outcomeDays }) %></span></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= summary.total %></span><span class="stat-label"><%= t('alr.totalReports') %></span></span>
+            </div>
+          </section>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('alr.reportCount', { count: reportList.length }) %></h3></div>
+            <p class="hint"><%= t('alr.referentHint') %></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('alr.reference') %></th><th><%= t('alr.subject') %></th><th><%= t('alr.category') %></th>
+                  <th><%= t('alr.filedAt') %></th><th><%= t('alr.acknowledgement') %></th><th><%= t('common.status') %></th><th></th>
+                </tr></thead>
+                <tbody>
+                  <% reportList.forEach((report) => { %>
+                    <tr>
+                      <td class="cell-strong mono"><a href="/alertes/signalements/<%= report.id %>"><%= report.reference %></a></td>
+                      <td><%= report.subject %><br /><span class="cell-sub"><%= report.anonymous ? t('alr.anonymous') : report.first_name + ' ' + report.last_name %></span></td>
+                      <td class="cell-sub"><%= st(report.category) %></td>
+                      <td class="cell-sub nowrap"><%= moment(report.submitted_at) %></td>
+                      <td class="<%= report.acknowledged_at ? 'cell-sub' : 'text-danger' %> nowrap">
+                        <%= report.acknowledged_at ? moment(report.acknowledged_at) : t('alr.pendingDays', { days: daysSince(report.submitted_at) }) %>
+                      </td>
+                      <td><span class="tag <%= report.status === 'Clôturée' ? '' : 'tag-warning' %>"><%= st(report.status) %></span></td>
+                      <td><a class="btn btn-outline btn-sm" href="/alertes/signalements/<%= report.id %>"><%= t('common.open') %></a></td>
+                    </tr>
+                  <% }) %>
+                  <% if (reportList.length === 0) { %><tr><td colspan="7" class="cell-sub"><%= t('alr.noReport') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('alr.newReport') %></h3></div>
+          <p class="hint"><%= t('alr.legalNote', { ack: ackDays, outcome: outcomeDays }) %></p>
+          <% if (referentCount === 0) { %>
+            <div class="flash flash-error"><%= t('alr.noReferentYet') %></div>
+          <% } %>
+          <form method="POST" action="/alertes/signalements" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label class="span-2"><span><%= t('alr.subject') %></span><input type="text" name="subject" required maxlength="200" /></label>
+            <label class="span-2"><span><%= t('alr.category') %></span>
+              <select name="category">
+                <% categories.forEach((category) => { %><option value="<%= category %>"><%= st(category) %></option><% }) %>
+              </select>
+            </label>
+            <label class="span-2"><span><%= t('alr.body') %></span><textarea name="body" rows="8" maxlength="10000"></textarea></label>
+            <label class="span-2 check-row">
+              <input type="checkbox" name="anonymous" value="1" checked />
+              <span><%= t('alr.anonymousLabel') %></span>
+            </label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('alr.file') %></button></div>
+          </form>
+          <p class="hint"><%= t('alr.confidentiality') %></p>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('alr.followTitle') %></h3></div>
+          <p class="hint"><%= t('alr.followFromHere') %></p>
+          <a class="btn btn-outline" href="/alertes/suivi"><%= t('alr.followOpen') %></a>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

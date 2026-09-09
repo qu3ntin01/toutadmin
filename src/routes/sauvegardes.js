@@ -25,6 +25,12 @@ function fail(req, res, anchor, message) {
 }
 
 router.get('/', (req, res) => {
+  // Retiré de la session avant le rendu, jamais après : res.render() peut
+  // rendre la main une fois la réponse déjà envoyée, et express-session
+  // décide alors d'enregistrer la session sans voir la suppression.
+  const restoreReport = req.session.restoreReport || null;
+  delete req.session.restoreReport;
+
   res.render('sauvegardes', {
     archives: backup.list(),
     summary: backup.summary(),
@@ -33,9 +39,8 @@ router.get('/', (req, res) => {
     destinations: offsite.list(),
     exportPreview: exporter.preview(),
     // Compte rendu de la dernière restauration, affiché une fois puis oublié.
-    restoreReport: req.session.restoreReport || null,
+    restoreReport,
   });
-  delete req.session.restoreReport;
 });
 
 router.post('/', async (req, res) => {

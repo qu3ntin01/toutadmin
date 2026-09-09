@@ -24,6 +24,12 @@ router.get('/', (req, res) => {
   const targetId = Number(req.query.personne) || null;
   const target = targetId ? db.prepare('SELECT * FROM users WHERE id = ?').get(targetId) : null;
 
+  // Retiré de la session avant le rendu, jamais après : res.render() peut
+  // rendre la main une fois la réponse déjà envoyée, et express-session
+  // décide alors d'enregistrer la session sans voir la suppression.
+  const eraseReport = req.session.eraseReport || null;
+  delete req.session.eraseReport;
+
   res.render('rgpd', {
     recordList: privacy.records(),
     legalBases: privacy.LEGAL_BASES,
@@ -31,9 +37,8 @@ router.get('/', (req, res) => {
     target,
     held: target ? privacy.collectFor(target.id) : null,
     // Compte rendu du dernier effacement, affiché une fois puis oublié.
-    eraseReport: req.session.eraseReport || null,
+    eraseReport,
   });
-  delete req.session.eraseReport;
 });
 
 // ---------- Registre ----------

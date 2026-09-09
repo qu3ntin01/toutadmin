@@ -72,6 +72,7 @@ const informatiqueRoutes = require('./routes/informatique');
 const developpementRoutes = require('./routes/developpement');
 const evenementRoutes = require('./routes/evenements');
 const partenaireRoutes = require('./routes/partenaires');
+const alerteRoutes = require('./routes/alertes');
 
 function assertProductionSecrets() {
   if (process.env.NODE_ENV !== 'production') return;
@@ -190,6 +191,7 @@ function createApp() {
       res.locals.isHr = Boolean(row && row.is_hr);
       res.locals.isFinance = Boolean(row && row.is_finance);
       res.locals.isIt = Boolean(row && row.is_it);
+      res.locals.isReferent = Boolean(row && row.is_referent);
       res.locals.pendingAcks = talent.pendingAckCount(user.id);
       res.locals.pendingSurveys = surveys.pendingCountFor(user.id);
       res.locals.pendingSignatures = signing.pendingCountFor(user.id);
@@ -205,6 +207,7 @@ function createApp() {
       res.locals.isHr = false;
       res.locals.isFinance = false;
       res.locals.isIt = false;
+      res.locals.isReferent = false;
       res.locals.pendingAcks = 0;
       res.locals.pendingSurveys = 0;
       res.locals.pendingSignatures = 0;
@@ -282,6 +285,7 @@ function createApp() {
   app.use('/developpement', developpementRoutes);
   app.use('/evenements', evenementRoutes);
   app.use('/partenaires', partenaireRoutes);
+  app.use('/alertes', alerteRoutes);
   app.use('/mon-espace', employeeRoutes);
   app.use('/mon-profil', profileRoutes);
   app.use('/annuaire', directoryRoutes);

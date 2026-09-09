@@ -9,6 +9,7 @@
       panelLabel: t('nav.security'),
       navItems: [
         { tab: 'journal', label: t('sec.tabAudit'), icon: 'inbox' },
+        { tab: 'scellement', label: t('sec.tabSeal'), icon: 'shield', badge: seal.ok ? 0 : 1 },
         { tab: 'sessions', label: t('sec.tabSessions'), icon: 'clock' },
         { tab: 'comptes', label: t('sec.tabWatch'), icon: 'shield' },
         { tab: 'administrateurs', label: t('sec.tabAdmins'), icon: 'users' },
@@ -128,6 +129,37 @@
         </section>
 
         <!-- ---------- Sessions ---------- -->
+        <section class="tab-panel" id="scellement">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('sec.sealTitle') %></h3>
+                <p class="card-sub"><%= seal.ok ? t('sec.sealIntact', { count: seal.sealed }) : t('sec.sealBroken') %></p>
+              </div>
+              <span class="tag <%= seal.ok ? 'tag-success' : 'tag-danger' %>"><%= seal.ok ? t('sec.sealOk') : t('sec.sealKo') %></span>
+            </div>
+            <p class="hint"><%= t('sec.sealHow') %></p>
+
+            <ul class="org-list">
+              <li class="org-item"><span><%= t('sec.sealChecked') %></span><span class="cell-strong"><%= seal.checked %></span></li>
+              <li class="org-item"><span><%= t('sec.sealSealed') %></span><span class="cell-strong"><%= seal.sealed %></span></li>
+              <% if (seal.unsealed) { %>
+                <li class="org-item"><span><%= t('sec.sealLegacy') %></span><span class="cell-strong"><%= seal.unsealed %></span></li>
+              <% } %>
+            </ul>
+
+            <% if (!seal.ok && seal.broken) { %>
+              <div class="flash flash-error">
+                <%= seal.broken.reason === 'contenu'
+                  ? t('sec.sealAlteredAt', { id: seal.broken.row.id, action: seal.broken.row.action, date: seal.broken.row.occurred_at })
+                  : t('sec.sealMissingAt', { id: seal.broken.row.id, date: seal.broken.row.occurred_at }) %>
+              </div>
+            <% } %>
+
+            <p class="hint"><%= t('sec.sealLimit') %></p>
+          </div>
+        </section>
+
         <section class="tab-panel" id="sessions">
           <div class="card">
             <div class="card-head"><h3><%= t('sec.tabSessions') %></h3></div>

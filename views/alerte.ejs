@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: report.reference + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'alertes' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: report.reference,
+        headerSubtitle: t('alr.sheetSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (value) => (value ? new Date(String(value).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' }) : '—'); %>
+        <% const age = daysSince(report.submitted_at); %>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3><%= report.subject %></h3>
+              <p class="card-sub">
+                <span class="tag <%= report.status === 'Clôturée' ? '' : 'tag-warning' %>"><%= st(report.status) %></span>
+                <span class="tag"><%= st(report.category) %></span>
+                <%= report.anonymous ? t('alr.anonymous') : report.first_name + ' ' + report.last_name %>
+                · <%= t('alr.filedOn', { date: moment(report.submitted_at) }) %>
+              </p>
+            </div>
+            <% if (!report.acknowledged_at) { %>
+              <form method="POST" action="/alertes/signalements/<%= report.id %>/accuser">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-primary btn-sm"><%= t('alr.acknowledge') %></button>
+              </form>
+            <% } %>
+          </div>
+
+          <% if (report.body) { %><p class="ticket-body"><%= report.body %></p><% } %>
+
+          <ul class="org-list">
+            <li class="org-item">
+              <span><%= t('alr.acknowledgement') %></span>
+              <span class="<%= report.acknowledged_at ? 'cell-strong' : (age > ackDays ? 'text-danger' : 'cell-strong') %>">
+                <%= report.acknowledged_at ? moment(report.acknowledged_at) : t('alr.pendingDays', { days: age }) %>
+              </span>
+            </li>
+            <li class="org-item">
+              <span><%= t('alr.outcomeDeadline', { days: outcomeDays }) %></span>
+              <span class="<%= age > outcomeDays && report.status !== 'Clôturée' ? 'text-danger' : 'cell-strong' %>">
+                <%= t('alr.ageDays', { days: age }) %>
+              </span>
+            </li>
+            <% if (report.closed_at) { %>
+              <li class="org-item"><span><%= t('alr.closedAt') %></span><span class="cell-strong"><%= moment(report.closed_at) %></span></li>
+            <% } %>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('alr.exchanges') %></h3></div>
+          <p class="hint"><%= t('alr.exchangesHint') %></p>
+          <ul class="meeting-list">
+            <% messages.forEach((message) => { %>
+              <li class="meeting-item">
+                <div class="meeting-head">
+                  <span class="meeting-title"><%= message.author_kind === 'referent' ? t('alr.fromReferent') : t('alr.fromAuthor') %></span>
+                  <span class="news-meta"><%= moment(message.created_at) %></span>
+                </div>
+                <p class="ticket-body"><%= message.body %></p>
+              </li>
+            <% }) %>
+            <% if (messages.length === 0) { %><li class="cell-sub"><%= t('alr.noExchange') %></li><% } %>
+          </ul>
+          <form method="POST" action="/alertes/signalements/<%= report.id %>/message" class="stack">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label>
+              <span><%= t('alr.replyToAuthor') %></span>
+              <textarea name="body" rows="4" maxlength="5000" required></textarea>
+            </label>
+            <div class="row-actions"><button type="submit" class="btn btn-primary btn-sm"><%= t('alr.send') %></button></div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('alr.handling') %></h3></div>
+          <form method="POST" action="/alertes/signalements/<%= report.id %>/statut" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label><span><%= t('common.status') %></span>
+              <select name="status">
+                <% statuses.forEach((status) => { %><option value="<%= status %>" <%= report.status === status ? 'selected' : '' %>><%= st(status) %></option><% }) %>
+              </select>
+            </label>
+            <div><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+          </form>
+          <form method="POST" action="/alertes/signalements/<%= report.id %>/suites" class="stack">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label>
+              <span><%= t('alr.outcome') %></span>
+              <textarea name="outcome" rows="4" maxlength="4000"><%= report.outcome %></textarea>
+            </label>
+            <div class="row-actions"><button type="submit" class="btn btn-primary btn-sm"><%= t('common.save') %></button></div>
+          </form>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('alr.whoOpened') %></h3></div>
+          <p class="hint"><%= t('alr.accessHint') %></p>
+          <ul class="org-list">
+            <% accessList.forEach((entry) => { %>
+              <li class="org-item">
+                <span class="cell-strong"><%= entry.first_name ? entry.first_name + ' ' + entry.last_name : '—' %></span>
+                <span class="cell-sub"><%= moment(entry.occurred_at) %></span>
+              </li>
+            <% }) %>
+            <% if (accessList.length === 0) { %><li class="cell-sub"><%= t('alr.noAccessYet') %></li><% } %>
+          </ul>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

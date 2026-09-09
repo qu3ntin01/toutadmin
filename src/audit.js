@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const db = require('./db');
 
 /**
@@ -10,9 +12,40 @@ const db = require('./db');
  */
 
 const insert = db.prepare(`
-  INSERT INTO audit_log (actor_id, actor_label, action, entity, entity_id, detail, ip)
-  VALUES (?, ?, ?, ?, ?, ?, ?)
+  INSERT INTO audit_log (occurred_at, actor_id, actor_label, action, entity, entity_id, detail, ip, prev_hash, hash)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 `);
+
+const lastHash = db.prepare('SELECT hash FROM audit_log ORDER BY id DESC LIMIT 1');
+
+/**
+ * Scellement du journal.
+ *
+ * Un journal d'audit que l'on peut réécrire ne prouve rien. Chaque entrée porte
+ * donc l'empreinte de la précédente : modifier une ligne, ou en retirer une du
+ * milieu, casse la chaîne à cet endroit précis, et la vérification le dit.
+ *
+ * Ce que cela ne fait pas : empêcher la réécriture. Qui tient le fichier de la
+ * base peut tout recalculer. Le scellement rend l'altération *visible*, ce qui
+ * suffit à ce qu'on attend d'un journal — et c'est aussi loin qu'on puisse
+ * aller sans autorité d'horodatage extérieure.
+ */
+function fingerprint(row, previous) {
+  return crypto
+    .createHash('sha256')
+    .update([
+      previous,
+      row.occurred_at,
+      row.actor_id == null ? '' : row.actor_id,
+      row.actor_label,
+      row.action,
+      row.entity,
+      row.entity_id == null ? '' : row.entity_id,
+      row.detail,
+      row.ip,
+    ].join('\u0000'))
+    .digest('hex');
+}
 
 /** L'IP réelle derrière un proxy, quand TRUST_PROXY est configuré. */
 function ipOf(req) {
@@ -32,14 +65,22 @@ function labelOf(user) {
 function log(req, action, entity = '', entityId = null, detail = null) {
   try {
     const user = req && req.session ? req.session.user : null;
+    // L'horodatage entre dans l'empreinte : il est donc calculé ici, pas laissé
+    // à la valeur par défaut de la colonne, qui ne serait pas connue à temps.
+    const row = {
+      occurred_at: new Date().toISOString().slice(0, 19).replace('T', ' '),
+      actor_id: user ? user.id : null,
+      actor_label: labelOf(user),
+      action: String(action).slice(0, 120),
+      entity: String(entity).slice(0, 60),
+      entity_id: entityId == null ? null : Number(entityId),
+      detail: detail == null ? '' : JSON.stringify(detail).slice(0, 2000),
+      ip: ipOf(req),
+    };
+    const previous = (lastHash.get() || {}).hash || '';
     insert.run(
-      user ? user.id : null,
-      labelOf(user),
-      String(action).slice(0, 120),
-      String(entity).slice(0, 60),
-      entityId == null ? null : Number(entityId),
-      detail == null ? '' : JSON.stringify(detail).slice(0, 2000),
-      ipOf(req)
+      row.occurred_at, row.actor_id, row.actor_label, row.action, row.entity,
+      row.entity_id, row.detail, row.ip, previous, fingerprint(row, previous)
     );
   } catch (err) {
     console.error("Journal d'audit indisponible :", err.message);
@@ -86,10 +127,56 @@ function toCsv(rows) {
   return [head.map(escape).join(';'), ...lines].join('\n');
 }
 
-/** Purge des entrées trop anciennes : le journal ne se conserve pas indéfiniment. */
+/**
+ * Purge des entrées trop anciennes : le journal ne se conserve pas indéfiniment.
+ *
+ * Une purge retire le début de la chaîne, ce qui est légitime — mais ne doit pas
+ * pouvoir se confondre avec un effacement discret. Elle laisse donc sa propre
+ * entrée, scellée comme les autres, disant combien de lignes sont parties et
+ * jusqu'à quand.
+ */
 function purgeOlderThan(days) {
   const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 19).replace('T', ' ');
-  return db.prepare('DELETE FROM audit_log WHERE occurred_at < ?').run(cutoff).changes;
+  const removed = db.prepare('DELETE FROM audit_log WHERE occurred_at < ?').run(cutoff).changes;
+  if (removed) logSystem('journal.purge', 'audit_log', null, { supprimees: removed, avant: cutoff });
+  return removed;
 }
 
-module.exports = { log, logSystem, list, knownActions, toCsv, purgeOlderThan, ENTRIES_PER_PAGE };
+/**
+ * Vérifie le scellement, et dit où il casse plutôt que de rendre un simple non.
+ *
+ * La chaîne est lue depuis l'entrée la plus ancienne encore présente : son
+ * empreinte précédente désigne une ligne purgée, et n'est donc pas contrôlée.
+ * Autrement dit, la vérification garantit que rien n'a été altéré ni retiré
+ * *entre* la plus ancienne entrée conservée et la plus récente.
+ */
+function verifySeal({ limit = 100000 } = {}) {
+  const rows = db.prepare('SELECT * FROM audit_log ORDER BY id LIMIT ?').all(limit);
+  if (!rows.length) return { ok: true, checked: 0, sealed: 0, unsealed: 0, broken: null };
+
+  let previous = null;
+  let sealed = 0;
+  let unsealed = 0;
+
+  for (const row of rows) {
+    // Les entrées écrites avant la mise en place du scellement n'ont pas
+    // d'empreinte : elles sont comptées à part, pas déclarées fausses.
+    if (!row.hash) {
+      unsealed += 1;
+      previous = null;
+      continue;
+    }
+
+    if (previous && row.prev_hash !== previous.hash) {
+      return { ok: false, checked: rows.length, sealed, unsealed, broken: { row, reason: 'chaine', previous } };
+    }
+    if (fingerprint(row, row.prev_hash) !== row.hash) {
+      return { ok: false, checked: rows.length, sealed, unsealed, broken: { row, reason: 'contenu', previous } };
+    }
+    sealed += 1;
+    previous = row;
+  }
+  return { ok: true, checked: rows.length, sealed, unsealed, broken: null };
+}
+
+module.exports = { log, logSystem, list, knownActions, toCsv, purgeOlderThan, verifySeal, ENTRIES_PER_PAGE };

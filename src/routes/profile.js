@@ -34,6 +34,12 @@ router.get('/', async (req, res) => {
     qr = await qrcode.toDataURL(uri, { margin: 1, width: 220 });
   }
 
+  // Retiré de la session avant le rendu, jamais après : res.render() peut
+  // rendre la main une fois la réponse déjà envoyée, et express-session
+  // décide alors d'enregistrer la session sans voir la suppression.
+  const recoveryCodes = req.session.recoveryCodes || null;
+  delete req.session.recoveryCodes;
+
   res.render('profile', {
     profile: user,
     managers: org.managersFor(user),
@@ -44,9 +50,8 @@ router.get('/', async (req, res) => {
     twoFactorSecret: state.pending ? user.totp_secret : null,
     twoFactorQr: qr,
     // Affichés une seule fois, juste après l'activation.
-    recoveryCodes: req.session.recoveryCodes || null,
+    recoveryCodes,
   });
-  delete req.session.recoveryCodes;
 });
 
 // ---------- Double authentification ----------

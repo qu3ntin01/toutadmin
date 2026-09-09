@@ -73,6 +73,8 @@ router.get('/', (req, res) => {
     financeEligibleEmployees: employees.filter((e) => !e.is_finance),
     itMembers: employees.filter((e) => e.is_it),
     itEligibleEmployees: employees.filter((e) => !e.is_it),
+    referentMembers: employees.filter((e) => e.is_referent),
+    referentEligibleEmployees: employees.filter((e) => !e.is_referent),
     companyNews: announcements.all(),
     modules: modules.list(),
     palettes: themes.list(),
@@ -589,6 +591,29 @@ router.post('/gestion/nommer', (req, res) => {
 router.post('/gestion/:id/retirer', (req, res) => {
   db.prepare('UPDATE users SET is_finance = 0 WHERE id = ?').run(Number(req.params.id));
   setFlash(req, 'success', "Accès à la gestion retiré.");
+  res.redirect('/admin#rh');
+});
+
+router.post('/alerte/nommer', (req, res) => {
+  const id = Number(req.body.employee_id);
+  const employee = findEmployee(id);
+  if (!employee) {
+    setFlash(req, 'error', 'Membre introuvable.');
+    return res.redirect('/admin#rh');
+  }
+
+  db.prepare('UPDATE users SET is_referent = 1 WHERE id = ?').run(id);
+  // La désignation est tracée ; les signalements, eux, ne le sont pas.
+  audit.log(req, 'admin.referent_nomme', 'users', id);
+  setFlash(req, 'success', `${employee.first_name} ${employee.last_name} devient référent du dispositif d'alerte.`);
+  res.redirect('/admin#rh');
+});
+
+router.post('/alerte/:id/retirer', (req, res) => {
+  const id = Number(req.params.id);
+  db.prepare('UPDATE users SET is_referent = 0 WHERE id = ?').run(id);
+  audit.log(req, 'admin.referent_retire', 'users', id);
+  setFlash(req, 'success', 'Rôle de référent retiré.');
   res.redirect('/admin#rh');
 });
 

@@ -81,6 +81,12 @@ router.get('/gestion', (req, res) => {
   const targetId = Number(req.query.personne) || null;
   const target = targetId ? db.prepare('SELECT * FROM users WHERE id = ?').get(targetId) : null;
 
+  // Retiré de la session avant le rendu, jamais après : res.render() peut
+  // rendre la main une fois la réponse déjà envoyée, et express-session
+  // décide alors d'enregistrer la session sans voir la suppression.
+  const issuedCode = req.session.vaultIssuedCode || null;
+  delete req.session.vaultIssuedCode;
+
   res.render('coffre-gestion', {
     people: people(),
     target,
@@ -94,9 +100,8 @@ router.get('/gestion', (req, res) => {
     defaultGrantDays: vault.DEFAULT_GRANT_DAYS,
     maxGrantDays: vault.MAX_GRANT_DAYS,
     // Affiché une seule fois, juste après l'émission.
-    issuedCode: req.session.vaultIssuedCode || null,
+    issuedCode,
   });
-  delete req.session.vaultIssuedCode;
 });
 
 function receiveDocument(req, res, next) {

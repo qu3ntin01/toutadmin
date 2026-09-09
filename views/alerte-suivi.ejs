@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: t('alr.followTitle') + ' — ' + t('app.name') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark"><%= brandInitials %></span>
+      <span class="brand-text">
+        <span class="brand-name"><%= companyName %></span>
+        <span class="brand-panel"><%= t('alr.panel') %></span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <% const moment = (value) => (value ? new Date(String(value).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' }) : '—'); %>
+
+      <% if (!report) { %>
+        <h1><%= t('alr.followTitle') %></h1>
+        <p class="auth-sub"><%= t('alr.followSub') %></p>
+
+        <% if (followError) { %>
+          <div class="flash flash-error"><%= t('alr.followRefused') %></div>
+        <% } %>
+
+        <form method="POST" action="/alertes/suivi" class="auth-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <label>
+            <span><%= t('alr.reference') %></span>
+            <input type="text" name="reference" value="<%= reference %>" placeholder="ALT-2026-0001" required autofocus />
+          </label>
+          <label>
+            <span><%= t('alr.followCode') %></span>
+            <input type="text" name="code" required autocomplete="off" spellcheck="false" />
+          </label>
+          <button type="submit" class="btn btn-primary btn-block"><%= t('alr.followOpen') %></button>
+        </form>
+
+        <p class="auth-note"><%= t('alr.followNoAccount') %></p>
+      <% } else { %>
+        <h1><%= report.reference %></h1>
+        <p class="auth-sub">
+          <span class="tag"><%= st(report.status) %></span>
+          <%= st(report.category) %> · <%= t('alr.filedOn', { date: moment(report.submitted_at) }) %>
+        </p>
+
+        <ul class="org-list">
+          <li class="org-item">
+            <span><%= t('alr.acknowledgement') %></span>
+            <span class="<%= report.acknowledged_at ? 'cell-strong' : 'text-danger' %>">
+              <%= report.acknowledged_at ? moment(report.acknowledged_at) : t('alr.awaited', { days: ackDays }) %>
+            </span>
+          </li>
+          <% if (report.outcome) { %>
+            <li class="org-item"><span><%= t('alr.outcome') %></span><span class="cell-strong"><%= report.outcome %></span></li>
+          <% } %>
+        </ul>
+
+        <h2 class="auth-section"><%= t('alr.exchanges') %></h2>
+        <ul class="meeting-list">
+          <li class="meeting-item">
+            <div class="meeting-head">
+              <span class="meeting-title"><%= t('alr.yourReport') %></span>
+              <span class="news-meta"><%= moment(report.submitted_at) %></span>
+            </div>
+            <p class="ticket-body"><%= report.subject %></p>
+            <% if (report.body) { %><p class="ticket-body"><%= report.body %></p><% } %>
+          </li>
+          <% messages.forEach((message) => { %>
+            <li class="meeting-item">
+              <div class="meeting-head">
+                <span class="meeting-title"><%= message.author_kind === 'referent' ? t('alr.fromReferent') : t('alr.fromYou') %></span>
+                <span class="news-meta"><%= moment(message.created_at) %></span>
+              </div>
+              <p class="ticket-body"><%= message.body %></p>
+            </li>
+          <% }) %>
+        </ul>
+
+        <% if (report.status !== 'Clôturée') { %>
+          <form method="POST" action="/alertes/suivi/message" class="auth-form">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <input type="hidden" name="reference" value="<%= report.reference %>" />
+            <input type="hidden" name="code" value="<%= code %>" />
+            <label>
+              <span><%= t('alr.addMessage') %></span>
+              <textarea name="body" rows="4" maxlength="5000" required></textarea>
+            </label>
+            <button type="submit" class="btn btn-primary btn-block"><%= t('alr.send') %></button>
+          </form>
+        <% } %>
+
+        <p class="auth-note"><%= t('alr.keepCode') %></p>
+      <% } %>
+
+      <div class="auth-foot">
+        <a href="/connexion"><%= t('alr.backToSignIn') %></a>
+      </div>
+    </div>
+  </main>
+
+  <script src="/js/theme.js"></script>
+</body>
+</html>

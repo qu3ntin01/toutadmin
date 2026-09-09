@@ -234,6 +234,25 @@ function collect({ withinDays = HORIZON_DAYS } = {}) {
       '/mon-equipe#points', [point.manager_id]);
   }
 
+  // --- Délais du dispositif d'alerte : accusé de réception sous 7 jours,
+  //     retour sur les suites sous 3 mois. Adressés aux seuls référents, et
+  //     désignant la référence du signalement, jamais son objet.
+  const referents = db.prepare('SELECT id FROM users WHERE active = 1 AND is_referent = 1').all().map((r) => r.id);
+  if (referents.length) {
+    for (const report of db.prepare(`
+      SELECT id, reference, submitted_at, acknowledged_at FROM whistleblow_reports
+      WHERE status != 'Clôturée'
+    `).all()) {
+      const filed = String(report.submitted_at).slice(0, 10);
+      if (!report.acknowledged_at) {
+        const due = shiftFrom(filed, 7);
+        if (due <= limit) add('Alerte', report.reference, 'Accusé de réception', due, `/alertes/signalements/${report.id}`, referents);
+      }
+      const outcome = shiftFrom(filed, 90);
+      if (outcome <= limit) add('Alerte', report.reference, 'Retour sur les suites', outcome, `/alertes/signalements/${report.id}`, referents);
+    }
+  }
+
   return rows.sort((a, b) => a.due.localeCompare(b.due));
 }
 

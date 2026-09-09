@@ -7,7 +7,7 @@ const MAX_SESSION_HOURS = Number(process.env.SESSION_MAX_HOURS) || 12;
 
 // Colonnes de droit relues à chaque requête. Liste fermée : le nom d'une colonne
 // ne doit jamais venir d'ailleurs que d'ici, il entre dans le SQL.
-const FLAG_COLUMNS = new Set(['is_hr', 'is_finance', 'is_it']);
+const FLAG_COLUMNS = new Set(['is_hr', 'is_finance', 'is_it', 'is_referent']);
 
 /**
  * Une session ne fige pas les droits qu'elle avait à la connexion.
@@ -160,6 +160,22 @@ function requireIt(req, res, next) {
   next();
 }
 
+/**
+ * Référent du dispositif d'alerte. Seul rôle du produit qui n'inclut pas
+ * l'administration : un signalement peut viser un administrateur, et un canal
+ * que la personne visée peut lire n'est pas un canal. L'administration désigne
+ * les référents — cela, c'est tracé — mais ne lit pas les signalements.
+ */
+function requireReferent(req, res, next) {
+  if (!req.session.user) return res.redirect('/connexion');
+  if (!hasFlag(req, 'is_referent')) {
+    return res.status(403).render('error', {
+      message: "Les signalements ne sont lisibles que par les référents désignés du dispositif d'alerte.",
+    });
+  }
+  next();
+}
+
 // Espace CSE : réservé aux salariés que le comité représente (ni administrateurs, ni freelances).
 function requireCseMember(req, res, next) {
   if (!req.session.user) return res.redirect('/connexion');
@@ -194,4 +210,4 @@ function requireManager(req, res, next) {
   next();
 }
 
-module.exports = { revalidateSession, requirePasswordChange, restrictToVault, requireAuth, requireAdmin, requireEmployee, requireHR, requireFinance, requireIt, requireManager, requireCseMember, requireCseElected };
+module.exports = { revalidateSession, requirePasswordChange, restrictToVault, requireAuth, requireAdmin, requireEmployee, requireHR, requireFinance, requireIt, requireReferent, requireManager, requireCseMember, requireCseElected };

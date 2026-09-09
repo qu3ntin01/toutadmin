@@ -1337,6 +1337,7 @@ input:disabled, select:disabled, textarea:disabled { background: var(--surface-2
 /* ---------- Première connexion ---------- */
 
 .auth-note { margin-top: 14px; font-size: 12px; line-height: 1.5; color: var(--text-tertiary); }
+.auth-section { margin: 22px 0 8px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); }
 .btn-link { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; cursor: pointer; }
 .btn-link:hover { text-decoration: underline; }
 

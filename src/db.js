@@ -35,7 +35,11 @@ CREATE TABLE IF NOT EXISTS audit_log (
   entity TEXT NOT NULL DEFAULT '',
   entity_id INTEGER,
   detail TEXT NOT NULL DEFAULT '',
-  ip TEXT NOT NULL DEFAULT ''
+  ip TEXT NOT NULL DEFAULT '',
+  -- Scellement : chaque entrée porte l'empreinte de la précédente, si bien
+  -- qu'une ligne modifiée ou retirée du milieu rompt la chaîne et se voit.
+  prev_hash TEXT NOT NULL DEFAULT '',
+  hash TEXT NOT NULL DEFAULT ''
 );
 
 -- Codes de secours de la double authentification : hachés, à usage unique.
@@ -60,6 +64,7 @@ CREATE TABLE IF NOT EXISTS users (
   is_hr INTEGER NOT NULL DEFAULT 0,
   is_finance INTEGER NOT NULL DEFAULT 0,
   is_it INTEGER NOT NULL DEFAULT 0,
+  is_referent INTEGER NOT NULL DEFAULT 0,
   gross_salary REAL,
   leave_balance REAL NOT NULL DEFAULT 0,
   department_id INTEGER REFERENCES departments(id) ON DELETE SET NULL,
@@ -747,6 +752,9 @@ for (const migration of [
   "ALTER TABLE users ADD COLUMN is_hr INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN is_finance INTEGER NOT NULL DEFAULT 0",
   "ALTER TABLE users ADD COLUMN is_it INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN is_referent INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE audit_log ADD COLUMN prev_hash TEXT NOT NULL DEFAULT ''",
+  "ALTER TABLE audit_log ADD COLUMN hash TEXT NOT NULL DEFAULT ''",
   "ALTER TABLE users ADD COLUMN gross_salary REAL",
   // CV et évaluation ATS d'une candidature.
   "ALTER TABLE candidates ADD COLUMN cv_file TEXT",
@@ -1892,6 +1900,53 @@ CREATE INDEX IF NOT EXISTS idx_vehicle_events_vehicle ON vehicle_events(vehicle_
 CREATE UNIQUE INDEX IF NOT EXISTS idx_notifications_dedupe ON notifications(user_id, dedupe_key) WHERE dedupe_key != '';
 CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read_at);
 CREATE INDEX IF NOT EXISTS idx_vault_documents_user ON vault_documents(user_id, removed_at);
+-- ---------------------------------------------------------------- Alerte interne
+-- Dispositif de recueil des signalements (loi du 21 mars 2022).
+--
+-- Trois exigences dictent ce schéma. L'auteur peut rester anonyme : la colonne
+-- author_id est alors laissée vide, et rien ailleurs ne permet de le retrouver.
+-- Le contenu est chiffré : une copie de la base ne livre pas les signalements.
+-- Le code de suivi n'est que haché : il permet à l'auteur anonyme de revenir
+-- lire la réponse, sans que la base puisse le lui redonner s'il le perd.
+CREATE TABLE IF NOT EXISTS whistleblow_reports (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reference TEXT NOT NULL UNIQUE,
+  follow_code_hash TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'Autre' CHECK(category IN ('Corruption','Fraude','Harcèlement','Discrimination','Sécurité des personnes','Environnement','Données personnelles','Autre')),
+  subject_enc TEXT NOT NULL,
+  body_enc TEXT NOT NULL DEFAULT '',
+  author_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  anonymous INTEGER NOT NULL DEFAULT 1,
+  submitted_at TEXT NOT NULL DEFAULT (datetime('now')),
+  -- La loi impose un accusé sous 7 jours et un retour sur les suites sous 3 mois.
+  acknowledged_at TEXT,
+  closed_at TEXT,
+  outcome_enc TEXT NOT NULL DEFAULT '',
+  status TEXT NOT NULL DEFAULT 'Reçue' CHECK(status IN ('Reçue','Recevable','Irrecevable','En instruction','Clôturée'))
+);
+
+-- Les échanges entre l'auteur et le référent, dans les deux sens, chiffrés eux aussi.
+CREATE TABLE IF NOT EXISTS whistleblow_messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  report_id INTEGER NOT NULL REFERENCES whistleblow_reports(id) ON DELETE CASCADE,
+  author_kind TEXT NOT NULL CHECK(author_kind IN ('auteur','referent')),
+  referent_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  body_enc TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Qui a ouvert quel signalement. Le journal d'audit général ne peut pas porter
+-- cette trace sans nommer l'alerte à tout administrateur : elle vit donc ici,
+-- lisible des seuls référents.
+CREATE TABLE IF NOT EXISTS whistleblow_access_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  report_id INTEGER NOT NULL REFERENCES whistleblow_reports(id) ON DELETE CASCADE,
+  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  occurred_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_whistleblow_status ON whistleblow_reports(status, submitted_at);
+CREATE INDEX IF NOT EXISTS idx_whistleblow_messages_report ON whistleblow_messages(report_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_software_accesses_licence ON software_accesses(licence_id, revoked_on);
 CREATE INDEX IF NOT EXISTS idx_software_accesses_user ON software_accesses(user_id, revoked_on);
 -- Une même personne ne peut pas détenir deux accès ouverts au même logiciel ;

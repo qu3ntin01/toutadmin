@@ -826,6 +826,72 @@
               <% } %>
             </div>
           </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('admin.referentTitle') %></h3>
+                <p class="card-sub"><%= t('admin.referentScope') %></p>
+              </div>
+              <a href="/alertes" class="btn btn-primary"><%= t('admin.openWhistleblow') %></a>
+            </div>
+            <p class="hint"><%= t('admin.referentHelp') %></p>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('admin.appointReferent') %></h3></div>
+              <% if (referentEligibleEmployees.length === 0) { %>
+                <div class="empty-state"><%= t('admin.allAreReferent') %></div>
+              <% } else { %>
+                <form method="POST" action="/admin/alerte/nommer" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2">
+                    <span><%= t('common.member') %></span>
+                    <select name="employee_id" required>
+                      <option value="" disabled selected><%= t('common.choose') %></option>
+                      <% referentEligibleEmployees.forEach((e) => { %>
+                        <option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %> — <%= e.grade %></option>
+                      <% }) %>
+                    </select>
+                  </label>
+                  <div class="span-2">
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('admin.grantReferent') %></button>
+                  </div>
+                </form>
+              <% } %>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('admin.referentMembers') %> <span class="muted">(<%= referentMembers.length %>)</span></h3></div>
+              <% if (referentMembers.length === 0) { %>
+                <div class="empty-state"><%= t('admin.noReferentYet') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('common.member') %></th><th><%= t('common.grade') %></th><th></th></tr></thead>
+                    <tbody>
+                      <% referentMembers.forEach((e) => { %>
+                        <tr>
+                          <td>
+                            <div class="cell-strong"><%= e.first_name %> <%= e.last_name %></div>
+                            <div class="cell-sub"><%= e.email %></div>
+                          </td>
+                          <td><span class="tag"><%= e.grade %></span></td>
+                          <td class="actions">
+                            <form method="POST" action="/admin/alerte/<%= e.id %>/retirer" data-confirm="<%= t('admin.revokeReferent') %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-sm btn-danger"><%= t('admin.revokeAccess') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
         </section>
         <section class="tab-panel" id="modules">
           <div class="card">

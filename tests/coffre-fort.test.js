@@ -235,11 +235,15 @@ test('Accès après le départ', async (t) => {
     await admin.refreshToken('/coffre-fort/gestion');
     await admin.post(`/coffre-fort/gestion/acces/${parti.id}`, { days: '30' });
 
-    const flash = await admin.flash('/coffre-fort/gestion');
-    assert.match(flash.message, /Code émis/);
-    // Le code n'existe qu'en session, le temps d'être affiché.
+    // Le code n'existe qu'en session, le temps d'un seul affichage : il faut
+    // donc le lire sur le même chargement que le message, pas sur le suivant.
     const { body } = await admin.html(`/coffre-fort/gestion?personne=${parti.id}`);
+    assert.match(body, /Code émis/);
     const code = body.match(/<li>([A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5})<\/li>/)[1];
+
+    // Et il a bien disparu au rechargement suivant.
+    const { body: encore } = await admin.html(`/coffre-fort/gestion?personne=${parti.id}`);
+    assert.doesNotMatch(encore, /[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}/);
 
     const visiteur = newClient();
     await visiteur.refreshToken('/coffre-fort/acces');

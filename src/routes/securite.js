@@ -64,6 +64,9 @@ router.get('/', (req, res) => {
     sessions: openSessions(),
     risky: riskyAccounts(),
     policy: settings.all(),
+    // Le sceau du journal : vérifié à l'ouverture, pas sur demande. Un contrôle
+    // qu'il faut penser à lancer est un contrôle qu'on ne lance pas.
+    seal: audit.verifySeal(),
     counters: {
       entries: db.prepare('SELECT COUNT(*) AS n FROM audit_log').get().n,
       totpEnabled: db.prepare('SELECT COUNT(*) AS n FROM users WHERE totp_enabled = 1').get().n,
