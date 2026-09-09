@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: event.title + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'evenements' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: event.title,
+        headerSubtitle: t('evt.sheetSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (value) => (value ? new Date(String(value).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' }) : '—'); %>
+        <% const formMoment = (value) => (value ? String(value).replace(' ', 'T') : ''); %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const registered = myRegistration && myRegistration.status !== 'Annulée'; %>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3><%= st(event.kind) %> · <%= moment(event.starts_at) %></h3>
+              <p class="card-sub">
+                <span class="tag <%= event.status === 'Ouvert' ? 'tag-success' : (event.status === 'Annulé' ? 'tag-danger' : '') %>"><%= st(event.status) %></span>
+                <%= event.location || t('evt.noLocation') %> · <%= event.scope_name || t('evt.wholeCompany') %>
+                <% if (event.organizer_first_name) { %> · <%= t('evt.organizedBy', { name: event.organizer_first_name + ' ' + event.organizer_last_name }) %><% } %>
+              </p>
+            </div>
+            <span class="tag"><%= event.capacity ? t('inf.seatsOf', { used: event.taken, total: event.capacity }) : t('evt.registeredCount', { count: event.taken }) %></span>
+          </div>
+
+          <% if (event.description) { %><p class="article-body"><%= event.description %></p><% } %>
+
+          <ul class="org-list">
+            <li class="org-item"><span><%= t('evt.startsAt') %></span><span class="cell-strong"><%= moment(event.starts_at) %></span></li>
+            <% if (event.ends_at) { %><li class="org-item"><span><%= t('evt.endsAt') %></span><span class="cell-strong"><%= moment(event.ends_at) %></span></li><% } %>
+            <% if (event.registration_closes_on) { %>
+              <li class="org-item"><span><%= t('evt.closesOn') %></span>
+                <span class="<%= event.registration_closes_on < today ? 'text-danger' : 'cell-strong' %>"><%= day(event.registration_closes_on) %></span>
+              </li>
+            <% } %>
+            <% if (event.capacity) { %>
+              <li class="org-item"><span><%= t('evt.seatsLeft') %></span><span class="cell-strong"><%= seatsLeft %></span></li>
+            <% } %>
+            <% if (event.waiting) { %>
+              <li class="org-item"><span><%= t('evt.waitingList') %></span><span class="cell-strong"><%= event.waiting %></span></li>
+            <% } %>
+            <% if (canManage) { %>
+              <li class="org-item"><span><%= t('evt.budget') %></span><span class="cell-strong"><%= money(event.budget) %></span></li>
+              <li class="org-item"><span><%= t('evt.cost') %></span><span class="cell-strong"><%= money(event.cost) %></span></li>
+            <% } %>
+          </ul>
+        </div>
+
+        <% if (concerned && event.status !== 'Brouillon') { %>
+          <div class="card">
+            <div class="card-head"><h3><%= t('evt.myPlace') %></h3></div>
+            <% if (registered) { %>
+              <p class="card-sub">
+                <span class="tag <%= myRegistration.status === 'Inscrit' ? 'tag-success' : 'tag-warning' %>"><%= st(myRegistration.status) %></span>
+                <% if (myRegistration.status === "Liste d'attente") { %><%= t('evt.waitingExplain') %><% } %>
+              </p>
+              <% if (event.status !== 'Annulé' && event.status !== 'Clos') { %>
+                <form method="POST" action="/evenements/<%= event.id %>/desistement" data-confirm="<%= t('evt.confirmCancel') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline"><%= t('evt.withdraw') %></button>
+                </form>
+              <% } %>
+            <% } else if (event.status === 'Ouvert' || event.status === 'Complet') { %>
+              <form method="POST" action="/evenements/<%= event.id %>/inscription">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-primary">
+                  <%= event.status === 'Complet' ? t('evt.joinWaitlist') : t('evt.register') %>
+                </button>
+              </form>
+              <% if (event.status === 'Complet') { %><p class="hint"><%= t('evt.fullExplain') %></p><% } %>
+            <% } else { %>
+              <div class="empty-state"><%= t('evt.registrationClosed') %></div>
+            <% } %>
+          </div>
+        <% } %>
+
+        <% if (canManage) { %>
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('evt.participants', { count: registrationList.length }) %></h3>
+            </div>
+            <p class="hint"><%= t('evt.participantsHint') %></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('common.member') %></th><th><%= t('common.status') %></th><th><%= t('evt.registeredAt') %></th><th></th>
+                </tr></thead>
+                <tbody>
+                  <% registrationList.forEach((row) => { %>
+                    <tr>
+                      <td>
+                        <div class="cell-strong"><%= row.first_name %> <%= row.last_name %></div>
+                        <div class="cell-sub"><%= row.grade || row.email %></div>
+                      </td>
+                      <td><span class="tag <%= row.status === 'Inscrit' || row.status === 'Présent' ? 'tag-success' : (row.status === 'Annulée' || row.status === 'Absent' ? '' : 'tag-warning') %>"><%= st(row.status) %></span></td>
+                      <td class="cell-sub nowrap"><%= moment(row.registered_at) %></td>
+                      <td class="actions">
+                        <% if (row.status !== 'Annulée') { %>
+                          <form method="POST" action="/evenements/inscriptions/<%= row.id %>/emargement">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="presence" value="Présent" />
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('evt.markPresent') %></button>
+                          </form>
+                          <form method="POST" action="/evenements/inscriptions/<%= row.id %>/emargement">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="presence" value="Absent" />
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('evt.markAbsent') %></button>
+                          </form>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (registrationList.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('evt.noRegistration') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('evt.registerSomeone') %></h3></div>
+            <form method="POST" action="/evenements/<%= event.id %>/inscrire" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('common.member') %></span>
+                <select name="user_id" required>
+                  <option value="" disabled selected><%= t('common.choose') %></option>
+                  <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('evt.addRegistration') %></button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('evt.editEvent') %></h3>
+              <form method="POST" action="/evenements/<%= event.id %>/supprimer" data-confirm="<%= t('evt.confirmDelete') %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+              </form>
+            </div>
+            <form method="POST" action="/evenements/<%= event.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" value="<%= event.title %>" required maxlength="150" /></label>
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>" <%= event.kind === k ? 'selected' : '' %>><%= st(k) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('evt.location') %></span><input type="text" name="location" value="<%= event.location %>" maxlength="200" /></label>
+              <label><span><%= t('evt.startsAt') %></span><input type="datetime-local" name="starts_at" value="<%= formMoment(event.starts_at) %>" required /></label>
+              <label><span><%= t('evt.endsAt') %></span><input type="datetime-local" name="ends_at" value="<%= formMoment(event.ends_at) %>" /></label>
+              <label><span><%= t('evt.scope') %></span>
+                <select name="scope">
+                  <option value="company" <%= event.scope === 'company' ? 'selected' : '' %>><%= t('evt.wholeCompany') %></option>
+                  <option value="department" <%= event.scope === 'department' ? 'selected' : '' %>><%= t('evt.oneDepartment') %></option>
+                  <option value="team" <%= event.scope === 'team' ? 'selected' : '' %>><%= t('evt.oneTeam') %></option>
+                </select>
+              </label>
+              <label><span><%= t('evt.scopeTarget') %></span>
+                <select name="scope_id">
+                  <option value="">—</option>
+                  <% departments.forEach((d) => { %><option value="<%= d.id %>" <%= event.scope === 'department' && event.scope_id === d.id ? 'selected' : '' %>><%= d.name %></option><% }) %>
+                  <% teams.forEach((tm) => { %><option value="<%= tm.id %>" <%= event.scope === 'team' && event.scope_id === tm.id ? 'selected' : '' %>><%= tm.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('evt.capacity') %></span><input type="number" name="capacity" min="0" max="100000" value="<%= event.capacity %>" /></label>
+              <label><span><%= t('evt.closesOn') %></span><input type="date" name="registration_closes_on" value="<%= event.registration_closes_on || '' %>" /></label>
+              <label><span><%= t('evt.budget') %></span><input type="text" name="budget" inputmode="decimal" value="<%= event.budget == null ? '' : event.budget %>" /></label>
+              <label><span><%= t('evt.cost') %></span><input type="text" name="cost" inputmode="decimal" value="<%= event.cost == null ? '' : event.cost %>" /></label>
+              <label><span><%= t('evt.organizer') %></span>
+                <select name="organizer_id">
+                  <% employees.forEach((u) => { %><option value="<%= u.id %>" <%= event.organizer_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('common.status') %></span>
+                <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= event.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %></select>
+              </label>
+              <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="4" maxlength="4000"><%= event.description %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('evt.statusHint') %></p>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>

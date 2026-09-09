@@ -122,10 +122,14 @@ test('tout statut stocké par le schéma a une traduction', () => {
       if (entry.isDirectory()) { walk(full); continue; }
       if (!entry.name.endsWith('.js')) continue;
       const src = fs.readFileSync(full, 'utf8');
-      // Une apostrophe dans une valeur SQL s'écrit doublée (« Liste d''attente ») :
-      // la relever comme deux valeurs ferait échouer le test sur des mots coupés.
+      // Une apostrophe dans une valeur se double en SQL (« Liste d''attente ») et
+      // s'échappe en JavaScript ; une constante peut aussi être écrite entre
+      // guillemets pour l'éviter. Sans ces trois cas, le relevé coupe les mots
+      // en deux et remonte des statuts qui n'existent pas.
       const values = (list) => {
-        for (const v of list.matchAll(/'((?:[^']|'')+)'/g)) stored.add(v[1].replace(/''/g, "'"));
+        for (const v of list.matchAll(/'((?:[^'\\]|\\.|'')+)'|"((?:[^"\\]|\\.)+)"/g)) {
+          stored.add((v[1] ?? v[2]).replace(/''/g, "'").replace(/\\(.)/g, '$1'));
+        }
       };
       for (const m of src.matchAll(/CHECK\(\s*status\s+IN\s*\(([^)]*)\)/g)) values(m[1]);
       for (const m of src.matchAll(/[A-Z_]*STATUSES\s*=\s*\[([^\]]*)\]/g)) values(m[1]);

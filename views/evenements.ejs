@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>">
+<head>
+  <%- include('partials/head', { title: t('nav.events') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'evenements' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.events'),
+        headerSubtitle: t('evt.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (value) => (value ? new Date(String(value).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' }) : '—'); %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.upcoming %></span><span class="stat-label"><%= t('evt.upcoming') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.registered %></span><span class="stat-label"><%= t('evt.registeredTotal') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.waiting %></span><span class="stat-label"><%= t('evt.waitingTotal') %></span></span>
+          </div>
+          <% if (canManage) { %>
+            <div class="stat-card">
+              <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+              <span class="stat-body"><span class="stat-value"><%= money(summary.spend) %></span><span class="stat-label"><%= t('evt.spend12') %></span></span>
+            </div>
+          <% } %>
+        </section>
+
+        <% if (mine.length) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= t('evt.myRegistrations', { count: mine.length }) %></h3></div>
+            <ul class="org-list">
+              <% mine.forEach((e) => { %>
+                <li class="org-item">
+                  <span>
+                    <a class="cell-strong" href="/evenements/<%= e.id %>"><%= e.title %></a>
+                    <span class="tag <%= e.my_status === 'Inscrit' ? 'tag-success' : 'tag-warning' %>"><%= st(e.my_status) %></span>
+                    <br /><span class="cell-sub"><%= moment(e.starts_at) %><%= e.location ? ' · ' + e.location : '' %></span>
+                  </span>
+                  <a class="btn btn-outline btn-sm" href="/evenements/<%= e.id %>"><%= t('common.open') %></a>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('evt.eventCount', { count: eventList.length }) %></h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr>
+                <th><%= t('evt.event') %></th><th><%= t('common.type') %></th><th><%= t('evt.when') %></th>
+                <th><%= t('evt.scope') %></th><th><%= t('evt.seats') %></th><th><%= t('common.status') %></th><th></th>
+              </tr></thead>
+              <tbody>
+                <% eventList.forEach((e) => { %>
+                  <tr>
+                    <td class="cell-strong"><a href="/evenements/<%= e.id %>"><%= e.title %></a>
+                      <% if (e.location) { %><br /><span class="cell-sub"><%= e.location %></span><% } %>
+                    </td>
+                    <td class="cell-sub"><%= st(e.kind) %></td>
+                    <td class="cell-sub nowrap"><%= moment(e.starts_at) %></td>
+                    <td class="cell-sub"><%= e.scope_name || t('evt.wholeCompany') %></td>
+                    <td class="cell-sub nowrap">
+                      <%= e.capacity ? t('inf.seatsOf', { used: e.taken, total: e.capacity }) : e.taken %>
+                      <% if (e.waiting) { %><br /><span class="cell-sub"><%= t('evt.waiting', { count: e.waiting }) %></span><% } %>
+                    </td>
+                    <td><span class="tag <%= e.status === 'Ouvert' ? 'tag-success' : (e.status === 'Annulé' ? 'tag-danger' : '') %>"><%= st(e.status) %></span></td>
+                    <td><a class="btn btn-outline btn-sm" href="/evenements/<%= e.id %>"><%= t('common.open') %></a></td>
+                  </tr>
+                <% }) %>
+                <% if (eventList.length === 0) { %><tr><td colspan="7" class="cell-sub"><%= t('evt.noEvent') %></td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <% if (canManage) { %>
+          <div class="card" id="nouveau">
+            <div class="card-head"><h3><%= t('evt.newEvent') %></h3></div>
+            <form method="POST" action="/evenements" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="150" /></label>
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= st(k) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('evt.location') %></span><input type="text" name="location" maxlength="200" /></label>
+              <label><span><%= t('evt.startsAt') %></span><input type="datetime-local" name="starts_at" required /></label>
+              <label><span><%= t('evt.endsAt') %></span><input type="datetime-local" name="ends_at" /></label>
+              <label><span><%= t('evt.scope') %></span>
+                <select name="scope">
+                  <option value="company"><%= t('evt.wholeCompany') %></option>
+                  <option value="department"><%= t('evt.oneDepartment') %></option>
+                  <option value="team"><%= t('evt.oneTeam') %></option>
+                </select>
+              </label>
+              <label><span><%= t('evt.scopeTarget') %></span>
+                <select name="scope_id">
+                  <option value="">—</option>
+                  <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+                  <% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('evt.capacity') %></span><input type="number" name="capacity" min="0" max="100000" value="0" /></label>
+              <label><span><%= t('evt.closesOn') %></span><input type="date" name="registration_closes_on" /></label>
+              <label><span><%= t('evt.budget') %></span><input type="text" name="budget" inputmode="decimal" /></label>
+              <label><span><%= t('evt.cost') %></span><input type="text" name="cost" inputmode="decimal" /></label>
+              <label class="span-2"><span><%= t('common.description') %></span><textarea name="description" rows="4" maxlength="4000"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('evt.capacityHint') %></p>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/confirm.js"></script>
+</body>
+</html>
