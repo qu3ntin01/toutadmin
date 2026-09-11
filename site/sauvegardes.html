@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Sauvegarde automatique, vérification d'intégrité, restauration, externalisation FTP et Google Drive, export intégral." />
+<title>Sauvegardes et export — Documentation Toutadmin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Toutadmin<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html" class="is-active" aria-current="page">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Sauvegardes et export</h1>
+<p class="lede">
+  Trois choses distinctes, souvent confondues : la <strong>sauvegarde</strong> sert à revenir
+  en arrière dans ce logiciel ; l'<strong>externalisation</strong> met les archives hors de la
+  machine qu'elles protègent ; l'<strong>export</strong> sert à s'en aller ailleurs.
+</p>
+
+<h2 id="sauvegarde-automatique">Sauvegarde automatique<a class="anchor" href="#sauvegarde-automatique" aria-label="Lien vers cette section">#</a></h2>
+
+<ul>
+  <li>Toutes les heures par défaut — intervalle et nombre d'archives conservées réglables dans <code>/sauvegardes</code>.</li>
+  <li>Le serveur sauvegarde aussi <strong>au démarrage s'il a manqué une échéance</strong>.</li>
+  <li>Téléchargement pour copie hors ligne, vérification d'intégrité à la demande, restauration depuis une archive téléversée (64 Mo maximum ; au-delà, le fichier se dépose dans le dossier des sauvegardes).</li>
+</ul>
+
+<h3 id="une-archive-contient-tout">Une archive contient tout<a class="anchor" href="#une-archive-contient-tout" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  La base, les photos de profil, les CV, le coffre-fort, les documents du parapheur et les
+  pièces comptables reçues.
+</p>
+
+<div class="warn">
+  <span class="note-title">Sauvegarder la seule base serait un piège</span>
+  <p>
+    L'instance restaurée prétendrait détenir des bulletins qui auraient disparu du disque.
+  </p>
+</div>
+
+<h3 id="la-base-est-copiee-a-chaud-correctement">La base est copiée à chaud, correctement<a class="anchor" href="#la-base-est-copiee-a-chaud-correctement" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Par le <strong>mécanisme de sauvegarde en ligne de SQLite</strong>, cohérent même pendant
+  l'écriture. Copier le fichier à la main ne le serait pas : le journal WAL vit à côté, et une
+  copie naïve peut attraper une base à moitié écrite.
+</p>
+
+<h3 id="l-integrite-repose-sur-le-manifeste">L'intégrité repose sur le manifeste<a class="anchor" href="#l-integrite-repose-sur-le-manifeste" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Chaque fichier porte son empreinte dans le manifeste de l'archive, vérifiée avant toute
+  restauration. La somme de contrôle de <code>tar</code> ne couvre que les en-têtes — c'est le
+  manifeste qui protège le contenu.
+</p>
+
+<h2 id="restauration">Restauration<a class="anchor" href="#restauration" aria-label="Lien vers cette section">#</a></h2>
+
+<ul>
+  <li><strong>Table par table, dans une seule transaction</strong> : l'application reste debout, et un échec en cours de route ne laisse pas une base à moitié écrite.</li>
+  <li>Les colonnes ajoutées par une migration postérieure à l'archive sont <strong>ignorées</strong> plutôt que de faire échouer l'opération.</li>
+  <li><strong>L'état actuel est sauvegardé d'abord</strong> : une erreur de manipulation se rattrape.</li>
+  <li>Les sessions ouvertes ne sont pas restaurées — pour ne pas déconnecter celui qui mène l'opération.</li>
+  <li>La confirmation se fait en retapant le nom exact de l'archive.</li>
+</ul>
+
+<h2 id="externalisation">Externalisation<a class="anchor" href="#externalisation" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="warn">
+  <span class="note-title">Une sauvegarde qui reste sur le serveur qu'elle protège ne protège de rien</span>
+  <p>
+    La panne de disque, l'incendie et le rançongiciel emportent les deux.
+  </p>
+</div>
+
+<p>
+  Chaque archive est déposée sur les destinations extérieures actives dès sa création,
+  automatique ou manuelle.
+</p>
+
+<h3 id="serveur-ftp">Serveur FTP<a class="anchor" href="#serveur-ftp" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  NAS, espace de sauvegarde d'un hébergeur. Trois modes : <strong>FTPS explicite</strong>,
+  <strong>FTPS implicite</strong> ou <strong>FTP simple</strong> — le mode se choisit à
+  l'écran, et l'avertissement sur le FTP en clair aussi. Le dossier distant est créé s'il
+  manque ; un certificat auto-signé n'est accepté que si on le demande.
+</p>
+
+<h3 id="google-drive-par-compte-de-service">Google Drive par compte de service<a class="anchor" href="#google-drive-par-compte-de-service" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Un jeton JWT signé <strong>RS256</strong>, sans dépendance ni consentement à renouveler. Le
+  compte de service ne possède aucun espace : le dossier de destination lui est partagé depuis
+  un compte Drive, ce qui <strong>borne son accès à ce seul dossier</strong>.
+</p>
+
+<h3 id="les-garanties">Les garanties<a class="anchor" href="#les-garanties" aria-label="Lien vers cette section">#</a></h3>
+
+<ul>
+  <li><strong>Les secrets sont chiffrés en base</strong> (AES-256-GCM, clé dérivée du secret de session qui vit dans un fichier à part) : une copie de la base seule ne livre ni le mot de passe FTP ni la clé du compte de service.</li>
+  <li>Un champ secret laissé vide <strong>conserve la valeur en place</strong> plutôt que de l'effacer.</li>
+  <li>Le <strong>test de connexion écrit puis efface un fichier d'essai</strong> : il vérifie l'accès en écriture, pas seulement l'authentification.</li>
+  <li>Une <strong>destination incomplète ne peut pas être activée</strong> — une externalisation qu'on croit active et qui ne l'est pas est pire que pas d'externalisation.</li>
+  <li>Le distant est aligné sur le nombre d'archives conservées, sinon l'espace grossit jusqu'à refuser les dépôts.</li>
+  <li>Un <strong>échec alerte les administrateurs</strong> (une fois par jour et par destination) et reste affiché à l'écran. Une externalisation muette qui échoue depuis trois semaines est le pire des cas : on se croit couvert.</li>
+</ul>
+
+<h2 id="export-integral">Export intégral<a class="anchor" href="#export-integral" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Depuis <code>/sauvegardes</code>, onglet Export : une table par fichier JSON, les documents
+  joints, un manifeste avec les empreintes, et un mode d'emploi. Le format ne suppose ni
+  SQLite ni ce logiciel pour être relu.
+</p>
+
+<div class="note">
+  <span class="note-title">Ce qui n'y figure pas est dit dans l'archive elle-même</span>
+  <p>
+    Empreintes de mots de passe, secrets de double authentification, jetons d'API, secrets de
+    webhook, sessions ouvertes, réglages chiffrés. Ces éléments n'ont aucune valeur ailleurs —
+    les recopier dans un fichier destiné à circuler serait un risque sans contrepartie.
+  </p>
+</div>
+
+<p>
+  L'archive part directement vers le navigateur : elle ne laisse pas une copie de toute
+  l'entreprise dans un dossier du serveur. Chaque export est tracé.
+</p>
+
+<h2 id="protection-des-archives">Protection des archives<a class="anchor" href="#protection-des-archives" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Une archive contient des empreintes de mots de passe, des secrets de double authentification
+  et des bulletins de paie. Le dossier est en <code>0700</code>, les archives en
+  <code>0600</code>, l'espace est réservé à l'administration et chaque téléchargement est
+  tracé.
+</p>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="api.html">← API et webhooks</a><a href="architecture.html">Architecture →</a></nav>
+      <p class="foot">Documentation de Toutadmin — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#sauvegarde-automatique">Sauvegarde automatique</a>
+    <a class="lvl-3" href="#une-archive-contient-tout">Une archive contient tout</a>
+    <a class="lvl-3" href="#la-base-est-copiee-a-chaud-correctement">La base est copiée à chaud, correctement</a>
+    <a class="lvl-3" href="#l-integrite-repose-sur-le-manifeste">L'intégrité repose sur le manifeste</a>
+    <a class="lvl-2" href="#restauration">Restauration</a>
+    <a class="lvl-2" href="#externalisation">Externalisation</a>
+    <a class="lvl-3" href="#serveur-ftp">Serveur FTP</a>
+    <a class="lvl-3" href="#google-drive-par-compte-de-service">Google Drive par compte de service</a>
+    <a class="lvl-3" href="#les-garanties">Les garanties</a>
+    <a class="lvl-2" href="#export-integral">Export intégral</a>
+    <a class="lvl-2" href="#protection-des-archives">Protection des archives</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

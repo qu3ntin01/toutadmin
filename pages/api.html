@@ -1,0 +1,109 @@
+title: API et webhooks
+nav: API et webhooks
+description: API REST de lecture à portées, jetons révocables, et webhooks sortants signés.
+
+<h1>API et webhooks</h1>
+<p class="lede">
+  Deux sens de circulation : une API REST pour lire l'instance depuis l'extérieur, et des
+  webhooks pour que l'instance prévienne l'extérieur quand quelque chose arrive.
+</p>
+
+<h2>API REST</h2>
+
+<p>
+  Versionnée sous <code>/api/v1</code>, et volontairement <strong>en lecture seule</strong>.
+</p>
+
+<div class="note">
+  <span class="note-title">Pourquoi pas d'écriture</span>
+  <p>
+    Un jeton circule dans des fichiers de configuration, des variables d'environnement,
+    parfois un dépôt Git. Il ne doit pas pouvoir supprimer un salarié ni émettre une facture.
+  </p>
+</div>
+
+<h3>Authentification</h3>
+
+<pre><code>curl -H "Authorization: Bearer sm_xxxxxxxxxxxxxxxxxxxx" \
+     https://votre-instance.example/api/v1/annuaire</code></pre>
+
+<p>
+  Pas de cookie, donc pas de session, donc pas de jeton CSRF : l'authentification tient
+  entièrement dans l'en-tête. Les réponses ne sont jamais mises en cache
+  (<code>Cache-Control: no-store</code>), les erreurs sont en JSON, et le débit est limité
+  par <code>API_RATE_LIMIT</code> (120 requêtes par minute et par adresse, par défaut).
+</p>
+
+<h3>Jetons</h3>
+
+<ul>
+  <li><strong>Portées explicites</strong> : annuaire, RH, gestion, projets, pilotage. Un jeton ne voit que ce que sa portée autorise.</li>
+  <li><strong>Durée de vie bornée</strong>, révocables d'un clic.</li>
+  <li><strong>Jamais conservés en clair</strong> : seule leur empreinte SHA-256 vit en base, avec le préfixe <code>sm_</code> qui permet de les reconnaître. Le jeton s'affiche une fois, à sa création.</li>
+</ul>
+
+<div class="good">
+  <span class="note-title">L'API respecte les règles de l'écran</span>
+  <p>
+    Qui est retiré de l'annuaire n'en sort pas par une autre porte, et le motif d'une absence
+    ne quitte pas l'entreprise. Les mêmes filtres qu'à l'affichage s'appliquent à la source,
+    pas après coup.
+  </p>
+</div>
+
+<h2>Webhooks sortants</h2>
+
+<p>
+  L'instance appelle une adresse que vous fournissez quand un événement se produit :
+</p>
+
+<ul>
+  <li>facture créée, facture payée ;</li>
+  <li>absence approuvée ;</li>
+  <li>arrivée, départ ;</li>
+  <li>document signé ;</li>
+  <li>ticket ouvert ;</li>
+  <li>externalisation de sauvegarde en échec.</li>
+</ul>
+
+<h3>Chaque envoi est signé</h3>
+
+<p>
+  Un HMAC-SHA256 du corps de la requête, calculé avec le secret du webhook, est transmis dans
+  l'en-tête <code>x-toutadmin-signature</code>. C'est ce qui distingue un appel venu
+  d'ici d'un appel forgé. Le secret est chiffré en base et affiché une seule fois.
+</p>
+
+<pre><code>// Côté récepteur : vérifier avant de faire quoi que ce soit du corps.
+const attendu = crypto
+  .createHmac('sha256', SECRET)
+  .update(corpsBrut)          // le corps brut, pas l'objet re-sérialisé
+  .digest('hex');
+
+if (!crypto.timingSafeEqual(Buffer.from(attendu), Buffer.from(recu))) {
+  return res.status(401).end();
+}</code></pre>
+
+<h3>Une adresse interne est refusée par défaut</h3>
+
+<div class="warn">
+  <span class="note-title">Falsification de requête côté serveur</span>
+  <p>
+    Faire émettre des requêtes à un serveur vers son propre réseau est une porte dérobée
+    classique. Les adresses privées et les URL en clair (<code>http://</code>) sont refusées ;
+    les autoriser demande de cocher une case, sciemment.
+  </p>
+</div>
+
+<h3>Un échec n'est pas silencieux</h3>
+
+<ul>
+  <li>Chaque tentative est journalisée.</li>
+  <li>Réessai <strong>cinq fois</strong>, avec un délai qui double à chaque tentative.</li>
+  <li>Après <strong>vingt échecs consécutifs</strong>, le webhook s'éteint de lui-même.</li>
+</ul>
+
+<p>
+  Mieux vaut un tuyau éteint, qui se voit, qu'un tuyau muet qui fait croire que l'information
+  passe.
+</p>

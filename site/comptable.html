@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Lecture automatique des factures fournisseurs, analyse assistée optionnelle et capture de la boîte aux lettres comptable." />
+<title>Pièces reçues — Documentation Toutadmin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Toutadmin<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html" class="is-active" aria-current="page">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Pièces reçues</h1>
+<p class="lede">
+  Une corbeille unique où atterrissent les factures fournisseurs, qu'elles arrivent par
+  dépôt manuel ou par relève de la boîte aux lettres. Chacune est lue automatiquement, puis
+  validée d'un clic par le comptable.
+</p>
+
+<h2 id="le-principe">Le principe<a class="anchor" href="#le-principe" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="good">
+  <span class="note-title">Rien n'entre en comptabilité sans un clic</span>
+  <p>
+    L'analyse <strong>pré-remplit</strong> le formulaire de facture ; le comptable corrige et
+    valide. Ce qui est enregistré est ce qu'il a validé, pas ce qui a été lu. Une lecture
+    automatique qui écrit directement dans les comptes est une erreur qu'on découvre au bilan.
+  </p>
+</div>
+
+<p>
+  Trois pièces indépendantes composent le dispositif, et chacune fonctionne sans les autres :
+  la lecture par règles est toujours active, l'analyse assistée est optionnelle, la relève
+  IMAP se configure séparément.
+</p>
+
+<h2 id="la-lecture-par-regles">La lecture par règles<a class="anchor" href="#la-lecture-par-regles" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Hors ligne, sans rien envoyer nulle part. Elle extrait l'émetteur, le numéro, les dates, le
+  HT, la TVA, le TTC, le taux, la devise, le SIRET, le numéro de TVA et l'IBAN.
+</p>
+
+<h3 id="les-identifiants-sont-verifies-par-leur-cle-de-controle">Les identifiants sont vérifiés par leur clé de contrôle<a class="anchor" href="#les-identifiants-sont-verifies-par-leur-cle-de-controle" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Un SIRET passe par l'algorithme de <strong>Luhn</strong>, un IBAN par le <strong>modulo
+  97</strong>. Un numéro mal recopié se voit sans interroger personne — et un numéro validé
+  par sa clé ne sera plus remis en cause par la suite du traitement.
+</p>
+
+<h3 id="la-coherence-prime-sur-la-ressemblance">La cohérence prime sur la ressemblance<a class="anchor" href="#la-coherence-prime-sur-la-ressemblance" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  HT + TVA doit faire TTC. Quand les trois montants s'accordent, la confiance monte ; quand
+  ils se contredisent, elle tombe et l'écran le dit. Un montant manquant est reconstitué à
+  partir des deux autres, avec la note qui l'explique.
+</p>
+
+<h3 id="le-tiers-est-reconnu">Le tiers est reconnu<a class="anchor" href="#le-tiers-est-reconnu" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Par son identifiant s'il est déjà enregistré, à défaut par son nom : la facture arrive déjà
+  rapprochée du fournisseur.
+</p>
+
+<h3 id="la-piece-reste-le-justificatif">La pièce reste le justificatif<a class="anchor" href="#la-piece-reste-le-justificatif" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Le fichier est conservé tel quel, scellé par son empreinte SHA-256, revérifiée à chaque
+  consultation. Une pièce qui a donné lieu à une facture ne se supprime plus. Le même fichier
+  reçu deux fois ne fait qu'une ligne.
+</p>
+
+<h2 id="l-analyse-assistee-par-un-modele">L'analyse assistée par un modèle<a class="anchor" href="#l-analyse-assistee-par-un-modele" aria-label="Lien vers cette section">#</a></h2>
+
+<p class="tag tag-off" style="display:inline-block">optionnelle — éteinte par défaut</p>
+
+<p>
+  Un modèle de langage peut venir <strong>par-dessus</strong> les règles, pour les documents
+  qu'elles lisent mal : mises en page inhabituelles, factures étrangères, émetteurs inconnus.
+</p>
+
+<h3 id="deux-familles-de-services">Deux familles de services<a class="anchor" href="#deux-familles-de-services" aria-label="Lien vers cette section">#</a></h3>
+
+<ul>
+  <li>L'<strong>API Claude d'Anthropic</strong>, par son SDK officiel, avec une sortie contrainte par un schéma JSON.</li>
+  <li>Tout service <strong>compatible OpenAI</strong> — Mistral, OVHcloud, Scaleway, ou un modèle hébergé sur votre propre réseau, auquel cas <strong>rien ne sort de l'entreprise</strong>.</li>
+</ul>
+
+<h3 id="c-est-un-choix-explicite">C'est un choix explicite<a class="anchor" href="#c-est-un-choix-explicite" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Rien n'est envoyé tant qu'un administrateur n'a pas activé la fonction, et l'écran dit en
+  toutes lettres ce qui part. La clé d'accès est chiffrée en base.
+</p>
+
+<h3 id="le-modele-ne-decide-de-rien">Le modèle ne décide de rien<a class="anchor" href="#le-modele-ne-decide-de-rien" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  C'est la règle d'arbitrage, et elle est explicite dans le code :
+</p>
+
+<ul>
+  <li>Un <strong>SIRET ou un IBAN validés par leur clé</strong> ne sont jamais remplacés.</li>
+  <li>Un <strong>triplet de montants cohérent</strong> l'emporte sur un triplet qui ne l'est pas, d'où qu'il vienne.</li>
+  <li>Le modèle <strong>ne fait que combler les vides</strong>.</li>
+  <li>Chaque champ affiche son <strong>origine</strong> : règles ou modèle.</li>
+</ul>
+
+<div class="good">
+  <span class="note-title">Une panne du service ne casse rien</span>
+  <p>
+    La lecture par règles reste acquise, et l'écran signale que l'analyse assistée n'a pas
+    répondu.
+  </p>
+</div>
+
+<h2 id="la-capture-de-la-boite-aux-lettres">La capture de la boîte aux lettres<a class="anchor" href="#la-capture-de-la-boite-aux-lettres" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Relève <strong>IMAP</strong> d'une adresse dédiée (<code>factures@…</code>) : les pièces
+  jointes PDF et DOCX des messages <strong>non lus</strong>, dans une fenêtre de jours bornée,
+  entrent dans la corbeille du comptable.
+</p>
+
+<ul>
+  <li>Automatique à chaque balayage horaire, ou à la demande depuis l'écran.</li>
+  <li>Un <strong>test de connexion</strong> ouvre le dossier et compte ce qui attend — il vérifie l'accès réel, pas seulement l'authentification.</li>
+  <li><strong>Aucun message n'est supprimé</strong> : la boîte reste la source, le logiciel n'en est qu'un lecteur. Le message est marqué lu — sinon un courriel sans pièce jointe reviendrait à chaque relève — et peut être rangé dans un dossier.</li>
+  <li>Le mot de passe est <strong>chiffré en base</strong>, la connexion chiffrée par défaut, et un certificat auto-signé n'est accepté que si on le demande.</li>
+</ul>
+
+<h2 id="le-parcours-d-une-facture">Le parcours d'une facture<a class="anchor" href="#le-parcours-d-une-facture" aria-label="Lien vers cette section">#</a></h2>
+
+<ol>
+  <li><strong>Arrivée</strong> — dépôt manuel ou relève IMAP. Le fichier est vérifié (type réel, taille), scellé par son empreinte, et dédoublonné.</li>
+  <li><strong>Lecture</strong> — les règles extraient ce qu'elles peuvent ; si l'analyse assistée est active, le modèle comble les vides sans écraser ce qui est vérifié.</li>
+  <li><strong>Rapprochement</strong> — le tiers est identifié par son SIRET ou son nom.</li>
+  <li><strong>Validation</strong> — le comptable relit le formulaire pré-rempli, corrige, valide. La facture est créée ; la pièce lui reste attachée comme justificatif.</li>
+</ol>
+
+<div class="note">
+  <span class="note-title">Ce que la lecture ne fait pas</span>
+  <p>
+    Il n'y a pas de reconnaissance de caractères : un PDF entièrement scanné ne contient aucun
+    texte. Le dépôt est accepté, mais l'écran annonce qu'aucun texte n'a pu être extrait plutôt
+    que de rendre une analyse vide qui aurait l'air d'un résultat.
+  </p>
+</div>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="lexique.html">← Lexique</a><a href="api.html">API et webhooks →</a></nav>
+      <p class="foot">Documentation de Toutadmin — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#le-principe">Le principe</a>
+    <a class="lvl-2" href="#la-lecture-par-regles">La lecture par règles</a>
+    <a class="lvl-3" href="#les-identifiants-sont-verifies-par-leur-cle-de-controle">Les identifiants sont vérifiés par leur clé de contrôle</a>
+    <a class="lvl-3" href="#la-coherence-prime-sur-la-ressemblance">La cohérence prime sur la ressemblance</a>
+    <a class="lvl-3" href="#le-tiers-est-reconnu">Le tiers est reconnu</a>
+    <a class="lvl-3" href="#la-piece-reste-le-justificatif">La pièce reste le justificatif</a>
+    <a class="lvl-2" href="#l-analyse-assistee-par-un-modele">L'analyse assistée par un modèle</a>
+    <a class="lvl-3" href="#deux-familles-de-services">Deux familles de services</a>
+    <a class="lvl-3" href="#c-est-un-choix-explicite">C'est un choix explicite</a>
+    <a class="lvl-3" href="#le-modele-ne-decide-de-rien">Le modèle ne décide de rien</a>
+    <a class="lvl-2" href="#la-capture-de-la-boite-aux-lettres">La capture de la boîte aux lettres</a>
+    <a class="lvl-2" href="#le-parcours-d-une-facture">Le parcours d'une facture</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

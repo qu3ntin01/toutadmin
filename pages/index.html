@@ -1,0 +1,116 @@
+title: Toutadmin
+nav: Vue d'ensemble
+description: CMS d'entreprise — personnel, ressources humaines, finance, opérations, gouvernance, conformité et moyens généraux, en 16 langues.
+
+<h1>Toutadmin</h1>
+<p class="lede">
+  Un CMS qui administre une entreprise entière : le personnel et ses contrats, les
+  ressources humaines, la finance et la comptabilité, la gouvernance, la qualité,
+  la conformité et la vie juridique, les moyens généraux. Node&nbsp;22, Express et
+  SQLite ; une seule machine suffit, aucune base externe à installer.
+</p>
+
+<div class="stats">
+  <div class="stat"><b>{{i18n.locales}}</b><span>langues d'interface</span></div>
+  <div class="stat"><b>7</b><span>modules débloquables</span></div>
+  <div class="stat"><b>{{tests.cases}}</b><span>tests d'intégration</span></div>
+  <div class="stat"><b>0</b><span>service externe requis</span></div>
+</div>
+
+<h2>Par où commencer</h2>
+
+<div class="cards">
+  <a class="card" href="espaces.html">
+    <span class="card-title">Les espaces</span>
+    <p>Qui accède à quoi, et par quelle adresse.</p>
+  </a>
+  <a class="card" href="fonctionnalites.html">
+    <span class="card-title">Fonctionnalités</span>
+    <p>Le panorama complet, domaine par domaine.</p>
+  </a>
+  <a class="card" href="installation.html">
+    <span class="card-title">Installation</span>
+    <p>Cinq étapes, ou un déploiement sans interface.</p>
+  </a>
+  <a class="card" href="securite.html">
+    <span class="card-title">Sécurité</span>
+    <p>Les garde-fous, et ce qu'ils couvrent réellement.</p>
+  </a>
+  <a class="card" href="traductions.html">
+    <span class="card-title">Traductions</span>
+    <p>Comment l'interface change de langue, et jusqu'où.</p>
+  </a>
+  <a class="card" href="lexique.html">
+    <span class="card-title">Lexique</span>
+    <p>Les {{i18n.keys}} clés du produit, dans les {{i18n.locales}} langues.</p>
+  </a>
+</div>
+
+<h2>Ce que le logiciel est</h2>
+
+<p>
+  Un CMS d'entreprise généraliste, pensé pour être <strong>acheté et exploité par une
+  société qui veut piloter tous ses services depuis un seul endroit</strong> : direction,
+  ressources humaines, finance, opérations, moyens généraux. Il n'est pas spécialisé
+  dans un métier ; il couvre le tronc commun d'une entreprise et laisse aux outils
+  spécialisés ce qui demande un agrément ou une certification.
+</p>
+
+<h3>Trois partis pris</h3>
+
+<p>
+  <strong>Une donnée saisie une fois.</strong> Un congé approuvé apparaît dans l'agenda,
+  bloque une planification de poste, alimente le solde et se retrouve dans les échéances.
+  L'organigramme, l'annuaire et la recherche lisent le même rattachement. Rien n'est
+  recopié d'un écran à l'autre.
+</p>
+
+<p>
+  <strong>Le refus plutôt que l'approximation.</strong> Une facture dans une devise dont
+  le taux est inconnu n'est pas proposée ; un import contenant une ligne fautive n'est pas
+  écrit du tout ; une non-conformité dont les actions sont en cours ne se clôture pas ;
+  une écriture comptable déséquilibrée est rejetée en disant de combien. Une donnée fausse
+  qui passe coûte plus cher qu'une saisie refusée.
+</p>
+
+<p>
+  <strong>Ce qui n'est pas couvert est écrit à l'écran.</strong> Chaque module affiche ses
+  limites au moment de son activation, pas dans une note de bas de page : le moteur de paie
+  applique les taux que vous saisissez et ne produit aucune DSN ; la facturation électronique
+  génère le XML mais ne le dépose sur aucune plateforme ; la trésorerie ne se connecte à
+  aucune banque.
+</p>
+
+<h2>Ce qu'il n'est pas</h2>
+
+<p>
+  Certaines fonctions relèvent d'un tiers agréé et sont écartées volontairement plutôt
+  qu'à moitié faites :
+</p>
+
+<ul>
+  <li><strong>Télétransmission fiscale et sociale</strong> (DSN, TVA à la DGFiP) : demande un agrément, un format qui change chaque année et une responsabilité légale. Le logiciel produit les données, leur dépôt reste l'affaire d'un tiers déclarant.</li>
+  <li><strong>Signature électronique qualifiée</strong> au sens eIDAS : demande un prestataire de confiance certifié. Le parapheur produit une signature <em>simple</em>, et l'attestation le dit elle-même.</li>
+  <li><strong>Archivage à valeur probante</strong> (NF Z42-020, horodatage opposable) : demande une autorité de certification.</li>
+  <li><strong>Édition collaborative de documents, visioconférence, téléphonie</strong> : chacun est un produit à lui seul.</li>
+</ul>
+
+<h2>Prise en main</h2>
+
+<pre><code>npm install
+npm start          # http://localhost:3000</code></pre>
+
+<p>
+  Sur une instance vierge, toute l'application redirige vers l'assistant d'installation.
+  Voir <a href="installation.html">Installation</a> pour le détail des cinq étapes, le
+  déploiement automatisé et le jeu de données de démonstration.
+</p>
+
+<div class="note">
+  <span class="note-title">À propos de ce site</span>
+  <p>
+    Cette documentation est un site statique autonome, hébergé séparément du logiciel.
+    Elle est reconstruite depuis le dépôt : le lexique et les décomptes sont extraits du
+    code, ils ne peuvent donc pas diverger de ce que le produit affiche.
+  </p>
+</div>

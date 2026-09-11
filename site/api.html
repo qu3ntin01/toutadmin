@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="API REST de lecture à portées, jetons révocables, et webhooks sortants signés." />
+<title>API et webhooks — Documentation Toutadmin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Toutadmin<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html" class="is-active" aria-current="page">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>API et webhooks</h1>
+<p class="lede">
+  Deux sens de circulation : une API REST pour lire l'instance depuis l'extérieur, et des
+  webhooks pour que l'instance prévienne l'extérieur quand quelque chose arrive.
+</p>
+
+<h2 id="api-rest">API REST<a class="anchor" href="#api-rest" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Versionnée sous <code>/api/v1</code>, et volontairement <strong>en lecture seule</strong>.
+</p>
+
+<div class="note">
+  <span class="note-title">Pourquoi pas d'écriture</span>
+  <p>
+    Un jeton circule dans des fichiers de configuration, des variables d'environnement,
+    parfois un dépôt Git. Il ne doit pas pouvoir supprimer un salarié ni émettre une facture.
+  </p>
+</div>
+
+<h3 id="authentification">Authentification<a class="anchor" href="#authentification" aria-label="Lien vers cette section">#</a></h3>
+
+<pre><code>curl -H "Authorization: Bearer sm_xxxxxxxxxxxxxxxxxxxx" \
+     https://votre-instance.example/api/v1/annuaire</code></pre>
+
+<p>
+  Pas de cookie, donc pas de session, donc pas de jeton CSRF : l'authentification tient
+  entièrement dans l'en-tête. Les réponses ne sont jamais mises en cache
+  (<code>Cache-Control: no-store</code>), les erreurs sont en JSON, et le débit est limité
+  par <code>API_RATE_LIMIT</code> (120 requêtes par minute et par adresse, par défaut).
+</p>
+
+<h3 id="jetons">Jetons<a class="anchor" href="#jetons" aria-label="Lien vers cette section">#</a></h3>
+
+<ul>
+  <li><strong>Portées explicites</strong> : annuaire, RH, gestion, projets, pilotage. Un jeton ne voit que ce que sa portée autorise.</li>
+  <li><strong>Durée de vie bornée</strong>, révocables d'un clic.</li>
+  <li><strong>Jamais conservés en clair</strong> : seule leur empreinte SHA-256 vit en base, avec le préfixe <code>sm_</code> qui permet de les reconnaître. Le jeton s'affiche une fois, à sa création.</li>
+</ul>
+
+<div class="good">
+  <span class="note-title">L'API respecte les règles de l'écran</span>
+  <p>
+    Qui est retiré de l'annuaire n'en sort pas par une autre porte, et le motif d'une absence
+    ne quitte pas l'entreprise. Les mêmes filtres qu'à l'affichage s'appliquent à la source,
+    pas après coup.
+  </p>
+</div>
+
+<h2 id="webhooks-sortants">Webhooks sortants<a class="anchor" href="#webhooks-sortants" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  L'instance appelle une adresse que vous fournissez quand un événement se produit :
+</p>
+
+<ul>
+  <li>facture créée, facture payée ;</li>
+  <li>absence approuvée ;</li>
+  <li>arrivée, départ ;</li>
+  <li>document signé ;</li>
+  <li>ticket ouvert ;</li>
+  <li>externalisation de sauvegarde en échec.</li>
+</ul>
+
+<h3 id="chaque-envoi-est-signe">Chaque envoi est signé<a class="anchor" href="#chaque-envoi-est-signe" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Un HMAC-SHA256 du corps de la requête, calculé avec le secret du webhook, est transmis dans
+  l'en-tête <code>x-toutadmin-signature</code>. C'est ce qui distingue un appel venu
+  d'ici d'un appel forgé. Le secret est chiffré en base et affiché une seule fois.
+</p>
+
+<pre><code>// Côté récepteur : vérifier avant de faire quoi que ce soit du corps.
+const attendu = crypto
+  .createHmac('sha256', SECRET)
+  .update(corpsBrut)          // le corps brut, pas l'objet re-sérialisé
+  .digest('hex');
+
+if (!crypto.timingSafeEqual(Buffer.from(attendu), Buffer.from(recu))) {
+  return res.status(401).end();
+}</code></pre>
+
+<h3 id="une-adresse-interne-est-refusee-par-defaut">Une adresse interne est refusée par défaut<a class="anchor" href="#une-adresse-interne-est-refusee-par-defaut" aria-label="Lien vers cette section">#</a></h3>
+
+<div class="warn">
+  <span class="note-title">Falsification de requête côté serveur</span>
+  <p>
+    Faire émettre des requêtes à un serveur vers son propre réseau est une porte dérobée
+    classique. Les adresses privées et les URL en clair (<code>http://</code>) sont refusées ;
+    les autoriser demande de cocher une case, sciemment.
+  </p>
+</div>
+
+<h3 id="un-echec-n-est-pas-silencieux">Un échec n'est pas silencieux<a class="anchor" href="#un-echec-n-est-pas-silencieux" aria-label="Lien vers cette section">#</a></h3>
+
+<ul>
+  <li>Chaque tentative est journalisée.</li>
+  <li>Réessai <strong>cinq fois</strong>, avec un délai qui double à chaque tentative.</li>
+  <li>Après <strong>vingt échecs consécutifs</strong>, le webhook s'éteint de lui-même.</li>
+</ul>
+
+<p>
+  Mieux vaut un tuyau éteint, qui se voit, qu'un tuyau muet qui fait croire que l'information
+  passe.
+</p>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="comptable.html">← Pièces reçues</a><a href="sauvegardes.html">Sauvegardes et export →</a></nav>
+      <p class="foot">Documentation de Toutadmin — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#api-rest">API REST</a>
+    <a class="lvl-3" href="#authentification">Authentification</a>
+    <a class="lvl-3" href="#jetons">Jetons</a>
+    <a class="lvl-2" href="#webhooks-sortants">Webhooks sortants</a>
+    <a class="lvl-3" href="#chaque-envoi-est-signe">Chaque envoi est signé</a>
+    <a class="lvl-3" href="#une-adresse-interne-est-refusee-par-defaut">Une adresse interne est refusée par défaut</a>
+    <a class="lvl-3" href="#un-echec-n-est-pas-silencieux">Un échec n'est pas silencieux</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,407 @@
+title: Fonctionnalités
+nav: Fonctionnalités
+description: Le panorama complet, domaine par domaine — personnel, RH, finance, gouvernance, opérations, moyens généraux.
+
+<h1>Fonctionnalités</h1>
+<p class="lede">
+  Le tour complet, domaine par domaine. Les fonctions qui demandent leur propre page
+  — comptabilité des pièces reçues, API, sauvegardes, traductions — y renvoient.
+</p>
+
+<h2>Personnel et administration</h2>
+
+<ul>
+  <li>Création de membres avec grade, service, <strong>type de contrat</strong> (CDI, CDD, Intérim, Stage, Alternance, Freelance) et date de fin optionnelle.</li>
+  <li><strong>Désactivation automatique</strong> du compte à l'échéance du contrat, vérifiée à la connexion, à l'ouverture du tableau de bord et au balayage horaire.</li>
+  <li>Catalogue d'outils (nom, catégorie, référence, description, URL de connexion) et affectation avec un <strong>identifiant propre à chaque membre</strong>. Aucun mot de passe d'outil tiers n'est stocké.</li>
+  <li>Désignation des responsables RH et des gestionnaires.</li>
+</ul>
+
+<h3>Organisation : services, équipes, encadrement</h3>
+
+<p>
+  Services et équipes sont des entités à part entière. Plusieurs managers par périmètre.
+  L'accueil du collaborateur affiche <strong>tous ses managers</strong> — ceux de son
+  équipe et ceux de son service.
+</p>
+
+<p>
+  L'<strong>organigramme</strong> (<code>/organigramme</code>) dit trois choses que des
+  listes séparées ne disent pas : qui encadre quoi, où se trouve chacun, et
+  <strong>qui n'est rattaché nulle part</strong> — c'est ce dernier point qu'on découvre
+  en le dessinant. Les équipes sans service et les services sans équipe y apparaissent
+  aussi : un rattachement oublié se voit plutôt que de disparaître.
+</p>
+
+<h3>Profil, annuaire, messagerie</h3>
+
+<ul>
+  <li><strong>Profil</strong> : photo (JPEG/PNG/WebP, 2 Mo), présentation, téléphone, langue, mot de passe. Le grade, le contrat et le rattachement restent gérés par l'administration.</li>
+  <li><strong>Annuaire</strong> avec recherche et filtres. La <strong>visibilité y est pilotée uniquement par l'administration</strong> : un membre ne peut ni s'y soustraire ni s'y remettre.</li>
+  <li><strong>Messagerie interne</strong> complète. L'adresse professionnelle et les serveurs IMAP/SMTP sont configurés par l'administration et affichés en lecture seule au membre.</li>
+</ul>
+
+<h2>Ressources humaines</h2>
+
+<ul>
+  <li><strong>Demandes</strong> de congés, RTT, absence, télétravail : jours ouvrés calculés automatiquement, week-ends exclus. Annulation possible tant que la demande est en attente.</li>
+  <li><strong>Panneau RH</strong> : approbation avec décompte du solde, refus motivé, et annulation d'une demande approuvée avec <strong>recrédit automatique</strong>.</li>
+  <li><strong>Soldes de congés</strong> : ajustement manuel crédit/débit, avec motif et historique.</li>
+  <li><strong>Fiches de paie</strong> : création, suivi du versement, consultation par le membre.</li>
+</ul>
+
+<h3>Pointage et rémunération des freelances</h3>
+
+<p>
+  Chronomètre dans l'espace du membre, un seul pointage ouvert à la fois — refusé côté
+  serveur si un autre est en cours. Le TJM est réglé par l'administration ; le taux horaire
+  vaut TJM ÷ 8 h, avec estimations mensuelle et totale. L'administration peut clore un
+  pointage oublié.
+</p>
+
+<h3>Cycle de vie du salarié</h3>
+
+<ul>
+  <li><strong>Documents d'entreprise</strong> avec accusé de réception exigible : un document non lu reste signalé.</li>
+  <li><strong>Formation</strong> : catalogue, sessions datées à places limitées, demande puis confirmation RH. Une session pleine refuse toute inscription ; une inscription confirmée apparaît dans l'agenda.</li>
+  <li><strong>Entretiens annuels</strong> : planification, compte rendu (points forts, axes de progrès, objectifs, appréciation de 1 à 5) et commentaire du salarié sur son seul entretien.</li>
+  <li><strong>Parcours d'arrivée et de départ</strong> : modèles dont chaque point porte un écart au jour pivot (« J−2 : préparer le poste »), appliqués à une personne pour donner une liste datée.</li>
+  <li><strong>Matrice des compétences</strong> : niveau, date d'obtention, échéance déduite de la durée de validité. Une habilitation obligatoire absente ou périmée remonte jusqu'à régularisation.</li>
+</ul>
+
+<h3>Recrutement et filtrage des CV</h3>
+
+<ul>
+  <li>Postes ouverts rattachés à un service et une équipe, candidatures suivies par étapes. Un poste pourvu n'accepte plus de candidature.</li>
+  <li><strong>Dépôt de CV</strong> (PDF, DOCX, TXT, Markdown, 5 Mo). Le texte est extrait à la réception ; un PDF scanné est accepté mais l'absence d'extraction est annoncée — il n'y a pas de reconnaissance de caractères.</li>
+  <li><strong>Critères par poste</strong> avec synonymes, poids de 1 à 5 et nature <em>Requis</em> ou <em>Souhaité</em>. Le rapprochement ignore accents, casse et ponctuation, mais travaille <strong>en frontière de mot</strong> : « java » ne se déclenche pas sur « javascript ».</li>
+  <li><strong>Score pondéré sur 100</strong>, seuil de retenue et expérience minimale réglables. Le détail est affiché critère par critère, avec le terme effectivement trouvé.</li>
+  <li><strong>CVthèque</strong> : recherche plein texte dans tous les CV reçus, tous postes confondus.</li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Le score aide à trier, il ne décide de rien</span>
+  <p>
+    Un dossier écarté par le filtre reste consultable et son CV téléchargeable. Aucune
+    candidature n'est refusée automatiquement.
+  </p>
+</div>
+
+<h3>Santé et sécurité au travail</h3>
+
+<ul>
+  <li><strong>Document unique</strong> : unités de travail, dangers, cotation gravité × probabilité, mesures de prévention, dates de revue. Au-delà du seuil, le risque appelle une action.</li>
+  <li><strong>Registre des accidents</strong> avec taux de fréquence et de gravité calculés sur douze mois.</li>
+  <li><strong>Équipements de protection</strong> : catalogue, remises, péremptions, restitutions.</li>
+  <li><strong>Visites médicales</strong> : seul l'avis d'aptitude est consigné, aucune donnée de santé.</li>
+</ul>
+
+<p>
+  Ce registre interne ne remplace ni la déclaration à la caisse d'assurance maladie, ni
+  l'avis du médecin du travail.
+</p>
+
+<h3>Coffre-fort numérique</h3>
+
+<ul>
+  <li>Bulletins, contrats, avenants, certificats, attestations, soldes de tout compte — PDF, DOCX, PNG ou JPEG, 10 Mo, type vérifié à la signature du fichier.</li>
+  <li><strong>Scellé par son empreinte</strong> : chaque document porte le SHA-256 de son contenu, recalculé <strong>à chaque téléchargement</strong>. Un fichier altéré ou disparu n'est pas servi, et l'anomalie est consignée au journal d'audit.</li>
+  <li><strong>Conservation de 50 ans</strong> calculée au dépôt, affichée sur chaque ligne.</li>
+  <li><strong>Un retrait laisse sa trace</strong> : la ligne reste au coffre avec son auteur et son motif. Le retrait est réservé à l'administration ; les RH déposent.</li>
+  <li>Contrôle d'intégrité de tout le coffre depuis la console RH, en un écran.</li>
+</ul>
+
+<h2>Comité social et économique</h2>
+
+<ul>
+  <li><strong>Espace salarié</strong> : avantages et réductions négociés, avec code, lien et validité ; composition du comité ; réunions et comptes rendus publiés.</li>
+  <li><strong>Se présenter</strong> : dépôt d'une candidature avec profession de foi pendant la phase de candidatures, retrait possible tant que le vote n'est pas ouvert.</li>
+  <li><strong>Vote à bulletin secret</strong> : le bulletin et l'émargement sont écrits ensemble mais dans deux tables sans lien entre elles — la base dit qui a voté, jamais pour qui. Un seul vote par salarié, refusé côté serveur.</li>
+  <li><strong>Espace des élus</strong> : publication des avantages et des comptes rendus. Un mandat échu le referme automatiquement.</li>
+  <li><strong>Pilotage RH</strong> : composition, mandats, organisation des élections (candidatures → vote → clôture), convocation des réunions, participation et résultats.</li>
+</ul>
+
+<h2>Gestion administrative et financière</h2>
+
+<ul>
+  <li><strong>Tiers</strong> : clients et fournisseurs, avec contact et identifiant d'entreprise.</li>
+  <li><strong>Contrats</strong> fournisseurs et commerciaux : montant, périodicité, référent, et surtout <strong>préavis</strong> — la date limite de dénonciation est calculée et alertée avant que la reconduction tacite ne soit acquise.</li>
+  <li><strong>Factures</strong> dans les deux sens, TTC calculé, retard déduit de l'échéance sans statut à maintenir à la main.</li>
+  <li><strong>Budgets</strong> par service et par exercice, dont le consommé agrège automatiquement les factures fournisseurs du service et les notes de frais approuvées de ses membres.</li>
+  <li><strong>Notes de frais</strong> : dépôt, approbation, remboursement. Un remboursement suppose une approbation préalable ; une dépense datée du futur est refusée.</li>
+  <li><strong>Parc matériel</strong> : équipements avec numéro de série, garantie et valeur. Un équipement déjà affecté ne peut pas l'être deux fois, et l'historique des détenteurs est conservé.</li>
+  <li><strong>Salles</strong> : parc et planning. Un créneau qui chevauche une réservation est refusé en nommant qui l'occupe.</li>
+</ul>
+
+<h3>Fiche tiers : interlocuteurs, conformité, évaluation</h3>
+
+<ul>
+  <li><strong>Une fiche par partenaire</strong> rassemblant contrats, factures, interlocuteurs (un seul principal à la fois), pièces de conformité et évaluations.</li>
+  <li><strong>Les pièces sont des échéances, pas des pièces jointes</strong> : une attestation de vigilance périmée engage la responsabilité du donneur d'ordre. Attestation, assurance, Kbis, coordonnées bancaires, certification — datées, signalées quarante-cinq jours avant leur terme et versées au moteur d'échéances.</li>
+  <li><strong>Évaluations notées</strong> sur la qualité, les délais et le prix. La note affichée est celle de la dernière revue, pas la moyenne de l'historique : une moyenne lisserait exactement ce qu'on cherche à voir, une dégradation.</li>
+</ul>
+
+<h3>Devises, abonnements et TVA</h3>
+
+<p>
+  <strong>Chaque facture porte sa devise et le taux figé le jour de son émission.</strong>
+  Le taux vit dans la pièce, pas dans la table des taux : mettre un taux à jour aujourd'hui
+  ne réécrit pas le chiffre d'affaires de l'an dernier. Les totaux s'expriment dans la devise
+  de tenue des comptes — additionner des euros et des dollars ne veut rien dire. Une devise
+  sans taux connu n'est pas proposée à la facturation.
+</p>
+
+<p>
+  <strong>Facturation récurrente</strong> : l'abonnement est le moule, la facture est la pièce.
+  Rien n'est émis d'avance ; les échéances atteintes partent au balayage horaire, et un index
+  unique interdit de facturer deux fois la même échéance, même si deux balayages se croisent.
+  Un abonnement dont le terme est passé s'éteint de lui-même.
+</p>
+
+<p>
+  <strong>Déclarations de TVA</strong> : collectée sur les factures client, déductible sur les
+  factures fournisseur, ventilée par taux, sur les débits. La période se choisit dans une liste
+  plutôt que de se saisir — trois jours de décalage feraient une déclaration fausse que personne
+  ne verrait passer. Une TVA négative est rendue comme <strong>crédit reportable</strong>, pas
+  comme dette. Une déclaration déposée ne se recalcule plus.
+</p>
+
+<h3>Achats : bons de commande, réceptions, rapprochement à trois</h3>
+
+<p>
+  Le bon de commande engage, la réception constate, la facture réclame. Ces trois
+  chiffres doivent s'accorder : quand ils divergent, on paie soit ce qu'on n'a pas
+  commandé, soit ce qui n'est jamais arrivé — et on ne s'en aperçoit qu'à l'inventaire
+  ou au bilan.
+</p>
+
+<ul>
+  <li><strong>Recevoir plus que commandé est refusé</strong> : c'est presque toujours une erreur de saisie, et quand ce n'en est pas une, c'est la commande qu'il faut corriger pour que le rapprochement garde un sens.</li>
+  <li><strong>Une ligne rattachée à un article entre en stock au moment de sa réception</strong>, dans le même geste : ressaisir la même réception deux fois est le meilleur moyen de ne plus savoir ce qu'on a.</li>
+  <li><strong>Le statut suit les réceptions</strong> et ne se tient pas à la main : <em>Reçue partiellement</em> à la première, <em>Reçue</em> quand toutes les lignes sont servies.</li>
+  <li><strong>Le rapprochement ne bloque pas le règlement</strong> — une livraison partielle facturée d'avance est parfois convenue. Il nomme l'écart au moment où quelqu'un regarde la facture, ce qui suffit à décider.</li>
+</ul>
+
+<h3>Recouvrement : relances échelonnées</h3>
+
+<p>
+  <strong>Balance âgée</strong> : l'encours réparti en non échu, 1–30, 31–60, 61–90 et
+  plus de 90 jours. Ce n'est pas le total qui inquiète, c'est sa dérive vers la droite.
+</p>
+
+<p>
+  <strong>Le palier se déduit de ce qui a déjà été envoyé</strong>, pas du seul retard.
+  Une facture en retard de deux mois à qui l'on n'a jamais rien écrit appelle un rappel
+  (7 jours), puis une relance (21 jours), puis une mise en demeure (45 jours) — et le
+  délai du palier suivant se compte depuis la relance précédente, pas depuis l'échéance :
+  c'est le silence qui appelle l'escalade. Chaque relance est consignée avec son niveau
+  et sa date ; une facture payée ou annulée sort de la liste d'elle-même.
+</p>
+
+<h2>Projets, support et connaissances</h2>
+
+<ul>
+  <li><strong>Projets</strong> rattachés à un client, un service, une équipe et un responsable, avec budget et taux horaire ; jalons datés ; tâches en colonnes par statut.</li>
+  <li><strong>Temps passé</strong> imputé au projet et à la tâche : au plus 24 heures par saisie, jamais une date à venir. Chacun n'efface que ses propres saisies.</li>
+  <li><strong>Rentabilité</strong> : heures, coût au taux horaire, marge restante, part du budget consommée.</li>
+  <li><strong>Tickets</strong> internes et clients dans un même circuit, avec délai de première réponse déduit de la priorité (2 h à 72 h). Changer la priorité recalcule le délai depuis l'ouverture, pas depuis maintenant.</li>
+  <li><strong>Notes internes</strong> invisibles du demandeur, et qui ne comptent pas comme première réponse.</li>
+  <li><strong>Cloisonnement par catégorie</strong> : une demande « Ressources humaines » parle de paie, de contrat, parfois de santé — seules l'administration et les RH la voient.</li>
+  <li><strong>Base de connaissances</strong> par catégorie, avec recherche plein texte et portée entreprise, service, équipe ou administration.</li>
+</ul>
+
+<h2>Direction et gouvernance</h2>
+
+<ul>
+  <li><strong>Réunions</strong> : convocation avec ordre du jour, participants conviés, <strong>pointage des présences</strong> (attendu, présent, excusé, absent), compte rendu qui marque la réunion tenue.</li>
+  <li><strong>Registre des décisions</strong> : intitulé, contenu, <strong>motif</strong> — c'est ce qu'on cherche deux ans plus tard —, portée, état, date de réexamen. Une décision peut naître hors réunion, sinon la moitié des arbitrages n'entrerait jamais au registre. Supprimer une réunion n'efface pas ses décisions.</li>
+  <li><strong>Actions confiées</strong> avec porteur et échéance, rattachées à leur décision d'origine.</li>
+  <li><strong>Registre des risques de l'entreprise</strong>, distinct du document unique qui ne traite que la santé des personnes : cotation probabilité × impact, <strong>cotation résiduelle</strong>, traitement, porteur, plan d'action, date de revue. Matrice 5 × 5 colorée par criticité.</li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Ne pas coter ne rend pas un risque traité</span>
+  <p>
+    Tant que le résiduel n'est pas coté, c'est la cotation brute qui est retenue.
+  </p>
+</div>
+
+<h3>Sondages et baromètre social</h3>
+
+<p>
+  Questionnaires à échelle, oui/non, choix multiple ou réponse libre, adressés à toute
+  l'entreprise, à un service ou à une équipe.
+</p>
+
+<p>
+  <strong>L'anonymat tient à la structure des tables, pas à une promesse</strong> : les
+  réponses ne portent aucun identifiant de personne, et la participation — nominative —
+  ne dit que « a répondu ». Une base saisie ne peut pas rendre ce qu'elle ne contient pas ;
+  le journal d'audit non plus. <strong>Sous cinq réponses, aucun résultat n'est affiché</strong> :
+  dans un petit groupe, une moyenne suffit à désigner quelqu'un. Un sondage ouvert ne se
+  modifie plus — des questions changées en cours de route rendraient les réponses
+  incomparables.
+</p>
+
+<h2>Vie juridique et conformité</h2>
+
+<h3>Capital, mandats, assemblées</h3>
+
+<ul>
+  <li><strong>La détention n'est pas une colonne</strong> : elle se recalcule des mouvements de titres, comme un solde se recalcule de ses écritures. Personne ne corrige le capital sans laisser la ligne qui l'explique.</li>
+  <li><strong>Une cession écrit ses deux jambes dans la même transaction</strong>, ou n'en écrit aucune. Céder plus qu'on ne détient est refusé en disant combien on détient ; un associé qui porte encore des titres ne se supprime pas.</li>
+  <li><strong>Mandats sociaux</strong> — président, directeur général, gérant, membre du conseil, commissaire aux comptes — avec nomination, durée et révocation. Une fin de mandat est signalée à l'avance aux administrateurs : un mandat échu que l'on continue d'exercer engage la société sur des actes que personne n'avait le pouvoir de signer.</li>
+  <li><strong>Assemblées générales</strong> : quorum compté en titres et non en associés, résolutions, votes, procès-verbal. La majorité se calcule sur les voix exprimées, les abstentions écartées du dénominateur. La référence (<code>AG-2025-001</code>) est attribuée par le registre, pas saisie.</li>
+</ul>
+
+<h3>Intérêts, cadeaux, délégations</h3>
+
+<ul>
+  <li><strong>Chacun déclare pour soi</strong> et ne voit que ses propres déclarations : l'identifiant de l'auteur vient de la session, jamais du formulaire. Un intérêt déclaré n'est pas un reproche — c'est ce qui permet de l'écarter d'une décision au bon moment.</li>
+  <li><strong>Cadeaux et invitations</strong>, reçus comme offerts, avec leur valeur. Au-delà de 150&nbsp;€, un examen est demandé ; le seuil est un usage, pas une règle de droit, et mieux vaut l'écrire que le supposer.</li>
+  <li><strong>Délégations de pouvoir</strong> : objet, plafond, durée. Sans écrit, c'est le dirigeant qui reste seul engagé ; l'échéance rejoint les alertes des administrateurs.</li>
+  <li>Les deux registres <strong>figurent dans l'export RGPD</strong> de la personne et n'en sont pas effaçables : un registre de conformité amputé ne prouve plus rien.</li>
+</ul>
+
+<h3>Alerte interne</h3>
+
+<p>
+  Le dispositif de recueil des signalements est obligatoire en France dès cinquante
+  salariés depuis la loi du 21 mars 2022. Un canal que l'on n'ose pas emprunter ne sert
+  à rien, et c'est la conception qui décide si on ose.
+</p>
+
+<ul>
+  <li><strong>Le contenu est chiffré en base</strong> : une copie de la base ne livre ni les signalements ni ce qui s'y dit ensuite.</li>
+  <li><strong>Les référents désignés seuls y accèdent, pas les administrateurs</strong> en tant que tels — une alerte peut viser un administrateur. L'administration désigne les référents, ce qui est tracé, et ne lit rien.</li>
+  <li><strong>Un signalement anonyme n'enregistre pas son auteur</strong>, et la route neutralise la trace automatique pour que le journal d'audit ne le rattrape pas par la bande.</li>
+  <li><strong>Le suivi se fait sans compte</strong>, avec la référence et un code affiché une seule fois : se connecter pour lire la réponse reviendrait à signer son signalement. La consultation n'est pas journalisée.</li>
+  <li><strong>Les délais légaux sont comptés, pas promis</strong> : accusé de réception sous 7 jours, retour sur les suites sous 90 jours.</li>
+  <li><strong>Chaque ouverture d'un signalement est consignée dans le signalement</strong>, hors du journal général : l'y inscrire nommerait l'alerte à toute l'administration.</li>
+</ul>
+
+<h2>Opérations</h2>
+
+<h3>Service informatique : parc logiciel, accès, incidents</h3>
+
+<ul>
+  <li><strong>Un logiciel n'est pas un équipement</strong> : il a des sièges qu'on paie et une liste de gens qui entrent dedans. Les sièges sont tenus comme une contrainte — en attribuer au-delà est refusé, en réduire le nombre sous les accès déjà ouverts aussi — avec coût annualisé et échéance de renouvellement.</li>
+  <li><strong>Revue des accès applicatifs</strong> : elle remonte d'abord les comptes fermés qui gardent un accès, puis les droits d'administration, puis ce qui n'a jamais été réexaminé.</li>
+  <li><strong>Incidents du système d'information</strong>, horodatés au début et au rétablissement, d'où sort un délai moyen de rétablissement qui se mesure au lieu de se raconter. Clore un incident sans heure de rétablissement est refusé, et un rétablissement antérieur à la panne aussi.</li>
+</ul>
+
+<h3>Développement : services applicatifs et livraisons</h3>
+
+<ul>
+  <li><strong>Référentiel des services</strong> : criticité, responsable, dépôt, documentation. Une adresse de dépôt en <code>javascript:</code> est refusée.</li>
+  <li><strong>Registre des livraisons</strong> par environnement, et indicateurs qui en découlent : fréquence, délai, <strong>taux d'échec comptant les livraisons retirées autant que les échouées</strong>. Une livraison sans date n'entre dans aucun indicateur.</li>
+</ul>
+
+<h3>Événements d'entreprise</h3>
+
+<p>
+  Capacité tenue toute seule : au-delà des places on entre en <strong>liste d'attente</strong>,
+  et un désistement fait monter le premier qui attend, avec une notification. Émargement,
+  budget, et brouillon invisible tant qu'il n'est pas publié. La liste nominative des
+  inscrits reste fermée aux participants.
+</p>
+
+<h3>Points individuels manager–collaborateur</h3>
+
+<ul>
+  <li><strong>Deux comptes rendus</strong> : le résumé partagé, que le collaborateur lit depuis son espace, et les notes du manager, qui ne quittent pas son écran.</li>
+  <li><strong>Le périmètre est vérifié à l'écriture</strong>, pas seulement à l'affichage : un manager qui n'encadre plus la personne ne peut plus toucher au compte rendu, sans attendre de reconnexion.</li>
+  <li>Les notes du manager <strong>figurent dans l'export RGPD</strong> : elles parlent de la personne, et une demande d'accès les lui rend. L'écran le dit au manager au moment où il écrit.</li>
+</ul>
+
+<h3>Planning, roulements et astreintes</h3>
+
+<ul>
+  <li><strong>Grille de la semaine</strong> par personne et par jour : postes, astreintes, permanences, télétravail, formations.</li>
+  <li><strong>Les contradictions sont refusées à la création</strong> : un créneau qui chevauche un autre poste, ou qui tombe sur une absence déjà accordée, est rejeté.</li>
+  <li><strong>Roulements</strong> réutilisables applicables sur une période ; les jours en conflit sont sautés et rendus avec leur motif. Une heure de fin plus petite que l'heure de début décrit un <strong>poste de nuit</strong>, qui se termine le lendemain.</li>
+  <li><strong>Publication de la semaine</strong> : un planning non publié reste un brouillon, signalé en pointillé.</li>
+  <li><strong>Qui est d'astreinte à cet instant</strong>, avec son numéro — la question qu'on pose à 3 h du matin.</li>
+</ul>
+
+<h3>Qualité</h3>
+
+<ul>
+  <li><strong>Non-conformités</strong> : origine, gravité, objet, action immédiate, <strong>cause racine</strong>, coût, avec une référence lisible et séquentielle (<code>NC-2026-001</code>).</li>
+  <li><strong>Actions correctives, préventives et d'amélioration</strong> avec responsable et échéance, puis <strong>vérification d'efficacité</strong> : une action « faite » dont personne n'a mesuré l'effet laisse le même écart revenir. Le tableau de bord compte séparément ce qui est fait et ce qui est efficace.</li>
+  <li><strong>Une non-conformité ne se clôture pas tant que ses actions sont en cours.</strong></li>
+  <li><strong>Audits internes</strong> : périmètre, référentiel, auditeur, constats, synthèse. Un constat de non-conformité se transforme en non-conformité avec sa propre référence.</li>
+</ul>
+
+<h3>Accueil : visiteurs et courrier</h3>
+
+<p>
+  Registre des visiteurs avec heure d'arrivée et de départ, société, personne visitée,
+  badge remis. La liste <strong>« dans les murs »</strong> répond à la seule question qui
+  compte en cas d'évacuation, ce qu'aucune liste de salariés ne sait faire. Le courrier
+  entrant et sortant reste <strong>« à remettre »</strong> tant que personne n'a signé la
+  remise, qui est datée et nominative.
+</p>
+
+<h3>Flotte de véhicules</h3>
+
+<p>
+  Affectation, kilométrage qui ne recule jamais, historique des entretiens, réparations,
+  sinistres et carburant, échéances d'assurance, de contrôle technique et d'entretien.
+</p>
+
+<h2>Transverse</h2>
+
+<ul>
+  <li><strong>Échéances consolidées</strong> : contrats de travail et fournisseurs (au préavis, pas à la fin), factures, habilitations, visites médicales, protections, véhicules, revues du document unique, tâches et points de parcours — dans une seule liste triée.</li>
+  <li><strong>Notifications personnelles</strong> tirées de ces échéances, dédupliquées : une même échéance n'alerte qu'une fois.</li>
+  <li><strong>Tableau de bord de direction</strong> : effectif par contrat, absents du jour, facturé et marge, masse salariale, trésorerie, charge du support. Un tiret marque une donnée absente, jamais un zéro.</li>
+  <li><strong>Objectifs et résultats clés</strong> : chaque résultat mesuré sur sa propre échelle, y compris décroissante (de 24 h vers 4 h).</li>
+  <li><strong>Recherche globale</strong> : n'interroge que les espaces ouverts à la personne — ce qu'elle n'a pas le droit de voir n'est pas cherché du tout, pas filtré après coup.</li>
+</ul>
+
+<h3>Import de données en masse</h3>
+
+<ul>
+  <li>Reprise d'un tableur : membres, clients et fournisseurs, articles de stock, contacts commerciaux.</li>
+  <li><strong>Rien n'est écrit avant d'avoir tout vérifié</strong> : l'aperçu contrôle chaque ligne, nomme le problème et son numéro, et ne touche pas la base.</li>
+  <li><strong>Tout ou rien</strong> : un fichier contenant une seule ligne fautive n'est pas importé du tout. Le contrôle est refait au moment d'écrire, car la base a pu changer entre l'aperçu et la confirmation.</li>
+  <li><strong>L'import crée, il ne met jamais à jour</strong> : un doublon est signalé, jamais silencieusement fondu dans l'existant.</li>
+  <li>Les mots de passe temporaires sont affichés une seule fois et ne sont stockés nulle part en clair — pas même dans le journal d'audit.</li>
+</ul>
+
+<h3>Parapheur : signature électronique</h3>
+
+<ul>
+  <li>Circuit de signature pour contrats, avenants, accords internes et procès-verbaux ; signataires ordonnés, échéance.</li>
+  <li><strong>Le document est figé dès son dépôt</strong> : son empreinte SHA-256 est revérifiée avant chaque signature et à chaque téléchargement. Un fichier modifié sur le disque n'est plus servi et bloque toute nouvelle signature.</li>
+  <li><strong>Chaque signature porte un sceau</strong> : un HMAC-SHA256 de l'empreinte du document, du signataire et de l'horodatage, calculé avec une clé propre à l'instance qui vit hors de la base. Une ligne écrite à la main dans la base ne passe pas la vérification.</li>
+  <li><strong>Le signataire prouve sa présence</strong> en ressaisissant son mot de passe et consent explicitement.</li>
+  <li><strong>Attestation imprimable</strong> : empreinte, sceaux recalculés à l'ouverture, horodatages, adresses. Un document signé ne se supprime pas — il fait preuve.</li>
+</ul>
+
+<h3>Demandes internes et circuits d'approbation</h3>
+
+<ul>
+  <li>Types de demande paramétrables : l'administration décrit les champs et le circuit qui les valide.</li>
+  <li><strong>Une étape désigne une fonction, pas une personne</strong> (le manager du demandeur, les RH, la gestion, la direction, ou quelqu'un de nommé) : le circuit survit aux départs.</li>
+  <li><strong>Seuils</strong> : une demande de 40 € et une de 40 000 € ne méritent pas le même nombre de signatures.</li>
+  <li><strong>Une étape sans validateur possible est sautée</strong> plutôt que de bloquer la demande. Personne ne valide sa propre demande.</li>
+</ul>
+
+<h3>Données personnelles</h3>
+
+<ul>
+  <li><strong>Registre des traitements</strong>, préremplissable avec ce que le logiciel opère lui-même — à relire et compléter, il ne décrit pas ce que fait votre entreprise par ailleurs.</li>
+  <li><strong>Droit d'accès</strong> : ce que l'instance détient sur une personne, source par source, exportable en JSON.</li>
+  <li><strong>Effacement</strong> : ce qui relève d'une obligation de conservation est gardé et le compte rendu le dit ; le reste est effacé et le compte anonymisé plutôt que supprimé, pour que les écritures qui le référencent restent cohérentes.</li>
+</ul>
+
+<h2>Confort</h2>
+
+<ul>
+  <li>Interface en <strong>{{i18n.locales}} langues</strong> — voir <a href="traductions.html">Traductions</a>.</li>
+  <li><strong>Trois palettes</strong> choisies par l'administration pour toute l'instance : <em>Bleu institutionnel</em>, <em>Ardoise et indigo</em>, <em>Magenta et violet</em>. L'aperçu emprunte les jetons de chaque palette — il ne peut pas mentir sur ce qu'il propose.</li>
+  <li>Thème <strong>clair / sombre / système</strong>, mémorisé dans le navigateur, appliqué sans clignotement. La palette engage l'identité de l'entreprise et se règle une fois ; le clair ou sombre appartient à chaque personne. Les six combinaisons sont vérifiées au contraste par les tests.</li>
+  <li>Interface responsive : la navigation latérale se replie en bandeau horizontal, les tableaux denses défilent, la grille du calendrier tient sur un téléphone.</li>
+</ul>

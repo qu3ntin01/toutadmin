@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="CMS d'entreprise — personnel, ressources humaines, finance, opérations, gouvernance, conformité et moyens généraux, en 16 langues." />
+<title>Toutadmin — Documentation Toutadmin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Toutadmin<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html" class="is-active" aria-current="page">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Toutadmin</h1>
+<p class="lede">
+  Un CMS qui administre une entreprise entière : le personnel et ses contrats, les
+  ressources humaines, la finance et la comptabilité, la gouvernance, la qualité,
+  la conformité et la vie juridique, les moyens généraux. Node&nbsp;22, Express et
+  SQLite ; une seule machine suffit, aucune base externe à installer.
+</p>
+
+<div class="stats">
+  <div class="stat"><b>16</b><span>langues d'interface</span></div>
+  <div class="stat"><b>7</b><span>modules débloquables</span></div>
+  <div class="stat"><b>797</b><span>tests d'intégration</span></div>
+  <div class="stat"><b>0</b><span>service externe requis</span></div>
+</div>
+
+<h2 id="par-ou-commencer">Par où commencer<a class="anchor" href="#par-ou-commencer" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="cards">
+  <a class="card" href="espaces.html">
+    <span class="card-title">Les espaces</span>
+    <p>Qui accède à quoi, et par quelle adresse.</p>
+  </a>
+  <a class="card" href="fonctionnalites.html">
+    <span class="card-title">Fonctionnalités</span>
+    <p>Le panorama complet, domaine par domaine.</p>
+  </a>
+  <a class="card" href="installation.html">
+    <span class="card-title">Installation</span>
+    <p>Cinq étapes, ou un déploiement sans interface.</p>
+  </a>
+  <a class="card" href="securite.html">
+    <span class="card-title">Sécurité</span>
+    <p>Les garde-fous, et ce qu'ils couvrent réellement.</p>
+  </a>
+  <a class="card" href="traductions.html">
+    <span class="card-title">Traductions</span>
+    <p>Comment l'interface change de langue, et jusqu'où.</p>
+  </a>
+  <a class="card" href="lexique.html">
+    <span class="card-title">Lexique</span>
+    <p>Les 2754 clés du produit, dans les 16 langues.</p>
+  </a>
+</div>
+
+<h2 id="ce-que-le-logiciel-est">Ce que le logiciel est<a class="anchor" href="#ce-que-le-logiciel-est" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Un CMS d'entreprise généraliste, pensé pour être <strong>acheté et exploité par une
+  société qui veut piloter tous ses services depuis un seul endroit</strong> : direction,
+  ressources humaines, finance, opérations, moyens généraux. Il n'est pas spécialisé
+  dans un métier ; il couvre le tronc commun d'une entreprise et laisse aux outils
+  spécialisés ce qui demande un agrément ou une certification.
+</p>
+
+<h3 id="trois-partis-pris">Trois partis pris<a class="anchor" href="#trois-partis-pris" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  <strong>Une donnée saisie une fois.</strong> Un congé approuvé apparaît dans l'agenda,
+  bloque une planification de poste, alimente le solde et se retrouve dans les échéances.
+  L'organigramme, l'annuaire et la recherche lisent le même rattachement. Rien n'est
+  recopié d'un écran à l'autre.
+</p>
+
+<p>
+  <strong>Le refus plutôt que l'approximation.</strong> Une facture dans une devise dont
+  le taux est inconnu n'est pas proposée ; un import contenant une ligne fautive n'est pas
+  écrit du tout ; une non-conformité dont les actions sont en cours ne se clôture pas ;
+  une écriture comptable déséquilibrée est rejetée en disant de combien. Une donnée fausse
+  qui passe coûte plus cher qu'une saisie refusée.
+</p>
+
+<p>
+  <strong>Ce qui n'est pas couvert est écrit à l'écran.</strong> Chaque module affiche ses
+  limites au moment de son activation, pas dans une note de bas de page : le moteur de paie
+  applique les taux que vous saisissez et ne produit aucune DSN ; la facturation électronique
+  génère le XML mais ne le dépose sur aucune plateforme ; la trésorerie ne se connecte à
+  aucune banque.
+</p>
+
+<h2 id="ce-qu-il-n-est-pas">Ce qu'il n'est pas<a class="anchor" href="#ce-qu-il-n-est-pas" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Certaines fonctions relèvent d'un tiers agréé et sont écartées volontairement plutôt
+  qu'à moitié faites :
+</p>
+
+<ul>
+  <li><strong>Télétransmission fiscale et sociale</strong> (DSN, TVA à la DGFiP) : demande un agrément, un format qui change chaque année et une responsabilité légale. Le logiciel produit les données, leur dépôt reste l'affaire d'un tiers déclarant.</li>
+  <li><strong>Signature électronique qualifiée</strong> au sens eIDAS : demande un prestataire de confiance certifié. Le parapheur produit une signature <em>simple</em>, et l'attestation le dit elle-même.</li>
+  <li><strong>Archivage à valeur probante</strong> (NF Z42-020, horodatage opposable) : demande une autorité de certification.</li>
+  <li><strong>Édition collaborative de documents, visioconférence, téléphonie</strong> : chacun est un produit à lui seul.</li>
+</ul>
+
+<h2 id="prise-en-main">Prise en main<a class="anchor" href="#prise-en-main" aria-label="Lien vers cette section">#</a></h2>
+
+<pre><code>npm install
+npm start          # http://localhost:3000</code></pre>
+
+<p>
+  Sur une instance vierge, toute l'application redirige vers l'assistant d'installation.
+  Voir <a href="installation.html">Installation</a> pour le détail des cinq étapes, le
+  déploiement automatisé et le jeu de données de démonstration.
+</p>
+
+<div class="note">
+  <span class="note-title">À propos de ce site</span>
+  <p>
+    Cette documentation est un site statique autonome, hébergé séparément du logiciel.
+    Elle est reconstruite depuis le dépôt : le lexique et les décomptes sont extraits du
+    code, ils ne peuvent donc pas diverger de ce que le produit affiche.
+  </p>
+</div>
+
+      <nav class="pager" aria-label="Pages voisines"><span></span><a href="espaces.html">Les espaces →</a></nav>
+      <p class="foot">Documentation de Toutadmin — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#par-ou-commencer">Par où commencer</a>
+    <a class="lvl-2" href="#ce-que-le-logiciel-est">Ce que le logiciel est</a>
+    <a class="lvl-3" href="#trois-partis-pris">Trois partis pris</a>
+    <a class="lvl-2" href="#ce-qu-il-n-est-pas">Ce qu'il n'est pas</a>
+    <a class="lvl-2" href="#prise-en-main">Prise en main</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

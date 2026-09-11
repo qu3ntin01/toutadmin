@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Ce qui a été livré, lot par lot, avec les décisions de conception et les défauts corrigés en chemin." />
+<title>Journal des livraisons — Documentation Toutadmin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Toutadmin<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html" class="is-active" aria-current="page">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Journal des livraisons</h1>
+<p class="lede">
+  L'ordre dans lequel le produit a été construit, et pourquoi chaque lot a été fait ainsi.
+  Les entrées les plus récentes d'abord.
+</p>
+
+<h2 id="vie-juridique-et-conformite-capital-mandats-assemblees-declarations">Vie juridique et conformité : capital, mandats, assemblées, déclarations<a class="anchor" href="#vie-juridique-et-conformite-capital-mandats-assemblees-declarations" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span></p>
+
+<p>
+  Ce qu'une entreprise doit tenir par écrit parce que sa forme sociale l'y oblige, et
+  ce que nul tableur partagé ne devrait tenir : le registre du capital, les mandats
+  sociaux, les assemblées, et les déclarations que chacun fait sur ses propres liens.
+</p>
+
+<ul>
+  <li>
+    <strong>La détention n'est pas une colonne.</strong> Elle se recalcule des mouvements
+    de titres, comme un solde se recalcule de ses écritures : personne ne corrige le
+    capital sans laisser la ligne qui l'explique. Une cession écrit ses deux jambes dans
+    la même transaction — ce qui part de chez l'un, ce qui arrive chez l'autre — ou n'en
+    écrit aucune. Céder plus qu'on ne détient est refusé en disant combien on détient, et
+    un associé qui porte encore des titres ne se supprime pas.
+  </li>
+  <li>
+    <strong>Les mandats sociaux</strong> avec leur durée, et une fin de mandat signalée à
+    l'avance aux seuls administrateurs : un mandat échu que l'on continue d'exercer engage
+    la société sur des actes que personne n'avait le pouvoir de signer.
+  </li>
+  <li>
+    <strong>Les assemblées</strong> : quorum compté en titres et non en associés, résolutions,
+    votes, et majorité calculée sur les voix exprimées — les abstentions écartées du
+    dénominateur. La référence est attribuée par le registre, pas saisie.
+  </li>
+  <li>
+    <strong>Intérêts, cadeaux, délégations.</strong> Chacun déclare pour soi et ne voit que
+    ses propres déclarations ; l'identifiant de l'auteur vient de la session, jamais du
+    formulaire. Au-delà de 150&nbsp;€, un cadeau demande un examen — un usage écrit vaut
+    mieux qu'un usage supposé. Les deux registres figurent dans l'export RGPD de la
+    personne, et n'en sont pas effaçables.
+  </li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Un formulaire qui réémet ce qu'il n'édite pas finit par l'écraser</span>
+  <p>
+    L'écran de rédaction du procès-verbal portait le statut de l'assemblée en champ caché,
+    pour le renvoyer intact. Le garde-fou qui interdit d'afficher un statut brut l'a vu, et
+    plutôt que de l'affaiblir on a séparé les deux gestes : le procès-verbal a sa propre
+    route, et la fiche de l'assemblée n'écrit plus le procès-verbal. Un formulaire n'a
+    rien à réémettre de ce qu'il ne modifie pas.
+  </p>
+</div>
+
+<h2 id="achats-le-rapprochement-a-trois-et-le-recouvrement-echelonne">Achats : le rapprochement à trois, et le recouvrement échelonné<a class="anchor" href="#achats-le-rapprochement-a-trois-et-le-recouvrement-echelonne" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span></p>
+
+<p>
+  Deux bouts de la même chaîne : ce qu'on doit aux fournisseurs, et ce que les clients
+  doivent. L'un et l'autre se perdent par défaut de comparaison plus que par malveillance.
+</p>
+
+<ul>
+  <li>
+    <strong>Bons de commande, réceptions, rapprochement à trois.</strong> Le bon de commande
+    engage, la réception constate, la facture réclame : quand les trois chiffres divergent,
+    on paie soit ce qu'on n'a pas commandé, soit ce qui n'est jamais arrivé. Recevoir plus
+    que commandé est refusé ; une ligne rattachée à un article entre en stock au moment de
+    sa réception, dans le même geste ; le statut suit les réceptions et ne se tient pas à
+    la main.
+  </li>
+  <li>
+    <strong>Le rapprochement ne bloque pas le règlement</strong> — il n'en a pas le pouvoir,
+    et une livraison partielle facturée d'avance est parfois convenue. Il nomme l'écart au
+    moment où quelqu'un regarde la facture, ce qui suffit à décider.
+  </li>
+  <li>
+    <strong>Recouvrement</strong> : balance âgée par tranche de retard, et trois paliers —
+    rappel, relance, mise en demeure. Le palier se déduit de ce qui a déjà été envoyé, pas
+    du seul retard, et le délai du suivant se compte depuis la relance précédente : c'est
+    le silence qui appelle l'escalade, pas le calendrier.
+  </li>
+</ul>
+
+<h2 id="alerte-interne-et-un-journal-que-l-on-ne-reecrit-pas-sans-le-dire">Alerte interne, et un journal que l'on ne réécrit pas sans le dire<a class="anchor" href="#alerte-interne-et-un-journal-que-l-on-ne-reecrit-pas-sans-le-dire" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span></p>
+
+<p>
+  Le dispositif de recueil des signalements est obligatoire en France dès cinquante
+  salariés depuis la loi du 21 mars 2022, et impossible à bâcler : un canal que l'on
+  n'ose pas emprunter ne sert à rien, et c'est la conception qui décide si on ose.
+</p>
+
+<ul>
+  <li><strong>Le contenu est chiffré en base</strong> : une copie de la base ne livre ni les signalements, ni ce qui s'y dit ensuite.</li>
+  <li><strong>Les référents seuls y accèdent, pas les administrateurs</strong> en tant que tels. L'administration désigne les référents — ce qui est tracé — et ne lit rien.</li>
+  <li><strong>Un signalement anonyme n'enregistre pas son auteur</strong>, et la route neutralise la trace automatique pour que le journal d'audit ne le rattrape pas par la bande.</li>
+  <li><strong>Le suivi se fait sans compte</strong>, avec la référence et un code affiché une seule fois : se connecter pour lire la réponse reviendrait à signer son signalement.</li>
+  <li><strong>Les délais légaux sont comptés, pas promis</strong> : accusé de réception sous 7 jours, retour sur les suites sous 90 jours, l'un et l'autre affichés en retard dès qu'ils le sont.</li>
+  <li><strong>Chaque ouverture d'un signalement est consignée dans le signalement</strong>, hors du journal général : l'y inscrire nommerait l'alerte à toute l'administration.</li>
+</ul>
+
+<p>
+  Dans le même lot, le <strong>journal d'audit est scellé par chaînage d'empreintes</strong> :
+  chaque entrée porte l'empreinte de la précédente. Modifier une ligne, ou en retirer une
+  du milieu, casse la chaîne à cet endroit — et la vérification dit lequel, en nommant
+  l'entrée et en distinguant un contenu modifié d'une entrée disparue.
+</p>
+
+<div class="note">
+  <span class="note-title">Ce que le scellement ne fait pas</span>
+  <p>
+    Empêcher la réécriture. Qui tient le fichier de la base peut tout recalculer. Le
+    scellement rend l'altération <em>visible</em>, ce qui est ce qu'on attend d'un journal,
+    et c'est aussi loin qu'on aille sans autorité d'horodatage extérieure. Une purge, elle,
+    retire légitimement le début de la chaîne — et laisse sa propre entrée pour le dire.
+  </p>
+</div>
+
+<h2 id="cinq-espaces-informatique-developpement-evenements-points-individuels-tiers">Cinq espaces : informatique, développement, événements, points individuels, tiers<a class="anchor" href="#cinq-espaces-informatique-developpement-evenements-points-individuels-tiers" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span></p>
+
+<p>
+  Un lot ajouté après coup, pour cinq publics que le produit ne servait pas encore :
+  ceux qui tiennent le système d'information, ceux qui livrent le code, ceux qui
+  organisent la vie collective, les managers dans leur rapport individuel à leur
+  équipe, et les tiers avec qui l'entreprise contracte.
+</p>
+
+<ul>
+  <li>
+    <strong>Le parc logiciel</strong> et sa revue des accès. Un logiciel n'est pas un
+    équipement : il a des sièges qu'on paie et une liste de gens qui entrent dedans.
+    Les sièges sont tenus comme une contrainte — attribuer au-delà est refusé, réduire
+    sous le nombre d'accès ouverts aussi — et la revue remonte d'abord les comptes
+    fermés qui gardent un accès applicatif.
+  </li>
+  <li>
+    <strong>Les incidents du SI</strong>, horodatés au début et au rétablissement, d'où
+    sort un délai moyen de rétablissement qui se mesure au lieu de se raconter. Clore
+    un incident sans heure de rétablissement est refusé.
+  </li>
+  <li>
+    <strong>Le référentiel applicatif</strong> et le registre des livraisons par
+    environnement, avec les indicateurs qui en découlent. Le taux d'échec compte les
+    livraisons retirées autant que les échouées.
+  </li>
+  <li>
+    <strong>Les événements d'entreprise</strong>, dont la capacité tient toute seule :
+    au-delà des places on entre en liste d'attente, et un désistement fait monter le
+    premier qui attend, avec une notification.
+  </li>
+  <li>
+    <strong>Les points individuels</strong>, avec deux comptes rendus : le résumé que le
+    collaborateur lit, et les notes du manager, qui ne quittent pas son écran.
+  </li>
+  <li>
+    <strong>La fiche tiers</strong> : interlocuteurs, pièces de conformité datées, et
+    évaluations notées, la note affichée étant celle de la dernière revue.
+  </li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Ce que les notes de manager ont obligé à trancher</span>
+  <p>
+    Ces notes parlent d'une personne, et une demande d'accès à ses données personnelles
+    les lui rend. Les cacher de l'export aurait été confondre une règle du produit avec
+    une exception au droit. Elles figurent donc dans l'export RGPD, et l'écran le dit au
+    manager au moment où il écrit.
+  </p>
+</div>
+
+<h2 id="traductions-les-89-vues-ecran-par-ecran">Traductions : les 89 vues, écran par écran<a class="anchor" href="#traductions-les-89-vues-ecran-par-ecran" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span></p>
+
+<p>
+  Le vocabulaire générique traité, il restait le vocabulaire métier : environ 1&nbsp;600 chaînes
+  réparties sur une soixantaine d'écrans, chacune n'apparaissant que sur un ou deux d'entre eux.
+  Ce lot les a prises une par une, de la comptabilité au parapheur.
+</p>
+
+<ul>
+  <li>Le dictionnaire passe à <strong>2754 clés par langue</strong> ; plus une seule vue n'affiche de texte français en dur.</li>
+  <li>Les phrases qu'une donnée coupait en deux deviennent des clés paramétrées — <em>« {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) »</em> — plutôt que des fragments concaténés, qui ne se traduisent dans aucune langue à l'ordre des mots différent.</li>
+  <li>Rien de fonctionnel ne bouge : les valeurs stockées, les attributs <code>value</code>, les comparaisons de chaînes et les URL de filtre gardent leur libellé français, qui est la donnée.</li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Ce que l'échappement HTML a révélé</span>
+  <p>
+    Un libellé passé par le dictionnaire traverse <code>&lt;%= %&gt;</code>, qui échappe
+    l'apostrophe en <code>&amp;#39;</code>. À l'écran, rien ne change ; un test qui cherchait la
+    phrase littéralement dans le HTML brut, lui, a cessé de la trouver. L'assertion accepte
+    désormais les deux écritures et dit pourquoi.
+  </p>
+</div>
+
+<h2 id="traductions-vocabulaire-generique">Traductions : vocabulaire générique<a class="anchor" href="#traductions-vocabulaire-generique" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">6c27dd5</span></p>
+
+<p>
+  Après les statuts et le chrome, le gisement suivant était le vocabulaire qui revient d'un
+  écran à l'autre. <em>Intitulé</em> apparaissait 32 fois, <em>Supprimer</em> 33 fois :
+  traduire ce mot une fois le traduit partout.
+</p>
+
+<ul>
+  <li>101 clés génériques ajoutées dans les 16 langues, branchées sur <strong>673 emplacements répartis sur 55 vues</strong>.</li>
+  <li>Substitution restreinte aux clés dont le libellé ne dépend pas du contexte : <em>Objet</em> côté messagerie et <em>Début</em> côté pointage gardent leur clé d'origine, sans quoi on produirait des faux amis.</li>
+  <li>Rien de fonctionnel ne bouge : aucune <code>&lt;option&gt;</code> ne se passe d'attribut <code>value</code>, aucun bouton ne porte de <code>name</code> sans <code>value</code>, et les URL de filtre gardent la valeur française stockée.</li>
+</ul>
+
+<div class="note">
+  <span class="note-title">Un plantage trouvé par les tests</span>
+  <p>
+    Deux boucles écrites <code>tools.forEach((t) =&gt; …)</code> masquaient le helper de
+    traduction : à l'intérieur, <code>t('common.edit')</code> tentait d'appeler l'objet de la
+    boucle comme une fonction, et la console d'administration tombait. Variable renommée, et un
+    test interdit désormais ce masquage dans toutes les vues.
+  </p>
+</div>
+
+<h2 id="traductions-statuts-chrome-et-mise-en-page-arabe">Traductions : statuts, chrome et mise en page arabe<a class="anchor" href="#traductions-statuts-chrome-et-mise-en-page-arabe" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">93c4d4c</span></p>
+
+<p>
+  Un audit du dispositif d'internationalisation. Le dictionnaire lui-même était sain — parité
+  des 16 langues, paramètres, écritures non latines. Le défaut était ailleurs, à
+  trois endroits.
+</p>
+
+<ul>
+  <li><strong>Les statuts s'affichaient en français dans les 16 langues</strong>, sur 50 écrans. Ils restent stockés en français — valeur métier, contraintes <code>CHECK</code>, comparaisons — mais l'affichage passe désormais par un helper. Voir <a href="traductions.html#les-statuts-se-traduisent-aussi">Traductions</a>.</li>
+  <li><strong>Le chrome de chaque page était en dur</strong> : bouton de déconnexion, sélecteur de thème, et la navigation latérale des quatre espaces. Ironie, <code>common.logout</code> existait déjà en 16 langues — l'en-tête ne l'appelait simplement pas.</li>
+  <li><strong>L'arabe ne se retournait qu'à moitié.</strong> La page passait bien en <code>dir="rtl"</code>, mais la feuille de style figeait les côtés. Bascule sur les propriétés logiques, vérifiée géométriquement.</li>
+</ul>
+
+<h2 id="pieces-recues-lecture-des-factures-et-capture-de-la-boite-aux-lettres">Pièces reçues : lecture des factures et capture de la boîte aux lettres<a class="anchor" href="#pieces-recues-lecture-des-factures-et-capture-de-la-boite-aux-lettres" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">bfdabd9</span></p>
+
+<p>
+  L'outil du comptable : une corbeille unique, une lecture par règles toujours active, une
+  analyse assistée optionnelle et une relève IMAP. Détail sur <a href="comptable.html">Pièces
+  reçues</a>.
+</p>
+
+<p>
+  Le point d'équilibre du lot : concilier « analyse par IA si possible » avec l'exigence de
+  sécurité. La lecture par règles est le chemin toujours disponible ; le modèle est une option
+  explicite, à identifiants chiffrés, qui peut pointer vers un service hébergé chez vous.
+  <strong>Le modèle ne décide de rien</strong> : ce que les règles savent vérifier leur reste
+  acquis.
+</p>
+
+<h2 id="circuits-d-approbation-configurables-et-export-integral">Circuits d'approbation configurables et export intégral<a class="anchor" href="#circuits-d-approbation-configurables-et-export-integral" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">4dc71da</span></p>
+
+<ul>
+  <li>Types de demande paramétrables, avec des étapes qui désignent une <strong>fonction et non une personne</strong> : le circuit survit aux départs.</li>
+  <li>Seuils par étape, et étape sautée plutôt que bloquée quand aucun validateur n'existe. Personne ne valide sa propre demande.</li>
+  <li>Export intégral en JSON, documents compris, secrets exclus — et la liste des exclusions est écrite dans l'archive elle-même.</li>
+</ul>
+
+<h2 id="api-rest-de-lecture-et-webhooks-sortants-signes">API REST de lecture et webhooks sortants signés<a class="anchor" href="#api-rest-de-lecture-et-webhooks-sortants-signes" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">2549c33</span></p>
+
+<p>
+  API volontairement en lecture seule, jetons à portées jamais conservés en clair, webhooks
+  signés en HMAC-SHA256 avec réessais et extinction automatique. Détail sur
+  <a href="api.html">API et webhooks</a>.
+</p>
+
+<h2 id="parapheur-signature-electronique">Parapheur : signature électronique<a class="anchor" href="#parapheur-signature-electronique" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">c215e2e</span></p>
+
+<p>
+  Document figé par son empreinte dès le dépôt, sceau HMAC par signature, circuit séquentiel,
+  mot de passe et consentement exigés, attestation imprimable. La signature est
+  <strong>simple</strong>, et l'attestation le dit elle-même.
+</p>
+
+<h2 id="organigramme-et-import-de-donnees-en-masse">Organigramme et import de données en masse<a class="anchor" href="#organigramme-et-import-de-donnees-en-masse" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">5dd49c7</span></p>
+
+<ul>
+  <li>Organigramme qui montre <strong>qui n'est rattaché nulle part</strong> — c'est ce qu'on découvre en le dessinant.</li>
+  <li>Import CSV avec aperçu qui n'écrit rien, puis écriture <strong>tout ou rien</strong>, revalidée au moment d'écrire.</li>
+  <li>Lecteur CSV écrit à la main : un import de masse est une porte d'entrée dans la base, la dépendance qui lit le fichier serait aussi sensible que celle qui l'écrit.</li>
+</ul>
+
+<h2 id="multidevise-facturation-recurrente-et-tva">Multidevise, facturation récurrente et TVA<a class="anchor" href="#multidevise-facturation-recurrente-et-tva" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">e3985c4</span></p>
+
+<ul>
+  <li><strong>Le taux vit dans la pièce, pas dans la table des taux</strong> : mettre un taux à jour ne réécrit pas le chiffre d'affaires de l'an dernier.</li>
+  <li>Un index unique interdit de facturer deux fois la même échéance d'abonnement, même si deux balayages se croisent.</li>
+  <li>La période de TVA se choisit dans une liste plutôt que de se saisir : trois jours de décalage feraient une déclaration fausse que personne ne verrait passer.</li>
+</ul>
+
+<h2 id="direction-planning-qualite-et-accueil">Direction, planning, qualité et accueil<a class="anchor" href="#direction-planning-qualite-et-accueil" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">f605bfe</span></p>
+
+<p>
+  Quatre espaces d'un coup : gouvernance (réunions, décisions, actions, registre des risques),
+  sondages anonymes, planning et astreintes, qualité, accueil et courrier.
+</p>
+
+<p>
+  Deux décisions structurantes : <strong>l'anonymat des sondages tient à la structure des
+  tables</strong> (les réponses ne portent aucun identifiant), et <strong>une décision peut
+  naître hors réunion</strong> — sinon la moitié des arbitrages n'entrerait jamais au registre.
+</p>
+
+<h2 id="externalisation-des-sauvegardes">Externalisation des sauvegardes<a class="anchor" href="#externalisation-des-sauvegardes" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">1208fac</span></p>
+
+<p>
+  FTP/FTPS et Google Drive par compte de service, secrets chiffrés, test de connexion qui écrit
+  réellement, alerte aux administrateurs en cas d'échec. Client FTP et jeton JWT écrits à la
+  main, éprouvés contre un vrai serveur FTP et un vrai couple de clés.
+</p>
+
+<h2 id="sauvegarde-automatique-et-restauration">Sauvegarde automatique et restauration<a class="anchor" href="#sauvegarde-automatique-et-restauration" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">ae1a8a1</span></p>
+
+<p>
+  Archive complète (base, photos, CV, coffre, parapheur), base copiée par le mécanisme en ligne
+  de SQLite, manifeste d'empreintes, restauration transactionnelle avec sauvegarde de sécurité
+  préalable.
+</p>
+
+<h2 id="palettes-et-coffre-fort">Palettes et coffre-fort<a class="anchor" href="#palettes-et-coffre-fort" aria-label="Lien vers cette section">#</a></h2>
+<p><span class="tag tag-done">livré</span> <span class="mono">9921207</span> · <span class="mono">33d17b0</span></p>
+
+<ul>
+  <li>Trois palettes choisies par l'administration, avec un aperçu qui emprunte les vrais jetons — il ne peut pas mentir sur ce qu'il propose. Contraste vérifié sur les six combinaisons palette × thème.</li>
+  <li><strong>Les bulletins restent accessibles après le départ</strong> : le compte est fermé, mais ses identifiants ouvrent son coffre-fort et rien d'autre. Conservation de 50 ans, documents scellés par leur empreinte.</li>
+</ul>
+
+<h2 id="ce-qui-reste-ouvert">Ce qui reste ouvert<a class="anchor" href="#ce-qui-reste-ouvert" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Sujet</th><th>État</th></tr></thead>
+  <tbody>
+    <tr><td>Traduction du corps des écrans des derniers lots (~1 600 chaînes)</td><td><span class="tag tag-todo">à faire</span></td></tr>
+    <tr><td>Synchronisation de la messagerie externe (IMAP/SMTP par membre)</td><td><span class="tag tag-todo">à faire</span></td></tr>
+    <tr><td>Encapsulation PDF/A-3 (Factur-X) et dépôt sur plateforme agréée</td><td><span class="tag tag-todo">à faire</span></td></tr>
+    <tr><td>Archivage à valeur probante (NF Z42-020, horodatage qualifié)</td><td><span class="tag tag-off">hors périmètre</span></td></tr>
+    <tr><td>Télétransmission fiscale et sociale (DSN, TVA)</td><td><span class="tag tag-off">hors périmètre</span></td></tr>
+    <tr><td>Signature électronique qualifiée eIDAS</td><td><span class="tag tag-off">hors périmètre</span></td></tr>
+  </tbody>
+</table>
+</div>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="tests.html">← Tests</a><span></span></nav>
+      <p class="foot">Documentation de Toutadmin — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#vie-juridique-et-conformite-capital-mandats-assemblees-declarations">Vie juridique et conformité : capital, mandats, assemblées, déclarations</a>
+    <a class="lvl-2" href="#achats-le-rapprochement-a-trois-et-le-recouvrement-echelonne">Achats : le rapprochement à trois, et le recouvrement échelonné</a>
+    <a class="lvl-2" href="#alerte-interne-et-un-journal-que-l-on-ne-reecrit-pas-sans-le-dire">Alerte interne, et un journal que l'on ne réécrit pas sans le dire</a>
+    <a class="lvl-2" href="#cinq-espaces-informatique-developpement-evenements-points-individuels-tiers">Cinq espaces : informatique, développement, événements, points individuels, tiers</a>
+    <a class="lvl-2" href="#traductions-les-89-vues-ecran-par-ecran">Traductions : les 89 vues, écran par écran</a>
+    <a class="lvl-2" href="#traductions-vocabulaire-generique">Traductions : vocabulaire générique</a>
+    <a class="lvl-2" href="#traductions-statuts-chrome-et-mise-en-page-arabe">Traductions : statuts, chrome et mise en page arabe</a>
+    <a class="lvl-2" href="#pieces-recues-lecture-des-factures-et-capture-de-la-boite-aux-lettres">Pièces reçues : lecture des factures et capture de la boîte aux lettres</a>
+    <a class="lvl-2" href="#circuits-d-approbation-configurables-et-export-integral">Circuits d'approbation configurables et export intégral</a>
+    <a class="lvl-2" href="#api-rest-de-lecture-et-webhooks-sortants-signes">API REST de lecture et webhooks sortants signés</a>
+    <a class="lvl-2" href="#parapheur-signature-electronique">Parapheur : signature électronique</a>
+    <a class="lvl-2" href="#organigramme-et-import-de-donnees-en-masse">Organigramme et import de données en masse</a>
+    <a class="lvl-2" href="#multidevise-facturation-recurrente-et-tva">Multidevise, facturation récurrente et TVA</a>
+    <a class="lvl-2" href="#direction-planning-qualite-et-accueil">Direction, planning, qualité et accueil</a>
+    <a class="lvl-2" href="#externalisation-des-sauvegardes">Externalisation des sauvegardes</a>
+    <a class="lvl-2" href="#sauvegarde-automatique-et-restauration">Sauvegarde automatique et restauration</a>
+    <a class="lvl-2" href="#palettes-et-coffre-fort">Palettes et coffre-fort</a>
+    <a class="lvl-2" href="#ce-qui-reste-ouvert">Ce qui reste ouvert</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

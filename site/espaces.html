@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="Les zones de l'application, leur adresse et qui y accède." />
+<title>Les espaces — Documentation Toutadmin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Toutadmin<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html" class="is-active" aria-current="page">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Les espaces</h1>
+<p class="lede">
+  L'application se divise en espaces, chacun servant un rôle. Les droits ne sont pas
+  décidés à l'affichage : chaque route porte son garde-fou côté serveur, et les
+  rattachements sont relus à chaque requête.
+</p>
+
+<h2 id="table-des-espaces">Table des espaces<a class="anchor" href="#table-des-espaces" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Espace</th><th>Adresse</th><th>Qui y accède</th></tr></thead>
+  <tbody>
+    <tr><td>Administration</td><td class="mono">/admin</td><td>Administrateurs uniquement</td></tr>
+    <tr><td>Ressources humaines</td><td class="mono">/rh</td><td>Administrateurs et membres désignés RH</td></tr>
+    <tr><td>Manager</td><td class="mono">/mon-equipe</td><td>Tout membre encadrant au moins une équipe ou un service</td></tr>
+    <tr><td>Espace personnel</td><td class="mono">/mon-espace</td><td>Chaque membre, pour ses propres données</td></tr>
+    <tr><td>Profil</td><td class="mono">/mon-profil</td><td>Chaque membre, pour ses propres réglages</td></tr>
+    <tr><td>Annuaire</td><td class="mono">/annuaire</td><td>Tout membre connecté</td></tr>
+    <tr><td>Organigramme</td><td class="mono">/organigramme</td><td>Tout membre connecté</td></tr>
+    <tr><td>Messagerie</td><td class="mono">/messagerie</td><td>Tout membre connecté</td></tr>
+    <tr><td>Agenda</td><td class="mono">/agenda</td><td>Chaque membre, pour son propre calendrier</td></tr>
+    <tr><td>Salles</td><td class="mono">/salles</td><td>Tout membre connecté, pour réserver</td></tr>
+    <tr><td>CSE</td><td class="mono">/cse</td><td>Salariés représentés par le comité (hors freelances et administrateurs)</td></tr>
+    <tr><td>Gestion du CSE</td><td class="mono">/cse/gestion</td><td>Membres élus dont le mandat court encore</td></tr>
+    <tr><td>Gestion administrative et financière</td><td class="mono">/gestion</td><td>Administrateurs et membres désignés gestionnaires</td></tr>
+    <tr><td>Direction et gouvernance</td><td class="mono">/direction</td><td>Administration</td></tr>
+    <tr><td>Planning et astreintes</td><td class="mono">/planning</td><td>Encadrement pour planifier, chacun pour son propre planning</td></tr>
+    <tr><td>Qualité</td><td class="mono">/qualite</td><td>Encadrement et administration</td></tr>
+    <tr><td>Accueil et courrier</td><td class="mono">/accueil</td><td>RH et administration</td></tr>
+    <tr><td>Parapheur</td><td class="mono">/parapheur</td><td>Signataires convoqués, RH et administration</td></tr>
+    <tr><td>Pièces reçues</td><td class="mono">/pieces</td><td>Gestion et administration</td></tr>
+    <tr><td>Demandes internes</td><td class="mono">/demandes</td><td>Tout membre, et les validateurs de chaque circuit</td></tr>
+    <tr><td>Coffre-fort</td><td class="mono">/coffre-fort</td><td>Chaque membre, y compris après son départ</td></tr>
+    <tr><td>Service informatique</td><td class="mono">/informatique</td><td>Administrateurs et membres désignés au service informatique</td></tr>
+    <tr><td>Développement</td><td class="mono">/developpement</td><td>Administrateurs et membres désignés au service informatique</td></tr>
+    <tr><td>Événements</td><td class="mono">/evenements</td><td>Chacun pour ceux qui le concernent ; RH et administration pour les créer</td></tr>
+    <tr><td>Fiche tiers</td><td class="mono">/partenaires/:id</td><td>Administrateurs et membres désignés gestionnaires</td></tr>
+    <tr><td>Alerte interne</td><td class="mono">/alertes</td><td>Tout membre pour déposer ; les référents désignés seuls pour lire</td></tr>
+    <tr><td>Suivi d'un signalement</td><td class="mono">/alerte/suivi</td><td>Qui détient la référence et le code, sans compte ni connexion</td></tr>
+    <tr><td>Vie juridique</td><td class="mono">/juridique</td><td>Chacun pour ses propres déclarations ; administration pour les registres</td></tr>
+    <tr><td>Sécurité</td><td class="mono">/securite</td><td>Administration</td></tr>
+    <tr><td>Sauvegardes</td><td class="mono">/sauvegardes</td><td>Administration</td></tr>
+    <tr><td>Données personnelles</td><td class="mono">/rgpd</td><td>Administration</td></tr>
+    <tr><td>Pilotage</td><td class="mono">/pilotage</td><td>Administration</td></tr>
+    <tr><td>Modules optionnels</td><td class="mono">voir <a href="modules.html">Modules</a></td><td>Éteints par défaut, ouverts par l'administration</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="comment-les-droits-sont-calcules">Comment les droits sont calculés<a class="anchor" href="#comment-les-droits-sont-calcules" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Six rôles se cumulent sur un même compte : <strong>administrateur</strong>,
+  <strong>RH</strong>, <strong>gestionnaire</strong>, <strong>service informatique</strong>,
+  <strong>référent d'alerte</strong> et <strong>manager</strong>. Les cinq premiers sont
+  accordés par un administrateur. Le sixième ne s'accorde pas : il se déduit. Qui encadre
+  au moins une équipe ou un service obtient l'espace manager ; retirer l'encadrement le
+  referme aussitôt.
+</p>
+
+<p>
+  Ces rôles ne se recouvrent pas. Le service informatique tient le parc logiciel et
+  les accès applicatifs sans voir la paie ; la gestion financière paie les
+  abonnements sans ouvrir les habilitations qu'ils accordent. Séparer les deux est
+  précisément ce qui permet à la revue des accès de servir à quelque chose.
+</p>
+
+<p>
+  Le rôle de <strong>référent d'alerte</strong> va plus loin que la séparation : il
+  <strong>exclut</strong> l'administration au lieu de s'y ajouter. Un administrateur
+  désigne les référents — cette désignation est tracée — mais ne lit aucun signalement,
+  puisqu'une alerte peut viser un administrateur, et qu'un canal que la personne visée
+  peut lire n'est pas un canal.
+</p>
+
+<div class="note">
+  <span class="note-title">La session suit les droits réels</span>
+  <p>
+    Désactivation, fin de contrat, verrouillage, promotion et rétrogradation sont relus
+    <strong>à chaque requête</strong>, pas à la connexion. Un départ coupe l'accès
+    immédiatement, sans attendre l'expiration du cookie.
+  </p>
+</div>
+
+<h3 id="encadrement-une-relation-pas-une-colonne">Encadrement : une relation, pas une colonne<a class="anchor" href="#encadrement-une-relation-pas-une-colonne" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Un service comme une équipe acceptent <strong>autant de managers que nécessaire</strong>.
+  Une équipe appartient à un service ; rattacher quelqu'un à une équipe le rattache
+  automatiquement à son service, et un manager de service encadre aussi les équipes que
+  ce service contient. Supprimer un service ou une équipe <strong>détache</strong> ses
+  membres, ne les supprime jamais.
+</p>
+
+<h3 id="trois-cercles-pour-les-projets">Trois cercles pour les projets<a class="anchor" href="#trois-cercles-pour-les-projets" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  La gestion conduit tous les projets. Un manager peut en ouvrir, mais ne conduit que ceux
+  dont il est responsable : encadrer une équipe ne donne aucun droit sur le projet d'une
+  autre. Sans responsable désigné, c'est celui qui a ouvert le projet.
+</p>
+
+<h3 id="le-cse-represente-les-salaries">Le CSE représente les salariés<a class="anchor" href="#le-cse-represente-les-salaries" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  Les freelances et les administrateurs n'ont accès ni à l'espace du comité, ni au corps
+  électoral. L'espace de gestion des élus se referme automatiquement lorsque le mandat
+  arrive à échéance.
+</p>
+
+<h2 id="le-cas-du-salarie-parti">Le cas du salarié parti<a class="anchor" href="#le-cas-du-salarie-parti" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Un compte fermé reste utilisable pour une seule chose : <strong>son coffre-fort</strong>.
+  L'ancien salarié se connecte avec ses identifiants habituels et n'atteint que ses
+  bulletins, ses contrats et ses attestations. Aucune autre page n'est accessible, aucune
+  écriture n'est possible. Les RH peuvent émettre un code d'accès pour qui a oublié son
+  mot de passe — ce qui arrivera, sur une conservation de cinquante ans.
+</p>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="index.html">← Toutadmin</a><a href="fonctionnalites.html">Fonctionnalités →</a></nav>
+      <p class="foot">Documentation de Toutadmin — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#table-des-espaces">Table des espaces</a>
+    <a class="lvl-2" href="#comment-les-droits-sont-calcules">Comment les droits sont calculés</a>
+    <a class="lvl-3" href="#encadrement-une-relation-pas-une-colonne">Encadrement : une relation, pas une colonne</a>
+    <a class="lvl-3" href="#trois-cercles-pour-les-projets">Trois cercles pour les projets</a>
+    <a class="lvl-3" href="#le-cse-represente-les-salaries">Le CSE représente les salariés</a>
+    <a class="lvl-2" href="#le-cas-du-salarie-parti">Le cas du salarié parti</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>

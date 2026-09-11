@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="fr" data-base="">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="description" content="L'assistant en cinq étapes, le déploiement automatisé, la mise à jour et le jeu de démonstration." />
+<title>Installation — Documentation Toutadmin</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='4' fill='%230b46d1'/><text x='16' y='22' font-family='system-ui,sans-serif' font-size='15' font-weight='700' fill='%23fff' text-anchor='middle'>SM</text></svg>" />
+<link rel="stylesheet" href="assets/style.css" />
+<script>
+/* Le thème choisi est appliqué avant le premier rendu : sans cela, une page
+   sombre s'ouvrirait en blanc le temps du chargement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('doc-theme');
+    if (stored === 'dark' || stored === 'light') {
+      document.documentElement.setAttribute('data-theme', stored);
+    }
+  } catch (e) { /* stockage indisponible : on suit le système */ }
+})();
+</script>
+</head>
+<body>
+
+<header class="top">
+  <button class="icon-btn nav-toggle" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
+  </button>
+
+  <a class="brand" href="index.html">
+    <span class="brand-mark">SM</span>
+    <span>Toutadmin<small>Documentation</small></span>
+  </a>
+
+  <span class="top-spacer"></span>
+
+  <div class="top-search">
+    <input type="search" placeholder="Rechercher…  (touche /)" aria-label="Rechercher dans la documentation" autocomplete="off" />
+    <div class="results" hidden></div>
+  </div>
+
+  <button class="icon-btn" type="button" data-theme-toggle aria-label="Basculer le thème clair ou sombre">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z" /></svg>
+  </button>
+</header>
+
+<div class="shell">
+  <nav class="side" aria-label="Sommaire du site">
+    <h2>Découvrir</h2>
+    <a href="index.html">Vue d'ensemble</a>
+    <a href="espaces.html">Les espaces</a>
+    <a href="fonctionnalites.html">Fonctionnalités</a>
+    <h2>Mettre en place</h2>
+    <a href="installation.html" class="is-active" aria-current="page">Installation</a>
+    <a href="configuration.html">Configuration</a>
+    <a href="modules.html">Modules</a>
+    <h2>Approfondir</h2>
+    <a href="securite.html">Sécurité</a>
+    <a href="traductions.html">Traductions</a>
+    <a href="lexique.html">Lexique complet</a>
+    <a href="comptable.html">Pièces reçues</a>
+    <a href="api.html">API et webhooks</a>
+    <a href="sauvegardes.html">Sauvegardes</a>
+    <h2>Sous le capot</h2>
+    <a href="architecture.html">Architecture</a>
+    <a href="tests.html">Tests</a>
+    <a href="journal.html">Journal</a>
+  </nav>
+
+  <main>
+    <article class="prose">
+<h1>Installation</h1>
+<p class="lede">
+  Une machine avec Node&nbsp;22 suffit. Aucune base de données à installer : SQLite vit
+  dans un fichier, et le dossier <code>data/</code> contient tout ce que l'instance détient.
+</p>
+
+<h2 id="demarrage">Démarrage<a class="anchor" href="#demarrage" aria-label="Lien vers cette section">#</a></h2>
+
+<pre><code>npm install
+npm start          # http://localhost:3000</code></pre>
+
+<p>
+  Sur une instance vierge, <strong>toute l'application redirige vers l'assistant
+  d'installation</strong> (<code>/installation</code>).
+</p>
+
+<h2 id="l-assistant-en-cinq-etapes">L'assistant, en cinq étapes<a class="anchor" href="#l-assistant-en-cinq-etapes" aria-label="Lien vers cette section">#</a></h2>
+
+<ol>
+  <li><strong>Langue</strong> — parmi les 16 disponibles ; devient la langue par défaut de l'instance.</li>
+  <li><strong>Prérequis</strong> — version de Node, dossier de données accessible en écriture, base SQLite, dossier des photos de profil. Deux recommandations de mise en production (<code>TRUST_PROXY</code>, <code>NODE_ENV=production</code>) sont signalées en ambre sans bloquer.</li>
+  <li><strong>Organisation</strong> — nom affiché partout dans l'interface, et quota de congés annuels attribué à chaque nouveau salarié non-freelance.</li>
+  <li><strong>Administrateur</strong> — le premier compte, avec un mot de passe de 12 caractères minimum.</li>
+  <li><strong>Récapitulatif</strong> — vérification puis création de l'instance.</li>
+</ol>
+
+<p>
+  Le tout est écrit <strong>en une seule transaction</strong>, puis un fichier
+  <code>data/install.lock</code> referme définitivement l'assistant : toute visite
+  ultérieure de <code>/installation</code> renvoie à la page de connexion. Le secret de
+  session est généré automatiquement dans <code>data/session.key</code> (permissions
+  <code>0600</code>) si <code>SESSION_SECRET</code> n'est pas fourni.
+</p>
+
+<h2 id="proteger-l-assistant-sur-un-serveur-expose">Protéger l'assistant sur un serveur exposé<a class="anchor" href="#proteger-l-assistant-sur-un-serveur-expose" aria-label="Lien vers cette section">#</a></h2>
+
+<div class="warn">
+  <span class="note-title">La fenêtre avant votre propre installation</span>
+  <p>
+    Entre la mise en ligne et votre première connexion, n'importe qui atteignant le serveur
+    peut dérouler l'assistant à votre place et devenir administrateur.
+  </p>
+</div>
+
+<p>
+  Définissez <code>INSTALL_TOKEN</code> avant le premier démarrage : l'assistant réclame
+  alors ce jeton à l'étape des prérequis.
+</p>
+
+<pre><code>INSTALL_TOKEN=un-jeton-long-et-aleatoire npm start</code></pre>
+
+<h2 id="installation-sans-interface">Installation sans interface<a class="anchor" href="#installation-sans-interface" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Pour un déploiement automatisé, renseigner <code>ADMIN_EMAIL</code> et
+  <code>ADMIN_PASSWORD</code> crée le compte administrateur au démarrage ; l'instance est
+  alors considérée comme installée et l'assistant ne s'ouvre pas.
+</p>
+
+<pre><code>cp .env.example .env      # ADMIN_EMAIL / ADMIN_PASSWORD / SESSION_SECRET
+npm start</code></pre>
+
+<h2 id="jeu-de-demonstration">Jeu de démonstration<a class="anchor" href="#jeu-de-demonstration" aria-label="Lien vers cette section">#</a></h2>
+
+<pre><code>node scripts/seed-demo.js</code></pre>
+
+<p>
+  Cinq membres rattachés, outils, demandes, paie, pointages, actualités et messages. Tous
+  les comptes partagent le mot de passe <code>demo-1234</code>, dont
+  <code>claire.moreau@entreprise.com</code> (responsable RH) et
+  <code>lucas.petit@entreprise.com</code> (freelance).
+</p>
+
+<div class="warn">
+  <span class="note-title">Jamais en production</span>
+  <p>Ces comptes ont un mot de passe public. Le jeu de démonstration sert à explorer l'application, pas à démarrer une instance réelle.</p>
+</div>
+
+<h2 id="mise-en-production">Mise en production<a class="anchor" href="#mise-en-production" aria-label="Lien vers cette section">#</a></h2>
+
+<p>Trois réglages transforment une instance de développement en instance exploitable :</p>
+
+<ul>
+  <li><code>NODE_ENV=production</code> — active les cookies sécurisés, les vérifications de secrets au démarrage et le cache statique.</li>
+  <li><code>TRUST_PROXY=1</code> — derrière un reverse proxy, pour que la limitation de débit voie la vraie adresse du client et non celle du proxy.</li>
+  <li><code>SESSION_SECRET</code> et <code>ADMIN_PASSWORD</code> — le serveur <strong>refuse de démarrer</strong> en production s'ils sont restés à leur valeur par défaut.</li>
+</ul>
+
+<p>
+  Le dossier <code>data/</code> doit être sauvegardé et recopié hors du serveur : voir
+  <a href="sauvegardes.html">Sauvegardes</a>, qui automatise l'un et l'autre.
+</p>
+
+<h2 id="mise-a-jour-depuis-une-version-anterieure">Mise à jour depuis une version antérieure<a class="anchor" href="#mise-a-jour-depuis-une-version-anterieure" aria-label="Lien vers cette section">#</a></h2>
+
+<p>
+  Les instances créées avant l'introduction des services et des équipes sont reprises
+  automatiquement au premier démarrage, une seule fois :
+</p>
+
+<ul>
+  <li>chaque libellé de service saisi en texte libre devient un <strong>service</strong> ;</li>
+  <li>chaque encadrant devient le manager d'une <strong>équipe</strong> portant ses anciens collaborateurs ;</li>
+  <li>les actualités d'équipe suivent l'équipe de leur auteur.</li>
+</ul>
+
+<p>
+  Les colonnes <code>users.department</code>, <code>users.manager_id</code> et
+  <code>announcements.team_manager_id</code> sont ensuite retirées. Aucune action n'est
+  requise ; sauvegardez simplement <code>data/</code> avant la mise à jour, comme pour
+  toute migration.
+</p>
+
+      <nav class="pager" aria-label="Pages voisines"><a href="fonctionnalites.html">← Fonctionnalités</a><a href="configuration.html">Configuration →</a></nav>
+      <p class="foot">Documentation de Toutadmin — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
+    </article>
+  </main>
+
+  <aside class="toc" aria-label="Sur cette page">
+    <strong>Sur cette page</strong>
+    <a class="lvl-2" href="#demarrage">Démarrage</a>
+    <a class="lvl-2" href="#l-assistant-en-cinq-etapes">L'assistant, en cinq étapes</a>
+    <a class="lvl-2" href="#proteger-l-assistant-sur-un-serveur-expose">Protéger l'assistant sur un serveur exposé</a>
+    <a class="lvl-2" href="#installation-sans-interface">Installation sans interface</a>
+    <a class="lvl-2" href="#jeu-de-demonstration">Jeu de démonstration</a>
+    <a class="lvl-2" href="#mise-en-production">Mise en production</a>
+    <a class="lvl-2" href="#mise-a-jour-depuis-une-version-anterieure">Mise à jour depuis une version antérieure</a>
+  </aside>
+</div>
+
+<script src="assets/doc.js"></script>
+
+</body>
+</html>
