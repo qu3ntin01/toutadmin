@@ -42,6 +42,9 @@ qui relie le tout.
 | **Registre des décisions et actions confiées, avec échéance et porteur** | ✅ |
 | **Registre des risques : cotation brute et résiduelle, matrice, traitement, revue** | ✅ |
 | **Événements d'entreprise : capacité, liste d'attente automatique, émargement, budget** | ✅ |
+| **Registre du capital** : associés, mouvements de titres, quotes-parts déduites des mouvements | ✅ |
+| **Mandats sociaux** : fonction, durée, révocation, fin de mandat signalée à l'avance | ✅ |
+| **Assemblées générales** : convocation, quorum compté en titres, résolutions, votes et procès-verbal | ✅ |
 
 ## Opérations
 
@@ -97,6 +100,8 @@ qui relie le tout.
 | **Multidevise**, taux figé à l'émission de chaque pièce | ✅ |
 | **Lecture automatique des factures reçues** : montants, dates, identifiants vérifiés par leur clé | ✅ |
 | **Capture IMAP** d'une boîte aux lettres comptable, pièces jointes analysées | ✅ |
+| **Bons de commande, réceptions et rapprochement à trois** (commandé / reçu / facturé) | ✅ (module) |
+| **Recouvrement : balance âgée et relances échelonnées**, du rappel à la mise en demeure | ✅ |
 | **Analyse assistée par modèle de langage**, optionnelle et éteinte par défaut | ✅ |
 
 ## Moyens généraux
@@ -114,25 +119,30 @@ qui relie le tout.
 | Fonction | État |
 | --- | --- |
 | Journal d'audit horodaté, exportable | ✅ |
+| **Journal scellé par chaînage d'empreintes**, l'altération étant localisée à l'entrée près | ✅ |
 | **RGPD : registre des traitements, export et effacement des données d'une personne** | ✅ |
+| **Dispositif d'alerte interne** : contenu chiffré, référents désignés, suivi anonyme par code, délais légaux comptés | ✅ |
+| **Conflits d'intérêts et cadeaux** : chacun déclare pour soi, l'administration examine et note la mesure prise | ✅ |
+| **Délégations de pouvoir** : objet, plafond, durée, échéance signalée | ✅ |
 | Archivage à valeur probante | ⬜ |
 
 ---
 
 ## L'état des traductions
 
-Le dictionnaire compte 2 448 clés déclinées dans les 16 langues. Sa cohérence est
+Le dictionnaire compte 2 754 clés déclinées dans les 16 langues. Sa cohérence est
 tenue par les tests : parité des clés, paramètres `{nom}` identiques d'une langue
 à l'autre, aucune valeur vide, et vérification que le russe, l'arabe, le hindi,
 le chinois, le japonais et le coréen sont bien écrits dans leur écriture — une
 traduction oubliée se repère à ce qu'elle reste en caractères latins.
 
-**Les 83 vues du produit sont traduites**, du premier écran de connexion à la
-dernière boîte de dialogue de confirmation : les quatre espaces, le chrome de
-chaque page, tous les statuts affichés, le vocabulaire générique et le
-vocabulaire propre à chaque métier — comptabilité, paie, trésorerie, qualité,
-parapheur, sauvegardes, interfaces, données personnelles, parc logiciel,
-livraisons, événements, points individuels, conformité des tiers.
+**Les 78 écrans du produit sont traduits**, comme les 11 gabarits partagés qui
+les habillent, du premier écran de connexion à la dernière boîte de dialogue de
+confirmation : les quatre espaces, le chrome de chaque page, tous les statuts
+affichés, le vocabulaire générique et le vocabulaire propre à chaque métier —
+comptabilité, paie, trésorerie, qualité, parapheur, sauvegardes, interfaces,
+données personnelles, parc logiciel, livraisons, événements, points individuels,
+conformité des tiers, alerte interne, achats, recouvrement et vie juridique.
 
 Ce qui reste en français dans les gabarits n'est pas du texte affiché : les
 paramètres d'URL du journal d'audit (`&du=`, `&au=`), l'exemple de commande

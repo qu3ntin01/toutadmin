@@ -110,6 +110,19 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **La période se choisit dans une liste** (mensuelle ou trimestrielle) plutôt que de se saisir : trois jours de décalage feraient une déclaration fausse que personne ne verrait passer. Une TVA négative est rendue comme **crédit reportable**, pas comme dette
 - **Une déclaration déposée ne se recalcule plus** : c'est une pièce, pas un tableau de bord. Le dépôt à l'administration reste l'affaire d'un tiers déclarant — aucune télétransmission n'est faite
 
+### Achats : bons de commande, réceptions, rapprochement à trois
+- **Le bon de commande engage, la réception constate, la facture réclame.** Trois chiffres doivent s'accorder ; quand ils divergent, on paie soit ce qu'on n'a pas commandé, soit ce qui n'est jamais arrivé — et on ne s'en aperçoit qu'à l'inventaire ou au bilan
+- **Recevoir plus que commandé est refusé** : c'est presque toujours une erreur de saisie, et quand ce n'en est pas une, c'est la commande qu'il faut corriger pour que le rapprochement garde un sens
+- **Une ligne rattachée à un article entre en stock au moment de sa réception**, dans le même geste. Ressaisir la même réception deux fois est le meilleur moyen de ne plus savoir ce qu'on a
+- **Le statut suit les réceptions** et ne se tient pas à la main : *Reçue partiellement* à la première, *Reçue* quand toutes les lignes sont servies
+- **Le rapprochement ne bloque pas le règlement** — il n'en a pas le pouvoir, et une livraison partielle facturée d'avance est parfois convenue. Il nomme l'écart au moment où quelqu'un regarde la facture, ce qui suffit à décider
+
+### Recouvrement : relances clients échelonnées
+- **Balance âgée** : l'encours réparti en non échu, 1–30, 31–60, 61–90 et plus de 90 jours. Ce n'est pas le total qui inquiète, c'est sa dérive vers la droite
+- **Le palier se déduit de ce qui a déjà été envoyé**, pas du seul retard : une facture en retard de deux mois à qui l'on n'a jamais rien écrit appelle un rappel (7 jours), puis une relance (21 jours), puis une mise en demeure (45 jours) — jamais la mise en demeure d'emblée
+- **Le délai du palier suivant se compte depuis la relance précédente**, pas depuis l'échéance : c'est le silence qui appelle l'escalade, et le client garde le temps de répondre au palier précédent
+- **Chaque relance est consignée** avec son niveau et sa date ; une facture payée ou annulée sort de la liste d'elle-même
+
 ### Projets, tâches et temps passé
 - **Projets** rattachés à un client, un service, une équipe et un responsable, avec budget et taux horaire
 - **Jalons** datés, marqués atteints d'un geste
@@ -219,6 +232,20 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Registre des risques de l'entreprise**, distinct du document unique qui ne traite que la santé des personnes : catégorie, cotation probabilité × impact, **cotation résiduelle** (ce qu'il reste une fois le traitement en place), traitement retenu, porteur, plan d'action et date de revue
 - **Matrice 5 × 5** colorée par criticité. Tant que le résiduel n'est pas coté, c'est la cotation brute qui est retenue : ne pas coter ne doit pas faire passer un risque pour traité
 
+### Vie juridique : capital, mandats, assemblées
+- **Le registre du capital** (`/juridique`, administration) : associés personnes physiques ou morales, et **détention déduite des mouvements de titres**, jamais saisie. Comme un solde se recalcule de ses écritures : personne ne corrige le capital sans laisser la ligne qui l'explique
+- **Une cession écrit ses deux jambes dans la même transaction** — les titres qui partent de chez l'un et ceux qui arrivent chez l'autre — ou n'en écrit aucune. Céder plus qu'on ne détient est refusé en disant combien on détient, et un associé qui porte encore des titres ne se supprime pas
+- **Mandats sociaux** : président, directeur général, gérant, membre du conseil, commissaire aux comptes, avec nomination, durée et révocation. Une fin de mandat est signalée à l'avance aux administrateurs — un mandat échu que l'on continue d'exercer engage la société sur des actes que personne n'avait le pouvoir de signer
+- **Assemblées générales** : convocation, **quorum compté en titres et non en associés**, résolutions, votes et procès-verbal. La majorité se calcule sur les voix exprimées, les abstentions écartées du dénominateur
+- **La référence de l'assemblée est attribuée par le registre** (`AG-2025-001`), pas saisie par l'utilisateur
+
+### Conformité : intérêts, cadeaux, délégations
+- **Déclarations d'intérêts** : chacun déclare pour soi — intérêt financier, mandat externe, lien familial, activité accessoire — et l'écran ne montre à un membre que les siennes. L'identifiant de l'auteur vient de la session, jamais du formulaire
+- **Un intérêt déclaré n'est pas un reproche** : c'est ce qui permet de l'écarter d'une décision au bon moment. L'administration examine et note la mesure prise
+- **Cadeaux et invitations** reçus comme offerts, avec leur valeur. **Au-delà de 150 €, un examen est demandé** ; le seuil est un usage, pas une règle de droit, et mieux vaut l'écrire que le supposer
+- **Délégations de pouvoir** : objet, plafond, durée. Sans écrit, c'est le dirigeant qui reste seul engagé ; l'échéance d'une délégation rejoint les alertes des administrateurs
+- Intérêts et cadeaux **figurent dans l'export RGPD** de la personne, et n'en sont pas effaçables : un registre de conformité amputé ne prouve plus rien
+
 ### Sondages et baromètre social
 - **Questionnaires** à échelle, oui/non, choix multiple ou réponse libre, adressés à toute l'entreprise, à un service ou à une équipe
 - **L'anonymat tient à la structure des tables, pas à une promesse** : les réponses ne portent aucun identifiant de personne, et la participation — nominative — ne dit que « a répondu ». Une base saisie ne peut pas rendre ce qu'elle ne contient pas ; le journal d'audit non plus
@@ -312,6 +339,7 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Console de sécurité** (`/securite`, administration) : journal d'audit filtrable et exportable, sessions ouvertes et leur révocation, comptes à surveiller (verrouillés, mot de passe temporaire jamais remplacé, administrateurs sans double authentification, comptes dormants depuis 90 jours), gestion des administrateurs et politique de l'instance
 - **Réinitialisation de la double authentification** d'un membre par l'administration, pour un téléphone perdu — la personne devra la remettre en service
 - **Fermeture de toutes ses sessions** par le membre lui-même, depuis son profil
+- **Journal d'audit scellé par chaînage d'empreintes** : chaque entrée porte l'empreinte de la précédente. Modifier une ligne, ou en retirer une du milieu, casse la chaîne à cet endroit — et la vérification dit lequel, en nommant l'entrée et ce qui cloche. Ce que le scellement ne fait pas : empêcher la réécriture. Qui tient le fichier de la base peut tout recalculer ; il rend l'altération visible, et c'est aussi loin qu'on aille sans autorité d'horodatage extérieure
 
 ### Pilotage et transverse
 - **Tableau de bord de direction** (`/pilotage`) : effectif par contrat, absents du jour, facturé et marge, masse salariale, trésorerie, charge du support. Un tiret marque une donnée absente, jamais un zéro
@@ -321,6 +349,15 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - **Recherche globale** : n'interroge que les espaces ouverts à la personne — ce qu'elle n'a pas le droit de voir n'est pas cherché du tout, pas filtré après coup
 - **Balayage horaire** au démarrage puis toutes les heures : contrats échus, notifications d'échéance, purge du journal et des notifications lues
 
+### Alerte interne (dispositif de recueil des signalements)
+- **Obligatoire en France dès cinquante salariés** depuis la loi du 21 mars 2022, et impossible à bâcler : un canal qu'on n'ose pas emprunter ne sert à rien, et c'est la conception qui décide si on ose
+- **Le contenu est chiffré en base** : une copie de la base ne livre ni les signalements ni ce qui s'y dit ensuite
+- **Les référents seuls y accèdent, pas les administrateurs** en tant que tels — une alerte peut viser un administrateur. L'administration désigne les référents, ce qui est tracé, mais ne lit rien
+- **Un signalement anonyme n'enregistre pas son auteur**, et la route neutralise la trace automatique pour que le journal d'audit ne le rattrape pas par la bande
+- **Le suivi se fait sans compte**, avec la référence et un code affiché une seule fois : se connecter pour lire la réponse reviendrait à signer son signalement. La consultation n'est pas journalisée
+- **Les délais légaux sont comptés, pas promis** : accusé de réception sous 7 jours, retour sur les suites données sous 90 jours, l'un et l'autre affichés en retard dès qu'ils le sont
+- **Chaque ouverture d'un signalement est consignée dans le signalement lui-même**, hors du journal général : y inscrire une alerte la nommerait à toute l'administration
+
 ### Données personnelles
 - **Registre des traitements** (`/rgpd`, administration), préremplissable avec les traitements que ce logiciel opère lui-même — à relire et compléter, il ne décrit pas ce que fait votre entreprise par ailleurs
 - **Droit d'accès** : ce que l'instance détient sur une personne, source par source, exportable en JSON
@@ -328,7 +365,7 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 
 ### Confort
 - Interface disponible en **16 langues** (français, anglais, espagnol, allemand, italien, portugais, néerlandais, polonais, russe, turc, arabe, hindi, chinois, japonais, coréen, vietnamien), sélectionnables **par drapeau sur l'écran de connexion** et depuis le profil
-- **Les 83 vues sont traduites**, pas seulement les écrans d'accueil : 2 448 clés par langue couvrent la comptabilité, la paie, la trésorerie, la qualité, le parapheur, les sauvegardes, les interfaces, les données personnelles, le parc logiciel, les livraisons, les événements et la conformité des tiers, jusqu'aux boîtes de dialogue de confirmation. Une phrase coupée par un chiffre devient une clé paramétrée — « {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) » — parce que l'ordre des mots change d'une langue à l'autre
+- **Les 78 écrans sont traduits**, comme les 11 gabarits partagés qui les habillent, et pas seulement les pages d'accueil : 2 754 clés par langue couvrent la comptabilité, la paie, la trésorerie, la qualité, le parapheur, les sauvegardes, les interfaces, les données personnelles, le parc logiciel, les livraisons, les événements, la conformité des tiers, l'alerte interne, les achats, le recouvrement et la vie juridique, jusqu'aux boîtes de dialogue de confirmation. Une phrase coupée par un chiffre devient une clé paramétrée — « {total} échéance(s) à 45 jours, dont {overdue} dépassée(s) » — parce que l'ordre des mots change d'une langue à l'autre
 - **Les statuts se traduisent aussi.** Ils restent stockés en français — c'est la valeur métier, celle des contraintes de la base et des comparaisons — mais ce qui s'affiche passe par le dictionnaire : un dossier *Approuvée* se lit *Approved* en anglais, *承認済み* en japonais. Un statut ajouté au schéma sans traduction fait échouer les tests plutôt que de ressortir en français chez un utilisateur étranger
 - **L'arabe retourne réellement la page.** Le sens d'écriture bascule à droite, et la feuille de style n'emploie que des propriétés logiques (`inline-start` plutôt que `left`) : la barre latérale, le liseré de l'onglet actif, la pastille du compte et les marges des tableaux suivent le sens de lecture au lieu de rester figés à gauche
 - **Trois palettes**, choisies par l'administration pour toute l'instance (`/admin`, section Apparence) : *Bleu institutionnel* (sobre, angles droits), *Ardoise et indigo* (neutres contemporains, angles doux), *Magenta et violet* (couleurs franches, navigation en dégradé). L'écran de choix montre un aperçu qui emprunte les jetons de chaque palette — il ne peut pas mentir sur ce qu'il propose
@@ -439,7 +476,7 @@ Tous les comptes de démonstration partagent le mot de passe `demo-1234`, dont
 npm test
 ```
 
-710 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
+797 tests d'intégration couvrent la sauvegarde (aller-retour tar exact, en-tête
 abîmé et archive tronquée refusés, chemin sortant de sa racine rejeté, archive
 embarquant base et coffre-fort, contenu altéré détecté par le manifeste,
 restauration qui remet base et fichiers et efface ce qui a suivi, sauvegarde de
@@ -581,7 +618,7 @@ l'écran, pas enfouie dans une documentation.
 | **Comptabilité** | `/comptabilite` | Plan comptable, journaux, écritures équilibrées, balance, grand livre, export CSV. Une facture se passe en écriture d'un clic. | Ni liasse fiscale, ni télétransmission : l'export alimente l'expert-comptable. |
 | **Moteur de paie** | `/paie` | Barèmes paramétrables, calcul du brut au net, part patronale, coût employeur, bulletin détaillé, génération en lot, simulateur. | Les taux sont ceux que vous saisissez ; aucune DSN. |
 | **Facturation électronique** | `/facturation-electronique` | Contrôle des mentions EN 16931 et export du XML CII (UN/CEFACT) de chaque facture client. | L'encapsulation PDF/A-3 (Factur-X) et le dépôt sur plateforme agréée restent à faire. |
-| **Stock et achats** | `/stock` | Articles, mouvements, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà de 500 €. | Stock mono-dépôt au dernier prix connu ; ni FIFO, ni CUMP. |
+| **Stock et achats** | `/stock` | Articles, mouvements, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà de 500 €. Bons de commande, réceptions et rapprochement à trois : commandé, reçu, facturé. | Stock mono-dépôt au dernier prix connu ; ni FIFO, ni CUMP. Le rapprochement nomme l'écart, il ne bloque pas le règlement. |
 | **Trésorerie** | `/tresorerie` | Comptes bancaires, mouvements, rapprochement des encaissements avec les factures, projection à douze semaines avec son point bas. | Saisie manuelle : aucune connexion bancaire (DSP2). Le solde est celui que vous avez saisi. |
 | **Immobilisations** | `/immobilisations` | Registre, amortissement linéaire et dégressif avec bascule calculée, valeur nette comptable, dotation de l'exercice. | Outil de suivi : rattachement comptable, composants et dérogatoires restent à l'expert-comptable. |
 | **CRM commercial** | `/crm` | Contacts, pipeline pondéré, devis convertibles en facture, relances à échéance. | Pas de synchronisation avec une messagerie ni d'automatisation marketing. |
@@ -597,7 +634,9 @@ l'écran, pas enfouie dans une documentation.
 - **Le XML n'est produit que si la facture est conforme** : sinon chaque mention
   manquante est listée telle quelle, émetteur et client compris.
 - **Le stock est la somme des mouvements**, jamais une valeur saisie ; un inventaire
-  repose le compteur. Une sortie supérieure au stock est refusée.
+  repose le compteur. Une sortie supérieure au stock est refusée. **Recevoir plus que
+  commandé l'est aussi**, et une ligne rattachée à un article entre en stock au moment
+  de sa réception, dans le même geste.
 - **Une demande d'achat suit deux niveaux** : le manager du demandeur, puis la gestion
   au-delà du seuil. Un manager n'arbitre que ses propres collaborateurs.
 - **Un devis accepté devient une facture**, une seule fois.
@@ -714,6 +753,15 @@ src/
   einvoicing.js      contrôle EN 16931 et génération du XML CII
   inventory.js       articles, mouvements, demandes d'achat à deux niveaux
   crm.js             contacts, pipeline, devis, relances
+  purchasing.js      bons de commande, réceptions, rapprochement à trois
+  dunning.js         balance âgée, paliers de relance, relances consignées
+  it.js              parc logiciel, accès applicatifs, incidents du SI
+  dev.js             services applicatifs, livraisons, indicateurs de livraison
+  events.js          événements d'entreprise, liste d'attente, émargement
+  oneonone.js        points individuels : résumé partagé et notes du manager
+  partners.js        fiche tiers : interlocuteurs, pièces de conformité, évaluations
+  whistleblow.js     alerte interne : chiffrement, référents, suivi anonyme
+  corporate.js       capital, mandats sociaux, assemblées, intérêts, cadeaux, délégations
   org.js             services, équipes, encadrement multiple, rattachements
   calendar.js        grille mensuelle, événements personnels et entrées dérivées
   announcements.js   actualités entreprise et équipe
@@ -722,13 +770,21 @@ src/
   locales/           16 dictionnaires (fr de référence, 15 traductions)
   grades.js · contract-types.js · request-types.js   listes blanches métier
   middleware/auth.js contrôle d'accès admin / employé / RH / manager / CSE
-  routes/            install · auth · admin · employee · rh · manager · profile · directory
-                     messages · cse · agenda · gestion · salles
+  routes/            51 routeurs, un par espace : install · auth · admin · employee · rh
+                     manager · profile · directory · messages · cse · agenda · gestion
+                     salles · projets · support · connaissances · qualite · planning
+                     parcours · sante-securite · sondages · direction · pilotage
+                     organigramme · recherche · notifications · demandes · parapheur
+                     coffre-fort · securite · rgpd · sauvegardes · integrations · api
+                     import · pieces · accueil · flotte · partenaires · evenements
+                     informatique · developpement · alertes · juridique
                      comptabilite · paie · facturation-electronique · stock · crm
-views/
+                     tresorerie · immobilisations
+views/               78 écrans et 11 gabarits partagés
   partials/          head, sidebar, navigation membre, en-têtes, avatars, icônes, langues, thème
   install · login · error · admin · rh · employee · manager · profile · directory · messages
-  cse · cse-manage · agenda · gestion · rooms
+  cse · cse-manage · agenda · gestion · rooms · alertes · alerte · alerte-suivi
+  juridique · assemblee · commande · partenaire · evenement · logiciel
   comptabilite · paie · einvoicing · stock · crm
   employee-edit · employee-timesheet · tool-edit
 public/              feuille de style, thème, chronomètre, agenda, jauges, confirmations

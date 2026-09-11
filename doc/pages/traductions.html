@@ -152,7 +152,7 @@ description: Les 16 langues, la négociation, les statuts traduits, la mise en p
 <h2>Ce que les tests garantissent</h2>
 
 <p>
-  Un dictionnaire de {{i18n.strings}} chaînes ne se relit pas. Quinze tests vérifient à chaque
+  Un dictionnaire de {{i18n.strings}} chaînes ne se relit pas. Dix-sept tests vérifient à chaque
   exécution de la suite :
 </p>
 
@@ -169,6 +169,10 @@ description: Les 16 langues, la négociation, les statuts traduits, la mise en p
     <tr><td>Tout statut du schéma est traduit</td><td>Un statut ajouté à une contrainte <code>CHECK</code> sans traduction</td></tr>
     <tr><td>Aucune vue n'affiche un statut brut</td><td>Un <code>&lt;%= x.status %&gt;</code> qui a échappé au helper</td></tr>
     <tr><td>Aucune vue ne masque le helper</td><td>Une boucle <code>forEach((t) =&gt; …)</code> qui rend <code>t()</code> inappelable</td></tr>
+    <tr><td>Un statut inconnu ressort tel quel</td><td>Une valeur absente du dictionnaire affichée en blanc plutôt qu'en français</td></tr>
+    <tr><td>Un même statut se traduit dans chaque langue</td><td>Un statut traduit dans deux langues et oublié dans les quatorze autres</td></tr>
+    <tr><td>Toutes les vues compilent</td><td>Un gabarit cassé par une substitution, qui ne tomberait qu'à l'ouverture de la page</td></tr>
+    <tr><td>Les dates suivent la langue</td><td>Un 03/04 anglais lu comme le 4 mars — ou l'inverse</td></tr>
     <tr><td>Le chrome partagé est traduit</td><td>Un libellé en dur dans l'en-tête ou la navigation, donc visible partout</td></tr>
     <tr><td>Le CSS ne fige aucun côté</td><td>Un <code>margin-left</code> qui casserait la mise en page arabe</td></tr>
     <tr><td>Rendu de bout en bout</td><td>Une page servie en allemand qui parle encore français</td></tr>
@@ -195,7 +199,9 @@ description: Les 16 langues, la négociation, les statuts traduits, la mise en p
   <strong>chrome présent sur chaque page</strong> (en-tête, compte, déconnexion, sélecteur de
   thème, navigation latérale), <strong>tous les statuts</strong>, le vocabulaire générique et
   le vocabulaire propre à chaque métier : comptabilité, paie, trésorerie, qualité, parapheur,
-  sauvegardes, interfaces, données personnelles.
+  sauvegardes, interfaces, données personnelles, parc logiciel, livraisons, événements,
+  points individuels, conformité des tiers, alerte interne, achats, recouvrement et vie
+  juridique.
 </p>
 
 <div class="note">

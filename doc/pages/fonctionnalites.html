@@ -133,6 +133,14 @@ description: Le panorama complet, domaine par domaine — personnel, RH, finance
   <li><strong>Salles</strong> : parc et planning. Un créneau qui chevauche une réservation est refusé en nommant qui l'occupe.</li>
 </ul>
 
+<h3>Fiche tiers : interlocuteurs, conformité, évaluation</h3>
+
+<ul>
+  <li><strong>Une fiche par partenaire</strong> rassemblant contrats, factures, interlocuteurs (un seul principal à la fois), pièces de conformité et évaluations.</li>
+  <li><strong>Les pièces sont des échéances, pas des pièces jointes</strong> : une attestation de vigilance périmée engage la responsabilité du donneur d'ordre. Attestation, assurance, Kbis, coordonnées bancaires, certification — datées, signalées quarante-cinq jours avant leur terme et versées au moteur d'échéances.</li>
+  <li><strong>Évaluations notées</strong> sur la qualité, les délais et le prix. La note affichée est celle de la dernière revue, pas la moyenne de l'historique : une moyenne lisserait exactement ce qu'on cherche à voir, une dégradation.</li>
+</ul>
+
 <h3>Devises, abonnements et TVA</h3>
 
 <p>
@@ -156,6 +164,38 @@ description: Le panorama complet, domaine par domaine — personnel, RH, finance
   plutôt que de se saisir — trois jours de décalage feraient une déclaration fausse que personne
   ne verrait passer. Une TVA négative est rendue comme <strong>crédit reportable</strong>, pas
   comme dette. Une déclaration déposée ne se recalcule plus.
+</p>
+
+<h3>Achats : bons de commande, réceptions, rapprochement à trois</h3>
+
+<p>
+  Le bon de commande engage, la réception constate, la facture réclame. Ces trois
+  chiffres doivent s'accorder : quand ils divergent, on paie soit ce qu'on n'a pas
+  commandé, soit ce qui n'est jamais arrivé — et on ne s'en aperçoit qu'à l'inventaire
+  ou au bilan.
+</p>
+
+<ul>
+  <li><strong>Recevoir plus que commandé est refusé</strong> : c'est presque toujours une erreur de saisie, et quand ce n'en est pas une, c'est la commande qu'il faut corriger pour que le rapprochement garde un sens.</li>
+  <li><strong>Une ligne rattachée à un article entre en stock au moment de sa réception</strong>, dans le même geste : ressaisir la même réception deux fois est le meilleur moyen de ne plus savoir ce qu'on a.</li>
+  <li><strong>Le statut suit les réceptions</strong> et ne se tient pas à la main : <em>Reçue partiellement</em> à la première, <em>Reçue</em> quand toutes les lignes sont servies.</li>
+  <li><strong>Le rapprochement ne bloque pas le règlement</strong> — une livraison partielle facturée d'avance est parfois convenue. Il nomme l'écart au moment où quelqu'un regarde la facture, ce qui suffit à décider.</li>
+</ul>
+
+<h3>Recouvrement : relances échelonnées</h3>
+
+<p>
+  <strong>Balance âgée</strong> : l'encours réparti en non échu, 1–30, 31–60, 61–90 et
+  plus de 90 jours. Ce n'est pas le total qui inquiète, c'est sa dérive vers la droite.
+</p>
+
+<p>
+  <strong>Le palier se déduit de ce qui a déjà été envoyé</strong>, pas du seul retard.
+  Une facture en retard de deux mois à qui l'on n'a jamais rien écrit appelle un rappel
+  (7 jours), puis une relance (21 jours), puis une mise en demeure (45 jours) — et le
+  délai du palier suivant se compte depuis la relance précédente, pas depuis l'échéance :
+  c'est le silence qui appelle l'escalade. Chaque relance est consignée avec son niveau
+  et sa date ; une facture payée ou annulée sort de la liste d'elle-même.
 </p>
 
 <h2>Projets, support et connaissances</h2>
@@ -203,7 +243,76 @@ description: Le panorama complet, domaine par domaine — personnel, RH, finance
   incomparables.
 </p>
 
+<h2>Vie juridique et conformité</h2>
+
+<h3>Capital, mandats, assemblées</h3>
+
+<ul>
+  <li><strong>La détention n'est pas une colonne</strong> : elle se recalcule des mouvements de titres, comme un solde se recalcule de ses écritures. Personne ne corrige le capital sans laisser la ligne qui l'explique.</li>
+  <li><strong>Une cession écrit ses deux jambes dans la même transaction</strong>, ou n'en écrit aucune. Céder plus qu'on ne détient est refusé en disant combien on détient ; un associé qui porte encore des titres ne se supprime pas.</li>
+  <li><strong>Mandats sociaux</strong> — président, directeur général, gérant, membre du conseil, commissaire aux comptes — avec nomination, durée et révocation. Une fin de mandat est signalée à l'avance aux administrateurs : un mandat échu que l'on continue d'exercer engage la société sur des actes que personne n'avait le pouvoir de signer.</li>
+  <li><strong>Assemblées générales</strong> : quorum compté en titres et non en associés, résolutions, votes, procès-verbal. La majorité se calcule sur les voix exprimées, les abstentions écartées du dénominateur. La référence (<code>AG-2025-001</code>) est attribuée par le registre, pas saisie.</li>
+</ul>
+
+<h3>Intérêts, cadeaux, délégations</h3>
+
+<ul>
+  <li><strong>Chacun déclare pour soi</strong> et ne voit que ses propres déclarations : l'identifiant de l'auteur vient de la session, jamais du formulaire. Un intérêt déclaré n'est pas un reproche — c'est ce qui permet de l'écarter d'une décision au bon moment.</li>
+  <li><strong>Cadeaux et invitations</strong>, reçus comme offerts, avec leur valeur. Au-delà de 150&nbsp;€, un examen est demandé ; le seuil est un usage, pas une règle de droit, et mieux vaut l'écrire que le supposer.</li>
+  <li><strong>Délégations de pouvoir</strong> : objet, plafond, durée. Sans écrit, c'est le dirigeant qui reste seul engagé ; l'échéance rejoint les alertes des administrateurs.</li>
+  <li>Les deux registres <strong>figurent dans l'export RGPD</strong> de la personne et n'en sont pas effaçables : un registre de conformité amputé ne prouve plus rien.</li>
+</ul>
+
+<h3>Alerte interne</h3>
+
+<p>
+  Le dispositif de recueil des signalements est obligatoire en France dès cinquante
+  salariés depuis la loi du 21 mars 2022. Un canal que l'on n'ose pas emprunter ne sert
+  à rien, et c'est la conception qui décide si on ose.
+</p>
+
+<ul>
+  <li><strong>Le contenu est chiffré en base</strong> : une copie de la base ne livre ni les signalements ni ce qui s'y dit ensuite.</li>
+  <li><strong>Les référents désignés seuls y accèdent, pas les administrateurs</strong> en tant que tels — une alerte peut viser un administrateur. L'administration désigne les référents, ce qui est tracé, et ne lit rien.</li>
+  <li><strong>Un signalement anonyme n'enregistre pas son auteur</strong>, et la route neutralise la trace automatique pour que le journal d'audit ne le rattrape pas par la bande.</li>
+  <li><strong>Le suivi se fait sans compte</strong>, avec la référence et un code affiché une seule fois : se connecter pour lire la réponse reviendrait à signer son signalement. La consultation n'est pas journalisée.</li>
+  <li><strong>Les délais légaux sont comptés, pas promis</strong> : accusé de réception sous 7 jours, retour sur les suites sous 90 jours.</li>
+  <li><strong>Chaque ouverture d'un signalement est consignée dans le signalement</strong>, hors du journal général : l'y inscrire nommerait l'alerte à toute l'administration.</li>
+</ul>
+
 <h2>Opérations</h2>
+
+<h3>Service informatique : parc logiciel, accès, incidents</h3>
+
+<ul>
+  <li><strong>Un logiciel n'est pas un équipement</strong> : il a des sièges qu'on paie et une liste de gens qui entrent dedans. Les sièges sont tenus comme une contrainte — en attribuer au-delà est refusé, en réduire le nombre sous les accès déjà ouverts aussi — avec coût annualisé et échéance de renouvellement.</li>
+  <li><strong>Revue des accès applicatifs</strong> : elle remonte d'abord les comptes fermés qui gardent un accès, puis les droits d'administration, puis ce qui n'a jamais été réexaminé.</li>
+  <li><strong>Incidents du système d'information</strong>, horodatés au début et au rétablissement, d'où sort un délai moyen de rétablissement qui se mesure au lieu de se raconter. Clore un incident sans heure de rétablissement est refusé, et un rétablissement antérieur à la panne aussi.</li>
+</ul>
+
+<h3>Développement : services applicatifs et livraisons</h3>
+
+<ul>
+  <li><strong>Référentiel des services</strong> : criticité, responsable, dépôt, documentation. Une adresse de dépôt en <code>javascript:</code> est refusée.</li>
+  <li><strong>Registre des livraisons</strong> par environnement, et indicateurs qui en découlent : fréquence, délai, <strong>taux d'échec comptant les livraisons retirées autant que les échouées</strong>. Une livraison sans date n'entre dans aucun indicateur.</li>
+</ul>
+
+<h3>Événements d'entreprise</h3>
+
+<p>
+  Capacité tenue toute seule : au-delà des places on entre en <strong>liste d'attente</strong>,
+  et un désistement fait monter le premier qui attend, avec une notification. Émargement,
+  budget, et brouillon invisible tant qu'il n'est pas publié. La liste nominative des
+  inscrits reste fermée aux participants.
+</p>
+
+<h3>Points individuels manager–collaborateur</h3>
+
+<ul>
+  <li><strong>Deux comptes rendus</strong> : le résumé partagé, que le collaborateur lit depuis son espace, et les notes du manager, qui ne quittent pas son écran.</li>
+  <li><strong>Le périmètre est vérifié à l'écriture</strong>, pas seulement à l'affichage : un manager qui n'encadre plus la personne ne peut plus toucher au compte rendu, sans attendre de reconnexion.</li>
+  <li>Les notes du manager <strong>figurent dans l'export RGPD</strong> : elles parlent de la personne, et une demande d'accès les lui rend. L'écran le dit au manager au moment où il écrit.</li>
+</ul>
 
 <h3>Planning, roulements et astreintes</h3>
 

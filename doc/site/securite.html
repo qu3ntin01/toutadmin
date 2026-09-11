@@ -176,6 +176,27 @@
   durée de conservation choisie.
 </p>
 
+<h3 id="scellement-par-chainage-d-empreintes">Scellement par chaînage d'empreintes<a class="anchor" href="#scellement-par-chainage-d-empreintes" aria-label="Lien vers cette section">#</a></h3>
+
+<p>
+  <strong>Chaque entrée porte l'empreinte de la précédente.</strong> Modifier une ligne,
+  ou en retirer une du milieu, casse la chaîne à cet endroit — et la vérification
+  (<code>/securite</code>, onglet Scellement) dit lequel : elle nomme l'entrée, sa date,
+  et distingue un contenu modifié après coup d'une entrée qui a disparu. Les entrées
+  antérieures à la mise en service du scellement sont comptées à part plutôt que
+  présentées comme vérifiées.
+</p>
+
+<div class="note">
+  <span class="note-title">Ce que le scellement ne fait pas</span>
+  <p>
+    Empêcher la réécriture. Qui tient le fichier de la base peut tout recalculer. Il rend
+    l'altération <em>visible</em>, ce qui est ce qu'on attend d'un journal, et c'est aussi
+    loin qu'on aille sans autorité d'horodatage extérieure. Une purge, elle, retire
+    légitimement le début de la chaîne, et laisse sa propre entrée pour le dire.
+  </p>
+</div>
+
 <h2 id="console-de-securite">Console de sécurité<a class="anchor" href="#console-de-securite" aria-label="Lien vers cette section">#</a></h2>
 
 <p><code>/securite</code>, réservée à l'administration :</p>
@@ -223,7 +244,7 @@
 </p>
 
       <nav class="pager" aria-label="Pages voisines"><a href="modules.html">← Modules débloquables</a><a href="traductions.html">Traductions →</a></nav>
-      <p class="foot">Documentation de Salarié Member — construite le 2026-09-09. Site autonome, indépendant du logiciel.</p>
+      <p class="foot">Documentation de Salarié Member — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
     </article>
   </main>
 
@@ -236,6 +257,7 @@
     <a class="lvl-2" href="#attaques-courantes">Attaques courantes</a>
     <a class="lvl-3" href="#le-cas-des-envois-de-fichiers">Le cas des envois de fichiers</a>
     <a class="lvl-2" href="#journal-d-audit">Journal d'audit</a>
+    <a class="lvl-3" href="#scellement-par-chainage-d-empreintes">Scellement par chaînage d'empreintes</a>
     <a class="lvl-2" href="#console-de-securite">Console de sécurité</a>
     <a class="lvl-2" href="#donnees-au-repos">Données au repos</a>
     <a class="lvl-2" href="#ce-que-ces-mesures-ne-couvrent-pas">Ce que ces mesures ne couvrent pas</a>

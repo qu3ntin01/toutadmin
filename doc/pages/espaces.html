@@ -40,6 +40,9 @@ description: Les zones de l'application, leur adresse et qui y accède.
     <tr><td>Développement</td><td class="mono">/developpement</td><td>Administrateurs et membres désignés au service informatique</td></tr>
     <tr><td>Événements</td><td class="mono">/evenements</td><td>Chacun pour ceux qui le concernent ; RH et administration pour les créer</td></tr>
     <tr><td>Fiche tiers</td><td class="mono">/partenaires/:id</td><td>Administrateurs et membres désignés gestionnaires</td></tr>
+    <tr><td>Alerte interne</td><td class="mono">/alertes</td><td>Tout membre pour déposer ; les référents désignés seuls pour lire</td></tr>
+    <tr><td>Suivi d'un signalement</td><td class="mono">/alerte/suivi</td><td>Qui détient la référence et le code, sans compte ni connexion</td></tr>
+    <tr><td>Vie juridique</td><td class="mono">/juridique</td><td>Chacun pour ses propres déclarations ; administration pour les registres</td></tr>
     <tr><td>Sécurité</td><td class="mono">/securite</td><td>Administration</td></tr>
     <tr><td>Sauvegardes</td><td class="mono">/sauvegardes</td><td>Administration</td></tr>
     <tr><td>Données personnelles</td><td class="mono">/rgpd</td><td>Administration</td></tr>
@@ -52,11 +55,12 @@ description: Les zones de l'application, leur adresse et qui y accède.
 <h2>Comment les droits sont calculés</h2>
 
 <p>
-  Cinq rôles se cumulent sur un même compte : <strong>administrateur</strong>,
-  <strong>RH</strong>, <strong>gestionnaire</strong>, <strong>service informatique</strong>
-  et <strong>manager</strong>. Les quatre premiers sont accordés par un administrateur.
-  Le cinquième ne s'accorde pas : il se déduit. Qui encadre au moins une équipe ou un
-  service obtient l'espace manager ; retirer l'encadrement le referme aussitôt.
+  Six rôles se cumulent sur un même compte : <strong>administrateur</strong>,
+  <strong>RH</strong>, <strong>gestionnaire</strong>, <strong>service informatique</strong>,
+  <strong>référent d'alerte</strong> et <strong>manager</strong>. Les cinq premiers sont
+  accordés par un administrateur. Le sixième ne s'accorde pas : il se déduit. Qui encadre
+  au moins une équipe ou un service obtient l'espace manager ; retirer l'encadrement le
+  referme aussitôt.
 </p>
 
 <p>
@@ -64,6 +68,14 @@ description: Les zones de l'application, leur adresse et qui y accède.
   les accès applicatifs sans voir la paie ; la gestion financière paie les
   abonnements sans ouvrir les habilitations qu'ils accordent. Séparer les deux est
   précisément ce qui permet à la revue des accès de servir à quelque chose.
+</p>
+
+<p>
+  Le rôle de <strong>référent d'alerte</strong> va plus loin que la séparation : il
+  <strong>exclut</strong> l'administration au lieu de s'y ajouter. Un administrateur
+  désigne les référents — cette désignation est tracée — mais ne lit aucun signalement,
+  puisqu'une alerte peut viser un administrateur, et qu'un canal que la personne visée
+  peut lire n'est pas un canal.
 </p>
 
 <div class="note">

@@ -73,8 +73,8 @@
 <h1>Traductions</h1>
 <p class="lede">
   L'interface existe en 16 langues : le français, langue de référence du
-  produit, et les quinze langues les plus parlées. 2448 clés déclinées
-  16 fois, soit 39168 chaînes, dont la cohérence est tenue par les
+  produit, et les quinze langues les plus parlées. 2754 clés déclinées
+  16 fois, soit 44064 chaînes, dont la cohérence est tenue par les
   tests plutôt que par la relecture.
 </p>
 
@@ -171,7 +171,7 @@
 </div>
 
 <p>
-  117 valeurs de statut sont couvertes, ramenées à 105 clés :
+  167 valeurs de statut sont couvertes, ramenées à 150 clés :
   les <strong>paires de genre du français</strong> (<em>Annulé</em> / <em>Annulée</em>,
   <em>Refusé</em> / <em>Refusée</em>) partagent une traduction, les autres langues ne faisant
   pas la distinction.
@@ -220,7 +220,7 @@
 <h2 id="ce-que-les-tests-garantissent">Ce que les tests garantissent<a class="anchor" href="#ce-que-les-tests-garantissent" aria-label="Lien vers cette section">#</a></h2>
 
 <p>
-  Un dictionnaire de 39168 chaînes ne se relit pas. Quinze tests vérifient à chaque
+  Un dictionnaire de 44064 chaînes ne se relit pas. Dix-sept tests vérifient à chaque
   exécution de la suite :
 </p>
 
@@ -237,6 +237,10 @@
     <tr><td>Tout statut du schéma est traduit</td><td>Un statut ajouté à une contrainte <code>CHECK</code> sans traduction</td></tr>
     <tr><td>Aucune vue n'affiche un statut brut</td><td>Un <code>&lt;%= x.status %&gt;</code> qui a échappé au helper</td></tr>
     <tr><td>Aucune vue ne masque le helper</td><td>Une boucle <code>forEach((t) =&gt; …)</code> qui rend <code>t()</code> inappelable</td></tr>
+    <tr><td>Un statut inconnu ressort tel quel</td><td>Une valeur absente du dictionnaire affichée en blanc plutôt qu'en français</td></tr>
+    <tr><td>Un même statut se traduit dans chaque langue</td><td>Un statut traduit dans deux langues et oublié dans les quatorze autres</td></tr>
+    <tr><td>Toutes les vues compilent</td><td>Un gabarit cassé par une substitution, qui ne tomberait qu'à l'ouverture de la page</td></tr>
+    <tr><td>Les dates suivent la langue</td><td>Un 03/04 anglais lu comme le 4 mars — ou l'inverse</td></tr>
     <tr><td>Le chrome partagé est traduit</td><td>Un libellé en dur dans l'en-tête ou la navigation, donc visible partout</td></tr>
     <tr><td>Le CSS ne fige aucun côté</td><td>Un <code>margin-left</code> qui casserait la mise en page arabe</td></tr>
     <tr><td>Rendu de bout en bout</td><td>Une page servie en allemand qui parle encore français</td></tr>
@@ -258,12 +262,14 @@
 <h2 id="ou-en-est-la-couverture">Où en est la couverture<a class="anchor" href="#ou-en-est-la-couverture" aria-label="Lien vers cette section">#</a></h2>
 
 <p>
-  <strong>Les 83 vues du produit sont traduites</strong>, du premier écran de
+  <strong>Les 89 vues du produit sont traduites</strong>, du premier écran de
   connexion à la dernière boîte de dialogue de confirmation. Les quatre espaces, le
   <strong>chrome présent sur chaque page</strong> (en-tête, compte, déconnexion, sélecteur de
   thème, navigation latérale), <strong>tous les statuts</strong>, le vocabulaire générique et
   le vocabulaire propre à chaque métier : comptabilité, paie, trésorerie, qualité, parapheur,
-  sauvegardes, interfaces, données personnelles.
+  sauvegardes, interfaces, données personnelles, parc logiciel, livraisons, événements,
+  points individuels, conformité des tiers, alerte interne, achats, recouvrement et vie
+  juridique.
 </p>
 
 <div class="note">
@@ -326,11 +332,11 @@
 
 <p>
   Le <a href="lexique.html">lexique</a> permet de parcourir et chercher l'intégralité des
-  2448 clés dans les 16 langues.
+  2754 clés dans les 16 langues.
 </p>
 
       <nav class="pager" aria-label="Pages voisines"><a href="securite.html">← Sécurité</a><a href="lexique.html">Lexique →</a></nav>
-      <p class="foot">Documentation de Salarié Member — construite le 2026-09-09. Site autonome, indépendant du logiciel.</p>
+      <p class="foot">Documentation de Salarié Member — construite le 2026-09-11. Site autonome, indépendant du logiciel.</p>
     </article>
   </main>
 

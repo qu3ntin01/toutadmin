@@ -108,6 +108,27 @@ description: Contrôle d'accès, mots de passe, double authentification, session
   durée de conservation choisie.
 </p>
 
+<h3>Scellement par chaînage d'empreintes</h3>
+
+<p>
+  <strong>Chaque entrée porte l'empreinte de la précédente.</strong> Modifier une ligne,
+  ou en retirer une du milieu, casse la chaîne à cet endroit — et la vérification
+  (<code>/securite</code>, onglet Scellement) dit lequel : elle nomme l'entrée, sa date,
+  et distingue un contenu modifié après coup d'une entrée qui a disparu. Les entrées
+  antérieures à la mise en service du scellement sont comptées à part plutôt que
+  présentées comme vérifiées.
+</p>
+
+<div class="note">
+  <span class="note-title">Ce que le scellement ne fait pas</span>
+  <p>
+    Empêcher la réécriture. Qui tient le fichier de la base peut tout recalculer. Il rend
+    l'altération <em>visible</em>, ce qui est ce qu'on attend d'un journal, et c'est aussi
+    loin qu'on aille sans autorité d'horodatage extérieure. Une purge, elle, retire
+    légitimement le début de la chaîne, et laisse sa propre entrée pour le dire.
+  </p>
+</div>
+
 <h2>Console de sécurité</h2>
 
 <p><code>/securite</code>, réservée à l'administration :</p>
