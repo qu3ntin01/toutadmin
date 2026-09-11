@@ -44,7 +44,7 @@ router.use((req, res, next) => {
 });
 
 function unauthorized(res) {
-  res.setHeader('WWW-Authenticate', 'Bearer realm="Salarié Member"');
+  res.setHeader('WWW-Authenticate', 'Bearer realm="Toutadmin"');
   // On ne dit pas si le jeton est inconnu, révoqué ou périmé : cela renseignerait.
   return res.status(401).json({ error: "Jeton absent, invalide ou expiré." });
 }

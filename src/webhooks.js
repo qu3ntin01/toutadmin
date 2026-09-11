@@ -158,8 +158,8 @@ async function deliver(delivery, { fetchImpl = fetch } = {}) {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'x-salarie-member-event': delivery.event,
-        'x-salarie-member-signature': signature(secret, delivery.payload),
+        'x-toutadmin-event': delivery.event,
+        'x-toutadmin-signature': signature(secret, delivery.payload),
         'user-agent': 'Salarie-Member-Webhook/1',
       },
       body: delivery.payload,

@@ -1,5 +1,5 @@
 module.exports = {
-  'app.name': 'Salarié Member',
+  'app.name': 'Toutadmin',
   'app.portal': '内部门户',
 
   'nav.personnel': '员工',
@@ -1086,7 +1086,7 @@ module.exports = {
   'api.constantTimeNote': '请以恒定时间比较，签名不匹配即拒绝该调用：这是区分真实投递与知晓你 URL 的第三方伪造投递的唯一依据。',
 
   // Interfaces : fragments interpolés.
-  'api.signatureFormula': 'HMAC_SHA256(密钥, 原始报文体) === x-salarie-member-signature 标头（前缀 “sha256=”）',
+  'api.signatureFormula': 'HMAC_SHA256(密钥, 原始报文体) === x-toutadmin-signature 标头（前缀 “sha256=”）',
 
   // Qualité : non-conformités, actions, audits.
   'qua.headerSub': '不符合项、纠正措施与内部审核',

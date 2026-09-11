@@ -1,7 +1,7 @@
 {
-  "name": "private-member",
+  "name": "toutadmin",
   "version": "1.0.0",
-  "description": "Plateforme de gestion du personnel et des outils affectés",
+  "description": "CMS d'entreprise : personnel, ressources humaines, finance, opérations, gouvernance et conformité",
   "private": true,
   "main": "src/server.js",
   "scripts": {

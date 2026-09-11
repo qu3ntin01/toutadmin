@@ -1,8 +1,10 @@
-# Salarié Member
+# Toutadmin
 
-Portail interne d'entreprise : personnel, outils, temps, ressources humaines, équipes,
-annuaire et messagerie. Interface inspirée de l'univers OVHcloud (navigation latérale
-bleue, contenu dense, angles droits) disponible en 16 langues.
+CMS d'entreprise : il administre une société entière — personnel et contrats,
+ressources humaines, finance et comptabilité, opérations, gouvernance, conformité
+et vie juridique, moyens généraux. Interface inspirée de l'univers OVHcloud
+(navigation latérale bleue, contenu dense, angles droits), disponible en 16 langues.
+Node 22, Express et SQLite : une seule machine suffit, aucune base externe à installer.
 
 ## Espaces
 
@@ -297,7 +299,7 @@ bleue, contenu dense, angles droits) disponible en 16 langues.
 - Pas de cookie, donc pas de session, donc pas de jeton CSRF : l'authentification tient dans l'en-tête `Authorization: Bearer`. Débit limité, réponses jamais mises en cache, erreurs en JSON
 - **L'API respecte les règles de l'écran** : qui est retiré de l'annuaire n'en sort pas par une autre porte, et le motif d'une absence ne quitte pas l'entreprise
 - **Webhooks sortants** sur les événements qui comptent (facture créée ou payée, absence approuvée, arrivée ou départ, document signé, ticket ouvert, externalisation en échec)
-- Chaque envoi est **signé** (HMAC-SHA256 du corps avec le secret du webhook, en-tête `x-salarie-member-signature`) : c'est ce qui distingue un appel venu d'ici d'un appel forgé. Le secret est chiffré en base et affiché une seule fois
+- Chaque envoi est **signé** (HMAC-SHA256 du corps avec le secret du webhook, en-tête `x-toutadmin-signature`) : c'est ce qui distingue un appel venu d'ici d'un appel forgé. Le secret est chiffré en base et affiché une seule fois
 - **Une adresse interne ou en clair est refusée par défaut** : faire émettre des requêtes à un serveur vers son propre réseau est une porte dérobée classique. L'autoriser se fait sciemment, case cochée
 - **Un échec n'est pas silencieux** : journalisé, réessayé cinq fois avec un délai qui double, puis abandonné. Après vingt échecs consécutifs le webhook s'éteint de lui-même — mieux vaut un tuyau éteint, qui se voit, qu'un tuyau muet qui fait croire que l'information passe
 

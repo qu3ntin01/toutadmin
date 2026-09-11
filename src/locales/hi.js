@@ -1,5 +1,5 @@
 module.exports = {
-  'app.name': 'Salarié Member',
+  'app.name': 'Toutadmin',
   'app.portal': 'आंतरिक पोर्टल',
 
   'nav.personnel': 'कर्मचारी',
@@ -1086,7 +1086,7 @@ module.exports = {
   'api.constantTimeNote': 'स्थिर समय में तुलना करें और हस्ताक्षर मेल न खाने पर कॉल अस्वीकार करें: यही एकमात्र चीज़ है जो यहाँ से आए संदेश को, आपका URL जानने वाले किसी तीसरे के जाली संदेश से अलग करती है।',
 
   // Interfaces : fragments interpolés.
-  'api.signatureFormula': 'HMAC_SHA256(सीक्रेट, कच्ची_बॉडी) === x-salarie-member-signature हेडर (उपसर्ग «sha256=»)',
+  'api.signatureFormula': 'HMAC_SHA256(सीक्रेट, कच्ची_बॉडी) === x-toutadmin-signature हेडर (उपसर्ग «sha256=»)',
 
   // Qualité : non-conformités, actions, audits.
   'qua.headerSub': 'गैर-अनुरूपताएँ, सुधारात्मक कार्रवाइयाँ और आंतरिक ऑडिट',

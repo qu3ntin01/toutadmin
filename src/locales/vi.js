@@ -1,5 +1,5 @@
 module.exports = {
-  'app.name': 'Salarié Member',
+  'app.name': 'Toutadmin',
   'app.portal': 'Cổng nội bộ',
 
   'nav.personnel': 'Nhân sự',
@@ -1086,7 +1086,7 @@ module.exports = {
   'api.constantTimeNote': 'Hãy so sánh trong thời gian hằng định và từ chối lượt gọi nếu chữ ký không khớp: đó là điều duy nhất phân biệt lượt gửi thật với lượt gửi giả mạo từ ai đó biết URL của bạn.',
 
   // Interfaces : fragments interpolés.
-  'api.signatureFormula': 'HMAC_SHA256(khoá_bí_mật, thân_thô) === tiêu đề x-salarie-member-signature (tiền tố «sha256=»)',
+  'api.signatureFormula': 'HMAC_SHA256(khoá_bí_mật, thân_thô) === tiêu đề x-toutadmin-signature (tiền tố «sha256=»)',
 
   // Qualité : non-conformités, actions, audits.
   'qua.headerSub': 'Sự không phù hợp, hành động khắc phục và đánh giá nội bộ',

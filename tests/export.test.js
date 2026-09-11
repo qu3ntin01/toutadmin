@@ -97,7 +97,7 @@ test('Export intégral', async (t) => {
     const archive = exporter.build();
     const manifest = JSON.parse(read(archive.buffer, 'meta/manifeste.json'));
 
-    assert.equal(manifest.format, 'salarie-member-export');
+    assert.equal(manifest.format, 'toutadmin-export');
     assert.equal(manifest.instance, 'Entreprise Témoin');
     assert.ok(manifest.tables.length > 50);
     assert.ok(manifest.omissions.some((o) => /mots de passe/.test(o)));

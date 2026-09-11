@@ -1,5 +1,5 @@
 module.exports = {
-  'app.name': 'Salarié Member',
+  'app.name': 'Toutadmin',
   'app.portal': 'Kurum içi portal',
 
   'nav.personnel': 'Personel',
@@ -1086,7 +1086,7 @@ module.exports = {
   'api.constantTimeNote': 'Sabit sürede karşılaştırın ve imza uyuşmuyorsa çağrıyı reddedin: buradan gelen bir gönderimi, URL\'nizi bilen birinin sahtesinden ayıran tek şey budur.',
 
   // Interfaces : fragments interpolés.
-  'api.signatureFormula': 'HMAC_SHA256(gizli_anahtar, ham_gövde) === x-salarie-member-signature başlığı («sha256=» önekli)',
+  'api.signatureFormula': 'HMAC_SHA256(gizli_anahtar, ham_gövde) === x-toutadmin-signature başlığı («sha256=» önekli)',
 
   // Qualité : non-conformités, actions, audits.
   'qua.headerSub': 'Uygunsuzluklar, düzeltici faaliyetler ve iç denetimler',

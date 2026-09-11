@@ -1,5 +1,5 @@
 module.exports = {
-  'app.name': 'Salarié Member',
+  'app.name': 'Toutadmin',
   'app.portal': 'Intern portaal',
 
   'nav.personnel': 'Personeel',
@@ -1086,7 +1086,7 @@ module.exports = {
   'api.constantTimeNote': 'Vergelijk in constante tijd en weiger de aanroep als de handtekening niet klopt: dat is het enige wat een echte bezorging onderscheidt van een vervalsing door iemand die uw URL kent.',
 
   // Interfaces : fragments interpolés.
-  'api.signatureFormula': 'HMAC_SHA256(geheim, ruwe_body) === header x-salarie-member-signature (met voorvoegsel „sha256=”)',
+  'api.signatureFormula': 'HMAC_SHA256(geheim, ruwe_body) === header x-toutadmin-signature (met voorvoegsel „sha256=”)',
 
   // Qualité : non-conformités, actions, audits.
   'qua.headerSub': 'Afwijkingen, corrigerende maatregelen en interne audits',

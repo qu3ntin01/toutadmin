@@ -1,5 +1,5 @@
 module.exports = {
-  'app.name': 'Salarié Member',
+  'app.name': 'Toutadmin',
   'app.portal': 'Portale interno',
 
   'nav.personnel': 'Personale',
@@ -1086,7 +1086,7 @@ module.exports = {
   'api.constantTimeNote': 'Confrontate a tempo costante e rifiutate la chiamata se la firma non corrisponde: è l\'unica cosa che distingue un invio da qui da uno contraffatto da chi conosca il vostro URL.',
 
   // Interfaces : fragments interpolés.
-  'api.signatureFormula': 'HMAC_SHA256(segreto, corpo_grezzo) === intestazione x-salarie-member-signature (con prefisso «sha256=»)',
+  'api.signatureFormula': 'HMAC_SHA256(segreto, corpo_grezzo) === intestazione x-toutadmin-signature (con prefisso «sha256=»)',
 
   // Qualité : non-conformités, actions, audits.
   'qua.headerSub': 'Non conformità, azioni correttive e audit interni',

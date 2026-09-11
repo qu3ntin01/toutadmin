@@ -1,4 +1,4 @@
-/* Documentation de Salarié Member — comportements du site.
+/* Documentation de Toutadmin — comportements du site.
    Aucune dépendance : le site doit fonctionner posé tel quel sur n'importe
    quel hébergement statique, y compris ouvert depuis un disque local. */
 

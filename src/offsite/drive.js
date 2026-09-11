@@ -120,7 +120,7 @@ async function call(config, url, options, deps) {
 
 /** Envoi en une requête « multipart/related » : métadonnées puis contenu. */
 async function upload(config, fileName, buffer, deps = {}) {
-  const boundary = `salarie-member-${crypto.randomBytes(12).toString('hex')}`;
+  const boundary = `toutadmin-${crypto.randomBytes(12).toString('hex')}`;
   const metadata = JSON.stringify({ name: fileName, parents: [config.folderId] });
 
   const body = Buffer.concat([
@@ -164,7 +164,7 @@ async function remove(config, fileId, deps = {}) {
 
 /** Vérifie l'authentification et l'accès en écriture au dossier. */
 async function test(config, deps = {}) {
-  const probe = await upload(config, `.essai-salarie-member-${Date.now()}.txt`, Buffer.from('essai'), deps);
+  const probe = await upload(config, `.essai-toutadmin-${Date.now()}.txt`, Buffer.from('essai'), deps);
   if (!probe.ok) return probe;
 
   const cleaned = await remove(config, probe.id, deps);

@@ -74,7 +74,7 @@ function collectFiles(root, dir) {
     .map((name) => ({ name: `fichiers/${root}/${name}`, source: fs.readFileSync(path.join(dir, name)) }));
 }
 
-const README = `Export intégral — Salarié Member
+const README = `Export intégral — Toutadmin
 ================================
 
 Ce dossier contient toutes les données de l'instance, dans un format ouvert.
@@ -127,7 +127,7 @@ function build() {
   entries.push({ name: 'LISEZMOI.txt', source: Buffer.from(README, 'utf8') });
 
   const manifest = {
-    format: 'salarie-member-export',
+    format: 'toutadmin-export',
     version: 1,
     genere_le: generatedAt,
     instance: settings.get('company_name') || '',

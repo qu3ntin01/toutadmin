@@ -1,5 +1,5 @@
 module.exports = {
-  'app.name': 'Salarié Member',
+  'app.name': 'Toutadmin',
   'app.portal': '사내 포털',
 
   'nav.personnel': '직원',
@@ -1086,7 +1086,7 @@ module.exports = {
   'api.constantTimeNote': '상수 시간으로 비교하고 서명이 맞지 않으면 호출을 거부하세요. URL을 아는 제3자의 위조 전송과 실제 전송을 구별하는 유일한 수단입니다.',
 
   // Interfaces : fragments interpolés.
-  'api.signatureFormula': 'HMAC_SHA256(비밀키, 원본_본문) === x-salarie-member-signature 헤더(접두사 “sha256=”)',
+  'api.signatureFormula': 'HMAC_SHA256(비밀키, 원본_본문) === x-toutadmin-signature 헤더(접두사 “sha256=”)',
 
   // Qualité : non-conformités, actions, audits.
   'qua.headerSub': '부적합, 시정 조치 및 내부 심사',

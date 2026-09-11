@@ -238,8 +238,8 @@ test('Webhooks', async (t) => {
     assert.deepEqual([result.delivered, result.failed], [1, 0]);
 
     const call = received.at(-1);
-    assert.equal(call.headers['x-salarie-member-event'], 'facture.creee');
-    assert.equal(call.headers['x-salarie-member-signature'], webhooks.signature(secret, call.body));
+    assert.equal(call.headers['x-toutadmin-event'], 'facture.creee');
+    assert.equal(call.headers['x-toutadmin-signature'], webhooks.signature(secret, call.body));
 
     const payload = JSON.parse(call.body);
     assert.equal(payload.event, 'facture.creee');
@@ -249,8 +249,8 @@ test('Webhooks', async (t) => {
 
   await t.test('la signature ne vaut que pour ce corps exact', () => {
     const call = received.at(-1);
-    assert.notEqual(webhooks.signature(secret, `${call.body} `), call.headers['x-salarie-member-signature']);
-    assert.notEqual(webhooks.signature('autre-secret', call.body), call.headers['x-salarie-member-signature']);
+    assert.notEqual(webhooks.signature(secret, `${call.body} `), call.headers['x-toutadmin-signature']);
+    assert.notEqual(webhooks.signature('autre-secret', call.body), call.headers['x-toutadmin-signature']);
   });
 
   await t.test('seuls les événements écoutés partent', () => {

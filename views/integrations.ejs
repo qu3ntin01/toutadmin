@@ -117,7 +117,7 @@
             <form method="POST" action="/integrations/webhooks" class="form-grid">
               <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
               <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="<%= t('api.webhookPlaceholder') %>" /></label>
-              <label><span><%= t('api.urlHttps') %></span><input type="url" name="url" required maxlength="500" placeholder="https://exemple.fr/hooks/salarie-member" /></label>
+              <label><span><%= t('api.urlHttps') %></span><input type="url" name="url" required maxlength="500" placeholder="https://exemple.fr/hooks/toutadmin" /></label>
               <div class="span-2">
                 <p class="section-label"><%= t('api.eventsWatched') %></p>
                 <% events.forEach((e) => { %>
@@ -131,7 +131,7 @@
               <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.declare') %></button></div>
             </form>
             <p class="hint">
-              <%- t('api.signatureNote', { header: '<span class="mono">x-salarie-member-signature</span>' }) %>
+              <%- t('api.signatureNote', { header: '<span class="mono">x-toutadmin-signature</span>' }) %>
             </p>
             <p class="hint">
               <%= t('api.retryNote', { attempts: maxAttempts, limit: failureLimit }) %>

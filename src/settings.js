@@ -2,7 +2,7 @@ const db = require('./db');
 
 // Réglages d'instance, posés à l'installation puis modifiables par l'administration.
 const DEFAULTS = {
-  company_name: 'Salarié Member',
+  company_name: 'Toutadmin',
   default_locale: 'fr',
   annual_leave_days: '25',
   installed_at: '',

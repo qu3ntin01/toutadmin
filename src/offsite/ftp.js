@@ -60,7 +60,7 @@ async function test(config) {
   let client = null;
   try {
     client = await connect(config);
-    const probe = `.essai-salarie-member-${Date.now()}`;
+    const probe = `.essai-toutadmin-${Date.now()}`;
     await client.uploadFrom(Readable.from(Buffer.from('essai')), probe);
     await client.remove(probe);
     return { ok: true, message: 'Connexion établie et écriture vérifiée.' };

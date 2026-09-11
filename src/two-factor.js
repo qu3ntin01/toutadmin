@@ -25,7 +25,7 @@ function beginEnrolment(userId) {
 }
 
 function uri(user, issuer) {
-  return totp.otpauthUri({ secret: user.totp_secret, account: user.email, issuer: issuer || 'Salarié Member' });
+  return totp.otpauthUri({ secret: user.totp_secret, account: user.email, issuer: issuer || 'Toutadmin' });
 }
 
 /** Active la double authentification si le code saisi correspond au secret en attente. */

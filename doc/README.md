@@ -1,6 +1,6 @@
 # Site de documentation
 
-Ce dossier contient **la documentation publique de Salarié Member, sous forme de site
+Ce dossier contient **la documentation publique de Toutadmin, sous forme de site
 statique autonome**. Il est indépendant du logiciel : aucun fichier n'est partagé avec
 l'application, rien n'est servi par le CMS, et le site est destiné à un hébergement
 séparé.
