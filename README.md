@@ -5,9 +5,10 @@ Elle vit dans sa propre branche — `documentation` — sans le code du CMS à c
 aucun fichier n'est partagé avec l'application, rien n'est servi par le CMS, et le
 site est destiné à un hébergement séparé.
 
-> Le code du produit est sur la branche `toutadmin`. La carte interne du produit
-> (`docs/FONCTIONNALITES.md` : ce qui est couvert, ce qui ne l'est pas encore) y
-> reste, auprès du code qu'elle décrit.
+Toute la documentation est ici, et nulle part ailleurs : le site public, et
+**`FONCTIONNALITES.md`**, la carte du produit — ce qui est couvert, ce qui ne l'est
+pas encore, et ce qui a été écarté avec la raison. Le code, lui, est sur la branche
+`toutadmin`, qui ne porte plus que son `README.md`.
 
 ## Construire
 
@@ -19,13 +20,18 @@ Aucune dépendance, aucune installation : Node seul suffit. Le script écrit `si
 qui est **le dossier à déposer sur l'hébergement**.
 
 ```
-build.js        assemblage (aucune dépendance)
-layout.html     gabarit commun à toutes les pages
-pages/*.html    contenu, un fichier par page
-assets/         feuille de style et scripts
-produit.json    instantané des chiffres relevés dans le code
-site/           ← sortie générée, prête à héberger
+build.js            assemblage (aucune dépendance)
+layout.html         gabarit commun à toutes les pages
+pages/*.html        contenu du site, un fichier par page
+assets/             feuille de style et scripts
+produit.json        instantané des chiffres relevés dans le code
+site/               ← sortie générée, prête à héberger
+FONCTIONNALITES.md  la carte du produit, hors site : couvert, pas couvert, écarté
 ```
+
+`FONCTIONNALITES.md` n'entre pas dans le site construit : c'est un document de
+travail, tenu à jour à chaque lot livré, où une ligne cochée correspond à du code
+en production et testé — pas à une intention.
 
 `site/` est versionné pour pouvoir être publié sans rien exécuter. Après toute
 modification de `pages/`, `layout.html` ou `assets/`, **relancer la construction et
