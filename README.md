@@ -677,17 +677,25 @@ d'administration sont en place pour l'accueillir.
 
 ## Documentation
 
-Le dossier `doc/` contient un **site de documentation autonome**, destiné à un hébergement
-séparé. Il ne partage aucun fichier avec l'application et n'est servi par aucune route :
-c'est un site statique que l'on dépose tel quel.
+La documentation publique vit sur **sa propre branche, `documentation`** : un site
+statique autonome, destiné à un hébergement séparé. Elle ne partage aucun fichier avec
+l'application et n'est servie par aucune route, d'où la séparation — elle se publie
+ailleurs, et à son propre rythme.
 
 ```bash
-node doc/build.js     # écrit doc/site/, le dossier à publier
+git worktree add ../toutadmin-doc documentation
+cd ../toutadmin-doc
+
+node build.js                                  # depuis l'instantané produit.json
+TOUTADMIN_SOURCE=/chemin/vers/toutadmin node build.js   # en relisant le code
 ```
 
-Le lexique des traductions et les décomptes affichés dans ces pages sont extraits du dépôt
-au moment de la construction : la documentation ne peut pas afficher un chiffre que le code
-contredit. Voir `doc/README.md`.
+Le second mode relit le dépôt — dictionnaires, cas de test, modules, vues — pour que la
+documentation ne puisse pas afficher un chiffre que le code contredit, et dépose ce
+qu'il a lu dans `produit.json`. **Après une livraison ici, reconstruire ainsi et
+committer sur `documentation`.** Voir le `README.md` de cette branche.
+
+La carte interne du produit, elle, reste auprès du code : `docs/FONCTIONNALITES.md`.
 
 ## Structure
 
@@ -791,6 +799,5 @@ views/               78 écrans et 11 gabarits partagés
   employee-edit · employee-timesheet · tool-edit
 public/              feuille de style, thème, chronomètre, agenda, jauges, confirmations
 scripts/seed-demo.js jeu de données de démonstration
-doc/                 site de documentation autonome (hébergé séparément)
 tests/               suite d'intégration (node --test)
 ```
