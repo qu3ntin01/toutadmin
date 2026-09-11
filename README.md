@@ -695,7 +695,9 @@ documentation ne puisse pas afficher un chiffre que le code contredit, et dépos
 qu'il a lu dans `produit.json`. **Après une livraison ici, reconstruire ainsi et
 committer sur `documentation`.** Voir le `README.md` de cette branche.
 
-La carte interne du produit, elle, reste auprès du code : `docs/FONCTIONNALITES.md`.
+**Toute la documentation est sur cette branche-là**, `FONCTIONNALITES.md` compris —
+la carte du produit, ce qui est couvert et ce qui ne l'est pas encore. Deux endroits
+où chercher, c'en est un de trop.
 
 ## Structure
 
