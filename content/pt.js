@@ -10,7 +10,7 @@ module.exports = {
   'nav.security': 'Segurança',
   'nav.pricing': 'Preços',
   'nav.contact': 'Contacto',
-  'nav.demo': 'Pedir uma demo',
+  'nav.demo': 'Demo',
   'nav.menu': 'Menu',
   'nav.language': 'Idioma',
   'nav.theme': 'Tema',

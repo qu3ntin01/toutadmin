@@ -10,7 +10,7 @@ module.exports = {
   'nav.security': 'Güvenlik',
   'nav.pricing': 'Fiyatlar',
   'nav.contact': 'İletişim',
-  'nav.demo': 'Demo isteyin',
+  'nav.demo': 'Demo',
   'nav.menu': 'Menü',
   'nav.language': 'Dil',
   'nav.theme': 'Tema',

@@ -10,7 +10,7 @@ module.exports = {
   'nav.security': '安全',
   'nav.pricing': '价格',
   'nav.contact': '联系',
-  'nav.demo': '申请演示',
+  'nav.demo': '演示',
   'nav.menu': '菜单',
   'nav.language': '语言',
   'nav.theme': '主题',

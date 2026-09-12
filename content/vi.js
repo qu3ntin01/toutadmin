@@ -10,7 +10,7 @@ module.exports = {
   'nav.security': 'Bảo mật',
   'nav.pricing': 'Bảng giá',
   'nav.contact': 'Liên hệ',
-  'nav.demo': 'Yêu cầu demo',
+  'nav.demo': 'Demo',
   'nav.menu': 'Menu',
   'nav.language': 'Ngôn ngữ',
   'nav.theme': 'Giao diện',

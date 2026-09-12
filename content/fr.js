@@ -13,7 +13,7 @@ module.exports = {
   'nav.security': 'Sécurité',
   'nav.pricing': 'Tarifs',
   'nav.contact': 'Contact',
-  'nav.demo': 'Demander une démo',
+  'nav.demo': 'Démo',
   'nav.menu': 'Menu',
   'nav.language': 'Langue',
   'nav.theme': 'Thème',
