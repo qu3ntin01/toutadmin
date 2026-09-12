@@ -62,8 +62,29 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 392 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
-Le portage est complet : les 51 espaces de l'édition Node ont le leur ici,
-avec les mêmes règles. Ce qui reste est signalé plus bas, et seulement là.
+## À porter
+
+Quatorze espaces de l'édition Node n'ont pas encore le leur ici. Chacun
+reprendra les règles de l'édition Node telles quelles : ce sont les mêmes
+décisions, pas de nouvelles. Par ordre d'utilité :
+
+1. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
+   la pose
+2. **Pièces reçues** — dépôt d'une facture fournisseur dans la corbeille du
+   comptable, et relève de la boîte aux lettres dédiée
+3. **Photos de profil** — envoi de la photo et service du fichier, aujourd'hui
+   absents des deux bouts : la colonne existe, rien ne l'écrit ni ne la lit
+4. **Événements d'entreprise** — annonces, inscriptions, places
+5. **Base de connaissances** — articles, catégories, recherche
+6. **Partenaires** — fiches, contacts, conformité, évaluation
+7. **Parcours d'intégration** — étapes d'arrivée et de départ
+8. **Alertes internes** — dispositif de recueil des signalements
+9. **Pilotage** — indicateurs d'entreprise et échéances
+10. **CRM** — module optionnel : contacts, opportunités, pipeline
+11. **Facturation électronique** — format réglementaire des factures
+12. **Import de données** — reprise depuis un tableur
+13. **Intégrations** — webhooks sortants et leurs livraisons
+14. **API v1** — jetons et points d'accès en lecture
 
 ## Un défaut du socle PHP, corrigé
 
