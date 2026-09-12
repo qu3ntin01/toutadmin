@@ -57,32 +57,32 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Flotte | parc de véhicules avec trois échéances qui ne pardonnent pas (contrôle technique, assurance, entretien), compteur qui ne recule jamais — ni à la saisie, ni par un relevé d'événement — et coût d'entretien sur douze mois |
 | Accueil | registre des visiteurs qui répond à « qui est dans les murs ? », courrier qui reste « à remettre » tant que la remise n'est pas datée et signée, recommandés comptés à part |
 | Recrutement | postes ouverts et candidatures, dépôt de CV dont le contenu est contrôlé avant écriture (PDF, DOCX, TXT, Markdown) et le texte extrait sans aucune dépendance, moteur ATS qui note sur les seuls critères pondérés du poste (un critère requis manquant ou une expérience sous le minimum écartent quel que soit le score), reclassement de tout le poste dès qu'un critère change, CVthèque par mots-clés, CV téléchargeable par la seule route authentifiée |
+| Événements | séminaires, formations et réunions générales avec leur portée (entreprise, service, équipe) ; au-delà de la capacité on n'est pas refusé mais mis en liste d'attente, un désistement fait monter le premier qui attend et le prévient, « Complet » est décidé par la capacité et non par l'organisateur, une absence constatée garde la place, une annulation prévient les inscrits |
+| Base de connaissances | articles par catégorie, portée appliquée à la lecture (entreprise, service, équipe, administration), brouillon invisible de ses lecteurs, compteur de lectures, recherche par mots-clés |
+| Parcours | modèles d'arrivée et de départ dont les points portent un responsable et un écart au jour pivot, parcours daté par personne, cocher le dernier point clôt la liste et en décocher un la rouvre, points en retard remontés ; compétences et habilitations dont l'échéance découle de la durée de validité, matrice, ce qui périme et ce qui manque à l'appel |
 | Pièces reçues | corbeille du comptable : dépôt d'une facture dont le type réel est contrôlé avant écriture, empreinte SHA-256 qui interdit le doublon et revérifiée avant de servir le fichier, lecture par règles (numéro, dates, montants, taux, SIRET et IBAN vérifiés par leur clé, rapprochement avec un tiers connu) dont la confiance se compose et tombe si HT + TVA ne fait pas TTC, analyse assistée par modèle optionnelle et éteinte par défaut, relève IMAP d'une boîte dédiée qui ne supprime jamais un message, mise en facture qui enregistre ce qui est validé à l'écran et non ce qui a été lu |
 | Photos de profil | envoi contrôlé sur le contenu et non sur le type annoncé, nom de fichier aléatoire, fichier servi par une route qui demande une session et ne sort pas de son dossier, retrait |
 | Planning | grille de la semaine par personne, créneau refusé s'il chevauche un autre poste ou une absence accordée, brouillon tant que la semaine n'est pas publiée, roulements appliqués sur trois mois au plus qui sautent les jours en conflit et le disent, poste de nuit terminé le lendemain, astreintes lues à la semaine et à l'instant, charge par personne ; un manager ne planifie que les siens, tout le monde consulte |
 
-430 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+455 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
-Douze espaces de l'édition Node n'ont pas encore le leur ici. Chacun
+Neuf espaces de l'édition Node n'ont pas encore le leur ici. Chacun
 reprendra les règles de l'édition Node telles quelles : ce sont les mêmes
 décisions, pas de nouvelles. Par ordre d'utilité :
 
-1. **Événements d'entreprise** — annonces, inscriptions, places
-2. **Base de connaissances** — articles, catégories, recherche
-3. **Partenaires** — fiches, contacts, conformité, évaluation
-4. **Parcours d'intégration** — étapes d'arrivée et de départ
-5. **Alertes internes** — dispositif de recueil des signalements
-6. **Pilotage** — indicateurs d'entreprise et échéances
-7. **CRM** — module optionnel : contacts, opportunités, pipeline
-8. **Facturation électronique** — format réglementaire des factures
-9. **Import de données** — reprise depuis un tableur
-10. **Intégrations** — webhooks sortants et leurs livraisons
-11. **API v1** — jetons et points d'accès en lecture
-12. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
-    la pose ; elle vient en dernier, une fois que toutes ses sources existent
+1. **Partenaires** — fiches, contacts, conformité, évaluation
+2. **Alertes internes** — dispositif de recueil des signalements
+3. **Pilotage** — indicateurs d'entreprise et échéances
+4. **CRM** — module optionnel : contacts, opportunités, pipeline
+5. **Facturation électronique** — format réglementaire des factures
+6. **Import de données** — reprise depuis un tableur
+7. **Intégrations** — webhooks sortants et leurs livraisons
+8. **API v1** — jetons et points d'accès en lecture
+9. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
+   la pose ; elle vient en dernier, une fois que toutes ses sources existent
 
 ## Un défaut du socle PHP, corrigé
 

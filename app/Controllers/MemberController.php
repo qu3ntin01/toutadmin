@@ -81,11 +81,13 @@ final class MemberController
             ['href' => '/notifications', 'label' => t('nav.notifications'), 'badge' => $unread ?: null],
             ['href' => '/projets', 'label' => t('nav.projects')],
             ['href' => '/support', 'label' => t('nav.support')],
+            ['href' => '/base-de-connaissances', 'label' => t('nav.knowledge')],
             ['href' => '/parapheur', 'label' => t('nav.signing'),
              'badge' => \App\Modules\Signing::pendingCountFor((int) $user['id']) ?: null],
             ['href' => '/coffre-fort', 'label' => t('nav.vault')],
             ['href' => '/agenda', 'label' => t('agenda.title')],
             ['href' => '/planning', 'label' => t('nav.planning')],
+            ['href' => '/evenements', 'label' => t('nav.events')],
             ['href' => '/salles', 'label' => t('nav.rooms')],
             ['href' => '/annuaire', 'label' => t('nav.directory')],
             ['href' => '/organigramme', 'label' => t('nav.orgChart')],
@@ -126,6 +128,7 @@ final class MemberController
         }
         if ($user['role'] === 'admin' || (int) ($user['is_hr'] ?? 0) === 1) {
             $items[] = ['href' => '/rh', 'label' => t('nav.hrSpace')];
+            $items[] = ['href' => '/parcours', 'label' => t('nav.careerPaths')];
             $items[] = ['href' => '/sante-securite', 'label' => t('nav.healthSafety')];
             $items[] = ['href' => '/accueil', 'label' => t('nav.frontDeskMail')];
             $items[] = ['href' => '/coffre-fort/gestion', 'label' => t('nav.vaultManage')];

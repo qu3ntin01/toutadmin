@@ -7,6 +7,9 @@ namespace App\Core;
 use App\Controllers\AdminController;
 use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
+use App\Controllers\EventsController;
+use App\Controllers\JourneysController;
+use App\Controllers\KnowledgeController;
 use App\Controllers\PiecesController;
 use App\Controllers\PlanningController;
 use App\Controllers\AuthController;
@@ -199,6 +202,39 @@ final class Kernel
         $router->post('/agenda', AgendaController::create(...));
         $router->post('/agenda/{id}/partage', AgendaController::share(...));
         $router->post('/agenda/{id}/supprimer', AgendaController::delete(...));
+        // Parcours d'arrivée et de départ, compétences et habilitations.
+        $router->get('/parcours', JourneysController::index(...));
+        $router->post('/parcours/modeles', JourneysController::createTemplate(...));
+        $router->post('/parcours/modeles/points/{id}/supprimer', JourneysController::deleteTemplateItem(...));
+        $router->post('/parcours/modeles/{id}/points', JourneysController::addTemplateItem(...));
+        $router->post('/parcours/modeles/{id}/supprimer', JourneysController::deleteTemplate(...));
+        $router->post('/parcours/listes', JourneysController::startChecklist(...));
+        $router->post('/parcours/listes/points/{id}/basculer', JourneysController::toggleItem(...));
+        $router->get('/parcours/listes/{id}', JourneysController::showChecklist(...));
+        $router->post('/parcours/listes/{id}/supprimer', JourneysController::deleteChecklist(...));
+        $router->post('/parcours/competences', JourneysController::createSkill(...));
+        $router->post('/parcours/competences/attribuer', JourneysController::grantSkill(...));
+        $router->post('/parcours/competences/{id}/supprimer', JourneysController::deleteSkill(...));
+        $router->post('/parcours/competences/{skillId}/retirer/{userId}', JourneysController::revokeSkill(...));
+
+        // Base de connaissances : tout le monde lit, l'encadrement rédige.
+        $router->get('/base-de-connaissances', KnowledgeController::index(...));
+        $router->post('/base-de-connaissances', KnowledgeController::create(...));
+        $router->get('/base-de-connaissances/{id}', KnowledgeController::show(...));
+        $router->post('/base-de-connaissances/{id}/modifier', KnowledgeController::update(...));
+        $router->post('/base-de-connaissances/{id}/supprimer', KnowledgeController::delete(...));
+
+        // Événements d'entreprise : inscriptions, liste d'attente, émargement.
+        $router->get('/evenements', EventsController::index(...));
+        $router->post('/evenements', EventsController::create(...));
+        $router->post('/evenements/inscriptions/{id}/emargement', EventsController::markAttendance(...));
+        $router->get('/evenements/{id}', EventsController::show(...));
+        $router->post('/evenements/{id}/modifier', EventsController::update(...));
+        $router->post('/evenements/{id}/supprimer', EventsController::delete(...));
+        $router->post('/evenements/{id}/inscrire', EventsController::registerSomeone(...));
+        $router->post('/evenements/{id}/inscription', EventsController::register(...));
+        $router->post('/evenements/{id}/desistement', EventsController::withdraw(...));
+
         // Photo de profil : l'envoi, le retrait, et le fichier lui-même.
         $router->post('/mon-profil/photo', ProfileController::uploadPhoto(...));
         $router->post('/mon-profil/photo/supprimer', ProfileController::deletePhoto(...));
@@ -850,6 +886,28 @@ final class Kernel
                 $reserved = true;
             }
             if ($reserved && !FinanceController::canAccess($user)) {
+                return $refuse();
+            }
+        }
+        // Les parcours d'arrivée et de départ tiennent des dossiers du personnel :
+        // ils appartiennent aux ressources humaines, comme l'espace RH lui-même.
+        if (str_starts_with($request->path, '/parcours')
+            && !\App\Controllers\HrController::canAccess($user)) {
+            return $refuse();
+        }
+        // La rédaction est réservée à l'administration, aux RH et aux managers ;
+        // la lecture est ouverte, et c'est la portée de l'article qui la borne.
+        if (str_starts_with($request->path, '/base-de-connaissances') && $request->isPost()
+            && !KnowledgeController::canWrite($user)) {
+            return $refuse();
+        }
+        // Un événement engage un budget et le temps de travail de l'entreprise :
+        // l'organiser relève de l'administration et des RH. S'y inscrire, non :
+        // c'est ouvert à tous, et ces routes-là sont donc laissées passer.
+        if (str_starts_with($request->path, '/evenements') && $request->isPost()
+            && !EventsController::canManage($user)) {
+            $ownSeat = (bool) preg_match('#^/evenements/\d+/(inscription|desistement)$#', $request->path);
+            if (!$ownSeat) {
                 return $refuse();
             }
         }
