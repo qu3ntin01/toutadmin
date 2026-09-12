@@ -75,6 +75,7 @@ final class MemberController
         $items = [
             ['href' => '/mon-espace', 'label' => t('nav.mySpace')],
             ['href' => '/demandes', 'label' => t('nav.internalRequests'), 'badge' => $awaiting ?: null],
+            ['href' => '/messagerie', 'label' => t('nav.messages'), 'badge' => \App\Modules\Messages::unreadCount((int) $user['id']) ?: null],
             ['href' => '/notifications', 'label' => t('nav.notifications'), 'badge' => $unread ?: null],
             ['href' => '/agenda', 'label' => t('agenda.title')],
             ['href' => '/salles', 'label' => t('nav.rooms')],

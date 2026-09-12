@@ -12,6 +12,7 @@ use App\Controllers\HrController;
 use App\Controllers\ManagerController;
 use App\Controllers\InstallController;
 use App\Controllers\MemberController;
+use App\Controllers\MessagesController;
 use App\Controllers\NotificationsController;
 use App\Controllers\OrgChartController;
 use App\Controllers\ProfileController;
@@ -151,6 +152,10 @@ final class Kernel
         $router->get('/salles', RoomsController::index(...));
         $router->post('/salles', RoomsController::book(...));
         $router->post('/salles/{id}/annuler', RoomsController::cancel(...));
+
+        $router->get('/messagerie', MessagesController::index(...));
+        $router->post('/messagerie', MessagesController::send(...));
+        $router->post('/messagerie/{id}/supprimer', MessagesController::remove(...));
 
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
