@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="zh" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>功能 — Toutadmin</title>
+<meta name="description" content="完整清单，按领域排列。每一行都对应已交付并经过测试的代码，而不是设想。" />
+<meta name="color-scheme" content="light dark" />
+<meta property="og:title" content="功能 — Toutadmin" />
+<meta property="og:description" content="完整清单，按领域排列。每一行都对应已交付并经过测试的代码，而不是设想。" />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="../assets/style.css" />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
+  <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
+  <link rel="alternate" hreflang="es" href="../es/fonctionnalites.html" />
+  <link rel="alternate" hreflang="de" href="../de/fonctionnalites.html" />
+  <link rel="alternate" hreflang="it" href="../it/fonctionnalites.html" />
+  <link rel="alternate" hreflang="pt" href="../pt/fonctionnalites.html" />
+  <link rel="alternate" hreflang="nl" href="../nl/fonctionnalites.html" />
+  <link rel="alternate" hreflang="pl" href="../pl/fonctionnalites.html" />
+  <link rel="alternate" hreflang="ru" href="../ru/fonctionnalites.html" />
+  <link rel="alternate" hreflang="tr" href="../tr/fonctionnalites.html" />
+  <link rel="alternate" hreflang="ar" href="../ar/fonctionnalites.html" />
+  <link rel="alternate" hreflang="hi" href="../hi/fonctionnalites.html" />
+  <link rel="alternate" hreflang="zh" href="../fonctionnalites.html" />
+  <link rel="alternate" hreflang="ja" href="../ja/fonctionnalites.html" />
+  <link rel="alternate" hreflang="ko" href="../ko/fonctionnalites.html" />
+  <link rel="alternate" hreflang="vi" href="../vi/fonctionnalites.html" />
+<script src="../assets/theme-boot.js"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">产品</a>
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">TA</span>Toutadmin
+      </a>
+      <nav class="nav-links" aria-label="产品">
+        <a href="../fonctionnalites.html" class="is-active" aria-current="page">功能</a>
+        <a href="../ecrans.html">界面</a>
+        <a href="../securite.html">安全</a>
+        <a href="../tarifs.html">价格</a>
+        <a href="../contact.html">联系</a>
+      </nav>
+      <div class="nav-right">
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg><span>ZH</span></button>
+          <div class="picker-pop cols" role="menu" aria-label="语言">
+            <a lang="fr" hreflang="fr" href="../fonctionnalites.html"><span class="flag">🇫🇷</span>Français</a>
+            <a lang="en" hreflang="en" href="../en/fonctionnalites.html"><span class="flag">🇬🇧</span>English</a>
+            <a lang="es" hreflang="es" href="../es/fonctionnalites.html"><span class="flag">🇪🇸</span>Español</a>
+            <a lang="de" hreflang="de" href="../de/fonctionnalites.html"><span class="flag">🇩🇪</span>Deutsch</a>
+            <a lang="it" hreflang="it" href="../it/fonctionnalites.html"><span class="flag">🇮🇹</span>Italiano</a>
+            <a lang="pt" hreflang="pt" href="../pt/fonctionnalites.html"><span class="flag">🇵🇹</span>Português</a>
+            <a lang="nl" hreflang="nl" href="../nl/fonctionnalites.html"><span class="flag">🇳🇱</span>Nederlands</a>
+            <a lang="pl" hreflang="pl" href="../pl/fonctionnalites.html"><span class="flag">🇵🇱</span>Polski</a>
+            <a lang="ru" hreflang="ru" href="../ru/fonctionnalites.html"><span class="flag">🇷🇺</span>Русский</a>
+            <a lang="tr" hreflang="tr" href="../tr/fonctionnalites.html"><span class="flag">🇹🇷</span>Türkçe</a>
+            <a lang="ar" hreflang="ar" href="../ar/fonctionnalites.html"><span class="flag">🇸🇦</span>العربية</a>
+            <a lang="hi" hreflang="hi" href="../hi/fonctionnalites.html"><span class="flag">🇮🇳</span>हिन्दी</a>
+            <a lang="zh" hreflang="zh" href="../fonctionnalites.html" class="is-active"><span class="flag">🇨🇳</span>中文</a>
+            <a lang="ja" hreflang="ja" href="../ja/fonctionnalites.html"><span class="flag">🇯🇵</span>日本語</a>
+            <a lang="ko" hreflang="ko" href="../ko/fonctionnalites.html"><span class="flag">🇰🇷</span>한국어</a>
+            <a lang="vi" hreflang="vi" href="../vi/fonctionnalites.html"><span class="flag">🇻🇳</span>Tiếng Việt</a>
+          </div>
+        </div>
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true" aria-label="主题"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+          <div class="picker-pop" role="menu">
+            <button type="button" data-theme-choice="light"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>浅色</button>
+            <button type="button" data-theme-choice="dark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>深色</button>
+            <button type="button" data-theme-choice="system"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>跟随系统</button>
+          </div>
+        </div>
+        <a class="btn btn-sm" href="../contact.html">申请演示</a>
+        <button class="picker-btn nav-toggle" type="button" aria-label="菜单"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+<main id="contenu">
+
+    <section class="hero section-tight">
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="wrap center">
+        <span class="eyebrow reveal">功能</span>
+        <h1 class="reveal">Toutadmin 能做的一切</h1>
+        <p class="lede reveal">完整清单，按领域排列。每一行都对应已交付并经过测试的代码，而不是设想。</p>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="wrap">
+        <div class="dom-index reveal">
+          <a href="#socle">底座与组织</a>
+          <a href="#espace">员工工作空间</a>
+          <a href="#rh">人力资源</a>
+          <a href="#talent">招聘与人才</a>
+          <a href="#sst">健康、安全与职工代表</a>
+          <a href="#finance">财务与行政</a>
+          <a href="#compta">会计、薪酬与增值税</a>
+          <a href="#achats">采购、库存与催收</a>
+          <a href="#projets">项目、工时与盈利</a>
+          <a href="#support">支持与知识库</a>
+          <a href="#ops">运营与后勤</a>
+          <a href="#direction">管理层与治理</a>
+          <a href="#it">信息技术与研发</a>
+          <a href="#conformite">合规、公司法务与个人数据</a>
+        </div>
+        <p class="stat-n mt-m reveal">121 · 标注「模块」的功能可在需要时从控制台启用。</p>
+      </div>
+    </section>
+
+    <div class="wrap">
+        <section class="dom" id="socle">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">01</span>
+                <h2>底座与组织</h2>
+              </div>
+              <p class="lede">支撑其余一切的东西：账户、归属关系，以及所有空间共用的词汇。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>账户与可叠加的角色：管理员、人力资源、财务、信息技术、举报联络人</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>主管身份由实际管辖关系推导得出，从不手工授予</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>部门与团队，同一范围可有多位主管，归属关系每次请求重新读取</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>可视化组织结构图，含管理层，并显示无任何归属的人员</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>可搜索、可筛选的通讯录，可见性只由管理方控制</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>内部消息，以及由管理方配置的工作邮箱</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>全局搜索在源头即已隔离：您无权查看的内容根本不会被检索</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按人区分的通知中心，带已读回执</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>CSV 批量导入：受控预览，要么全写入要么不写入</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>安装向导、实例设置、七个可启用模块</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>16 种语言、3 套配色、浅色/深色/跟随系统主题、自适应界面</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>管理控制台</span></div>
+            <img src="../medias/admin.png" alt="管理控制台" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="espace">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">02</span>
+                <h2>员工工作空间</h2>
+              </div>
+              <p class="lede">每个人早上打开的那一页：与自己有关的内容，别无其他。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>个人看板：主管、公告、申请、待确认的文件</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>休假、调休、缺勤与远程办公申请：自动计算工作日，排除周末</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>实时的假期余额，以及带原因的调整记录</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>工资单可查阅，并在保险库中保存五十年</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>个人日历与团队共享日历</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>本周排班、值班、驻守</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>分配的工具带各自的账号——不存储任何第三方密码</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>个人资料：照片、简介、电话、语言、密码、注销全部会话</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>自由职业者的秒表计时，同一时间只能有一条进行中</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>利益与礼品申报，只有本人可见</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>员工工作空间</span></div>
+            <img src="../medias/membre-espace-zh.png" alt="员工工作空间" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="rh">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">03</span>
+                <h2>人力资源</h2>
+              </div>
+              <p class="lede">员工档案，从入职到离职，以及随之而来的各种期限。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>审批时自动扣减余额、拒绝须说明理由、撤销则自动返还天数</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>工资单：生成、发放跟踪、批量出具</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>公司文件带具名的接收确认</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>培训：目录、场次、报名、费用与时长</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>年度面谈：发起、提纲、记录</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>入职与离职：可跟踪的清单，每项任务都有责任人和期限</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>技能与资质，带复训日期和提前提醒</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>一对一面谈：共享摘要，主管的私人笔记单独保存</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>离职后仍可访问的数字保险库，文件以指纹封存</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>简单电子签名：有序流程、指纹、封印、证明</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>定期合同：账户到期当天自行关闭</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>人力资源</span></div>
+            <img src="../medias/rh-zh.png" alt="人力资源" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="talent">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">04</span>
+                <h2>招聘与人才</h2>
+              </div>
+              <p class="lede">从投递到第一天上班，中间不需要表格。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>招聘岗位与按阶段跟踪的应聘</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>简历接收：PDF、DOCX 或纯文本，写在代码库之外</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>内容抽取与可检索的简历库</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>加权标准、评分、阈值、应聘排序</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>录用的候选人直接转入入职流程</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>内部问卷与员工氛围指数，从结构上即匿名</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>回答少于五份时不展示任何结果</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>内部申请</span></div>
+            <img src="../medias/membre-demandes.png" alt="内部申请" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="sst">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">05</span>
+                <h2>健康、安全与职工代表</h2>
+              </div>
+              <p class="lede">必须书面留存、并会自己提醒你的义务。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>风险评估：作业单元、危害、评级、措施、带日期的复核</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>工伤与未遂事故登记，停工天数</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>防护装备：具名发放、有效期、更换</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>体检：入职、定期、复工、按需</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>职工代表：选举、选民名册、匿名投票、任期及其届满</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>委员会会议、面向员工的福利与服务</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>任期结束时，管理空间自行关闭</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>职业健康与安全</span></div>
+            <img src="../medias/sante-securite.png" alt="职业健康与安全" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="finance">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">06</span>
+                <h2>财务与行政</h2>
+              </div>
+              <p class="lede">往来单位、合同、进来的钱和出去的钱。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>客户与供应商，完整档案：联系人、合同、发票</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>合同，尤其是通知期：自动计算解约最后期限并提前提醒</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>双向发票，含税金额自动计算，逾期由到期日推导</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按部门与会计年度的预算，消耗额自动汇总</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>报销单：提交、审批、付款——缺一不可</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>往来单位的合规文件，带日期并在到期前四十五天提醒</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>供应商评分：以最近一次评估为准，而非平均值</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>多币种，汇率在每份单据开具时固定</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>周期性开票：订阅是模子，发票是单据</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>自动识别收到的发票，并通过 IMAP 收取会计邮箱</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>行政与财务管理</span></div>
+            <img src="../medias/gestion-zh.png" alt="行政与财务管理" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="compta">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">07</span>
+                <h2>会计、薪酬与增值税</h2>
+              </div>
+              <p class="lede">默认关闭的模块，需要时再启用。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>复式记账：会计科目表、日记账、试算平衡表、总账</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>不平衡的分录会被拒绝，提示会说明差额是多少</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>发票一键生成分录；可导出 CSV 交给会计</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>薪酬引擎：可配置费率、从税前到税后、雇主部分、用人成本</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>逐行明细的工资单、批量生成、模拟器</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>增值税申报：销项、进项、按税率拆分、可结转的留抵</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>已申报的报表不再重算：那是单据，不是看板</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>电子发票：EN 16931 校验与 CII XML 导出</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>资金：账户、流水、对账、十二周预测</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>固定资产：直线与余额递减折旧、账面净值</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>复式记账</span></div>
+            <img src="../medias/comptabilite.png" alt="复式记账" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="achats">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">08</span>
+                <h2>采购、库存与催收</h2>
+              </div>
+              <p class="lede">订了什么、来了什么、开了什么票——以及别人欠我们什么。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>采购申请先由主管审批，超过阈值再由财务审批</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>采购订单、收货与三方匹配：已订、已收、已开票</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>收货多于订货会被拒绝；开票差异只标注，不阻断付款</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>物料、出入库、警戒线：库存是出入库的总和</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>关联物料的行项在收货那一刻即入库</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按逾期区间划分的客户账龄表</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>分级催收：提醒、催告、正式函，依据此前已发出的内容</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>每次催收都记录级别与日期</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>库存与采购</span></div>
+            <img src="../medias/stock.png" alt="库存与采购" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="projets">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">09</span>
+                <h2>项目、工时与盈利</h2>
+              </div>
+              <p class="lede">知道项目走到哪一步，以及它究竟花了多少。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>项目关联客户、部门、团队与负责人</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>带日期的里程碑，以及按状态分列的任务，含优先级与预估</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>工时记到项目与任务上，单条最多 24 小时</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>盈利：工时、按时薪计的成本、剩余利润、预算消耗比例</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>三层权限：财务、负责人、成员</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按人统计工时，以及管理看板上的项目健康度</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>项目、里程碑与盈利</span></div>
+            <img src="../medias/projets-zh.png" alt="项目、里程碑与盈利" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="support">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">10</span>
+                <h2>支持与知识库</h2>
+              </div>
+              <p class="lede">内部与客户请求走同一条流程，答案也留得下来。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>内部与客户工单，优先级、来源、指派</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>首次响应时限由优先级推导，并从开单时刻重新计算</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>内部备注对提交人不可见，也不计为回复</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按类别隔离：人事类请求不会离开人事</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按类别分的知识库、全文检索、可调节的可见范围</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>指标：未结工单、逾期工单、平均时长</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>支持与工单</span></div>
+            <img src="../medias/support.png" alt="支持与工单" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="ops">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">11</span>
+                <h2>运营与后勤</h2>
+              </div>
+              <p class="lede">排班、质量、会议室、车辆、前台。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按人按天排班：班次、值班、驻守、远程办公</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>时间冲突或已批准的缺勤：创建时即被拒绝</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>可复用的轮班模板、夜班、周计划发布</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>此刻谁在值班，以及他的电话</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>质量：不符合项、根本原因、纠正措施与有效性验证</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>内部审核：发现项、结论，可将发现项升级为不符合项</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>设备的发放与收回，附持有人历史</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>会议室与预订，冲突时拒绝并说明占用者</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>车队：保养、年检、保险、事故、里程</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>前台：访客登记、在楼人员名单、收发信件</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>排班、轮班与值班</span></div>
+            <img src="../medias/planning.png" alt="排班、轮班与值班" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="direction">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">12</span>
+                <h2>管理层与治理</h2>
+              </div>
+              <p class="lede">管理层看什么，以及决定什么。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>看板：人数、缺勤、已开票、毛利、人工成本、资金、支持负荷</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>目标与关键结果，各自的刻度，也支持递减型</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>会议：召集、议程、出勤点名、纪要</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>带理由的决议登记册——两年后要找的正是理由</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>有责任人和期限的行动项，挂在各自的决议上</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>风险登记册：原始与剩余评级、5 × 5 矩阵、处置、复审</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>公司活动：名额、自动候补名单、签到、预算</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>所有空间的到期事项汇入同一份排序清单</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>管理层与治理</span></div>
+            <img src="../medias/direction.png" alt="管理层与治理" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="it">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">13</span>
+                <h2>信息技术与研发</h2>
+              </div>
+              <p class="lede">软件资产、访问权限、事件，以及团队交付的东西。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>软件资产：授权席位作为硬约束，年化成本，续订</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>应用访问复核：先看已关闭的账户，再看管理员权限</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>带时间戳的 IT 事件，以及真正测量出来的平均恢复时长</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>服务清单：重要程度、负责人、代码库、文档</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>按环境的发布记录与交付指标</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>备份：每小时归档、校验完整性、恢复、异地保存</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>带作用域的只读 REST API，带签名的出站 Webhook</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>整个实例导出为 JSON，含文档，不含密钥</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>软件资产与访问权限</span></div>
+            <img src="../medias/informatique.png" alt="软件资产与访问权限" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="conformite">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">14</span>
+                <h2>合规、公司法务与个人数据</h2>
+              </div>
+              <p class="lede">公司必须能够证明的东西，随时记录在案。</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>股权登记册：持股由变动推导，转让写成一进一出两笔</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>公司职务任期，带期限、解任与提前提示的届满</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>股东会：以股份计的法定人数、决议、表决、纪要</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>授权委托：事项、金额上限、期限、届满提醒</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>利益冲突与礼品：各自申报，管理方复核</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>加密的内部举报渠道、指定联络人、凭代码匿名跟进</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>带时间戳、可导出并以指纹链封印的审计日志</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>GDPR：处理登记册、可导出的访问权、有理有据的删除</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>可配置的审批流程：表单、阈值、按职能设定的审批人</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>公司法务与合规</span></div>
+            <img src="../medias/juridique-zh.png" alt="公司法务与合规" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+    </div>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>还缺什么吗？</h3>
+          <p>告诉我们。产品按批次推进，正在使用它的企业提出的需求排在前面。</p>
+          <p class="mt-m"><a class="link-arrow" href="../contact.html">写信给团队<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>免费开始，长大了再换方案</h2>
+          <p>十人以下，一切免费。超过之后，价格三行就能说清。试用无需银行卡。</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="../tarifs.html">创建我的实例<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-onbrand" href="../contact.html">找人聊聊</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</main>
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
+          <p class="lede">管理整个企业的 CMS</p>
+          <p class="stat-n">Node 22 · Express · SQLite。没有一个多余的依赖。</p>
+        </div>
+        <div>
+          <h4>产品</h4>
+          <ul>
+            <li><a href="../fonctionnalites.html">功能</a></li>
+            <li><a href="../ecrans.html">界面</a></li>
+            <li><a href="../securite.html">安全</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>资源</h4>
+          <ul>
+            <li><a href="../tarifs.html">价格</a></li>
+            <li><a href="../contact.html">联系</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>关于</h4>
+          <ul>
+            <li><a href="../contact.html">写信给团队</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h4 class="sr">本站提供十六种语言</h4>
+        <div class="foot-langs">
+          <a lang="fr" hreflang="fr" href="../fonctionnalites.html"><span class="flag">🇫🇷</span> Français</a>
+          <a lang="en" hreflang="en" href="../en/fonctionnalites.html"><span class="flag">🇬🇧</span> English</a>
+          <a lang="es" hreflang="es" href="../es/fonctionnalites.html"><span class="flag">🇪🇸</span> Español</a>
+          <a lang="de" hreflang="de" href="../de/fonctionnalites.html"><span class="flag">🇩🇪</span> Deutsch</a>
+          <a lang="it" hreflang="it" href="../it/fonctionnalites.html"><span class="flag">🇮🇹</span> Italiano</a>
+          <a lang="pt" hreflang="pt" href="../pt/fonctionnalites.html"><span class="flag">🇵🇹</span> Português</a>
+          <a lang="nl" hreflang="nl" href="../nl/fonctionnalites.html"><span class="flag">🇳🇱</span> Nederlands</a>
+          <a lang="pl" hreflang="pl" href="../pl/fonctionnalites.html"><span class="flag">🇵🇱</span> Polski</a>
+          <a lang="ru" hreflang="ru" href="../ru/fonctionnalites.html"><span class="flag">🇷🇺</span> Русский</a>
+          <a lang="tr" hreflang="tr" href="../tr/fonctionnalites.html"><span class="flag">🇹🇷</span> Türkçe</a>
+          <a lang="ar" hreflang="ar" href="../ar/fonctionnalites.html"><span class="flag">🇸🇦</span> العربية</a>
+          <a lang="hi" hreflang="hi" href="../hi/fonctionnalites.html"><span class="flag">🇮🇳</span> हिन्दी</a>
+          <a lang="zh" hreflang="zh" href="../fonctionnalites.html"><span class="flag">🇨🇳</span> 中文</a>
+          <a lang="ja" hreflang="ja" href="../ja/fonctionnalites.html"><span class="flag">🇯🇵</span> 日本語</a>
+          <a lang="ko" hreflang="ko" href="../ko/fonctionnalites.html"><span class="flag">🇰🇷</span> 한국어</a>
+          <a lang="vi" hreflang="vi" href="../vi/fonctionnalites.html"><span class="flag">🇻🇳</span> Tiếng Việt</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Toutadmin. 保留所有权利。</span>
+        <span>本站提供十六种语言</span>
+      </div>
+    </div>
+  </footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

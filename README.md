@@ -26,13 +26,18 @@ content/*.js    un dictionnaire par langue ; fr est la référence
 medias.js       la carte des captures : onglets, galerie, paires clair/sombre
 medias/         les captures d'écran (PNG)
 assets/         feuille de style, script, thème, favicon
-site/           ← sortie générée, prête à héberger (non versionnée)
+site/           ← sortie générée, versionnée, prête à héberger
 ```
 
-`site/` **n'est pas dans le dépôt** : il ne contient rien qui ne se reconstruise
-en deux secondes, et il recopierait les neuf mégaoctets de captures une seconde
-fois. La commande de construction n'a besoin de rien d'autre que Node, donc un
-hébergeur qui sait lancer `node build.js` publie la branche telle quelle.
+**`site/` est versionné.** Le serveur de production n'exécute rien : il fait un
+`git pull`, et les pages sont déjà là. Cela recopie les captures une seconde
+fois dans le dépôt — c'est le prix d'un déploiement qui ne peut pas échouer au
+mauvais moment, et il est payé une fois pour toutes.
+
+> **La règle qui va avec** : après toute modification de `content/`, `pages/`,
+> `layout.html`, `assets/` ou `medias/`, **relancer `node build.js` et committer
+> `site/` dans le même commit**. Un dépôt où la sortie ne correspond plus aux
+> sources publie l'ancienne version sans prévenir personne.
 
 **Une langue incomplète n'est pas construite à moitié** : si une clé manque, ou
 si une liste n'a pas la même longueur qu'en français, le script s'arrête et dit
@@ -68,14 +73,34 @@ doit être identique d'une langue à l'autre.
 Site entièrement statique : ni base de données, ni langage serveur, ni
 réécriture d'URL.
 
+### Sur votre serveur, par git
+
+C'est le mode prévu : le dépôt est cloné sur le serveur, la racine du site
+pointe sur `site/`, et une mise à jour tient en une commande.
+
 ```bash
-# Un serveur classique
+# Une fois, sur le serveur
+git clone -b siteweb <dépôt> /var/www/toutadmin
+# puis, dans la configuration du serveur web :
+#   root /var/www/toutadmin/site;
+
+# À chaque mise à jour
+cd /var/www/toutadmin && git pull
+```
+
+Rien à construire, rien à installer, aucun temps d'indisponibilité : les
+fichiers servis sont ceux du dépôt.
+
+### Autres hébergements
+
+```bash
+# Copie par rsync, sans cloner
 rsync -av --delete site/ user@serveur:/var/www/toutadmin/
 
 # Netlify, Vercel, Cloudflare Pages
-#   branche          : siteweb
+#   branche           : siteweb
 #   dossier à publier : site
-#   commande de build : node build.js
+#   commande de build : aucune (ou « node build.js » pour reconstruire)
 ```
 
 Pour vérifier localement :

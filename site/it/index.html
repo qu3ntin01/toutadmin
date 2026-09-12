@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="it" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Toutadmin — Il CMS che amministra tutta l'azienda</title>
+<meta name="description" content="Personale, risorse umane, finanza, operazioni, governance, conformità, servizi generali. Trentacinque spazi che si parlano, una sola base dati, nessuna applicazione da incollare. In sedici lingue, e gratuito fino a dieci dipendenti." />
+<meta name="color-scheme" content="light dark" />
+<meta property="og:title" content="Toutadmin — Il CMS che amministra tutta l'azienda" />
+<meta property="og:description" content="Personale, risorse umane, finanza, operazioni, governance, conformità, servizi generali. Trentacinque spazi che si parlano, una sola base dati, nessuna applicazione da incollare. In sedici lingue, e gratuito fino a dieci dipendenti." />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="../assets/style.css" />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" hreflang="fr" href="../index.html" />
+  <link rel="alternate" hreflang="en" href="../en/index.html" />
+  <link rel="alternate" hreflang="es" href="../es/index.html" />
+  <link rel="alternate" hreflang="de" href="../de/index.html" />
+  <link rel="alternate" hreflang="it" href="../index.html" />
+  <link rel="alternate" hreflang="pt" href="../pt/index.html" />
+  <link rel="alternate" hreflang="nl" href="../nl/index.html" />
+  <link rel="alternate" hreflang="pl" href="../pl/index.html" />
+  <link rel="alternate" hreflang="ru" href="../ru/index.html" />
+  <link rel="alternate" hreflang="tr" href="../tr/index.html" />
+  <link rel="alternate" hreflang="ar" href="../ar/index.html" />
+  <link rel="alternate" hreflang="hi" href="../hi/index.html" />
+  <link rel="alternate" hreflang="zh" href="../zh/index.html" />
+  <link rel="alternate" hreflang="ja" href="../ja/index.html" />
+  <link rel="alternate" hreflang="ko" href="../ko/index.html" />
+  <link rel="alternate" hreflang="vi" href="../vi/index.html" />
+<script src="../assets/theme-boot.js"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">Prodotto</a>
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">TA</span>Toutadmin
+      </a>
+      <nav class="nav-links" aria-label="Prodotto">
+        <a href="../fonctionnalites.html">Funzioni</a>
+        <a href="../ecrans.html">Le schermate</a>
+        <a href="../securite.html">Sicurezza</a>
+        <a href="../tarifs.html">Prezzi</a>
+        <a href="../contact.html">Contatti</a>
+      </nav>
+      <div class="nav-right">
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg><span>IT</span></button>
+          <div class="picker-pop cols" role="menu" aria-label="Lingua">
+            <a lang="fr" hreflang="fr" href="../index.html"><span class="flag">🇫🇷</span>Français</a>
+            <a lang="en" hreflang="en" href="../en/index.html"><span class="flag">🇬🇧</span>English</a>
+            <a lang="es" hreflang="es" href="../es/index.html"><span class="flag">🇪🇸</span>Español</a>
+            <a lang="de" hreflang="de" href="../de/index.html"><span class="flag">🇩🇪</span>Deutsch</a>
+            <a lang="it" hreflang="it" href="../index.html" class="is-active"><span class="flag">🇮🇹</span>Italiano</a>
+            <a lang="pt" hreflang="pt" href="../pt/index.html"><span class="flag">🇵🇹</span>Português</a>
+            <a lang="nl" hreflang="nl" href="../nl/index.html"><span class="flag">🇳🇱</span>Nederlands</a>
+            <a lang="pl" hreflang="pl" href="../pl/index.html"><span class="flag">🇵🇱</span>Polski</a>
+            <a lang="ru" hreflang="ru" href="../ru/index.html"><span class="flag">🇷🇺</span>Русский</a>
+            <a lang="tr" hreflang="tr" href="../tr/index.html"><span class="flag">🇹🇷</span>Türkçe</a>
+            <a lang="ar" hreflang="ar" href="../ar/index.html"><span class="flag">🇸🇦</span>العربية</a>
+            <a lang="hi" hreflang="hi" href="../hi/index.html"><span class="flag">🇮🇳</span>हिन्दी</a>
+            <a lang="zh" hreflang="zh" href="../zh/index.html"><span class="flag">🇨🇳</span>中文</a>
+            <a lang="ja" hreflang="ja" href="../ja/index.html"><span class="flag">🇯🇵</span>日本語</a>
+            <a lang="ko" hreflang="ko" href="../ko/index.html"><span class="flag">🇰🇷</span>한국어</a>
+            <a lang="vi" hreflang="vi" href="../vi/index.html"><span class="flag">🇻🇳</span>Tiếng Việt</a>
+          </div>
+        </div>
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true" aria-label="Tema"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+          <div class="picker-pop" role="menu">
+            <button type="button" data-theme-choice="light"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Chiaro</button>
+            <button type="button" data-theme-choice="dark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>Scuro</button>
+            <button type="button" data-theme-choice="system"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>Sistema</button>
+          </div>
+        </div>
+        <a class="btn btn-sm" href="../contact.html">Chiedi una demo</a>
+        <button class="picker-btn nav-toggle" type="button" aria-label="Menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+<main id="contenu">
+
+    <section class="hero">
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="wrap hero-in stagger-hero">
+        <div>
+          <span class="eyebrow reveal"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>Software gestionale d'impresa</span>
+          <h1 class="reveal">Tutta la tua azienda,<br /><span class="g">in un solo software.</span></h1>
+          <p class="lede reveal">Personale, risorse umane, finanza, operazioni, governance, conformità, servizi generali. Trentacinque spazi che si parlano, una sola base dati, nessuna applicazione da incollare. In sedici lingue, e gratuito fino a dieci dipendenti.</p>
+          <div class="hero-cta reveal">
+            <a class="btn" href="../tarifs.html">Prova gratis<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-ghost" href="../fonctionnalites.html">Vedi le funzioni</a>
+          </div>
+          <p class="hero-note reveal">Senza carta di credito. I tuoi dati restano tuoi, e possono restare da te.</p>
+          <div class="hero-badges reveal">
+            <span class="chip"><span class="dot"></span>SaaS pronto in cinque minuti</span>
+            <span class="chip"><span class="dot"></span>o ospitato da te</span>
+            <span class="chip"><span class="dot"></span>GDPR per costruzione</span>
+          </div>
+        </div>
+        <div class="hero-shot reveal" data-parallax>
+          <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Spazio del dipendente</span></div>
+            <img src="../medias/membre-espace-it.png" alt="Spazio del dipendente" width="1440" height="900" />
+          </div>
+          <div class="float float-1">
+            <div class="float-k">spazi di lavoro</div>
+            <div class="float-v">35</div>
+          </div>
+          <div class="float float-2">
+            <div class="float-k">lingue d'interfaccia</div>
+            <div class="float-v ok">16</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="marquee" aria-hidden="true"><div class="marquee-row"><span>Fondamenta e organizzazione</span><span>Spazio del dipendente</span><span>Risorse umane</span><span>Selezione e talenti</span><span>Salute, sicurezza e rappresentanza</span><span>Finanza e amministrazione</span><span>Contabilità, paghe e IVA</span><span>Acquisti, magazzino e recupero crediti</span><span>Progetti, tempo e redditività</span><span>Assistenza e conoscenza</span><span>Operazioni e servizi generali</span><span>Direzione e governance</span><span>Informatica e sviluppo</span><span>Conformità, societario e dati personali</span><span>Fondamenta e organizzazione</span><span>Spazio del dipendente</span><span>Risorse umane</span><span>Selezione e talenti</span><span>Salute, sicurezza e rappresentanza</span><span>Finanza e amministrazione</span><span>Contabilità, paghe e IVA</span><span>Acquisti, magazzino e recupero crediti</span><span>Progetti, tempo e redditività</span><span>Assistenza e conoscenza</span><span>Operazioni e servizi generali</span><span>Direzione e governance</span><span>Informatica e sviluppo</span><span>Conformità, societario e dati personali</span></div></div>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Cosa copre il prodotto, in cifre</h2>
+          
+        </div>
+        <div class="stats stagger">
+          <div class="stat reveal">
+            <div class="stat-v" data-count="35">0</div>
+            <div class="stat-k">spazi di lavoro</div>
+            <div class="stat-n">dallo spazio del dipendente alla vita societaria</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-v" data-count="16">0</div>
+            <div class="stat-k">lingue d'interfaccia</div>
+            <div class="stat-n">arabo compreso, pagina specchiata</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-v" data-count="797">0</div>
+            <div class="stat-k">test d'integrazione</div>
+            <div class="stat-n">eseguiti a ogni rilascio</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-v" data-count="7">0</div>
+            <div class="stat-k">moduli attivabili</div>
+            <div class="stat-n">contabilità, paghe, tesoreria, CRM…</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-v" data-count="2754">0</div>
+            <div class="stat-k">etichette tradotte</div>
+            <div class="stat-n">fino ai riquadri di conferma</div>
+          </div>
+          <div class="stat reveal">
+            <div class="stat-v" data-count="0">0</div>
+            <div class="stat-k">servizi esterni necessari</div>
+            <div class="stat-n">una macchina, una base dati, nient'altro</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Prodotto</span>
+          <h2>Perché Toutadmin invece di cinque strumenti incollati</h2>
+          <p class="lede">Cinque programmi che non si parlano costano più di uno solo e fanno perdere ciò che conta: la visione d'insieme. Toutadmin parte dall'opposto: una base dati, degli spazi, dei diritti.</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Un solo posto, una sola verità</h3>
+            <p>Il budget di un reparto somma da sé le proprie fatture e le note spese approvate dei suoi membri. Una merce ricevuta entra a magazzino nello stesso gesto. Nessuno ridigita nulla, quindi nessuno si contraddice.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
+            <h3>I diritti non sono decorativi</h3>
+            <p>Ogni rotta porta il proprio controllo lato server, e le appartenenze sono rilette a ogni richiesta. Un'uscita taglia l'accesso subito, non alla scadenza del cookie. Ciò che non puoi vedere non viene nemmeno cercato.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span>
+            <h3>Le scadenze vengono da te</h3>
+            <p>Preavvisi contrattuali, abilitazioni da rinnovare, visite mediche, revisioni dei veicoli, cariche sociali, attestazioni dei fornitori: un solo motore le raccoglie e avvisa la persona giusta, una volta, senza doppioni.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M7 20h10M5 8h14M8 8l-3 6a3 3 0 0 0 6 0L8 8Zm8 0-3 6a3 3 0 0 0 6 0l-3-6Z"/></svg></span>
+            <h3>Ogni schermata dice ciò che non fa</h3>
+            <p>Un modulo mostra il suo limite quando lo attivi, non in fondo a un manuale. Preferiamo una frase onesta a una casella spuntata: è ciò che evita le brutte sorprese al terzo mese.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>Sedici lingue, davvero</h3>
+            <p>Non solo la schermata iniziale: gli stati, i messaggi d'errore, i riquadri di conferma. L'arabo specchia l'intera pagina, perché il foglio di stile usa solo proprietà logiche.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+            <h3>I tuoi dati, da te se vuoi</h3>
+            <p>In SaaS tutto è pronto in cinque minuti. Sui piani a pagamento puoi anche ospitare la base dati sul tuo server: stesso software, stessi aggiornamenti, dati dentro le tue mura.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Le schermate</span>
+          <h2>Software denso, non un giocattolo</h2>
+          <p class="lede">Schermate pensate per chi le tiene aperte otto ore al giorno: informazione a colpo d'occhio, nessuna finestra modale inutile, e lo stesso vocabolario ovunque.</p>
+        </div>
+        <div data-tabs>
+          <div class="tabs reveal" role="tablist">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="pilotage">Cruscotto di direzione</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="membre-espace">Spazio del dipendente</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="rh">Risorse umane</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="gestion">Amministrazione e finanza</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="projets">Progetti, traguardi e redditività</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="juridique">Vita societaria e conformità</button>
+          </div>
+          <div class="panes">
+            <div class="pane is-active" data-pane="pilotage" role="tabpanel">
+              <div class="pane-text">
+                <h3>Cruscotto di direzione</h3>
+                <p>Organico, fatturato, margine, tesoreria, assistenza: ciò che la direzione guarda, su una pagina. Un trattino indica un dato assente — mai uno zero che sembrerebbe una cifra.</p>
+                <p><a class="link-arrow" href="../ecrans.html">Vedi le 40 schermate<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+              </div>
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Cruscotto di direzione</span></div>
+            <img src="../medias/pilotage-it.png" alt="Cruscotto di direzione" width="1440" height="900" />
+          </div>
+            </div>
+            <div class="pane" data-pane="membre-espace" role="tabpanel">
+              <div class="pane-text">
+                <h3>Spazio del dipendente</h3>
+                <p>La pagina che ognuno apre la mattina: il suo responsabile, le novità che lo riguardano, le sue richieste, i documenti da confermare, i suoi strumenti e le credenziali.</p>
+                <p><a class="link-arrow" href="../ecrans.html">Vedi le 40 schermate<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+              </div>
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Spazio del dipendente</span></div>
+            <img src="../medias/membre-espace-it.png" alt="Spazio del dipendente" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+            <div class="pane" data-pane="rh" role="tabpanel">
+              <div class="pane-text">
+                <h3>Risorse umane</h3>
+                <p>Richieste da trattare, saldi, buste paga, documenti, formazione, colloqui: il fascicolo del dipendente si tiene qui, e le scadenze risalgono da sole.</p>
+                <p><a class="link-arrow" href="../ecrans.html">Vedi le 40 schermate<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+              </div>
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Risorse umane</span></div>
+            <img src="../medias/rh-it.png" alt="Risorse umane" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+            <div class="pane" data-pane="gestion" role="tabpanel">
+              <div class="pane-text">
+                <h3>Amministrazione e finanza</h3>
+                <p>Terzi, contratti e preavvisi, fatture nei due sensi, budget per reparto, note spese, recupero crediti. Il consumo di un budget si somma da sé.</p>
+                <p><a class="link-arrow" href="../ecrans.html">Vedi le 40 schermate<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+              </div>
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Amministrazione e finanza</span></div>
+            <img src="../medias/gestion-it.png" alt="Amministrazione e finanza" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+            <div class="pane" data-pane="projets" role="tabpanel">
+              <div class="pane-text">
+                <h3>Progetti, traguardi e redditività</h3>
+                <p>Traguardi, attività in colonne, tempo speso e redditività rispetto al budget. Il costo non si digita: si deduce dalle ore e dalla tariffa oraria.</p>
+                <p><a class="link-arrow" href="../ecrans.html">Vedi le 40 schermate<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+              </div>
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Progetti, traguardi e redditività</span></div>
+            <img src="../medias/projets-it.png" alt="Progetti, traguardi e redditività" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+            <div class="pane" data-pane="juridique" role="tabpanel">
+              <div class="pane-text">
+                <h3>Vita societaria e conformità</h3>
+                <p>Capitale, cariche sociali, assemblee e verbali, deleghe, dichiarazioni di interessi. Ciò che un'azienda deve poter dimostrare, tenuto giorno per giorno.</p>
+                <p><a class="link-arrow" href="../ecrans.html">Vedi le 40 schermate<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+              </div>
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Vita societaria e conformità</span></div>
+            <img src="../medias/juridique-it.png" alt="Vita societaria e conformità" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Funzioni</span>
+          <h2>Tutto ciò che Toutadmin sa fare</h2>
+          <p class="lede">Quattordici ambiti, oltre centotrenta funzioni.</p>
+        </div>
+        <div class="grid g4 stagger">
+          <a class="card reveal" href="../fonctionnalites.html#socle">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Fondamenta e organizzazione</h3>
+            <p>Ciò che regge il resto: gli account, le appartenenze e il vocabolario comune a tutti gli spazi.</p>
+            <p class="stat-n">11</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#espace">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1.5A3.5 3.5 0 0 0 12.5 14h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="8" r="3.2"/><path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/></svg></span>
+            <h3>Spazio del dipendente</h3>
+            <p>La pagina che tutti aprono la mattina: ciò che li riguarda, e nient'altro.</p>
+            <p class="stat-n">10</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#rh">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7M3 12h18"/></svg></span>
+            <h3>Risorse umane</h3>
+            <p>Il fascicolo del dipendente, dall'arrivo alla partenza, con le scadenze che comporta.</p>
+            <p class="stat-n">11</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#talent">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg></span>
+            <h3>Selezione e talenti</h3>
+            <p>Dalle candidature al primo giorno, senza foglio di calcolo in mezzo.</p>
+            <p class="stat-n">7</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#sst">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="m5.6 5.6 3.8 3.8m5.2 5.2 3.8 3.8m0-12.8-3.8 3.8m-5.2 5.2-3.8 3.8"/></svg></span>
+            <h3>Salute, sicurezza e rappresentanza</h3>
+            <p>Gli obblighi che vanno tenuti per iscritto, e che si ricordano da soli.</p>
+            <p class="stat-n">7</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#finance">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9m5 11V4m5 16v-7m5 7V8"/></svg></span>
+            <h3>Finanza e amministrazione</h3>
+            <p>I terzi, i contratti, il denaro che entra e quello che esce.</p>
+            <p class="stat-n">10</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#compta">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9m5 11V4m5 16v-7m5 7V8"/></svg></span>
+            <h3>Contabilità, paghe e IVA</h3>
+            <p>Moduli spenti per impostazione predefinita, che si accendono quando servono.</p>
+            <p class="stat-n">10</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#achats">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>Acquisti, magazzino e recupero crediti</h3>
+            <p>Ciò che si ordina, ciò che arriva, ciò che viene fatturato — e ciò che ci devono.</p>
+            <p class="stat-n">8</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#projets">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7M3 12h18"/></svg></span>
+            <h3>Progetti, tempo e redditività</h3>
+            <p>Sapere a che punto è un progetto, e quanto è costato davvero.</p>
+            <p class="stat-n">6</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#support">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="m5.6 5.6 3.8 3.8m5.2 5.2 3.8 3.8m0-12.8-3.8 3.8m-5.2 5.2-3.8 3.8"/></svg></span>
+            <h3>Assistenza e conoscenza</h3>
+            <p>Le richieste interne e dei clienti in un unico circuito, e le risposte che restano.</p>
+            <p class="stat-n">6</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#ops">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg></span>
+            <h3>Operazioni e servizi generali</h3>
+            <p>I turni, la qualità, le sale, i veicoli, la reception.</p>
+            <p class="stat-n">10</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#direction">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h2m4 0h-2M9 11h2m4 0h-2M9 15h6v6H9z"/></svg></span>
+            <h3>Direzione e governance</h3>
+            <p>Ciò che la direzione guarda, e ciò che decide.</p>
+            <p class="stat-n">8</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#it">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Informatica e sviluppo</h3>
+            <p>Il parco software, gli accessi, gli incidenti, e ciò che il team rilascia.</p>
+            <p class="stat-n">8</p>
+          </a>
+          <a class="card reveal" href="../fonctionnalites.html#conformite">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16M7 20h10M5 8h14M8 8l-3 6a3 3 0 0 0 6 0L8 8Zm8 0-3 6a3 3 0 0 0 6 0l-3-6Z"/></svg></span>
+            <h3>Conformità, societario e dati personali</h3>
+            <p>Ciò che un'azienda deve poter dimostrare, tenuto giorno per giorno.</p>
+            <p class="stat-n">9</p>
+          </a>
+        </div>
+        <p class="center reveal mt-l"><a class="btn btn-ghost" href="../fonctionnalites.html">Vedi l'elenco completo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Sicurezza</span>
+          <h2>La sicurezza non è un'opzione a pagamento</h2>
+          <p class="lede">Tutto ciò che segue è nel prodotto, qualunque sia il piano, compreso quello gratuito.</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
+            <h3>Autenticazione irrobustita</h3>
+            <p>Password con hash (bcrypt), politica di complessità, blocco dopo tentativi ripetuti, doppio fattore TOTP con codici di recupero, sessioni revocabili una per una o tutte insieme.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
+            <h3>Registro di audit sigillato</h3>
+            <p>Ogni voce porta l'impronta della precedente. Modificare una riga, o toglierne una in mezzo, spezza la catena in quel punto, e la verifica dice quale. Ciò che non fa: impedire la riscrittura a chi controlla il server — la rende visibile.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="m5.6 5.6 3.8 3.8m5.2 5.2 3.8 3.8m0-12.8-3.8 3.8m-5.2 5.2-3.8 3.8"/></svg></span>
+            <h3>Canale di segnalazione interna</h3>
+            <p>Obbligatorio in Francia dai cinquanta dipendenti. Contenuto cifrato nella base dati, leggibile solo dai referenti designati — non dagli amministratori, perché una segnalazione può riguardarne uno. Seguito anonimo tramite codice, senza account e senza registrazione.</p>
+          </article>
+        </div>
+        <p class="center reveal mt-l"><a class="link-arrow" href="../securite.html">Sicurezza<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Prezzi</span>
+          <h2>Prezzi leggibili, senza sorprese</h2>
+          <p class="lede">Il prezzo dipende dal numero di dipendenti, non dal numero di funzioni: tutto il prodotto è in tutti i piani.</p>
+        </div>
+        <div class="plans stagger">
+          <article class="plan reveal">
+            
+            <div class="plan-name">Scoperta</div>
+            <div class="plan-for">Meno di 10 dipendenti</div>
+            <div class="plan-price">
+              <span class="plan-amount">Gratuito</span>
+            </div>
+            <p>Tutto il prodotto, gratuitamente, senza limiti di tempo. Il piano per una giovane impresa, un'associazione o uno studio.</p>
+            <a class="btn btn-ghost" href="../tarifs.html">Inizia</a>
+          </article>
+          <article class="plan is-featured reveal">
+            <span class="plan-badge">Il più scelto</span>
+            <div class="plan-name">Team</div>
+            <div class="plan-for">Meno di 50 dipendenti</div>
+            <div class="plan-price">
+              <span class="plan-amount">50 €</span><span class="plan-per">/ mese</span>
+            </div>
+            <p>Lo stesso prodotto, più l'ospitalità locale se la desideri, l'assistenza via e-mail e i backup esternalizzati.</p>
+            <a class="btn " href="../tarifs.html">Inizia</a>
+          </article>
+          <article class="plan reveal">
+            
+            <div class="plan-name">Impresa</div>
+            <div class="plan-for">Fino a 100 dipendenti</div>
+            <div class="plan-price">
+              <span class="plan-amount">100 €</span><span class="plan-per">/ mese</span>
+            </div>
+            <p>Per una PMI strutturata: assistenza prioritaria, accompagnamento nella migrazione dei dati e un interlocutore che conosce la tua istanza.</p>
+            <a class="btn btn-ghost" href="../tarifs.html">Inizia</a>
+          </article>
+          <article class="plan reveal">
+            
+            <div class="plan-name">Su misura</div>
+            <div class="plan-for">Oltre 100 dipendenti</div>
+            <div class="plan-price">
+              <span class="plan-amount">Su misura</span>
+            </div>
+            <p>Più sedi, un'infrastruttura tua, integrazioni da scrivere, un impegno di servizio: ne parliamo e lo quantifichiamo.</p>
+            <a class="btn btn-ghost" href="../contact.html">Scrivici</a>
+          </article>
+        </div>
+        <p class="center stat-n reveal mt-m">Prezzi IVA esclusa, senza vincoli di durata.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Domande frequenti</h2>
+          
+        </div>
+        <div class="faq mx-auto stagger">
+          <details class="reveal">
+            <summary>Il piano gratuito è limitato nel tempo?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+            <div class="answer">No. Sotto i dieci dipendenti il prodotto è gratuito senza limiti di tempo e senza funzioni ridotte. Preferiamo una piccola struttura che cresce con il software a una versione di prova che si spegne dopo trenta giorni.</div>
+          </details>
+          <details class="reveal">
+            <summary>Posso ospitare i miei dati sul mio server?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+            <div class="answer">Sì, sui piani a pagamento. Il software gira su una sola macchina con Node 22 e SQLite: né server di base dati, né servizio esterno. Base dati, documenti e backup restano da te.</div>
+          </details>
+          <details class="reveal">
+            <summary>Cosa succede se smetto?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+            <div class="answer">Esporti l'intera istanza in JSON, documenti compresi, dalla console di amministrazione. Nulla è trattenuto in ostaggio: è la tua base dati, e parte con te in un formato leggibile.</div>
+          </details>
+          <details class="reveal">
+            <summary>Sostituisce il mio commercialista?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+            <div class="answer">No. La contabilità in partita doppia, le paghe e l'IVA servono a tenere le scritture e preparare i documenti. Non c'è né bilancio depositato né trasmissione telematica: l'esportazione alimenta il tuo studio.</div>
+          </details>
+          <details class="reveal">
+            <summary>Bisogna formare le squadre?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+            <div class="answer">Lo spazio del dipendente si capisce da solo: ferie, documenti, turni, rubrica. Gli spazi di amministrazione richiedono mezza giornata di presa in mano, che accompagniamo sui piani Impresa e Su misura.</div>
+          </details>
+          <details class="reveal">
+            <summary>Posso attivare solo una parte del prodotto?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
+            <div class="answer">Sì. Sette moduli — contabilità, paghe, fatturazione elettronica, magazzino e acquisti, tesoreria, cespiti, CRM — sono spenti per impostazione predefinita e si attivano uno alla volta. Finché un modulo è spento, i suoi indirizzi rispondono 404.</div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>Inizia gratis, cambia piano quando cresci</h2>
+          <p>Sotto i dieci dipendenti è tutto gratuito. Oltre, le tariffe stanno in tre righe. Nessuna carta per provare.</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="../tarifs.html">Creare la mia istanza<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-onbrand" href="../contact.html">Parlare con qualcuno</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</main>
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
+          <p class="lede">Il CMS che amministra tutta l'azienda</p>
+          <p class="stat-n">Node 22 · Express · SQLite. Nessuna dipendenza inutile.</p>
+        </div>
+        <div>
+          <h4>Prodotto</h4>
+          <ul>
+            <li><a href="../fonctionnalites.html">Funzioni</a></li>
+            <li><a href="../ecrans.html">Le schermate</a></li>
+            <li><a href="../securite.html">Sicurezza</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Risorse</h4>
+          <ul>
+            <li><a href="../tarifs.html">Prezzi</a></li>
+            <li><a href="../contact.html">Contatti</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Chi siamo</h4>
+          <ul>
+            <li><a href="../contact.html">Scrivere al team</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h4 class="sr">Questo sito esiste in sedici lingue</h4>
+        <div class="foot-langs">
+          <a lang="fr" hreflang="fr" href="../index.html"><span class="flag">🇫🇷</span> Français</a>
+          <a lang="en" hreflang="en" href="../en/index.html"><span class="flag">🇬🇧</span> English</a>
+          <a lang="es" hreflang="es" href="../es/index.html"><span class="flag">🇪🇸</span> Español</a>
+          <a lang="de" hreflang="de" href="../de/index.html"><span class="flag">🇩🇪</span> Deutsch</a>
+          <a lang="it" hreflang="it" href="../index.html"><span class="flag">🇮🇹</span> Italiano</a>
+          <a lang="pt" hreflang="pt" href="../pt/index.html"><span class="flag">🇵🇹</span> Português</a>
+          <a lang="nl" hreflang="nl" href="../nl/index.html"><span class="flag">🇳🇱</span> Nederlands</a>
+          <a lang="pl" hreflang="pl" href="../pl/index.html"><span class="flag">🇵🇱</span> Polski</a>
+          <a lang="ru" hreflang="ru" href="../ru/index.html"><span class="flag">🇷🇺</span> Русский</a>
+          <a lang="tr" hreflang="tr" href="../tr/index.html"><span class="flag">🇹🇷</span> Türkçe</a>
+          <a lang="ar" hreflang="ar" href="../ar/index.html"><span class="flag">🇸🇦</span> العربية</a>
+          <a lang="hi" hreflang="hi" href="../hi/index.html"><span class="flag">🇮🇳</span> हिन्दी</a>
+          <a lang="zh" hreflang="zh" href="../zh/index.html"><span class="flag">🇨🇳</span> 中文</a>
+          <a lang="ja" hreflang="ja" href="../ja/index.html"><span class="flag">🇯🇵</span> 日本語</a>
+          <a lang="ko" hreflang="ko" href="../ko/index.html"><span class="flag">🇰🇷</span> 한국어</a>
+          <a lang="vi" hreflang="vi" href="../vi/index.html"><span class="flag">🇻🇳</span> Tiếng Việt</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Toutadmin. Tutti i diritti riservati.</span>
+        <span>Questo sito esiste in sedici lingue</span>
+      </div>
+    </div>
+  </footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>

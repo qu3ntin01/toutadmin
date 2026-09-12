@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="pt" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Funcionalidades — Toutadmin</title>
+<meta name="description" content="A lista completa, domínio a domínio. Cada linha corresponde a código entregue e testado, não a uma intenção." />
+<meta name="color-scheme" content="light dark" />
+<meta property="og:title" content="Funcionalidades — Toutadmin" />
+<meta property="og:description" content="A lista completa, domínio a domínio. Cada linha corresponde a código entregue e testado, não a uma intenção." />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="../assets/style.css" />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
+  <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
+  <link rel="alternate" hreflang="es" href="../es/fonctionnalites.html" />
+  <link rel="alternate" hreflang="de" href="../de/fonctionnalites.html" />
+  <link rel="alternate" hreflang="it" href="../it/fonctionnalites.html" />
+  <link rel="alternate" hreflang="pt" href="../fonctionnalites.html" />
+  <link rel="alternate" hreflang="nl" href="../nl/fonctionnalites.html" />
+  <link rel="alternate" hreflang="pl" href="../pl/fonctionnalites.html" />
+  <link rel="alternate" hreflang="ru" href="../ru/fonctionnalites.html" />
+  <link rel="alternate" hreflang="tr" href="../tr/fonctionnalites.html" />
+  <link rel="alternate" hreflang="ar" href="../ar/fonctionnalites.html" />
+  <link rel="alternate" hreflang="hi" href="../hi/fonctionnalites.html" />
+  <link rel="alternate" hreflang="zh" href="../zh/fonctionnalites.html" />
+  <link rel="alternate" hreflang="ja" href="../ja/fonctionnalites.html" />
+  <link rel="alternate" hreflang="ko" href="../ko/fonctionnalites.html" />
+  <link rel="alternate" hreflang="vi" href="../vi/fonctionnalites.html" />
+<script src="../assets/theme-boot.js"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">Produto</a>
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">TA</span>Toutadmin
+      </a>
+      <nav class="nav-links" aria-label="Produto">
+        <a href="../fonctionnalites.html" class="is-active" aria-current="page">Funcionalidades</a>
+        <a href="../ecrans.html">Os ecrãs</a>
+        <a href="../securite.html">Segurança</a>
+        <a href="../tarifs.html">Preços</a>
+        <a href="../contact.html">Contacto</a>
+      </nav>
+      <div class="nav-right">
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg><span>PT</span></button>
+          <div class="picker-pop cols" role="menu" aria-label="Idioma">
+            <a lang="fr" hreflang="fr" href="../fonctionnalites.html"><span class="flag">🇫🇷</span>Français</a>
+            <a lang="en" hreflang="en" href="../en/fonctionnalites.html"><span class="flag">🇬🇧</span>English</a>
+            <a lang="es" hreflang="es" href="../es/fonctionnalites.html"><span class="flag">🇪🇸</span>Español</a>
+            <a lang="de" hreflang="de" href="../de/fonctionnalites.html"><span class="flag">🇩🇪</span>Deutsch</a>
+            <a lang="it" hreflang="it" href="../it/fonctionnalites.html"><span class="flag">🇮🇹</span>Italiano</a>
+            <a lang="pt" hreflang="pt" href="../fonctionnalites.html" class="is-active"><span class="flag">🇵🇹</span>Português</a>
+            <a lang="nl" hreflang="nl" href="../nl/fonctionnalites.html"><span class="flag">🇳🇱</span>Nederlands</a>
+            <a lang="pl" hreflang="pl" href="../pl/fonctionnalites.html"><span class="flag">🇵🇱</span>Polski</a>
+            <a lang="ru" hreflang="ru" href="../ru/fonctionnalites.html"><span class="flag">🇷🇺</span>Русский</a>
+            <a lang="tr" hreflang="tr" href="../tr/fonctionnalites.html"><span class="flag">🇹🇷</span>Türkçe</a>
+            <a lang="ar" hreflang="ar" href="../ar/fonctionnalites.html"><span class="flag">🇸🇦</span>العربية</a>
+            <a lang="hi" hreflang="hi" href="../hi/fonctionnalites.html"><span class="flag">🇮🇳</span>हिन्दी</a>
+            <a lang="zh" hreflang="zh" href="../zh/fonctionnalites.html"><span class="flag">🇨🇳</span>中文</a>
+            <a lang="ja" hreflang="ja" href="../ja/fonctionnalites.html"><span class="flag">🇯🇵</span>日本語</a>
+            <a lang="ko" hreflang="ko" href="../ko/fonctionnalites.html"><span class="flag">🇰🇷</span>한국어</a>
+            <a lang="vi" hreflang="vi" href="../vi/fonctionnalites.html"><span class="flag">🇻🇳</span>Tiếng Việt</a>
+          </div>
+        </div>
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true" aria-label="Tema"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+          <div class="picker-pop" role="menu">
+            <button type="button" data-theme-choice="light"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Claro</button>
+            <button type="button" data-theme-choice="dark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>Escuro</button>
+            <button type="button" data-theme-choice="system"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>Sistema</button>
+          </div>
+        </div>
+        <a class="btn btn-sm" href="../contact.html">Pedir uma demo</a>
+        <button class="picker-btn nav-toggle" type="button" aria-label="Menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+<main id="contenu">
+
+    <section class="hero section-tight">
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="wrap center">
+        <span class="eyebrow reveal">Funcionalidades</span>
+        <h1 class="reveal">Tudo o que o Toutadmin sabe fazer</h1>
+        <p class="lede reveal">A lista completa, domínio a domínio. Cada linha corresponde a código entregue e testado, não a uma intenção.</p>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="wrap">
+        <div class="dom-index reveal">
+          <a href="#socle">Base e organização</a>
+          <a href="#espace">Espaço do colaborador</a>
+          <a href="#rh">Recursos humanos</a>
+          <a href="#talent">Recrutamento e talentos</a>
+          <a href="#sst">Saúde, segurança e representação</a>
+          <a href="#finance">Finanças e gestão</a>
+          <a href="#compta">Contabilidade, salários e IVA</a>
+          <a href="#achats">Compras, armazém e cobranças</a>
+          <a href="#projets">Projetos, tempo e rentabilidade</a>
+          <a href="#support">Apoio e conhecimento</a>
+          <a href="#ops">Operações e serviços gerais</a>
+          <a href="#direction">Direção e governação</a>
+          <a href="#it">Informática e desenvolvimento</a>
+          <a href="#conformite">Conformidade, societário e dados pessoais</a>
+        </div>
+        <p class="stat-n mt-m reveal">121 · As funções marcadas «módulo» ativam-se na consola quando forem precisas.</p>
+      </div>
+    </section>
+
+    <div class="wrap">
+        <section class="dom" id="socle">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">01</span>
+                <h2>Base e organização</h2>
+              </div>
+              <p class="lede">O que sustenta o resto: as contas, as afetações e o vocabulário comum a todos os espaços.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Contas e papéis acumuláveis: administrador, RH, gestão, informática, responsável de denúncias</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Chefia deduzida do enquadramento real, nunca concedida à mão</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Departamentos e equipas, várias chefias por perímetro, afetações relidas a cada pedido</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Organigrama visual, chefias incluídas, e as pessoas sem qualquer afetação</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Diretório com pesquisa e filtros, visibilidade gerida apenas pela administração</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Mensagens internas, e endereço profissional configurado pela administração</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Pesquisa global isolada na origem: o que não pode ver não é sequer procurado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Centro de notificações por pessoa, com aviso de leitura</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Importação em massa em CSV: pré-visualização controlada, escrita tudo ou nada</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Assistente de instalação, definições da instância, sete módulos ativáveis</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>16 idiomas, 3 paletas, tema claro/escuro/sistema, interface adaptável</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Consola de administração</span></div>
+            <img src="../medias/admin.png" alt="Consola de administração" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="espace">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">02</span>
+                <h2>Espaço do colaborador</h2>
+              </div>
+              <p class="lede">A página que todos abrem de manhã: o que lhes diz respeito, e nada mais.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Painel pessoal: chefia, notícias, pedidos, documentos por confirmar</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Férias, folgas, ausências e teletrabalho: dias úteis calculados, fins de semana excluídos</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Saldo de férias atualizado, histórico dos ajustes fundamentados</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Recibos de vencimento consultáveis e guardados cinquenta anos no cofre</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Agenda pessoal e agenda partilhada de equipa</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Escala da semana, prevenção, permanências</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Ferramentas atribuídas com credenciais próprias — nenhuma palavra-passe de terceiros guardada</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Perfil: foto, apresentação, telefone, idioma, palavra-passe, fecho das sessões</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Marcação por cronómetro para freelancers, apenas uma em curso de cada vez</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Declaração de interesses e de ofertas, visível apenas para si</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Espaço do colaborador</span></div>
+            <img src="../medias/membre-espace-pt.png" alt="Espaço do colaborador" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="rh">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">03</span>
+                <h2>Recursos humanos</h2>
+              </div>
+              <p class="lede">O processo do colaborador, da entrada à saída, com os prazos que traz.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Aprovação de pedidos com dedução do saldo, recusa fundamentada, anulação que devolve os dias</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Recibos: criação, acompanhamento do pagamento, geração em lote</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Documentos da empresa com confirmação de receção nominal</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Formação: catálogo, sessões, inscrições, custo e duração</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Entrevistas anuais: campanha, guião, relatório</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Entrada e saída: listas de verificação seguidas, responsável e prazo por tarefa</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Competências e habilitações, com data de reciclagem e aviso antecipado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Reuniões individuais: resumo partilhado, notas da chefia mantidas à parte</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Cofre digital acessível após a saída, documentos selados pela sua impressão</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Assinatura eletrónica simples: circuito ordenado, impressão, selo, certificado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Contratos a termo: a conta fecha-se sozinha no dia previsto</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Recursos humanos</span></div>
+            <img src="../medias/rh-pt.png" alt="Recursos humanos" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="talent">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">04</span>
+                <h2>Recrutamento e talentos</h2>
+              </div>
+              <p class="lede">Das candidaturas ao primeiro dia, sem folha de cálculo pelo meio.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Ofertas de emprego e candidaturas seguidas por etapa</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Receção de CV: PDF, DOCX ou texto, escritos fora do repositório</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Extração do conteúdo e base de CV pesquisável</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Critérios ponderados, pontuação, limiar, classificação das candidaturas</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Um candidato aceite passa diretamente para o percurso de entrada</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Inquéritos internos e barómetro social, anónimos por construção</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Abaixo de cinco respostas nenhum resultado é mostrado</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Pedidos internos</span></div>
+            <img src="../medias/membre-demandes.png" alt="Pedidos internos" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="sst">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">05</span>
+                <h2>Saúde, segurança e representação</h2>
+              </div>
+              <p class="lede">As obrigações que se mantêm por escrito e se lembram sozinhas.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Avaliação de riscos: unidades de trabalho, perigos, cotação, medidas, revisão datada</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Registo de acidentes de trabalho e quase-acidentes, dias de baixa</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Equipamentos de proteção: entrega nominal, validade, substituição</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Exames médicos: admissão, periódico, regresso, a pedido</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Representação: eleições, caderno eleitoral, voto anónimo, mandatos e o seu termo</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Reuniões do órgão, benefícios e serviços aos trabalhadores</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>O espaço de gestão fecha-se sozinho no fim do mandato</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Saúde e segurança no trabalho</span></div>
+            <img src="../medias/sante-securite.png" alt="Saúde e segurança no trabalho" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="finance">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">06</span>
+                <h2>Finanças e gestão</h2>
+              </div>
+              <p class="lede">Os terceiros, os contratos, o dinheiro que entra e o que sai.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Clientes e fornecedores, ficha completa: contactos, contratos, faturas</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Contratos e sobretudo pré-avisos: a data limite para denunciar é calculada e avisada</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Faturas nos dois sentidos, total calculado, atraso deduzido do vencimento</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Orçamentos por departamento e exercício, consumo agregado automaticamente</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Despesas: apresentação, aprovação, reembolso — nunca uma sem a outra</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Documentos de conformidade de terceiros, datados e avisados quarenta e cinco dias antes</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Avaliações de fornecedores pontuadas: vale a última revisão, não a média</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Multimoeda com a taxa fixada na emissão de cada documento</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Faturação recorrente: a subscrição é o molde, a fatura é o documento</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Leitura automática das faturas recebidas e recolha IMAP de uma caixa contabilística</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Gestão administrativa e financeira</span></div>
+            <img src="../medias/gestion-pt.png" alt="Gestão administrativa e financeira" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="compta">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">07</span>
+                <h2>Contabilidade, salários e IVA</h2>
+              </div>
+              <p class="lede">Módulos desligados por omissão, que se ligam quando precisar.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Contabilidade por partidas dobradas: plano de contas, diários, balancete, razão</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Um lançamento desequilibrado é recusado, e a mensagem diz por quanto</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Uma fatura passa a lançamento com um clique; exportação CSV para o gabinete</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Motor de salários: tabelas configuráveis, do bruto ao líquido, encargos, custo empresa</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Recibo detalhado linha a linha, geração em lote, simulador</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Declarações de IVA: liquidado, dedutível, repartição por taxa, crédito a reportar</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Uma declaração entregue não se recalcula: é um documento, não um painel</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Faturação eletrónica: verificação EN 16931 e exportação do XML CII</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Tesouraria: contas, movimentos, reconciliação, previsão a doze semanas</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Imobilizado: amortização linear e degressiva, valor líquido contabilístico</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Contabilidade por partidas dobradas</span></div>
+            <img src="../medias/comptabilite.png" alt="Contabilidade por partidas dobradas" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="achats">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">08</span>
+                <h2>Compras, armazém e cobranças</h2>
+              </div>
+              <p class="lede">O que se encomenda, o que chega, o que é faturado — e o que nos devem.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Pedidos de compra validados pela chefia e depois pela gestão acima do limiar</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Encomendas, receções e reconciliação a três: encomendado, recebido, faturado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Receber mais do que o encomendado é recusado; um desvio de faturação é nomeado, não bloqueado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Artigos, movimentos, limiar de alerta: o stock é a soma dos movimentos</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Uma linha ligada a um artigo entra em armazém no momento da receção</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Balanço por antiguidade dos clientes, por escalão de atraso</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Avisos escalonados: lembrete, insistência, interpelação, conforme o já enviado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Cada aviso registado com o seu nível e a sua data</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Armazém e compras</span></div>
+            <img src="../medias/stock.png" alt="Armazém e compras" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="projets">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">09</span>
+                <h2>Projetos, tempo e rentabilidade</h2>
+              </div>
+              <p class="lede">Saber em que ponto está um projeto, e quanto custou realmente.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Projetos ligados a um cliente, um departamento, uma equipa e um responsável</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Marcos datados e tarefas em colunas por estado, com prioridade e estimativa</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Tempo imputado ao projeto e à tarefa, no máximo 24 h por registo</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Rentabilidade: horas, custo à taxa horária, margem restante, parte do orçamento consumida</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Três círculos de direitos: a gestão, o responsável, os membros</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Tempo por pessoa e saúde dos projetos no painel de direção</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Projetos, marcos e rentabilidade</span></div>
+            <img src="../medias/projets-pt.png" alt="Projetos, marcos e rentabilidade" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="support">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">10</span>
+                <h2>Apoio e conhecimento</h2>
+              </div>
+              <p class="lede">Os pedidos internos e de clientes no mesmo circuito, e as respostas que ficam.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Tickets internos e de clientes, prioridade, origem, atribuição</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Prazo de primeira resposta deduzido da prioridade, recalculado desde a abertura</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Notas internas invisíveis para quem pede, e que não contam como resposta</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Separação por categoria: um pedido de RH não sai dos RH</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Base de conhecimento por categoria, pesquisa em texto integral, alcance ajustável</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Indicadores: tickets abertos, em atraso, prazo médio</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Apoio e tickets</span></div>
+            <img src="../medias/support.png" alt="Apoio e tickets" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="ops">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">11</span>
+                <h2>Operações e serviços gerais</h2>
+              </div>
+              <p class="lede">As escalas, a qualidade, as salas, os veículos, a receção.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Escala por pessoa e por dia: turnos, prevenção, permanências, teletrabalho</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Sobreposição ou ausência já concedida: o turno é recusado ao ser criado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Rotações reutilizáveis, turnos noturnos, publicação da semana</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Quem está de prevenção neste momento, com o seu número</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Qualidade: não conformidades, causas raiz, ações corretivas e verificação de eficácia</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Auditorias internas: constatações, síntese, uma constatação promovida a não conformidade</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Equipamentos atribuídos e devolvidos, com histórico dos detentores</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Salas e reservas, sobreposição recusada nomeando quem a ocupa</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Frota: manutenção, inspeção, seguro, sinistros, quilometragem</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Receção: registo de visitantes, lista dos presentes, correio recebido e enviado</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Escalas, rotações e prevenção</span></div>
+            <img src="../medias/planning.png" alt="Escalas, rotações e prevenção" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="direction">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">12</span>
+                <h2>Direção e governação</h2>
+              </div>
+              <p class="lede">O que a direção olha, e o que decide.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Painel: efetivo, ausentes, faturado, margem, massa salarial, tesouraria, apoio</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Objetivos e resultados-chave, cada um na sua escala, mesmo decrescente</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Reuniões: convocatória, ordem de trabalhos, presenças marcadas, ata</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Registo das decisões com o seu fundamento — o que se procura dois anos depois</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Ações atribuídas com responsável e prazo, ligadas à sua decisão</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Registo de riscos: cotação bruta e residual, matriz 5 × 5, tratamento, revisão</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Eventos da empresa: lotação, lista de espera automática, folha de presenças, orçamento</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Prazos de todos os espaços reunidos numa única lista ordenada</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Direção e governação</span></div>
+            <img src="../medias/direction.png" alt="Direção e governação" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom" id="it">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">13</span>
+                <h2>Informática e desenvolvimento</h2>
+              </div>
+              <p class="lede">O parque de software, os acessos, os incidentes, e o que a equipa entrega.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Parque de software: licenças tratadas como restrição, custo anualizado, renovações</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Revisão dos acessos: primeiro as contas fechadas, depois os direitos de administração</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Incidentes informáticos, com hora, e tempo médio de reposição efetivamente medido</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Catálogo de serviços: criticidade, responsável, repositório, documentação</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Registo de entregas por ambiente e indicadores de entrega</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Cópias de segurança: arquivo horário, integridade verificada, restauro, externalização</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>API REST de leitura com âmbitos, webhooks de saída assinados</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Exportação integral da instância em JSON, documentos incluídos, segredos excluídos</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Parque de software e acessos</span></div>
+            <img src="../medias/informatique.png" alt="Parque de software e acessos" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+        <section class="dom rev" id="conformite">
+          <div class="dom-body">
+            <div class="reveal">
+              <div class="dom-head">
+                <span class="dom-num">14</span>
+                <h2>Conformidade, societário e dados pessoais</h2>
+              </div>
+              <p class="lede">O que uma empresa tem de conseguir provar, mantido ao longo do tempo.</p>
+              <ul class="feat-list">
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Registo de sócios: participação deduzida dos movimentos, cessão escrita em duas pernas</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Mandatos sociais com duração, revogação e termo avisado com antecedência</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Assembleias gerais: quórum em participações, deliberações, votos, ata</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Delegações de poderes: objeto, limite, duração, termo avisado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Conflitos de interesses e ofertas: cada um declara por si, a administração examina</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Canal interno de denúncia cifrado, responsáveis designados, acompanhamento anónimo por código</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Registo de auditoria com hora, exportável e selado por encadeamento de impressões</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>RGPD: registo de tratamentos, direito de acesso exportado, apagamento fundamentado</span></li>
+              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Circuitos de aprovação configuráveis: formulários, limiares, aprovadores por função</span></li>
+              </ul>
+            </div>
+            <div class="dom-shot reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Vida societária e conformidade</span></div>
+            <img src="../medias/juridique-pt.png" alt="Vida societária e conformidade" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+            </div>
+          </div>
+        </section>
+    </div>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Falta alguma coisa?</h3>
+          <p>Diga-nos. O produto avança por lotes, e os pedidos das empresas que o usam passam à frente.</p>
+          <p class="mt-m"><a class="link-arrow" href="../contact.html">Escrever à equipa<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>Comece grátis e mude de plano quando crescer</h2>
+          <p>Abaixo de dez colaboradores é tudo gratuito. Acima, os preços cabem em três linhas. Nenhum cartão para experimentar.</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="../tarifs.html">Criar a minha instância<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-onbrand" href="../contact.html">Falar com alguém</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</main>
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
+          <p class="lede">O CMS que administra toda a empresa</p>
+          <p class="stat-n">Node 22 · Express · SQLite. Nenhuma dependência inútil.</p>
+        </div>
+        <div>
+          <h4>Produto</h4>
+          <ul>
+            <li><a href="../fonctionnalites.html">Funcionalidades</a></li>
+            <li><a href="../ecrans.html">Os ecrãs</a></li>
+            <li><a href="../securite.html">Segurança</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Recursos</h4>
+          <ul>
+            <li><a href="../tarifs.html">Preços</a></li>
+            <li><a href="../contact.html">Contacto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Sobre nós</h4>
+          <ul>
+            <li><a href="../contact.html">Escrever à equipa</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h4 class="sr">Este site existe em dezasseis idiomas</h4>
+        <div class="foot-langs">
+          <a lang="fr" hreflang="fr" href="../fonctionnalites.html"><span class="flag">🇫🇷</span> Français</a>
+          <a lang="en" hreflang="en" href="../en/fonctionnalites.html"><span class="flag">🇬🇧</span> English</a>
+          <a lang="es" hreflang="es" href="../es/fonctionnalites.html"><span class="flag">🇪🇸</span> Español</a>
+          <a lang="de" hreflang="de" href="../de/fonctionnalites.html"><span class="flag">🇩🇪</span> Deutsch</a>
+          <a lang="it" hreflang="it" href="../it/fonctionnalites.html"><span class="flag">🇮🇹</span> Italiano</a>
+          <a lang="pt" hreflang="pt" href="../fonctionnalites.html"><span class="flag">🇵🇹</span> Português</a>
+          <a lang="nl" hreflang="nl" href="../nl/fonctionnalites.html"><span class="flag">🇳🇱</span> Nederlands</a>
+          <a lang="pl" hreflang="pl" href="../pl/fonctionnalites.html"><span class="flag">🇵🇱</span> Polski</a>
+          <a lang="ru" hreflang="ru" href="../ru/fonctionnalites.html"><span class="flag">🇷🇺</span> Русский</a>
+          <a lang="tr" hreflang="tr" href="../tr/fonctionnalites.html"><span class="flag">🇹🇷</span> Türkçe</a>
+          <a lang="ar" hreflang="ar" href="../ar/fonctionnalites.html"><span class="flag">🇸🇦</span> العربية</a>
+          <a lang="hi" hreflang="hi" href="../hi/fonctionnalites.html"><span class="flag">🇮🇳</span> हिन्दी</a>
+          <a lang="zh" hreflang="zh" href="../zh/fonctionnalites.html"><span class="flag">🇨🇳</span> 中文</a>
+          <a lang="ja" hreflang="ja" href="../ja/fonctionnalites.html"><span class="flag">🇯🇵</span> 日本語</a>
+          <a lang="ko" hreflang="ko" href="../ko/fonctionnalites.html"><span class="flag">🇰🇷</span> 한국어</a>
+          <a lang="vi" hreflang="vi" href="../vi/fonctionnalites.html"><span class="flag">🇻🇳</span> Tiếng Việt</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Toutadmin. Todos os direitos reservados.</span>
+        <span>Este site existe em dezasseis idiomas</span>
+      </div>
+    </div>
+  </footer>
+<script src="../assets/app.js" defer></script>
+</body>
+</html>
