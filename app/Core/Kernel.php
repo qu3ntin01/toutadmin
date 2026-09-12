@@ -24,8 +24,10 @@ use App\Controllers\ProjectsController;
 use App\Controllers\RequestsController;
 use App\Controllers\RoomsController;
 use App\Controllers\StockController;
+use App\Controllers\SigningController;
 use App\Controllers\SupportController;
 use App\Controllers\TreasuryController;
+use App\Controllers\VaultController;
 use App\Modules\Users;
 
 /**
@@ -287,6 +289,28 @@ final class Kernel
         $router->post('/stock/demandes/{id}/gestion', StockController::financeDecision(...));
         $router->post('/stock/demandes/{id}/commander', StockController::markOrdered(...));
 
+        // Coffre-fort : le sien, celui de la gestion, et l'accès par code.
+        $router->get('/coffre-fort/acces', VaultController::accessForm(...));
+        $router->post('/coffre-fort/acces', VaultController::redeem(...));
+        $router->get('/coffre-fort', VaultController::mine(...));
+        $router->get('/coffre-fort/documents/{id}', VaultController::download(...));
+        $router->get('/coffre-fort/gestion', VaultController::manage(...));
+        $router->post('/coffre-fort/gestion/depots', VaultController::deposit(...));
+        $router->post('/coffre-fort/gestion/documents/{id}/retirer', VaultController::removeDocument(...));
+        $router->post('/coffre-fort/gestion/acces/{id}', VaultController::issueGrant(...));
+        $router->post('/coffre-fort/gestion/acces/{id}/revoquer', VaultController::revokeGrants(...));
+
+        // Parapheur.
+        $router->get('/parapheur', SigningController::index(...));
+        $router->post('/parapheur', SigningController::create(...));
+        $router->get('/parapheur/{id}', SigningController::show(...));
+        $router->get('/parapheur/{id}/document', SigningController::download(...));
+        $router->get('/parapheur/{id}/attestation', SigningController::certificate(...));
+        $router->post('/parapheur/{id}/signer', SigningController::sign(...));
+        $router->post('/parapheur/{id}/refuser', SigningController::refuse(...));
+        $router->post('/parapheur/{id}/annuler', SigningController::cancel(...));
+        $router->post('/parapheur/{id}/supprimer', SigningController::remove(...));
+
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
         $router->post('/notifications/{id}/lue', NotificationsController::markRead(...));
@@ -359,7 +383,15 @@ final class Kernel
             return null;
         }
         $user = Users::byId((int) $session['id']);
-        if ($user === null || (int) $user['active'] !== 1) {
+        // Une session de coffre-fort est ouverte précisément parce que le compte
+        // est fermé : le compte désactivé n'est donc pas un motif de révocation
+        // ici — seule compte la disparition du compte ou de son coffre.
+        $vaultOnly = (bool) Session::get('vault_only', false);
+        if ($user === null || (!$vaultOnly && (int) $user['active'] !== 1)) {
+            Session::destroy();
+            return null;
+        }
+        if ($vaultOnly && !\App\Modules\Vault::hasDocuments((int) $user['id'])) {
             Session::destroy();
             return null;
         }
@@ -393,12 +425,35 @@ final class Kernel
     /** Les portes : qui peut atteindre quoi. */
     private function guard(Request $request, ?array $user): ?Response
     {
-        $public = ['/connexion', '/connexion/code', '/installation', '/langue'];
+        $public = ['/connexion', '/connexion/code', '/installation', '/langue', '/coffre-fort/acces'];
         if (in_array($request->path, $public, true)) {
             return null;
         }
         if ($user === null) {
             return Response::redirect('/connexion');
+        }
+        // Session ouverte par code d'accès : hors du coffre, rien n'est
+        // atteignable. Le verrou est ici, donc il ferme aussi ce qui sera
+        // ajouté demain sans qu'on y pense.
+        if ((bool) Session::get('vault_only', false)) {
+            $allowed = ['/coffre-fort', '/deconnexion', '/langue'];
+            $inside = false;
+            foreach ($allowed as $prefix) {
+                if ($request->path === $prefix || str_starts_with($request->path, $prefix . '/')) {
+                    $inside = true;
+                }
+            }
+            // La gestion du coffre reste fermée : l'ancien salarié vient
+            // chercher ses documents, pas en déposer.
+            if ($inside && str_starts_with($request->path, '/coffre-fort/gestion')) {
+                $inside = false;
+            }
+            if (!$inside) {
+                return $request->isPost()
+                    ? $this->error('Cet accès ne permet que la consultation de votre coffre-fort.', 403, base64_encode(random_bytes(16)))
+                    : Response::redirect('/coffre-fort');
+            }
+            return null;
         }
         // Mot de passe à changer : aucune autre page tant que ce n'est pas fait.
         if ((int) $user['must_change_password'] === 1 && $request->path !== '/mot-de-passe' && $request->path !== '/deconnexion') {
@@ -422,6 +477,20 @@ final class Kernel
         // l'ouvre pas : congés et fiches de paie ne sont pas des informations
         // d'équipe.
         if (str_starts_with($request->path, '/rh') && !\App\Controllers\HrController::canAccess($user)) {
+            return $refuse();
+        }
+        // Déposer au coffre et émettre un code d'accès relèvent des RH ; le
+        // retrait d'un document, lui, est réservé à l'administration (dans le
+        // contrôleur, là où le motif se lit).
+        if (str_starts_with($request->path, '/coffre-fort/gestion') && !VaultController::canManage($user)) {
+            return $refuse();
+        }
+        // Mettre un document à la signature engage l'entreprise : réservé aussi.
+        if (str_starts_with($request->path, '/parapheur')
+            && ($request->path === '/parapheur' && $request->isPost()
+                || str_ends_with($request->path, '/annuler')
+                || str_ends_with($request->path, '/supprimer') && str_starts_with($request->path, '/parapheur/'))
+            && !SigningController::canOpen($user)) {
             return $refuse();
         }
         // L'espace manager s'ouvre à qui encadre au moins un périmètre — la

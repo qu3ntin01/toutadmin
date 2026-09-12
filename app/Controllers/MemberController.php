@@ -81,6 +81,9 @@ final class MemberController
             ['href' => '/notifications', 'label' => t('nav.notifications'), 'badge' => $unread ?: null],
             ['href' => '/projets', 'label' => t('nav.projects')],
             ['href' => '/support', 'label' => t('nav.support')],
+            ['href' => '/parapheur', 'label' => t('nav.signing'),
+             'badge' => \App\Modules\Signing::pendingCountFor((int) $user['id']) ?: null],
+            ['href' => '/coffre-fort', 'label' => t('nav.vault')],
             ['href' => '/agenda', 'label' => t('agenda.title')],
             ['href' => '/salles', 'label' => t('nav.rooms')],
             ['href' => '/annuaire', 'label' => t('nav.directory')],
@@ -95,6 +98,7 @@ final class MemberController
         }
         if ($user['role'] === 'admin' || (int) ($user['is_hr'] ?? 0) === 1) {
             $items[] = ['href' => '/rh', 'label' => t('nav.hrSpace')];
+            $items[] = ['href' => '/coffre-fort/gestion', 'label' => t('nav.vaultManage')];
         }
         if (FinanceController::canAccess($user)) {
             $items[] = ['href' => '/gestion', 'label' => t('nav.gestion')];

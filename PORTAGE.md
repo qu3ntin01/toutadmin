@@ -36,11 +36,13 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Trésorerie | module optionnel : comptes bancaires dont le solde se recalcule des mouvements, rapprochement qui distingue émis d'encaissé et refuse un mouvement de sens contraire, prévisionnel et projection à douze semaines avec son point bas |
 | Immobilisations | module optionnel : registre, amortissement linéaire et dégressif avec bascule calculée, valeur nette comptable, dotation de l'exercice, cession |
 | Stock et achats | module optionnel : stock déduit des mouvements depuis le dernier inventaire, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà du seuil, bons de commande, réceptions qui entrent en stock, rapprochement à trois (commandé, reçu, facturé) |
+| Coffre-fort | dépôt par les RH avec contrôle du type réel du fichier, empreinte SHA-256 vérifiée à chaque téléchargement, conservation cinquante ans, retrait réservé à l'administration et motivé, codes d'accès pour les anciens salariés ouvrant une session qui ne voit que le coffre |
+| Parapheur | document figé dès la mise à la signature, circuit ordonné, mot de passe et consentement redemandés, sceau HMAC par signature, refus motivé qui interrompt le circuit, attestation imprimable |
 | Comptabilité | module optionnel : plan comptable et journaux posés à l'activation, écritures refusées si elles ne s'équilibrent pas, facture passée en écriture d'un clic au taux figé, balance, grand livre, résultat, export CSV |
 | Paie | module optionnel : barèmes paramétrables (base brut ou plafond), calcul du brut au net, part patronale et coût employeur, bulletin détaillé, génération en lot, masse salariale du mois |
 | Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
 
-232 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+254 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -48,13 +50,12 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Coffre-fort et parapheur** — documents, signatures, accès après départ
-2. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
-3. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
-4. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
-5. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
-6. **Recrutement** — postes, candidatures, entretiens
-7. **Planning** — roulements, astreintes, présence
+1. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
+2. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
+3. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
+4. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+5. **Recrutement** — postes, candidatures, entretiens
+6. **Planning** — roulements, astreintes, présence
 
 ## Un manque de l'édition Node, comblé des deux côtés
 

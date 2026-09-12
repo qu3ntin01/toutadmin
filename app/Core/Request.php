@@ -63,6 +63,36 @@ final class Request
         ));
     }
 
+    /**
+     * Un fichier reçu, lu en mémoire et rendu sous une forme stable :
+     * ['bytes' => …, 'mime' => …, 'name' => …]. Rien n'est écrit sur le disque
+     * ici — c'est au module qui l'accepte de décider, après ses contrôles.
+     */
+    public function file(string $key): ?array
+    {
+        $entry = $this->files[$key] ?? null;
+        if (!is_array($entry)) {
+            return null;
+        }
+        // Le tableau posé par un test porte déjà ses octets ; celui de PHP
+        // porte un chemin temporaire.
+        if (isset($entry['bytes'])) {
+            return $entry['bytes'] === '' ? null : [
+                'bytes' => (string) $entry['bytes'],
+                'mime' => (string) ($entry['mime'] ?? ''),
+                'name' => (string) ($entry['name'] ?? ''),
+            ];
+        }
+        if (($entry['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK || !is_uploaded_file((string) $entry['tmp_name'])) {
+            return null;
+        }
+        return [
+            'bytes' => (string) file_get_contents((string) $entry['tmp_name']),
+            'mime' => (string) ($entry['type'] ?? ''),
+            'name' => (string) ($entry['name'] ?? ''),
+        ];
+    }
+
     public function has(string $key): bool
     {
         return isset($this->body[$key]) || isset($this->query[$key]);
