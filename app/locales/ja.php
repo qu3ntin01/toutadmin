@@ -80,6 +80,7 @@ return [
   'common.create' => '作成',
   'common.send' => '送信',
   'common.open' => '開く',
+  'common.unlock' => '有効にする',
   'common.search' => '検索',
   'common.actions' => '操作',
   'common.status' => 'ステータス',

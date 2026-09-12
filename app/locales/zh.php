@@ -80,6 +80,7 @@ return [
   'common.create' => '创建',
   'common.send' => '发送',
   'common.open' => '打开',
+  'common.unlock' => '启用',
   'common.search' => '搜索',
   'common.actions' => '操作',
   'common.status' => '状态',

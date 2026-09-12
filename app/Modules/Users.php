@@ -7,6 +7,7 @@ namespace App\Modules;
 use App\Core\Audit;
 use App\Core\Db;
 use App\Core\Security;
+use App\Core\Validate;
 
 /**
  * Comptes.
@@ -19,6 +20,21 @@ use App\Core\Security;
 final class Users
 {
     public const ROLES = ['admin', 'employee'];
+
+    public const GRADES = [
+        'Stagiaire', 'Employé', 'Technicien', 'Technicien confirmé',
+        "Chef d'équipe", 'Responsable', 'Manager', 'Directeur',
+    ];
+
+    public const CONTRACT_TYPES = ['CDI', 'CDD', 'Intérim', 'Stage', 'Alternance', 'Freelance'];
+
+    /** Les droits transverses, posés par l'administration et par elle seule. */
+    public const ROLE_FLAGS = [
+        'is_hr' => 'accès RH',
+        'is_finance' => 'accès à la gestion',
+        'is_it' => 'service informatique',
+        'is_referent' => "référent du dispositif d'alerte",
+    ];
 
     public static function byId(int $id): ?array
     {
@@ -142,6 +158,124 @@ final class Users
             [Security::hashPassword($password), $userId]
         );
         Audit::log('mot_de_passe.change', 'users', $userId);
+    }
+
+    // ---------- Administration ----------
+
+    public static function employees(): array
+    {
+        return \App\Core\Db::all(
+            "SELECT * FROM users WHERE role = 'employee'
+             ORDER BY last_name COLLATE NOCASE, first_name COLLATE NOCASE"
+        );
+    }
+
+    public static function employeeById(int $id): ?array
+    {
+        return \App\Core\Db::get("SELECT * FROM users WHERE id = ? AND role = 'employee'", [$id]);
+    }
+
+    /**
+     * Crée un salarié avec un mot de passe temporaire, qu'il devra changer à la
+     * première connexion : un mot de passe transmis par un tiers n'a pas à
+     * rester en vigueur.
+     */
+    public static function createEmployee(array $fields, int $leaveBalance): array
+    {
+        $password = \App\Core\Validate::generatePassword();
+        $id = \App\Core\Db::insert(
+            "INSERT INTO users (role, email, password_hash, first_name, last_name, grade, contract_type,
+                                contract_end_date, daily_rate, leave_balance, active, must_change_password)
+             VALUES ('employee', ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1)",
+            [
+                $fields['email'], Security::hashPassword($password), $fields['first_name'], $fields['last_name'],
+                $fields['grade'], $fields['contract_type'], $fields['contract_end_date'], $fields['daily_rate'],
+                $leaveBalance,
+            ]
+        );
+        Audit::log('membre.cree', 'users', $id, ['email' => $fields['email']]);
+        return ['id' => $id, 'password' => $password];
+    }
+
+    public static function updateEmployee(int $id, array $fields): void
+    {
+        \App\Core\Db::run(
+            'UPDATE users SET grade = ?, contract_type = ?, contract_end_date = ?, daily_rate = ? WHERE id = ?',
+            [$fields['grade'], $fields['contract_type'], $fields['contract_end_date'], $fields['daily_rate'], $id]
+        );
+        Audit::log('membre.modifie', 'users', $id);
+    }
+
+    public static function toggleActive(int $id, bool $wasActive): void
+    {
+        \App\Core\Db::run('UPDATE users SET active = ? WHERE id = ?', [$wasActive ? 0 : 1, $id]);
+        Audit::log($wasActive ? 'membre.desactive' : 'membre.reactive', 'users', $id);
+    }
+
+    public static function toggleDirectory(int $id, bool $wasHidden): void
+    {
+        \App\Core\Db::run('UPDATE users SET directory_hidden = ? WHERE id = ?', [$wasHidden ? 0 : 1, $id]);
+        Audit::log($wasHidden ? 'annuaire.affiche' : 'annuaire.masque', 'users', $id);
+    }
+
+    /**
+     * Nouveau mot de passe temporaire. Toutes les sessions ouvertes tombent :
+     * un mot de passe passé de la main à la main ne doit pas laisser derrière
+     * lui une session encore valable.
+     */
+    public static function resetPassword(int $id): string
+    {
+        $password = \App\Core\Validate::generatePassword();
+        \App\Core\Db::run(
+            'UPDATE users SET password_hash = ?, failed_attempts = 0, locked_until = NULL, must_change_password = 1 WHERE id = ?',
+            [Security::hashPassword($password), $id]
+        );
+        \App\Core\Session::destroyAllFor($id);
+        Audit::log('utilisateur.mot_de_passe_reinitialise', 'users', $id);
+        return $password;
+    }
+
+    public static function deleteEmployee(int $id): void
+    {
+        \App\Core\Db::run("DELETE FROM users WHERE id = ? AND role = 'employee'", [$id]);
+        Audit::log('membre.supprime', 'users', $id);
+    }
+
+    /**
+     * Réglages de messagerie : adresse interne et serveurs. **Réservés à
+     * l'administration** — c'est par cette adresse que l'entreprise joint la
+     * personne, elle ne se la choisit pas.
+     */
+    public static function setMailbox(int $id, array $fields): void
+    {
+        \App\Core\Db::run(
+            'UPDATE users SET mail_address = ?, mail_imap_host = ?, mail_imap_port = ?,
+                              mail_smtp_host = ?, mail_smtp_port = ? WHERE id = ?',
+            [
+                $fields['mail_address'], $fields['mail_imap_host'], $fields['mail_imap_port'],
+                $fields['mail_smtp_host'], $fields['mail_smtp_port'], $id,
+            ]
+        );
+        Audit::log('membre.messagerie_modifiee', 'users', $id);
+    }
+
+    public static function setRoleFlag(int $id, string $flag, bool $granted): bool
+    {
+        if (!array_key_exists($flag, self::ROLE_FLAGS)) {
+            return false;
+        }
+        \App\Core\Db::run("UPDATE users SET $flag = ? WHERE id = ?", [$granted ? 1 : 0, $id]);
+        Audit::log($granted ? 'droit.accorde' : 'droit.retire', 'users', $id, ['droit' => $flag]);
+        return true;
+    }
+
+    /** Un contrat échu ferme le compte : le lendemain, sans intervention. */
+    public static function deactivateExpiredContracts(): int
+    {
+        return \App\Core\Db::run(
+            "UPDATE users SET active = 0
+             WHERE active = 1 AND contract_end_date IS NOT NULL AND contract_end_date < date('now')"
+        );
     }
 
     /** La forme que prend l'utilisateur en session : aucune empreinte, aucun secret. */

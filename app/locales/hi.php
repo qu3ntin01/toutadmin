@@ -80,6 +80,7 @@ return [
   'common.create' => 'बनाएँ',
   'common.send' => 'भेजें',
   'common.open' => 'खोलें',
+  'common.unlock' => 'अनलॉक करें',
   'common.search' => 'खोजें',
   'common.actions' => 'क्रियाएँ',
   'common.status' => 'स्थिति',

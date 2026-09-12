@@ -80,6 +80,7 @@ return [
   'common.create' => 'Créer',
   'common.send' => 'Envoyer',
   'common.open' => 'Ouvrir',
+  'common.unlock' => 'Débloquer',
   'common.search' => 'Rechercher',
   'common.actions' => 'Actions',
   'common.status' => 'Statut',

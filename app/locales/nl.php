@@ -80,6 +80,7 @@ return [
   'common.create' => 'Aanmaken',
   'common.send' => 'Versturen',
   'common.open' => 'Openen',
+  'common.unlock' => 'Vrijgeven',
   'common.search' => 'Zoeken',
   'common.actions' => 'Acties',
   'common.status' => 'Status',

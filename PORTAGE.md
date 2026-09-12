@@ -19,28 +19,30 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Mon espace | accueil du salarié |
 | Annuaire | recherche, masquage décidé par l'administration |
 | Mon profil | nom, téléphone, présentation, langue ; messagerie en lecture seule |
+| Administration | services, équipes, encadrement, rattachement, annuaire, personnel (création avec mot de passe temporaire, modification, activation, réinitialisation, suppression), messagerie du membre, actualités, outils, affectations, droits transverses, modules, palette et réglages de l'instance |
+| Organigramme | services, équipes, rattachements, sans-rattachement ; effectif entier pour l'administration et les RH |
 
-39 tests passent (`php tests/run.php`).
+59 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
 Par ordre d'utilité, quatorze lots. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Administration** — comptes, services, équipes, modules, réglages
-2. **Ressources humaines** — dossiers, contrats, congés, absences, entretiens
-3. **Demandes et manager** — demandes internes, validation, points individuels
-4. **Agenda, planning, salles** — calendriers, roulements, astreintes, réservations
-5. **Messagerie et annonces** — messagerie interne, actualités, notifications
-6. **Projets et support** — projets, jalons, rentabilité, tickets
-7. **Gestion** — devis, factures, clients, fournisseurs, recouvrement
-8. **Comptabilité et paie** — partie double, bulletins, déclarations
-9. **Trésorerie, immobilisations, achats** — prévisionnel, amortissements, stock
-10. **Coffre-fort et parapheur** — documents, signatures, accès après départ
-11. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
-12. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
-13. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
-14. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+1. **Ressources humaines** — dossiers, contrats, congés, absences, entretiens
+2. **Demandes et manager** — demandes internes, validation, points individuels
+3. **Agenda, planning, salles** — calendriers, roulements, astreintes, réservations
+4. **Messagerie et annonces** — messagerie interne, actualités, notifications
+5. **Projets et support** — projets, jalons, rentabilité, tickets
+6. **Gestion** — devis, factures, clients, fournisseurs, recouvrement
+7. **Comptabilité et paie** — partie double, bulletins, déclarations
+8. **Trésorerie, immobilisations, achats** — prévisionnel, amortissements, stock
+9. **Coffre-fort et parapheur** — documents, signatures, accès après départ
+10. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
+11. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
+12. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
+13. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
 
 ## Ce qui ne sera pas porté à l'identique
 

@@ -80,6 +80,7 @@ return [
   'common.create' => 'إنشاء',
   'common.send' => 'إرسال',
   'common.open' => 'فتح',
+  'common.unlock' => 'تفعيل',
   'common.search' => 'بحث',
   'common.actions' => 'إجراءات',
   'common.status' => 'الحالة',

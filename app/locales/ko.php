@@ -80,6 +80,7 @@ return [
   'common.create' => '생성',
   'common.send' => '보내기',
   'common.open' => '열기',
+  'common.unlock' => '사용 설정',
   'common.search' => '검색',
   'common.actions' => '작업',
   'common.status' => '상태',

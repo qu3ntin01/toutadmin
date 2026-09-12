@@ -80,6 +80,7 @@ return [
   'common.create' => 'Tạo',
   'common.send' => 'Gửi',
   'common.open' => 'Mở',
+  'common.unlock' => 'Mở khóa',
   'common.search' => 'Tìm kiếm',
   'common.actions' => 'Thao tác',
   'common.status' => 'Trạng thái',

@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use App\Controllers\DirectoryController;
 use App\Controllers\InstallController;
 use App\Controllers\MemberController;
+use App\Controllers\OrgChartController;
 use App\Controllers\ProfileController;
 use App\Modules\Users;
 
@@ -51,6 +53,41 @@ final class Kernel
         $router->post('/mot-de-passe', AuthController::passwordSubmit(...));
         $router->post('/langue', AuthController::switchLocale(...));
 
+        // Administration : le noyau exige le rôle « admin » sur tout /admin,
+        // plutôt que de laisser chaque route s'en souvenir.
+        $router->get('/admin', AdminController::home(...));
+        $router->post('/admin/services', AdminController::createDepartment(...));
+        $router->post('/admin/services/{id}/modifier', AdminController::updateDepartment(...));
+        $router->post('/admin/services/{id}/supprimer', AdminController::deleteDepartment(...));
+        $router->post('/admin/equipes', AdminController::createTeam(...));
+        $router->post('/admin/equipes/{id}/modifier', AdminController::updateTeam(...));
+        $router->post('/admin/equipes/{id}/supprimer', AdminController::deleteTeam(...));
+        $router->post('/admin/encadrement', AdminController::addManager(...));
+        $router->post('/admin/encadrement/retirer', AdminController::removeManager(...));
+        $router->post('/admin/employes', AdminController::createEmployee(...));
+        $router->get('/admin/employes/{id}/modifier', AdminController::editEmployee(...));
+        $router->post('/admin/employes/{id}/modifier', AdminController::updateEmployee(...));
+        $router->post('/admin/employes/{id}/rattachement', AdminController::assignMembership(...));
+        $router->post('/admin/employes/{id}/annuaire', AdminController::toggleDirectory(...));
+        $router->post('/admin/employes/{id}/messagerie', AdminController::updateMailbox(...));
+        $router->post('/admin/employes/{id}/statut', AdminController::toggleEmployee(...));
+        $router->post('/admin/employes/{id}/reinitialiser', AdminController::resetEmployeePassword(...));
+        $router->post('/admin/employes/{id}/supprimer', AdminController::deleteEmployee(...));
+        $router->post('/admin/actualites', AdminController::createNews(...));
+        $router->post('/admin/actualites/{id}/supprimer', AdminController::deleteNews(...));
+        $router->post('/admin/outils', AdminController::createTool(...));
+        $router->get('/admin/outils/{id}/modifier', AdminController::editTool(...));
+        $router->post('/admin/outils/{id}/modifier', AdminController::updateTool(...));
+        $router->post('/admin/outils/{id}/supprimer', AdminController::deleteTool(...));
+        $router->post('/admin/affectations', AdminController::assign(...));
+        $router->post('/admin/affectations/{id}/supprimer', AdminController::unassign(...));
+        $router->post('/admin/droits/{flag}', AdminController::grantFlag(...));
+        $router->post('/admin/droits/{flag}/{id}/retirer', AdminController::revokeFlag(...));
+        $router->post('/admin/modules/{key}', AdminController::setModule(...));
+        $router->post('/admin/apparence', AdminController::setPalette(...));
+        $router->post('/admin/entreprise', AdminController::setCompany(...));
+
+        $router->get('/organigramme', OrgChartController::index(...));
         $router->get('/mon-espace', MemberController::home(...));
         $router->get('/annuaire', DirectoryController::index(...));
         $router->get('/mon-profil', ProfileController::show(...));
@@ -161,6 +198,12 @@ final class Kernel
         // Mot de passe à changer : aucune autre page tant que ce n'est pas fait.
         if ((int) $user['must_change_password'] === 1 && $request->path !== '/mot-de-passe' && $request->path !== '/deconnexion') {
             return Response::redirect('/mot-de-passe');
+        }
+        // L'administration est fermée d'un bloc : la porte est ici, elle ne
+        // dépend pas de ce que chaque route pense à vérifier.
+        if (str_starts_with($request->path, '/admin') && $user['role'] !== 'admin') {
+            Audit::log('acces.refuse', 'users', (int) $user['id'], ['chemin' => $request->path]);
+            return $this->error(t('err.notAccessible'), 403, base64_encode(random_bytes(16)));
         }
         return null;
     }

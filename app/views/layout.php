@@ -26,5 +26,8 @@
   </div>
 </div>
 <script src="/js/theme.js" nonce="<?= e($nonce) ?>"></script>
+<?php foreach (($scripts ?? []) as $script): ?>
+<script src="<?= e($script) ?>" nonce="<?= e($nonce) ?>"></script>
+<?php endforeach; ?>
 </body>
 </html>

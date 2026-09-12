@@ -80,6 +80,7 @@ return [
   'common.create' => 'Oluştur',
   'common.send' => 'Gönder',
   'common.open' => 'Aç',
+  'common.unlock' => 'Etkinleştir',
   'common.search' => 'Ara',
   'common.actions' => 'İşlemler',
   'common.status' => 'Durum',
