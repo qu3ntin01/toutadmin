@@ -19,6 +19,7 @@ use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\RequestsController;
 use App\Controllers\RoomsController;
+use App\Controllers\SupportController;
 use App\Modules\Users;
 
 /**
@@ -176,6 +177,16 @@ final class Kernel
         $router->post('/projets/{id}/jalons', ProjectsController::createMilestone(...));
         $router->post('/projets/{id}/taches', ProjectsController::createTask(...));
         $router->post('/projets/{id}/temps', ProjectsController::logTime(...));
+
+        // Support : tickets internes et clients.
+        $router->get('/support', SupportController::index(...));
+        $router->post('/support/tickets', SupportController::create(...));
+        $router->get('/support/tickets/{id}', SupportController::show(...));
+        $router->post('/support/tickets/{id}/repondre', SupportController::reply(...));
+        $router->post('/support/tickets/{id}/statut', SupportController::setStatus(...));
+        $router->post('/support/tickets/{id}/priorite', SupportController::setPriority(...));
+        $router->post('/support/tickets/{id}/affecter', SupportController::assign(...));
+        $router->post('/support/tickets/{id}/supprimer', SupportController::remove(...));
 
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));

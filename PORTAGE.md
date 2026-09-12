@@ -31,8 +31,9 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Salles | parc, réservations sans chevauchement, annulation par son auteur |
 | Messagerie | boîtes de réception et d'envoi, réponse, marque « lu » posée par le seul destinataire, suppression par ceux que le message concerne |
 | Projets | projets, équipe projet, jalons, tâches en tableau, temps passé, rentabilité et écart au budget |
+| Support | tickets internes et clients, délai de première réponse selon la priorité, notes internes, files par catégorie |
 
-146 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+157 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter

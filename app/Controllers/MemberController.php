@@ -78,6 +78,7 @@ final class MemberController
             ['href' => '/messagerie', 'label' => t('nav.messages'), 'badge' => \App\Modules\Messages::unreadCount((int) $user['id']) ?: null],
             ['href' => '/notifications', 'label' => t('nav.notifications'), 'badge' => $unread ?: null],
             ['href' => '/projets', 'label' => t('nav.projects')],
+            ['href' => '/support', 'label' => t('nav.support')],
             ['href' => '/agenda', 'label' => t('agenda.title')],
             ['href' => '/salles', 'label' => t('nav.rooms')],
             ['href' => '/annuaire', 'label' => t('nav.directory')],
