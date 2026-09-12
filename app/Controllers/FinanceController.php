@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Audit;
 use App\Core\Db;
 use App\Core\Flash;
 use App\Core\Request;
@@ -11,10 +12,14 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\Validate;
 use App\Core\View;
+use App\Modules\Assets;
+use App\Modules\Billing;
 use App\Modules\Currency;
+use App\Modules\Dunning;
 use App\Modules\Finance;
 use App\Modules\Org;
 use App\Modules\Users;
+use App\Modules\Vat;
 
 /**
  * Gestion administrative et financière.
@@ -57,6 +62,8 @@ final class FinanceController
         $claims = Finance::allClaims();
         $renewals = Finance::contractsToRenew();
         $partners = Finance::partners();
+        $dunningSummary = Dunning::summary();
+        $vatSummary = Vat::summary();
 
         return Response::html(View::page('finance/index', [
             'title' => t('nav.gestion') . ' — ' . t('app.name'),
@@ -68,10 +75,14 @@ final class FinanceController
                 ['tab' => 'tiers', 'label' => t('erp.partners')],
                 ['tab' => 'contrats', 'label' => t('erp.contracts'), 'badge' => count($renewals) ?: null],
                 ['tab' => 'factures', 'label' => t('erp.invoices')],
+                ['tab' => 'recouvrement', 'label' => t('rec.outstanding'), 'badge' => $dunningSummary['toSend'] ?: null],
+                ['tab' => 'abonnements', 'label' => t('nav.subscriptions')],
+                ['tab' => 'tva', 'label' => t('nav.vat'), 'badge' => $vatSummary['pending'] ?: null],
                 ['tab' => 'budgets', 'label' => t('erp.budgets')],
                 ['tab' => 'frais', 'label' => t('erp.claims'),
                  'badge' => count(array_filter($claims, static fn (array $c): bool => $c['status'] === 'En attente')) ?: null],
                 ['tab' => 'devises', 'label' => t('nav.currencies')],
+                ['tab' => 'equipements', 'label' => t('erp.assets')],
             ],
             'footLinks' => [['href' => '/mon-espace', 'label' => t('nav.mySpace')]],
             'scripts' => ['/js/admin.js', '/js/confirm.js'],
@@ -94,6 +105,23 @@ final class FinanceController
             'currencies' => Currency::rates(),
             'usableCurrencies' => Currency::usable(),
             'baseCurrency' => Currency::base(),
+            'subscriptions' => Billing::list(),
+            'subscriptionPeriods' => Billing::periodKeys(),
+            'subscriptionDirections' => Billing::DIRECTIONS,
+            'subscriptionDue' => Billing::due(),
+            'subscriptionValue' => Billing::annualValue(),
+            'vatReturns' => Vat::list(),
+            'vatPeriods' => array_merge(Vat::periods($year, 'Mensuel'), Vat::periods($year, 'Trimestriel')),
+            'vatStatuses' => Vat::STATUSES,
+            'vatSummary' => $vatSummary,
+            'dunningSummary' => $dunningSummary,
+            'dunningLevels' => Dunning::LEVELS,
+            'dunningDue' => Dunning::due(),
+            'dunningOutstanding' => Dunning::outstanding(),
+            'agedBalance' => Dunning::agedBalance(),
+            'assets' => Assets::all(),
+            'assetStatuses' => Assets::STATUSES,
+            'assetCategories' => Assets::CATEGORIES,
             'departments' => Org::departments(),
             'employees' => Users::employees(),
             'stats' => [
@@ -438,5 +466,280 @@ final class FinanceController
             ? 'Note de frais retirée.'
             : "Cette note n'est plus retirable : elle a déjà été examinée.");
         return Response::redirect('/mon-espace#frais');
+    }
+
+    // ---------- Abonnements ----------
+
+    public static function createSubscription(Request $request): Response
+    {
+        $label = mb_substr($request->input('label'), 0, 160);
+        $direction = $request->input('direction');
+        $period = $request->input('period');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+        $amountHt = self::amount($request->input('amount_ht'));
+        $vatRaw = str_replace(',', '.', $request->input('vat_rate'));
+        $paymentDays = $request->input('payment_days');
+        $code = strtoupper($request->input('currency') ?: Currency::base());
+        $partnerId = (int) $request->input('partner_id') ?: null;
+        $departmentId = (int) $request->input('department_id') ?: null;
+
+        if ($label === '') {
+            return self::back('abonnements', 'error', "L'intitulé est obligatoire.");
+        }
+        if (!in_array($direction, Billing::DIRECTIONS, true)) {
+            return self::back('abonnements', 'error', 'Sens invalide.');
+        }
+        if (!in_array($period, Billing::periodKeys(), true)) {
+            return self::back('abonnements', 'error', 'Périodicité invalide.');
+        }
+        if (!Validate::date($start)) {
+            return self::back('abonnements', 'error', 'Date de début invalide.');
+        }
+        if ($end !== '' && (!Validate::date($end) || $end < $start)) {
+            return self::back('abonnements', 'error', 'Date de fin invalide.');
+        }
+        if ($amountHt === false || $amountHt === null) {
+            return self::back('abonnements', 'error', 'Montant HT invalide.');
+        }
+        if (!is_numeric($vatRaw) || (float) $vatRaw < 0 || (float) $vatRaw > 100) {
+            return self::back('abonnements', 'error', 'Taux de TVA invalide.');
+        }
+        if (!ctype_digit((string) $paymentDays) || (int) $paymentDays > 180) {
+            return self::back('abonnements', 'error', 'Délai de paiement invalide.');
+        }
+        // Un abonnement facture tout seul : accepter une devise sans taux
+        // reviendrait à programmer une facture fausse pour dans un mois.
+        if (!Currency::isKnown($code) || Currency::rateOf($code) === null) {
+            return self::back('abonnements', 'error', "Aucun taux connu pour $code.");
+        }
+        if ($partnerId !== null && Finance::partnerById($partnerId) === null) {
+            return self::back('abonnements', 'error', 'Tiers introuvable.');
+        }
+        if ($departmentId !== null && Org::departmentById($departmentId) === null) {
+            return self::back('abonnements', 'error', 'Service introuvable.');
+        }
+
+        $id = Billing::create([
+            'direction' => $direction, 'partnerId' => $partnerId, 'departmentId' => $departmentId,
+            'label' => $label, 'amountHt' => $amountHt, 'vatRate' => round((float) $vatRaw, 2),
+            'currency' => $code, 'period' => $period, 'startDate' => $start, 'endDate' => $end ?: null,
+            'paymentDays' => (int) $paymentDays, 'notes' => mb_substr($request->input('notes'), 0, 1000),
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        Audit::log('abonnement.cree', 'subscriptions', $id, ['intitule' => $label, 'periodicite' => $period]);
+        return self::back('abonnements', 'success',
+            "Abonnement enregistré. La première facture partira à sa date d'échéance.");
+    }
+
+    public static function setSubscriptionState(Request $request, array $params): Response
+    {
+        $subscription = Billing::byId((int) $params['id']);
+        if ($subscription === null) {
+            return self::back('abonnements', 'error', 'Abonnement introuvable.');
+        }
+        $active = $request->input('active') === '1';
+        Billing::setActive((int) $subscription['id'], $active);
+        Audit::log('abonnement.etat', 'subscriptions', (int) $subscription['id'], ['actif' => $active]);
+        return self::back('abonnements', 'success', $active
+            ? 'Abonnement réactivé.'
+            : "Abonnement suspendu : plus aucune facture n'en sortira.");
+    }
+
+    public static function deleteSubscription(Request $request, array $params): Response
+    {
+        $subscription = Billing::byId((int) $params['id']);
+        if ($subscription === null) {
+            return self::back('abonnements', 'error', 'Abonnement introuvable.');
+        }
+        Billing::remove((int) $subscription['id']);
+        Audit::log('abonnement.supprime', 'subscriptions', (int) $subscription['id'], ['intitule' => $subscription['label']]);
+        return self::back('abonnements', 'success', 'Abonnement supprimé. Les factures déjà émises restent dues.');
+    }
+
+    public static function issueSubscriptions(Request $request): Response
+    {
+        $result = Billing::run(null, (int) Session::get('user')['id']);
+        Audit::log('abonnement.emission', 'invoices', null, [
+            'emises' => count($result['issued']), 'sautees' => count($result['skipped']),
+        ]);
+
+        if ($result['issued'] === [] && $result['skipped'] === []) {
+            return self::back('abonnements', 'error', "Aucune échéance à facturer aujourd'hui.");
+        }
+        $message = count($result['issued']) . ' facture(s) émise(s).';
+        if ($result['skipped'] === []) {
+            return self::back('abonnements', 'success', $message);
+        }
+        $detail = implode(', ', array_map(
+            static fn (array $row): string => $row['label'] . ' (' . $row['reason'] . ')',
+            $result['skipped']
+        ));
+        return self::back('abonnements', 'error',
+            $message . ' ' . count($result['skipped']) . ' écartée(s) : ' . $detail . '.');
+    }
+
+    // ---------- TVA ----------
+
+    public static function saveVatReturn(Request $request): Response
+    {
+        $period = Vat::periodByKey($request->input('periode'));
+        if ($period === null) {
+            return self::back('tva', 'error', 'Période inconnue.');
+        }
+        $verdict = Vat::save([
+            'regime' => $period['regime'], 'label' => $period['label'],
+            'from' => $period['start'], 'to' => $period['end'],
+            'notes' => mb_substr($request->input('notes'), 0, 1000),
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        if (!$verdict['ok']) {
+            return self::back('tva', 'error', $verdict['message']);
+        }
+
+        $totals = $verdict['totals'];
+        Audit::log('tva.calculee', 'vat_returns', $verdict['id'], ['periode' => $period['label'], 'due' => $totals['due']]);
+        return self::back('tva', 'success', $totals['credit'] > 0
+            ? $period['label'] . ' : crédit de TVA de ' . $totals['credit'] . ' ' . $totals['currency'] . ', reportable.'
+            : $period['label'] . ' : ' . $totals['due'] . ' ' . $totals['currency']
+              . ' dus sur ' . $totals['invoices'] . ' facture(s).');
+    }
+
+    public static function setVatStatus(Request $request, array $params): Response
+    {
+        $verdict = Vat::setStatus((int) $params['id'], $request->input('status'));
+        if (!$verdict['ok']) {
+            return self::back('tva', 'error', $verdict['message']);
+        }
+        Audit::log('tva.statut', 'vat_returns', (int) $params['id'], ['statut' => $request->input('status')]);
+        return self::back('tva', 'success', 'Déclaration mise à jour.');
+    }
+
+    public static function deleteVatReturn(Request $request, array $params): Response
+    {
+        Vat::remove((int) $params['id']);
+        Audit::log('tva.supprimee', 'vat_returns', (int) $params['id']);
+        return self::back('tva', 'success', 'Déclaration supprimée.');
+    }
+
+    // ---------- Recouvrement ----------
+
+    public static function recordNotice(Request $request): Response
+    {
+        $sentOn = $request->input('sent_on');
+        if (!Validate::date($sentOn)) {
+            return self::back('recouvrement', 'error', 'Date invalide.');
+        }
+        $result = Dunning::record([
+            'invoiceId' => (int) $request->input('invoice_id'),
+            'level' => (int) $request->input('level'),
+            'sentOn' => $sentOn,
+            'note' => $request->input('note'),
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        if (!$result['ok']) {
+            $messages = [
+                'introuvable' => 'Facture introuvable.',
+                'reglee' => 'Cette facture est réglée ou annulée : elle ne se relance plus.',
+                'niveau' => 'Niveau de relance invalide.',
+                'saut' => 'Le niveau ' . ($result['expected'] ?? 1) . ' doit être envoyé avant celui-ci :'
+                    . ' une mise en demeure suppose des rappels restés sans effet.',
+            ];
+            return self::back('recouvrement', 'error', $messages[$result['reason']] ?? 'Relance impossible.');
+        }
+        Audit::log('recouvrement.relance', 'invoices', (int) $request->input('invoice_id'),
+            ['niveau' => (int) $request->input('level')]);
+        return self::back('recouvrement', 'success', 'Relance consignée.');
+    }
+
+    public static function deleteNotice(Request $request, array $params): Response
+    {
+        return Dunning::remove((int) $params['id'])
+            ? self::back('recouvrement', 'success', 'Relance retirée.')
+            : self::back('recouvrement', 'error', 'Relance introuvable.');
+    }
+
+    // ---------- Parc matériel ----------
+
+    public static function createAsset(Request $request): Response
+    {
+        $name = mb_substr($request->input('name'), 0, 160);
+        $category = $request->input('category');
+        $purchaseDate = $request->input('purchase_date');
+        $warrantyEnd = $request->input('warranty_end');
+        $value = self::amount($request->input('value'), false);
+
+        if ($name === '') {
+            return self::back('equipements', 'error', "Le nom de l'équipement est obligatoire.");
+        }
+        if ($category !== '' && !in_array($category, Assets::CATEGORIES, true)) {
+            return self::back('equipements', 'error', 'Catégorie invalide.');
+        }
+        if ($purchaseDate !== '' && !Validate::date($purchaseDate)) {
+            return self::back('equipements', 'error', "Date d'achat invalide.");
+        }
+        if ($warrantyEnd !== '' && !Validate::date($warrantyEnd)) {
+            return self::back('equipements', 'error', 'Fin de garantie invalide.');
+        }
+        if ($value === false) {
+            return self::back('equipements', 'error', 'Valeur invalide.');
+        }
+
+        Assets::create([
+            'name' => $name, 'category' => $category,
+            'purchaseDate' => $purchaseDate ?: null, 'warrantyEnd' => $warrantyEnd ?: null, 'value' => $value,
+            'reference' => mb_substr($request->input('reference'), 0, 60),
+            'serialNumber' => mb_substr($request->input('serial_number'), 0, 80),
+            'notes' => mb_substr($request->input('notes'), 0, 1000),
+        ]);
+        return self::back('equipements', 'success', 'Équipement ajouté au parc.');
+    }
+
+    public static function assignAsset(Request $request, array $params): Response
+    {
+        $result = Assets::assign(
+            (int) $params['id'],
+            (int) $request->input('employee_id'),
+            mb_substr($request->input('note'), 0, 300)
+        );
+        if (!$result['ok']) {
+            $messages = [
+                'not-found' => 'Équipement introuvable.',
+                'retired' => 'Un équipement réformé ne peut pas être affecté.',
+                'already-assigned' => "Cet équipement est déjà affecté : reprenez-le d'abord.",
+                'no-employee' => 'Membre introuvable.',
+            ];
+            return self::back('equipements', 'error', $messages[$result['reason']] ?? 'Affectation impossible.');
+        }
+        return self::back('equipements', 'success', 'Équipement affecté.');
+    }
+
+    public static function takeBackAsset(Request $request, array $params): Response
+    {
+        if (!Assets::takeBack((int) $params['id'])['ok']) {
+            return self::back('equipements', 'error', "Cet équipement n'est affecté à personne.");
+        }
+        return self::back('equipements', 'success', 'Équipement repris et rendu disponible.');
+    }
+
+    public static function setAssetStatus(Request $request, array $params): Response
+    {
+        $result = Assets::setStatus((int) $params['id'], $request->input('status'));
+        if (!$result['ok']) {
+            $messages = [
+                'not-found' => 'Équipement introuvable.',
+                'bad-status' => 'Statut invalide.',
+                'assign-instead' => "« Affecté » découle d'une affectation : passez par le bouton Affecter.",
+                'return-first' => "Reprenez d'abord cet équipement à son détenteur.",
+            ];
+            return self::back('equipements', 'error', $messages[$result['reason']] ?? 'Changement impossible.');
+        }
+        return self::back('equipements', 'success', 'Statut mis à jour.');
+    }
+
+    public static function deleteAsset(Request $request, array $params): Response
+    {
+        Assets::remove((int) $params['id']);
+        return self::back('equipements', 'success', 'Équipement retiré du parc.');
     }
 }

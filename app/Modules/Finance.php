@@ -210,7 +210,7 @@ final class Finance
 
     public static function createInvoice(array $data): ?int
     {
-        $code = $data['currency'] ?: Currency::base();
+        $code = ($data['currency'] ?? '') ?: Currency::base();
         // Le taux est figé ici, une fois pour toutes.
         $rate = $data['exchangeRate'] ?? Currency::rateOf($code);
         if ($rate === null) {

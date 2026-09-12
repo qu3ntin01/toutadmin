@@ -3,10 +3,14 @@
 declare(strict_types=1);
 
 use App\Core\Db;
+use App\Modules\Assets;
+use App\Modules\Billing;
 use App\Modules\Currency;
+use App\Modules\Dunning;
 use App\Modules\Finance;
 use App\Modules\Org;
 use App\Modules\Users;
+use App\Modules\Vat;
 
 /** Un compte gestion : salarié à qui l'administration a ouvert l'accès. */
 function seedFinance(): array
@@ -227,4 +231,279 @@ Tests::run('la page de gestion affiche tiers, factures et budgets', function ():
     assertContains('Ateliers Duvals', $page->body);
     assertContains('Étude de faisabilité', $page->body);
     assertContains('Études', $page->body);
+});
+
+// ---------- Abonnements ----------
+
+Tests::run('un abonnement émet sa facture à l\'échéance, et pas avant', function (): void {
+    seedFinance();
+    $partner = Finance::createPartner(['kind' => 'Client', 'name' => 'Cabinet Vasseur']);
+    Billing::create([
+        'direction' => 'Client', 'partnerId' => $partner, 'label' => 'Maintenance annuelle',
+        'amountHt' => 1200, 'vatRate' => 20, 'period' => 'Mensuelle',
+        'startDate' => gmdate('Y-m-d', strtotime('+3 days')), 'paymentDays' => 30,
+    ]);
+    assertSame(0, count(Billing::due()), 'une échéance future est déjà due');
+    assertSame(0, count(Billing::run()['issued']));
+
+    // À l'échéance, la facture part et l'abonnement avance d'un mois.
+    $result = Billing::run(gmdate('Y-m-d', strtotime('+3 days')));
+    assertSame(1, count($result['issued']));
+    $invoices = Finance::invoices();
+    assertSame(1, count($invoices));
+    assertSame(1440.0, $invoices[0]['amount_ttc']);
+    assertSame(
+        Billing::addMonths(gmdate('Y-m-d', strtotime('+3 days')), 1),
+        Billing::byId((int) Billing::list()[0]['id'])['next_issue']
+    );
+});
+
+Tests::run('la même échéance ne se facture pas deux fois', function (): void {
+    seedFinance();
+    $id = Billing::create([
+        'direction' => 'Client', 'label' => 'Abonnement', 'amountHt' => 100, 'vatRate' => 20,
+        'period' => 'Mensuelle', 'startDate' => gmdate('Y-m-d'), 'paymentDays' => 30,
+    ]);
+    assertSame(1, count(Billing::run()['issued']));
+    // On remet la date d'échéance en arrière : l'index unique doit tenir.
+    Db::run('UPDATE subscriptions SET next_issue = ?, active = 1 WHERE id = ?', [gmdate('Y-m-d'), $id]);
+    $again = Billing::run();
+    assertSame(0, count($again['issued']));
+    assertSame('déjà facturée', $again['skipped'][0]['reason']);
+});
+
+Tests::run('un abonnement suspendu ou terminé n\'émet plus rien', function (): void {
+    seedFinance();
+    $suspendu = Billing::create([
+        'direction' => 'Client', 'label' => 'Suspendu', 'amountHt' => 100, 'vatRate' => 20,
+        'period' => 'Mensuelle', 'startDate' => gmdate('Y-m-d'), 'paymentDays' => 30,
+    ]);
+    Billing::setActive($suspendu, false);
+
+    // Terme atteint : la dernière échéance part, puis l'abonnement s'éteint.
+    $fini = Billing::create([
+        'direction' => 'Client', 'label' => 'Dernier mois', 'amountHt' => 100, 'vatRate' => 20,
+        'period' => 'Mensuelle', 'startDate' => gmdate('Y-m-d'), 'endDate' => gmdate('Y-m-d'), 'paymentDays' => 30,
+    ]);
+    assertSame(1, count(Billing::run()['issued']));
+    assertSame(0, (int) Billing::byId($fini)['active'], 'un abonnement au terme dépassé reste actif');
+    assertSame(0, count(Billing::run()['issued']));
+});
+
+Tests::run('supprimer un abonnement laisse ses factures dues', function (): void {
+    seedFinance();
+    $id = Billing::create([
+        'direction' => 'Client', 'label' => 'Abonnement', 'amountHt' => 100, 'vatRate' => 20,
+        'period' => 'Mensuelle', 'startDate' => gmdate('Y-m-d'), 'paymentDays' => 30,
+    ]);
+    Billing::run();
+    Billing::remove($id);
+    assertSame(1, count(Finance::invoices()), 'les factures ont disparu avec le moule');
+    assertSame(null, Billing::byId($id));
+});
+
+Tests::run('un abonnement en devise sans taux est refusé', function (): void {
+    seedFinance();
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+    visit('POST', '/gestion/abonnements', [
+        'label' => 'Licence', 'direction' => 'Fournisseur', 'period' => 'Mensuelle',
+        'start_date' => gmdate('Y-m-d'), 'amount_ht' => '80', 'vat_rate' => '20',
+        'payment_days' => '30', 'currency' => 'USD',
+    ]);
+    assertSame(0, count(Billing::list()));
+});
+
+// ---------- TVA ----------
+
+Tests::run('la TVA collectée et déductible se calcule sur la période', function (): void {
+    seedFinance();
+    Finance::createInvoice([
+        'direction' => 'Client', 'label' => 'Vente', 'issueDate' => '2026-03-10',
+        'amountHt' => 1000, 'vatRate' => 20,
+    ]);
+    Finance::createInvoice([
+        'direction' => 'Fournisseur', 'label' => 'Achat', 'issueDate' => '2026-03-20',
+        'amountHt' => 500, 'vatRate' => 20,
+    ]);
+    // Hors période : ne compte pas.
+    Finance::createInvoice([
+        'direction' => 'Client', 'label' => 'Avril', 'issueDate' => '2026-04-02',
+        'amountHt' => 999, 'vatRate' => 20,
+    ]);
+    // Annulée : n'a pas généré de TVA.
+    $annulee = Finance::createInvoice([
+        'direction' => 'Client', 'label' => 'Annulée', 'issueDate' => '2026-03-15',
+        'amountHt' => 2000, 'vatRate' => 20,
+    ]);
+    Finance::setInvoiceStatus((int) $annulee, 'Annulée');
+
+    $totals = Vat::compute('2026-03-01', '2026-03-31');
+    assertSame(200.0, $totals['collected']);
+    assertSame(100.0, $totals['deductible']);
+    assertSame(100.0, $totals['due']);
+    assertSame(0.0, $totals['credit']);
+    assertSame(2, $totals['invoices']);
+});
+
+Tests::run('une TVA négative est un crédit reportable, pas une dette', function (): void {
+    seedFinance();
+    Finance::createInvoice([
+        'direction' => 'Fournisseur', 'label' => 'Gros achat', 'issueDate' => '2026-03-05',
+        'amountHt' => 1000, 'vatRate' => 20,
+    ]);
+    $totals = Vat::compute('2026-03-01', '2026-03-31');
+    assertSame(0.0, $totals['due']);
+    assertSame(200.0, $totals['credit']);
+});
+
+Tests::run('une période ne se saisit pas à la main, elle se choisit', function (): void {
+    seedFinance();
+    assertSame(null, Vat::periodByKey('Mensuel:2026-03-03:2026-03-28'), 'une période bricolée a été acceptée');
+    $period = Vat::periods(2026, 'Mensuel')[2];
+    assertSame('2026-03-01', $period['start']);
+    assertSame('2026-03-31', $period['end']);
+    assertTrue(Vat::periodByKey($period['key']) !== null);
+    assertSame(4, count(Vat::periods(2026, 'Trimestriel')));
+});
+
+Tests::run('une déclaration déposée ne se recalcule plus', function (): void {
+    seedFinance();
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+    $period = Vat::periods((int) gmdate('Y'), 'Mensuel')[0];
+
+    visit('POST', '/gestion/tva', ['periode' => $period['key']]);
+    assertSame(1, count(Vat::list()));
+    $id = (int) Vat::list()[0]['id'];
+
+    visit('POST', "/gestion/tva/$id/statut", ['status' => 'Déclarée']);
+    assertSame('Déclarée', Vat::byId($id)['status']);
+    assertSame(gmdate('Y-m-d'), Vat::byId($id)['filed_on']);
+
+    // Une facture arrive après coup : la déclaration déposée ne bouge pas.
+    Finance::createInvoice([
+        'direction' => 'Client', 'label' => 'Tardive', 'issueDate' => $period['start'],
+        'amountHt' => 1000, 'vatRate' => 20,
+    ]);
+    $verdict = Vat::save([
+        'regime' => $period['regime'], 'label' => $period['label'],
+        'from' => $period['start'], 'to' => $period['end'],
+    ]);
+    assertTrue(!$verdict['ok'], 'une déclaration déposée a été réécrite');
+    assertSame(0.0, (float) Vat::byId($id)['collected']);
+});
+
+// ---------- Recouvrement ----------
+
+/** Une facture client échue depuis N jours. */
+function lateInvoice(int $days, float $amount = 1000): int
+{
+    return (int) Finance::createInvoice([
+        'direction' => 'Client', 'label' => "Facture $days jours",
+        'issueDate' => gmdate('Y-m-d', strtotime('-' . ($days + 30) . ' days')),
+        'dueDate' => gmdate('Y-m-d', strtotime("-$days days")),
+        'amountHt' => $amount, 'vatRate' => 0,
+    ]);
+}
+
+Tests::run('le palier de relance se déduit du retard et de ce qui a été envoyé', function (): void {
+    $ids = seedFinance();
+    lateInvoice(3);
+    assertSame(0, count(Dunning::due()), 'une facture en retard de trois jours appelle déjà un rappel');
+
+    $id = lateInvoice(50);
+    $due = Dunning::due();
+    assertSame(1, count($due));
+    assertSame(1, $due[0]['level']['level'], 'le premier palier n\'est pas le rappel');
+
+    // Un rappel envoyé aujourd'hui : le palier suivant attend dix jours.
+    Dunning::record(['invoiceId' => $id, 'level' => 1, 'sentOn' => gmdate('Y-m-d'), 'createdBy' => $ids['admin']]);
+    assertSame(0, count(Dunning::due()));
+
+    Db::run("UPDATE dunning_notices SET sent_on = date('now', '-11 days') WHERE invoice_id = ?", [$id]);
+    $after = Dunning::due();
+    assertSame(1, count($after));
+    assertSame(2, $after[0]['level']['level']);
+});
+
+Tests::run('une mise en demeure ne saute pas les rappels', function (): void {
+    $ids = seedFinance();
+    $id = lateInvoice(90);
+    visit('POST', '/connexion', ['email' => 'gestion@entreprise.com', 'password' => 'Gestion-Demo-2026!']);
+    visit('POST', '/gestion/relances', ['invoice_id' => $id, 'level' => '3', 'sent_on' => gmdate('Y-m-d')]);
+    assertSame(0, count(Dunning::noticesFor($id)), 'une mise en demeure est partie sans rappel');
+
+    visit('POST', '/gestion/relances', ['invoice_id' => $id, 'level' => '1', 'sent_on' => gmdate('Y-m-d')]);
+    assertSame(1, count(Dunning::noticesFor($id)));
+});
+
+Tests::run('une facture réglée ne se relance plus', function (): void {
+    $ids = seedFinance();
+    $id = lateInvoice(60);
+    Finance::setInvoiceStatus($id, 'Payée');
+    $result = Dunning::record(['invoiceId' => $id, 'level' => 1, 'sentOn' => gmdate('Y-m-d')]);
+    assertTrue(!$result['ok']);
+    assertSame('reglee', $result['reason']);
+    assertSame(0, count(Dunning::outstanding()), 'une facture payée reste dans l\'encours');
+});
+
+Tests::run('la balance âgée répartit l\'encours par tranche de retard', function (): void {
+    seedFinance();
+    lateInvoice(-5, 100);   // Pas encore échue.
+    lateInvoice(20, 200);
+    lateInvoice(45, 300);
+    lateInvoice(120, 400);
+
+    $balance = Dunning::agedBalance();
+    assertSame(100.0, $balance['buckets']['courant']['amount']);
+    assertSame(200.0, $balance['buckets']['j30']['amount']);
+    assertSame(300.0, $balance['buckets']['j60']['amount']);
+    assertSame(400.0, $balance['buckets']['plus']['amount']);
+    assertSame(1000.0, $balance['total']);
+    assertSame(900.0, $balance['overdue'], 'une facture non échue compte comme en retard');
+});
+
+// ---------- Parc matériel ----------
+
+Tests::run('« Affecté » découle d\'une affectation, il ne se déclare pas', function (): void {
+    $ids = seedFinance();
+    $asset = Assets::create(['name' => 'Portable Latitude', 'category' => 'Informatique']);
+
+    $refus = Assets::setStatus($asset, 'Affecté');
+    assertTrue(!$refus['ok']);
+    assertSame('assign-instead', $refus['reason']);
+
+    assertTrue(Assets::assign($asset, $ids['member'])['ok']);
+    assertSame('Affecté', Assets::byId($asset)['status']);
+    assertSame('already-assigned', Assets::assign($asset, $ids['member'])['reason']);
+    assertSame('return-first', Assets::setStatus($asset, 'En maintenance')['reason']);
+
+    assertTrue(Assets::takeBack($asset)['ok']);
+    assertSame('Disponible', Assets::byId($asset)['status']);
+    assertSame(0, count(Assets::of($ids['member'])));
+    // La reprise ne fait pas disparaître l'histoire du matériel.
+    assertSame(1, count(Assets::history($asset)));
+});
+
+Tests::run('un équipement réformé ne s\'affecte pas', function (): void {
+    $ids = seedFinance();
+    $asset = Assets::create(['name' => 'Vieux poste']);
+    Assets::setStatus($asset, 'Réformé');
+    assertSame('retired', Assets::assign($asset, $ids['member'])['reason']);
+});
+
+Tests::run('les écrans de gestion portent les nouveaux onglets', function (): void {
+    seedFinance();
+    Billing::create([
+        'direction' => 'Client', 'label' => 'Hébergement mutualisé', 'amountHt' => 90, 'vatRate' => 20,
+        'period' => 'Mensuelle', 'startDate' => gmdate('Y-m-d'), 'paymentDays' => 30,
+    ]);
+    Assets::create(['name' => 'Écran Dell 27', 'category' => 'Informatique']);
+    lateInvoice(40, 800);
+
+    visit('POST', '/connexion', ['email' => 'gestion@entreprise.com', 'password' => 'Gestion-Demo-2026!']);
+    $page = visit('GET', '/gestion');
+    assertSame(200, $page->status);
+    assertContains('Hébergement mutualisé', $page->body);
+    assertContains('Écran Dell 27', $page->body);
+    assertContains('Facture 40 jours', $page->body);
 });

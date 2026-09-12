@@ -33,8 +33,9 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Projets | projets, équipe projet, jalons, tâches en tableau, temps passé, rentabilité et écart au budget |
 | Support | tickets internes et clients, délai de première réponse selon la priorité, notes internes, files par catégorie |
 | Gestion | tiers (clients, fournisseurs), contrats et alerte de préavis, factures client et fournisseur avec TVA, retard déduit de l'échéance, budgets par service avec consommé, notes de frais du dépôt au remboursement, multidevise à taux figé à l'émission |
+| Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
 
-169 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+185 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -42,16 +43,15 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Gestion, suite** — abonnements, TVA, recouvrement, équipements
-2. **Comptabilité et paie** — partie double, bulletins, déclarations
-3. **Trésorerie, immobilisations, achats** — prévisionnel, amortissements, stock
-4. **Coffre-fort et parapheur** — documents, signatures, accès après départ
-5. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
-6. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
-7. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
-8. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
-9. **Recrutement** — postes, candidatures, entretiens
-10. **Planning** — roulements, astreintes, présence
+1. **Comptabilité et paie** — partie double, bulletins, déclarations
+2. **Trésorerie, immobilisations, achats** — prévisionnel, amortissements, stock
+3. **Coffre-fort et parapheur** — documents, signatures, accès après départ
+4. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
+5. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
+6. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
+7. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+8. **Recrutement** — postes, candidatures, entretiens
+9. **Planning** — roulements, astreintes, présence
 
 ## Ce qui ne sera pas porté à l'identique
 

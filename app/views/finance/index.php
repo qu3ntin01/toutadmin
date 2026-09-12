@@ -477,3 +477,427 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
     </table>
   </div>
 </section>
+
+<!-- ---------------------------------------------------- Recouvrement -->
+<section class="tab-panel" id="recouvrement">
+  <section class="stats-grid">
+    <?php foreach ([
+        [$money($dunningSummary['outstanding']), t('rec.outstanding')],
+        [$money($dunningSummary['overdue']), t('rec.overdue')],
+        [(string) $dunningSummary['toSend'], t('rec.toSend')],
+        [(string) $dunningSummary['formalNotices'], t('rec.formalNotices')],
+    ] as [$value, $label]): ?>
+      <div class="stat-card">
+        <span class="stat-body">
+          <span class="stat-value"><?= e($value) ?></span>
+          <span class="stat-label"><?= e($label) ?></span>
+        </span>
+      </div>
+    <?php endforeach; ?>
+  </section>
+
+  <div class="card">
+    <h2><?= e(t('rec.agedTitle')) ?></h2>
+    <table class="table">
+      <thead>
+        <tr>
+          <th><?= e(t('rec.bucketCurrent')) ?></th><th><?= e(t('rec.bucket30')) ?></th><th><?= e(t('rec.bucket60')) ?></th>
+          <th><?= e(t('rec.bucket90')) ?></th><th><?= e(t('rec.bucketMore')) ?></th><th><?= e(t('common.total')) ?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <?php foreach (['courant', 'j30', 'j60', 'j90', 'plus'] as $bucket): ?>
+            <td><?= e($money($agedBalance['buckets'][$bucket]['amount'])) ?></td>
+          <?php endforeach; ?>
+          <td><strong><?= e($money($agedBalance['total'])) ?></strong></td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="muted"><?= e(t('rec.agedHint')) ?></p>
+  </div>
+
+  <div class="card mt-l">
+    <h2><?= e(t('rec.dueTitle', ['count' => count($dunningDue)])) ?></h2>
+    <p class="muted"><?= e(t('rec.levelHint')) ?></p>
+    <?php if ($dunningDue === []): ?>
+      <div class="empty-state"><?= e(t('rec.nothingDue')) ?></div>
+    <?php else: ?>
+      <?php foreach ($dunningDue as $row): ?>
+        <form method="POST" action="/gestion/relances" class="form-grid">
+          <?= $csrf ?>
+          <input type="hidden" name="invoice_id" value="<?= (int) $row['invoice']['id'] ?>" />
+          <input type="hidden" name="level" value="<?= (int) $row['level']['level'] ?>" />
+          <label class="span-2">
+            <span><?= e($row['invoice']['reference'] ?: $row['invoice']['label']) ?>
+                  — <?= e((string) $row['invoice']['partner_name']) ?></span>
+            <input type="text" readonly
+                   value="<?= e($money((float) $row['invoice']['amount_ht'])) ?> · <?= e(t('rec.lateBy', ['days' => $row['invoice']['overdueDays']])) ?>" />
+          </label>
+          <label><span><?= e(t('rec.level')) ?></span><input type="text" readonly value="<?= e($row['level']['label']) ?>" /></label>
+          <label><span><?= e(t('rec.sentOn')) ?></span><input type="date" name="sent_on" value="<?= e($today) ?>" required /></label>
+          <label class="span-2"><span><?= e(t('common.notes')) ?></span><input type="text" name="note" maxlength="500" /></label>
+          <button type="submit" class="btn btn-primary"><?= e(t('rec.record')) ?></button>
+        </form>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  </div>
+
+  <div class="card mt-l">
+    <h2><?= e(t('rec.outstandingTitle', ['count' => count($dunningOutstanding)])) ?></h2>
+    <?php if ($dunningOutstanding === []): ?>
+      <div class="empty-state"><?= e(t('rec.noOutstanding')) ?></div>
+    <?php else: ?>
+      <table class="table">
+        <thead>
+          <tr>
+            <th><?= e(t('common.reference')) ?></th><th><?= e(t('erp.partners')) ?></th><th><?= e(t('erp.dueDate')) ?></th>
+            <th><?= e(t('erp.amount')) ?></th><th><?= e(t('rec.lateDays')) ?></th><th><?= e(t('rec.lastNotice')) ?></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($dunningOutstanding as $invoice): ?>
+            <tr>
+              <td><?= e($invoice['reference'] ?: $invoice['label']) ?></td>
+              <td><?= e((string) $invoice['partner_name']) ?></td>
+              <td><?= e((string) $invoice['due_date']) ?></td>
+              <td><?= e($money((float) $invoice['amount_ht'])) ?></td>
+              <td><?= (int) $invoice['overdueDays'] > 0 ? (int) $invoice['overdueDays'] : '—' ?></td>
+              <td>
+                <?php if (!empty($invoice['last_level'])): ?>
+                  <span class="tag"><?= e($dunningLevels[(int) $invoice['last_level'] - 1]['label']) ?></span>
+                  <br /><span class="cell-sub"><?= e((string) $invoice['last_sent']) ?></span>
+                <?php else: ?>—<?php endif; ?>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </div>
+</section>
+
+<!-- ----------------------------------------------------- Abonnements -->
+<section class="tab-panel" id="abonnements">
+  <section class="stats-grid">
+    <?php
+      $activeSubscriptions = count(array_filter($subscriptions, static fn (array $s): bool => (int) $s['active'] === 1));
+    ?>
+    <?php foreach ([
+        [(string) $activeSubscriptions, t('ges.activeSubscriptions')],
+        [$money($subscriptionValue['client']), t('ges.recurringClient')],
+        [$money($subscriptionValue['supplier']), t('ges.recurringSupplier')],
+        [(string) count($subscriptionDue), t('ges.dueToInvoice')],
+    ] as [$value, $label]): ?>
+      <div class="stat-card">
+        <span class="stat-body">
+          <span class="stat-value"><?= e($value) ?></span>
+          <span class="stat-label"><?= e($label) ?></span>
+        </span>
+      </div>
+    <?php endforeach; ?>
+  </section>
+
+  <div class="card">
+    <h2><?= e(t('ges.newSubscription')) ?></h2>
+    <form method="POST" action="/gestion/abonnements" class="form-grid">
+      <?= $csrf ?>
+      <label class="span-2"><span><?= e(t('common.title')) ?></span>
+        <input type="text" name="label" required maxlength="160" placeholder="<?= e(t('ges.subscriptionExample')) ?>" />
+      </label>
+      <label><span><?= e(t('common.direction')) ?></span>
+        <select name="direction" required>
+          <?php foreach ($subscriptionDirections as $direction): ?>
+            <option value="<?= e($direction) ?>"><?= e($direction) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label><span><?= e(t('ges.frequency')) ?></span>
+        <select name="period" required>
+          <?php foreach ($subscriptionPeriods as $period): ?>
+            <option value="<?= e($period) ?>"><?= e($period) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label><span><?= e(t('erp.partners')) ?></span>
+        <select name="partner_id">
+          <option value=""></option>
+          <?php foreach ($partners as $partner): ?>
+            <option value="<?= (int) $partner['id'] ?>"><?= e($partner['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label><span><?= e(t('ges.chargedDepartment')) ?></span>
+        <select name="department_id">
+          <option value=""></option>
+          <?php foreach ($departments as $department): ?>
+            <option value="<?= (int) $department['id'] ?>"><?= e($department['name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label><span><?= e(t('ges.amountExclVat')) ?></span><input type="text" name="amount_ht" inputmode="decimal" required /></label>
+      <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required /></label>
+      <label><span><?= e(t('common.currency')) ?></span>
+        <select name="currency">
+          <?php foreach ($usableCurrencies as $currency): ?>
+            <option value="<?= e($currency['code']) ?>"<?= $currency['code'] === $baseCurrency ? ' selected' : '' ?>>
+              <?= e($currency['code']) ?> — <?= e($currency['label']) ?>
+            </option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label><span><?= e(t('ges.firstInstalment')) ?></span><input type="date" name="start_date" value="<?= e($today) ?>" required /></label>
+      <label><span><?= e(t('ges.endOptional')) ?></span><input type="date" name="end_date" /></label>
+      <label><span><?= e(t('ges.paymentTerms')) ?></span><input type="number" name="payment_days" min="0" max="180" value="30" /></label>
+      <button type="submit" class="btn btn-primary"><?= e(t('ges.saveSubscription')) ?></button>
+    </form>
+    <p class="muted"><?= e(t('ges.subscriptionHelp')) ?></p>
+  </div>
+
+  <div class="card mt-l">
+    <h2><?= e(t('nav.subscriptions')) ?></h2>
+    <form method="POST" action="/gestion/abonnements/emettre" class="inline-form">
+      <?= $csrf ?>
+      <button type="submit" class="btn btn-primary btn-sm"><?= e(t('ges.issueDue')) ?></button>
+    </form>
+    <?php if ($subscriptions === []): ?>
+      <div class="empty-state"><?= e(t('ges.noSubscription')) ?></div>
+    <?php else: ?>
+      <table class="table mt-l">
+        <thead>
+          <tr>
+            <th><?= e(t('ges.subscription')) ?></th>
+            <th><?= e(t('ges.rhythm')) ?></th>
+            <th><?= e(t('ges.next')) ?></th>
+            <th><?= e(t('ges.issued')) ?></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($subscriptions as $subscription): ?>
+            <tr>
+              <td>
+                <strong><?= e($subscription['label']) ?></strong>
+                <br /><span class="cell-sub">
+                  <?= e($subscription['direction']) ?>
+                  <?= $subscription['partner_name'] ? ' · ' . e($subscription['partner_name']) : '' ?>
+                  · <?= e($money($subscription['amountTtc'], $subscription['currency'])) ?>
+                </span>
+              </td>
+              <td><?= e($subscription['period']) ?></td>
+              <td>
+                <?= e((string) $subscription['next_issue']) ?>
+                <?php if ((int) $subscription['active'] !== 1): ?>
+                  <br /><span class="tag tag-off"><?= e(t('common.inactive')) ?></span>
+                <?php endif; ?>
+              </td>
+              <td><?= (int) $subscription['issued_count'] ?></td>
+              <td class="row-actions">
+                <form method="POST" action="/gestion/abonnements/<?= (int) $subscription['id'] ?>/etat" class="inline-form">
+                  <?= $csrf ?>
+                  <input type="hidden" name="active" value="<?= (int) $subscription['active'] === 1 ? '0' : '1' ?>" />
+                  <button type="submit" class="btn btn-sm">
+                    <?= e((int) $subscription['active'] === 1 ? t('common.deactivate') : t('common.activate')) ?>
+                  </button>
+                </form>
+                <form method="POST" action="/gestion/abonnements/<?= (int) $subscription['id'] ?>/supprimer"
+                      data-confirm="<?= e(t('ges.deleteSubscription')) ?>">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-sm btn-danger"><?= e(t('common.delete')) ?></button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </div>
+</section>
+
+<!-- ------------------------------------------------------------- TVA -->
+<section class="tab-panel" id="tva">
+  <div class="card">
+    <h2><?= e(t('ges.closePeriod')) ?> <span class="muted"><?= e(t('ges.cashBasisNote')) ?></span></h2>
+    <form method="POST" action="/gestion/tva" class="form-grid">
+      <?= $csrf ?>
+      <label class="span-2"><span><?= e(t('ges.periodOf')) ?> <?= (int) $year ?></span>
+        <select name="periode" required>
+          <?php foreach ($vatPeriods as $period): ?>
+            <option value="<?= e($period['key']) ?>"><?= e($period['regime']) ?> — <?= e($period['label']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label class="span-2"><span><?= e(t('common.notes')) ?></span><input type="text" name="notes" maxlength="1000" /></label>
+      <button type="submit" class="btn btn-primary"><?= e(t('ges.computeAndSave')) ?></button>
+    </form>
+    <p class="muted"><?= e(t('ges.periodHelp')) ?></p>
+    <p class="muted"><?= e(t('ges.vatHelp')) ?></p>
+  </div>
+
+  <div class="card mt-l">
+    <h2><?= e(t('nav.vat')) ?>
+      <span class="muted"><?= e(t('ges.vatSummary', ['count' => count($vatReturns), 'pending' => $vatSummary['pending']])) ?></span>
+    </h2>
+    <?php if ($vatReturns === []): ?>
+      <div class="empty-state"><?= e(t('ges.noVatReturn')) ?></div>
+    <?php else: ?>
+      <table class="table">
+        <thead>
+          <tr>
+            <th><?= e(t('common.period')) ?></th>
+            <th><?= e(t('ges.collected')) ?></th>
+            <th><?= e(t('ges.deductible')) ?></th>
+            <th><?= e(t('ges.toPay')) ?></th>
+            <th><?= e(t('common.status')) ?></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($vatReturns as $return): ?>
+            <tr>
+              <td>
+                <strong><?= e($return['period_label']) ?></strong>
+                <br /><span class="cell-sub"><?= e($return['regime']) ?></span>
+                <?php if (!empty($return['detail'])): ?>
+                  <br /><span class="cell-sub"><?= e(t('ges.byRate')) ?> :
+                    <?php foreach ($return['detail'] as $line): ?>
+                      <?= e((string) $line['rate']) ?> % (<?= e(t('ges.vatAmounts', [
+                        'collected' => $line['collected'], 'deductible' => $line['deductible'],
+                      ])) ?>)
+                    <?php endforeach; ?>
+                  </span>
+                <?php endif; ?>
+              </td>
+              <td><?= e($money((float) $return['collected'])) ?></td>
+              <td><?= e($money((float) $return['deductible'])) ?></td>
+              <td>
+                <?php if ((float) $return['credit'] > 0): ?>
+                  <?= e($money((float) $return['credit'])) ?> <span class="tag"><?= e(t('common.credit')) ?></span>
+                <?php else: ?>
+                  <?= e($money((float) $return['due'])) ?>
+                <?php endif; ?>
+              </td>
+              <td>
+                <form method="POST" action="/gestion/tva/<?= (int) $return['id'] ?>/statut" class="inline-form">
+                  <?= $csrf ?>
+                  <select name="status" onchange="this.form.submit()">
+                    <?php foreach ($vatStatuses as $status): ?>
+                      <option value="<?= e($status) ?>"<?= $return['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                </form>
+                <?php if (!empty($return['filed_on'])): ?>
+                  <span class="cell-sub"><?= e(t('ges.filedOn')) ?> <?= e($return['filed_on']) ?></span>
+                <?php endif; ?>
+              </td>
+              <td>
+                <form method="POST" action="/gestion/tva/<?= (int) $return['id'] ?>/supprimer"
+                      data-confirm="<?= e(t('ges.deleteVatReturn')) ?>">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-sm btn-danger"><?= e(t('common.delete')) ?></button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </div>
+</section>
+
+<!-- ----------------------------------------------------- Équipements -->
+<section class="tab-panel" id="equipements">
+  <div class="card">
+    <h2><?= e(t('erp.assets')) ?></h2>
+    <form method="POST" action="/gestion/equipements" class="form-grid">
+      <?= $csrf ?>
+      <label><span><?= e(t('common.designation')) ?></span><input type="text" name="name" required maxlength="160" /></label>
+      <label><span><?= e(t('common.category')) ?></span>
+        <select name="category">
+          <option value=""></option>
+          <?php foreach ($assetCategories as $category): ?>
+            <option value="<?= e($category) ?>"><?= e($category) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
+      <label><span><?= e(t('common.reference')) ?></span><input type="text" name="reference" maxlength="60" /></label>
+      <label><span><?= e(t('ges.serialNumber')) ?></span><input type="text" name="serial_number" maxlength="80" /></label>
+      <label><span><?= e(t('ges.purchase')) ?></span><input type="date" name="purchase_date" /></label>
+      <label><span><?= e(t('ges.warrantyEnd')) ?></span><input type="date" name="warranty_end" /></label>
+      <label><span><?= e(t('ges.value')) ?></span><input type="text" name="value" inputmode="decimal" /></label>
+      <button type="submit" class="btn btn-primary"><?= e(t('common.add')) ?></button>
+    </form>
+  </div>
+
+  <div class="card mt-l">
+    <?php if ($assets === []): ?>
+      <div class="empty-state"><?= e(t('erp.noAsset')) ?></div>
+    <?php else: ?>
+      <table class="table">
+        <thead>
+          <tr>
+            <th><?= e(t('common.equipment')) ?></th>
+            <th><?= e(t('common.holder')) ?></th>
+            <th><?= e(t('common.status')) ?></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($assets as $asset): ?>
+            <tr>
+              <td>
+                <strong><?= e($asset['name']) ?></strong>
+                <br /><span class="cell-sub">
+                  <?= e((string) $asset['category']) ?>
+                  <?= $asset['serial_number'] ? ' · ' . e($asset['serial_number']) : '' ?>
+                  <?php if (!empty($asset['warranty_end'])): ?>
+                    · <?= e(t('ges.warranty')) ?> <?= e($asset['warranty_end']) ?>
+                  <?php endif; ?>
+                </span>
+              </td>
+              <td>
+                <?php if (!empty($asset['holder_id'])): ?>
+                  <?= e(trim($asset['holder_first_name'] . ' ' . $asset['holder_last_name'])) ?>
+                  <form method="POST" action="/gestion/equipements/<?= (int) $asset['id'] ?>/reprendre" class="inline-form">
+                    <?= $csrf ?>
+                    <button type="submit" class="btn btn-sm"><?= e(t('ges.takeBack')) ?></button>
+                  </form>
+                <?php else: ?>
+                  <form method="POST" action="/gestion/equipements/<?= (int) $asset['id'] ?>/affecter" class="inline-form">
+                    <?= $csrf ?>
+                    <select name="employee_id" required>
+                      <option value=""><?= e(t('ges.assignTo')) ?></option>
+                      <?php foreach ($employees as $employee): ?>
+                        <option value="<?= (int) $employee['id'] ?>"><?= e(trim($employee['first_name'] . ' ' . $employee['last_name'])) ?></option>
+                      <?php endforeach; ?>
+                    </select>
+                    <button type="submit" class="btn btn-sm"><?= e(t('common.assign')) ?></button>
+                  </form>
+                <?php endif; ?>
+              </td>
+              <td>
+                <form method="POST" action="/gestion/equipements/<?= (int) $asset['id'] ?>/statut" class="inline-form">
+                  <?= $csrf ?>
+                  <select name="status" onchange="this.form.submit()">
+                    <?php foreach ($assetStatuses as $status): ?>
+                      <option value="<?= e($status) ?>"<?= $asset['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                </form>
+              </td>
+              <td>
+                <form method="POST" action="/gestion/equipements/<?= (int) $asset['id'] ?>/supprimer"
+                      data-confirm="<?= e(t('ges.deleteEquipment')) ?>">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-sm btn-danger"><?= e(t('common.delete')) ?></button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+  </div>
+</section>

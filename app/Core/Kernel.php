@@ -205,6 +205,20 @@ final class Kernel
         $router->post('/gestion/frais/{id}/statut', FinanceController::reviewClaim(...));
         $router->post('/gestion/devises/reference', FinanceController::setBaseCurrency(...));
         $router->post('/gestion/devises/taux', FinanceController::setRate(...));
+        $router->post('/gestion/abonnements', FinanceController::createSubscription(...));
+        $router->post('/gestion/abonnements/emettre', FinanceController::issueSubscriptions(...));
+        $router->post('/gestion/abonnements/{id}/etat', FinanceController::setSubscriptionState(...));
+        $router->post('/gestion/abonnements/{id}/supprimer', FinanceController::deleteSubscription(...));
+        $router->post('/gestion/tva', FinanceController::saveVatReturn(...));
+        $router->post('/gestion/tva/{id}/statut', FinanceController::setVatStatus(...));
+        $router->post('/gestion/tva/{id}/supprimer', FinanceController::deleteVatReturn(...));
+        $router->post('/gestion/relances', FinanceController::recordNotice(...));
+        $router->post('/gestion/relances/{id}/supprimer', FinanceController::deleteNotice(...));
+        $router->post('/gestion/equipements', FinanceController::createAsset(...));
+        $router->post('/gestion/equipements/{id}/affecter', FinanceController::assignAsset(...));
+        $router->post('/gestion/equipements/{id}/reprendre', FinanceController::takeBackAsset(...));
+        $router->post('/gestion/equipements/{id}/statut', FinanceController::setAssetStatus(...));
+        $router->post('/gestion/equipements/{id}/supprimer', FinanceController::deleteAsset(...));
 
         // Notes de frais côté salarié : déposer et retirer les siennes.
         $router->post('/mon-espace/frais', FinanceController::createClaim(...));
