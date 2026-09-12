@@ -21,8 +21,10 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Mon profil | nom, téléphone, présentation, langue ; messagerie en lecture seule |
 | Administration | services, équipes, encadrement, rattachement, annuaire, personnel (création avec mot de passe temporaire, modification, activation, réinitialisation, suppression), messagerie du membre, actualités, outils, affectations, droits transverses, modules, palette et réglages de l'instance |
 | Organigramme | services, équipes, rattachements, sans-rattachement ; effectif entier pour l'administration et les RH |
+| Congés et paie | demande déposée par le salarié, décompte en jours ouvrés, approbation, refus, annulation avec recrédit du solde, ajustements de solde, fiches de paie |
+| Espace du salarié | informations, managers, demandes, solde, fiches de paie, actualités, collègues |
 
-59 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+77 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -30,7 +32,7 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, quatorze lots. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Ressources humaines** — dossiers, contrats, congés, absences, entretiens
+1. **RH, suite** — documents d'entreprise, formations et sessions, entretiens annuels
 2. **Demandes et manager** — demandes internes, validation, points individuels
 3. **Agenda, planning, salles** — calendriers, roulements, astreintes, réservations
 4. **Messagerie et annonces** — messagerie interne, actualités, notifications

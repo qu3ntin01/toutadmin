@@ -7,6 +7,7 @@ namespace App\Core;
 use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use App\Controllers\DirectoryController;
+use App\Controllers\HrController;
 use App\Controllers\InstallController;
 use App\Controllers\MemberController;
 use App\Controllers\OrgChartController;
@@ -86,6 +87,19 @@ final class Kernel
         $router->post('/admin/modules/{key}', AdminController::setModule(...));
         $router->post('/admin/apparence', AdminController::setPalette(...));
         $router->post('/admin/entreprise', AdminController::setCompany(...));
+
+        // Espace RH : congés, soldes, fiches de paie.
+        $router->get('/rh', HrController::home(...));
+        $router->post('/rh/demandes/{id}/approuver', HrController::approve(...));
+        $router->post('/rh/demandes/{id}/refuser', HrController::reject(...));
+        $router->post('/rh/demandes/{id}/annuler', HrController::revoke(...));
+        $router->post('/rh/solde/{id}/ajuster', HrController::adjustBalance(...));
+        $router->post('/rh/paie', HrController::createPayslip(...));
+        $router->post('/rh/paie/{id}/marquer-payee', HrController::markPayslipPaid(...));
+        $router->post('/rh/paie/{id}/supprimer', HrController::deletePayslip(...));
+
+        $router->post('/mon-espace/demandes', MemberController::createRequest(...));
+        $router->post('/mon-espace/demandes/{id}/annuler', MemberController::cancelRequest(...));
 
         $router->get('/organigramme', OrgChartController::index(...));
         $router->get('/mon-espace', MemberController::home(...));
@@ -199,11 +213,20 @@ final class Kernel
         if ((int) $user['must_change_password'] === 1 && $request->path !== '/mot-de-passe' && $request->path !== '/deconnexion') {
             return Response::redirect('/mot-de-passe');
         }
-        // L'administration est fermée d'un bloc : la porte est ici, elle ne
+        // Les espaces fermés le sont d'un bloc : la porte est ici, elle ne
         // dépend pas de ce que chaque route pense à vérifier.
-        if (str_starts_with($request->path, '/admin') && $user['role'] !== 'admin') {
+        $refuse = function () use ($user, $request): Response {
             Audit::log('acces.refuse', 'users', (int) $user['id'], ['chemin' => $request->path]);
             return $this->error(t('err.notAccessible'), 403, base64_encode(random_bytes(16)));
+        };
+        if (str_starts_with($request->path, '/admin') && $user['role'] !== 'admin') {
+            return $refuse();
+        }
+        // L'accès RH est donné par l'administration ; encadrer une équipe ne
+        // l'ouvre pas : congés et fiches de paie ne sont pas des informations
+        // d'équipe.
+        if (str_starts_with($request->path, '/rh') && !\App\Controllers\HrController::canAccess($user)) {
+            return $refuse();
         }
         return null;
     }
