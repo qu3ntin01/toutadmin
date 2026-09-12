@@ -10,14 +10,18 @@ use App\Controllers\AgendaController;
 use App\Controllers\AuthController;
 use App\Controllers\BackupController;
 use App\Controllers\CseController;
+use App\Controllers\DevController;
 use App\Controllers\DirectoryController;
 use App\Controllers\FixedAssetsController;
 use App\Controllers\FinanceController;
+use App\Controllers\FleetController;
+use App\Controllers\FrontDeskController;
 use App\Controllers\GovernanceController;
 use App\Controllers\HrController;
 use App\Controllers\LegalController;
 use App\Controllers\ManagerController;
 use App\Controllers\InstallController;
+use App\Controllers\ItController;
 use App\Controllers\MemberController;
 use App\Controllers\MessagesController;
 use App\Controllers\NotificationsController;
@@ -307,6 +311,48 @@ final class Kernel
         $router->post('/stock/demandes/{id}/manager', StockController::managerDecision(...));
         $router->post('/stock/demandes/{id}/gestion', StockController::financeDecision(...));
         $router->post('/stock/demandes/{id}/commander', StockController::markOrdered(...));
+
+        // Service informatique : parc logiciel, accès applicatifs, incidents.
+        $router->get('/informatique', ItController::index(...));
+        $router->get('/informatique/logiciels/{id}', ItController::showLicence(...));
+        $router->post('/informatique/logiciels', ItController::createLicence(...));
+        $router->post('/informatique/logiciels/{id}/modifier', ItController::updateLicence(...));
+        $router->post('/informatique/logiciels/{id}/supprimer', ItController::deleteLicence(...));
+        $router->post('/informatique/logiciels/{id}/acces', ItController::grantAccess(...));
+        $router->post('/informatique/acces/{id}/revoquer', ItController::revokeAccess(...));
+        $router->post('/informatique/acces/{id}/revu', ItController::markReviewed(...));
+        $router->post('/informatique/incidents', ItController::createIncident(...));
+        $router->post('/informatique/incidents/{id}/modifier', ItController::updateIncident(...));
+        $router->post('/informatique/incidents/{id}/supprimer', ItController::deleteIncident(...));
+
+        // Développement : services applicatifs et livraisons.
+        $router->get('/developpement', DevController::index(...));
+        $router->get('/developpement/services/{id}', DevController::showService(...));
+        $router->post('/developpement/services', DevController::createService(...));
+        $router->post('/developpement/services/{id}/modifier', DevController::updateService(...));
+        $router->post('/developpement/services/{id}/supprimer', DevController::deleteService(...));
+        $router->post('/developpement/services/{id}/livraisons', DevController::createRelease(...));
+        $router->post('/developpement/livraisons/{id}/modifier', DevController::updateRelease(...));
+        $router->post('/developpement/livraisons/{id}/supprimer', DevController::deleteRelease(...));
+
+        // Flotte de véhicules.
+        $router->get('/flotte', FleetController::index(...));
+        $router->post('/flotte', FleetController::create(...));
+        $router->post('/flotte/evenements/{id}/supprimer', FleetController::deleteEvent(...));
+        $router->get('/flotte/{id}', FleetController::show(...));
+        $router->post('/flotte/{id}/modifier', FleetController::update(...));
+        $router->post('/flotte/{id}/supprimer', FleetController::remove(...));
+        $router->post('/flotte/{id}/evenements', FleetController::addEvent(...));
+
+        // Accueil : visiteurs et courrier.
+        $router->get('/accueil', FrontDeskController::index(...));
+        $router->post('/accueil/visiteurs', FrontDeskController::checkIn(...));
+        $router->post('/accueil/visiteurs/{id}/sortie', FrontDeskController::checkOut(...));
+        $router->post('/accueil/visiteurs/{id}/supprimer', FrontDeskController::deleteVisitor(...));
+        $router->post('/accueil/courrier', FrontDeskController::logMail(...));
+        $router->post('/accueil/courrier/{id}/remise', FrontDeskController::handOver(...));
+        $router->post('/accueil/courrier/{id}/archiver', FrontDeskController::archiveMail(...));
+        $router->post('/accueil/courrier/{id}/supprimer', FrontDeskController::deleteMail(...));
 
         // Direction : réunions, décisions, actions, risques et sondages.
         $router->get('/direction', GovernanceController::index(...));
@@ -659,6 +705,22 @@ final class Kernel
         // elle a désigné. Les notes de frais d'un salarié passent, elles, par
         // /mon-espace, qui n'est pas derrière cette porte.
         if (str_starts_with($request->path, '/gestion') && !FinanceController::canAccess($user)) {
+            return $refuse();
+        }
+        // Le parc logiciel et les accès applicatifs relèvent du service
+        // informatique, désigné par l'administration ; ceux qui livrent et ceux
+        // qui exploitent regardent le même référentiel.
+        if ((str_starts_with($request->path, '/informatique') || str_starts_with($request->path, '/developpement'))
+            && !ItController::canAccess($user)) {
+            return $refuse();
+        }
+        // La flotte relève des moyens généraux, tenus par la gestion.
+        if (str_starts_with($request->path, '/flotte') && !FleetController::canAccess($user)) {
+            return $refuse();
+        }
+        // Les registres de l'accueil tiennent des données de tiers : RH et
+        // administration, comme les autres registres de l'entreprise.
+        if (str_starts_with($request->path, '/accueil') && !FrontDeskController::canAccess($user)) {
             return $refuse();
         }
         // La direction, c'est l'administration de l'instance : la gouvernance

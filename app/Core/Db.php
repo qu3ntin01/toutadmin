@@ -51,10 +51,28 @@ final class Db
         self::$pdo = null;
     }
 
+    /**
+     * Les paramètres sont liés un par un, avec leur type.
+     *
+     * PDO envoie tout en texte par défaut, et SQLite range le texte après les
+     * nombres : « max(colonne, ?) » rendait alors la chaîne plutôt que le plus
+     * grand des deux, et une comparaison « > ? » sur un entier devenait une
+     * comparaison de chaînes. Le type est donc posé explicitement.
+     */
     public static function query(string $sql, array $params = []): PDOStatement
     {
         $statement = self::pdo()->prepare($sql);
-        $statement->execute(self::normalise($params));
+        $position = 0;
+        foreach (self::normalise($params) as $key => $value) {
+            $name = is_int($key) ? ++$position : $key;
+            $type = match (true) {
+                $value === null => PDO::PARAM_NULL,
+                is_int($value) => PDO::PARAM_INT,
+                default => PDO::PARAM_STR,
+            };
+            $statement->bindValue($name, $value, $type);
+        }
+        $statement->execute();
         return $statement;
     }
 

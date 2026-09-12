@@ -52,8 +52,12 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Direction | réunions avec ordre du jour, participants et présence, compte rendu qui marque la réunion tenue, registre des décisions qui survit à la suppression d'une réunion, actions confiées avec échéance, registre des risques d'entreprise coté probabilité × impact dont la criticité retenue est la résiduelle, matrice 5 × 5 |
 | Sondages | questionnaire figé à l'ouverture, réponses sans aucun identifiant de personne (l'anonymat tient à la structure des tables), participation nominative qui empêche de répondre deux fois, résultats retenus sous cinq réponses, baromètre social des sondages clos |
 | CSE | mandats et convocations tenus par les RH, élections par phases (candidatures, vote, clôture) qui refusent un scrutin sans candidat validé, bulletin et émargement écrits ensemble mais sans lien entre eux, taux de participation sur le corps électoral, avantages qui disparaissent à leur péremption, comptes rendus rédigés par les élus |
+| Informatique | parc logiciel avec sièges tenus comme une contrainte (on n'ouvre pas plus d'accès qu'il n'y en a, et on ne descend pas les sièges sous les accès ouverts), coût annualisé selon la périodicité, revue des accès qui remonte d'abord les comptes fermés gardant leurs habilitations, incidents SI dont la clôture exige l'heure de rétablissement, délai moyen calculé sur les seuls incidents rétablis |
+| Développement | référentiel des services applicatifs, version en production déduite de la dernière livraison réussie, registre des livraisons dont le taux d'échec compte aussi celles qu'il a fallu retirer, adresses de dépôt refusées si elles ne sont pas http(s) |
+| Flotte | parc de véhicules avec trois échéances qui ne pardonnent pas (contrôle technique, assurance, entretien), compteur qui ne recule jamais — ni à la saisie, ni par un relevé d'événement — et coût d'entretien sur douze mois |
+| Accueil | registre des visiteurs qui répond à « qui est dans les murs ? », courrier qui reste « à remettre » tant que la remise n'est pas datée et signée, recommandés comptés à part |
 
-340 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+360 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -61,9 +65,17 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
-2. **Recrutement** — postes, candidatures, entretiens
-3. **Planning** — roulements, astreintes, présence
+1. **Recrutement** — postes, candidatures, entretiens
+2. **Planning** — roulements, astreintes, présence
+
+## Un défaut du socle PHP, corrigé
+
+PDO envoie tous les paramètres en texte par défaut, et SQLite range le texte
+après les nombres. `max(compteur, ?)` rendait donc la chaîne plutôt que le plus
+grand des deux — le kilométrage d'un véhicule reculait sur un relevé inférieur,
+ce que le module refuse précisément de faire. Les paramètres sont maintenant
+liés un par un avec leur type (`PDO::PARAM_INT` pour un entier), ce qui remet
+d'aplomb toutes les comparaisons numériques, pas seulement celle-là.
 
 ## Les statuts s'affichent maintenant dans la langue de la page
 

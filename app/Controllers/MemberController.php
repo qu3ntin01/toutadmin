@@ -114,16 +114,24 @@ final class MemberController
             $items[] = ['href' => '/mon-equipe', 'label' => t('nav.team')];
             $items[] = ['href' => '/qualite', 'label' => t('nav.quality')];
         }
+        // Le service informatique : le parc logiciel, les accès applicatifs et le
+        // référentiel des services vont ensemble, et n'ont qu'un seul public.
+        if (ItController::canAccess($user)) {
+            $items[] = ['href' => '/informatique', 'label' => t('nav.it')];
+            $items[] = ['href' => '/developpement', 'label' => t('nav.development')];
+        }
         if (\App\Modules\Cse::isElected((int) $user['id'])) {
             $items[] = ['href' => '/cse/gestion', 'label' => t('nav.cseManage')];
         }
         if ($user['role'] === 'admin' || (int) ($user['is_hr'] ?? 0) === 1) {
             $items[] = ['href' => '/rh', 'label' => t('nav.hrSpace')];
             $items[] = ['href' => '/sante-securite', 'label' => t('nav.healthSafety')];
+            $items[] = ['href' => '/accueil', 'label' => t('nav.frontDeskMail')];
             $items[] = ['href' => '/coffre-fort/gestion', 'label' => t('nav.vaultManage')];
         }
         if (FinanceController::canAccess($user)) {
             $items[] = ['href' => '/gestion', 'label' => t('nav.gestion')];
+            $items[] = ['href' => '/flotte', 'label' => t('nav.fleet')];
         }
         // Un module éteint n'a pas d'entrée : la barre dit ce qui existe.
         if (\App\Modules\Catalogue::isEnabled('comptabilite') && AccountingController::canAccess($user)) {
