@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Controllers\AdminController;
+use App\Controllers\AgendaController;
 use App\Controllers\AuthController;
 use App\Controllers\DirectoryController;
 use App\Controllers\HrController;
@@ -15,6 +16,7 @@ use App\Controllers\NotificationsController;
 use App\Controllers\OrgChartController;
 use App\Controllers\ProfileController;
 use App\Controllers\RequestsController;
+use App\Controllers\RoomsController;
 use App\Modules\Users;
 
 /**
@@ -140,6 +142,15 @@ final class Kernel
         $router->post('/mon-equipe/points', ManagerController::createPoint(...));
         $router->post('/mon-equipe/points/{id}/modifier', ManagerController::updatePoint(...));
         $router->post('/mon-equipe/points/{id}/supprimer', ManagerController::deletePoint(...));
+
+        // Agenda et salles.
+        $router->get('/agenda', AgendaController::index(...));
+        $router->post('/agenda', AgendaController::create(...));
+        $router->post('/agenda/{id}/partage', AgendaController::share(...));
+        $router->post('/agenda/{id}/supprimer', AgendaController::delete(...));
+        $router->get('/salles', RoomsController::index(...));
+        $router->post('/salles', RoomsController::book(...));
+        $router->post('/salles/{id}/annuler', RoomsController::cancel(...));
 
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));

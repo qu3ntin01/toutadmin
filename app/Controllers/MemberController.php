@@ -76,6 +76,8 @@ final class MemberController
             ['href' => '/mon-espace', 'label' => t('nav.mySpace')],
             ['href' => '/demandes', 'label' => t('nav.internalRequests'), 'badge' => $awaiting ?: null],
             ['href' => '/notifications', 'label' => t('nav.notifications'), 'badge' => $unread ?: null],
+            ['href' => '/agenda', 'label' => t('agenda.title')],
+            ['href' => '/salles', 'label' => t('nav.rooms')],
             ['href' => '/annuaire', 'label' => t('nav.directory')],
             ['href' => '/organigramme', 'label' => t('nav.orgChart')],
             ['href' => '/mon-profil', 'label' => t('nav.profile')],

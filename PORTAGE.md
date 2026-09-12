@@ -27,8 +27,10 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Notifications | file personnelle, déduplication, marquage lu, purge |
 | Documents, formation, entretiens | documents avec accusé de réception, catalogue et sessions de formation, inscriptions, entretiens annuels et commentaire du salarié |
 | Espace manager | équipe encadrée, absences du périmètre, points individuels (note partagée et note privée), actualités de périmètre |
+| Agenda | grille du mois, événements saisis, congés, salles, formations et fin de contrat posés d'eux-mêmes, agenda partagé d'équipe et de service |
+| Salles | parc, réservations sans chevauchement, annulation par son auteur |
 
-113 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+126 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -36,8 +38,8 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, quatorze lots. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Agenda, planning, salles** — calendriers, roulements, astreintes, réservations
-2. **Messagerie et annonces** — messagerie interne, actualités, notifications
+1. **Planning** — roulements, astreintes, présence
+2. **Messagerie** — messagerie interne et pièces jointes
 3. **Projets et support** — projets, jalons, rentabilité, tickets
 4. **Gestion** — devis, factures, clients, fournisseurs, recouvrement
 5. **Comptabilité et paie** — partie double, bulletins, déclarations
