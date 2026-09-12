@@ -1,0 +1,15 @@
+# Apache : tout passe par index.php, sauf les fichiers qui existent vraiment.
+# Sur Nginx, la règle équivalente est dans le README.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# Pas de listage de répertoire, et rien qui commence par un point.
+Options -Indexes
+<FilesMatch "^\.">
+  Require all denied
+</FilesMatch>

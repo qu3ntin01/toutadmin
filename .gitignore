@@ -1,0 +1,7 @@
+/config.php
+/data/
+/public/media/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.DS_Store

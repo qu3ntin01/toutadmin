@@ -1,0 +1,19 @@
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="color-scheme" content="light dark" />
+<title><?= e($title ?? t('app.name')) ?></title>
+<link rel="stylesheet" href="/css/style.css" />
+<script nonce="<?= e($nonce) ?>">
+/* Applique le thème avant le premier rendu pour éviter tout clignotement. */
+(function () {
+  try {
+    var stored = localStorage.getItem('pm-theme') || 'light';
+    var resolved = stored === 'system'
+      ? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : stored;
+    document.documentElement.setAttribute('data-theme', resolved === 'dark' ? 'dark' : 'light');
+  } catch (e) {
+    document.documentElement.setAttribute('data-theme', 'light');
+  }
+})();
+</script>
