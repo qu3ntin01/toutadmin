@@ -16,7 +16,7 @@
 <meta property="og:title" content="Fonctionnalités — Toutadmin" />
 <meta property="og:description" content="La liste complète, domaine par domaine. Chaque ligne correspond à du code livré et testé, pas à une intention." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="Fonctionnalités">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">Fonctionnalités</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">Les écrans</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">Socle et organisation</a>
           <a href="#espace">Espace du salarié</a>
           <a href="#rh">Ressources humaines</a>
@@ -176,13 +187,12 @@
           <a href="#direction">Direction et gouvernance</a>
           <a href="#it">Informatique et développement</a>
           <a href="#conformite">Conformité, juridique et données personnelles</a>
-          <a href="#ecrans">Les écrans</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · Les fonctions marquées « module » s’activent à la demande depuis la console.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · Les fonctions marquées « module » s’activent à la demande depuis la console.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -574,25 +584,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>Il manque quelque chose ?</h3>
-          <p>Dites-le. Le produit avance par lots, et les demandes des entreprises qui l'utilisent passent devant.</p>
-          <p class="mt-m"><a class="link-arrow" href="contact.html">Écrire à l’équipe<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">Les écrans</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>Il manque quelque chose ?</h3>
+              <p>Dites-le. Le produit avance par lots, et les demandes des entreprises qui l'utilisent passent devant.</p>
+              <p class="mt-m"><a class="link-arrow" href="contact.html">Écrire à l’équipe<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>Les écrans, sans retouche</h2>
           <p class="lede">Toutes les captures de ce site sortent d'une instance réelle peuplée d'un jeu de démonstration. Aucune maquette, aucun montage.</p>
         </div>
+            <p class="stat-n center reveal">54 · Les écrans</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -673,6 +686,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Comité social et économique</span></div>
+            <img src="medias/membre-cse.png" alt="Comité social et économique" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Comité social et économique</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Annuaire de l’entreprise</span></div>
             <img src="medias/annuaire.png" alt="Annuaire de l’entreprise" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -684,6 +704,20 @@
             <img src="medias/organigramme.png" alt="Organigramme" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Organigramme</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Centre de notifications</span></div>
+            <img src="medias/notifications.png" alt="Centre de notifications" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Centre de notifications</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Recherche transverse</span></div>
+            <img src="medias/recherche.png" alt="Recherche transverse" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Recherche transverse</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -722,6 +756,13 @@
             <img src="medias/rh.png" alt="Ressources humaines" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Ressources humaines</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Parcours et compétences</span></div>
+            <img src="medias/parcours.png" alt="Parcours et compétences" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Parcours et compétences</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -834,6 +875,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Accueil, visiteurs et courrier</span></div>
+            <img src="medias/accueil.png" alt="Accueil, visiteurs et courrier" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Accueil, visiteurs et courrier</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Import de données</span></div>
+            <img src="medias/import.png" alt="Import de données" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Import de données</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Interfaces et connecteurs</span></div>
+            <img src="medias/integrations.png" alt="Interfaces et connecteurs" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Interfaces et connecteurs</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Sauvegardes et restauration</span></div>
             <img src="medias/sauvegardes.png" alt="Sauvegardes et restauration" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -878,6 +940,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Pièces reçues</span></div>
+            <img src="medias/pieces.png" alt="Pièces reçues" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Pièces reçues</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Facturation électronique</span></div>
+            <img src="medias/facturation.png" alt="Facturation électronique" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Facturation électronique</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>CRM commercial</span></div>
             <img src="medias/crm.png" alt="CRM commercial" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -889,6 +965,13 @@
             <img src="medias/stock.png" alt="Stock et achats" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Stock et achats</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Flotte de véhicules</span></div>
+            <img src="medias/flotte.png" alt="Flotte de véhicules" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Flotte de véhicules</figcaption>
             </figure>
             </div>
           </div>
@@ -943,8 +1026,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1028,6 +1113,6 @@
       </div>
     </div>
   </footer>
-<script src="assets/app.js?v=4bac18319d" defer></script>
+<script src="assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

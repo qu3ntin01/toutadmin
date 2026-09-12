@@ -16,7 +16,7 @@
 <meta property="og:title" content="विशेषताएँ — Toutadmin" />
 <meta property="og:description" content="पूरी सूची, क्षेत्र दर क्षेत्र। हर पंक्ति तैयार और परखे गए कोड की है, किसी इरादे की नहीं।" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="विशेषताएँ">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">विशेषताएँ</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">स्क्रीन</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">आधार और संगठन</a>
           <a href="#espace">कर्मचारी का कार्यक्षेत्र</a>
           <a href="#rh">मानव संसाधन</a>
@@ -176,13 +187,12 @@
           <a href="#direction">नेतृत्व और प्रशासन</a>
           <a href="#it">सूचना-प्रौद्योगिकी और विकास</a>
           <a href="#conformite">अनुपालन, कंपनी-विधि और व्यक्तिगत डेटा</a>
-          <a href="#ecrans">स्क्रीन</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · «मॉड्यूल» चिह्नित कार्य ज़रूरत पड़ने पर कंसोल से चालू किए जाते हैं।</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · «मॉड्यूल» चिह्नित कार्य ज़रूरत पड़ने पर कंसोल से चालू किए जाते हैं।</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>कुछ छूट रहा है?</h3>
-          <p>हमें बताइए। उत्पाद टुकड़ों में आगे बढ़ता है, और उपयोग करने वाली कंपनियों के अनुरोध पहले आते हैं।</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">टीम को लिखें<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">स्क्रीन</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>कुछ छूट रहा है?</h3>
+              <p>हमें बताइए। उत्पाद टुकड़ों में आगे बढ़ता है, और उपयोग करने वाली कंपनियों के अनुरोध पहले आते हैं।</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">टीम को लिखें<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>स्क्रीन, बिना किसी सुधार के</h2>
           <p class="lede">इस साइट की सभी तस्वीरें एक असली इंस्टेंस से आती हैं जिसमें नमूना डेटा भरा है। कोई मॉकअप नहीं, कोई जोड़-तोड़ नहीं।</p>
         </div>
+            <p class="stat-n center reveal">54 · स्क्रीन</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>कर्मचारी परिषद</span></div>
+            <img src="../medias/membre-cse.png" alt="कर्मचारी परिषद" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>कर्मचारी परिषद</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>कंपनी निर्देशिका</span></div>
             <img src="../medias/annuaire.png" alt="कंपनी निर्देशिका" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="संगठन-चार्ट" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>संगठन-चार्ट</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>सूचना केंद्र</span></div>
+            <img src="../medias/notifications.png" alt="सूचना केंद्र" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>सूचना केंद्र</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>सभी में खोज</span></div>
+            <img src="../medias/recherche.png" alt="सभी में खोज" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>सभी में खोज</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-hi.png" alt="मानव संसाधन" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>मानव संसाधन</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>करियर पथ और दक्षताएँ</span></div>
+            <img src="../medias/parcours.png" alt="करियर पथ और दक्षताएँ" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>करियर पथ और दक्षताएँ</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>स्वागत, आगंतुक और डाक</span></div>
+            <img src="../medias/accueil.png" alt="स्वागत, आगंतुक और डाक" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>स्वागत, आगंतुक और डाक</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>डेटा आयात</span></div>
+            <img src="../medias/import.png" alt="डेटा आयात" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>डेटा आयात</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>इंटरफ़ेस और कनेक्टर</span></div>
+            <img src="../medias/integrations.png" alt="इंटरफ़ेस और कनेक्टर" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>इंटरफ़ेस और कनेक्टर</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>बैकअप और बहाली</span></div>
             <img src="../medias/sauvegardes.png" alt="बैकअप और बहाली" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>प्राप्त दस्तावेज़</span></div>
+            <img src="../medias/pieces.png" alt="प्राप्त दस्तावेज़" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>प्राप्त दस्तावेज़</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>इलेक्ट्रॉनिक चालान</span></div>
+            <img src="../medias/facturation.png" alt="इलेक्ट्रॉनिक चालान" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>इलेक्ट्रॉनिक चालान</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>व्यावसायिक CRM</span></div>
             <img src="../medias/crm.png" alt="व्यावसायिक CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="स्टॉक और क्रय" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>स्टॉक और क्रय</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>वाहन बेड़ा</span></div>
+            <img src="../medias/flotte.png" alt="वाहन बेड़ा" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>वाहन बेड़ा</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

@@ -223,21 +223,44 @@
   }
 
   /* -------------------------------------------------------------- onglets */
+  function activate(group, name) {
+    group.querySelectorAll('.tab').forEach(function (t) {
+      var on = t.getAttribute('data-tab') === name;
+      t.classList.toggle('is-active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    group.querySelectorAll('.pane, .sheet').forEach(function (p) {
+      p.classList.toggle('is-active', p.getAttribute('data-pane') === name);
+    });
+  }
+
   document.addEventListener('click', function (e) {
     var tab = e.target.closest && e.target.closest('.tab');
     if (!tab) return;
     var group = tab.closest('[data-tabs]');
-    if (!group) return;
-    var name = tab.getAttribute('data-tab');
-    group.querySelectorAll('.tab').forEach(function (t) {
-      var on = t === tab;
-      t.classList.toggle('is-active', on);
-      t.setAttribute('aria-selected', on ? 'true' : 'false');
-    });
-    group.querySelectorAll('.pane').forEach(function (p) {
-      p.classList.toggle('is-active', p.getAttribute('data-pane') === name);
-    });
+    if (group) activate(group, tab.getAttribute('data-tab'));
   });
+
+  /* Un lien peut viser une ancre cachée dans un onglet fermé — « #ecrans »
+     depuis la barre, « #rh » depuis l'accueil. L'onglet qui la contient
+     s'ouvre alors, sinon le lien ne mènerait nulle part. */
+  function followHash() {
+    var name = decodeURIComponent(window.location.hash.slice(1));
+    if (!name) return;
+    var target = document.getElementById(name);
+    if (!target) return;
+    var pane = target.closest('.sheet, .pane');
+    if (!pane) return;
+    var group = pane.closest('[data-tabs]');
+    if (!group) return;
+    activate(group, pane.getAttribute('data-pane'));
+    // La position n'est connue qu'une fois le volet affiché.
+    requestAnimationFrame(function () {
+      target.scrollIntoView({ block: 'start' });
+    });
+  }
+  followHash();
+  window.addEventListener('hashchange', followHash);
 
   /* ------------------------------------------------------------ visionneuse */
   var box = document.querySelector('.lightbox');

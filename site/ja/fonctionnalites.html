@@ -16,7 +16,7 @@
 <meta property="og:title" content="機能 — Toutadmin" />
 <meta property="og:description" content="領域ごとの完全な一覧です。どの行も、出荷されテストされたコードに対応します。構想ではありません。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="機能">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">機能</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">画面</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">基盤と組織</a>
           <a href="#espace">従業員のスペース</a>
           <a href="#rh">人事</a>
@@ -176,13 +187,12 @@
           <a href="#direction">経営とガバナンス</a>
           <a href="#it">情報システムと開発</a>
           <a href="#conformite">コンプライアンス、会社法務、個人データ</a>
-          <a href="#ecrans">画面</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · 「モジュール」と記された機能は、必要になったときコンソールから有効化します。</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · 「モジュール」と記された機能は、必要になったときコンソールから有効化します。</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>足りないものがありますか。</h3>
-          <p>お知らせください。製品はまとまった単位で進み、実際に使っている企業からの要望が先に回ります。</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">チームに連絡する<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">画面</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>足りないものがありますか。</h3>
+              <p>お知らせください。製品はまとまった単位で進み、実際に使っている企業からの要望が先に回ります。</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">チームに連絡する<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>加工なしの画面</h2>
           <p class="lede">本サイトの画像はすべて、デモデータを入れた実際のインスタンスから取得したものです。モックも合成もありません。</p>
         </div>
+            <p class="stat-n center reveal">54 · 画面</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>労使協議会</span></div>
+            <img src="../medias/membre-cse.png" alt="労使協議会" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>労使協議会</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>社内名簿</span></div>
             <img src="../medias/annuaire.png" alt="社内名簿" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="組織図" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>組織図</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>通知センター</span></div>
+            <img src="../medias/notifications.png" alt="通知センター" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>通知センター</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>横断検索</span></div>
+            <img src="../medias/recherche.png" alt="横断検索" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>横断検索</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-ja.png" alt="人事" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>人事</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>キャリアパスとスキル</span></div>
+            <img src="../medias/parcours.png" alt="キャリアパスとスキル" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>キャリアパスとスキル</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>受付・来訪者・郵便</span></div>
+            <img src="../medias/accueil.png" alt="受付・来訪者・郵便" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>受付・来訪者・郵便</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>データ取り込み</span></div>
+            <img src="../medias/import.png" alt="データ取り込み" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>データ取り込み</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>インターフェースと連携</span></div>
+            <img src="../medias/integrations.png" alt="インターフェースと連携" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>インターフェースと連携</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>バックアップと復元</span></div>
             <img src="../medias/sauvegardes.png" alt="バックアップと復元" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>受領した書類</span></div>
+            <img src="../medias/pieces.png" alt="受領した書類" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>受領した書類</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>電子インボイス</span></div>
+            <img src="../medias/facturation.png" alt="電子インボイス" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>電子インボイス</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>営業 CRM</span></div>
             <img src="../medias/crm.png" alt="営業 CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="在庫と購買" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>在庫と購買</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>車両管理</span></div>
+            <img src="../medias/flotte.png" alt="車両管理" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>車両管理</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

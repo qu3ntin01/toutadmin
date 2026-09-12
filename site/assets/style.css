@@ -318,6 +318,14 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .tab:hover { border-color: var(--line-2); color: var(--ink); }
 .tab.is-active { background: var(--brand-2); border-color: var(--brand-2); color: #fff; box-shadow: 0 8px 20px color-mix(in srgb, var(--brand-2) 34%, transparent); }
+.tabs.center { justify-content: center; margin-block-end: 0; }
+/* La barre d'onglets et le volet qu'elle commande forment un bloc : deux
+   marges de section empilées les auraient séparés d'un vide de page. */
+.tabs-bar { padding-block-end: 0; }
+/* Un onglet de page entière, à distinguer des volets du carrousel d'accueil :
+   celui-ci occupe toute la largeur et n'est pas une grille à deux colonnes. */
+.sheet { display: none; }
+.sheet.is-active { display: block; animation: fadeUp .45s var(--ease) both; }
 .panes { position: relative; }
 .pane { display: none; }
 .pane.is-active { display: grid; gap: 26px; animation: fadeUp .45s var(--ease) both; }

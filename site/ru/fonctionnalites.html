@@ -16,7 +16,7 @@
 <meta property="og:title" content="Возможности — Toutadmin" />
 <meta property="og:description" content="Полный список, область за областью. Каждая строка — выпущенный и протестированный код, а не намерение." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="Возможности">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">Возможности</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">Экраны</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">Основа и организация</a>
           <a href="#espace">Кабинет сотрудника</a>
           <a href="#rh">Кадры</a>
@@ -176,13 +187,12 @@
           <a href="#direction">Руководство и управление</a>
           <a href="#it">ИТ и разработка</a>
           <a href="#conformite">Соответствие, корпоративные вопросы и персональные данные</a>
-          <a href="#ecrans">Экраны</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · Функции с пометкой «модуль» включаются из консоли, когда они нужны.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · Функции с пометкой «модуль» включаются из консоли, когда они нужны.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>Чего-то не хватает?</h3>
-          <p>Скажите нам. Продукт растёт партиями, и запросы компаний, которые им пользуются, идут первыми.</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">Написать команде<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">Экраны</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>Чего-то не хватает?</h3>
+              <p>Скажите нам. Продукт растёт партиями, и запросы компаний, которые им пользуются, идут первыми.</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">Написать команде<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>Экраны без ретуши</h2>
           <p class="lede">Все снимки на этом сайте сделаны с настоящего экземпляра, заполненного демонстрационными данными. Никаких макетов и монтажа.</p>
         </div>
+            <p class="stat-n center reveal">54 · Экраны</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Совет работников</span></div>
+            <img src="../medias/membre-cse.png" alt="Совет работников" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Совет работников</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Справочник компании</span></div>
             <img src="../medias/annuaire.png" alt="Справочник компании" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="Оргструктура" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Оргструктура</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Центр уведомлений</span></div>
+            <img src="../medias/notifications.png" alt="Центр уведомлений" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Центр уведомлений</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Сквозной поиск</span></div>
+            <img src="../medias/recherche.png" alt="Сквозной поиск" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Сквозной поиск</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-ru.png" alt="Кадры" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Кадры</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Карьерные треки и компетенции</span></div>
+            <img src="../medias/parcours.png" alt="Карьерные треки и компетенции" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Карьерные треки и компетенции</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Ресепшен, посетители и почта</span></div>
+            <img src="../medias/accueil.png" alt="Ресепшен, посетители и почта" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Ресепшен, посетители и почта</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Импорт данных</span></div>
+            <img src="../medias/import.png" alt="Импорт данных" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Импорт данных</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Интерфейсы и коннекторы</span></div>
+            <img src="../medias/integrations.png" alt="Интерфейсы и коннекторы" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Интерфейсы и коннекторы</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Копии и восстановление</span></div>
             <img src="../medias/sauvegardes.png" alt="Копии и восстановление" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Полученные документы</span></div>
+            <img src="../medias/pieces.png" alt="Полученные документы" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Полученные документы</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Электронные счета</span></div>
+            <img src="../medias/facturation.png" alt="Электронные счета" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Электронные счета</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Коммерческая CRM</span></div>
             <img src="../medias/crm.png" alt="Коммерческая CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="Склад и закупки" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Склад и закупки</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Автопарк</span></div>
+            <img src="../medias/flotte.png" alt="Автопарк" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Автопарк</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

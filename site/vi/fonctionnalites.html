@@ -16,7 +16,7 @@
 <meta property="og:title" content="Tính năng — Toutadmin" />
 <meta property="og:description" content="Danh sách đầy đủ, theo từng lĩnh vực. Mỗi dòng ứng với mã đã bàn giao và đã kiểm thử, không phải một dự định." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="Tính năng">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">Tính năng</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">Màn hình</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">Nền tảng và tổ chức</a>
           <a href="#espace">Không gian của nhân viên</a>
           <a href="#rh">Quản trị nhân lực</a>
@@ -176,13 +187,12 @@
           <a href="#direction">Lãnh đạo và quản trị công ty</a>
           <a href="#it">Tin học và phát triển</a>
           <a href="#conformite">Tuân thủ, pháp lý doanh nghiệp và dữ liệu cá nhân</a>
-          <a href="#ecrans">Màn hình</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · Các chức năng ghi «phân hệ» được bật từ bảng quản trị khi cần.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · Các chức năng ghi «phân hệ» được bật từ bảng quản trị khi cần.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>Còn thiếu điều gì?</h3>
-          <p>Hãy cho chúng tôi biết. Sản phẩm tiến theo từng đợt, và yêu cầu của các doanh nghiệp đang dùng được ưu tiên trước.</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">Viết cho đội ngũ<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">Màn hình</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>Còn thiếu điều gì?</h3>
+              <p>Hãy cho chúng tôi biết. Sản phẩm tiến theo từng đợt, và yêu cầu của các doanh nghiệp đang dùng được ưu tiên trước.</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">Viết cho đội ngũ<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>Màn hình, không chỉnh sửa</h2>
           <p class="lede">Mọi ảnh chụp trên trang này đều lấy từ một bản cài thật có dữ liệu minh hoạ. Không dựng mẫu, không ghép ảnh.</p>
         </div>
+            <p class="stat-n center reveal">54 · Màn hình</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Hội đồng người lao động</span></div>
+            <img src="../medias/membre-cse.png" alt="Hội đồng người lao động" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Hội đồng người lao động</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Danh bạ công ty</span></div>
             <img src="../medias/annuaire.png" alt="Danh bạ công ty" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="Sơ đồ tổ chức" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Sơ đồ tổ chức</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Trung tâm thông báo</span></div>
+            <img src="../medias/notifications.png" alt="Trung tâm thông báo" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Trung tâm thông báo</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Tìm kiếm toàn hệ thống</span></div>
+            <img src="../medias/recherche.png" alt="Tìm kiếm toàn hệ thống" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Tìm kiếm toàn hệ thống</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-vi.png" alt="Quản trị nhân lực" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Quản trị nhân lực</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Lộ trình và năng lực</span></div>
+            <img src="../medias/parcours.png" alt="Lộ trình và năng lực" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Lộ trình và năng lực</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Lễ tân, khách và thư từ</span></div>
+            <img src="../medias/accueil.png" alt="Lễ tân, khách và thư từ" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Lễ tân, khách và thư từ</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Nhập dữ liệu</span></div>
+            <img src="../medias/import.png" alt="Nhập dữ liệu" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Nhập dữ liệu</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Giao diện và kết nối</span></div>
+            <img src="../medias/integrations.png" alt="Giao diện và kết nối" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Giao diện và kết nối</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Sao lưu và khôi phục</span></div>
             <img src="../medias/sauvegardes.png" alt="Sao lưu và khôi phục" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Chứng từ nhận được</span></div>
+            <img src="../medias/pieces.png" alt="Chứng từ nhận được" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Chứng từ nhận được</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Hóa đơn điện tử</span></div>
+            <img src="../medias/facturation.png" alt="Hóa đơn điện tử" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Hóa đơn điện tử</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>CRM bán hàng</span></div>
             <img src="../medias/crm.png" alt="CRM bán hàng" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="Kho và mua hàng" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Kho và mua hàng</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Đội xe</span></div>
+            <img src="../medias/flotte.png" alt="Đội xe" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Đội xe</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

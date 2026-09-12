@@ -16,7 +16,7 @@
 <meta property="og:title" content="الوظائف — Toutadmin" />
 <meta property="og:description" content="القائمة الكاملة، مجالًا بمجال. كل سطر يقابل شفرة مُسلَّمة ومُختبَرة، لا نية." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="الوظائف">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">الوظائف</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">الشاشات</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">الأساس والتنظيم</a>
           <a href="#espace">فضاء الموظف</a>
           <a href="#rh">الموارد البشرية</a>
@@ -176,13 +187,12 @@
           <a href="#direction">الإدارة والحوكمة</a>
           <a href="#it">المعلوماتية والتطوير</a>
           <a href="#conformite">الامتثال وشؤون الشركة والبيانات الشخصية</a>
-          <a href="#ecrans">الشاشات</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · الوظائف المؤشَّرة بـ«وحدة» تُفعَّل من لوحة الإدارة عند الحاجة.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · الوظائف المؤشَّرة بـ«وحدة» تُفعَّل من لوحة الإدارة عند الحاجة.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>هل ينقص شيء؟</h3>
-          <p>أخبِرنا. المنتج يتقدّم على دفعات، وطلبات الشركات التي تستعمله تأتي أولًا.</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">راسِل الفريق<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">الشاشات</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>هل ينقص شيء؟</h3>
+              <p>أخبِرنا. المنتج يتقدّم على دفعات، وطلبات الشركات التي تستعمله تأتي أولًا.</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">راسِل الفريق<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>الشاشات، بلا تحسين</h2>
           <p class="lede">كل الصور في هذا الموقع مأخوذة من نسخة حقيقية مملوءة ببيانات تجريبية. لا نماذج أوّلية ولا تركيب.</p>
         </div>
+            <p class="stat-n center reveal">54 · الشاشات</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>لجنة العمال</span></div>
+            <img src="../medias/membre-cse.png" alt="لجنة العمال" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>لجنة العمال</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>دليل الشركة</span></div>
             <img src="../medias/annuaire.png" alt="دليل الشركة" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="الهيكل التنظيمي" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>الهيكل التنظيمي</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>مركز الإشعارات</span></div>
+            <img src="../medias/notifications.png" alt="مركز الإشعارات" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>مركز الإشعارات</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>بحث شامل</span></div>
+            <img src="../medias/recherche.png" alt="بحث شامل" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>بحث شامل</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-ar.png" alt="الموارد البشرية" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>الموارد البشرية</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>المسارات المهنية والكفاءات</span></div>
+            <img src="../medias/parcours.png" alt="المسارات المهنية والكفاءات" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>المسارات المهنية والكفاءات</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>الاستقبال والزوار والبريد</span></div>
+            <img src="../medias/accueil.png" alt="الاستقبال والزوار والبريد" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>الاستقبال والزوار والبريد</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>استيراد البيانات</span></div>
+            <img src="../medias/import.png" alt="استيراد البيانات" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>استيراد البيانات</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>الواجهات والموصلات</span></div>
+            <img src="../medias/integrations.png" alt="الواجهات والموصلات" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>الواجهات والموصلات</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>النسخ الاحتياطية والاستعادة</span></div>
             <img src="../medias/sauvegardes.png" alt="النسخ الاحتياطية والاستعادة" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>المستندات الواردة</span></div>
+            <img src="../medias/pieces.png" alt="المستندات الواردة" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>المستندات الواردة</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>الفوترة الإلكترونية</span></div>
+            <img src="../medias/facturation.png" alt="الفوترة الإلكترونية" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>الفوترة الإلكترونية</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>إدارة علاقات العملاء</span></div>
             <img src="../medias/crm.png" alt="إدارة علاقات العملاء" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="المخزون والمشتريات" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>المخزون والمشتريات</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>أسطول المركبات</span></div>
+            <img src="../medias/flotte.png" alt="أسطول المركبات" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>أسطول المركبات</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

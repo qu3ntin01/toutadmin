@@ -16,7 +16,7 @@
 <meta property="og:title" content="Funktionen — Toutadmin" />
 <meta property="og:description" content="Die vollständige Liste, Bereich für Bereich. Jede Zeile entspricht ausgeliefertem und getestetem Code, keiner Absicht." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="Funktionen">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">Funktionen</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">Die Oberfläche</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">Fundament und Organisation</a>
           <a href="#espace">Mitarbeiterbereich</a>
           <a href="#rh">Personalwesen</a>
@@ -176,13 +187,12 @@
           <a href="#direction">Leitung und Governance</a>
           <a href="#it">IT und Entwicklung</a>
           <a href="#conformite">Compliance, Gesellschaftsrecht und Datenschutz</a>
-          <a href="#ecrans">Die Oberfläche</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · Mit „Modul“ markierte Funktionen werden bei Bedarf in der Konsole eingeschaltet.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · Mit „Modul“ markierte Funktionen werden bei Bedarf in der Konsole eingeschaltet.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>Fehlt etwas?</h3>
-          <p>Sagen Sie es uns. Das Produkt wächst in Schüben, und die Wünsche der Unternehmen, die es einsetzen, kommen zuerst.</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">An das Team schreiben<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">Die Oberfläche</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>Fehlt etwas?</h3>
+              <p>Sagen Sie es uns. Das Produkt wächst in Schüben, und die Wünsche der Unternehmen, die es einsetzen, kommen zuerst.</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">An das Team schreiben<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>Die Ansichten, unbearbeitet</h2>
           <p class="lede">Alle Bildschirmfotos dieser Seite stammen aus einer echten Instanz mit Demodaten. Keine Mockups, keine Montage.</p>
         </div>
+            <p class="stat-n center reveal">54 · Die Oberfläche</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Betriebsrat</span></div>
+            <img src="../medias/membre-cse.png" alt="Betriebsrat" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Betriebsrat</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Firmenverzeichnis</span></div>
             <img src="../medias/annuaire.png" alt="Firmenverzeichnis" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="Organigramm" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Organigramm</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Benachrichtigungen</span></div>
+            <img src="../medias/notifications.png" alt="Benachrichtigungen" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Benachrichtigungen</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Übergreifende Suche</span></div>
+            <img src="../medias/recherche.png" alt="Übergreifende Suche" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Übergreifende Suche</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-de.png" alt="Personalwesen" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Personalwesen</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Entwicklungswege und Kompetenzen</span></div>
+            <img src="../medias/parcours.png" alt="Entwicklungswege und Kompetenzen" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Entwicklungswege und Kompetenzen</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Empfang, Besucher und Post</span></div>
+            <img src="../medias/accueil.png" alt="Empfang, Besucher und Post" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Empfang, Besucher und Post</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Datenimport</span></div>
+            <img src="../medias/import.png" alt="Datenimport" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Datenimport</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Schnittstellen und Konnektoren</span></div>
+            <img src="../medias/integrations.png" alt="Schnittstellen und Konnektoren" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Schnittstellen und Konnektoren</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Sicherung und Wiederherstellung</span></div>
             <img src="../medias/sauvegardes.png" alt="Sicherung und Wiederherstellung" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Eingegangene Belege</span></div>
+            <img src="../medias/pieces.png" alt="Eingegangene Belege" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Eingegangene Belege</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Elektronische Rechnungsstellung</span></div>
+            <img src="../medias/facturation.png" alt="Elektronische Rechnungsstellung" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Elektronische Rechnungsstellung</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Vertriebs-CRM</span></div>
             <img src="../medias/crm.png" alt="Vertriebs-CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="Lager und Einkauf" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Lager und Einkauf</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Fuhrpark</span></div>
+            <img src="../medias/flotte.png" alt="Fuhrpark" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Fuhrpark</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

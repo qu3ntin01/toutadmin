@@ -18,10 +18,11 @@ Node seul suffit — aucune installation, aucun appel réseau. Le script écrit
 `site/`, **le dossier à déposer sur l'hébergement** : cinq pages × seize langues,
 le français à la racine, les quinze autres dans leur sous-dossier.
 
-Les écrans ne forment plus une page à part : ils ferment la page
-Fonctionnalités, à l'ancre `#ecrans`. L'adresse `ecrans.html` reste servie dans
-chaque langue — une redirection, pour que les liens déjà partagés continuent
-d'aboutir.
+Les écrans ne forment plus une page à part : la page Fonctionnalités a deux
+onglets, « Fonctionnalités » et « Les écrans », le second à l'ancre `#ecrans`.
+Un lien vers une ancre cachée dans l'onglet fermé l'ouvre — c'est le script qui
+s'en charge. L'adresse `ecrans.html` reste servie dans chaque langue, en
+redirection, pour que les liens déjà partagés continuent d'aboutir.
 
 ```
 build.js        assemblage des pages (aucune dépendance)

@@ -16,7 +16,7 @@
 <meta property="og:title" content="Functies — Toutadmin" />
 <meta property="og:description" content="De volledige lijst, domein per domein. Elke regel is opgeleverde en geteste code, geen voornemen." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="Functies">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">Functies</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">De schermen</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">Fundament en organisatie</a>
           <a href="#espace">Werkruimte van de medewerker</a>
           <a href="#rh">Human resources</a>
@@ -176,13 +187,12 @@
           <a href="#direction">Directie en governance</a>
           <a href="#it">IT en ontwikkeling</a>
           <a href="#conformite">Compliance, vennootschapsrecht en persoonsgegevens</a>
-          <a href="#ecrans">De schermen</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · Functies met «module» worden vanuit de console aangezet wanneer u ze nodig hebt.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · Functies met «module» worden vanuit de console aangezet wanneer u ze nodig hebt.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>Ontbreekt er iets?</h3>
-          <p>Zeg het ons. Het product groeit in schijven, en de vragen van de bedrijven die het gebruiken gaan voor.</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">Het team schrijven<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">De schermen</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>Ontbreekt er iets?</h3>
+              <p>Zeg het ons. Het product groeit in schijven, en de vragen van de bedrijven die het gebruiken gaan voor.</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">Het team schrijven<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>De schermen, onbewerkt</h2>
           <p class="lede">Alle afbeeldingen op deze site komen uit een echte instantie met demogegevens. Geen mock-ups, geen montage.</p>
         </div>
+            <p class="stat-n center reveal">54 · De schermen</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Ondernemingsraad</span></div>
+            <img src="../medias/membre-cse.png" alt="Ondernemingsraad" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Ondernemingsraad</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Bedrijfsadresboek</span></div>
             <img src="../medias/annuaire.png" alt="Bedrijfsadresboek" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="Organigram" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Organigram</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Meldingencentrum</span></div>
+            <img src="../medias/notifications.png" alt="Meldingencentrum" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Meldingencentrum</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Zoeken door alles heen</span></div>
+            <img src="../medias/recherche.png" alt="Zoeken door alles heen" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Zoeken door alles heen</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-nl.png" alt="Human resources" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Human resources</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Loopbaanpaden en competenties</span></div>
+            <img src="../medias/parcours.png" alt="Loopbaanpaden en competenties" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Loopbaanpaden en competenties</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Receptie, bezoekers en post</span></div>
+            <img src="../medias/accueil.png" alt="Receptie, bezoekers en post" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Receptie, bezoekers en post</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Gegevensimport</span></div>
+            <img src="../medias/import.png" alt="Gegevensimport" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Gegevensimport</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Koppelingen en connectoren</span></div>
+            <img src="../medias/integrations.png" alt="Koppelingen en connectoren" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Koppelingen en connectoren</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Back-ups en herstel</span></div>
             <img src="../medias/sauvegardes.png" alt="Back-ups en herstel" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Ontvangen documenten</span></div>
+            <img src="../medias/pieces.png" alt="Ontvangen documenten" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Ontvangen documenten</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Elektronische facturatie</span></div>
+            <img src="../medias/facturation.png" alt="Elektronische facturatie" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Elektronische facturatie</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Commerciële CRM</span></div>
             <img src="../medias/crm.png" alt="Commerciële CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="Voorraad en aankoop" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Voorraad en aankoop</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Wagenpark</span></div>
+            <img src="../medias/flotte.png" alt="Wagenpark" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Wagenpark</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

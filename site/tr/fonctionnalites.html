@@ -16,7 +16,7 @@
 <meta property="og:title" content="Özellikler — Toutadmin" />
 <meta property="og:description" content="Alan alan tam liste. Her satır teslim edilmiş ve test edilmiş koda karşılık gelir, bir niyete değil." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="Özellikler">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">Özellikler</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">Ekranlar</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">Temel ve organizasyon</a>
           <a href="#espace">Çalışan alanı</a>
           <a href="#rh">İnsan kaynakları</a>
@@ -176,13 +187,12 @@
           <a href="#direction">Yönetim ve kurumsal yönetişim</a>
           <a href="#it">Bilgi işlem ve geliştirme</a>
           <a href="#conformite">Uyum, şirket hukuku ve kişisel veriler</a>
-          <a href="#ecrans">Ekranlar</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · «Modül» işaretli işlevler gerektiğinde konsoldan açılır.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · «Modül» işaretli işlevler gerektiğinde konsoldan açılır.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>Eksik bir şey mi var?</h3>
-          <p>Bize söyleyin. Ürün partiler hâlinde ilerler ve onu kullanan şirketlerin istekleri öne geçer.</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">Ekibe yazın<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">Ekranlar</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>Eksik bir şey mi var?</h3>
+              <p>Bize söyleyin. Ürün partiler hâlinde ilerler ve onu kullanan şirketlerin istekleri öne geçer.</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">Ekibe yazın<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>Ekranlar, rötuşsuz</h2>
           <p class="lede">Bu sitedeki tüm görüntüler, örnek verilerle doldurulmuş gerçek bir kurulumdan çıkmıştır. Maket yok, montaj yok.</p>
         </div>
+            <p class="stat-n center reveal">54 · Ekranlar</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Çalışan temsil kurulu</span></div>
+            <img src="../medias/membre-cse.png" alt="Çalışan temsil kurulu" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Çalışan temsil kurulu</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Şirket rehberi</span></div>
             <img src="../medias/annuaire.png" alt="Şirket rehberi" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="Organizasyon şeması" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Organizasyon şeması</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Bildirim merkezi</span></div>
+            <img src="../medias/notifications.png" alt="Bildirim merkezi" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Bildirim merkezi</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Tüm veride arama</span></div>
+            <img src="../medias/recherche.png" alt="Tüm veride arama" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Tüm veride arama</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-tr.png" alt="İnsan kaynakları" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>İnsan kaynakları</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Gelişim yolları ve yetkinlikler</span></div>
+            <img src="../medias/parcours.png" alt="Gelişim yolları ve yetkinlikler" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Gelişim yolları ve yetkinlikler</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Karşılama, ziyaretçiler ve posta</span></div>
+            <img src="../medias/accueil.png" alt="Karşılama, ziyaretçiler ve posta" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Karşılama, ziyaretçiler ve posta</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Veri içe aktarma</span></div>
+            <img src="../medias/import.png" alt="Veri içe aktarma" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Veri içe aktarma</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Arayüzler ve bağlayıcılar</span></div>
+            <img src="../medias/integrations.png" alt="Arayüzler ve bağlayıcılar" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Arayüzler ve bağlayıcılar</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Yedekler ve kurtarma</span></div>
             <img src="../medias/sauvegardes.png" alt="Yedekler ve kurtarma" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Gelen belgeler</span></div>
+            <img src="../medias/pieces.png" alt="Gelen belgeler" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Gelen belgeler</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>E-fatura</span></div>
+            <img src="../medias/facturation.png" alt="E-fatura" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>E-fatura</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Ticari CRM</span></div>
             <img src="../medias/crm.png" alt="Ticari CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="Stok ve satın alma" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>Stok ve satın alma</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Araç filosu</span></div>
+            <img src="../medias/flotte.png" alt="Araç filosu" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>Araç filosu</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

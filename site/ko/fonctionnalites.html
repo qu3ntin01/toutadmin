@@ -16,7 +16,7 @@
 <meta property="og:title" content="기능 — Toutadmin" />
 <meta property="og:description" content="영역별 전체 목록입니다. 모든 줄은 출시되어 테스트를 거친 코드에 해당하며, 계획이 아닙니다." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="기능">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">기능</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">화면</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">기반과 조직</a>
           <a href="#espace">직원 공간</a>
           <a href="#rh">인사</a>
@@ -176,13 +187,12 @@
           <a href="#direction">경영과 거버넌스</a>
           <a href="#it">정보시스템과 개발</a>
           <a href="#conformite">컴플라이언스, 회사 법무, 개인정보</a>
-          <a href="#ecrans">화면</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · 「모듈」로 표시된 기능은 필요할 때 콘솔에서 켭니다.</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · 「모듈」로 표시된 기능은 필요할 때 콘솔에서 켭니다.</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>빠진 게 있나요?</h3>
-          <p>알려 주세요. 제품은 묶음 단위로 나아가고, 실제로 쓰는 기업의 요청이 먼저 반영됩니다.</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">팀에 메일 보내기<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">화면</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>빠진 게 있나요?</h3>
+              <p>알려 주세요. 제품은 묶음 단위로 나아가고, 실제로 쓰는 기업의 요청이 먼저 반영됩니다.</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">팀에 메일 보내기<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>손대지 않은 화면</h2>
           <p class="lede">이 사이트의 모든 이미지는 데모 데이터가 담긴 실제 인스턴스에서 나왔습니다. 목업도, 합성도 없습니다.</p>
         </div>
+            <p class="stat-n center reveal">54 · 화면</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>노사협의회</span></div>
+            <img src="../medias/membre-cse.png" alt="노사협의회" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>노사협의회</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>사내 주소록</span></div>
             <img src="../medias/annuaire.png" alt="사내 주소록" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="조직도" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>조직도</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>알림 센터</span></div>
+            <img src="../medias/notifications.png" alt="알림 센터" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>알림 센터</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>통합 검색</span></div>
+            <img src="../medias/recherche.png" alt="통합 검색" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>통합 검색</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-ko.png" alt="인사" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>인사</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>성장 경로와 역량</span></div>
+            <img src="../medias/parcours.png" alt="성장 경로와 역량" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>성장 경로와 역량</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>안내데스크, 방문자, 우편</span></div>
+            <img src="../medias/accueil.png" alt="안내데스크, 방문자, 우편" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>안내데스크, 방문자, 우편</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>데이터 가져오기</span></div>
+            <img src="../medias/import.png" alt="데이터 가져오기" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>데이터 가져오기</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>인터페이스와 커넥터</span></div>
+            <img src="../medias/integrations.png" alt="인터페이스와 커넥터" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>인터페이스와 커넥터</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>백업과 복구</span></div>
             <img src="../medias/sauvegardes.png" alt="백업과 복구" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>접수된 문서</span></div>
+            <img src="../medias/pieces.png" alt="접수된 문서" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>접수된 문서</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>전자 세금계산서</span></div>
+            <img src="../medias/facturation.png" alt="전자 세금계산서" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>전자 세금계산서</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>영업 CRM</span></div>
             <img src="../medias/crm.png" alt="영업 CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="재고와 구매" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>재고와 구매</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>차량 관리</span></div>
+            <img src="../medias/flotte.png" alt="차량 관리" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>차량 관리</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

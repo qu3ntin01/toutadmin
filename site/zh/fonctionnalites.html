@@ -16,7 +16,7 @@
 <meta property="og:title" content="功能 — Toutadmin" />
 <meta property="og:description" content="完整清单，按领域排列。每一行都对应已交付并经过测试的代码，而不是设想。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=de30c8e88a" />
+<link rel="stylesheet" href="../assets/style.css?v=e9f56e9674" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -159,9 +159,20 @@
       </div>
     </section>
 
-    <section class="section-tight">
-      <div class="wrap">
-        <div class="dom-index reveal">
+    <div data-tabs>
+      <section class="section-tight tabs-bar">
+        <div class="wrap">
+          <div class="tabs center reveal" role="tablist" aria-label="功能">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-tab="fonctionnalites">功能</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-tab="ecrans">界面</button>
+          </div>
+        </div>
+      </section>
+
+      <div class="sheet is-active" data-pane="fonctionnalites" id="fonctionnalites" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="dom-index reveal">
           <a href="#socle">底座与组织</a>
           <a href="#espace">员工工作空间</a>
           <a href="#rh">人力资源</a>
@@ -176,13 +187,12 @@
           <a href="#direction">管理层与治理</a>
           <a href="#it">信息技术与研发</a>
           <a href="#conformite">合规、公司法务与个人数据</a>
-          <a href="#ecrans">界面</a>
-        </div>
-        <p class="stat-n mt-m reveal">121 · 标注「模块」的功能可在需要时从控制台启用。</p>
-      </div>
-    </section>
+            </div>
+            <p class="stat-n mt-m reveal">121 · 标注「模块」的功能可在需要时从控制台启用。</p>
+          </div>
+        </section>
 
-    <div class="wrap">
+        <div class="wrap">
         <section class="dom" id="socle">
           <div class="dom-body">
             <div class="reveal">
@@ -570,25 +580,28 @@
             </div>
           </div>
         </section>
-    </div>
-
-    <section class="section">
-      <div class="wrap">
-        <div class="note reveal mx-auto">
-          <h3>还缺什么吗？</h3>
-          <p>告诉我们。产品按批次推进，正在使用它的企业提出的需求排在前面。</p>
-          <p class="mt-m"><a class="link-arrow" href="../contact.html">写信给团队<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
-      </div>
-    </section>
 
-    <section class="section tinted" id="ecrans">
-      <div class="wrap">
-        <div class="section-head center reveal">
-          <span class="eyebrow">界面</span>
+        <section class="section">
+          <div class="wrap">
+            <div class="note reveal mx-auto">
+              <h3>还缺什么吗？</h3>
+              <p>告诉我们。产品按批次推进，正在使用它的企业提出的需求排在前面。</p>
+              <p class="mt-m"><a class="link-arrow" href="../contact.html">写信给团队<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="sheet" data-pane="ecrans" id="ecrans" role="tabpanel">
+        <section class="section-tight">
+          <div class="wrap">
+            <div class="section-head center reveal">
+          
           <h2>未经修饰的界面</h2>
           <p class="lede">本站所有截图均来自填有演示数据的真实实例。没有效果图，没有拼接。</p>
         </div>
+            <p class="stat-n center reveal">54 · 界面</p>
           <div class="mt-l">
             <div class="section-head reveal">
           
@@ -668,6 +681,13 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>职工委员会</span></div>
+            <img src="../medias/membre-cse.png" alt="职工委员会" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>职工委员会</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>公司通讯录</span></div>
             <img src="../medias/annuaire.png" alt="公司通讯录" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -679,6 +699,20 @@
             <img src="../medias/organigramme.png" alt="组织结构图" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>组织结构图</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>通知中心</span></div>
+            <img src="../medias/notifications.png" alt="通知中心" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>通知中心</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>全局搜索</span></div>
+            <img src="../medias/recherche.png" alt="全局搜索" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>全局搜索</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -716,6 +750,13 @@
             <img src="../medias/rh-zh.png" alt="人力资源" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>人力资源</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>发展路径与技能</span></div>
+            <img src="../medias/parcours.png" alt="发展路径与技能" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>发展路径与技能</figcaption>
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
@@ -825,6 +866,27 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>前台、访客与信件</span></div>
+            <img src="../medias/accueil.png" alt="前台、访客与信件" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>前台、访客与信件</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>数据导入</span></div>
+            <img src="../medias/import.png" alt="数据导入" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>数据导入</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>接口与连接器</span></div>
+            <img src="../medias/integrations.png" alt="接口与连接器" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>接口与连接器</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>备份与恢复</span></div>
             <img src="../medias/sauvegardes.png" alt="备份与恢复" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -869,6 +931,20 @@
             </figure>
             <figure class="reveal">
               <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>收到的单据</span></div>
+            <img src="../medias/pieces.png" alt="收到的单据" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>收到的单据</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>电子发票</span></div>
+            <img src="../medias/facturation.png" alt="电子发票" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>电子发票</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>销售 CRM</span></div>
             <img src="../medias/crm.png" alt="销售 CRM" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
@@ -880,6 +956,13 @@
             <img src="../medias/stock.png" alt="库存与采购" loading="lazy" decoding="async" width="1440" height="900" />
           </div>
               <figcaption>库存与采购</figcaption>
+            </figure>
+            <figure class="reveal">
+              <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>车队管理</span></div>
+            <img src="../medias/flotte.png" alt="车队管理" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+              <figcaption>车队管理</figcaption>
             </figure>
             </div>
           </div>
@@ -934,8 +1017,10 @@
             </figure>
             </div>
           </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
 
     <div class="lightbox" role="dialog" aria-modal="true">
       <figure>
@@ -1019,6 +1104,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=4bac18319d" defer></script>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
 </body>
 </html>

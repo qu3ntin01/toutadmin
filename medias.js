@@ -11,17 +11,19 @@ module.exports = {
       key: 'screens.member',
       shots: ['membre-espace', 'membre-equipe', 'membre-demandes', 'membre-agenda', 'membre-salles',
         'membre-messagerie', 'membre-connaissances', 'membre-coffre-fort', 'membre-profil',
-        'membre-juridique-membre', 'annuaire', 'organigramme', 'connexion'],
+        'membre-juridique-membre', 'membre-cse', 'annuaire', 'organigramme', 'notifications',
+        'recherche', 'connexion'],
     },
     {
       key: 'screens.admin',
-      shots: ['pilotage', 'admin', 'rh', 'gestion', 'direction', 'projets', 'support', 'planning',
+      shots: ['pilotage', 'admin', 'rh', 'parcours', 'gestion', 'direction', 'projets', 'support', 'planning',
         'qualite', 'sante-securite', 'informatique', 'developpement', 'evenements', 'juridique',
-        'alertes', 'securite', 'rgpd', 'parapheur', 'sauvegardes'],
+        'alertes', 'securite', 'rgpd', 'parapheur', 'accueil', 'import', 'integrations', 'sauvegardes'],
     },
     {
       key: 'screens.modules',
-      shots: ['comptabilite', 'paie', 'tresorerie', 'immobilisations', 'crm', 'stock'],
+      shots: ['comptabilite', 'paie', 'tresorerie', 'immobilisations', 'pieces', 'facturation',
+        'crm', 'stock', 'flotte'],
     },
     {
       key: 'screens.dark',
