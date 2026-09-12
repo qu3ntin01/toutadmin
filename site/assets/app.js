@@ -40,6 +40,87 @@
   }
 
   /* ------------------------------------------------- plan du site (tiroir) */
+  // Une page peut rester en cache chez le visiteur bien plus longtemps que ce
+  // script : l'hébergement ne pose aucune directive de cache sur le HTML, le
+  // navigateur applique alors sa propre heuristique, et une page d'avant le
+  // tiroir garde un bouton à trois traits sans rien derrière. Plutôt que de
+  // laisser ce bouton mort jusqu'au prochain rechargement forcé, on regreffe
+  // un tiroir à partir de la barre de navigation elle-même. C'est un repli :
+  // il reprend les liens de la barre, sans les descriptions ni les domaines.
+  function graftDrawer() {
+    var bar = document.querySelector('.nav-links');
+    var header = document.querySelector('.nav');
+    if (!bar || !header) return;
+
+    var backdrop = document.createElement('div');
+    backdrop.className = 'drawer-backdrop';
+    backdrop.hidden = true;
+
+    var aside = document.createElement('aside');
+    aside.className = 'drawer';
+    aside.id = 'plan-du-site';
+    aside.hidden = true;
+
+    var head = document.createElement('div');
+    head.className = 'drawer-head';
+    var title = document.createElement('span');
+    title.className = 'brand';
+    // Le nom seul : le monogramme de la marque est un décor, pas du texte.
+    var brand = header.querySelector('.brand');
+    if (brand) {
+      var copy = brand.cloneNode(true);
+      var mono = copy.querySelector('.brand-mark');
+      if (mono) mono.remove();
+      title.textContent = copy.textContent.trim();
+    }
+    var close = document.createElement('button');
+    close.className = 'picker-btn drawer-close';
+    close.type = 'button';
+    close.textContent = '\u2715';
+    var toggle = document.querySelector('.nav-toggle');
+    if (toggle && toggle.getAttribute('aria-label')) close.setAttribute('aria-label', toggle.getAttribute('aria-label'));
+    head.appendChild(title);
+    head.appendChild(close);
+
+    var body = document.createElement('div');
+    body.className = 'drawer-body';
+    var list = document.createElement('nav');
+    list.className = 'drawer-list';
+    var links = bar.querySelectorAll('a');
+    for (var i = 0; i < links.length; i += 1) {
+      var item = document.createElement('a');
+      item.className = 'drawer-item' + (links[i].classList.contains('is-active') ? ' is-active' : '');
+      item.href = links[i].href;
+      if (links[i].rel) item.rel = links[i].rel;
+      var label = document.createElement('span');
+      var strong = document.createElement('strong');
+      strong.textContent = (links[i].textContent || '').trim();
+      label.appendChild(strong);
+      item.appendChild(label);
+      list.appendChild(item);
+    }
+    body.appendChild(list);
+    aside.appendChild(head);
+    aside.appendChild(body);
+    header.parentNode.insertBefore(backdrop, header.nextSibling);
+    header.parentNode.insertBefore(aside, backdrop.nextSibling);
+
+    // La feuille de style peut elle aussi dater d'avant le tiroir. Sans ses
+    // règles, le panneau s'empilerait en bas de page : on vérifie qu'elle le
+    // connaît, et sinon on pose le strict minimum pour qu'il glisse sur le
+    // côté. Les couleurs système suivent le thème clair ou sombre.
+    if (window.getComputedStyle(aside).position !== 'fixed') {
+      aside.style.cssText = 'position:fixed;inset-block:0;inset-inline-end:0;z-index:60;'
+        + 'inline-size:min(22rem,88vw);overflow:auto;padding:1.25rem;'
+        + 'background:Canvas;color:CanvasText;box-shadow:0 0 3rem rgba(0,0,0,.3)';
+      backdrop.style.cssText = 'position:fixed;inset:0;z-index:59;background:rgba(0,0,0,.45)';
+      list.style.cssText = 'display:grid;gap:.75rem;margin-block-start:1rem';
+      head.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:1rem';
+    }
+  }
+
+  if (document.querySelector('.nav-toggle') && !document.querySelector('.drawer')) graftDrawer();
+
   var drawer = document.querySelector('.drawer');
   var backdrop = document.querySelector('.drawer-backdrop');
   var opener = document.querySelector('.nav-toggle');
