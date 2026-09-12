@@ -667,6 +667,15 @@ final class AdminController
         }
         $enable = $request->input('enabled') === 'on';
         Catalogue::setEnabled($key, $enable);
+        // Un module qui s'ouvre sur une page vide ne s'utilise pas : le plan
+        // comptable et les barèmes de paie sont posés à l'activation, et
+        // restent modifiables. Le semis ne duplique rien s'il a déjà eu lieu.
+        if ($enable && $key === 'comptabilite') {
+            \App\Modules\Accounting::seedDefaults();
+        }
+        if ($enable && $key === 'paie') {
+            \App\Modules\Payroll::seedDefaults();
+        }
         Audit::log($enable ? 'module.active' : 'module.desactive', 'settings', null, ['module' => $key]);
         return self::back('modules', 'success', $enable
             ? "Module « {$module['label']} » activé."

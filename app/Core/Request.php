@@ -43,6 +43,26 @@ final class Request
         return is_scalar($value) ? trim((string) $value) : $fallback;
     }
 
+    /**
+     * Un champ envoyé en plusieurs exemplaires (« account_id[] »), rendu comme
+     * une liste de chaînes. Une valeur simple devient une liste d'un élément :
+     * l'appelant n'a pas à savoir combien de lignes le formulaire portait.
+     */
+    public function inputs(string $key): array
+    {
+        $value = $this->body[$key] ?? $this->query[$key] ?? [];
+        if (is_scalar($value)) {
+            return [trim((string) $value)];
+        }
+        if (!is_array($value)) {
+            return [];
+        }
+        return array_values(array_map(
+            static fn (mixed $item): string => is_scalar($item) ? trim((string) $item) : '',
+            $value
+        ));
+    }
+
     public function has(string $key): bool
     {
         return isset($this->body[$key]) || isset($this->query[$key]);

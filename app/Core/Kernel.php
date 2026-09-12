@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Core;
 
 use App\Controllers\AdminController;
+use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
 use App\Controllers\AuthController;
 use App\Controllers\DirectoryController;
@@ -16,6 +17,7 @@ use App\Controllers\MemberController;
 use App\Controllers\MessagesController;
 use App\Controllers\NotificationsController;
 use App\Controllers\OrgChartController;
+use App\Controllers\PayrollController;
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\RequestsController;
@@ -224,6 +226,26 @@ final class Kernel
         $router->post('/mon-espace/frais', FinanceController::createClaim(...));
         $router->post('/mon-espace/frais/{id}/annuler', FinanceController::cancelClaim(...));
 
+        // Comptabilité (module optionnel).
+        $router->get('/comptabilite', AccountingController::index(...));
+        $router->get('/comptabilite/balance.csv', AccountingController::balanceCsv(...));
+        $router->post('/comptabilite/comptes', AccountingController::createAccount(...));
+        $router->post('/comptabilite/comptes/{id}/supprimer', AccountingController::deleteAccount(...));
+        $router->post('/comptabilite/journaux', AccountingController::createJournal(...));
+        $router->post('/comptabilite/ecritures', AccountingController::createEntry(...));
+        $router->post('/comptabilite/ecritures/{id}/supprimer', AccountingController::deleteEntry(...));
+        $router->post('/comptabilite/factures/{id}/comptabiliser', AccountingController::postInvoice(...));
+
+        // Paie (module optionnel).
+        $router->get('/paie', PayrollController::index(...));
+        $router->post('/paie/baremes', PayrollController::createRate(...));
+        $router->post('/paie/baremes/{id}/statut', PayrollController::toggleRate(...));
+        $router->post('/paie/baremes/{id}/supprimer', PayrollController::deleteRate(...));
+        $router->post('/paie/plafond', PayrollController::setCeiling(...));
+        $router->post('/paie/salaires/{id}', PayrollController::setGrossSalary(...));
+        $router->post('/paie/bulletins', PayrollController::createPayslip(...));
+        $router->post('/paie/bulletins/lot', PayrollController::createPayslipBatch(...));
+
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
         $router->post('/notifications/{id}/lue', NotificationsController::markRead(...));
@@ -371,6 +393,25 @@ final class Kernel
         // /mon-espace, qui n'est pas derrière cette porte.
         if (str_starts_with($request->path, '/gestion') && !FinanceController::canAccess($user)) {
             return $refuse();
+        }
+        // Les modules optionnels : éteints, leurs écrans n'existent pas, et ce
+        // n'est pas à chaque route de s'en souvenir. La comptabilité suit les
+        // droits de la gestion ; la paie, ceux des RH.
+        if (str_starts_with($request->path, '/comptabilite')) {
+            if (!\App\Modules\Catalogue::isEnabled('comptabilite')) {
+                return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
+            }
+            if (!AccountingController::canAccess($user)) {
+                return $refuse();
+            }
+        }
+        if (str_starts_with($request->path, '/paie')) {
+            if (!\App\Modules\Catalogue::isEnabled('paie')) {
+                return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
+            }
+            if (!PayrollController::canAccess($user)) {
+                return $refuse();
+            }
         }
         return null;
     }

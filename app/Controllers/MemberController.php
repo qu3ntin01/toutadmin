@@ -99,6 +99,13 @@ final class MemberController
         if (FinanceController::canAccess($user)) {
             $items[] = ['href' => '/gestion', 'label' => t('nav.gestion')];
         }
+        // Un module éteint n'a pas d'entrée : la barre dit ce qui existe.
+        if (\App\Modules\Catalogue::isEnabled('comptabilite') && AccountingController::canAccess($user)) {
+            $items[] = ['href' => '/comptabilite', 'label' => t('pcs.tabAccounting')];
+        }
+        if (\App\Modules\Catalogue::isEnabled('paie') && PayrollController::canAccess($user)) {
+            $items[] = ['href' => '/paie', 'label' => t('pay.panel')];
+        }
         return $items;
     }
 
