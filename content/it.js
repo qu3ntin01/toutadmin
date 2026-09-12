@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': 'Chiedere una dimostrazione sui tuoi casi, o scriverci.',
   'menu.docs.d': 'Installazione, configurazione, sicurezza, API e glossario completo. Sito separato.',
   'menu.home': 'Home',
+  'menu.group.product': 'Il prodotto',
+  'menu.group.decide': 'Per decidere',
+  'menu.group.more': 'Andare oltre',
 };

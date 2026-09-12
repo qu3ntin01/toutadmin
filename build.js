@@ -17,6 +17,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const ROOT = __dirname;
 const OUT = path.join(ROOT, 'site');
@@ -111,6 +112,17 @@ const MEDIA_FILES = new Set(fs.readdirSync(path.join(ROOT, 'medias')));
 /* ------------------------------------------------------------- gabarit */
 
 const layout = fs.readFileSync(path.join(ROOT, 'layout.html'), 'utf8');
+
+/* L'empreinte de chaque ressource, collée à son adresse.
+   Le site se déploie par « git pull » et les assets sont servis avec douze
+   heures de cache : sans cela, un visiteur déjà venu garde l'ancien script
+   pendant une demi-journée alors que le HTML, lui, est neuf — et un bouton
+   tout neuf ne répond pas. Une adresse qui change à chaque modification
+   supprime la classe entière de ce problème. */
+const stamp = (file) => crypto.createHash('sha1')
+  .update(fs.readFileSync(path.join(ROOT, 'assets', file)))
+  .digest('hex').slice(0, 10);
+const VERSIONS = { css: stamp('style.css'), boot: stamp('theme-boot.js'), app: stamp('app.js') };
 const { DOMAINS } = require(path.join(ROOT, 'pages', '_shared.js'));
 
 function navHtml(t, ctx) {
@@ -165,25 +177,38 @@ function navHtml(t, ctx) {
    derrière, et les quatorze domaines de la page Fonctionnalités sont listés —
    c'est le plan du site, pas un menu de repli pour petits écrans. */
 function drawerHtml(t, ctx) {
-  const entries = [
-    ['index', 'menu.home', 'menu.home.d', 'layers'],
-    ['fonctionnalites', 'nav.features', 'menu.features.d', 'briefcase'],
-    ['ecrans', 'nav.screens', 'menu.screens.d', 'monitor'],
-    ['securite', 'nav.security', 'menu.security.d', 'shield'],
-    ['tarifs', 'nav.pricing', 'menu.pricing.d', 'chart'],
-    ['contact', 'nav.contact', 'menu.contact.d', 'users'],
-  ].map(([page, label, note, ic]) => `<a class="drawer-item${ctx.page === page ? ' is-active' : ''}" href="${ctx.href(page)}">
+  const item = ([page, label, note, ic]) => `<a class="drawer-item${ctx.page === page ? ' is-active' : ''}" href="${page.startsWith('http') ? page : ctx.href(page)}"${page.startsWith('http') ? ' rel="noopener"' : ''}>
             <span class="ico">${icon(ic)}</span>
             <span><strong>${esc(t(label))}</strong><span class="drawer-note">${esc(t(note))}</span></span>
-          </a>`).join('\n          ');
-
-  const doc = `<a class="drawer-item" href="${DOC_URL}" rel="noopener">
-            <span class="ico">${icon('code')}</span>
-            <span><strong>${esc(t('nav.docs'))}</strong><span class="drawer-note">${esc(t('menu.docs.d'))}</span></span>
           </a>`;
 
   const domains = DOMAINS.map((key) =>
     `<a href="${ctx.href('fonctionnalites')}#${key}">${esc(t(`dom.${key}.title`))}</a>`).join('\n            ');
+
+  // Trois sections : ce qu'est le produit, ce qu'il faut savoir pour décider,
+  // et par où entrer en contact. Les fonctionnalités et les écrans vont
+  // ensemble — ce sont deux façons de regarder la même chose.
+  const groups = [
+    ['menu.group.product', [
+      ['index', 'menu.home', 'menu.home.d', 'layers'],
+      ['fonctionnalites', 'nav.features', 'menu.features.d', 'briefcase'],
+      ['ecrans', 'nav.screens', 'menu.screens.d', 'monitor'],
+    ], true],
+    ['menu.group.decide', [
+      ['securite', 'nav.security', 'menu.security.d', 'shield'],
+      ['tarifs', 'nav.pricing', 'menu.pricing.d', 'chart'],
+    ], false],
+    ['menu.group.more', [
+      ['contact', 'nav.contact', 'menu.contact.d', 'users'],
+      [DOC_URL, 'nav.docs', 'menu.docs.d', 'code'],
+    ], false],
+  ].map(([title, entries, withDomains]) => `<h4>${esc(t(title))}</h4>
+      <nav class="drawer-list" aria-label="${esc(t(title))}">
+          ${entries.map(item).join('\n          ')}
+      </nav>${withDomains ? `
+      <div class="drawer-chips">
+            ${domains}
+      </div>` : ''}`).join('\n      ');
 
   return `  <div class="drawer-backdrop" hidden></div>
   <aside class="drawer" id="plan-du-site" aria-label="${esc(t('menu.title'))}" hidden>
@@ -192,14 +217,7 @@ function drawerHtml(t, ctx) {
       <button class="picker-btn drawer-close" type="button" aria-label="${esc(t('menu.close'))}">${icon('close')}</button>
     </div>
     <div class="drawer-body">
-      <nav class="drawer-list" aria-label="${esc(t('menu.title'))}">
-          ${entries}
-          ${doc}
-      </nav>
-      <h4>${esc(t('menu.domains'))}</h4>
-      <div class="drawer-chips">
-            ${domains}
-      </div>
+      ${groups}
       <a class="btn drawer-cta" href="${ctx.href('contact')}">${esc(t('nav.demo'))}${icon('arrow')}</a>
     </div>
   </aside>`;
@@ -310,6 +328,9 @@ for (const locale of LOCALES) {
       .split('{{TITLE}}').join(esc(view.title))
       .split('{{DESCRIPTION}}').join(esc(view.description))
       .split('{{BASE}}').join(base)
+      .split('{{V_CSS}}').join(VERSIONS.css)
+      .split('{{V_BOOT}}').join(VERSIONS.boot)
+      .split('{{V_APP}}').join(VERSIONS.app)
       .split('{{ALTERNATES}}').join(alternates)
       .split('{{NAV}}').join(navHtml(t, ctx) + '\n' + drawerHtml(t, ctx))
       .split('{{CONTENT}}').join(view.body)
@@ -347,7 +368,8 @@ fs.writeFileSync(path.join(OUT, 'version.txt'),
   `Toutadmin — vitrine\n\nBarème\n  ${barème}\n\n`
   + `Pages     : ${written} (${PAGES.length} × ${LOCALES.length} langues)\n`
   + `Clés      : ${refKeys.length} par langue\n`
-  + `Captures  : ${fs.readdirSync(path.join(ROOT, 'medias')).length} fichiers\n`);
+  + `Captures  : ${fs.readdirSync(path.join(ROOT, 'medias')).length} fichiers\n`
+  + `Ressources: style ${VERSIONS.css} · thème ${VERSIONS.boot} · script ${VERSIONS.app}\n`);
 const urls = [];
 for (const locale of LOCALES) {
   for (const page of PAGES) {

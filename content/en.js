@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': 'Book a demonstration on your own cases, or write to us.',
   'menu.docs.d': 'Installation, configuration, security, API and the full glossary. Separate site.',
   'menu.home': 'Home',
+  'menu.group.product': 'The product',
+  'menu.group.decide': 'To decide',
+  'menu.group.more': 'Going further',
 };

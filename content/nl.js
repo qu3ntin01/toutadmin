@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': 'Een demonstratie op uw eigen gevallen aanvragen, of ons schrijven.',
   'menu.docs.d': 'Installatie, configuratie, beveiliging, API en volledig lexicon. Aparte site.',
   'menu.home': 'Home',
+  'menu.group.product': 'Het product',
+  'menu.group.decide': 'Om te beslissen',
+  'menu.group.more': 'Verder gaan',
 };

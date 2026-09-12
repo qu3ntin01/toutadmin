@@ -480,4 +480,7 @@ module.exports = {
   'menu.contact.d': 'Demander une démonstration sur vos cas, ou nous écrire.',
   'menu.docs.d': 'Installation, configuration, sécurité, API et lexique complet. Site séparé.',
   'menu.home': 'Accueil',
+  'menu.group.product': 'Le produit',
+  'menu.group.decide': 'Pour décider',
+  'menu.group.more': 'Aller plus loin',
 };

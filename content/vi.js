@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': 'Yêu cầu một buổi demo trên tình huống của bạn, hoặc viết cho chúng tôi.',
   'menu.docs.d': 'Cài đặt, cấu hình, bảo mật, API và bảng thuật ngữ đầy đủ. Trang riêng.',
   'menu.home': 'Trang chủ',
+  'menu.group.product': 'Sản phẩm',
+  'menu.group.decide': 'Để quyết định',
+  'menu.group.more': 'Đi xa hơn',
 };

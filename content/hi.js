@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': 'अपने मामलों पर प्रदर्शन माँगें, या हमें लिखें।',
   'menu.docs.d': 'स्थापना, विन्यास, सुरक्षा, API और पूरी शब्दावली। अलग साइट।',
   'menu.home': 'मुखपृष्ठ',
+  'menu.group.product': 'उत्पाद',
+  'menu.group.decide': 'तय करने के लिए',
+  'menu.group.more': 'और आगे',
 };

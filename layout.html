@@ -9,10 +9,10 @@
 <meta property="og:title" content="{{TITLE}}" />
 <meta property="og:description" content="{{DESCRIPTION}}" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="{{BASE}}assets/style.css" />
+<link rel="stylesheet" href="{{BASE}}assets/style.css?v={{V_CSS}}" />
 <link rel="icon" href="{{BASE}}assets/favicon.svg" type="image/svg+xml" />
 {{ALTERNATES}}
-<script src="{{BASE}}assets/theme-boot.js"></script>
+<script src="{{BASE}}assets/theme-boot.js?v={{V_BOOT}}"></script>
 </head>
 <body>
 <a class="skip" href="#contenu">{{SKIP}}</a>
@@ -21,6 +21,6 @@
 {{CONTENT}}
 </main>
 {{FOOT}}
-<script src="{{BASE}}assets/app.js" defer></script>
+<script src="{{BASE}}assets/app.js?v={{V_APP}}" defer></script>
 </body>
 </html>

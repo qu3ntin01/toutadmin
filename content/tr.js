@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': 'Kendi durumlarınız üzerinden gösterim isteyin ya da bize yazın.',
   'menu.docs.d': 'Kurulum, yapılandırma, güvenlik, API ve tam sözlük. Ayrı site.',
   'menu.home': 'Ana sayfa',
+  'menu.group.product': 'Ürün',
+  'menu.group.decide': 'Karar vermek için',
+  'menu.group.more': 'Daha ileri',
 };

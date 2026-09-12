@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': '就你自己的场景申请演示，或写信给我们。',
   'menu.docs.d': '安装、配置、安全、API 与完整术语表。独立站点。',
   'menu.home': '首页',
+  'menu.group.product': '产品',
+  'menu.group.decide': '用于决策',
+  'menu.group.more': '更进一步',
 };

@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': '御社の実際の場面でのデモを依頼する、あるいはご連絡ください。',
   'menu.docs.d': '導入、設定、セキュリティ、API、用語集。別サイトです。',
   'menu.home': 'ホーム',
+  'menu.group.product': '製品',
+  'menu.group.decide': '判断のために',
+  'menu.group.more': 'さらに先へ',
 };

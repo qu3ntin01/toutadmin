@@ -103,6 +103,13 @@ cd /var/www/toutadmin && git pull
 Rien à construire, rien à installer, aucun temps d'indisponibilité : les
 fichiers servis sont ceux du dépôt.
 
+Les trois ressources — feuille de style, script de thème, script de page —
+portent l'empreinte de leur contenu dans leur adresse (`app.js?v=57b4a8b7…`).
+L'hébergement les sert avec douze heures de cache : sans cette empreinte, un
+visiteur déjà venu garderait l'ancien script une demi-journée alors que le HTML,
+lui, serait neuf — et un bouton tout neuf ne répondrait pas. Une adresse qui
+change à chaque modification supprime la classe entière de ce problème.
+
 **Pour savoir ce que le serveur sert vraiment**, sans ouvrir une page ni vider
 un cache : `https://votre-domaine/version.txt`. Le fichier relève le barème
 affiché et les décomptes. Il ne porte pas de date — il ne change que lorsque

@@ -434,4 +434,7 @@ module.exports = {
   'menu.contact.d': '귀사의 실제 사례로 데모를 요청하거나, 메일을 보내세요.',
   'menu.docs.d': '설치, 설정, 보안, API, 전체 용어집. 별도 사이트입니다.',
   'menu.home': '홈',
+  'menu.group.product': '제품',
+  'menu.group.decide': '판단을 위해',
+  'menu.group.more': '더 알아보기',
 };

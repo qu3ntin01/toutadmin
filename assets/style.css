@@ -595,8 +595,10 @@ td.c { text-align: center; }
 .drawer-note { display: block; color: var(--ink-3); font-size: .86rem; line-height: 1.45; margin-block-start: 2px; }
 .drawer-body h4 {
   font-size: .78rem; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-3);
-  margin-block: 24px 12px; padding-inline-start: 13px;
+  margin-block: 22px 10px; padding-inline-start: 13px;
 }
+.drawer-body > h4:first-child { margin-block-start: 4px; }
+.drawer-chips { margin-block-start: 12px; }
 .drawer-chips { display: flex; flex-wrap: wrap; gap: 6px; padding-inline-start: 13px; }
 .drawer-chips a {
   padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-2);
