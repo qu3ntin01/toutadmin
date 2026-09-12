@@ -238,7 +238,7 @@
             <ul class="org-list">
               <% ppeList.forEach((p) => { %>
                 <li class="org-item">
-                  <span><span class="cell-strong"><%= p.name %></span><br /><span class="cell-sub"><%= p.category %><%= p.validity_months ? ' · ' + p.validity_months + ' mois' : ' · sans échéance' %></span></span>
+                  <span><span class="cell-strong"><%= p.name %></span><br /><span class="cell-sub"><%= p.category %><%= ' · ' + (p.validity_months ? t('sst.monthsValidity', { count: p.validity_months }) : t('sst.noExpiry')) %></span></span>
                   <form method="POST" action="/sante-securite/protections/<%= p.id %>/supprimer" class="inline-form" data-confirm="<%= t('sst.deleteEquipment') %>">
                     <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                     <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
