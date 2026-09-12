@@ -83,6 +83,9 @@ final class MemberController
         if ($user['role'] === 'admin') {
             array_unshift($items, ['href' => '/admin', 'label' => t('admin.title')]);
         }
+        if (Org::isManager((int) $user['id'])) {
+            $items[] = ['href' => '/mon-equipe', 'label' => t('nav.team')];
+        }
         if ($user['role'] === 'admin' || (int) ($user['is_hr'] ?? 0) === 1) {
             $items[] = ['href' => '/rh', 'label' => t('nav.hrSpace')];
         }

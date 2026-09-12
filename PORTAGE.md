@@ -26,8 +26,9 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Demandes internes | types de demande et circuits configurables, seuils, validation étape par étape, refus motivé, retrait par le demandeur |
 | Notifications | file personnelle, déduplication, marquage lu, purge |
 | Documents, formation, entretiens | documents avec accusé de réception, catalogue et sessions de formation, inscriptions, entretiens annuels et commentaire du salarié |
+| Espace manager | équipe encadrée, absences du périmètre, points individuels (note partagée et note privée), actualités de périmètre |
 
-102 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+113 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -35,18 +36,17 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, quatorze lots. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Espace manager** — équipe, points individuels, actualités de périmètre
-2. **Agenda, planning, salles** — calendriers, roulements, astreintes, réservations
-3. **Messagerie et annonces** — messagerie interne, actualités, notifications
-4. **Projets et support** — projets, jalons, rentabilité, tickets
-5. **Gestion** — devis, factures, clients, fournisseurs, recouvrement
-6. **Comptabilité et paie** — partie double, bulletins, déclarations
-7. **Trésorerie, immobilisations, achats** — prévisionnel, amortissements, stock
-8. **Coffre-fort et parapheur** — documents, signatures, accès après départ
-9. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
-10. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
-11. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
-12. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+1. **Agenda, planning, salles** — calendriers, roulements, astreintes, réservations
+2. **Messagerie et annonces** — messagerie interne, actualités, notifications
+3. **Projets et support** — projets, jalons, rentabilité, tickets
+4. **Gestion** — devis, factures, clients, fournisseurs, recouvrement
+5. **Comptabilité et paie** — partie double, bulletins, déclarations
+6. **Trésorerie, immobilisations, achats** — prévisionnel, amortissements, stock
+7. **Coffre-fort et parapheur** — documents, signatures, accès après départ
+8. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
+9. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
+10. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
+11. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
 
 ## Ce qui ne sera pas porté à l'identique
 

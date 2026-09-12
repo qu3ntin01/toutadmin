@@ -8,6 +8,7 @@ use App\Controllers\AdminController;
 use App\Controllers\AuthController;
 use App\Controllers\DirectoryController;
 use App\Controllers\HrController;
+use App\Controllers\ManagerController;
 use App\Controllers\InstallController;
 use App\Controllers\MemberController;
 use App\Controllers\NotificationsController;
@@ -131,6 +132,14 @@ final class Kernel
         $router->get('/demandes/{id}', RequestsController::show(...));
         $router->post('/demandes/{id}/decision', RequestsController::decide(...));
         $router->post('/demandes/{id}/annuler', RequestsController::cancel(...));
+
+        // Espace manager : équipe, absences, points individuels, actualités.
+        $router->get('/mon-equipe', ManagerController::home(...));
+        $router->post('/mon-equipe/actualites', ManagerController::publish(...));
+        $router->post('/mon-equipe/actualites/{id}/supprimer', ManagerController::deleteNews(...));
+        $router->post('/mon-equipe/points', ManagerController::createPoint(...));
+        $router->post('/mon-equipe/points/{id}/modifier', ManagerController::updatePoint(...));
+        $router->post('/mon-equipe/points/{id}/supprimer', ManagerController::deletePoint(...));
 
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
@@ -267,6 +276,11 @@ final class Kernel
         // l'ouvre pas : congés et fiches de paie ne sont pas des informations
         // d'équipe.
         if (str_starts_with($request->path, '/rh') && !\App\Controllers\HrController::canAccess($user)) {
+            return $refuse();
+        }
+        // L'espace manager s'ouvre à qui encadre au moins un périmètre — la
+        // relation, pas un droit posé à la main.
+        if (str_starts_with($request->path, '/mon-equipe') && !ManagerController::canAccess($user)) {
             return $refuse();
         }
         return null;

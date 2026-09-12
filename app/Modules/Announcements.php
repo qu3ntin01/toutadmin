@@ -47,6 +47,29 @@ final class Announcements
         return true;
     }
 
+    /** Le fil d'un manager : ce qu'il a publié sur ses périmètres. */
+    public static function forScopes(array $scopes, int $limit = 30): array
+    {
+        if ($scopes['teams'] === [] && $scopes['departments'] === []) {
+            return [];
+        }
+        $clauses = [];
+        $params = [];
+        if ($scopes['teams'] !== []) {
+            $clauses[] = "(a.scope = 'team' AND a.scope_id IN (" . implode(',', array_fill(0, count($scopes['teams']), '?')) . '))';
+            $params = array_merge($params, $scopes['teams']);
+        }
+        if ($scopes['departments'] !== []) {
+            $clauses[] = "(a.scope = 'department' AND a.scope_id IN (" . implode(',', array_fill(0, count($scopes['departments']), '?')) . '))';
+            $params = array_merge($params, $scopes['departments']);
+        }
+        $params[] = $limit;
+        return Db::all(
+            self::SELECT . ' WHERE ' . implode(' OR ', $clauses) . ' ORDER BY a.created_at DESC LIMIT ?',
+            $params
+        );
+    }
+
     public static function all(int $limit = 40): array
     {
         return Db::all(self::SELECT . ' ORDER BY a.created_at DESC LIMIT ?', [$limit]);
