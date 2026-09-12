@@ -440,3 +440,286 @@ $statusClass = static fn (string $status): string => match ($status) {
     </div>
   <?php endforeach; ?>
 </section>
+
+<!-- ---------- Comité social et économique ---------- -->
+<section class="tab-panel" id="cse">
+  <div class="grid-2">
+    <div class="card">
+      <h2><?= e(t('cse.addElected')) ?></h2>
+      <form method="POST" action="/rh/cse/mandats" class="stack">
+        <?= $csrf ?>
+        <label>
+          <span><?= e(t('common.member')) ?></span>
+          <select name="user_id" required>
+            <option value=""><?= e(t('common.none')) ?></option>
+            <?php foreach ($cseEligible as $employee): ?>
+              <option value="<?= (int) $employee['id'] ?>">
+                <?= e(trim($employee['first_name'] . ' ' . $employee['last_name'])) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+        <label>
+          <span><?= e(t('cse.mandate')) ?></span>
+          <select name="mandate_role" required>
+            <?php foreach ($cseMandateRoles as $role): ?><option value="<?= e($role) ?>"><?= e($role) ?></option><?php endforeach; ?>
+          </select>
+        </label>
+        <div class="form-grid">
+          <label><span><?= e(t('agenda.from')) ?></span><input type="date" name="started_on" value="<?= e($today) ?>" required /></label>
+          <label>
+            <span><?= e(t('agenda.to')) ?> <span class="cell-sub">(<?= e(t('common.optional')) ?>)</span></span>
+            <input type="date" name="ends_on" />
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block"><?= e(t('common.save')) ?></button>
+        <p class="hint"><?= e(t('hr.mandateNotice')) ?></p>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2><?= e(t('cse.elected')) ?> <span class="muted">(<?= count($cseMandates) ?>)</span></h2>
+      <?php if ($cseMandates === []): ?>
+        <div class="empty-state"><?= e(t('cse.noElected')) ?></div>
+      <?php else: ?>
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th><?= e(t('common.member')) ?></th>
+                <th><?= e(t('cse.mandate')) ?></th>
+                <th><?= e(t('common.period')) ?></th>
+                <th class="actions"><?= e(t('common.actions')) ?></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($cseMandates as $member): ?>
+                <tr>
+                  <td>
+                    <strong><?= e(trim($member['first_name'] . ' ' . $member['last_name'])) ?></strong>
+                    <div class="cell-sub"><?= e($member['email']) ?></div>
+                  </td>
+                  <td><span class="tag"><?= e($member['mandate_role']) ?></span></td>
+                  <td>
+                    <?= e($member['started_on']) ?><?= !empty($member['ends_on']) ? ' → ' . e($member['ends_on']) : '' ?>
+                  </td>
+                  <td class="actions">
+                    <form method="POST" action="/rh/cse/mandats/<?= (int) $member['user_id'] ?>/retirer"
+                          data-confirm="<?= e(t('hr.removeMandate')) ?>">
+                      <?= $csrf ?>
+                      <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.delete')) ?></button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        </div>
+      <?php endif; ?>
+    </div>
+  </div>
+
+  <div class="grid-2 mt-l">
+    <div class="card">
+      <h2><?= e(t('cse.newElection')) ?></h2>
+      <form method="POST" action="/rh/cse/elections" class="stack">
+        <?= $csrf ?>
+        <label>
+          <span><?= e(t('agenda.eventTitle')) ?></span>
+          <input type="text" name="title" maxlength="160" placeholder="<?= e(t('hr.electionExample')) ?>" required />
+        </label>
+        <div class="form-grid">
+          <label><span><?= e(t('cse.seats')) ?></span><input type="number" name="seats" min="1" max="100" value="4" required /></label>
+          <label><span><?= e(t('hr.applicationsClose')) ?></span><input type="date" name="candidacy_deadline" /></label>
+        </div>
+        <div class="form-grid">
+          <label><span><?= e(t('hr.voteOpens')) ?></span><input type="date" name="vote_start" /></label>
+          <label><span><?= e(t('hr.voteCloses')) ?></span><input type="date" name="vote_end" /></label>
+        </div>
+        <label><span><?= e(t('common.description')) ?></span><textarea name="description" rows="3" maxlength="2000"></textarea></label>
+        <button type="submit" class="btn btn-primary btn-block"><?= e(t('common.create')) ?></button>
+        <p class="hint"><?= e(t('hr.electionHelp')) ?></p>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2><?= e(t('cse.newMeeting')) ?></h2>
+      <form method="POST" action="/rh/cse/reunions" class="stack">
+        <?= $csrf ?>
+        <label>
+          <span><?= e(t('agenda.eventTitle')) ?></span>
+          <input type="text" name="title" maxlength="160" placeholder="<?= e(t('hr.meetingExample')) ?>" required />
+        </label>
+        <div class="form-grid">
+          <label><span><?= e(t('common.date')) ?></span><input type="date" name="meeting_date" required /></label>
+          <label><span><?= e(t('timer.start_label')) ?></span><input type="time" name="meeting_time" /></label>
+        </div>
+        <label><span><?= e(t('agenda.location')) ?></span><input type="text" name="location" maxlength="140" /></label>
+        <label><span><?= e(t('cse.agenda')) ?></span><textarea name="agenda" rows="3" maxlength="4000"></textarea></label>
+        <button type="submit" class="btn btn-primary btn-block"><?= e(t('common.create')) ?></button>
+        <p class="hint"><?= e(t('hr.meetingHelp')) ?></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="card mt-l">
+    <h2><?= e(t('cse.elections')) ?> <span class="muted">(<?= count($cseElections) ?>)</span></h2>
+    <?php if ($cseElections === []): ?>
+      <div class="empty-state"><?= e(t('cse.noElection')) ?></div>
+    <?php else: ?>
+      <ul class="meeting-list">
+        <?php foreach ($cseElections as $election): ?>
+          <?php
+          $electionId = (int) $election['id'];
+          $candidacies = $cseCandidacies[$electionId] ?? [];
+          $turnout = $cseTurnout[$electionId];
+          $results = $cseResults[$electionId] ?? [];
+          ?>
+          <li class="meeting-item">
+            <div class="meeting-head">
+              <span class="meeting-title"><?= e($election['title']) ?></span>
+              <span class="status <?= $election['status'] === 'Vote' ? 'status-on' : ($election['status'] === 'Clôturée' ? 'status-off' : 'status-warning') ?>">
+                <?= e(st($election['status'])) ?>
+              </span>
+            </div>
+            <p class="cell-sub">
+              <?= e(t('cse.seats')) ?> : <?= (int) $election['seats'] ?> ·
+              <?= e(t('cse.turnout')) ?> : <?= e((string) $turnout['rate']) ?> %
+              (<?= (int) $turnout['voters'] ?>/<?= (int) $turnout['electorate'] ?>)
+            </p>
+
+            <?php if ($election['status'] !== 'Clôturée'): ?>
+              <div class="row-actions">
+                <?php if ($election['status'] === 'Candidatures'): ?>
+                  <form method="POST" action="/rh/cse/elections/<?= $electionId ?>/statut" class="inline-form">
+                    <?= $csrf ?>
+                    <input type="hidden" name="status" value="Vote" />
+                    <button type="submit" class="btn btn-primary btn-sm"><?= e(t('cse.openVote')) ?></button>
+                  </form>
+                <?php endif; ?>
+                <form method="POST" action="/rh/cse/elections/<?= $electionId ?>/statut" class="inline-form"
+                      data-confirm="<?= e(t('hr.closeBallot')) ?>">
+                  <?= $csrf ?>
+                  <input type="hidden" name="status" value="Clôturée" />
+                  <button type="submit" class="btn btn-outline btn-sm"><?= e(t('cse.closeElection')) ?></button>
+                </form>
+                <form method="POST" action="/rh/cse/elections/<?= $electionId ?>/supprimer" class="inline-form"
+                      data-confirm="<?= e(t('hr.deleteElection')) ?>">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.delete')) ?></button>
+                </form>
+              </div>
+            <?php endif; ?>
+
+            <h3 class="section-label"><?= e(t('cse.candidates')) ?> <span class="muted">(<?= count($candidacies) ?>)</span></h3>
+            <?php if ($candidacies === []): ?>
+              <div class="empty-state"><?= e(t('cse.noCandidates')) ?></div>
+            <?php else: ?>
+              <div class="table-wrap">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th><?= e(t('common.member')) ?></th>
+                      <th><?= e(t('cse.statement')) ?></th>
+                      <th><?= e(t('common.status')) ?></th>
+                      <?php if ($election['status'] === 'Clôturée'): ?><th><?= e(t('cse.votes')) ?></th><?php endif; ?>
+                      <th class="actions"><?= e(t('common.actions')) ?></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php foreach ($candidacies as $candidate): ?>
+                      <tr>
+                        <td>
+                          <strong><?= e(trim($candidate['first_name'] . ' ' . $candidate['last_name'])) ?></strong>
+                          <div class="cell-sub"><?= e((string) $candidate['grade']) ?></div>
+                        </td>
+                        <td class="cell-sub"><?= e($candidate['statement'] !== '' ? $candidate['statement'] : '—') ?></td>
+                        <td>
+                          <span class="status <?= $candidate['status'] === 'Validée' ? 'status-on' : ($candidate['status'] === 'Refusée' ? 'status-danger' : 'status-warning') ?>">
+                            <?= e(st($candidate['status'])) ?>
+                          </span>
+                        </td>
+                        <?php if ($election['status'] === 'Clôturée'): ?>
+                          <?php
+                          $votes = 0;
+                          foreach ($results as $row) {
+                              if ((int) $row['id'] === (int) $candidate['id']) {
+                                  $votes = (int) $row['votes'];
+                              }
+                          }
+                          ?>
+                          <td><strong><?= $votes ?></strong></td>
+                        <?php endif; ?>
+                        <td class="actions">
+                          <?php if ($election['status'] === 'Candidatures'): ?>
+                            <form method="POST" action="/rh/cse/candidatures/<?= (int) $candidate['id'] ?>/statut" class="inline-form">
+                              <?= $csrf ?>
+                              <input type="hidden" name="status" value="Validée" />
+                              <button type="submit" class="btn btn-primary btn-sm"><?= e(t('hr.approve')) ?></button>
+                            </form>
+                            <form method="POST" action="/rh/cse/candidatures/<?= (int) $candidate['id'] ?>/statut" class="inline-form">
+                              <?= $csrf ?>
+                              <input type="hidden" name="status" value="Refusée" />
+                              <button type="submit" class="btn btn-outline btn-sm"><?= e(t('hr.refuse')) ?></button>
+                            </form>
+                          <?php else: ?>
+                            <span class="cell-sub">—</span>
+                          <?php endif; ?>
+                        </td>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+            <?php endif; ?>
+          </li>
+        <?php endforeach; ?>
+      </ul>
+    <?php endif; ?>
+  </div>
+
+  <div class="card mt-l">
+    <h2><?= e(t('cse.meetings')) ?> <span class="muted">(<?= count($cseMeetings) ?>)</span></h2>
+    <?php if ($cseMeetings === []): ?>
+      <div class="empty-state"><?= e(t('cse.noMeetings')) ?></div>
+    <?php else: ?>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th><?= e(t('common.date')) ?></th>
+              <th><?= e(t('agenda.eventTitle')) ?></th>
+              <th><?= e(t('agenda.location')) ?></th>
+              <th><?= e(t('cse.minutes')) ?></th>
+              <th class="actions"><?= e(t('common.actions')) ?></th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($cseMeetings as $meeting): ?>
+              <tr>
+                <td>
+                  <strong><?= e($meeting['meeting_date']) ?></strong>
+                  <?php if ($meeting['meeting_time'] !== ''): ?><div class="cell-sub"><?= e($meeting['meeting_time']) ?></div><?php endif; ?>
+                </td>
+                <td><?= e($meeting['title']) ?></td>
+                <td><?= e($meeting['location'] !== '' ? $meeting['location'] : '—') ?></td>
+                <td>
+                  <span class="status <?= (int) $meeting['minutes_published'] === 1 ? 'status-on' : 'status-warning' ?>">
+                    <?= e((int) $meeting['minutes_published'] === 1 ? t('cse.published') : t('cse.draft')) ?>
+                  </span>
+                </td>
+                <td class="actions">
+                  <form method="POST" action="/rh/cse/reunions/<?= (int) $meeting['id'] ?>/supprimer"
+                        data-confirm="<?= e(t('hr.deleteMeeting')) ?>">
+                    <?= $csrf ?>
+                    <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.delete')) ?></button>
+                  </form>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      </div>
+    <?php endif; ?>
+  </div>
+</section>

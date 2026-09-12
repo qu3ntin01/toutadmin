@@ -9,10 +9,13 @@ use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
 use App\Controllers\AuthController;
 use App\Controllers\BackupController;
+use App\Controllers\CseController;
 use App\Controllers\DirectoryController;
 use App\Controllers\FixedAssetsController;
 use App\Controllers\FinanceController;
+use App\Controllers\GovernanceController;
 use App\Controllers\HrController;
+use App\Controllers\LegalController;
 use App\Controllers\ManagerController;
 use App\Controllers\InstallController;
 use App\Controllers\MemberController;
@@ -31,6 +34,7 @@ use App\Controllers\SecurityController;
 use App\Controllers\StockController;
 use App\Controllers\SigningController;
 use App\Controllers\SupportController;
+use App\Controllers\SurveysController;
 use App\Controllers\TreasuryController;
 use App\Controllers\VaultController;
 use App\Modules\Users;
@@ -131,6 +135,16 @@ final class Kernel
         $router->post('/rh/entretiens/{id}/conclure', HrController::completeReview(...));
         $router->post('/rh/entretiens/{id}/annuler', HrController::cancelReview(...));
         $router->post('/rh/entretiens/{id}/supprimer', HrController::deleteReview(...));
+
+        // Le CSE, côté employeur : les mandats, les scrutins et les convocations.
+        $router->post('/rh/cse/mandats', HrController::addCseMandate(...));
+        $router->post('/rh/cse/mandats/{id}/retirer', HrController::removeCseMandate(...));
+        $router->post('/rh/cse/elections', HrController::createCseElection(...));
+        $router->post('/rh/cse/elections/{id}/statut', HrController::setCseElectionStatus(...));
+        $router->post('/rh/cse/elections/{id}/supprimer', HrController::deleteCseElection(...));
+        $router->post('/rh/cse/candidatures/{id}/statut', HrController::reviewCseCandidacy(...));
+        $router->post('/rh/cse/reunions', HrController::createCseMeeting(...));
+        $router->post('/rh/cse/reunions/{id}/supprimer', HrController::deleteCseMeeting(...));
 
         $router->post('/mon-espace/demandes', MemberController::createRequest(...));
         $router->post('/mon-espace/documents/{id}/accuser', MemberController::acknowledgeDocument(...));
@@ -293,6 +307,75 @@ final class Kernel
         $router->post('/stock/demandes/{id}/manager', StockController::managerDecision(...));
         $router->post('/stock/demandes/{id}/gestion', StockController::financeDecision(...));
         $router->post('/stock/demandes/{id}/commander', StockController::markOrdered(...));
+
+        // Direction : réunions, décisions, actions, risques et sondages.
+        $router->get('/direction', GovernanceController::index(...));
+        $router->post('/direction/reunions', GovernanceController::createMeeting(...));
+        $router->get('/direction/reunions/{id}', GovernanceController::showMeeting(...));
+        $router->post('/direction/reunions/{id}/modifier', GovernanceController::updateMeeting(...));
+        $router->post('/direction/reunions/{id}/compte-rendu', GovernanceController::setMinutes(...));
+        $router->post('/direction/reunions/{id}/participants', GovernanceController::invite(...));
+        $router->post('/direction/reunions/{id}/participants/{userId}/presence', GovernanceController::setAttendance(...));
+        $router->post('/direction/reunions/{id}/participants/{userId}/retirer', GovernanceController::removeAttendee(...));
+        $router->post('/direction/reunions/{id}/supprimer', GovernanceController::deleteMeeting(...));
+        $router->post('/direction/decisions', GovernanceController::createDecision(...));
+        $router->post('/direction/decisions/{id}/statut', GovernanceController::setDecisionStatus(...));
+        $router->post('/direction/decisions/{id}/supprimer', GovernanceController::deleteDecision(...));
+        $router->post('/direction/actions', GovernanceController::createAction(...));
+        $router->post('/direction/actions/{id}/statut', GovernanceController::setActionStatus(...));
+        $router->post('/direction/actions/{id}/supprimer', GovernanceController::deleteAction(...));
+        $router->post('/direction/risques', GovernanceController::createRisk(...));
+        $router->post('/direction/risques/{id}/modifier', GovernanceController::updateRisk(...));
+        $router->post('/direction/risques/{id}/supprimer', GovernanceController::deleteRisk(...));
+        $router->post('/direction/sondages', GovernanceController::createSurvey(...));
+        $router->post('/direction/sondages/{id}/questions', GovernanceController::addQuestion(...));
+        $router->post('/direction/sondages/{id}/questions/{questionId}/supprimer', GovernanceController::deleteQuestion(...));
+        $router->post('/direction/sondages/{id}/ouvrir', GovernanceController::openSurvey(...));
+        $router->post('/direction/sondages/{id}/clore', GovernanceController::closeSurvey(...));
+        $router->post('/direction/sondages/{id}/supprimer', GovernanceController::deleteSurvey(...));
+        $router->get('/direction/sondages/{id}/resultats', GovernanceController::surveyResults(...));
+
+        // Sondages, côté salarié : répondre, et rien d'autre.
+        $router->get('/sondages', SurveysController::index(...));
+        $router->get('/sondages/{id}', SurveysController::show(...));
+        $router->post('/sondages/{id}', SurveysController::submit(...));
+
+        // Comité social et économique.
+        $router->get('/cse', CseController::index(...));
+        $router->post('/cse/candidature', CseController::apply(...));
+        $router->post('/cse/candidature/retirer', CseController::withdraw(...));
+        $router->post('/cse/vote', CseController::vote(...));
+        $router->get('/cse/gestion', CseController::manage(...));
+        $router->post('/cse/gestion/avantages', CseController::createBenefit(...));
+        $router->post('/cse/gestion/avantages/{id}/modifier', CseController::updateBenefit(...));
+        $router->post('/cse/gestion/avantages/{id}/supprimer', CseController::deleteBenefit(...));
+        $router->post('/cse/gestion/reunions/{id}/compte-rendu', CseController::saveMinutes(...));
+
+        // Vie juridique et conformité : l'administration tient les registres,
+        // chacun dépose ses propres déclarations.
+        $router->get('/juridique', LegalController::index(...));
+        $router->get('/juridique/assemblees/{id}', LegalController::showMeeting(...));
+        $router->post('/juridique/associes', LegalController::createShareholder(...));
+        $router->post('/juridique/associes/{id}/supprimer', LegalController::deleteShareholder(...));
+        $router->post('/juridique/mouvements', LegalController::recordMovement(...));
+        $router->post('/juridique/mouvements/{id}/supprimer', LegalController::deleteMovement(...));
+        $router->post('/juridique/mandats', LegalController::createMandate(...));
+        $router->post('/juridique/mandats/{id}/statut', LegalController::setMandateStatus(...));
+        $router->post('/juridique/mandats/{id}/supprimer', LegalController::deleteMandate(...));
+        $router->post('/juridique/assemblees', LegalController::createMeeting(...));
+        $router->post('/juridique/assemblees/{id}/modifier', LegalController::updateMeeting(...));
+        $router->post('/juridique/assemblees/{id}/proces-verbal', LegalController::updateMinutes(...));
+        $router->post('/juridique/assemblees/{id}/resolutions', LegalController::addResolution(...));
+        $router->post('/juridique/assemblees/{id}/supprimer', LegalController::deleteMeeting(...));
+        $router->post('/juridique/resolutions/{id}/vote', LegalController::recordVote(...));
+        $router->post('/juridique/resolutions/{id}/supprimer', LegalController::deleteResolution(...));
+        $router->post('/juridique/interets', LegalController::declareInterest(...));
+        $router->post('/juridique/interets/{id}/examen', LegalController::reviewDeclaration(...));
+        $router->post('/juridique/cadeaux', LegalController::declareGift(...));
+        $router->post('/juridique/cadeaux/{id}/examen', LegalController::reviewGift(...));
+        $router->post('/juridique/delegations', LegalController::createDelegation(...));
+        $router->post('/juridique/delegations/{id}/statut', LegalController::setDelegationStatus(...));
+        $router->post('/juridique/delegations/{id}/supprimer', LegalController::deleteDelegation(...));
 
         // Qualité : non-conformités, actions, audits internes.
         $router->get('/qualite', QualityController::index(...));
@@ -577,6 +660,32 @@ final class Kernel
         // /mon-espace, qui n'est pas derrière cette porte.
         if (str_starts_with($request->path, '/gestion') && !FinanceController::canAccess($user)) {
             return $refuse();
+        }
+        // La direction, c'est l'administration de l'instance : la gouvernance
+        // n'est pas un droit qu'on délègue.
+        if (str_starts_with($request->path, '/direction') && ($user === null || $user['role'] !== 'admin')) {
+            return $refuse();
+        }
+        // Le CSE ne représente ni les administrateurs ni les freelances ; sa
+        // gestion, elle, revient aux élus dont le mandat court encore.
+        if (str_starts_with($request->path, '/cse')) {
+            if (!CseController::canAccess($user)) {
+                return $refuse();
+            }
+            if (str_starts_with($request->path, '/cse/gestion') && !CseController::isElected($user)) {
+                return $refuse();
+            }
+        }
+        // Le juridique est réservé à l'administration — sauf les déclarations
+        // de conflits d'intérêts et de cadeaux, que chacun dépose pour soi. Un
+        // registre que seuls les dirigeants alimentent ne recense que les leurs.
+        if (str_starts_with($request->path, '/juridique') && ($user === null || $user['role'] !== 'admin')) {
+            $ownDeclaration = $request->path === '/juridique'
+                || $request->path === '/juridique/interets'
+                || $request->path === '/juridique/cadeaux';
+            if (!$ownDeclaration) {
+                return $refuse();
+            }
         }
         // La qualité se pilote au plus près du terrain : l'encadrement et
         // l'administration, sans créer un rôle de plus à administrer.

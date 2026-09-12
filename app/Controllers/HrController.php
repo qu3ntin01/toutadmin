@@ -48,6 +48,7 @@ final class HrController
                 ['tab' => 'documents', 'label' => t('hr.catalogue')],
                 ['tab' => 'formations', 'label' => t('hr.training')],
                 ['tab' => 'entretiens', 'label' => t('erp.reviews')],
+                ['tab' => 'cse', 'label' => t('nav.cse')],
             ],
             'footLinks' => [
                 ['href' => '/mon-espace', 'label' => t('nav.mySpace')],
@@ -66,6 +67,42 @@ final class HrController
             'registrations' => Talent::registrations(),
             'sessionStatuses' => Talent::SESSION_STATUSES,
             'reviews' => Talent::reviews(),
+            // Le CSE : les RH convoquent, valident les candidatures et tiennent
+            // la composition ; les élus, eux, écrivent les comptes rendus.
+            'cseMandates' => \App\Modules\Cse::mandates(),
+            'cseMandateRoles' => \App\Modules\Cse::MANDATE_ROLES,
+            'cseElections' => \App\Modules\Cse::elections(),
+            'cseElectionStatuses' => \App\Modules\Cse::ELECTION_STATUSES,
+            'cseCandidacies' => array_reduce(
+                \App\Modules\Cse::elections(),
+                static function (array $all, array $election): array {
+                    $all[(int) $election['id']] = \App\Modules\Cse::candidacies((int) $election['id']);
+                    return $all;
+                },
+                []
+            ),
+            'cseTurnout' => array_reduce(
+                \App\Modules\Cse::elections(),
+                static function (array $all, array $election): array {
+                    $all[(int) $election['id']] = \App\Modules\Cse::turnout((int) $election['id']);
+                    return $all;
+                },
+                []
+            ),
+            'cseResults' => array_reduce(
+                \App\Modules\Cse::elections(),
+                static function (array $all, array $election): array {
+                    $all[(int) $election['id']] = \App\Modules\Cse::results((int) $election['id']);
+                    return $all;
+                },
+                []
+            ),
+            'cseEligible' => array_values(array_filter(
+                Users::employees(),
+                static fn (array $e): bool => Hr::isEligible($e)
+            )),
+            'cseMeetings' => \App\Modules\Cse::meetings(),
+            'today' => gmdate('Y-m-d'),
         ]));
     }
 
@@ -389,5 +426,160 @@ final class HrController
     {
         Talent::deleteReview((int) $params['id']);
         return self::talentBack('entretiens', 'success', 'Entretien supprimé.');
+    }
+
+    // ---------- CSE : mandats, élections, réunions ----------
+
+    private static function cseBack(string $type, string $message): Response
+    {
+        Flash::set($type, $message);
+        return Response::redirect('/rh#cse');
+    }
+
+    public static function addCseMandate(Request $request): Response
+    {
+        $userId = (int) $request->input('user_id');
+        $role = $request->input('mandate_role');
+        $startedOn = $request->input('started_on');
+        $endsOn = $request->input('ends_on');
+
+        $employee = Users::byId($userId);
+        if ($employee === null || $employee['role'] !== 'employee' || !Hr::isEligible($employee)) {
+            return self::cseBack('error', 'Membre introuvable ou non représenté par le CSE.');
+        }
+        if (!in_array($role, \App\Modules\Cse::MANDATE_ROLES, true)) {
+            return self::cseBack('error', 'Rôle de mandat invalide.');
+        }
+        if (!Validate::date($startedOn)) {
+            return self::cseBack('error', 'Date de début de mandat invalide.');
+        }
+        if ($endsOn !== '' && !Validate::date($endsOn)) {
+            return self::cseBack('error', 'Date de fin de mandat invalide.');
+        }
+        if ($endsOn !== '' && $endsOn < $startedOn) {
+            return self::cseBack('error', 'La fin du mandat précède son début.');
+        }
+
+        \App\Modules\Cse::addMandate([
+            'userId' => $userId,
+            'mandateRole' => $role,
+            'startedOn' => $startedOn,
+            'endsOn' => $endsOn !== '' ? $endsOn : null,
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        return self::cseBack('success',
+            $employee['first_name'] . ' ' . $employee['last_name'] . ' siège désormais au CSE.');
+    }
+
+    public static function removeCseMandate(Request $request, array $params): Response
+    {
+        \App\Modules\Cse::removeMandate((int) $params['id']);
+        return self::cseBack('success', 'Mandat retiré.');
+    }
+
+    public static function createCseElection(Request $request): Response
+    {
+        $title = mb_substr($request->input('title'), 0, 160);
+        $seats = $request->input('seats');
+        $candidacyDeadline = $request->input('candidacy_deadline');
+        $voteStart = $request->input('vote_start');
+        $voteEnd = $request->input('vote_end');
+
+        if ($title === '') {
+            return self::cseBack('error', "L'intitulé de l'élection est obligatoire.");
+        }
+        if (!ctype_digit($seats) || (int) $seats < 1 || (int) $seats > 100) {
+            return self::cseBack('error', 'Nombre de sièges invalide.');
+        }
+        foreach ([[$candidacyDeadline, 'clôture des candidatures'], [$voteStart, 'ouverture du vote'], [$voteEnd, 'clôture du vote']] as [$value, $label]) {
+            if ($value !== '' && !Validate::date($value)) {
+                return self::cseBack('error', "Date de $label invalide.");
+            }
+        }
+        if ($voteStart !== '' && $voteEnd !== '' && $voteEnd < $voteStart) {
+            return self::cseBack('error', 'La clôture du vote précède son ouverture.');
+        }
+
+        \App\Modules\Cse::createElection([
+            'title' => $title,
+            'description' => mb_substr($request->input('description'), 0, 2000),
+            'seats' => (int) $seats,
+            'candidacyDeadline' => $candidacyDeadline !== '' ? $candidacyDeadline : null,
+            'voteStart' => $voteStart !== '' ? $voteStart : null,
+            'voteEnd' => $voteEnd !== '' ? $voteEnd : null,
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        return self::cseBack('success', 'Élection créée : les candidatures sont ouvertes.');
+    }
+
+    public static function setCseElectionStatus(Request $request, array $params): Response
+    {
+        $result = \App\Modules\Cse::setElectionStatus((int) $params['id'], $request->input('status'));
+        $messages = [
+            'no-candidate' => 'Aucune candidature validée : le scrutin serait vide.',
+            'closed' => 'Cette élection est déjà close.',
+            'not-found' => 'Élection introuvable.',
+            'bad-status' => 'Phase invalide.',
+        ];
+
+        if (!$result['ok']) {
+            return self::cseBack('error', $messages[$result['reason']] ?? 'Changement de phase impossible.');
+        }
+        return self::cseBack('success', 'Phase du scrutin mise à jour.');
+    }
+
+    public static function deleteCseElection(Request $request, array $params): Response
+    {
+        \App\Modules\Cse::deleteElection((int) $params['id']);
+        return self::cseBack('success', 'Élection supprimée.');
+    }
+
+    public static function reviewCseCandidacy(Request $request, array $params): Response
+    {
+        $status = $request->input('status');
+        $result = \App\Modules\Cse::reviewCandidacy((int) $params['id'], $status, (int) Session::get('user')['id']);
+        $messages = [
+            'closed' => 'Les candidatures de cette élection ne sont plus modifiables.',
+            'not-found' => 'Candidature introuvable.',
+            'bad-status' => 'Décision invalide.',
+        ];
+
+        if (!$result['ok']) {
+            return self::cseBack('error', $messages[$result['reason']] ?? 'Décision impossible.');
+        }
+        return self::cseBack('success', $status === 'Validée' ? 'Candidature validée.' : 'Candidature refusée.');
+    }
+
+    public static function createCseMeeting(Request $request): Response
+    {
+        $title = mb_substr($request->input('title'), 0, 160);
+        $meetingDate = $request->input('meeting_date');
+        $meetingTime = $request->input('meeting_time');
+
+        if ($title === '') {
+            return self::cseBack('error', "L'intitulé de la réunion est obligatoire.");
+        }
+        if (!Validate::date($meetingDate)) {
+            return self::cseBack('error', 'Date de réunion invalide.');
+        }
+        if ($meetingTime !== '' && !preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $meetingTime)) {
+            return self::cseBack('error', 'Heure de réunion invalide.');
+        }
+
+        \App\Modules\Cse::createMeeting([
+            'title' => $title,
+            'meetingDate' => $meetingDate,
+            'meetingTime' => $meetingTime,
+            'location' => mb_substr($request->input('location'), 0, 140),
+            'agenda' => mb_substr($request->input('agenda'), 0, 4000),
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        return self::cseBack('success', 'Réunion convoquée. Les élus pourront y déposer le compte-rendu.');
+    }
+
+    public static function deleteCseMeeting(Request $request, array $params): Response
+    {
+        \App\Modules\Cse::deleteMeeting((int) $params['id']);
+        return self::cseBack('success', 'Réunion supprimée.');
     }
 }

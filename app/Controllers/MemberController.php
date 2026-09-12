@@ -90,17 +90,36 @@ final class MemberController
             ['href' => '/organigramme', 'label' => t('nav.orgChart')],
             ['href' => '/mon-profil', 'label' => t('nav.profile')],
         ];
+        // Un sondage à remplir se signale : passé la clôture, il ne sert plus à rien.
+        $pendingSurveys = \App\Modules\Surveys::pendingCountFor((int) $user['id']);
+        if ($pendingSurveys > 0) {
+            $items[] = ['href' => '/sondages', 'label' => t('nav.surveys'), 'badge' => $pendingSurveys];
+        }
+        // Le CSE ne représente pas les freelances : l'entrée n'apparaît que pour ceux qu'il couvre.
+        if (\App\Modules\Cse::isEligible($user)) {
+            $items[] = ['href' => '/cse', 'label' => t('nav.cse')];
+        }
+        // Déclarer un intérêt ou un cadeau est l'affaire de chacun : l'entrée est
+        // ouverte à tous, et c'est la page qui ne montre à un membre que ses
+        // propres déclarations, sans rien lui laisser voir des registres.
+        $items[] = ['href' => '/juridique', 'label' => t('nav.legal')];
         if ($user['role'] === 'admin') {
             array_unshift($items, ['href' => '/admin', 'label' => t('admin.title')]);
+            $items[] = ['href' => '/direction', 'label' => t('nav.governance')];
             $items[] = ['href' => '/securite', 'label' => t('nav.security')];
             $items[] = ['href' => '/rgpd', 'label' => t('nav.privacy')];
             $items[] = ['href' => '/sauvegardes', 'label' => t('nav.backups')];
         }
         if (Org::isManager((int) $user['id'])) {
             $items[] = ['href' => '/mon-equipe', 'label' => t('nav.team')];
+            $items[] = ['href' => '/qualite', 'label' => t('nav.quality')];
+        }
+        if (\App\Modules\Cse::isElected((int) $user['id'])) {
+            $items[] = ['href' => '/cse/gestion', 'label' => t('nav.cseManage')];
         }
         if ($user['role'] === 'admin' || (int) ($user['is_hr'] ?? 0) === 1) {
             $items[] = ['href' => '/rh', 'label' => t('nav.hrSpace')];
+            $items[] = ['href' => '/sante-securite', 'label' => t('nav.healthSafety')];
             $items[] = ['href' => '/coffre-fort/gestion', 'label' => t('nav.vaultManage')];
         }
         if (FinanceController::canAccess($user)) {

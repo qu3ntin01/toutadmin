@@ -47,8 +47,13 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
 | Qualité | non-conformités avec référence annuelle, cause racine, clôture refusée tant qu'une action reste ouverte, actions correctives avec vérification d'efficacité, audits internes, constats et promotion d'un constat en non-conformité |
 | Santé et sécurité | document unique coté gravité × probabilité avec seuil d'action, registre des accidents fermé aux saisies à venir, taux de fréquence et de gravité sur douze mois, équipements de protection dont l'échéance découle de la validité, visites médicales et échéances à soixante jours |
+| Vie juridique | registre des associés où la détention est la somme des mouvements (une cession écrit les deux côtés, on ne cède pas plus qu'on ne détient), mandats sociaux, assemblées numérotées par année avec quorum lu du capital, résolutions dont la majorité se calcule sur les voix exprimées, procès-verbal qui se rédige sans toucher au reste de la fiche |
+| Conformité | déclarations de conflits d'intérêts déposées par chacun pour soi et examinées par l'administration, registre des cadeaux avec seuil d'examen à 150 €, délégations de pouvoir avec plafond et période |
+| Direction | réunions avec ordre du jour, participants et présence, compte rendu qui marque la réunion tenue, registre des décisions qui survit à la suppression d'une réunion, actions confiées avec échéance, registre des risques d'entreprise coté probabilité × impact dont la criticité retenue est la résiduelle, matrice 5 × 5 |
+| Sondages | questionnaire figé à l'ouverture, réponses sans aucun identifiant de personne (l'anonymat tient à la structure des tables), participation nominative qui empêche de répondre deux fois, résultats retenus sous cinq réponses, baromètre social des sondages clos |
+| CSE | mandats et convocations tenus par les RH, élections par phases (candidatures, vote, clôture) qui refusent un scrutin sans candidat validé, bulletin et émargement écrits ensemble mais sans lien entre eux, taux de participation sur le corps électoral, avantages qui disparaissent à leur péremption, comptes rendus rédigés par les élus |
 
-303 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+340 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -56,12 +61,9 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages,
-   et la conformité qui vit dans le même espace : conflits d'intérêts, cadeaux,
-   délégations de pouvoir
-2. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
-3. **Recrutement** — postes, candidatures, entretiens
-4. **Planning** — roulements, astreintes, présence
+1. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+2. **Recrutement** — postes, candidatures, entretiens
+3. **Planning** — roulements, astreintes, présence
 
 ## Les statuts s'affichent maintenant dans la langue de la page
 
