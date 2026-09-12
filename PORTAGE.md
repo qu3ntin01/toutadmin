@@ -56,17 +56,14 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Développement | référentiel des services applicatifs, version en production déduite de la dernière livraison réussie, registre des livraisons dont le taux d'échec compte aussi celles qu'il a fallu retirer, adresses de dépôt refusées si elles ne sont pas http(s) |
 | Flotte | parc de véhicules avec trois échéances qui ne pardonnent pas (contrôle technique, assurance, entretien), compteur qui ne recule jamais — ni à la saisie, ni par un relevé d'événement — et coût d'entretien sur douze mois |
 | Accueil | registre des visiteurs qui répond à « qui est dans les murs ? », courrier qui reste « à remettre » tant que la remise n'est pas datée et signée, recommandés comptés à part |
+| Recrutement | postes ouverts et candidatures, dépôt de CV dont le contenu est contrôlé avant écriture (PDF, DOCX, TXT, Markdown) et le texte extrait sans aucune dépendance, moteur ATS qui note sur les seuls critères pondérés du poste (un critère requis manquant ou une expérience sous le minimum écartent quel que soit le score), reclassement de tout le poste dès qu'un critère change, CVthèque par mots-clés, CV téléchargeable par la seule route authentifiée |
+| Planning | grille de la semaine par personne, créneau refusé s'il chevauche un autre poste ou une absence accordée, brouillon tant que la semaine n'est pas publiée, roulements appliqués sur trois mois au plus qui sautent les jours en conflit et le disent, poste de nuit terminé le lendemain, astreintes lues à la semaine et à l'instant, charge par personne ; un manager ne planifie que les siens, tout le monde consulte |
 
-360 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+392 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
-## À porter
-
-Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
-Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
-
-1. **Recrutement** — postes, candidatures, entretiens
-2. **Planning** — roulements, astreintes, présence
+Le portage est complet : les 51 espaces de l'édition Node ont le leur ici,
+avec les mêmes règles. Ce qui reste est signalé plus bas, et seulement là.
 
 ## Un défaut du socle PHP, corrigé
 
@@ -104,18 +101,21 @@ se rattache pas, une facture déjà rattachée ailleurs non plus.
 
 ## Ce qui ne sera pas porté à l'identique
 
-Trois fonctions de l'édition Node tiennent à Node lui-même, et demandent un
-équivalent plutôt qu'une traduction :
+Trois fonctions de l'édition Node tenaient à Node lui-même. Deux sont réglées,
+la troisième reste à faire :
 
-- **Relève de courrier IMAP** (`imapflow`) → l'extension `imap` de PHP, ou une
-  relève lancée par tâche planifiée.
 - **Sauvegardes automatiques périodiques** → fait : `tools/cron.php` est appelé
   par la tâche planifiée de l'hébergeur et déclenche la sauvegarde dès
   l'intervalle écoulé, un site PHP ne tournant qu'au moment d'une requête. La
   copie de la base passe par `VACUUM INTO`, cohérente sur une base en écriture,
   là où l'édition Node utilise l'API de sauvegarde en ligne de SQLite.
-- **Lecture de PDF** (`pdf-parse`) → à décider : extension, binaire externe, ou
-  fonction absente de l'édition PHP.
+- **Lecture de PDF** (`pdf-parse`) → fait, sans extension ni binaire externe :
+  `App\Core\Pdf` parcourt les flux du document, décompresse ceux qui le sont
+  (`/FlateDecode`) et lit les opérateurs de texte. Un PDF scanné ne contient
+  pas de texte : l'extraction revient vide, et l'écran le dit plutôt que de
+  noter un dossier sur du vide — c'est aussi ce que fait l'édition Node.
+- **Relève de courrier IMAP** (`imapflow`) → reste à faire : l'extension `imap`
+  de PHP, ou une relève lancée par tâche planifiée. Le dépôt manuel d'une
+  facture, lui, fonctionne des deux côtés.
 
-Ces trois-là seront documentées comme telles, pas laissées dans un état
-indécis.
+Celle-là est documentée comme telle, pas laissée dans un état indécis.

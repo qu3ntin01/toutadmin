@@ -85,6 +85,7 @@ final class MemberController
              'badge' => \App\Modules\Signing::pendingCountFor((int) $user['id']) ?: null],
             ['href' => '/coffre-fort', 'label' => t('nav.vault')],
             ['href' => '/agenda', 'label' => t('agenda.title')],
+            ['href' => '/planning', 'label' => t('nav.planning')],
             ['href' => '/salles', 'label' => t('nav.rooms')],
             ['href' => '/annuaire', 'label' => t('nav.directory')],
             ['href' => '/organigramme', 'label' => t('nav.orgChart')],

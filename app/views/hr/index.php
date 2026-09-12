@@ -723,3 +723,335 @@ $statusClass = static fn (string $status): string => match ($status) {
     <?php endif; ?>
   </div>
 </section>
+
+<!-- ---------- Recrutement ---------- -->
+<section class="tab-panel" id="recrutement">
+  <div class="grid-2">
+    <div class="stack">
+      <div class="card">
+        <h2><?= e(t('hr.openPosition')) ?></h2>
+        <form method="POST" action="/rh/postes" class="stack">
+          <?= $csrf ?>
+          <label><span><?= e(t('common.title')) ?></span><input type="text" name="title" maxlength="160" required /></label>
+          <div class="form-grid">
+            <label><span><?= e(t('common.department')) ?></span>
+              <select name="department_id">
+                <option value="">—</option>
+                <?php foreach ($departments as $department): ?>
+                  <option value="<?= (int) $department['id'] ?>"><?= e($department['name']) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </label>
+            <label><span><?= e(t('common.team')) ?></span>
+              <select name="team_id">
+                <option value="">—</option>
+                <?php foreach ($teams as $team): ?>
+                  <option value="<?= (int) $team['id'] ?>"><?= e($team['name']) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </label>
+          </div>
+          <label><span><?= e(t('common.contract')) ?></span>
+            <select name="contract_type">
+              <option value="">—</option>
+              <?php foreach ($contractTypes as $contract): ?>
+                <option value="<?= e($contract) ?>"><?= e($contract) ?></option>
+              <?php endforeach; ?>
+            </select>
+          </label>
+          <label><span><?= e(t('common.description')) ?></span><textarea name="description" rows="3" maxlength="4000"></textarea></label>
+          <button type="submit" class="btn btn-primary btn-block"><?= e(t('common.create')) ?></button>
+        </form>
+      </div>
+
+      <?php if ($openings !== []): ?>
+        <div class="card mt-l">
+          <h2><?= e(t('hr.addApplication')) ?></h2>
+          <form method="POST" action="/rh/candidats" class="stack">
+            <?= $csrf ?>
+            <label><span><?= e(t('hr.position')) ?></span>
+              <select name="opening_id" required>
+                <?php foreach ($openings as $opening): ?>
+                  <option value="<?= (int) $opening['id'] ?>"><?= e($opening['title']) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </label>
+            <div class="form-grid">
+              <label><span><?= e(t('common.firstName')) ?></span><input type="text" name="first_name" maxlength="100" required /></label>
+              <label><span><?= e(t('common.name')) ?></span><input type="text" name="last_name" maxlength="100" required /></label>
+              <label><span><?= e(t('common.email')) ?></span><input type="email" name="email" maxlength="254" /></label>
+              <label><span><?= e(t('common.source')) ?></span>
+                <input type="text" name="source" maxlength="80" placeholder="Ex : cooptation" />
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block"><?= e(t('common.create')) ?></button>
+            <p class="hint"><?= e(t('hr.cvLater')) ?></p>
+          </form>
+        </div>
+      <?php endif; ?>
+
+      <!-- ---------- CVthèque ---------- -->
+      <div class="card mt-l" id="cvtheque">
+        <h2><?= e(t('hr.cvLibrary')) ?></h2>
+        <p class="muted"><?= e(t('hr.cvSearchHelp')) ?></p>
+        <form method="GET" action="/rh" class="search-bar">
+          <input type="search" name="cv" value="<?= e($cvQuery) ?>" placeholder="Ex : automatisme habilitation" />
+          <button type="submit" class="btn"><?= e(t('common.search')) ?></button>
+        </form>
+
+        <?php if ($cvQuery !== ''): ?>
+          <?php if ($cvResults === []): ?>
+            <div class="empty-state"><?= e(t('hr.noCvMatches')) ?></div>
+          <?php else: ?>
+            <ul class="person-list">
+              <?php foreach ($cvResults as $result): ?>
+                <li class="person-row">
+                  <span class="person-body">
+                    <span class="person-name"><?= e(trim($result['first_name'] . ' ' . $result['last_name'])) ?></span>
+                    <span class="cell-sub">
+                      <?= e($result['opening_title']) ?> · <?= e(st($result['stage'])) ?>
+                      <?= $result['ats_score'] !== null ? ' · score ' . (int) $result['ats_score'] : '' ?>
+                    </span>
+                    <span class="cell-sub">
+                      <?php foreach ($result['hits'] as $hit): ?>
+                        <span class="tag <?= $result['matchedAll'] ? 'tag-accent' : '' ?>"><?= e($hit) ?></span>
+                      <?php endforeach; ?>
+                    </span>
+                  </span>
+                  <a href="/rh/candidats/<?= (int) $result['id'] ?>/cv" class="btn btn-outline btn-sm">CV</a>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          <?php endif; ?>
+        <?php endif; ?>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><?= e(t('erp.recruitment')) ?> <span class="muted">(<?= count($openings) ?>)</span></h2>
+      <?php if ($openings === []): ?>
+        <div class="empty-state"><?= e(t('erp.noOpening')) ?></div>
+      <?php else: ?>
+        <ul class="meeting-list">
+          <?php foreach ($openings as $opening): ?>
+            <?php
+            $openingId = (int) $opening['id'];
+            $applicants = $candidatesByOpening[$openingId] ?? [];
+            $criteria = $criteriaByOpening[$openingId] ?? [];
+            $shortlisted = count(array_filter($applicants, static fn (array $c): bool => $c['ats']['shortlisted']));
+            ?>
+            <li class="meeting-item">
+              <div class="meeting-head">
+                <span class="meeting-title"><?= e($opening['title']) ?></span>
+                <span class="status <?= $opening['status'] === 'Pourvu' ? 'status-on' : ($opening['status'] === 'Annulé' ? 'status-danger' : 'status-warning') ?>">
+                  <?= e(st($opening['status'])) ?>
+                </span>
+              </div>
+              <p class="cell-sub">
+                <?= e(implode(' · ', array_filter([
+                    $opening['department_name'], $opening['team_name'], $opening['contract_type'],
+                ])) ?: '—') ?>
+                · <?= e(t('hr.applicationsRetained', ['total' => count($applicants), 'kept' => $shortlisted])) ?>
+              </p>
+
+              <div class="row-actions">
+                <form method="POST" action="/rh/postes/<?= $openingId ?>/statut" class="inline-form">
+                  <?= $csrf ?>
+                  <select name="status" class="input-sm">
+                    <?php foreach ($openingStatuses as $status): ?>
+                      <option value="<?= e($status) ?>"<?= $opening['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
+                    <?php endforeach; ?>
+                  </select>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
+                </form>
+                <form method="POST" action="/rh/postes/<?= $openingId ?>/supprimer" class="inline-form"
+                      data-confirm="<?= e(t('hr.deletePosition')) ?>">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.delete')) ?></button>
+                </form>
+              </div>
+
+              <!-- Réglages et critères ATS -->
+              <details class="minutes">
+                <summary>
+                  <?= e(t('hr.atsSummary', ['count' => count($criteria), 'threshold' => (int) $opening['ats_threshold']])) ?>
+                </summary>
+
+                <form method="POST" action="/rh/postes/<?= $openingId ?>/ats" class="inline-form">
+                  <?= $csrf ?>
+                  <label class="inline-field">
+                    <span class="cell-sub"><?= e(t('hr.threshold')) ?></span>
+                    <input type="number" name="ats_threshold" class="input-sm" min="0" max="100"
+                           value="<?= (int) $opening['ats_threshold'] ?>" />
+                  </label>
+                  <label class="inline-field">
+                    <span class="cell-sub"><?= e(t('hr.minExperience')) ?></span>
+                    <input type="text" name="min_experience" class="input-sm" inputmode="decimal"
+                           value="<?= e((string) $opening['min_experience']) ?>" />
+                  </label>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
+                </form>
+
+                <?php if ($criteria !== []): ?>
+                  <div class="table-wrap">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th><?= e(t('hr.criterion')) ?></th>
+                          <th><?= e(t('hr.synonyms')) ?></th>
+                          <th><?= e(t('common.type')) ?></th>
+                          <th><?= e(t('hr.weight')) ?></th>
+                          <th class="actions"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php foreach ($criteria as $criterion): ?>
+                          <tr>
+                            <td class="cell-strong"><?= e($criterion['label']) ?></td>
+                            <td class="cell-sub"><?= e($criterion['keywords'] !== '' ? $criterion['keywords'] : '—') ?></td>
+                            <td><span class="tag <?= $criterion['kind'] === 'Requis' ? 'tag-accent' : '' ?>"><?= e($criterion['kind']) ?></span></td>
+                            <td class="num"><?= (int) $criterion['weight'] ?></td>
+                            <td class="actions">
+                              <form method="POST" action="/rh/criteres/<?= (int) $criterion['id'] ?>/supprimer">
+                                <?= $csrf ?>
+                                <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.delete')) ?></button>
+                              </form>
+                            </td>
+                          </tr>
+                        <?php endforeach; ?>
+                      </tbody>
+                    </table>
+                  </div>
+                <?php endif; ?>
+
+                <form method="POST" action="/rh/postes/<?= $openingId ?>/criteres" class="stack">
+                  <?= $csrf ?>
+                  <div class="form-grid">
+                    <label><span><?= e(t('hr.criterion')) ?></span>
+                      <input type="text" name="label" maxlength="120" placeholder="Ex : Automatisme" required />
+                    </label>
+                    <label>
+                      <span><?= e(t('hr.synonyms')) ?> <span class="cell-sub"><?= e(t('hr.commaSeparated')) ?></span></span>
+                      <input type="text" name="keywords" maxlength="500" placeholder="API, automate, Siemens" />
+                    </label>
+                    <label><span><?= e(t('common.type')) ?></span>
+                      <select name="kind">
+                        <?php foreach ($criterionKinds as $kind): ?><option value="<?= e($kind) ?>"><?= e($kind) ?></option><?php endforeach; ?>
+                      </select>
+                    </label>
+                    <label><span><?= e(t('hr.weightRange', ['max' => $maxWeight])) ?></span>
+                      <input type="number" name="weight" min="1" max="<?= (int) $maxWeight ?>" value="1" />
+                    </label>
+                  </div>
+                  <div class="form-actions">
+                    <button type="submit" class="btn btn-sm"><?= e(t('hr.addCriterion')) ?></button>
+                  </div>
+                  <p class="hint"><?= e(t('hr.atsHelp')) ?></p>
+                </form>
+              </details>
+
+              <!-- Candidatures classées -->
+              <?php if ($applicants !== []): ?>
+                <h3 class="section-label"><?= e(t('hr.rankedApplications')) ?></h3>
+                <ul class="candidate-list">
+                  <?php foreach ($applicants as $candidate): ?>
+                    <?php $ats = $candidate['ats']; ?>
+                    <li class="candidate-row">
+                      <div class="meeting-head">
+                        <span class="person-name">
+                          <?= e(trim($candidate['first_name'] . ' ' . $candidate['last_name'])) ?>
+                          <?php if ($ats['shortlisted']): ?><span class="tag tag-accent"><?= e(t('hr.retained')) ?></span><?php endif; ?>
+                        </span>
+                        <span class="score-badge <?= $ats['shortlisted'] ? 'is-ok' : ($ats['hasCv'] ? 'is-low' : 'is-none') ?>">
+                          <?= e($ats['hasCv'] ? $ats['score'] . ' %' : 'sans CV') ?>
+                        </span>
+                      </div>
+                      <p class="cell-sub">
+                        <?= e(implode(' · ', array_filter([$candidate['email'], $candidate['source']])) ?: '—') ?>
+                        <?= $ats['years'] !== null ? ' · ' . (int) $ats['years'] . ' ans (' . e($ats['yearsSource']) . ')' : '' ?>
+                      </p>
+
+                      <?php if ($ats['hasCv']): ?>
+                        <div class="meter">
+                          <span class="meter-fill <?= $ats['shortlisted'] ? '' : 'is-warn' ?>" data-ratio="<?= (int) $ats['score'] ?>"></span>
+                        </div>
+                        <p class="cell-sub">
+                          <?php foreach ($ats['rows'] as $row): ?>
+                            <span class="tag <?= $row['matched'] ? 'tag-accent' : '' ?>"
+                                  title="<?= e($row['kind']) ?> · poids <?= (int) $row['weight'] ?><?= $row['matchedOn'] !== null ? ' · trouvé : ' . e($row['matchedOn']) : '' ?>">
+                              <?= $row['matched'] ? '✓' : '✕' ?> <?= e($row['label']) ?>
+                            </span>
+                          <?php endforeach; ?>
+                        </p>
+                        <?php if ($ats['missingRequired'] !== []): ?>
+                          <p class="cell-sub text-danger">
+                            <?= e(t('hr.missingRequired', ['list' => implode(', ', $ats['missingRequired'])])) ?>
+                          </p>
+                        <?php endif; ?>
+                        <?php if ($ats['experienceShort']): ?>
+                          <p class="cell-sub text-warning">
+                            <?= e(t('hr.experienceBelow', ['years' => $opening['min_experience']])) ?>
+                          </p>
+                        <?php endif; ?>
+                      <?php else: ?>
+                        <p class="cell-sub"><?= e(t('hr.noCvNotEvaluated')) ?></p>
+                      <?php endif; ?>
+
+                      <div class="row-actions">
+                        <form method="POST" action="/rh/candidats/<?= (int) $candidate['id'] ?>/cv"
+                              enctype="multipart/form-data" class="inline-form">
+                          <?= $csrf ?>
+                          <input type="file" name="cv" class="input-sm" accept=".pdf,.docx,.txt,.md" required />
+                          <button type="submit" class="btn btn-sm">
+                            <?= e(!empty($candidate['cv_file']) ? t('hr.replaceCv') : t('hr.uploadCv')) ?>
+                          </button>
+                        </form>
+                        <?php if (!empty($candidate['cv_file'])): ?>
+                          <a href="/rh/candidats/<?= (int) $candidate['id'] ?>/cv" class="btn btn-outline btn-sm">
+                            <?= e($candidate['cv_name'] !== '' ? $candidate['cv_name'] : 'CV') ?>
+                          </a>
+                          <form method="POST" action="/rh/candidats/<?= (int) $candidate['id'] ?>/cv/supprimer"
+                                class="inline-form" data-confirm="<?= e(t('hr.deleteCv')) ?>">
+                            <?= $csrf ?>
+                            <button type="submit" class="btn btn-danger btn-sm"><?= e(t('hr.deleteCvButton')) ?></button>
+                          </form>
+                        <?php endif; ?>
+                      </div>
+
+                      <div class="row-actions">
+                        <form method="POST" action="/rh/candidats/<?= (int) $candidate['id'] ?>/experience" class="inline-form">
+                          <?= $csrf ?>
+                          <label class="inline-field">
+                            <span class="cell-sub"><?= e(t('hr.experienceYears')) ?></span>
+                            <input type="text" name="experience_years" class="input-sm" inputmode="decimal"
+                                   value="<?= $candidate['experience_years'] !== null ? e((string) $candidate['experience_years']) : '' ?>" />
+                          </label>
+                          <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
+                        </form>
+                        <form method="POST" action="/rh/candidats/<?= (int) $candidate['id'] ?>/etape" class="inline-form">
+                          <?= $csrf ?>
+                          <select name="stage" class="input-sm">
+                            <?php foreach ($candidateStages as $stage): ?>
+                              <option value="<?= e($stage) ?>"<?= $candidate['stage'] === $stage ? ' selected' : '' ?>><?= e(st($stage)) ?></option>
+                            <?php endforeach; ?>
+                          </select>
+                          <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
+                        </form>
+                        <form method="POST" action="/rh/candidats/<?= (int) $candidate['id'] ?>/supprimer"
+                              class="inline-form" data-confirm="<?= e(t('hr.deleteApplication')) ?>">
+                          <?= $csrf ?>
+                          <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.delete')) ?></button>
+                        </form>
+                      </div>
+                    </li>
+                  <?php endforeach; ?>
+                </ul>
+                <p class="hint"><?= e(t('hr.scoreNotice')) ?></p>
+              <?php endif; ?>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      <?php endif; ?>
+    </div>
+  </div>
+</section>

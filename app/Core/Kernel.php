@@ -7,6 +7,7 @@ namespace App\Core;
 use App\Controllers\AdminController;
 use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
+use App\Controllers\PlanningController;
 use App\Controllers\AuthController;
 use App\Controllers\BackupController;
 use App\Controllers\CseController;
@@ -140,6 +141,21 @@ final class Kernel
         $router->post('/rh/entretiens/{id}/annuler', HrController::cancelReview(...));
         $router->post('/rh/entretiens/{id}/supprimer', HrController::deleteReview(...));
 
+        // Recrutement : postes, candidatures, critères de filtrage et CV.
+        $router->post('/rh/postes', HrController::createOpening(...));
+        $router->post('/rh/postes/{id}/statut', HrController::setOpeningStatus(...));
+        $router->post('/rh/postes/{id}/supprimer', HrController::deleteOpening(...));
+        $router->post('/rh/postes/{id}/ats', HrController::setOpeningAts(...));
+        $router->post('/rh/postes/{id}/criteres', HrController::createCriterion(...));
+        $router->post('/rh/criteres/{id}/supprimer', HrController::deleteCriterion(...));
+        $router->post('/rh/candidats', HrController::createCandidate(...));
+        $router->post('/rh/candidats/{id}/etape', HrController::setCandidateStage(...));
+        $router->post('/rh/candidats/{id}/experience', HrController::setCandidateExperience(...));
+        $router->post('/rh/candidats/{id}/supprimer', HrController::deleteCandidate(...));
+        $router->post('/rh/candidats/{id}/cv', HrController::uploadCv(...));
+        $router->get('/rh/candidats/{id}/cv', HrController::downloadCv(...));
+        $router->post('/rh/candidats/{id}/cv/supprimer', HrController::deleteCv(...));
+
         // Le CSE, côté employeur : les mandats, les scrutins et les convocations.
         $router->post('/rh/cse/mandats', HrController::addCseMandate(...));
         $router->post('/rh/cse/mandats/{id}/retirer', HrController::removeCseMandate(...));
@@ -182,6 +198,15 @@ final class Kernel
         $router->post('/agenda', AgendaController::create(...));
         $router->post('/agenda/{id}/partage', AgendaController::share(...));
         $router->post('/agenda/{id}/supprimer', AgendaController::delete(...));
+        // Planning d'équipe : créneaux, roulements, astreintes.
+        $router->get('/planning', PlanningController::index(...));
+        $router->post('/planning/creneaux', PlanningController::createShift(...));
+        $router->post('/planning/creneaux/{id}/supprimer', PlanningController::deleteShift(...));
+        $router->post('/planning/publier', PlanningController::publish(...));
+        $router->post('/planning/roulements', PlanningController::createTemplate(...));
+        $router->post('/planning/roulements/{id}/appliquer', PlanningController::applyTemplate(...));
+        $router->post('/planning/roulements/{id}/supprimer', PlanningController::deleteTemplate(...));
+
         $router->get('/salles', RoomsController::index(...));
         $router->post('/salles', RoomsController::book(...));
         $router->post('/salles/{id}/annuler', RoomsController::cancel(...));
@@ -806,6 +831,13 @@ final class Kernel
             if ($reserved && !FinanceController::canAccess($user)) {
                 return $refuse();
             }
+        }
+        // Consulter le planning est ouvert à tous — un planning illisible ne sert
+        // à personne. Le modifier engage les journées d'autrui : encadrement,
+        // RH et administration seulement.
+        if (str_starts_with($request->path, '/planning') && $request->isPost()
+            && !PlanningController::canPlan($user)) {
+            return $refuse();
         }
         if (str_starts_with($request->path, '/paie')) {
             if (!\App\Modules\Catalogue::isEnabled('paie')) {

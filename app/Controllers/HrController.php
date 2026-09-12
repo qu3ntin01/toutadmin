@@ -33,6 +33,8 @@ final class HrController
     public static function home(Request $request): Response
     {
         $employees = array_values(array_filter(Users::employees(), static fn (array $e): bool => Hr::isEligible($e)));
+        $openings = Talent::openings();
+        $cvQuery = trim($request->input('cv'));
         $requests = Hr::allRequests();
         $pending = array_values(array_filter($requests, static fn (array $r): bool => $r['status'] === 'En attente'));
 
@@ -48,6 +50,7 @@ final class HrController
                 ['tab' => 'documents', 'label' => t('hr.catalogue')],
                 ['tab' => 'formations', 'label' => t('hr.training')],
                 ['tab' => 'entretiens', 'label' => t('erp.reviews')],
+                ['tab' => 'recrutement', 'label' => t('erp.recruitment')],
                 ['tab' => 'cse', 'label' => t('nav.cse')],
             ],
             'footLinks' => [
@@ -69,6 +72,25 @@ final class HrController
             'reviews' => Talent::reviews(),
             // Le CSE : les RH convoquent, valident les candidatures et tiennent
             // la composition ; les élus, eux, écrivent les comptes rendus.
+            // Recrutement : les postes, leurs critères, et les candidatures classées.
+            'openings' => $openings,
+            'openingStatuses' => Talent::OPENING_STATUSES,
+            'candidateStages' => Talent::CANDIDATE_STAGES,
+            'candidatesByOpening' => array_reduce($openings, static function (array $all, array $opening): array {
+                $all[(int) $opening['id']] = \App\Modules\Ats::rankedCandidates((int) $opening['id']);
+                return $all;
+            }, []),
+            'criteriaByOpening' => array_reduce($openings, static function (array $all, array $opening): array {
+                $all[(int) $opening['id']] = \App\Modules\Ats::criteriaOf((int) $opening['id']);
+                return $all;
+            }, []),
+            'criterionKinds' => \App\Modules\Ats::CRITERION_KINDS,
+            'maxWeight' => \App\Modules\Ats::MAX_WEIGHT,
+            'cvQuery' => $cvQuery,
+            'cvResults' => $cvQuery === '' ? [] : \App\Modules\Ats::searchCvs($cvQuery),
+            'departments' => Org::departments(),
+            'teams' => Org::teams(),
+            'contractTypes' => ['CDI', 'CDD', 'Intérim', 'Stage', 'Alternance', 'Freelance'],
             'cseMandates' => \App\Modules\Cse::mandates(),
             'cseMandateRoles' => \App\Modules\Cse::MANDATE_ROLES,
             'cseElections' => \App\Modules\Cse::elections(),
@@ -581,5 +603,291 @@ final class HrController
     {
         \App\Modules\Cse::deleteMeeting((int) $params['id']);
         return self::cseBack('success', 'Réunion supprimée.');
+    }
+
+    // ---------- Recrutement ----------
+
+    private static function recruitBack(string $type, string $message): Response
+    {
+        Flash::set($type, $message);
+        return Response::redirect('/rh#recrutement');
+    }
+
+    /** Un nombre d'années de formulaire : virgule décimale acceptée. */
+    private static function years(string $raw): float|false|null
+    {
+        $trimmed = trim($raw);
+        if ($trimmed === '') {
+            return null;
+        }
+        $value = str_replace([' ', "\u{a0}", ','], ['', '', '.'], $trimmed);
+        if (!is_numeric($value)) {
+            return false;
+        }
+        $years = round((float) $value, 2);
+        return ($years < 0 || $years > 60) ? false : $years;
+    }
+
+    public static function createOpening(Request $request): Response
+    {
+        $title = mb_substr($request->input('title'), 0, 160);
+        $departmentId = (int) $request->input('department_id') ?: null;
+        $teamId = (int) $request->input('team_id') ?: null;
+        $contractType = $request->input('contract_type');
+        $contractTypes = ['CDI', 'CDD', 'Intérim', 'Stage', 'Alternance', 'Freelance'];
+
+        if ($title === '') {
+            return self::recruitBack('error', "L'intitulé du poste est obligatoire.");
+        }
+        if ($departmentId !== null && Db::get('SELECT id FROM departments WHERE id = ?', [$departmentId]) === null) {
+            return self::recruitBack('error', 'Service introuvable.');
+        }
+        if ($teamId !== null && Db::get('SELECT id FROM teams WHERE id = ?', [$teamId]) === null) {
+            return self::recruitBack('error', 'Équipe introuvable.');
+        }
+        if ($contractType !== '' && !in_array($contractType, $contractTypes, true)) {
+            return self::recruitBack('error', 'Type de contrat invalide.');
+        }
+
+        Talent::createOpening([
+            'title' => $title,
+            'departmentId' => $departmentId,
+            'teamId' => $teamId,
+            'contractType' => $contractType,
+            'description' => mb_substr($request->input('description'), 0, 4000),
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        return self::recruitBack('success', 'Poste ouvert.');
+    }
+
+    public static function setOpeningStatus(Request $request, array $params): Response
+    {
+        if (!Talent::setOpeningStatus((int) $params['id'], $request->input('status'))) {
+            return self::recruitBack('error', 'Statut invalide ou poste introuvable.');
+        }
+        return self::recruitBack('success', 'Poste mis à jour.');
+    }
+
+    public static function deleteOpening(Request $request, array $params): Response
+    {
+        Talent::deleteOpening((int) $params['id']);
+        return self::recruitBack('success', 'Poste supprimé, avec ses candidatures.');
+    }
+
+    public static function createCandidate(Request $request): Response
+    {
+        $firstName = mb_substr($request->input('first_name'), 0, 100);
+        $lastName = mb_substr($request->input('last_name'), 0, 100);
+        $email = mb_substr($request->input('email'), 0, 254);
+
+        if ($firstName === '' || $lastName === '') {
+            return self::recruitBack('error', 'Prénom et nom sont obligatoires.');
+        }
+        if ($email !== '' && !Validate::email($email)) {
+            return self::recruitBack('error', 'Adresse email invalide.');
+        }
+
+        $result = Talent::createCandidate([
+            'openingId' => (int) $request->input('opening_id'),
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'email' => $email,
+            'phone' => mb_substr($request->input('phone'), 0, 40),
+            'source' => mb_substr($request->input('source'), 0, 80),
+            'notes' => mb_substr($request->input('notes'), 0, 2000),
+        ]);
+
+        $messages = ['not-found' => 'Poste introuvable.', 'closed' => "Ce poste n'accepte plus de candidature."];
+        if (!$result['ok']) {
+            return self::recruitBack('error', $messages[$result['reason']] ?? 'Candidature impossible.');
+        }
+        return self::recruitBack('success', 'Candidature enregistrée.');
+    }
+
+    public static function setCandidateStage(Request $request, array $params): Response
+    {
+        if (!Talent::setCandidateStage((int) $params['id'], $request->input('stage'))) {
+            return self::recruitBack('error', 'Étape invalide ou candidature introuvable.');
+        }
+        return self::recruitBack('success', 'Étape mise à jour.');
+    }
+
+    public static function deleteCandidate(Request $request, array $params): Response
+    {
+        Talent::deleteCandidate((int) $params['id']);
+        return self::recruitBack('success', 'Candidature supprimée.');
+    }
+
+    // ---------- Filtrage ATS : critères, CV, classement ----------
+
+    public static function setOpeningAts(Request $request, array $params): Response
+    {
+        $openingId = (int) $params['id'];
+        if (Talent::openingById($openingId) === null) {
+            return self::recruitBack('error', 'Poste introuvable.');
+        }
+
+        $minExperience = self::years($request->input('min_experience', '0') ?: '0');
+        if ($minExperience === false) {
+            return self::recruitBack('error', 'Expérience minimale invalide (0 à 60 ans).');
+        }
+        $rawThreshold = $request->input('ats_threshold');
+        if (!ctype_digit($rawThreshold)) {
+            return self::recruitBack('error', 'Seuil invalide (0 à 100).');
+        }
+
+        $result = \App\Modules\Ats::setOpeningAts($openingId, (float) ($minExperience ?? 0), (int) $rawThreshold);
+        $messages = [
+            'bad-experience' => 'Expérience minimale invalide (0 à 60 ans).',
+            'bad-threshold' => 'Seuil invalide (0 à 100).',
+        ];
+        if (!$result['ok']) {
+            return self::recruitBack('error', $messages[$result['reason']] ?? 'Réglage impossible.');
+        }
+
+        // Les scores dépendent du seuil et de l'expérience : ils sont refaits.
+        \App\Modules\Ats::rescoreOpening($openingId);
+        return self::recruitBack('success', 'Réglages ATS mis à jour.');
+    }
+
+    public static function createCriterion(Request $request, array $params): Response
+    {
+        $openingId = (int) $params['id'];
+        $label = mb_substr($request->input('label'), 0, 120);
+        if ($label === '') {
+            return self::recruitBack('error', "L'intitulé du critère est obligatoire.");
+        }
+
+        $rawWeight = $request->input('weight');
+        $result = \App\Modules\Ats::createCriterion([
+            'openingId' => $openingId,
+            'label' => $label,
+            'kind' => $request->input('kind'),
+            'weight' => ctype_digit($rawWeight) ? (int) $rawWeight : 0,
+            'keywords' => mb_substr($request->input('keywords'), 0, 500),
+        ]);
+
+        $messages = [
+            'bad-kind' => 'Type de critère invalide.',
+            'bad-weight' => 'Poids invalide (1 à ' . \App\Modules\Ats::MAX_WEIGHT . ').',
+            'no-opening' => 'Poste introuvable.',
+        ];
+        if (!$result['ok']) {
+            return self::recruitBack('error', $messages[$result['reason']] ?? 'Critère refusé.');
+        }
+
+        \App\Modules\Ats::rescoreOpening($openingId);
+        return self::recruitBack('success', 'Critère ajouté. Les candidatures ont été réévaluées.');
+    }
+
+    public static function deleteCriterion(Request $request, array $params): Response
+    {
+        $openingId = \App\Modules\Ats::deleteCriterion((int) $params['id']);
+        if ($openingId === null) {
+            return self::recruitBack('error', 'Critère introuvable.');
+        }
+
+        \App\Modules\Ats::rescoreOpening($openingId);
+        return self::recruitBack('success', 'Critère retiré. Les candidatures ont été réévaluées.');
+    }
+
+    public static function setCandidateExperience(Request $request, array $params): Response
+    {
+        $candidate = Db::get('SELECT * FROM candidates WHERE id = ?', [(int) $params['id']]);
+        if ($candidate === null) {
+            return self::recruitBack('error', 'Candidature introuvable.');
+        }
+
+        $years = self::years($request->input('experience_years'));
+        if ($years === false) {
+            return self::recruitBack('error', 'Expérience invalide (0 à 60 ans).');
+        }
+
+        Db::run('UPDATE candidates SET experience_years = ? WHERE id = ?', [$years, (int) $candidate['id']]);
+        \App\Modules\Ats::rescoreCandidate((int) $candidate['id']);
+        return self::recruitBack('success', 'Expérience enregistrée.');
+    }
+
+    /**
+     * Dépôt d'un CV : le fichier est stocké hors de la racine web, son texte
+     * extrait, et la candidature réévaluée dans la foulée.
+     */
+    public static function uploadCv(Request $request, array $params): Response
+    {
+        $candidate = Db::get('SELECT * FROM candidates WHERE id = ?', [(int) $params['id']]);
+        if ($candidate === null) {
+            return self::recruitBack('error', 'Candidature introuvable.');
+        }
+
+        $file = $request->file('cv');
+        if ($file === null) {
+            return self::recruitBack('error', 'Aucun fichier reçu.');
+        }
+        if (strlen($file['bytes']) > \App\Modules\Cv::MAX_BYTES) {
+            return self::recruitBack('error', 'CV trop volumineux : 5 Mo maximum.');
+        }
+        if (!isset(\App\Modules\Cv::ACCEPTED[$file['mime']])) {
+            return self::recruitBack('error', 'Format non pris en charge : PDF, DOCX, TXT ou Markdown.');
+        }
+        if (!\App\Modules\Cv::accepts($file)) {
+            return self::recruitBack('error', "Ce fichier n'est pas du type annoncé : dépôt refusé.");
+        }
+
+        $text = \App\Modules\Cv::extractText($file['bytes'], $file['mime']);
+
+        // Le CV précédent est remplacé, pas accumulé.
+        \App\Modules\Cv::remove($candidate['cv_file']);
+        $fileName = \App\Modules\Cv::save($file);
+
+        Db::run(
+            'UPDATE candidates SET cv_file = ?, cv_name = ?, cv_text = ?, cv_uploaded_at = ? WHERE id = ?',
+            [$fileName, mb_substr($file['name'], 0, 200), $text, gmdate('c'), (int) $candidate['id']]
+        );
+        \App\Modules\Ats::rescoreCandidate((int) $candidate['id']);
+
+        return self::recruitBack('success', $text !== ''
+            ? 'CV déposé et analysé.'
+            : "CV déposé, mais aucun texte n'a pu en être extrait : un PDF scanné demande une reconnaissance de caractères, que ce module ne fait pas.");
+    }
+
+    /** Un CV est une donnée personnelle : il ne sort que par cette route authentifiée. */
+    public static function downloadCv(Request $request, array $params): Response
+    {
+        $candidate = Db::get('SELECT * FROM candidates WHERE id = ?', [(int) $params['id']]);
+        if ($candidate === null || empty($candidate['cv_file'])) {
+            return Response::html(View::page('error', ['message' => 'CV introuvable.', 'title' => 'CV introuvable.']), 404);
+        }
+
+        $path = \App\Modules\Cv::pathOf($candidate['cv_file']);
+        if (!is_file($path)) {
+            return Response::html(View::page('error', ['message' => 'CV introuvable.', 'title' => 'CV introuvable.']), 404);
+        }
+        $mime = match (strtolower((string) pathinfo($candidate['cv_file'], PATHINFO_EXTENSION))) {
+            'pdf' => 'application/pdf',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'md' => 'text/markdown',
+            default => 'text/plain',
+        };
+        $suggested = $candidate['cv_name'] !== '' ? $candidate['cv_name'] : 'cv';
+        return Response::text((string) file_get_contents($path))->withHeaders([
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'attachment; filename="' . str_replace('"', '', $suggested) . '"',
+        ]);
+    }
+
+    public static function deleteCv(Request $request, array $params): Response
+    {
+        $candidate = Db::get('SELECT * FROM candidates WHERE id = ?', [(int) $params['id']]);
+        if ($candidate === null) {
+            return self::recruitBack('error', 'Candidature introuvable.');
+        }
+
+        \App\Modules\Cv::remove($candidate['cv_file']);
+        Db::run(
+            "UPDATE candidates SET cv_file = NULL, cv_name = '', cv_text = '', cv_uploaded_at = NULL WHERE id = ?",
+            [(int) $candidate['id']]
+        );
+        \App\Modules\Ats::rescoreCandidate((int) $candidate['id']);
+        return self::recruitBack('success', 'CV supprimé.');
     }
 }

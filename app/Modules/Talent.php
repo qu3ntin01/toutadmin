@@ -22,6 +22,8 @@ final class Talent
     public const SESSION_STATUSES = ['Planifiée', 'Confirmée', 'Terminée', 'Annulée'];
     public const REGISTRATION_STATUSES = ['Demandée', 'Inscrite', 'Refusée', 'Terminée', 'Annulée'];
     public const REVIEW_STATUSES = ['Planifié', 'Réalisé', 'Annulé'];
+    public const OPENING_STATUSES = ['Ouvert', 'En cours', 'Pourvu', 'Annulé'];
+    public const CANDIDATE_STAGES = ['Reçue', 'Présélection', 'Entretien', 'Offre', 'Recruté', 'Refusé'];
 
     // ---------- Documents d'entreprise ----------
 
@@ -318,5 +320,93 @@ final class Talent
     public static function deleteReview(int $id): void
     {
         Db::run('DELETE FROM reviews WHERE id = ?', [$id]);
+    }
+
+    // ---------- Recrutement ----------
+
+    public static function openings(): array
+    {
+        return Db::all(
+            "SELECT o.*, d.name AS department_name, t.name AS team_name,
+               (SELECT COUNT(*) FROM candidates c WHERE c.opening_id = o.id) AS candidate_count,
+               (SELECT COUNT(*) FROM candidates c WHERE c.opening_id = o.id AND c.stage NOT IN ('Recruté','Refusé')) AS active_count
+             FROM job_openings o
+             LEFT JOIN departments d ON d.id = o.department_id
+             LEFT JOIN teams t ON t.id = o.team_id
+             ORDER BY o.opened_on DESC"
+        );
+    }
+
+    public static function openingById(int $id): ?array
+    {
+        return Db::get('SELECT * FROM job_openings WHERE id = ?', [$id]);
+    }
+
+    public static function createOpening(array $data): int
+    {
+        return Db::insert(
+            'INSERT INTO job_openings (title, department_id, team_id, contract_type, description, created_by)
+             VALUES (?, ?, ?, ?, ?, ?)',
+            [
+                $data['title'], $data['departmentId'] ?? null, $data['teamId'] ?? null,
+                $data['contractType'] ?? '', $data['description'] ?? '', $data['createdBy'] ?? null,
+            ]
+        );
+    }
+
+    public static function setOpeningStatus(int $id, string $status): bool
+    {
+        if (!in_array($status, self::OPENING_STATUSES, true)) {
+            return false;
+        }
+        $closed = in_array($status, ['Pourvu', 'Annulé'], true);
+        return Db::run(
+            'UPDATE job_openings SET status = ?, closed_on = ? WHERE id = ?',
+            [$status, $closed ? gmdate('Y-m-d') : null, $id]
+        ) > 0;
+    }
+
+    public static function deleteOpening(int $id): void
+    {
+        Db::run('DELETE FROM job_openings WHERE id = ?', [$id]);
+    }
+
+    public static function candidates(int $openingId): array
+    {
+        return Db::all('SELECT * FROM candidates WHERE opening_id = ? ORDER BY created_at DESC', [$openingId]);
+    }
+
+    public static function createCandidate(array $data): array
+    {
+        $opening = self::openingById((int) $data['openingId']);
+        if ($opening === null) {
+            return ['ok' => false, 'reason' => 'not-found'];
+        }
+        if (in_array($opening['status'], ['Pourvu', 'Annulé'], true)) {
+            return ['ok' => false, 'reason' => 'closed'];
+        }
+
+        Db::insert(
+            'INSERT INTO candidates (opening_id, first_name, last_name, email, phone, source, notes)
+             VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [
+                (int) $data['openingId'], $data['firstName'], $data['lastName'], $data['email'] ?? '',
+                $data['phone'] ?? '', $data['source'] ?? '', $data['notes'] ?? '',
+            ]
+        );
+        return ['ok' => true];
+    }
+
+    public static function setCandidateStage(int $id, string $stage): bool
+    {
+        if (!in_array($stage, self::CANDIDATE_STAGES, true)) {
+            return false;
+        }
+        return Db::run('UPDATE candidates SET stage = ? WHERE id = ?', [$stage, $id]) > 0;
+    }
+
+    public static function deleteCandidate(int $id): void
+    {
+        Db::run('DELETE FROM candidates WHERE id = ?', [$id]);
     }
 }
