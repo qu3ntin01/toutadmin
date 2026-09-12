@@ -6,7 +6,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
   <dl class="detail-list">
     <div><dt><?= e(t('common.title')) ?></dt><dd><?= e($request['title']) ?></dd></div>
     <div><dt><?= e(t('common.nature')) ?></dt><dd><?= e($request['kind']) ?></dd></div>
-    <div><dt><?= e(t('common.status')) ?></dt><dd><?= e($request['status']) ?></dd></div>
+    <div><dt><?= e(t('common.status')) ?></dt><dd><?= e(st($request['status'])) ?></dd></div>
     <div><dt><?= e(t('cf.fingerprintTitle')) ?></dt><dd><code><?= e((string) $request['sha256']) ?></code></dd></div>
     <div><dt><?= e(t('common.timestamp')) ?></dt><dd><?= e(substr($generatedAt, 0, 19)) ?></dd></div>
   </dl>

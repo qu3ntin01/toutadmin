@@ -13,7 +13,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 
 | Espace | Ce qui marche |
 | --- | --- |
-| Socle | base et schéma (143 tables), sessions en base, jeton CSRF, en-têtes, plafonds, journal scellé, 16 langues (2 754 clés) |
+| Socle | base et schéma (143 tables), sessions en base, jeton CSRF, en-têtes, plafonds, journal scellé, 16 langues (2 770 clés) |
 | Installation | vérification de l'hébergement, entreprise, langue, compte d'administration, fermeture automatique |
 | Connexion | mot de passe, double authentification, codes de secours, verrouillage, changement de mot de passe forcé |
 | Mon espace | accueil du salarié |
@@ -45,8 +45,10 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Comptabilité | module optionnel : plan comptable et journaux posés à l'activation, écritures refusées si elles ne s'équilibrent pas, facture passée en écriture d'un clic au taux figé, balance, grand livre, résultat, export CSV |
 | Paie | module optionnel : barèmes paramétrables (base brut ou plafond), calcul du brut au net, part patronale et coût employeur, bulletin détaillé, génération en lot, masse salariale du mois |
 | Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
+| Qualité | non-conformités avec référence annuelle, cause racine, clôture refusée tant qu'une action reste ouverte, actions correctives avec vérification d'efficacité, audits internes, constats et promotion d'un constat en non-conformité |
+| Santé et sécurité | document unique coté gravité × probabilité avec seuil d'action, registre des accidents fermé aux saisies à venir, taux de fréquence et de gravité sur douze mois, équipements de protection dont l'échéance découle de la validité, visites médicales et échéances à soixante jours |
 
-288 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+303 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -54,11 +56,24 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
-2. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
-3. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
-4. **Recrutement** — postes, candidatures, entretiens
-5. **Planning** — roulements, astreintes, présence
+1. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages,
+   et la conformité qui vit dans le même espace : conflits d'intérêts, cadeaux,
+   délégations de pouvoir
+2. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+3. **Recrutement** — postes, candidatures, entretiens
+4. **Planning** — roulements, astreintes, présence
+
+## Les statuts s'affichent maintenant dans la langue de la page
+
+Les statuts sont stockés en français — c'est la langue de référence du produit,
+et une base ne se traduit pas. L'édition Node les traduisait à l'affichage par
+une table de correspondance ; l'édition PHP ne l'avait pas, et montrait
+« Clôturée » au milieu d'une page en coréen.
+
+`I18n::status()` et l'aide `st()` portent cette table (167 statuts), et les
+écrans déjà portés s'en servent : libellés d'options, étiquettes d'état,
+partout où un statut est lu par quelqu'un. La valeur envoyée par le formulaire,
+elle, reste française — c'est elle qui va en base.
 
 ## Un manque de l'édition Node, comblé des deux côtés
 

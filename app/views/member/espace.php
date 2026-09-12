@@ -87,7 +87,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <td><?= (int) $row['days'] ?></td>
               <td>
                 <span class="status <?= $row['status'] === 'Approuvée' ? 'status-on' : ($row['status'] === 'En attente' ? 'status-wait' : 'status-off') ?>">
-                  <?= e($row['status']) ?>
+                  <?= e(st($row['status'])) ?>
                 </span>
                 <?php if (!empty($row['review_note'])): ?><br /><span class="cell-sub"><?= e($row['review_note']) ?></span><?php endif; ?>
               </td>
@@ -120,7 +120,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
             <tr>
               <td><?= e($payslip['period']) ?></td>
               <td><?= e(number_format((float) $payslip['net_amount'], 2, ',', ' ')) ?> €</td>
-              <td><?= e($payslip['status']) ?></td>
+              <td><?= e(st($payslip['status'])) ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -231,7 +231,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
             <td><?= e($session['start_date']) ?></td>
             <td>
               <?php if ($registration !== null): ?>
-                <span class="status <?= $registration['status'] === 'Inscrite' ? 'status-on' : 'status-wait' ?>"><?= e($registration['status']) ?></span>
+                <span class="status <?= $registration['status'] === 'Inscrite' ? 'status-on' : 'status-wait' ?>"><?= e(st($registration['status'])) ?></span>
               <?php endif; ?>
             </td>
             <td>
@@ -264,7 +264,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
             <span class="org-name"><?= e($review['period']) ?></span>
             <span class="cell-sub"><?= e((string) $review['scheduled_on']) ?></span>
           </div>
-          <span class="status <?= $review['status'] === 'Réalisé' ? 'status-on' : 'status-wait' ?>"><?= e($review['status']) ?></span>
+          <span class="status <?= $review['status'] === 'Réalisé' ? 'status-on' : 'status-wait' ?>"><?= e(st($review['status'])) ?></span>
         </div>
         <?php if ($review['status'] === 'Réalisé'): ?>
           <dl class="detail-list">
@@ -325,7 +325,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
             <td><?= e(number_format((float) $claim['amount'], 2, ',', ' ')) ?></td>
             <td>
               <span class="status <?= in_array($claim['status'], ['Approuvée', 'Remboursée'], true) ? 'status-on' : ($claim['status'] === 'En attente' ? 'status-wait' : 'status-off') ?>">
-                <?= e($claim['status']) ?>
+                <?= e(st($claim['status'])) ?>
               </span>
               <?php if (!empty($claim['review_note'])): ?><br /><span class="cell-sub"><?= e($claim['review_note']) ?></span><?php endif; ?>
             </td>

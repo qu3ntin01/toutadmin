@@ -6,7 +6,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
   <h2><?= e(t('sig.flowState')) ?></h2>
   <p>
     <span class="status <?= $request['status'] === 'Signé' ? 'status-on' : ($request['status'] === 'En cours' ? 'status-wait' : 'status-off') ?>">
-      <?= e($request['status']) ?>
+      <?= e(st($request['status'])) ?>
     </span>
     <?= e(t('sig.signatureCount', ['signed' => $request['signedCount'], 'total' => $request['total']])) ?>
     · <?= e(t('sig.openedOnCap', ['date' => substr((string) $request['created_at'], 0, 10)])) ?>
@@ -63,7 +63,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           </td>
           <td>
             <span class="status <?= $signer['status'] === 'Signé' ? 'status-on' : ($signer['status'] === 'Refusé' ? 'status-off' : 'status-wait') ?>">
-              <?= e($signer['status']) ?>
+              <?= e(st($signer['status'])) ?>
             </span>
             <?php if (!empty($signer['signed_at'])): ?>
               <br /><span class="cell-sub"><?= e(substr((string) $signer['signed_at'], 0, 19)) ?></span>

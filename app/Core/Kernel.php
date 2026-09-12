@@ -23,8 +23,10 @@ use App\Controllers\PayrollController;
 use App\Controllers\PrivacyController;
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
+use App\Controllers\QualityController;
 use App\Controllers\RequestsController;
 use App\Controllers\RoomsController;
+use App\Controllers\SafetyController;
 use App\Controllers\SecurityController;
 use App\Controllers\StockController;
 use App\Controllers\SigningController;
@@ -292,6 +294,36 @@ final class Kernel
         $router->post('/stock/demandes/{id}/gestion', StockController::financeDecision(...));
         $router->post('/stock/demandes/{id}/commander', StockController::markOrdered(...));
 
+        // Qualité : non-conformités, actions, audits internes.
+        $router->get('/qualite', QualityController::index(...));
+        $router->post('/qualite/non-conformites', QualityController::createNonconformity(...));
+        $router->post('/qualite/non-conformites/{id}/cause', QualityController::setRootCause(...));
+        $router->post('/qualite/non-conformites/{id}/statut', QualityController::setNonconformityStatus(...));
+        $router->post('/qualite/non-conformites/{id}/supprimer', QualityController::deleteNonconformity(...));
+        $router->post('/qualite/actions', QualityController::createAction(...));
+        $router->post('/qualite/actions/{id}/statut', QualityController::setActionStatus(...));
+        $router->post('/qualite/actions/{id}/efficacite', QualityController::verifyAction(...));
+        $router->post('/qualite/actions/{id}/supprimer', QualityController::deleteAction(...));
+        $router->post('/qualite/audits', QualityController::createAudit(...));
+        $router->post('/qualite/audits/{id}/realiser', QualityController::completeAudit(...));
+        $router->post('/qualite/audits/{id}/constats', QualityController::addFinding(...));
+        $router->post('/qualite/audits/{id}/supprimer', QualityController::deleteAudit(...));
+        $router->post('/qualite/constats/{id}/en-non-conformite', QualityController::promoteFinding(...));
+        $router->post('/qualite/constats/{id}/supprimer', QualityController::deleteFinding(...));
+
+        // Santé et sécurité au travail.
+        $router->get('/sante-securite', SafetyController::index(...));
+        $router->post('/sante-securite/risques', SafetyController::createRisk(...));
+        $router->post('/sante-securite/risques/{id}/supprimer', SafetyController::deleteRisk(...));
+        $router->post('/sante-securite/accidents', SafetyController::createIncident(...));
+        $router->post('/sante-securite/accidents/{id}/supprimer', SafetyController::deleteIncident(...));
+        $router->post('/sante-securite/protections', SafetyController::createPpe(...));
+        $router->post('/sante-securite/protections/remettre', SafetyController::issuePpe(...));
+        $router->post('/sante-securite/protections/remises/{id}/rendre', SafetyController::returnPpe(...));
+        $router->post('/sante-securite/protections/{id}/supprimer', SafetyController::deletePpe(...));
+        $router->post('/sante-securite/visites', SafetyController::createVisit(...));
+        $router->post('/sante-securite/visites/{id}/supprimer', SafetyController::deleteVisit(...));
+
         // Coffre-fort : le sien, celui de la gestion, et l'accès par code.
         $router->get('/coffre-fort/acces', VaultController::accessForm(...));
         $router->post('/coffre-fort/acces', VaultController::redeem(...));
@@ -544,6 +576,16 @@ final class Kernel
         // elle a désigné. Les notes de frais d'un salarié passent, elles, par
         // /mon-espace, qui n'est pas derrière cette porte.
         if (str_starts_with($request->path, '/gestion') && !FinanceController::canAccess($user)) {
+            return $refuse();
+        }
+        // La qualité se pilote au plus près du terrain : l'encadrement et
+        // l'administration, sans créer un rôle de plus à administrer.
+        if (str_starts_with($request->path, '/qualite') && !QualityController::canAccess($user)) {
+            return $refuse();
+        }
+        // Le document unique, le registre des accidents et le suivi médical
+        // sont des obligations de l'employeur : RH et administration.
+        if (str_starts_with($request->path, '/sante-securite') && !SafetyController::canAccess($user)) {
             return $refuse();
         }
         // Les modules optionnels : éteints, leurs écrans n'existent pas, et ce

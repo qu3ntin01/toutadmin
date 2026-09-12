@@ -79,7 +79,7 @@ $statusClass = static fn (string $status): string => match ($status) {
             <tr>
               <td><?= e($row['form']['label'] ?? '—') ?><br /><span class="cell-sub"><?= e($row['created_at']) ?></span></td>
               <td><?= e((string) $row['summary']) ?></td>
-              <td><span class="status <?= e($statusClass($row['status'])) ?>"><?= e($row['status']) ?></span></td>
+              <td><span class="status <?= e($statusClass($row['status'])) ?>"><?= e(st($row['status'])) ?></span></td>
               <td><a class="btn btn-sm" href="/demandes/<?= (int) $row['id'] ?>"><?= e(t('common.open')) ?></a></td>
             </tr>
           <?php endforeach; ?>

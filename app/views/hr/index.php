@@ -32,7 +32,7 @@ $statusClass = static fn (string $status): string => match ($status) {
               <td><?= e($row['type']) ?></td>
               <td><?= e($row['start_date']) ?> → <?= e($row['end_date']) ?></td>
               <td><?= (int) $row['days'] ?></td>
-              <td><span class="status <?= e($statusClass($row['status'])) ?>"><?= e($row['status']) ?></span></td>
+              <td><span class="status <?= e($statusClass($row['status'])) ?>"><?= e(st($row['status'])) ?></span></td>
               <td class="row-actions">
                 <?php if ($row['status'] === 'En attente'): ?>
                   <form method="POST" action="/rh/demandes/<?= (int) $row['id'] ?>/approuver" class="inline-form">
@@ -139,7 +139,7 @@ $statusClass = static fn (string $status): string => match ($status) {
               <td><?= e($fullName($payslip)) ?></td>
               <td><?= e(number_format((float) $payslip['gross_amount'], 2, ',', ' ')) ?> €</td>
               <td><?= e(number_format((float) $payslip['net_amount'], 2, ',', ' ')) ?> €</td>
-              <td><span class="status <?= $payslip['status'] === 'Payée' ? 'status-on' : 'status-wait' ?>"><?= e($payslip['status']) ?></span></td>
+              <td><span class="status <?= $payslip['status'] === 'Payée' ? 'status-on' : 'status-wait' ?>"><?= e(st($payslip['status'])) ?></span></td>
               <td class="row-actions">
                 <?php if ($payslip['status'] !== 'Payée'): ?>
                   <form method="POST" action="/rh/paie/<?= (int) $payslip['id'] ?>/marquer-payee">
@@ -297,7 +297,7 @@ $statusClass = static fn (string $status): string => match ($status) {
                   <?= $csrf ?>
                   <select name="status" onchange="this.form.submit()">
                     <?php foreach ($sessionStatuses as $status): ?>
-                      <option value="<?= e($status) ?>"<?= $session['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                      <option value="<?= e($status) ?>"<?= $session['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
                   <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
@@ -336,7 +336,7 @@ $statusClass = static fn (string $status): string => match ($status) {
             <tr>
               <td><?= e($fullName($registration)) ?></td>
               <td><?= e($registration['title']) ?><br /><span class="cell-sub"><?= e($registration['start_date']) ?></span></td>
-              <td><span class="status <?= $registration['status'] === 'Inscrite' ? 'status-on' : ($registration['status'] === 'Demandée' ? 'status-wait' : 'status-off') ?>"><?= e($registration['status']) ?></span></td>
+              <td><span class="status <?= $registration['status'] === 'Inscrite' ? 'status-on' : ($registration['status'] === 'Demandée' ? 'status-wait' : 'status-off') ?>"><?= e(st($registration['status'])) ?></span></td>
               <td class="row-actions">
                 <?php if ($registration['status'] === 'Demandée'): ?>
                   <?php foreach (['Inscrite' => t('hr.approve'), 'Refusée' => t('hr.refuse')] as $status => $label): ?>
@@ -397,7 +397,7 @@ $statusClass = static fn (string $status): string => match ($status) {
           </span>
         </div>
         <span class="status <?= $review['status'] === 'Réalisé' ? 'status-on' : ($review['status'] === 'Planifié' ? 'status-wait' : 'status-off') ?>">
-          <?= e($review['status']) ?>
+          <?= e(st($review['status'])) ?>
         </span>
       </div>
 

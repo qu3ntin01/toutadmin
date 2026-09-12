@@ -72,7 +72,7 @@ $statusClass = static fn (string $s): string => match ($s) {
         <select name="statut" onchange="this.form.submit()">
           <option value=""><?= e(t('hr.filterAll')) ?></option>
           <?php foreach ($statuses as $status): ?>
-            <option value="<?= e($status) ?>"<?= $filters['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+            <option value="<?= e($status) ?>"<?= $filters['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
           <?php endforeach; ?>
         </select>
         <noscript><button type="submit" class="btn btn-sm"><?= e(t('directory.search')) ?></button></noscript>
@@ -106,7 +106,7 @@ $statusClass = static fn (string $s): string => match ($s) {
               </td>
               <td><?= e($ticket['category']) ?></td>
               <td><?= e($ticket['priority']) ?></td>
-              <td><span class="status <?= e($statusClass($ticket['status'])) ?>"><?= e($ticket['status']) ?></span></td>
+              <td><span class="status <?= e($statusClass($ticket['status'])) ?>"><?= e(st($ticket['status'])) ?></span></td>
               <td><a class="btn btn-sm" href="/support/tickets/<?= (int) $ticket['id'] ?>"><?= e(t('common.open')) ?></a></td>
             </tr>
           <?php endforeach; ?>
@@ -132,7 +132,7 @@ $statusClass = static fn (string $s): string => match ($s) {
               <tr>
                 <td><?= e((string) $ticket['reference']) ?></td>
                 <td><a href="/support/tickets/<?= (int) $ticket['id'] ?>"><?= e($ticket['subject']) ?></a></td>
-                <td><span class="status <?= e($statusClass($ticket['status'])) ?>"><?= e($ticket['status']) ?></span></td>
+                <td><span class="status <?= e($statusClass($ticket['status'])) ?>"><?= e(st($ticket['status'])) ?></span></td>
               </tr>
             <?php endforeach; ?>
           </tbody>

@@ -123,7 +123,7 @@ $statusClass = static fn (string $status): string => match ($status) {
               <td><?= e((string) $demande['quantity']) ?></td>
               <td><?= e($money((float) $demande['estimated_amount'])) ?></td>
               <td>
-                <span class="status <?= e($statusClass($demande['status'])) ?>"><?= e($demande['status']) ?></span>
+                <span class="status <?= e($statusClass($demande['status'])) ?>"><?= e(st($demande['status'])) ?></span>
                 <?php if (!empty($demande['review_note'])): ?>
                   <br /><span class="cell-sub"><?= e($demande['review_note']) ?></span>
                 <?php endif; ?>
@@ -163,7 +163,7 @@ $statusClass = static fn (string $status): string => match ($status) {
                 <td><?= e($fullName($demande)) ?><br /><span class="cell-sub"><?= e((string) $demande['department_name']) ?></span></td>
                 <td><?= e($demande['label']) ?></td>
                 <td><?= e($money((float) $demande['estimated_amount'])) ?></td>
-                <td><span class="status <?= e($statusClass($demande['status'])) ?>"><?= e($demande['status']) ?></span></td>
+                <td><span class="status <?= e($statusClass($demande['status'])) ?>"><?= e(st($demande['status'])) ?></span></td>
                 <td>
                   <?php if ($demande['status'] === 'Approuvée'): ?>
                     <form method="POST" action="/stock/demandes/<?= (int) $demande['id'] ?>/commander">
@@ -389,7 +389,7 @@ $statusClass = static fn (string $status): string => match ($status) {
               <td><?= e($money((float) $order['ordered_amount'])) ?></td>
               <td><?= e($money((float) $order['received_amount'])) ?></td>
               <td><?= e($money((float) $order['invoiced_amount'])) ?></td>
-              <td><span class="tag"><?= e($order['status']) ?></span></td>
+              <td><span class="tag"><?= e(st($order['status'])) ?></span></td>
             </tr>
           <?php endforeach; ?>
         </tbody>

@@ -37,7 +37,7 @@ $euro = static fn (?float $v): string => $v === null ? '—' : number_format($v,
         <label><span><?= e(t('common.status')) ?></span>
           <select name="status">
             <?php foreach ($statuses as $status): ?>
-              <option value="<?= e($status) ?>"><?= e($status) ?></option>
+              <option value="<?= e($status) ?>"><?= e(st($status)) ?></option>
             <?php endforeach; ?>
           </select>
         </label>
@@ -95,7 +95,7 @@ $euro = static fn (?float $v): string => $v === null ? '—' : number_format($v,
                 <strong><?= e($project['name']) ?></strong>
                 <?php if (!empty($project['code'])): ?><br /><span class="cell-sub"><?= e($project['code']) ?></span><?php endif; ?>
               </td>
-              <td><span class="status <?= in_array($project['status'], ['Livré', 'Clôturé'], true) ? 'status-on' : 'status-wait' ?>"><?= e($project['status']) ?></span></td>
+              <td><span class="status <?= in_array($project['status'], ['Livré', 'Clôturé'], true) ? 'status-on' : 'status-wait' ?>"><?= e(st($project['status'])) ?></span></td>
               <td><?= e((string) ($project['due_date'] ?? '—')) ?></td>
               <td><?= e((string) $project['profit']['hours']) ?> h</td>
               <td>
@@ -128,7 +128,7 @@ $euro = static fn (?float $v): string => $v === null ? '—' : number_format($v,
             <tr>
               <td><a href="/projets/<?= (int) $task['project_id'] ?>"><?= e($task['project_name']) ?></a></td>
               <td><?= e($task['title']) ?></td>
-              <td><?= e($task['status']) ?></td>
+              <td><?= e(st($task['status'])) ?></td>
               <td><?= e((string) ($task['due_date'] ?? '—')) ?></td>
             </tr>
           <?php endforeach; ?>

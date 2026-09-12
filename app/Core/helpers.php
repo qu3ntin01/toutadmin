@@ -17,3 +17,9 @@ function t(string $key, array $params = []): string
 {
     return \App\Core\I18n::translate($key, $params);
 }
+
+/** Libellé traduit d'un statut stocké en français. */
+function st(?string $value): string
+{
+    return \App\Core\I18n::status($value);
+}

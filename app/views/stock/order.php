@@ -63,7 +63,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
     <label><span><?= e(t('common.status')) ?></span>
       <select name="status">
         <?php foreach ($statuses as $status): ?>
-          <option value="<?= e($status) ?>"<?= $order['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+          <option value="<?= e($status) ?>"<?= $order['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
         <?php endforeach; ?>
       </select>
     </label>
@@ -196,7 +196,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
             <td><?= e((string) $invoice['reference']) ?></td>
             <td><?= e($invoice['label']) ?></td>
             <td><?= e($money((float) $invoice['amount_ht'])) ?></td>
-            <td><span class="tag"><?= e($invoice['status']) ?></span></td>
+            <td><span class="tag"><?= e(st($invoice['status'])) ?></span></td>
             <td>
               <form method="POST" action="/stock/factures/<?= (int) $invoice['id'] ?>/detacher" class="inline-form">
                 <?= $csrf ?>

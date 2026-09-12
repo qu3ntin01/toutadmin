@@ -66,7 +66,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                 <?php if ((int) $partner['active'] !== 1): ?><span class="tag"><?= e(t('common.inactive')) ?></span><?php endif; ?>
                 <?php if (!empty($partner['registration'])): ?><br /><span class="cell-sub"><?= e($partner['registration']) ?></span><?php endif; ?>
               </td>
-              <td><?= e($partner['kind']) ?></td>
+              <td><?= e(st($partner['kind'])) ?></td>
               <td>
                 <?= e((string) $partner['contact_name']) ?>
                 <?php if (!empty($partner['email'])): ?><br /><span class="cell-sub"><?= e($partner['email']) ?></span><?php endif; ?>
@@ -181,7 +181,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                   <?= $csrf ?>
                   <select name="status" onchange="this.form.submit()">
                     <?php foreach ($contractStatuses as $status): ?>
-                      <option value="<?= e($status) ?>"<?= $contract['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                      <option value="<?= e($status) ?>"<?= $contract['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
                   <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
@@ -249,7 +249,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <label><span><?= e(t('common.status')) ?></span>
         <select name="status">
           <?php foreach ($invoiceStatuses as $status): ?>
-            <option value="<?= e($status) ?>"<?= $status === 'Émise' ? ' selected' : '' ?>><?= e($status) ?></option>
+            <option value="<?= e($status) ?>"<?= $status === 'Émise' ? ' selected' : '' ?>><?= e(st($status)) ?></option>
           <?php endforeach; ?>
         </select>
       </label>
@@ -305,7 +305,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                   <?= $csrf ?>
                   <select name="status" onchange="this.form.submit()">
                     <?php foreach ($invoiceStatuses as $status): ?>
-                      <option value="<?= e($status) ?>"<?= $invoice['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                      <option value="<?= e($status) ?>"<?= $invoice['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
                   <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
@@ -414,7 +414,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <td><?= e($money((float) $claim['amount'])) ?></td>
               <td>
                 <span class="status <?= in_array($claim['status'], ['Approuvée', 'Remboursée'], true) ? 'status-on' : ($claim['status'] === 'En attente' ? 'status-wait' : 'status-off') ?>">
-                  <?= e($claim['status']) ?>
+                  <?= e(st($claim['status'])) ?>
                 </span>
               </td>
               <td class="row-actions">
@@ -791,7 +791,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                   <?= $csrf ?>
                   <select name="status" onchange="this.form.submit()">
                     <?php foreach ($vatStatuses as $status): ?>
-                      <option value="<?= e($status) ?>"<?= $return['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                      <option value="<?= e($status) ?>"<?= $return['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
                   <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
@@ -890,7 +890,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                   <?= $csrf ?>
                   <select name="status" onchange="this.form.submit()">
                     <?php foreach ($assetStatuses as $status): ?>
-                      <option value="<?= e($status) ?>"<?= $asset['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                      <option value="<?= e($status) ?>"<?= $asset['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
                   <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>

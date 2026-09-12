@@ -75,7 +75,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <td><?= e($row['start_date']) ?> → <?= e($row['end_date']) ?> (<?= (int) $row['days'] ?>)</td>
               <td>
                 <span class="status <?= $row['status'] === 'Approuvée' ? 'status-on' : ($row['status'] === 'En attente' ? 'status-wait' : 'status-off') ?>">
-                  <?= e($row['status']) ?>
+                  <?= e(st($row['status'])) ?>
                 </span>
               </td>
             </tr>
@@ -136,7 +136,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <span class="cell-sub"><?= e($point['scheduled_on']) ?></span>
         </div>
         <span class="status <?= $point['status'] === 'Tenu' ? 'status-on' : ($point['status'] === 'Planifié' ? 'status-wait' : 'status-off') ?>">
-          <?= e($point['status']) ?>
+          <?= e(st($point['status'])) ?>
         </span>
       </div>
 
@@ -151,7 +151,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
         <label><span><?= e(t('common.status')) ?></span>
           <select name="status">
             <?php foreach ($pointStatuses as $status): ?>
-              <option value="<?= e($status) ?>"<?= $point['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+              <option value="<?= e($status) ?>"<?= $point['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
             <?php endforeach; ?>
           </select>
         </label>

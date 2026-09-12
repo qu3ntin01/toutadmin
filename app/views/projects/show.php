@@ -24,7 +24,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
   <div class="grid grid-4">
     <?php foreach ($board as $column): ?>
       <div class="sub-card">
-        <h3><?= e($column['status']) ?> <span class="muted">(<?= count($column['items']) ?>)</span></h3>
+        <h3><?= e(st($column['status'])) ?> <span class="muted">(<?= count($column['items']) ?>)</span></h3>
         <?php foreach ($column['items'] as $task): ?>
           <div class="task">
             <strong><?= e($task['title']) ?></strong>
@@ -38,7 +38,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <?= $csrf ?>
               <select name="status" onchange="this.form.submit()">
                 <?php foreach ($taskStatuses as $status): ?>
-                  <option value="<?= e($status) ?>"<?= $task['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+                  <option value="<?= e($status) ?>"<?= $task['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                 <?php endforeach; ?>
               </select>
               <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
@@ -212,7 +212,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <label><span><?= e(t('common.status')) ?></span>
         <select name="status">
           <?php foreach ($statuses as $status): ?>
-            <option value="<?= e($status) ?>"<?= $project['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+            <option value="<?= e($status) ?>"<?= $project['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
           <?php endforeach; ?>
         </select>
       </label>

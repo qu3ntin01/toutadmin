@@ -65,7 +65,7 @@ $statusClass = static fn (string $status): string => match ($status) {
               <td><a href="/parapheur/<?= (int) $request['id'] ?>"><?= e($request['title']) ?></a></td>
               <td><?= e($request['kind']) ?></td>
               <td><?= e(t('sig.signatureCount', ['signed' => $request['signedCount'], 'total' => $request['total']])) ?></td>
-              <td><span class="status <?= e($statusClass($request['status'])) ?>"><?= e($request['status']) ?></span></td>
+              <td><span class="status <?= e($statusClass($request['status'])) ?>"><?= e(st($request['status'])) ?></span></td>
             </tr>
           <?php endforeach; ?>
         </tbody>
@@ -96,7 +96,7 @@ $statusClass = static fn (string $status): string => match ($status) {
                   <br /><span class="cell-sub"><?= e(t('sig.turnOf', ['name' => $fullName($request['next'])])) ?></span>
                 <?php endif; ?>
               </td>
-              <td><span class="status <?= e($statusClass($request['status'])) ?>"><?= e($request['status']) ?></span></td>
+              <td><span class="status <?= e($statusClass($request['status'])) ?>"><?= e(st($request['status'])) ?></span></td>
             </tr>
           <?php endforeach; ?>
         </tbody>

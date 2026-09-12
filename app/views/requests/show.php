@@ -6,7 +6,7 @@
       <span class="cell-sub"><?= e(t('req.submitted')) ?> <?= e($request['created_at']) ?> · <?= e($request['requesterName']) ?></span>
     </div>
     <span class="status <?= $request['status'] === 'Approuvée' ? 'status-on' : ($request['status'] === 'En cours' ? 'status-wait' : 'status-off') ?>">
-      <?= e($request['status']) ?>
+      <?= e(st($request['status'])) ?>
     </span>
   </div>
 

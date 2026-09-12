@@ -14,7 +14,7 @@ $fullName = static fn (array $p, string $prefix = ''): string =>
     </div>
     <div>
       <span class="status <?= in_array($ticket['status'], ['Résolu', 'Clos'], true) ? 'status-on' : 'status-wait' ?>">
-        <?= e($ticket['status']) ?>
+        <?= e(st($ticket['status'])) ?>
       </span>
       <?php if ($overdue): ?><span class="tag tag-off"><?= e(t('sup.overdue')) ?></span><?php endif; ?>
     </div>
@@ -63,7 +63,7 @@ $fullName = static fn (array $p, string $prefix = ''): string =>
         <?= $csrf ?>
         <select name="status" onchange="this.form.submit()">
           <?php foreach ($statuses as $status): ?>
-            <option value="<?= e($status) ?>"<?= $ticket['status'] === $status ? ' selected' : '' ?>><?= e($status) ?></option>
+            <option value="<?= e($status) ?>"<?= $ticket['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
           <?php endforeach; ?>
         </select>
         <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
