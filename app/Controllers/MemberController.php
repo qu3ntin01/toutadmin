@@ -64,6 +64,8 @@ final class MemberController
             'sessions' => Talent::sessions(),
             'registrations' => Talent::registrations(null, (int) $user['id']),
             'reviews' => Talent::reviews((int) $user['id']),
+            'expenseCategories' => \App\Modules\Finance::EXPENSE_CATEGORIES,
+            'myClaims' => \App\Modules\Finance::claimsFor((int) $user['id']),
         ]));
     }
 
@@ -93,6 +95,9 @@ final class MemberController
         }
         if ($user['role'] === 'admin' || (int) ($user['is_hr'] ?? 0) === 1) {
             $items[] = ['href' => '/rh', 'label' => t('nav.hrSpace')];
+        }
+        if (FinanceController::canAccess($user)) {
+            $items[] = ['href' => '/gestion', 'label' => t('nav.gestion')];
         }
         return $items;
     }

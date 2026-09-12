@@ -8,6 +8,7 @@ use App\Controllers\AdminController;
 use App\Controllers\AgendaController;
 use App\Controllers\AuthController;
 use App\Controllers\DirectoryController;
+use App\Controllers\FinanceController;
 use App\Controllers\HrController;
 use App\Controllers\ManagerController;
 use App\Controllers\InstallController;
@@ -188,6 +189,27 @@ final class Kernel
         $router->post('/support/tickets/{id}/affecter', SupportController::assign(...));
         $router->post('/support/tickets/{id}/supprimer', SupportController::remove(...));
 
+        // Gestion : tiers, contrats, factures, budgets, notes de frais, devises.
+        $router->get('/gestion', FinanceController::index(...));
+        $router->post('/gestion/tiers', FinanceController::createPartner(...));
+        $router->post('/gestion/tiers/{id}/statut', FinanceController::togglePartner(...));
+        $router->post('/gestion/tiers/{id}/supprimer', FinanceController::deletePartner(...));
+        $router->post('/gestion/contrats', FinanceController::createContract(...));
+        $router->post('/gestion/contrats/{id}/statut', FinanceController::setContractStatus(...));
+        $router->post('/gestion/contrats/{id}/supprimer', FinanceController::deleteContract(...));
+        $router->post('/gestion/factures', FinanceController::createInvoice(...));
+        $router->post('/gestion/factures/{id}/statut', FinanceController::setInvoiceStatus(...));
+        $router->post('/gestion/factures/{id}/supprimer', FinanceController::deleteInvoice(...));
+        $router->post('/gestion/budgets', FinanceController::setBudget(...));
+        $router->post('/gestion/budgets/{id}/supprimer', FinanceController::deleteBudget(...));
+        $router->post('/gestion/frais/{id}/statut', FinanceController::reviewClaim(...));
+        $router->post('/gestion/devises/reference', FinanceController::setBaseCurrency(...));
+        $router->post('/gestion/devises/taux', FinanceController::setRate(...));
+
+        // Notes de frais côté salarié : déposer et retirer les siennes.
+        $router->post('/mon-espace/frais', FinanceController::createClaim(...));
+        $router->post('/mon-espace/frais/{id}/annuler', FinanceController::cancelClaim(...));
+
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
         $router->post('/notifications/{id}/lue', NotificationsController::markRead(...));
@@ -328,6 +350,12 @@ final class Kernel
         // L'espace manager s'ouvre à qui encadre au moins un périmètre — la
         // relation, pas un droit posé à la main.
         if (str_starts_with($request->path, '/mon-equipe') && !ManagerController::canAccess($user)) {
+            return $refuse();
+        }
+        // La gestion engage l'argent de l'entreprise : l'administration, et qui
+        // elle a désigné. Les notes de frais d'un salarié passent, elles, par
+        // /mon-espace, qui n'est pas derrière cette porte.
+        if (str_starts_with($request->path, '/gestion') && !FinanceController::canAccess($user)) {
             return $refuse();
         }
         return null;

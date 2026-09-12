@@ -284,3 +284,63 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
     <?php endforeach; ?>
   </section>
 <?php endif; ?>
+
+<!-- ---------- Notes de frais ---------- -->
+<section class="card mt-l" id="frais">
+  <h2><?= e(t('erp.newClaim')) ?></h2>
+  <form method="POST" action="/mon-espace/frais" class="form-grid">
+    <?= $csrf ?>
+    <label><span><?= e(t('common.date')) ?></span><input type="date" name="spent_on" max="<?= e(gmdate('Y-m-d')) ?>" required /></label>
+    <label><span><?= e(t('erp.amount')) ?></span><input type="text" name="amount" inputmode="decimal" required /></label>
+    <label><span><?= e(t('common.type')) ?></span>
+      <select name="category" required>
+        <?php foreach ($expenseCategories as $category): ?>
+          <option value="<?= e($category) ?>"><?= e($category) ?></option>
+        <?php endforeach; ?>
+      </select>
+    </label>
+    <label><span><?= e(t('common.reason')) ?></span><input type="text" name="description" maxlength="300" /></label>
+    <button type="submit" class="btn btn-primary"><?= e(t('common.send')) ?></button>
+  </form>
+
+  <h2 class="mt-l"><?= e(t('erp.myClaims')) ?></h2>
+  <?php if ($myClaims === []): ?>
+    <div class="empty-state"><?= e(t('erp.noClaim')) ?></div>
+  <?php else: ?>
+    <table class="table">
+      <thead>
+        <tr>
+          <th><?= e(t('common.date')) ?></th>
+          <th><?= e(t('common.type')) ?></th>
+          <th><?= e(t('erp.amount')) ?></th>
+          <th><?= e(t('common.status')) ?></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($myClaims as $claim): ?>
+          <tr>
+            <td><?= e($claim['spent_on']) ?></td>
+            <td><?= e($claim['category']) ?><br /><span class="cell-sub"><?= e((string) $claim['description']) ?></span></td>
+            <td><?= e(number_format((float) $claim['amount'], 2, ',', ' ')) ?></td>
+            <td>
+              <span class="status <?= in_array($claim['status'], ['Approuvée', 'Remboursée'], true) ? 'status-on' : ($claim['status'] === 'En attente' ? 'status-wait' : 'status-off') ?>">
+                <?= e($claim['status']) ?>
+              </span>
+              <?php if (!empty($claim['review_note'])): ?><br /><span class="cell-sub"><?= e($claim['review_note']) ?></span><?php endif; ?>
+            </td>
+            <td>
+              <?php if ($claim['status'] === 'En attente'): ?>
+                <form method="POST" action="/mon-espace/frais/<?= (int) $claim['id'] ?>/annuler"
+                      data-confirm="<?= e(t('esp.confirmDeleteExpense')) ?>">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-sm btn-danger"><?= e(t('common.cancel')) ?></button>
+                </form>
+              <?php endif; ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  <?php endif; ?>
+</section>
