@@ -16,6 +16,7 @@ use App\Controllers\MessagesController;
 use App\Controllers\NotificationsController;
 use App\Controllers\OrgChartController;
 use App\Controllers\ProfileController;
+use App\Controllers\ProjectsController;
 use App\Controllers\RequestsController;
 use App\Controllers\RoomsController;
 use App\Modules\Users;
@@ -156,6 +157,25 @@ final class Kernel
         $router->get('/messagerie', MessagesController::index(...));
         $router->post('/messagerie', MessagesController::send(...));
         $router->post('/messagerie/{id}/supprimer', MessagesController::remove(...));
+
+        // Projets : jalons, tâches, temps passé, rentabilité.
+        $router->get('/projets', ProjectsController::index(...));
+        $router->post('/projets', ProjectsController::create(...));
+        $router->post('/projets/taches/{id}/statut', ProjectsController::setTaskStatus(...));
+        $router->post('/projets/taches/{id}/affecter', ProjectsController::assignTask(...));
+        $router->post('/projets/taches/{id}/supprimer', ProjectsController::deleteTask(...));
+        $router->post('/projets/jalons/{id}/basculer', ProjectsController::toggleMilestone(...));
+        $router->post('/projets/jalons/{id}/supprimer', ProjectsController::deleteMilestone(...));
+        $router->post('/projets/temps/{id}/supprimer', ProjectsController::deleteTime(...));
+        $router->get('/projets/{id}', ProjectsController::show(...));
+        $router->post('/projets/{id}/modifier', ProjectsController::update(...));
+        $router->post('/projets/{id}/archiver', ProjectsController::archive(...));
+        $router->post('/projets/{id}/supprimer', ProjectsController::remove(...));
+        $router->post('/projets/{id}/membres', ProjectsController::addMember(...));
+        $router->post('/projets/{id}/membres/{userId}/retirer', ProjectsController::removeMember(...));
+        $router->post('/projets/{id}/jalons', ProjectsController::createMilestone(...));
+        $router->post('/projets/{id}/taches', ProjectsController::createTask(...));
+        $router->post('/projets/{id}/temps', ProjectsController::logTime(...));
 
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));

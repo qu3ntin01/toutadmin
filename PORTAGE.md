@@ -30,8 +30,9 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Agenda | grille du mois, événements saisis, congés, salles, formations et fin de contrat posés d'eux-mêmes, agenda partagé d'équipe et de service |
 | Salles | parc, réservations sans chevauchement, annulation par son auteur |
 | Messagerie | boîtes de réception et d'envoi, réponse, marque « lu » posée par le seul destinataire, suppression par ceux que le message concerne |
+| Projets | projets, équipe projet, jalons, tâches en tableau, temps passé, rentabilité et écart au budget |
 
-133 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+146 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
