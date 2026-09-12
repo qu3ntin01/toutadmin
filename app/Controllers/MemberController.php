@@ -16,6 +16,7 @@ use App\Modules\Hr;
 use App\Modules\Notifications;
 use App\Modules\Workflows;
 use App\Modules\Org;
+use App\Modules\Talent;
 use App\Modules\Users;
 
 /** L'espace du salarié : ce qu'une personne voit en arrivant. */
@@ -59,6 +60,10 @@ final class MemberController
             'payslips' => $eligible ? Hr::payslipsFor((int) $user['id'], 12) : [],
             'navItems' => self::nav($user),
             'scripts' => ['/js/confirm.js'],
+            'documents' => Talent::documentsFor((int) $user['id']),
+            'sessions' => Talent::sessions(),
+            'registrations' => Talent::registrations(null, (int) $user['id']),
+            'reviews' => Talent::reviews((int) $user['id']),
         ]));
     }
 
@@ -125,5 +130,51 @@ final class MemberController
         Flash::set($result['ok'] ? 'success' : 'error',
             $result['ok'] ? 'Demande annulée.' : 'Cette demande ne peut plus être annulée.');
         return Response::redirect('/mon-espace');
+    }
+
+    // ---------- Documents, formations, entretien ----------
+
+    public static function acknowledgeDocument(Request $request, array $params): Response
+    {
+        $ok = Talent::acknowledge((int) $params['id'], (int) Session::get('user')['id']);
+        Flash::set($ok ? 'success' : 'error', $ok ? 'Accusé de réception enregistré.' : 'Document introuvable.');
+        return Response::redirect('/mon-espace#documents');
+    }
+
+    public static function requestSeat(Request $request, array $params): Response
+    {
+        $result = Talent::requestSeat((int) $params['id'], (int) Session::get('user')['id']);
+        if ($result['ok']) {
+            Flash::set('success', 'Demande envoyée. Les ressources humaines la confirmeront.');
+        } else {
+            $messages = [
+                'not-found' => 'Session introuvable.',
+                'closed' => "Cette session n'accepte plus d'inscription.",
+                'already-registered' => 'Vous êtes déjà inscrit à cette session.',
+            ];
+            Flash::set('error', $messages[$result['reason']] ?? 'Inscription impossible.');
+        }
+        return Response::redirect('/mon-espace#formations');
+    }
+
+    public static function cancelSeat(Request $request, array $params): Response
+    {
+        $ok = Talent::cancelOwnRegistration((int) $params['id'], (int) Session::get('user')['id']);
+        Flash::set($ok ? 'success' : 'error', $ok
+            ? 'Demande de formation retirée.'
+            : "Cette demande n'est plus annulable : elle a déjà été traitée.");
+        return Response::redirect('/mon-espace#formations');
+    }
+
+    /** Le salarié écrit son propre commentaire sur son entretien, et rien d'autre. */
+    public static function commentReview(Request $request, array $params): Response
+    {
+        $ok = Talent::addEmployeeComment(
+            (int) $params['id'],
+            (int) Session::get('user')['id'],
+            mb_substr($request->input('employee_comment'), 0, 2000)
+        );
+        Flash::set($ok ? 'success' : 'error', $ok ? 'Votre commentaire est enregistré.' : "Cet entretien n'est pas le vôtre.");
+        return Response::redirect('/mon-espace#entretiens');
     }
 }

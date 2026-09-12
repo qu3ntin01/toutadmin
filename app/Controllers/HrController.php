@@ -13,6 +13,7 @@ use App\Core\Validate;
 use App\Core\View;
 use App\Modules\Hr;
 use App\Modules\Org;
+use App\Modules\Talent;
 use App\Modules\Users;
 
 /**
@@ -44,6 +45,9 @@ final class HrController
                 ['tab' => 'demandes', 'label' => t('nav.requests'), 'badge' => count($pending) ?: null],
                 ['tab' => 'personnel', 'label' => t('admin.staffMembers')],
                 ['tab' => 'paie', 'label' => t('nav.payroll')],
+                ['tab' => 'documents', 'label' => t('hr.catalogue')],
+                ['tab' => 'formations', 'label' => t('hr.training')],
+                ['tab' => 'entretiens', 'label' => t('erp.reviews')],
             ],
             'footLinks' => [
                 ['href' => '/mon-espace', 'label' => t('nav.mySpace')],
@@ -55,6 +59,13 @@ final class HrController
             'pendingCount' => count($pending),
             'payslips' => Hr::allPayslips(),
             'types' => Hr::REQUEST_TYPES,
+            'documents' => Talent::documents(),
+            'documentCategories' => Talent::DOCUMENT_CATEGORIES,
+            'trainings' => Talent::trainings(),
+            'sessions' => Talent::sessions(),
+            'registrations' => Talent::registrations(),
+            'sessionStatuses' => Talent::SESSION_STATUSES,
+            'reviews' => Talent::reviews(),
         ]));
     }
 
@@ -170,5 +181,213 @@ final class HrController
         Hr::deletePayslip((int) $params['id']);
         Flash::set('success', 'Fiche de paie supprimée.');
         return Response::redirect('/rh#paie');
+    }
+
+    // ---------- Documents d'entreprise ----------
+
+    private static function talentBack(string $anchor, string $type, string $message): Response
+    {
+        Flash::set($type, $message);
+        return Response::redirect('/rh#' . $anchor);
+    }
+
+    public static function createDocument(Request $request): Response
+    {
+        $title = mb_substr($request->input('title'), 0, 160);
+        $category = $request->input('category');
+        $url = mb_substr($request->input('url'), 0, 500);
+
+        if ($title === '') {
+            return self::talentBack('documents', 'error', "L'intitulé du document est obligatoire.");
+        }
+        if ($category !== '' && !in_array($category, Talent::DOCUMENT_CATEGORIES, true)) {
+            return self::talentBack('documents', 'error', 'Catégorie invalide.');
+        }
+        if ($url !== '' && !Validate::url($url)) {
+            return self::talentBack('documents', 'error', 'Lien invalide : une adresse http(s) est attendue.');
+        }
+
+        Talent::createDocument([
+            'title' => $title,
+            'category' => $category,
+            'url' => $url,
+            'description' => mb_substr($request->input('description'), 0, 2000),
+            'requiresAck' => $request->input('requires_ack') === 'on',
+            'publishedAt' => null,
+            'createdBy' => (int) Session::get('user')['id'],
+        ]);
+        return self::talentBack('documents', 'success', 'Document publié.');
+    }
+
+    public static function deleteDocument(Request $request, array $params): Response
+    {
+        Talent::deleteDocument((int) $params['id']);
+        return self::talentBack('documents', 'success', 'Document supprimé, avec ses accusés de réception.');
+    }
+
+    // ---------- Formation ----------
+
+    public static function createTraining(Request $request): Response
+    {
+        $title = mb_substr($request->input('title'), 0, 160);
+        if ($title === '') {
+            return self::talentBack('formations', 'error', "L'intitulé de la formation est obligatoire.");
+        }
+        $duration = self::number($request->input('duration_hours'));
+        $cost = self::number($request->input('cost'));
+        if ($duration === false || ($duration !== null && ($duration < 0 || $duration > 2000))) {
+            return self::talentBack('formations', 'error', 'Durée invalide.');
+        }
+        if ($cost === false || ($cost !== null && $cost < 0)) {
+            return self::talentBack('formations', 'error', 'Coût invalide.');
+        }
+
+        Talent::createTraining([
+            'title' => $title,
+            'category' => mb_substr($request->input('category'), 0, 80),
+            'provider' => mb_substr($request->input('provider'), 0, 120),
+            'description' => mb_substr($request->input('description'), 0, 2000),
+            'durationHours' => $duration,
+            'cost' => $cost,
+        ]);
+        return self::talentBack('formations', 'success', 'Formation ajoutée au catalogue.');
+    }
+
+    /** null si le champ est vide, false s'il n'est pas un nombre. */
+    private static function number(string $raw): float|null|false
+    {
+        $trimmed = trim($raw);
+        if ($trimmed === '') {
+            return null;
+        }
+        $value = str_replace([' ', ','], ['', '.'], $trimmed);
+        return is_numeric($value) ? round((float) $value, 2) : false;
+    }
+
+    public static function deleteTraining(Request $request, array $params): Response
+    {
+        Talent::deleteTraining((int) $params['id']);
+        return self::talentBack('formations', 'success', 'Formation supprimée, avec ses sessions.');
+    }
+
+    public static function createSession(Request $request): Response
+    {
+        $trainingId = (int) $request->input('training_id');
+        $start = $request->input('start_date');
+        $end = $request->input('end_date');
+        $seats = (int) $request->input('seats');
+
+        $known = in_array($trainingId, array_map('intval', array_column(Talent::trainings(), 'id')), true);
+        if (!$known) {
+            return self::talentBack('formations', 'error', 'Formation introuvable.');
+        }
+        if (!Validate::date($start)) {
+            return self::talentBack('formations', 'error', 'Date de début invalide.');
+        }
+        if ($end !== '' && !Validate::date($end)) {
+            return self::talentBack('formations', 'error', 'Date de fin invalide.');
+        }
+        if ($end !== '' && $end < $start) {
+            return self::talentBack('formations', 'error', 'La fin précède le début.');
+        }
+        if ($seats < 0 || $seats > 1000) {
+            return self::talentBack('formations', 'error', 'Nombre de places invalide.');
+        }
+
+        Talent::createSession([
+            'trainingId' => $trainingId,
+            'startDate' => $start,
+            'endDate' => $end ?: null,
+            'seats' => $seats,
+            'location' => mb_substr($request->input('location'), 0, 140),
+        ]);
+        return self::talentBack('formations', 'success', 'Session programmée.');
+    }
+
+    public static function setSessionStatus(Request $request, array $params): Response
+    {
+        if (!Talent::setSessionStatus((int) $params['id'], $request->input('status'))) {
+            return self::talentBack('formations', 'error', 'Statut invalide ou session introuvable.');
+        }
+        return self::talentBack('formations', 'success', 'Session mise à jour.');
+    }
+
+    public static function deleteSession(Request $request, array $params): Response
+    {
+        Talent::deleteSession((int) $params['id']);
+        return self::talentBack('formations', 'success', 'Session supprimée.');
+    }
+
+    public static function reviewRegistration(Request $request, array $params): Response
+    {
+        $result = Talent::reviewRegistration((int) $params['id'], $request->input('status'), (int) Session::get('user')['id']);
+        if (!$result['ok']) {
+            $messages = [
+                'not-found' => 'Inscription introuvable.',
+                'full' => 'La session est complète : libérez une place ou augmentez le quota.',
+                'bad-status' => 'Décision invalide.',
+            ];
+            return self::talentBack('formations', 'error', $messages[$result['reason']] ?? 'Décision impossible.');
+        }
+        return self::talentBack('formations', 'success', 'Inscription mise à jour.');
+    }
+
+    // ---------- Entretiens annuels ----------
+
+    public static function createReview(Request $request): Response
+    {
+        $employeeId = (int) $request->input('employee_id');
+        $period = mb_substr($request->input('period'), 0, 40);
+        $scheduledOn = $request->input('scheduled_on');
+
+        if (Users::employeeById($employeeId) === null) {
+            return self::talentBack('entretiens', 'error', 'Membre introuvable.');
+        }
+        if ($period === '') {
+            return self::talentBack('entretiens', 'error', "La période de l'entretien est obligatoire.");
+        }
+        if ($scheduledOn !== '' && !Validate::date($scheduledOn)) {
+            return self::talentBack('entretiens', 'error', 'Date invalide.');
+        }
+
+        Talent::createReview([
+            'employeeId' => $employeeId,
+            'reviewerId' => (int) $request->input('reviewer_id') ?: null,
+            'period' => $period,
+            'scheduledOn' => $scheduledOn ?: null,
+        ]);
+        return self::talentBack('entretiens', 'success', 'Entretien planifié.');
+    }
+
+    public static function completeReview(Request $request, array $params): Response
+    {
+        $rating = $request->input('rating');
+        $result = Talent::completeReview((int) $params['id'], [
+            'strengths' => mb_substr($request->input('strengths'), 0, 2000),
+            'improvements' => mb_substr($request->input('improvements'), 0, 2000),
+            'objectives' => mb_substr($request->input('objectives'), 0, 2000),
+            'rating' => $rating === '' ? null : (int) $rating,
+        ]);
+        if (!$result['ok']) {
+            $messages = [
+                'not-found' => 'Entretien introuvable.',
+                'cancelled' => 'Cet entretien est annulé.',
+                'bad-rating' => 'Appréciation invalide (1 à 5).',
+            ];
+            return self::talentBack('entretiens', 'error', $messages[$result['reason']] ?? 'Enregistrement impossible.');
+        }
+        return self::talentBack('entretiens', 'success', "Compte-rendu d'entretien enregistré.");
+    }
+
+    public static function cancelReview(Request $request, array $params): Response
+    {
+        Talent::cancelReview((int) $params['id']);
+        return self::talentBack('entretiens', 'success', 'Entretien annulé.');
+    }
+
+    public static function deleteReview(Request $request, array $params): Response
+    {
+        Talent::deleteReview((int) $params['id']);
+        return self::talentBack('entretiens', 'success', 'Entretien supprimé.');
     }
 }

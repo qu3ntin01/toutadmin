@@ -100,7 +100,24 @@ final class Kernel
         $router->post('/rh/paie/{id}/marquer-payee', HrController::markPayslipPaid(...));
         $router->post('/rh/paie/{id}/supprimer', HrController::deletePayslip(...));
 
+        $router->post('/rh/documents', HrController::createDocument(...));
+        $router->post('/rh/documents/{id}/supprimer', HrController::deleteDocument(...));
+        $router->post('/rh/formations', HrController::createTraining(...));
+        $router->post('/rh/formations/{id}/supprimer', HrController::deleteTraining(...));
+        $router->post('/rh/sessions', HrController::createSession(...));
+        $router->post('/rh/sessions/{id}/statut', HrController::setSessionStatus(...));
+        $router->post('/rh/sessions/{id}/supprimer', HrController::deleteSession(...));
+        $router->post('/rh/inscriptions/{id}/statut', HrController::reviewRegistration(...));
+        $router->post('/rh/entretiens', HrController::createReview(...));
+        $router->post('/rh/entretiens/{id}/conclure', HrController::completeReview(...));
+        $router->post('/rh/entretiens/{id}/annuler', HrController::cancelReview(...));
+        $router->post('/rh/entretiens/{id}/supprimer', HrController::deleteReview(...));
+
         $router->post('/mon-espace/demandes', MemberController::createRequest(...));
+        $router->post('/mon-espace/documents/{id}/accuser', MemberController::acknowledgeDocument(...));
+        $router->post('/mon-espace/formations/{id}/inscription', MemberController::requestSeat(...));
+        $router->post('/mon-espace/formations/{id}/annuler', MemberController::cancelSeat(...));
+        $router->post('/mon-espace/entretiens/{id}/commentaire', MemberController::commentReview(...));
         $router->post('/mon-espace/demandes/{id}/annuler', MemberController::cancelRequest(...));
 
         // Demandes internes : circuits d'approbation configurables.

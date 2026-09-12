@@ -163,3 +163,124 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
   <?php endif; ?>
   <p><a class="btn btn-sm" href="/annuaire"><?= e(t('directory.title')) ?></a></p>
 </section>
+
+<section class="card mt-l" id="documents">
+  <h2><?= e(t('hr.catalogue')) ?></h2>
+  <?php if ($documents === []): ?>
+    <div class="empty-state"><?= e(t('common.none')) ?></div>
+  <?php else: ?>
+    <table class="table">
+      <thead>
+        <tr><th><?= e(t('common.title')) ?></th><th><?= e(t('common.category')) ?></th><th></th></tr>
+      </thead>
+      <tbody>
+        <?php foreach ($documents as $document): ?>
+          <tr>
+            <td>
+              <strong><?= e($document['title']) ?></strong>
+              <?php if (!empty($document['url'])): ?>
+                <br /><a href="<?= e($document['url']) ?>" rel="noopener"><?= e(t('common.open')) ?></a>
+              <?php endif; ?>
+            </td>
+            <td><?= e((string) $document['category']) ?></td>
+            <td>
+              <?php if ((int) $document['requires_ack'] === 1): ?>
+                <?php if ($document['acked_at'] === null): ?>
+                  <form method="POST" action="/mon-espace/documents/<?= (int) $document['id'] ?>/accuser">
+                    <?= $csrf ?>
+                    <button type="submit" class="btn btn-sm btn-primary"><?= e(t('hr.requireAck')) ?></button>
+                  </form>
+                <?php else: ?>
+                  <span class="status status-on"><?= e($document['acked_at']) ?></span>
+                <?php endif; ?>
+              <?php endif; ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  <?php endif; ?>
+</section>
+
+<section class="card mt-l" id="formations">
+  <h2><?= e(t('hr.training')) ?></h2>
+  <?php
+    $mine = [];
+    foreach ($registrations as $registration) {
+        $mine[(int) $registration['session_id']] = $registration;
+    }
+    $open = array_values(array_filter($sessions, static fn (array $s): bool => !in_array($s['status'], ['Terminée', 'Annulée'], true)));
+  ?>
+  <?php if ($open === []): ?>
+    <div class="empty-state"><?= e(t('hr.noSession')) ?></div>
+  <?php else: ?>
+    <table class="table">
+      <thead>
+        <tr>
+          <th><?= e(t('common.title')) ?></th>
+          <th><?= e(t('common.period')) ?></th>
+          <th><?= e(t('common.status')) ?></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($open as $session): ?>
+          <?php $registration = $mine[(int) $session['id']] ?? null; ?>
+          <tr>
+            <td><strong><?= e($session['title']) ?></strong><br /><span class="cell-sub"><?= e((string) $session['location']) ?></span></td>
+            <td><?= e($session['start_date']) ?></td>
+            <td>
+              <?php if ($registration !== null): ?>
+                <span class="status <?= $registration['status'] === 'Inscrite' ? 'status-on' : 'status-wait' ?>"><?= e($registration['status']) ?></span>
+              <?php endif; ?>
+            </td>
+            <td>
+              <?php if ($registration === null): ?>
+                <form method="POST" action="/mon-espace/formations/<?= (int) $session['id'] ?>/inscription">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-sm"><?= e(t('hr.enrolments')) ?></button>
+                </form>
+              <?php elseif ($registration['status'] === 'Demandée'): ?>
+                <form method="POST" action="/mon-espace/formations/<?= (int) $registration['id'] ?>/annuler">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.cancel')) ?></button>
+                </form>
+              <?php endif; ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  <?php endif; ?>
+</section>
+
+<?php if ($reviews !== []): ?>
+  <section class="card mt-l" id="entretiens">
+    <h2><?= e(t('erp.reviews')) ?></h2>
+    <?php foreach ($reviews as $review): ?>
+      <div class="sub-card">
+        <div class="org-head">
+          <div>
+            <span class="org-name"><?= e($review['period']) ?></span>
+            <span class="cell-sub"><?= e((string) $review['scheduled_on']) ?></span>
+          </div>
+          <span class="status <?= $review['status'] === 'Réalisé' ? 'status-on' : 'status-wait' ?>"><?= e($review['status']) ?></span>
+        </div>
+        <?php if ($review['status'] === 'Réalisé'): ?>
+          <dl class="detail-list">
+            <div><dt><?= e(t('hr.strengths')) ?></dt><dd><?= nl2br(e((string) $review['strengths'])) ?></dd></div>
+            <div><dt><?= e(t('hr.improvements')) ?></dt><dd><?= nl2br(e((string) $review['improvements'])) ?></dd></div>
+            <div><dt><?= e(t('hr.objectivesLabel')) ?></dt><dd><?= nl2br(e((string) $review['objectives'])) ?></dd></div>
+          </dl>
+          <form method="POST" action="/mon-espace/entretiens/<?= (int) $review['id'] ?>/commentaire" class="form-grid">
+            <?= $csrf ?>
+            <label class="span-2"><span><?= e(t('hr.memberComment')) ?></span>
+              <textarea name="employee_comment" rows="3" maxlength="2000"><?= e((string) $review['employee_comment']) ?></textarea>
+            </label>
+            <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
+          </form>
+        <?php endif; ?>
+      </div>
+    <?php endforeach; ?>
+  </section>
+<?php endif; ?>
