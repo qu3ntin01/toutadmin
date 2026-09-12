@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * Tâche planifiée de l'hébergeur.
+ *
+ * Un site PHP ne tourne qu'au moment d'une requête : ce que l'édition Node fait
+ * dans son balayage horaire se fait ici depuis le cron de l'hébergeur.
+ *
+ *     * * * * * /usr/bin/php /chemin/vers/tools/cron.php >> /chemin/cron.log 2>&1
+ *
+ * Rien ne se déclenche avant l'échéance : appeler le script plus souvent que
+ * l'intervalle configuré ne sauvegarde pas plus souvent.
+ */
+
+declare(strict_types=1);
+
+if (PHP_SAPI !== 'cli') {
+    http_response_code(404);
+    exit;
+}
+
+require_once dirname(__DIR__) . '/app/bootstrap.php';
+
+use App\Core\Db;
+use App\Modules\Backup;
+use App\Modules\Users;
+
+Db::migrate();
+
+// Un contrat arrivé à terme ferme le compte : c'est le même balayage.
+$closed = Users::deactivateExpiredContracts();
+if ($closed > 0) {
+    echo "$closed compte(s) fermé(s) : contrat arrivé à terme.\n";
+}
+
+$created = Backup::runScheduled();
+if ($created === null) {
+    echo "Rien à faire : l'intervalle de sauvegarde n'est pas écoulé.\n";
+    exit(0);
+}
+
+echo 'Sauvegarde ' . $created['fileName'] . ' créée (' . $created['files'] . " fichier(s)).\n";
+if ($created['removed'] !== []) {
+    echo count($created['removed']) . " archive(s) au-delà du nombre conservé supprimée(s).\n";
+}

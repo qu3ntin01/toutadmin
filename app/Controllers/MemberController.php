@@ -92,6 +92,9 @@ final class MemberController
         ];
         if ($user['role'] === 'admin') {
             array_unshift($items, ['href' => '/admin', 'label' => t('admin.title')]);
+            $items[] = ['href' => '/securite', 'label' => t('nav.security')];
+            $items[] = ['href' => '/rgpd', 'label' => t('nav.privacy')];
+            $items[] = ['href' => '/sauvegardes', 'label' => t('nav.backups')];
         }
         if (Org::isManager((int) $user['id'])) {
             $items[] = ['href' => '/mon-equipe', 'label' => t('nav.team')];

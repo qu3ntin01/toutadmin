@@ -8,6 +8,7 @@ use App\Controllers\AdminController;
 use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
 use App\Controllers\AuthController;
+use App\Controllers\BackupController;
 use App\Controllers\DirectoryController;
 use App\Controllers\FixedAssetsController;
 use App\Controllers\FinanceController;
@@ -19,10 +20,12 @@ use App\Controllers\MessagesController;
 use App\Controllers\NotificationsController;
 use App\Controllers\OrgChartController;
 use App\Controllers\PayrollController;
+use App\Controllers\PrivacyController;
 use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\RequestsController;
 use App\Controllers\RoomsController;
+use App\Controllers\SecurityController;
 use App\Controllers\StockController;
 use App\Controllers\SigningController;
 use App\Controllers\SupportController;
@@ -311,6 +314,35 @@ final class Kernel
         $router->post('/parapheur/{id}/annuler', SigningController::cancel(...));
         $router->post('/parapheur/{id}/supprimer', SigningController::remove(...));
 
+        // Sauvegardes, restauration et export intégral : l'administration.
+        $router->get('/sauvegardes', BackupController::index(...));
+        $router->post('/sauvegardes', BackupController::create(...));
+        $router->post('/sauvegardes/export', BackupController::export(...));
+        $router->post('/sauvegardes/reglages', BackupController::setSettings(...));
+        $router->post('/sauvegardes/televerser', BackupController::restoreUpload(...));
+        $router->get('/sauvegardes/{fichier}/telecharger', BackupController::download(...));
+        $router->get('/sauvegardes/{fichier}/verifier', BackupController::verify(...));
+        $router->post('/sauvegardes/{fichier}/supprimer', BackupController::remove(...));
+        $router->post('/sauvegardes/{fichier}/restaurer', BackupController::restore(...));
+
+        // Console de sécurité et données personnelles : l'administration.
+        $router->get('/securite', SecurityController::index(...));
+        $router->get('/securite/journal.csv', SecurityController::journalCsv(...));
+        $router->post('/securite/administrateurs', SecurityController::promote(...));
+        $router->post('/securite/administrateurs/{id}/retirer', SecurityController::demote(...));
+        $router->post('/securite/sessions/{id}/fermer', SecurityController::closeSessions(...));
+        $router->post('/securite/2fa/{id}/reinitialiser', SecurityController::resetTotp(...));
+        $router->post('/securite/comptes/{id}/deverrouiller', SecurityController::unlock(...));
+        $router->post('/securite/politique', SecurityController::setPolicy(...));
+        $router->post('/securite/journal/purger', SecurityController::purgeJournal(...));
+
+        $router->get('/rgpd', PrivacyController::index(...));
+        $router->post('/rgpd/traitements', PrivacyController::createRecord(...));
+        $router->post('/rgpd/traitements/amorcer', PrivacyController::seedRecords(...));
+        $router->post('/rgpd/traitements/{id}/supprimer', PrivacyController::deleteRecord(...));
+        $router->get('/rgpd/personnes/{id}/export.json', PrivacyController::exportJson(...));
+        $router->post('/rgpd/personnes/{id}/effacer', PrivacyController::erase(...));
+
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
         $router->post('/notifications/{id}/lue', NotificationsController::markRead(...));
@@ -466,6 +498,13 @@ final class Kernel
             return $this->error(t('err.notAccessible'), 403, base64_encode(random_bytes(16)));
         };
         if (str_starts_with($request->path, '/admin') && $user['role'] !== 'admin') {
+            return $refuse();
+        }
+        // La console de sécurité et le registre des données personnelles
+        // donnent à voir tout le monde : l'administration, et elle seule.
+        if ((str_starts_with($request->path, '/securite') || str_starts_with($request->path, '/rgpd')
+             || str_starts_with($request->path, '/sauvegardes'))
+            && $user['role'] !== 'admin') {
             return $refuse();
         }
         // Le paramétrage des circuits appartient à l'administration ; déposer

@@ -18,6 +18,8 @@ namespace App\Core;
  */
 final class Audit
 {
+    private const ENTRIES_PER_PAGE = 50;
+
     public static function log(string $action, string $entity = '', ?int $entityId = null, mixed $detail = null): void
     {
         try {
@@ -79,6 +81,123 @@ final class Audit
             $previous = (string) $row['hash'];
         }
         return null;
+    }
+
+    /** Une page du journal, filtrée. Cinquante lignes : de quoi lire, pas scruter. */
+    public static function list(array $filters = []): array
+    {
+        $clauses = [];
+        $params = [];
+        if (!empty($filters['action'])) {
+            $clauses[] = 'action LIKE ?';
+            $params[] = $filters['action'] . '%';
+        }
+        if (!empty($filters['actorId'])) {
+            $clauses[] = 'actor_id = ?';
+            $params[] = (int) $filters['actorId'];
+        }
+        if (!empty($filters['entity'])) {
+            $clauses[] = 'entity = ?';
+            $params[] = $filters['entity'];
+        }
+        if (!empty($filters['from'])) {
+            $clauses[] = 'occurred_at >= ?';
+            $params[] = $filters['from'];
+        }
+        if (!empty($filters['to'])) {
+            $clauses[] = 'occurred_at <= ?';
+            $params[] = $filters['to'] . ' 23:59:59';
+        }
+        $where = $clauses === [] ? '' : 'WHERE ' . implode(' AND ', $clauses);
+
+        $total = (int) Db::value("SELECT COUNT(*) FROM audit_log $where", $params);
+        $pages = max(1, (int) ceil($total / self::ENTRIES_PER_PAGE));
+        $current = min(max(1, (int) ($filters['page'] ?? 1)), $pages);
+
+        $rows = Db::all(
+            "SELECT * FROM audit_log $where ORDER BY id DESC LIMIT ? OFFSET ?",
+            [...$params, self::ENTRIES_PER_PAGE, ($current - 1) * self::ENTRIES_PER_PAGE]
+        );
+        return ['rows' => $rows, 'total' => $total, 'page' => $current, 'pages' => $pages];
+    }
+
+    /** Les actions déjà rencontrées, pour alimenter le filtre sans les coder en dur. */
+    public static function knownActions(): array
+    {
+        return array_column(Db::all('SELECT DISTINCT action FROM audit_log ORDER BY action'), 'action');
+    }
+
+    public static function toCsv(array $rows): string
+    {
+        $escape = static fn (mixed $value): string => '"' . str_replace('"', '""', (string) ($value ?? '')) . '"';
+        $lines = [implode(';', array_map($escape, ['Date', 'Auteur', 'Action', 'Objet', 'Identifiant', 'Détail', 'IP']))];
+        foreach ($rows as $row) {
+            $lines[] = implode(';', array_map($escape, [
+                $row['occurred_at'], $row['actor_label'], $row['action'],
+                $row['entity'], $row['entity_id'], $row['detail'], $row['ip'],
+            ]));
+        }
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Purge des entrées trop anciennes : le journal ne se conserve pas
+     * indéfiniment.
+     *
+     * Une purge retire le début de la chaîne, ce qui est légitime — mais ne doit
+     * pas pouvoir se confondre avec un effacement discret. Elle laisse donc sa
+     * propre entrée, scellée comme les autres, disant combien de lignes sont
+     * parties et jusqu'à quand.
+     */
+    public static function purgeOlderThan(int $days): int
+    {
+        $cutoff = gmdate('Y-m-d H:i:s', time() - $days * 86400);
+        $removed = Db::run('DELETE FROM audit_log WHERE occurred_at < ?', [$cutoff]);
+        if ($removed > 0) {
+            self::log('journal.purge', 'audit_log', null, ['supprimees' => $removed, 'avant' => $cutoff]);
+        }
+        return $removed;
+    }
+
+    /**
+     * Vérifie le scellement, et dit où il casse plutôt que de rendre un simple
+     * non.
+     *
+     * La chaîne est lue depuis l'entrée la plus ancienne encore présente : son
+     * empreinte précédente désigne une ligne purgée, et n'est donc pas
+     * contrôlée. Autrement dit, la vérification garantit que rien n'a été altéré
+     * ni retiré *entre* la plus ancienne entrée conservée et la plus récente.
+     */
+    public static function verifySeal(int $limit = 100000): array
+    {
+        $rows = Db::all('SELECT * FROM audit_log ORDER BY id LIMIT ?', [$limit]);
+        if ($rows === []) {
+            return ['ok' => true, 'checked' => 0, 'sealed' => 0, 'unsealed' => 0, 'broken' => null];
+        }
+
+        $previous = null;
+        $sealed = 0;
+        $unsealed = 0;
+        foreach ($rows as $row) {
+            // Les entrées écrites avant la mise en place du scellement n'ont pas
+            // d'empreinte : elles sont comptées à part, pas déclarées fausses.
+            if (empty($row['hash'])) {
+                $unsealed++;
+                $previous = null;
+                continue;
+            }
+            if ($previous !== null && $row['prev_hash'] !== $previous['hash']) {
+                return ['ok' => false, 'checked' => count($rows), 'sealed' => $sealed, 'unsealed' => $unsealed,
+                        'broken' => ['row' => $row, 'reason' => 'chaine', 'previous' => $previous]];
+            }
+            if (self::fingerprint($row, (string) $row['prev_hash']) !== $row['hash']) {
+                return ['ok' => false, 'checked' => count($rows), 'sealed' => $sealed, 'unsealed' => $unsealed,
+                        'broken' => ['row' => $row, 'reason' => 'contenu', 'previous' => $previous]];
+            }
+            $sealed++;
+            $previous = $row;
+        }
+        return ['ok' => true, 'checked' => count($rows), 'sealed' => $sealed, 'unsealed' => $unsealed, 'broken' => null];
     }
 
     private static function label(mixed $user): string

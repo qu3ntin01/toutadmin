@@ -38,11 +38,14 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Stock et achats | module optionnel : stock déduit des mouvements depuis le dernier inventaire, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà du seuil, bons de commande, réceptions qui entrent en stock, rapprochement à trois (commandé, reçu, facturé) |
 | Coffre-fort | dépôt par les RH avec contrôle du type réel du fichier, empreinte SHA-256 vérifiée à chaque téléchargement, conservation cinquante ans, retrait réservé à l'administration et motivé, codes d'accès pour les anciens salariés ouvrant une session qui ne voit que le coffre |
 | Parapheur | document figé dès la mise à la signature, circuit ordonné, mot de passe et consentement redemandés, sceau HMAC par signature, refus motivé qui interrompt le circuit, attestation imprimable |
+| Sécurité | console d'administration : journal paginé et filtrable avec export CSV, vérification du scellement qui dit où la chaîne casse, purge bornée, comptes à surveiller (verrouillés, mots de passe temporaires, administrateurs sans double authentification, comptes dormants), sessions ouvertes, nomination et rétrogradation des administrateurs, politique |
+| Données personnelles | registre des traitements (six préremplis), export JSON de ce que vingt-cinq sources détiennent sur une personne, effacement qui distingue l'effaçable de ce que la loi impose de garder, compte anonymisé plutôt que supprimé |
+| Sauvegardes | archive tar.gz écrite à la main (base copiée par VACUUM INTO, coffre-fort, parapheur), empreinte par fichier vérifiée à la restauration, restauration table par table en une transaction précédée d'une sauvegarde de sécurité, purge par nombre d'archives, export intégral en JSON pour partir |
 | Comptabilité | module optionnel : plan comptable et journaux posés à l'activation, écritures refusées si elles ne s'équilibrent pas, facture passée en écriture d'un clic au taux figé, balance, grand livre, résultat, export CSV |
 | Paie | module optionnel : barèmes paramétrables (base brut ou plafond), calcul du brut au net, part patronale et coût employeur, bulletin détaillé, génération en lot, masse salariale du mois |
 | Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
 
-254 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+277 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -50,12 +53,11 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
-2. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
-3. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
-4. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
-5. **Recrutement** — postes, candidatures, entretiens
-6. **Planning** — roulements, astreintes, présence
+1. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
+2. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
+3. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+4. **Recrutement** — postes, candidatures, entretiens
+5. **Planning** — roulements, astreintes, présence
 
 ## Un manque de l'édition Node, comblé des deux côtés
 
@@ -70,6 +72,14 @@ détachement depuis la fiche de commande, et trois refus — une facture
 client n'a pas de bon de commande, une facture d'un autre fournisseur ne
 se rattache pas, une facture déjà rattachée ailleurs non plus.
 
+## Reste du lot sécurité
+
+L'**externalisation des sauvegardes** (dépôt FTP et Google Drive après chaque
+archive) n'est pas encore portée : elle demande ses propres clients réseau et
+le chiffrement des identifiants en base. L'archive se télécharge en attendant,
+ce qui est la seule protection qui compte — une sauvegarde qui reste sur le
+serveur qu'elle protège ne protège de rien.
+
 ## Ce qui ne sera pas porté à l'identique
 
 Trois fonctions de l'édition Node tiennent à Node lui-même, et demandent un
@@ -77,8 +87,11 @@ Trois fonctions de l'édition Node tiennent à Node lui-même, et demandent un
 
 - **Relève de courrier IMAP** (`imapflow`) → l'extension `imap` de PHP, ou une
   relève lancée par tâche planifiée.
-- **Sauvegardes automatiques périodiques** → une tâche planifiée (`cron`) chez
-  l'hébergeur : un site PHP ne tourne qu'au moment d'une requête.
+- **Sauvegardes automatiques périodiques** → fait : `tools/cron.php` est appelé
+  par la tâche planifiée de l'hébergeur et déclenche la sauvegarde dès
+  l'intervalle écoulé, un site PHP ne tournant qu'au moment d'une requête. La
+  copie de la base passe par `VACUUM INTO`, cohérente sur une base en écriture,
+  là où l'édition Node utilise l'API de sauvegarde en ligne de SQLite.
 - **Lecture de PDF** (`pdf-parse`) → à décider : extension, binaire externe, ou
   fonction absente de l'édition PHP.
 
