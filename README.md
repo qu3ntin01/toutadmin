@@ -5,7 +5,8 @@ combien il coûte. Un site statique, sans dépendance, construit dans les seize
 langues du logiciel.
 
 > Le code du produit est sur la branche `toutadmin`, la documentation technique
-> sur la branche `documentation`. Cette branche-ci ne contient que la vitrine.
+> sur la branche `documentation`. Cette branche-ci — `siteweb` — ne contient que
+> le site public.
 
 ## Construire
 
@@ -72,7 +73,7 @@ réécriture d'URL.
 rsync -av --delete site/ user@serveur:/var/www/toutadmin/
 
 # Netlify, Vercel, Cloudflare Pages
-#   branche          : vitrine
+#   branche          : siteweb
 #   dossier à publier : site
 #   commande de build : node build.js
 ```
