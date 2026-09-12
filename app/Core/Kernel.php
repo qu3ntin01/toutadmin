@@ -9,6 +9,7 @@ use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
 use App\Controllers\AuthController;
 use App\Controllers\DirectoryController;
+use App\Controllers\FixedAssetsController;
 use App\Controllers\FinanceController;
 use App\Controllers\HrController;
 use App\Controllers\ManagerController;
@@ -22,7 +23,9 @@ use App\Controllers\ProfileController;
 use App\Controllers\ProjectsController;
 use App\Controllers\RequestsController;
 use App\Controllers\RoomsController;
+use App\Controllers\StockController;
 use App\Controllers\SupportController;
+use App\Controllers\TreasuryController;
 use App\Modules\Users;
 
 /**
@@ -246,6 +249,42 @@ final class Kernel
         $router->post('/paie/bulletins', PayrollController::createPayslip(...));
         $router->post('/paie/bulletins/lot', PayrollController::createPayslipBatch(...));
 
+        // Trésorerie (module optionnel).
+        $router->get('/tresorerie', TreasuryController::index(...));
+        $router->post('/tresorerie/comptes', TreasuryController::createAccount(...));
+        $router->post('/tresorerie/comptes/{id}/cloturer', TreasuryController::closeAccount(...));
+        $router->post('/tresorerie/comptes/{id}/supprimer', TreasuryController::deleteAccount(...));
+        $router->post('/tresorerie/mouvements', TreasuryController::addTransaction(...));
+        $router->post('/tresorerie/mouvements/{id}/supprimer', TreasuryController::deleteTransaction(...));
+        $router->post('/tresorerie/mouvements/{id}/rapprocher', TreasuryController::reconcile(...));
+        $router->post('/tresorerie/previsions', TreasuryController::addForecast(...));
+        $router->post('/tresorerie/previsions/{id}/supprimer', TreasuryController::deleteForecast(...));
+
+        // Immobilisations (module optionnel).
+        $router->get('/immobilisations', FixedAssetsController::index(...));
+        $router->post('/immobilisations', FixedAssetsController::create(...));
+        $router->post('/immobilisations/{id}/ceder', FixedAssetsController::dispose(...));
+        $router->post('/immobilisations/{id}/supprimer', FixedAssetsController::remove(...));
+
+        // Stock et achats (module optionnel).
+        $router->get('/stock', StockController::index(...));
+        $router->get('/stock/commandes/{id}', StockController::showOrder(...));
+        $router->post('/stock/commandes', StockController::createOrder(...));
+        $router->post('/stock/commandes/{id}/modifier', StockController::updateOrder(...));
+        $router->post('/stock/commandes/{id}/supprimer', StockController::deleteOrder(...));
+        $router->post('/stock/commandes/{id}/lignes', StockController::addLine(...));
+        $router->post('/stock/lignes/{id}/supprimer', StockController::deleteLine(...));
+        $router->post('/stock/lignes/{id}/reception', StockController::receiveLine(...));
+        $router->post('/stock/articles', StockController::createItem(...));
+        $router->post('/stock/articles/{id}/statut', StockController::toggleItem(...));
+        $router->post('/stock/articles/{id}/supprimer', StockController::deleteItem(...));
+        $router->post('/stock/mouvements', StockController::move(...));
+        $router->post('/stock/demandes', StockController::createRequest(...));
+        $router->post('/stock/demandes/{id}/annuler', StockController::cancelRequest(...));
+        $router->post('/stock/demandes/{id}/manager', StockController::managerDecision(...));
+        $router->post('/stock/demandes/{id}/gestion', StockController::financeDecision(...));
+        $router->post('/stock/demandes/{id}/commander', StockController::markOrdered(...));
+
         $router->get('/notifications', NotificationsController::index(...));
         $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
         $router->post('/notifications/{id}/lue', NotificationsController::markRead(...));
@@ -402,6 +441,43 @@ final class Kernel
                 return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
             }
             if (!AccountingController::canAccess($user)) {
+                return $refuse();
+            }
+        }
+        if (str_starts_with($request->path, '/tresorerie')) {
+            if (!\App\Modules\Catalogue::isEnabled('tresorerie')) {
+                return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
+            }
+            if (!TreasuryController::canAccess($user)) {
+                return $refuse();
+            }
+        }
+        if (str_starts_with($request->path, '/immobilisations')) {
+            if (!\App\Modules\Catalogue::isEnabled('immobilisations')) {
+                return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
+            }
+            if (!FixedAssetsController::canAccess($user)) {
+                return $refuse();
+            }
+        }
+        // Le stock est ouvert à tous : chacun demande ce dont il a besoin. Mais
+        // les articles, les mouvements et les bons de commande engagent l'argent
+        // de l'entreprise : ceux-là restent à la gestion.
+        if (str_starts_with($request->path, '/stock')) {
+            if (!\App\Modules\Catalogue::isEnabled('stock')) {
+                return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
+            }
+            $reserved = false;
+            foreach (['/stock/articles', '/stock/mouvements', '/stock/commandes', '/stock/lignes'] as $prefix) {
+                if (str_starts_with($request->path, $prefix)) {
+                    $reserved = true;
+                }
+            }
+            // La décision de second niveau et le passage en commande aussi.
+            if (str_ends_with($request->path, '/gestion') || str_ends_with($request->path, '/commander')) {
+                $reserved = true;
+            }
+            if ($reserved && !FinanceController::canAccess($user)) {
                 return $refuse();
             }
         }

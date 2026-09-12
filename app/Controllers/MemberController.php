@@ -106,6 +106,15 @@ final class MemberController
         if (\App\Modules\Catalogue::isEnabled('paie') && PayrollController::canAccess($user)) {
             $items[] = ['href' => '/paie', 'label' => t('pay.panel')];
         }
+        if (\App\Modules\Catalogue::isEnabled('stock')) {
+            $items[] = ['href' => '/stock', 'label' => t('nav.stock')];
+        }
+        if (\App\Modules\Catalogue::isEnabled('tresorerie') && TreasuryController::canAccess($user)) {
+            $items[] = ['href' => '/tresorerie', 'label' => t('tre.panel')];
+        }
+        if (\App\Modules\Catalogue::isEnabled('immobilisations') && FixedAssetsController::canAccess($user)) {
+            $items[] = ['href' => '/immobilisations', 'label' => t('imm.panel')];
+        }
         return $items;
     }
 

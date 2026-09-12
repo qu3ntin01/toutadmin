@@ -33,11 +33,14 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Projets | projets, équipe projet, jalons, tâches en tableau, temps passé, rentabilité et écart au budget |
 | Support | tickets internes et clients, délai de première réponse selon la priorité, notes internes, files par catégorie |
 | Gestion | tiers (clients, fournisseurs), contrats et alerte de préavis, factures client et fournisseur avec TVA, retard déduit de l'échéance, budgets par service avec consommé, notes de frais du dépôt au remboursement, multidevise à taux figé à l'émission |
+| Trésorerie | module optionnel : comptes bancaires dont le solde se recalcule des mouvements, rapprochement qui distingue émis d'encaissé et refuse un mouvement de sens contraire, prévisionnel et projection à douze semaines avec son point bas |
+| Immobilisations | module optionnel : registre, amortissement linéaire et dégressif avec bascule calculée, valeur nette comptable, dotation de l'exercice, cession |
+| Stock et achats | module optionnel : stock déduit des mouvements depuis le dernier inventaire, seuil d'alerte, demandes d'achat validées par le manager puis par la gestion au-delà du seuil, bons de commande, réceptions qui entrent en stock, rapprochement à trois (commandé, reçu, facturé) |
 | Comptabilité | module optionnel : plan comptable et journaux posés à l'activation, écritures refusées si elles ne s'équilibrent pas, facture passée en écriture d'un clic au taux figé, balance, grand livre, résultat, export CSV |
 | Paie | module optionnel : barèmes paramétrables (base brut ou plafond), calcul du brut au net, part patronale et coût employeur, bulletin détaillé, génération en lot, masse salariale du mois |
 | Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
 
-206 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+230 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -45,14 +48,24 @@ qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 Par ordre d'utilité, les lots restants. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
-1. **Trésorerie, immobilisations, achats** — prévisionnel, amortissements, stock
-2. **Coffre-fort et parapheur** — documents, signatures, accès après départ
-3. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
-4. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
-5. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
-6. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
-7. **Recrutement** — postes, candidatures, entretiens
-8. **Planning** — roulements, astreintes, présence
+1. **Coffre-fort et parapheur** — documents, signatures, accès après départ
+2. **Sécurité et RGPD** — console, journal, données personnelles, sauvegardes
+3. **Qualité, santé-sécurité, conformité** — audits, risques, déclarations
+4. **Vie juridique, direction, CSE** — assemblées, mandats, gouvernance, sondages
+5. **Informatique, développement, flotte, accueil** — parc, livraisons, véhicules, visiteurs
+6. **Recrutement** — postes, candidatures, entretiens
+7. **Planning** — roulements, astreintes, présence
+
+## Un manque relevé dans l'édition Node
+
+Le rapprochement à trois compare le commandé, le reçu et le facturé. Le
+rattachement d'une facture fournisseur à son bon de commande existe en
+base (`invoices.purchase_order_id`) et l'écran l'annonce, mais **aucune
+route de l'édition Node ne le renseigne** : le rapprochement ne peut donc
+se déclencher que sur une donnée posée à la main. Le portage PHP reprend
+ce comportement à l'identique plutôt que d'inventer une règle. Ajouter le
+champ au formulaire de facture — dans les deux éditions — est une décision
+à prendre, pas un oubli de portage.
 
 ## Ce qui ne sera pas porté à l'identique
 
