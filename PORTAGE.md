@@ -60,6 +60,9 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Événements | séminaires, formations et réunions générales avec leur portée (entreprise, service, équipe) ; au-delà de la capacité on n'est pas refusé mais mis en liste d'attente, un désistement fait monter le premier qui attend et le prévient, « Complet » est décidé par la capacité et non par l'organisateur, une absence constatée garde la place, une annulation prévient les inscrits |
 | Base de connaissances | articles par catégorie, portée appliquée à la lecture (entreprise, service, équipe, administration), brouillon invisible de ses lecteurs, compteur de lectures, recherche par mots-clés |
 | Parcours | modèles d'arrivée et de départ dont les points portent un responsable et un écart au jour pivot, parcours daté par personne, cocher le dernier point clôt la liste et en décocher un la rouvre, points en retard remontés ; compétences et habilitations dont l'échéance découle de la durée de validité, matrice, ce qui périme et ce qui manque à l'appel |
+| CRM | module optionnel : contacts commerciaux, affaires dont le pipeline pondère le montant par la probabilité, devis contrôlés avant d'exister et dont l'expiration se lit sans se réécrire, conversion d'un devis accepté en facture client — une seule fois —, relances qui visent toujours un client ou une affaire |
+| Facturation électronique | module optionnel : contrôle EN 16931 qui liste les manques facture par facture plutôt que de conclure « non conforme », identité de l'émetteur validée dans sa forme (SIREN, TVA, code pays), export du XML CII (UN/CEFACT) qui ne sort que d'une facture conforme |
+| Import de données | lecture d'un CSV écrite à la main (point-virgule ou virgule, guillemets, retours à la ligne dans un champ, marque d'ordre des octets d'Excel, en-têtes normalisés), aperçu qui contrôle chaque ligne et nomme son problème avec son numéro, tout ou rien à l'écriture, aucune ligne existante modifiée, mots de passe temporaires rendus une seule fois |
 | Fiche tiers | interlocuteurs dont un seul est principal, pièces de conformité dont l'état découle de la date (valable, bientôt périmée à 45 jours, périmée), évaluations notées de 1 à 5 dont c'est la dernière qui fait foi — une moyenne de l'historique lisserait la dégradation qu'on cherche à voir —, contrats et factures du tiers rassemblés |
 | Alertes internes | signalement anonyme qui n'enregistre pas son auteur (pas « masqué » : pas enregistré), contenu chiffré en base, référence annuelle et code de suivi montré une seule fois puis gardé haché, suivi ouvert sans compte — se connecter pour lire la réponse, ce serait signer son signalement —, référents seuls à lire (l'administration les désigne et n'y lit rien), délais légaux de 7 et 90 jours comptés, consultations tracées dans le dispositif et non au journal général |
 | Pilotage | tableau de bord qui agrège sans rien recalculer (ce qui manque rend une absence, pas un zéro), chiffre d'affaires ramené en devise de référence au taux figé, santé des projets, objectifs et résultats clés dont l'avancement se mesure sur l'échelle de chacun |
@@ -68,21 +71,18 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Photos de profil | envoi contrôlé sur le contenu et non sur le type annoncé, nom de fichier aléatoire, fichier servi par une route qui demande une session et ne sort pas de son dossier, retrait |
 | Planning | grille de la semaine par personne, créneau refusé s'il chevauche un autre poste ou une absence accordée, brouillon tant que la semaine n'est pas publiée, roulements appliqués sur trois mois au plus qui sautent les jours en conflit et le disent, poste de nuit terminé le lendemain, astreintes lues à la semaine et à l'instant, charge par personne ; un manager ne planifie que les siens, tout le monde consulte |
 
-477 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+495 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
-Six espaces de l'édition Node n'ont pas encore le leur ici. Chacun
+Trois espaces de l'édition Node n'ont pas encore le leur ici. Chacun
 reprendra les règles de l'édition Node telles quelles : ce sont les mêmes
 décisions, pas de nouvelles. Par ordre d'utilité :
 
-1. **CRM** — module optionnel : contacts, opportunités, pipeline
-2. **Facturation électronique** — format réglementaire des factures
-3. **Import de données** — reprise depuis un tableur
-4. **Intégrations** — webhooks sortants et leurs livraisons
-5. **API v1** — jetons et points d'accès en lecture
-6. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
+1. **Intégrations** — webhooks sortants et leurs livraisons
+2. **API v1** — jetons et points d'accès en lecture
+3. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
    la pose ; elle vient en dernier, une fois que toutes ses sources existent
 
 ## Un défaut du socle PHP, corrigé

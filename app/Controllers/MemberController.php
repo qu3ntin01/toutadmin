@@ -115,6 +115,7 @@ final class MemberController
             $items[] = ['href' => '/securite', 'label' => t('nav.security')];
             $items[] = ['href' => '/rgpd', 'label' => t('nav.privacy')];
             $items[] = ['href' => '/sauvegardes', 'label' => t('nav.backups')];
+            $items[] = ['href' => '/import', 'label' => t('nav.dataImport')];
         }
         if (Org::isManager((int) $user['id'])) {
             $items[] = ['href' => '/mon-equipe', 'label' => t('nav.team')];
@@ -143,6 +144,12 @@ final class MemberController
             $items[] = ['href' => '/flotte', 'label' => t('nav.fleet')];
         }
         // Un module éteint n'a pas d'entrée : la barre dit ce qui existe.
+        if (\App\Modules\Catalogue::isEnabled('crm') && FinanceController::canAccess($user)) {
+            $items[] = ['href' => '/crm', 'label' => 'CRM commercial'];
+        }
+        if (\App\Modules\Catalogue::isEnabled('facturation-electronique') && FinanceController::canAccess($user)) {
+            $items[] = ['href' => '/facturation-electronique', 'label' => t('einv.panel')];
+        }
         if (\App\Modules\Catalogue::isEnabled('comptabilite') && AccountingController::canAccess($user)) {
             $items[] = ['href' => '/comptabilite', 'label' => t('pcs.tabAccounting')];
         }

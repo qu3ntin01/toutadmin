@@ -8,6 +8,9 @@ use App\Controllers\AdminController;
 use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
 use App\Controllers\AlertsController;
+use App\Controllers\CrmController;
+use App\Controllers\EInvoicingController;
+use App\Controllers\ImportController;
 use App\Controllers\EventsController;
 use App\Controllers\JourneysController;
 use App\Controllers\KnowledgeController;
@@ -205,6 +208,32 @@ final class Kernel
         $router->post('/agenda', AgendaController::create(...));
         $router->post('/agenda/{id}/partage', AgendaController::share(...));
         $router->post('/agenda/{id}/supprimer', AgendaController::delete(...));
+        // Import de données en masse : aperçu d'abord, écriture ensuite.
+        $router->get('/import', ImportController::index(...));
+        $router->post('/import/apercu', ImportController::preview(...));
+        $router->post('/import/importer', ImportController::commit(...));
+        $router->get('/import/{key}/modele.csv', ImportController::template(...));
+
+        // Facturation électronique : contrôle EN 16931 et export du XML CII.
+        $router->get('/facturation-electronique', EInvoicingController::index(...));
+        $router->post('/facturation-electronique/emetteur', EInvoicingController::saveIssuer(...));
+        $router->get('/facturation-electronique/factures/{id}.xml', EInvoicingController::xml(...));
+
+        // CRM : module optionnel, du ressort de la gestion.
+        $router->get('/crm', CrmController::index(...));
+        $router->post('/crm/contacts', CrmController::createContact(...));
+        $router->post('/crm/contacts/{id}/supprimer', CrmController::deleteContact(...));
+        $router->post('/crm/opportunites', CrmController::createOpportunity(...));
+        $router->post('/crm/opportunites/{id}/etape', CrmController::setStage(...));
+        $router->post('/crm/opportunites/{id}/supprimer', CrmController::deleteOpportunity(...));
+        $router->post('/crm/devis', CrmController::createQuote(...));
+        $router->post('/crm/devis/{id}/statut', CrmController::setQuoteStatus(...));
+        $router->post('/crm/devis/{id}/facturer', CrmController::invoiceQuote(...));
+        $router->post('/crm/devis/{id}/supprimer', CrmController::deleteQuote(...));
+        $router->post('/crm/relances', CrmController::createActivity(...));
+        $router->post('/crm/relances/{id}/faite', CrmController::completeActivity(...));
+        $router->post('/crm/relances/{id}/supprimer', CrmController::deleteActivity(...));
+
         // Pilotage : tableau de bord, échéances, objectifs.
         $router->get('/pilotage', SteeringController::index(...));
         $router->post('/pilotage/objectifs', SteeringController::createObjective(...));
@@ -976,6 +1005,30 @@ final class Kernel
         if (str_starts_with($request->path, '/planning') && $request->isPost()
             && !PlanningController::canPlan($user)) {
             return $refuse();
+        }
+        // Importer, c'est écrire en masse : l'accès suit le droit qu'il faudrait
+        // pour saisir ces lignes une par une.
+        if (str_starts_with($request->path, '/import') && !ImportController::canAccess($user)) {
+            return $refuse();
+        }
+        // La facturation électronique est un module optionnel de la gestion.
+        if (str_starts_with($request->path, '/facturation-electronique')) {
+            if (!\App\Modules\Catalogue::isEnabled('facturation-electronique')) {
+                return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
+            }
+            if (!FinanceController::canAccess($user)) {
+                return $refuse();
+            }
+        }
+        // Un pipeline commercial dit ce que l'entreprise attend d'argent, et un
+        // devis l'engage : module optionnel, et réservé à la gestion.
+        if (str_starts_with($request->path, '/crm')) {
+            if (!\App\Modules\Catalogue::isEnabled('crm')) {
+                return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
+            }
+            if (!FinanceController::canAccess($user)) {
+                return $refuse();
+            }
         }
         if (str_starts_with($request->path, '/paie')) {
             if (!\App\Modules\Catalogue::isEnabled('paie')) {
