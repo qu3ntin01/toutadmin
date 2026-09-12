@@ -57,34 +57,32 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Flotte | parc de véhicules avec trois échéances qui ne pardonnent pas (contrôle technique, assurance, entretien), compteur qui ne recule jamais — ni à la saisie, ni par un relevé d'événement — et coût d'entretien sur douze mois |
 | Accueil | registre des visiteurs qui répond à « qui est dans les murs ? », courrier qui reste « à remettre » tant que la remise n'est pas datée et signée, recommandés comptés à part |
 | Recrutement | postes ouverts et candidatures, dépôt de CV dont le contenu est contrôlé avant écriture (PDF, DOCX, TXT, Markdown) et le texte extrait sans aucune dépendance, moteur ATS qui note sur les seuls critères pondérés du poste (un critère requis manquant ou une expérience sous le minimum écartent quel que soit le score), reclassement de tout le poste dès qu'un critère change, CVthèque par mots-clés, CV téléchargeable par la seule route authentifiée |
+| Pièces reçues | corbeille du comptable : dépôt d'une facture dont le type réel est contrôlé avant écriture, empreinte SHA-256 qui interdit le doublon et revérifiée avant de servir le fichier, lecture par règles (numéro, dates, montants, taux, SIRET et IBAN vérifiés par leur clé, rapprochement avec un tiers connu) dont la confiance se compose et tombe si HT + TVA ne fait pas TTC, analyse assistée par modèle optionnelle et éteinte par défaut, relève IMAP d'une boîte dédiée qui ne supprime jamais un message, mise en facture qui enregistre ce qui est validé à l'écran et non ce qui a été lu |
+| Photos de profil | envoi contrôlé sur le contenu et non sur le type annoncé, nom de fichier aléatoire, fichier servi par une route qui demande une session et ne sort pas de son dossier, retrait |
 | Planning | grille de la semaine par personne, créneau refusé s'il chevauche un autre poste ou une absence accordée, brouillon tant que la semaine n'est pas publiée, roulements appliqués sur trois mois au plus qui sautent les jours en conflit et le disent, poste de nuit terminé le lendemain, astreintes lues à la semaine et à l'instant, charge par personne ; un manager ne planifie que les siens, tout le monde consulte |
 
-392 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+430 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
-Quatorze espaces de l'édition Node n'ont pas encore le leur ici. Chacun
+Douze espaces de l'édition Node n'ont pas encore le leur ici. Chacun
 reprendra les règles de l'édition Node telles quelles : ce sont les mêmes
 décisions, pas de nouvelles. Par ordre d'utilité :
 
-1. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
-   la pose
-2. **Pièces reçues** — dépôt d'une facture fournisseur dans la corbeille du
-   comptable, et relève de la boîte aux lettres dédiée
-3. **Photos de profil** — envoi de la photo et service du fichier, aujourd'hui
-   absents des deux bouts : la colonne existe, rien ne l'écrit ni ne la lit
-4. **Événements d'entreprise** — annonces, inscriptions, places
-5. **Base de connaissances** — articles, catégories, recherche
-6. **Partenaires** — fiches, contacts, conformité, évaluation
-7. **Parcours d'intégration** — étapes d'arrivée et de départ
-8. **Alertes internes** — dispositif de recueil des signalements
-9. **Pilotage** — indicateurs d'entreprise et échéances
-10. **CRM** — module optionnel : contacts, opportunités, pipeline
-11. **Facturation électronique** — format réglementaire des factures
-12. **Import de données** — reprise depuis un tableur
-13. **Intégrations** — webhooks sortants et leurs livraisons
-14. **API v1** — jetons et points d'accès en lecture
+1. **Événements d'entreprise** — annonces, inscriptions, places
+2. **Base de connaissances** — articles, catégories, recherche
+3. **Partenaires** — fiches, contacts, conformité, évaluation
+4. **Parcours d'intégration** — étapes d'arrivée et de départ
+5. **Alertes internes** — dispositif de recueil des signalements
+6. **Pilotage** — indicateurs d'entreprise et échéances
+7. **CRM** — module optionnel : contacts, opportunités, pipeline
+8. **Facturation électronique** — format réglementaire des factures
+9. **Import de données** — reprise depuis un tableur
+10. **Intégrations** — webhooks sortants et leurs livraisons
+11. **API v1** — jetons et points d'accès en lecture
+12. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
+    la pose ; elle vient en dernier, une fois que toutes ses sources existent
 
 ## Un défaut du socle PHP, corrigé
 
@@ -135,8 +133,12 @@ la troisième reste à faire :
   (`/FlateDecode`) et lit les opérateurs de texte. Un PDF scanné ne contient
   pas de texte : l'extraction revient vide, et l'écran le dit plutôt que de
   noter un dossier sur du vide — c'est aussi ce que fait l'édition Node.
-- **Relève de courrier IMAP** (`imapflow`) → reste à faire : l'extension `imap`
-  de PHP, ou une relève lancée par tâche planifiée. Le dépôt manuel d'une
-  facture, lui, fonctionne des deux côtés.
+- **Relève de courrier IMAP** (`imapflow`) → fait, et sans l'extension `imap` de
+  PHP — absente de beaucoup d'hébergements mutualisés, et dépréciée depuis
+  PHP 8.3. `App\Core\Imap` parle le protocole directement (ouvrir un dossier,
+  chercher les non-lus, télécharger, poser un drapeau, déplacer) et
+  `App\Core\Mime` lit le message reçu. Le client n'expose ni EXPUNGE global ni
+  suppression : la boîte reste la source. La relève automatique passe par
+  `tools/cron.php`, un site PHP ne tournant qu'au moment d'une requête.
 
-Celle-là est documentée comme telle, pas laissée dans un état indécis.
+Les trois sont donc réglées.

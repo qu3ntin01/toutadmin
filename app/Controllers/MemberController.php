@@ -131,6 +131,8 @@ final class MemberController
             $items[] = ['href' => '/coffre-fort/gestion', 'label' => t('nav.vaultManage')];
         }
         if (FinanceController::canAccess($user)) {
+            $items[] = ['href' => '/pieces', 'label' => t('nav.intake'),
+                        'badge' => \App\Modules\Intake::summary()['waiting'] ?: null];
             $items[] = ['href' => '/gestion', 'label' => t('nav.gestion')];
             $items[] = ['href' => '/flotte', 'label' => t('nav.fleet')];
         }

@@ -7,6 +7,7 @@ namespace App\Core;
 use App\Controllers\AdminController;
 use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
+use App\Controllers\PiecesController;
 use App\Controllers\PlanningController;
 use App\Controllers\AuthController;
 use App\Controllers\BackupController;
@@ -198,6 +199,26 @@ final class Kernel
         $router->post('/agenda', AgendaController::create(...));
         $router->post('/agenda/{id}/partage', AgendaController::share(...));
         $router->post('/agenda/{id}/supprimer', AgendaController::delete(...));
+        // Photo de profil : l'envoi, le retrait, et le fichier lui-même.
+        $router->post('/mon-profil/photo', ProfileController::uploadPhoto(...));
+        $router->post('/mon-profil/photo/supprimer', ProfileController::deletePhoto(...));
+        $router->get('/media/avatars/{name}', ProfileController::photo(...));
+
+        // Pièces reçues : dépôt, relève de la boîte aux lettres, mise en facture.
+        $router->get('/pieces', PiecesController::index(...));
+        $router->post('/pieces/deposer', PiecesController::deposit(...));
+        $router->post('/pieces/capture/reglages', PiecesController::saveCapture(...));
+        $router->post('/pieces/capture/tester', PiecesController::testCapture(...));
+        $router->post('/pieces/capture/relever', PiecesController::runCapture(...));
+        $router->post('/pieces/analyse/reglages', PiecesController::saveAnalysis(...));
+        $router->post('/pieces/analyse/tester', PiecesController::testAnalysis(...));
+        $router->get('/pieces/{id}', PiecesController::show(...));
+        $router->get('/pieces/{id}/fichier', PiecesController::file(...));
+        $router->post('/pieces/{id}/analyser', PiecesController::reanalyse(...));
+        $router->post('/pieces/{id}/facturer', PiecesController::invoice(...));
+        $router->post('/pieces/{id}/ecarter', PiecesController::discard(...));
+        $router->post('/pieces/{id}/supprimer', PiecesController::delete(...));
+
         // Planning d'équipe : créneaux, roulements, astreintes.
         $router->get('/planning', PlanningController::index(...));
         $router->post('/planning/creneaux', PlanningController::createShift(...));
@@ -831,6 +852,12 @@ final class Kernel
             if ($reserved && !FinanceController::canAccess($user)) {
                 return $refuse();
             }
+        }
+        // La corbeille des pièces comptables contient les factures des
+        // fournisseurs avant qu'elles n'entrent dans les comptes : la gestion,
+        // et elle seule.
+        if (str_starts_with($request->path, '/pieces') && !FinanceController::canAccess($user)) {
+            return $refuse();
         }
         // Consulter le planning est ouvert à tous — un planning illisible ne sert
         // à personne. Le modifier engage les journées d'autrui : encadrement,

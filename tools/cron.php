@@ -23,6 +23,7 @@ require_once dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Core\Db;
 use App\Modules\Backup;
+use App\Modules\Mailbox;
 use App\Modules\Users;
 
 Db::migrate();
@@ -31,6 +32,20 @@ Db::migrate();
 $closed = Users::deactivateExpiredContracts();
 if ($closed > 0) {
     echo "$closed compte(s) fermé(s) : contrat arrivé à terme.\n";
+}
+
+// Relève de la boîte aux lettres comptable : les factures reçues par courriel
+// arrivent dans la corbeille du comptable sans qu'on y pense. Une boîte
+// injoignable n'emporte pas le reste du balayage avec elle.
+if (Mailbox::config()['enabled'] && Mailbox::isReady()) {
+    try {
+        $fetched = Mailbox::fetchOnce();
+        if (!empty($fetched['received']) || empty($fetched['ok'])) {
+            echo 'Pièces reçues : ' . $fetched['message'] . "\n";
+        }
+    } catch (\Throwable $error) {
+        echo 'Relève de la boîte aux lettres interrompue : ' . $error->getMessage() . "\n";
+    }
 }
 
 $created = Backup::runScheduled();

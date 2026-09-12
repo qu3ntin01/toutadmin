@@ -21,7 +21,17 @@
     <tbody>
       <?php foreach ($people as $person): ?>
         <tr>
-          <td><?= e(trim($person['first_name'] . ' ' . $person['last_name'])) ?></td>
+          <td>
+            <span class="avatar avatar-sm">
+              <?php if (!empty($person['avatar_file'])): ?>
+                <img src="/media/avatars/<?= e($person['avatar_file']) ?>"
+                     alt="<?= e(trim($person['first_name'] . ' ' . $person['last_name'])) ?>" />
+              <?php else: ?>
+                <?= e(mb_substr($person['first_name'], 0, 1) . mb_substr($person['last_name'], 0, 1)) ?>
+              <?php endif; ?>
+            </span>
+            <?= e(trim($person['first_name'] . ' ' . $person['last_name'])) ?>
+          </td>
           <td><?= e((string) $person['grade']) ?></td>
           <td><?= e((string) $person['department']) ?></td>
           <td><a href="mailto:<?= e($person['email']) ?>"><?= e($person['email']) ?></a></td>

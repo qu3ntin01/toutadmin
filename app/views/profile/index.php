@@ -1,3 +1,41 @@
+<section class="card">
+  <h2><?= e(t('profile.photo')) ?></h2>
+  <div class="manager-card">
+    <span class="avatar avatar-lg">
+      <?php if (!empty($member['avatar_file'])): ?>
+        <img src="/media/avatars/<?= e($member['avatar_file']) ?>"
+             alt="<?= e($member['first_name'] . ' ' . $member['last_name']) ?>" />
+      <?php else: ?>
+        <?= e(mb_substr($member['first_name'], 0, 1) . mb_substr($member['last_name'], 0, 1)) ?>
+      <?php endif; ?>
+    </span>
+    <div>
+      <div class="manager-name"><?= e($member['first_name'] . ' ' . $member['last_name']) ?></div>
+      <div class="manager-role"><?= e((string) $member['grade']) ?></div>
+    </div>
+  </div>
+
+  <form method="POST" action="/mon-profil/photo" enctype="multipart/form-data" class="stack">
+    <?= \App\Core\Csrf::field() ?>
+    <label>
+      <span><?= e(t('profile.photo')) ?></span>
+      <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required />
+    </label>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><?= e(t('profile.upload')) ?></button>
+    </div>
+  </form>
+
+  <?php if (!empty($member['avatar_file'])): ?>
+    <form method="POST" action="/mon-profil/photo/supprimer" class="form-actions"
+          data-confirm="<?= e(t('profile.removePhoto')) ?> ?">
+      <?= \App\Core\Csrf::field() ?>
+      <button type="submit" class="btn btn-sm btn-danger"><?= e(t('profile.removePhoto')) ?></button>
+    </form>
+  <?php endif; ?>
+  <p class="hint"><?= e(t('profile.photoHelp')) ?></p>
+</section>
+
 <form method="POST" action="/mon-profil" class="form-grid">
   <?= \App\Core\Csrf::field() ?>
 
