@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="{{LANG}}" dir="{{DIR}}">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{TITLE}}</title>
+<meta name="description" content="{{DESCRIPTION}}" />
+<meta name="color-scheme" content="light dark" />
+<meta property="og:title" content="{{TITLE}}" />
+<meta property="og:description" content="{{DESCRIPTION}}" />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="{{BASE}}assets/style.css" />
+<link rel="icon" href="{{BASE}}assets/favicon.svg" type="image/svg+xml" />
+{{ALTERNATES}}
+<script src="{{BASE}}assets/theme-boot.js"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">{{SKIP}}</a>
+{{NAV}}
+<main id="contenu">
+{{CONTENT}}
+</main>
+{{FOOT}}
+<script src="{{BASE}}assets/app.js" defer></script>
+</body>
+</html>

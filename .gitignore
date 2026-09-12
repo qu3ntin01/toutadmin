@@ -1,0 +1,3 @@
+# La sortie se reconstruit avec « node build.js », sans dépendance et sans
+# réseau. La versionner recopierait toutes les captures une seconde fois.
+site/
