@@ -13,6 +13,8 @@ use App\Core\Session;
 use App\Core\View;
 use App\Modules\Announcements;
 use App\Modules\Hr;
+use App\Modules\Notifications;
+use App\Modules\Workflows;
 use App\Modules\Org;
 use App\Modules\Users;
 
@@ -63,8 +65,12 @@ final class MemberController
     /** La barre de gauche d'un salarié : ce qui lui est ouvert, et rien d'autre. */
     public static function nav(array $user): array
     {
+        $unread = \App\Modules\Notifications::unreadCount((int) $user['id']);
+        $awaiting = count(\App\Modules\Workflows::awaiting((int) $user['id']));
         $items = [
             ['href' => '/mon-espace', 'label' => t('nav.mySpace')],
+            ['href' => '/demandes', 'label' => t('nav.internalRequests'), 'badge' => $awaiting ?: null],
+            ['href' => '/notifications', 'label' => t('nav.notifications'), 'badge' => $unread ?: null],
             ['href' => '/annuaire', 'label' => t('nav.directory')],
             ['href' => '/organigramme', 'label' => t('nav.orgChart')],
             ['href' => '/mon-profil', 'label' => t('nav.profile')],

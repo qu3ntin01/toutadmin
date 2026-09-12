@@ -23,8 +23,10 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Organigramme | services, équipes, rattachements, sans-rattachement ; effectif entier pour l'administration et les RH |
 | Congés et paie | demande déposée par le salarié, décompte en jours ouvrés, approbation, refus, annulation avec recrédit du solde, ajustements de solde, fiches de paie |
 | Espace du salarié | informations, managers, demandes, solde, fiches de paie, actualités, collègues |
+| Demandes internes | types de demande et circuits configurables, seuils, validation étape par étape, refus motivé, retrait par le demandeur |
+| Notifications | file personnelle, déduplication, marquage lu, purge |
 
-77 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+91 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -33,7 +35,7 @@ Par ordre d'utilité, quatorze lots. Chacun reprend les règles de l'édition
 Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 
 1. **RH, suite** — documents d'entreprise, formations et sessions, entretiens annuels
-2. **Demandes et manager** — demandes internes, validation, points individuels
+2. **Espace manager** — équipe, points individuels, actualités de périmètre
 3. **Agenda, planning, salles** — calendriers, roulements, astreintes, réservations
 4. **Messagerie et annonces** — messagerie interne, actualités, notifications
 5. **Projets et support** — projets, jalons, rentabilité, tickets

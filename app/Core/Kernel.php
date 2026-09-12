@@ -10,8 +10,10 @@ use App\Controllers\DirectoryController;
 use App\Controllers\HrController;
 use App\Controllers\InstallController;
 use App\Controllers\MemberController;
+use App\Controllers\NotificationsController;
 use App\Controllers\OrgChartController;
 use App\Controllers\ProfileController;
+use App\Controllers\RequestsController;
 use App\Modules\Users;
 
 /**
@@ -100,6 +102,23 @@ final class Kernel
 
         $router->post('/mon-espace/demandes', MemberController::createRequest(...));
         $router->post('/mon-espace/demandes/{id}/annuler', MemberController::cancelRequest(...));
+
+        // Demandes internes : circuits d'approbation configurables.
+        $router->get('/demandes', RequestsController::index(...));
+        $router->post('/demandes', RequestsController::submit(...));
+        $router->post('/demandes/types', RequestsController::createForm(...));
+        $router->post('/demandes/types/{id}/etapes', RequestsController::addStep(...));
+        $router->post('/demandes/types/{id}/etapes/{stepId}/supprimer', RequestsController::deleteStep(...));
+        $router->post('/demandes/types/{id}/etat', RequestsController::setFormActive(...));
+        $router->post('/demandes/types/{id}/supprimer', RequestsController::deleteForm(...));
+        $router->get('/demandes/{id}', RequestsController::show(...));
+        $router->post('/demandes/{id}/decision', RequestsController::decide(...));
+        $router->post('/demandes/{id}/annuler', RequestsController::cancel(...));
+
+        $router->get('/notifications', NotificationsController::index(...));
+        $router->post('/notifications/tout-lire', NotificationsController::markAllRead(...));
+        $router->post('/notifications/{id}/lue', NotificationsController::markRead(...));
+        $router->post('/notifications/{id}/supprimer', NotificationsController::remove(...));
 
         $router->get('/organigramme', OrgChartController::index(...));
         $router->get('/mon-espace', MemberController::home(...));
@@ -220,6 +239,11 @@ final class Kernel
             return $this->error(t('err.notAccessible'), 403, base64_encode(random_bytes(16)));
         };
         if (str_starts_with($request->path, '/admin') && $user['role'] !== 'admin') {
+            return $refuse();
+        }
+        // Le paramétrage des circuits appartient à l'administration ; déposer
+        // une demande et la décider restent ouverts à tout le monde.
+        if (str_starts_with($request->path, '/demandes/types') && $user['role'] !== 'admin') {
             return $refuse();
         }
         // L'accès RH est donné par l'administration ; encadrer une équipe ne
