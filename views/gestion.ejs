@@ -317,8 +317,18 @@
                   <span><%= t('common.reference') %></span>
                   <input type="text" name="reference" maxlength="60" />
                 </label>
+                <label>
+                  <span><%= t('ges.purchaseOrder') %></span>
+                  <select name="purchase_order_id">
+                    <option value="">— <%= t('common.none') %> —</option>
+                    <% openOrders.forEach((o) => { %>
+                      <option value="<%= o.id %>"><%= o.reference %> — <%= o.partner_name %></option>
+                    <% }) %>
+                  </select>
+                </label>
                 <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
                 <p class="hint"><%= t('ges.invoiceDeptHelp') %></p>
+                <p class="hint"><%= t('ges.purchaseOrderHelp') %></p>
               </form>
             </div>
 

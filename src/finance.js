@@ -161,11 +161,11 @@ function createInvoice(data) {
   if (rate === null) return null;
 
   const id = db.prepare(`
-    INSERT INTO invoices (direction, partner_id, department_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, notes, created_by, currency, exchange_rate)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO invoices (direction, partner_id, department_id, reference, label, issue_date, due_date, amount_ht, vat_rate, status, notes, created_by, currency, exchange_rate, purchase_order_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(data.direction, data.partnerId || null, data.departmentId || null, data.reference || '', data.label,
          data.issueDate, data.dueDate || null, data.amountHt, data.vatRate, data.status || 'Émise',
-         data.notes || '', data.createdBy, code, rate).lastInsertRowid;
+         data.notes || '', data.createdBy, code, rate, data.purchaseOrderId || null).lastInsertRowid;
 
   require('./webhooks').emit('facture.creee', {
     id, reference: data.reference || '', libelle: data.label, sens: data.direction,

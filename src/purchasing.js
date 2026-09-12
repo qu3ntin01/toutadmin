@@ -196,6 +196,45 @@ function match(order) {
   };
 }
 
+/**
+ * Les factures fournisseur qu'on peut encore rattacher à cette commande :
+ * celles du même tiers, ou sans tiers, qui ne sont rattachées nulle part.
+ * Une facture client n'a rien à faire ici : le bon de commande est celui que
+ * nous avons passé, pas celui d'un client.
+ */
+function attachableInvoices(order) {
+  return db.prepare(`
+    SELECT id, reference, label, issue_date, amount_ht, status
+    FROM invoices
+    WHERE direction = 'Fournisseur' AND purchase_order_id IS NULL
+      AND status != 'Annulée'
+      AND (partner_id IS NULL OR partner_id = ?)
+    ORDER BY issue_date DESC, id DESC
+  `).all(order.partner_id);
+}
+
+/**
+ * Rattache une facture à un bon de commande : c'est ce rattachement, et lui
+ * seul, qui donne au rapprochement à trois de quoi comparer.
+ */
+function attachInvoice(orderId, invoiceId) {
+  const order = db.prepare('SELECT * FROM purchase_orders WHERE id = ?').get(orderId);
+  const invoice = db.prepare('SELECT * FROM invoices WHERE id = ?').get(invoiceId);
+  if (!order || !invoice) return { ok: false, reason: 'introuvable' };
+  if (invoice.direction !== 'Fournisseur') return { ok: false, reason: 'sens' };
+  if (invoice.purchase_order_id && invoice.purchase_order_id !== order.id) return { ok: false, reason: 'deja_rattachee' };
+  // Le tiers de la facture doit être celui de la commande : rapprocher la
+  // facture d'un autre fournisseur ne compare rien.
+  if (invoice.partner_id && invoice.partner_id !== order.partner_id) return { ok: false, reason: 'tiers' };
+
+  db.prepare('UPDATE invoices SET purchase_order_id = ? WHERE id = ?').run(order.id, invoice.id);
+  return { ok: true };
+}
+
+function detachInvoice(invoiceId) {
+  return db.prepare('UPDATE invoices SET purchase_order_id = NULL WHERE id = ?').run(invoiceId).changes > 0;
+}
+
 function invoicesOf(orderId) {
   return db.prepare(`
     SELECT id, reference, label, issue_date, amount_ht, status
@@ -241,6 +280,9 @@ module.exports = {
   syncOrderStatus,
   match,
   invoicesOf,
+  attachableInvoices,
+  attachInvoice,
+  detachInvoice,
   discrepancies,
   summary,
 };

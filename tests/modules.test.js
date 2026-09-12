@@ -497,6 +497,88 @@ test('Stock, achats et CRM', async (t) => {
     assert.equal(db.prepare('SELECT status FROM purchase_requests WHERE id = ?').get(request.id).status, 'Commandée');
   });
 
+  await t.test('une facture fournisseur se rattache à son bon de commande, et le rapprochement compare', async () => {
+    const purchasing = require('../src/purchasing');
+
+    await admin.refreshToken('/gestion');
+    await admin.post('/gestion/tiers', { name: 'Fournitures Nord', kind: 'Fournisseur' });
+    const supplier = db.prepare("SELECT * FROM partners WHERE name = 'Fournitures Nord'").get();
+
+    await admin.refreshToken('/stock');
+    await admin.post('/stock/commandes', { partner_id: String(supplier.id), ordered_on: '2026-05-04' });
+    const order = db.prepare('SELECT * FROM purchase_orders ORDER BY id DESC').get();
+
+    await admin.refreshToken(`/stock/commandes/${order.id}`);
+    await admin.post(`/stock/commandes/${order.id}/modifier`, {
+      partner_id: String(supplier.id), ordered_on: '2026-05-04', status: 'Envoyée',
+    });
+    await admin.refreshToken(`/stock/commandes/${order.id}`);
+    await admin.post(`/stock/commandes/${order.id}/lignes`, {
+      label: 'Gants', quantity: '10', unit_price: '50', item_id: String(itemId),
+    });
+    const line = db.prepare('SELECT * FROM purchase_order_lines WHERE order_id = ? ORDER BY id DESC').get(order.id);
+
+    // Reçu la moitié, facturé au-delà du commandé : les deux écarts se nomment.
+    await admin.refreshToken(`/stock/commandes/${order.id}`);
+    await admin.post(`/stock/lignes/${line.id}/reception`, { quantity: '5', received_on: '2026-05-10' });
+
+    // La facture est créée depuis la gestion, rattachée à la commande dans le même geste.
+    await admin.refreshToken('/gestion');
+    await admin.post('/gestion/factures', {
+      direction: 'Fournisseur', partner_id: String(supplier.id), label: 'Fourniture de gants',
+      issue_date: '2026-05-12', amount_ht: '600', vat_rate: '20', purchase_order_id: String(order.id),
+    });
+    const invoice = db.prepare("SELECT * FROM invoices WHERE label = 'Fourniture de gants'").get();
+    assert.equal(invoice.purchase_order_id, order.id, 'la facture doit porter son bon de commande');
+
+    const reconciliation = purchasing.match(purchasing.orderById(order.id));
+    assert.equal(reconciliation.ordered, 500);
+    assert.equal(reconciliation.received, 250);
+    assert.equal(reconciliation.invoiced, 600);
+    assert.deepEqual(reconciliation.issues.map((i) => i.kind), ['sur_commande', 'sur_reception']);
+    assert.equal(purchasing.discrepancies().length, 1);
+
+    // Détacher la facture retire l'écart.
+    await admin.refreshToken(`/stock/commandes/${order.id}`);
+    await admin.post(`/stock/factures/${invoice.id}/detacher`, {});
+    assert.equal(db.prepare('SELECT purchase_order_id FROM invoices WHERE id = ?').get(invoice.id).purchase_order_id, null);
+    assert.equal(purchasing.match(purchasing.orderById(order.id)).invoiced, 0);
+
+    // Et la rattacher depuis la fiche de commande la remet dans le rapprochement.
+    await admin.refreshToken(`/stock/commandes/${order.id}`);
+    await admin.post(`/stock/commandes/${order.id}/factures`, { invoice_id: String(invoice.id) });
+    assert.equal(purchasing.match(purchasing.orderById(order.id)).invoiced, 600);
+  });
+
+  await t.test("une facture client ne se rattache pas à un bon de commande", async () => {
+    const purchasing = require('../src/purchasing');
+    const order = db.prepare('SELECT * FROM purchase_orders ORDER BY id DESC').get();
+
+    await admin.refreshToken('/gestion');
+    await admin.post('/gestion/factures', {
+      direction: 'Client', label: 'Prestation cliente', issue_date: '2026-05-12',
+      amount_ht: '100', vat_rate: '20', purchase_order_id: String(order.id),
+    });
+    assert.match((await admin.flash('/gestion')).message, /facture fournisseur/);
+    assert.equal(db.prepare("SELECT COUNT(*) AS n FROM invoices WHERE label = 'Prestation cliente'").get().n, 0);
+
+    // Et une facture d'un autre fournisseur non plus.
+    await admin.refreshToken('/gestion');
+    await admin.post('/gestion/tiers', { name: 'Autre fournisseur', kind: 'Fournisseur' });
+    const other = db.prepare("SELECT * FROM partners WHERE name = 'Autre fournisseur'").get();
+    await admin.refreshToken('/gestion');
+    await admin.post('/gestion/factures', {
+      direction: 'Fournisseur', partner_id: String(other.id), label: 'Ailleurs',
+      issue_date: '2026-05-12', amount_ht: '100', vat_rate: '20',
+    });
+    const stranger = db.prepare("SELECT * FROM invoices WHERE label = 'Ailleurs'").get();
+
+    await admin.refreshToken(`/stock/commandes/${order.id}`);
+    await admin.post(`/stock/commandes/${order.id}/factures`, { invoice_id: String(stranger.id) });
+    assert.match((await admin.flash('/stock')).message, /autre fournisseur/);
+    assert.equal(purchasing.orderById(order.id) && db.prepare('SELECT purchase_order_id FROM invoices WHERE id = ?').get(stranger.id).purchase_order_id, null);
+  });
+
   await t.test("le personnel ne crée pas d'article ni de mouvement", async () => {
     const res = await worker.client.post('/stock/articles', { label: 'Pirate' });
     assert.equal(res.status, 403);

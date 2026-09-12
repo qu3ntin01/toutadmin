@@ -2,6 +2,8 @@ const express = require('express');
 
 const org = require('../org');
 const finance = require('../finance');
+const purchasing = require('../purchasing');
+const modules = require('../modules');
 const dunning = require('../dunning');
 const resources = require('../resources');
 const currency = require('../currency');
@@ -44,6 +46,8 @@ router.get('/', (req, res) => {
   const renewals = finance.contractsToRenew();
 
   res.render('gestion', {
+    // Sans le module Stock, il n'y a pas de bon de commande à proposer.
+    openOrders: modules.isEnabled('stock') ? purchasing.orders({ includeClosed: false }) : [],
     year,
     dunningDue: dunning.due(),
     dunningOutstanding: dunning.outstanding(),
@@ -199,6 +203,7 @@ router.post('/factures', (req, res) => {
   const departmentId = Number(req.body.department_id) || null;
   const status = (req.body.status || 'Émise').trim();
   const code = (req.body.currency || currency.base()).trim().toUpperCase();
+  const purchaseOrderId = Number(req.body.purchase_order_id) || null;
 
   if (!finance.INVOICE_DIRECTIONS.includes(direction)) return fail(req, res, 'factures', 'Sens de facture invalide.');
   if (!label) return fail(req, res, 'factures', "L'intitulé de la facture est obligatoire.");
@@ -217,9 +222,23 @@ router.post('/factures', (req, res) => {
     return fail(req, res, 'factures', `Aucun taux connu pour ${code} : renseignez-le dans l'onglet Devises avant de facturer.`);
   }
 
+  // Le rattachement au bon de commande est ce qui donne au rapprochement à
+  // trois de quoi comparer. Il ne vaut que pour un achat : le bon de commande
+  // est celui que nous avons passé, pas celui d'un client.
+  let order = null;
+  if (purchaseOrderId) {
+    order = purchasing.orderById(purchaseOrderId);
+    if (!order) return fail(req, res, 'factures', 'Bon de commande introuvable.');
+    if (direction !== 'Fournisseur') return fail(req, res, 'factures', "Un bon de commande ne se rattache qu'à une facture fournisseur.");
+    if (partnerId && partnerId !== order.partner_id) {
+      return fail(req, res, 'factures', "Ce bon de commande est passé chez un autre fournisseur.");
+    }
+  }
+
   finance.createInvoice({
     direction, partnerId, departmentId, label, issueDate, dueDate,
     amountHt: amountHt.value, vatRate, status, currency: code,
+    purchaseOrderId: order ? order.id : null,
     reference: (req.body.reference || '').trim().slice(0, 60),
     notes: (req.body.notes || '').trim().slice(0, 1000),
     createdBy: req.session.user.id,

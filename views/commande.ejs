@@ -188,7 +188,7 @@
             <p class="hint"><%= t('ach.linkInvoiceHint') %></p>
             <div class="table-wrap">
               <table>
-                <thead><tr><th><%= t('common.reference') %></th><th><%= t('common.date') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th></tr></thead>
+                <thead><tr><th><%= t('common.reference') %></th><th><%= t('common.date') %></th><th><%= t('erp.amount') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
                 <tbody>
                   <% invoiceList.forEach((invoice) => { %>
                     <tr>
@@ -196,12 +196,35 @@
                       <td class="cell-sub nowrap"><%= day(invoice.issue_date) %></td>
                       <td class="cell-sub nowrap"><%= money(invoice.amount_ht) %></td>
                       <td><span class="tag"><%= st(invoice.status) %></span></td>
+                      <td class="actions">
+                        <form method="POST" action="/stock/factures/<%= invoice.id %>/detacher" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-sm"><%= t('ach.detach') %></button>
+                        </form>
+                      </td>
                     </tr>
                   <% }) %>
-                  <% if (invoiceList.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('ach.noLinkedInvoice') %></td></tr><% } %>
+                  <% if (invoiceList.length === 0) { %><tr><td colspan="5" class="cell-sub"><%= t('ach.noLinkedInvoice') %></td></tr><% } %>
                 </tbody>
               </table>
             </div>
+
+            <% if (attachable.length) { %>
+              <form method="POST" action="/stock/commandes/<%= order.id %>/factures" class="inline-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <select name="invoice_id" class="input-sm" required>
+                  <option value=""><%= t('common.choose') %></option>
+                  <% attachable.forEach((invoice) => { %>
+                    <option value="<%= invoice.id %>">
+                      <%= invoice.reference || invoice.label %> — <%= money(invoice.amount_ht) %>
+                    </option>
+                  <% }) %>
+                </select>
+                <button type="submit" class="btn btn-primary btn-sm"><%= t('ach.attach') %></button>
+              </form>
+            <% } else { %>
+              <p class="hint"><%= t('ach.noAttachable') %></p>
+            <% } %>
           </div>
         </section>
 

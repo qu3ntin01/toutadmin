@@ -64,6 +64,7 @@ router.get('/commandes/:id', requireFinance, (req, res) => {
     receiptList: purchasing.receipts(order.id),
     invoiceList: purchasing.invoicesOf(order.id),
     reconciliation: purchasing.match(order),
+    attachable: purchasing.attachableInvoices(order),
     statuses: purchasing.ORDER_STATUSES,
     partners: finance.partners(),
     departments: org.departments(),
@@ -198,6 +199,43 @@ router.post('/lignes/:id/reception', requireFinance, (req, res) => {
   }
   audit.log(req, 'achats.reception', 'purchase_order_lines', line.id, { quantite: quantity });
   setFlash(req, 'success', 'Réception enregistrée.');
+  res.redirect(target);
+});
+
+/**
+ * Rattacher une facture fournisseur à sa commande : sans ce lien, le
+ * rapprochement à trois n'a rien à comparer.
+ */
+router.post('/commandes/:id/factures', requireFinance, (req, res) => {
+  const order = purchasing.orderById(req.params.id);
+  if (!order) return fail(req, res, 'commandes', 'Bon de commande introuvable.');
+
+  const target = `/stock/commandes/${order.id}`;
+  const result = purchasing.attachInvoice(order.id, Number(req.body.invoice_id));
+  if (!result.ok) {
+    const messages = {
+      introuvable: 'Facture introuvable.',
+      sens: "Un bon de commande ne se rattache qu'à une facture fournisseur.",
+      deja_rattachee: 'Cette facture est déjà rattachée à un autre bon de commande.',
+      tiers: 'Cette facture vient d\'un autre fournisseur que la commande.',
+    };
+    setFlash(req, 'error', messages[result.reason] || 'Rattachement impossible.');
+    return res.redirect(target);
+  }
+
+  audit.log(req, 'achats.facture_rattachee', 'invoices', Number(req.body.invoice_id), { commande: order.reference });
+  setFlash(req, 'success', 'Facture rattachée : le rapprochement la prend en compte.');
+  res.redirect(target);
+});
+
+router.post('/factures/:id/detacher', requireFinance, (req, res) => {
+  const invoice = db.prepare('SELECT * FROM invoices WHERE id = ?').get(Number(req.params.id));
+  if (!invoice || !invoice.purchase_order_id) return fail(req, res, 'commandes', 'Facture introuvable.');
+
+  const target = `/stock/commandes/${invoice.purchase_order_id}`;
+  purchasing.detachInvoice(invoice.id);
+  audit.log(req, 'achats.facture_detachee', 'invoices', invoice.id, {});
+  setFlash(req, 'success', 'Facture détachée.');
   res.redirect(target);
 });
 
