@@ -22,8 +22,24 @@ final class Audit
 
     public static function log(string $action, string $entity = '', ?int $entityId = null, mixed $detail = null): void
     {
+        self::write($action, $entity, $entityId, $detail, false);
+    }
+
+    /**
+     * Une entrée que le produit écrit pour lui-même, sans nommer personne.
+     * Le dispositif d'alerte s'en sert : le journal retient qu'un signalement
+     * est arrivé, jamais de qui — l'anonymat ne doit pas être rattrapé par la
+     * trace.
+     */
+    public static function logSystem(string $action, string $entity = '', ?int $entityId = null, mixed $detail = null): void
+    {
+        self::write($action, $entity, $entityId, $detail, true);
+    }
+
+    private static function write(string $action, string $entity, ?int $entityId, mixed $detail, bool $system): void
+    {
         try {
-            $user = Session::get('user');
+            $user = $system ? null : Session::get('user');
             $row = [
                 'occurred_at' => gmdate('Y-m-d H:i:s'),
                 'actor_id' => is_array($user) ? (int) $user['id'] : null,

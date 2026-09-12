@@ -105,10 +105,13 @@ final class MemberController
         // Déclarer un intérêt ou un cadeau est l'affaire de chacun : l'entrée est
         // ouverte à tous, et c'est la page qui ne montre à un membre que ses
         // propres déclarations, sans rien lui laisser voir des registres.
+        // Le canal d'alerte est ouvert à tous : le cacher reviendrait à le fermer.
+        $items[] = ['href' => '/alertes', 'label' => t('nav.whistleblow')];
         $items[] = ['href' => '/juridique', 'label' => t('nav.legal')];
         if ($user['role'] === 'admin') {
             array_unshift($items, ['href' => '/admin', 'label' => t('admin.title')]);
             $items[] = ['href' => '/direction', 'label' => t('nav.governance')];
+            $items[] = ['href' => '/pilotage', 'label' => t('nav.steering')];
             $items[] = ['href' => '/securite', 'label' => t('nav.security')];
             $items[] = ['href' => '/rgpd', 'label' => t('nav.privacy')];
             $items[] = ['href' => '/sauvegardes', 'label' => t('nav.backups')];

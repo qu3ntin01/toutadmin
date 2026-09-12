@@ -7,9 +7,12 @@ namespace App\Core;
 use App\Controllers\AdminController;
 use App\Controllers\AccountingController;
 use App\Controllers\AgendaController;
+use App\Controllers\AlertsController;
 use App\Controllers\EventsController;
 use App\Controllers\JourneysController;
 use App\Controllers\KnowledgeController;
+use App\Controllers\PartnersController;
+use App\Controllers\SteeringController;
 use App\Controllers\PiecesController;
 use App\Controllers\PlanningController;
 use App\Controllers\AuthController;
@@ -202,6 +205,38 @@ final class Kernel
         $router->post('/agenda', AgendaController::create(...));
         $router->post('/agenda/{id}/partage', AgendaController::share(...));
         $router->post('/agenda/{id}/supprimer', AgendaController::delete(...));
+        // Pilotage : tableau de bord, échéances, objectifs.
+        $router->get('/pilotage', SteeringController::index(...));
+        $router->post('/pilotage/objectifs', SteeringController::createObjective(...));
+        $router->post('/pilotage/objectifs/{id}/statut', SteeringController::setObjectiveStatus(...));
+        $router->post('/pilotage/objectifs/{id}/supprimer', SteeringController::deleteObjective(...));
+        $router->post('/pilotage/objectifs/{id}/resultats', SteeringController::addKeyResult(...));
+        $router->post('/pilotage/resultats/{id}', SteeringController::updateKeyResult(...));
+        $router->post('/pilotage/resultats/{id}/supprimer', SteeringController::deleteKeyResult(...));
+
+        // Dispositif d'alerte interne. Le suivi se fait sans compte : se
+        // connecter pour lire la réponse, ce serait signer son signalement.
+        $router->get('/alertes/suivi', AlertsController::followForm(...));
+        $router->post('/alertes/suivi', AlertsController::follow(...));
+        $router->post('/alertes/suivi/message', AlertsController::followMessage(...));
+        $router->get('/alertes', AlertsController::index(...));
+        $router->post('/alertes/signalements', AlertsController::file(...));
+        $router->get('/alertes/signalements/{id}', AlertsController::show(...));
+        $router->post('/alertes/signalements/{id}/accuser', AlertsController::acknowledge(...));
+        $router->post('/alertes/signalements/{id}/statut', AlertsController::setStatus(...));
+        $router->post('/alertes/signalements/{id}/suites', AlertsController::setOutcome(...));
+        $router->post('/alertes/signalements/{id}/message', AlertsController::reply(...));
+
+        // Fiche d'un tiers : interlocuteurs, conformité, évaluations.
+        $router->post('/partenaires/contacts/{id}/principal', PartnersController::setPrimaryContact(...));
+        $router->post('/partenaires/contacts/{id}/supprimer', PartnersController::removeContact(...));
+        $router->post('/partenaires/pieces/{id}/supprimer', PartnersController::removeDocument(...));
+        $router->post('/partenaires/evaluations/{id}/supprimer', PartnersController::removeReview(...));
+        $router->get('/partenaires/{id}', PartnersController::show(...));
+        $router->post('/partenaires/{id}/contacts', PartnersController::addContact(...));
+        $router->post('/partenaires/{id}/pieces', PartnersController::addDocument(...));
+        $router->post('/partenaires/{id}/evaluations', PartnersController::addReview(...));
+
         // Parcours d'arrivée et de départ, compétences et habilitations.
         $router->get('/parcours', JourneysController::index(...));
         $router->post('/parcours/modeles', JourneysController::createTemplate(...));
@@ -703,7 +738,10 @@ final class Kernel
     /** Les portes : qui peut atteindre quoi. */
     private function guard(Request $request, ?array $user): ?Response
     {
-        $public = ['/connexion', '/connexion/code', '/installation', '/langue', '/coffre-fort/acces'];
+        // Le suivi d'un signalement est la seule porte ouverte sans session :
+        // il est gardé par la référence, le code et un plafond de tentatives.
+        $public = ['/connexion', '/connexion/code', '/installation', '/langue', '/coffre-fort/acces',
+                   '/alertes/suivi', '/alertes/suivi/message'];
         if (in_array($request->path, $public, true)) {
             return null;
         }
@@ -888,6 +926,21 @@ final class Kernel
             if ($reserved && !FinanceController::canAccess($user)) {
                 return $refuse();
             }
+        }
+        // Le pilotage regarde toute l'entreprise : direction, gestion et RH.
+        if (str_starts_with($request->path, '/pilotage') && !SteeringController::canAccess($user)) {
+            return $refuse();
+        }
+        // Une alerte peut viser un administrateur : les signalements ne sont
+        // ouverts qu'aux référents désignés, et l'administration, qui les
+        // désigne, n'y lit rien.
+        if (str_starts_with($request->path, '/alertes/signalements/')
+            && !AlertsController::isReferent($user)) {
+            return $refuse();
+        }
+        // La fiche d'un tiers prolonge l'espace de gestion : même périmètre.
+        if (str_starts_with($request->path, '/partenaires') && !FinanceController::canAccess($user)) {
+            return $refuse();
         }
         // Les parcours d'arrivée et de départ tiennent des dossiers du personnel :
         // ils appartiennent aux ressources humaines, comme l'espace RH lui-même.

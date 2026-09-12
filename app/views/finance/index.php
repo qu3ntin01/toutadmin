@@ -62,7 +62,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <?php foreach ($partners as $partner): ?>
             <tr>
               <td>
-                <strong><?= e($partner['name']) ?></strong>
+                <strong><a href="/partenaires/<?= (int) $partner['id'] ?>"><?= e($partner['name']) ?></a></strong>
                 <?php if ((int) $partner['active'] !== 1): ?><span class="tag"><?= e(t('common.inactive')) ?></span><?php endif; ?>
                 <?php if (!empty($partner['registration'])): ?><br /><span class="cell-sub"><?= e($partner['registration']) ?></span><?php endif; ?>
               </td>
@@ -73,6 +73,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               </td>
               <td><?= (int) $partner['contract_count'] ?> · <?= (int) $partner['invoice_count'] ?></td>
               <td class="row-actions">
+                <a class="btn btn-outline btn-sm" href="/partenaires/<?= (int) $partner['id'] ?>"><?= e(t('ptn.openSheet')) ?></a>
                 <form method="POST" action="/gestion/tiers/<?= (int) $partner['id'] ?>/statut">
                   <?= $csrf ?>
                   <button type="submit" class="btn btn-sm">

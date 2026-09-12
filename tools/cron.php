@@ -23,6 +23,7 @@ require_once dirname(__DIR__) . '/app/bootstrap.php';
 
 use App\Core\Db;
 use App\Modules\Backup;
+use App\Modules\Deadlines;
 use App\Modules\Mailbox;
 use App\Modules\Users;
 
@@ -32,6 +33,13 @@ Db::migrate();
 $closed = Users::deactivateExpiredContracts();
 if ($closed > 0) {
     echo "$closed compte(s) fermé(s) : contrat arrivé à terme.\n";
+}
+
+// Les échéances de l'entreprise deviennent des notifications. Rejouable :
+// la clé de déduplication empêche qu'une même échéance alerte deux fois.
+$notified = Deadlines::notify();
+if ($notified > 0) {
+    echo "$notified notification(s) d'échéance posée(s).\n";
 }
 
 // Relève de la boîte aux lettres comptable : les factures reçues par courriel

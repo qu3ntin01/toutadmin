@@ -60,28 +60,29 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Événements | séminaires, formations et réunions générales avec leur portée (entreprise, service, équipe) ; au-delà de la capacité on n'est pas refusé mais mis en liste d'attente, un désistement fait monter le premier qui attend et le prévient, « Complet » est décidé par la capacité et non par l'organisateur, une absence constatée garde la place, une annulation prévient les inscrits |
 | Base de connaissances | articles par catégorie, portée appliquée à la lecture (entreprise, service, équipe, administration), brouillon invisible de ses lecteurs, compteur de lectures, recherche par mots-clés |
 | Parcours | modèles d'arrivée et de départ dont les points portent un responsable et un écart au jour pivot, parcours daté par personne, cocher le dernier point clôt la liste et en décocher un la rouvre, points en retard remontés ; compétences et habilitations dont l'échéance découle de la durée de validité, matrice, ce qui périme et ce qui manque à l'appel |
+| Fiche tiers | interlocuteurs dont un seul est principal, pièces de conformité dont l'état découle de la date (valable, bientôt périmée à 45 jours, périmée), évaluations notées de 1 à 5 dont c'est la dernière qui fait foi — une moyenne de l'historique lisserait la dégradation qu'on cherche à voir —, contrats et factures du tiers rassemblés |
+| Alertes internes | signalement anonyme qui n'enregistre pas son auteur (pas « masqué » : pas enregistré), contenu chiffré en base, référence annuelle et code de suivi montré une seule fois puis gardé haché, suivi ouvert sans compte — se connecter pour lire la réponse, ce serait signer son signalement —, référents seuls à lire (l'administration les désigne et n'y lit rien), délais légaux de 7 et 90 jours comptés, consultations tracées dans le dispositif et non au journal général |
+| Pilotage | tableau de bord qui agrège sans rien recalculer (ce qui manque rend une absence, pas un zéro), chiffre d'affaires ramené en devise de référence au taux figé, santé des projets, objectifs et résultats clés dont l'avancement se mesure sur l'échelle de chacun |
+| Échéances | toutes les sources de l'instance en une liste homogène — contrats, factures, habilitations, visites médicales, véhicules, actions, mandats, alertes… — et les notifications qui s'en déduisent, rejouables sans jamais alerter deux fois |
 | Pièces reçues | corbeille du comptable : dépôt d'une facture dont le type réel est contrôlé avant écriture, empreinte SHA-256 qui interdit le doublon et revérifiée avant de servir le fichier, lecture par règles (numéro, dates, montants, taux, SIRET et IBAN vérifiés par leur clé, rapprochement avec un tiers connu) dont la confiance se compose et tombe si HT + TVA ne fait pas TTC, analyse assistée par modèle optionnelle et éteinte par défaut, relève IMAP d'une boîte dédiée qui ne supprime jamais un message, mise en facture qui enregistre ce qui est validé à l'écran et non ce qui a été lu |
 | Photos de profil | envoi contrôlé sur le contenu et non sur le type annoncé, nom de fichier aléatoire, fichier servi par une route qui demande une session et ne sort pas de son dossier, retrait |
 | Planning | grille de la semaine par personne, créneau refusé s'il chevauche un autre poste ou une absence accordée, brouillon tant que la semaine n'est pas publiée, roulements appliqués sur trois mois au plus qui sautent les jours en conflit et le disent, poste de nuit terminé le lendemain, astreintes lues à la semaine et à l'instant, charge par personne ; un manager ne planifie que les siens, tout le monde consulte |
 
-455 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+477 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
-Neuf espaces de l'édition Node n'ont pas encore le leur ici. Chacun
+Six espaces de l'édition Node n'ont pas encore le leur ici. Chacun
 reprendra les règles de l'édition Node telles quelles : ce sont les mêmes
 décisions, pas de nouvelles. Par ordre d'utilité :
 
-1. **Partenaires** — fiches, contacts, conformité, évaluation
-2. **Alertes internes** — dispositif de recueil des signalements
-3. **Pilotage** — indicateurs d'entreprise et échéances
-4. **CRM** — module optionnel : contacts, opportunités, pipeline
-5. **Facturation électronique** — format réglementaire des factures
-6. **Import de données** — reprise depuis un tableur
-7. **Intégrations** — webhooks sortants et leurs livraisons
-8. **API v1** — jetons et points d'accès en lecture
-9. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
+1. **CRM** — module optionnel : contacts, opportunités, pipeline
+2. **Facturation électronique** — format réglementaire des factures
+3. **Import de données** — reprise depuis un tableur
+4. **Intégrations** — webhooks sortants et leurs livraisons
+5. **API v1** — jetons et points d'accès en lecture
+6. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
    la pose ; elle vient en dernier, une fois que toutes ses sources existent
 
 ## Un défaut du socle PHP, corrigé
