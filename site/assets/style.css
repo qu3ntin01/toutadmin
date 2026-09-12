@@ -552,3 +552,8 @@ td.c { text-align: center; }
 /* En lecture de droite à gauche, une flèche qui pointe vers la droite dit
    « reviens en arrière ». Elle se retourne comme le reste de la page. */
 [dir="rtl"] .btn .i { transform: scaleX(-1); }
+
+/* « une fois », « par salarié / mois » : une unité de prix coupée en deux
+   lignes se lit comme une autre offre. Elle reste d'un seul tenant. */
+.plan-per { white-space: nowrap; }
+.grid-table td.c strong { font-variant-numeric: tabular-nums; }

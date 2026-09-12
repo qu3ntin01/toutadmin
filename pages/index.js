@@ -1,4 +1,5 @@
 const { frame, band, head } = require('./_shared');
+const { plans, planCard } = require('./_plans');
 
 module.exports = function index(ctx) {
   const { t, esc, icon, media } = ctx;
@@ -50,24 +51,7 @@ module.exports = function index(ctx) {
             <p>${esc(t(`security.${n}.body`))}</p>
           </article>`).join('\n          ');
 
-  const plans = [1, 2, 3, 4].map((n) => {
-    const price = ['0', '50', '100', null][n - 1];
-    const featured = n === 2;
-    return `<article class="plan${featured ? ' is-featured' : ''} reveal">
-            ${featured ? `<span class="plan-badge">${esc(t('pricing.popular'))}</span>` : ''}
-            <div class="plan-name">${esc(t(`pricing.p${n}.name`))}</div>
-            <div class="plan-for">${esc(t(`pricing.p${n}.for`))}</div>
-            <div class="plan-price">
-              ${price === null
-                ? `<span class="plan-amount">${esc(t('pricing.custom'))}</span>`
-                : (price === '0'
-                  ? `<span class="plan-amount">${esc(t('pricing.free'))}</span>`
-                  : `<span class="plan-amount">${price} €</span><span class="plan-per">${esc(t('pricing.perMonth'))}</span>`)}
-            </div>
-            <p>${esc(t(`pricing.p${n}.body`))}</p>
-            <a class="btn ${featured ? '' : 'btn-ghost'}" href="${ctx.href(n === 4 ? 'contact' : 'tarifs')}">${esc(t(n === 4 ? 'pricing.ctaCustom' : 'pricing.cta'))}</a>
-          </article>`;
-  }).join('\n          ');
+  const planCards = plans(ctx).map((plan) => planCard(ctx, plan)).join('\n          ');
 
   const faq = [1, 2, 3, 4, 5, 6].map((n) => `<details class="reveal">
             <summary>${esc(t(`faq.q${n}`))}${icon('plus')}</summary>
@@ -172,8 +156,9 @@ module.exports = function index(ctx) {
     <section class="section tinted">
       <div class="wrap">
         ${head(ctx, t('nav.pricing'), t('pricing.title'), t('pricing.lede'))}
-        <div class="plans stagger">
-          ${plans}
+        <p class="center reveal"><span class="eyebrow">${icon('users')}${esc(t('pricing.perEmployee'))}</span></p>
+        <div class="plans stagger mt-l">
+          ${planCards}
         </div>
         <p class="center stat-n reveal mt-m">${esc(t('pricing.vat'))}</p>
       </div>
