@@ -4,7 +4,7 @@
 
        node build.js
 
-   Rend les six pages dans les seize langues : le français à la racine de
+   Rend les cinq pages dans les seize langues : le français à la racine de
    site/, les quinze autres dans leur sous-dossier. Aucune dépendance — le
    site doit pouvoir être reconstruit sur n'importe quelle machine où Node
    tourne, comme le produit lui-même.
@@ -33,7 +33,12 @@ let LOCALES = [
   { code: 'ko', flag: '🇰🇷', dir: 'ltr' }, { code: 'vi', flag: '🇻🇳', dir: 'ltr' },
 ];
 
-const PAGES = ['index', 'fonctionnalites', 'ecrans', 'securite', 'tarifs', 'contact'];
+const PAGES = ['index', 'fonctionnalites', 'securite', 'tarifs', 'contact'];
+
+// Les écrans ont rejoint la page Fonctionnalités : décrire une fonction et
+// montrer l'écran qui la porte, c'est la même chose. L'ancienne adresse reste
+// servie, en redirection — des liens et des index pointent encore dessus.
+const MERGED = { ecrans: 'fonctionnalites.html#ecrans' };
 
 // Le site de documentation vit ailleurs — autre branche, autre hébergement.
 // Son adresse est écrite ici et nulle part ailleurs : le jour où elle change,
@@ -128,7 +133,6 @@ const { DOMAINS } = require(path.join(ROOT, 'pages', '_shared.js'));
 function navHtml(t, ctx) {
   const links = [
     ['fonctionnalites', t('nav.features')],
-    ['ecrans', t('nav.screens')],
     ['securite', t('nav.security')],
     ['tarifs', t('nav.pricing')],
     ['contact', t('nav.contact')],
@@ -177,7 +181,13 @@ function navHtml(t, ctx) {
    derrière, et les quatorze domaines de la page Fonctionnalités sont listés —
    c'est le plan du site, pas un menu de repli pour petits écrans. */
 function drawerHtml(t, ctx) {
-  const item = ([page, label, note, ic]) => `<a class="drawer-item${ctx.page === page ? ' is-active' : ''}" href="${page.startsWith('http') ? page : ctx.href(page)}"${page.startsWith('http') ? ' rel="noopener"' : ''}>
+  // Une entrée vise une page, une ancre dans une page, ou un site voisin.
+  const target = (page) => {
+    if (page.startsWith('http')) return page;
+    const hash = page.indexOf('#');
+    return hash === -1 ? ctx.href(page) : ctx.href(page.slice(0, hash)) + page.slice(hash);
+  };
+  const item = ([page, label, note, ic]) => `<a class="drawer-item${ctx.page === page ? ' is-active' : ''}" href="${target(page)}"${page.startsWith('http') ? ' rel="noopener"' : ''}>
             <span class="ico">${icon(ic)}</span>
             <span><strong>${esc(t(label))}</strong><span class="drawer-note">${esc(t(note))}</span></span>
           </a>`;
@@ -192,7 +202,7 @@ function drawerHtml(t, ctx) {
     ['menu.group.product', [
       ['index', 'menu.home', 'menu.home.d', 'layers'],
       ['fonctionnalites', 'nav.features', 'menu.features.d', 'briefcase'],
-      ['ecrans', 'nav.screens', 'menu.screens.d', 'monitor'],
+      ['fonctionnalites#ecrans', 'nav.screens', 'menu.screens.d', 'monitor'],
     ], true],
     ['menu.group.decide', [
       ['securite', 'nav.security', 'menu.security.d', 'shield'],
@@ -238,7 +248,7 @@ function footHtml(t, ctx) {
           <h4>${esc(t('foot.product'))}</h4>
           <ul>
             <li><a href="${ctx.href('fonctionnalites')}">${esc(t('nav.features'))}</a></li>
-            <li><a href="${ctx.href('ecrans')}">${esc(t('nav.screens'))}</a></li>
+            <li><a href="${ctx.href('fonctionnalites')}#ecrans">${esc(t('nav.screens'))}</a></li>
             <li><a href="${ctx.href('securite')}">${esc(t('nav.security'))}</a></li>
           </ul>
         </div>
@@ -339,6 +349,24 @@ for (const locale of LOCALES) {
 
     fs.writeFileSync(path.join(dirOut, `${page}.html`), html);
     written += 1;
+  }
+}
+
+/* Les adresses disparues restent servies : une page qui a existé ne doit pas
+   devenir une erreur 404 parce qu'on a réorganisé le site. Redirection immédiate,
+   et un lien visible pour le visiteur dont le navigateur ne la suit pas. */
+for (const locale of LOCALES) {
+  const dirOut = locale.code === 'fr' ? OUT : path.join(OUT, locale.code);
+  const t = (key) => dictionaries[locale.code][key];
+  for (const [from, to] of Object.entries(MERGED)) {
+    fs.writeFileSync(path.join(dirOut, `${from}.html`),
+      `<!doctype html>\n<html lang="${locale.code}" dir="${locale.dir}">\n<head>\n`
+      + '<meta charset="utf-8" />\n'
+      + `<meta http-equiv="refresh" content="0; url=${to}" />\n`
+      + `<link rel="canonical" href="${to}" />\n`
+      + '<meta name="robots" content="noindex" />\n'
+      + `<title>${esc(t('nav.screens'))} — ${esc(t('site.name'))}</title>\n`
+      + `</head>\n<body>\n<p><a href="${to}">${esc(t('nav.features'))}</a></p>\n</body>\n</html>\n`);
   }
 }
 

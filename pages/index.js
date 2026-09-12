@@ -30,7 +30,7 @@ module.exports = function index(ctx) {
               <div class="pane-text">
                 <h3>${esc(t(`shot.${name}`))}</h3>
                 <p>${esc(t(`tour.${name}`))}</p>
-                <p><a class="link-arrow" href="${ctx.href('ecrans')}">${esc(t('tour.all'))}${icon('arrow')}</a></p>
+                <p><a class="link-arrow" href="${ctx.href('fonctionnalites')}#ecrans">${esc(t('tour.all'))}${icon('arrow')}</a></p>
               </div>
               ${frame(ctx, name, null, i !== 0)}
             </div>`).join('\n            ');
