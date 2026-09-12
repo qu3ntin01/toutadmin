@@ -277,6 +277,24 @@ for (const dir of ['assets', 'medias']) {
 }
 
 fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nAllow: /\n');
+
+/* Un relevé du barème, en texte brut, à la racine du site.
+   Le site se déploie par « git pull » : quand une page semble périmée, la
+   question est toujours la même — le serveur a-t-il tiré la dernière version ?
+   Ce fichier y répond sans ouvrir une page ni vider un cache. Il ne porte pas
+   de date : il ne change que lorsque les prix changent, ce qui est exactement
+   ce qu'on cherche à vérifier. */
+const plans = require(path.join(ROOT, 'pages', '_plans.js'));
+const barème = [
+  `gratuit sous ${plans.FREE_UNDER} salariés`,
+  ...plans.SAMPLES.map((n) => `${n} salariés : ${plans.rateFor(n)} €/salarié → ${plans.monthlyFor(n)} €/mois`),
+  `licence à vie : ${plans.LIFETIME} € une fois`,
+].join('\n  ');
+fs.writeFileSync(path.join(OUT, 'version.txt'),
+  `Toutadmin — vitrine\n\nBarème\n  ${barème}\n\n`
+  + `Pages     : ${written} (${PAGES.length} × ${LOCALES.length} langues)\n`
+  + `Clés      : ${refKeys.length} par langue\n`
+  + `Captures  : ${fs.readdirSync(path.join(ROOT, 'medias')).length} fichiers\n`);
 const urls = [];
 for (const locale of LOCALES) {
   for (const page of PAGES) {

@@ -91,6 +91,12 @@ cd /var/www/toutadmin && git pull
 Rien à construire, rien à installer, aucun temps d'indisponibilité : les
 fichiers servis sont ceux du dépôt.
 
+**Pour savoir ce que le serveur sert vraiment**, sans ouvrir une page ni vider
+un cache : `https://votre-domaine/version.txt`. Le fichier relève le barème
+affiché et les décomptes. Il ne porte pas de date — il ne change que lorsque
+les prix changent, ce qui est précisément ce qu'on cherche à vérifier quand
+une page a l'air périmée.
+
 ### Autres hébergements
 
 ```bash

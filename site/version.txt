@@ -1,0 +1,16 @@
+Toutadmin — vitrine
+
+Barème
+  gratuit sous 5 salariés
+  5 salariés : 5 €/salarié → 25 €/mois
+  10 salariés : 5 €/salarié → 50 €/mois
+  50 salariés : 5 €/salarié → 250 €/mois
+  100 salariés : 5 €/salarié → 500 €/mois
+  250 salariés : 4 €/salarié → 1000 €/mois
+  500 salariés : 4 €/salarié → 2000 €/mois
+  1000 salariés : 3 €/salarié → 3000 €/mois
+  licence à vie : 10000 € une fois
+
+Pages     : 96 (6 × 16 langues)
+Clés      : 286 par langue
+Captures  : 134 fichiers
