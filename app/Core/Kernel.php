@@ -320,6 +320,9 @@ final class Kernel
         $router->post('/sauvegardes/export', BackupController::export(...));
         $router->post('/sauvegardes/reglages', BackupController::setSettings(...));
         $router->post('/sauvegardes/televerser', BackupController::restoreUpload(...));
+        $router->post('/sauvegardes/destinations/{key}', BackupController::setDestination(...));
+        $router->post('/sauvegardes/destinations/{key}/tester', BackupController::testDestination(...));
+        $router->post('/sauvegardes/{fichier}/externaliser', BackupController::sendOffsite(...));
         $router->get('/sauvegardes/{fichier}/telecharger', BackupController::download(...));
         $router->get('/sauvegardes/{fichier}/verifier', BackupController::verify(...));
         $router->post('/sauvegardes/{fichier}/supprimer', BackupController::remove(...));

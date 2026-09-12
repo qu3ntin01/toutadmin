@@ -43,3 +43,8 @@ echo 'Sauvegarde ' . $created['fileName'] . ' créée (' . $created['files'] . "
 if ($created['removed'] !== []) {
     echo count($created['removed']) . " archive(s) au-delà du nombre conservé supprimée(s).\n";
 }
+foreach ($created['offsite'] as $sent) {
+    echo $sent['ok']
+        ? 'Externalisée vers ' . $sent['key'] . ".\n"
+        : 'Externalisation vers ' . $sent['key'] . ' en échec : ' . $sent['message'] . "\n";
+}

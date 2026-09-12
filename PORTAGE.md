@@ -40,12 +40,13 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Parapheur | document figé dès la mise à la signature, circuit ordonné, mot de passe et consentement redemandés, sceau HMAC par signature, refus motivé qui interrompt le circuit, attestation imprimable |
 | Sécurité | console d'administration : journal paginé et filtrable avec export CSV, vérification du scellement qui dit où la chaîne casse, purge bornée, comptes à surveiller (verrouillés, mots de passe temporaires, administrateurs sans double authentification, comptes dormants), sessions ouvertes, nomination et rétrogradation des administrateurs, politique |
 | Données personnelles | registre des traitements (six préremplis), export JSON de ce que vingt-cinq sources détiennent sur une personne, effacement qui distingue l'effaçable de ce que la loi impose de garder, compte anonymisé plutôt que supprimé |
+| Externalisation | dépôt FTP/FTPS et Google Drive après chaque sauvegarde, secrets chiffrés en base (AES-256-GCM, clé dérivée du secret de l'instance), alerte des administrateurs quand une destination refuse, purge distante alignée sur le nombre d'archives conservées |
 | Sauvegardes | archive tar.gz écrite à la main (base copiée par VACUUM INTO, coffre-fort, parapheur), empreinte par fichier vérifiée à la restauration, restauration table par table en une transaction précédée d'une sauvegarde de sécurité, purge par nombre d'archives, export intégral en JSON pour partir |
 | Comptabilité | module optionnel : plan comptable et journaux posés à l'activation, écritures refusées si elles ne s'équilibrent pas, facture passée en écriture d'un clic au taux figé, balance, grand livre, résultat, export CSV |
 | Paie | module optionnel : barèmes paramétrables (base brut ou plafond), calcul du brut au net, part patronale et coût employeur, bulletin détaillé, génération en lot, masse salariale du mois |
 | Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
 
-277 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+288 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -71,14 +72,6 @@ Les deux éditions le portent désormais, avec les mêmes règles : le champ
 détachement depuis la fiche de commande, et trois refus — une facture
 client n'a pas de bon de commande, une facture d'un autre fournisseur ne
 se rattache pas, une facture déjà rattachée ailleurs non plus.
-
-## Reste du lot sécurité
-
-L'**externalisation des sauvegardes** (dépôt FTP et Google Drive après chaque
-archive) n'est pas encore portée : elle demande ses propres clients réseau et
-le chiffrement des identifiants en base. L'archive se télécharge en attendant,
-ce qui est la seule protection qui compte — une sauvegarde qui reste sur le
-serveur qu'elle protège ne protège de rien.
 
 ## Ce qui ne sera pas porté à l'identique
 

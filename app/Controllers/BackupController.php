@@ -12,6 +12,7 @@ use App\Core\Session;
 use App\Core\View;
 use App\Modules\Backup;
 use App\Modules\Exporter;
+use App\Modules\Offsite;
 
 /**
  * Sauvegardes, restauration et export intégral.
@@ -47,6 +48,8 @@ final class BackupController
             'navItems' => [
                 ['tab' => 'archives', 'label' => t('bak.archives')],
                 ['tab' => 'restauration', 'label' => t('bak.restore')],
+                ['tab' => 'externalisation', 'label' => t('bak.offsite'),
+                 'badge' => count(Offsite::failing()) ?: null],
                 ['tab' => 'export', 'label' => t('bak.fullExport')],
                 ['tab' => 'reglages', 'label' => t('bak.automatic')],
             ],
@@ -59,6 +62,7 @@ final class BackupController
             'summary' => Backup::summary(),
             'directory' => Backup::directory(),
             'maxUploadBytes' => Backup::MAX_UPLOAD_BYTES,
+            'destinations' => Offsite::list(),
             'exportPreview' => Exporter::preview(),
             'restoreReport' => $restoreReport,
         ]));
@@ -72,8 +76,26 @@ final class BackupController
             Audit::log('sauvegarde.creee', 'backups', null, [
                 'fichier' => $created['fileName'], 'octets' => $created['bytes'], 'purgees' => count($removed),
             ]);
-            return self::back('archives', 'success',
-                'Sauvegarde ' . $created['fileName'] . ' créée (' . $created['files'] . ' fichier(s)).');
+
+            // Externalisation dans la foulée, s'il y a des destinations actives.
+            $suffix = '';
+            $anyFailure = false;
+            if (Offsite::enabled() !== []) {
+                $sent = Offsite::afterBackup(
+                    $created['fileName'],
+                    (string) file_get_contents((string) Backup::pathOf($created['fileName'])),
+                    Backup::config()['keep']
+                );
+                $failures = array_values(array_filter($sent, static fn (array $r): bool => !$r['ok']));
+                $anyFailure = $failures !== [];
+                $suffix = $anyFailure
+                    ? ' Externalisation en échec vers ' . implode(', ', array_column($failures, 'key')) . '.'
+                    : ' Déposée sur ' . count($sent) . ' destination(s) extérieure(s).';
+            }
+            // La sauvegarde locale a réussi, mais un échec d'externalisation
+            // doit se voir : c'est elle qui protège du serveur lui-même.
+            return self::back('archives', $anyFailure ? 'error' : 'success',
+                'Sauvegarde ' . $created['fileName'] . ' créée (' . $created['files'] . ' fichier(s)).' . $suffix);
         } catch (\Throwable $error) {
             Audit::log('sauvegarde.echec', 'backups', null, ['erreur' => $error->getMessage()]);
             return self::back('archives', 'error', 'La sauvegarde a échoué : ' . $error->getMessage());
@@ -189,6 +211,72 @@ final class BackupController
             return self::back('restauration', 'error', 'Saisissez « RESTAURER » pour confirmer.');
         }
         return self::applyRestore($file['bytes'], $file['name'] ?: 'archive téléversée');
+    }
+
+    // ---------- Externalisation ----------
+
+    public static function setDestination(Request $request, array $params): Response
+    {
+        $destination = Offsite::byKey((string) $params['key']);
+        if ($destination === null) {
+            return self::back('externalisation', 'error', 'Destination inconnue.');
+        }
+
+        $verdict = Offsite::setConfig($destination['key'], $request->body);
+        if (!$verdict['ok']) {
+            return self::back('externalisation', 'error', $verdict['message']);
+        }
+
+        // Activer une destination mal renseignée donnerait une fausse assurance.
+        $wanted = $request->input('enabled') === '1';
+        if ($wanted && !Offsite::isConfigured($destination['key'])) {
+            Offsite::setEnabled($destination['key'], false);
+            return self::back('externalisation', 'error',
+                $destination['label'] . " : renseignez les champs obligatoires avant de l'activer.");
+        }
+        Offsite::setEnabled($destination['key'], $wanted);
+
+        Audit::log('externalisation.configuree', 'settings', null,
+            ['destination' => $destination['key'], 'active' => $wanted]);
+        return self::back('externalisation', 'success',
+            $destination['label'] . ' enregistrée' . ($wanted ? ' et activée' : '') . '.');
+    }
+
+    public static function testDestination(Request $request, array $params): Response
+    {
+        $destination = Offsite::byKey((string) $params['key']);
+        if ($destination === null) {
+            return self::back('externalisation', 'error', 'Destination inconnue.');
+        }
+        $verdict = Offsite::test($destination['key']);
+        Audit::log('externalisation.testee', 'settings', null,
+            ['destination' => $destination['key'], 'ok' => $verdict['ok']]);
+        return self::back('externalisation', $verdict['ok'] ? 'success' : 'error',
+            $destination['label'] . ' : ' . $verdict['message']);
+    }
+
+    /** Renvoi manuel d'une archive : après une panne réseau, ou pour une reprise. */
+    public static function sendOffsite(Request $request, array $params): Response
+    {
+        $name = (string) $params['fichier'];
+        $target = Backup::pathOf($name);
+        if ($target === null) {
+            return self::back('externalisation', 'error', 'Sauvegarde introuvable.');
+        }
+        if (Offsite::enabled() === []) {
+            return self::back('externalisation', 'error', "Aucune destination extérieure n'est active.");
+        }
+
+        $sent = Offsite::afterBackup($name, (string) file_get_contents($target), Backup::config()['keep']);
+        $failures = array_values(array_filter($sent, static fn (array $r): bool => !$r['ok']));
+        if ($failures !== []) {
+            $detail = implode(', ', array_map(
+                static fn (array $r): string => $r['key'] . ' (' . $r['message'] . ')',
+                $failures
+            ));
+            return self::back('externalisation', 'error', "Échec vers $detail.");
+        }
+        return self::back('externalisation', 'success', "$name déposé sur " . count($sent) . ' destination(s).');
     }
 
     // ---------- Export intégral ----------

@@ -431,7 +431,19 @@ final class Backup
             return null;
         }
         $created = self::create('automatique');
-        return $created + ['removed' => self::prune()];
+        $removed = self::prune();
+
+        // Une sauvegarde qui reste sur le serveur qu'elle protège ne protège de
+        // rien : elle part aux destinations actives dans la foulée.
+        $sent = Offsite::enabled() === []
+            ? []
+            : Offsite::afterBackup(
+                $created['fileName'],
+                (string) file_get_contents((string) self::pathOf($created['fileName'])),
+                self::config()['keep']
+            );
+
+        return $created + ['removed' => $removed, 'offsite' => $sent];
     }
 
     public static function summary(): array

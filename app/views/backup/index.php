@@ -137,6 +137,98 @@ $mo = static fn (int $bytes): string => number_format($bytes / 1048576, 1, ',', 
   </div>
 </section>
 
+<!-- --------------------------------------------------- Externalisation -->
+<section class="tab-panel" id="externalisation">
+  <div class="card">
+    <h2><?= e(t('bak.whyOffsite')) ?></h2>
+    <p class="muted"><?= e(t('bak.whyOffsiteHelp')) ?></p>
+    <p class="muted"><?= e(t('bak.destinationNotice')) ?></p>
+  </div>
+
+  <?php foreach ($destinations as $destination): ?>
+    <div class="card mt-l">
+      <h2>
+        <?= e($destination['label']) ?>
+        <span class="status <?= $destination['enabled'] ? 'status-on' : 'status-off' ?>">
+          <?= e($destination['enabled'] ? t('common.active') : t('common.inactive')) ?>
+        </span>
+      </h2>
+      <p class="muted"><?= e($destination['hint']) ?></p>
+
+      <?php if ($destination['status'] !== null): ?>
+        <p class="status <?= $destination['status']['ok'] ? 'status-on' : 'status-off' ?>">
+          <?= e(t('bak.lastAttempt')) ?> <?= e(substr((string) $destination['status']['at'], 0, 19)) ?>
+          — <?= e((string) $destination['status']['message']) ?>
+        </p>
+      <?php endif; ?>
+
+      <form method="POST" action="/sauvegardes/destinations/<?= e($destination['key']) ?>" class="form-grid">
+        <?= $csrf ?>
+        <?php foreach ($destination['fields'] as $field): ?>
+          <?php $value = (string) ($destination['values'][$field['name']] ?? ''); ?>
+          <?php $type = $field['type'] ?? 'text'; ?>
+          <label class="<?= in_array($type, ['textarea', 'checkbox'], true) ? 'span-2' : '' ?>">
+            <span><?= e($field['label']) ?></span>
+            <?php if ($type === 'select'): ?>
+              <select name="<?= e($field['name']) ?>">
+                <?php foreach ($field['options'] as $option): ?>
+                  <option value="<?= e($option['value']) ?>"<?= $value === $option['value'] ? ' selected' : '' ?>>
+                    <?= e($option['label']) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            <?php elseif ($type === 'textarea'): ?>
+              <textarea name="<?= e($field['name']) ?>" rows="3" placeholder="<?= e($value) ?>"></textarea>
+            <?php elseif ($type === 'checkbox'): ?>
+              <input type="checkbox" name="<?= e($field['name']) ?>" value="1" <?= $value !== '' && $value !== '0' ? 'checked' : '' ?> />
+            <?php elseif (!empty($field['secret'])): ?>
+              <input type="password" name="<?= e($field['name']) ?>" placeholder="<?= e($value) ?>" autocomplete="new-password" />
+            <?php else: ?>
+              <input type="<?= e($type) ?>" name="<?= e($field['name']) ?>" value="<?= e($value) ?>"
+                     placeholder="<?= e((string) ($field['placeholder'] ?? '')) ?>" />
+            <?php endif; ?>
+          </label>
+        <?php endforeach; ?>
+
+        <label class="span-2">
+          <input type="checkbox" name="enabled" value="1" <?= $destination['enabled'] ? 'checked' : '' ?> />
+          <span><?= e(t('bak.sendHere')) ?></span>
+        </label>
+        <button type="submit" class="btn btn-primary"><?= e(t('common.save')) ?></button>
+      </form>
+      <p class="muted"><?= e(t('bak.secretsHelp')) ?></p>
+
+      <form method="POST" action="/sauvegardes/destinations/<?= e($destination['key']) ?>/tester">
+        <?= $csrf ?>
+        <button type="submit" class="btn btn-sm" <?= $destination['configured'] ? '' : 'disabled' ?>>
+          <?= e(t('bak.testConnection')) ?>
+        </button>
+      </form>
+    </div>
+  <?php endforeach; ?>
+
+  <?php if ($archives !== []): ?>
+    <div class="card mt-l">
+      <h2><?= e(t('bak.sendOffsite')) ?></h2>
+      <table class="table">
+        <tbody>
+          <?php foreach ($archives as $archive): ?>
+            <tr>
+              <td><?= e($archive['fileName']) ?></td>
+              <td>
+                <form method="POST" action="/sauvegardes/<?= e(rawurlencode($archive['fileName'])) ?>/externaliser">
+                  <?= $csrf ?>
+                  <button type="submit" class="btn btn-sm"><?= e(t('bak.sendOffsite')) ?></button>
+                </form>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+  <?php endif; ?>
+</section>
+
 <!-- ----------------------------------------------------------- Export -->
 <section class="tab-panel" id="export">
   <div class="card">
