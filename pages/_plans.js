@@ -1,21 +1,22 @@
-/* Les quatre formules, et la grille par effectif.
+/* Les formules, et la grille par effectif.
    Un seul endroit : la page Tarifs et l'aperçu de l'accueil doivent annoncer
    le même prix, et deux listes séparées finissent toujours par diverger. */
 
-// Effectif → prix mensuel. Le prix par salarié s'en déduit plutôt que d'être
-// saisi : deux chiffres qui ne concordent pas sur une page de tarifs, et c'est
-// la confiance qui part.
-const GRID = [
-  { headcount: 5, monthly: 25 },
-  { headcount: 10, monthly: 50 },
-  { headcount: 50, monthly: 250 },
-  { headcount: 100, monthly: 500 },
-  { headcount: 250, monthly: 1000 },
-  { headcount: null, monthly: 1500 },
-];
-
+// Le tarif par salarié, par tranche d'effectif. Tout le reste — le montant
+// mensuel, la colonne « par salarié », les exemples — se calcule à partir
+// d'ici : deux chiffres qui ne concordent pas sur une page de tarifs, et
+// c'est la confiance qui part.
 const FREE_UNDER = 5;
+const BRACKETS = [
+  { upTo: 249, rate: 5 },
+  { upTo: 500, rate: 4 },
+  { upTo: Infinity, rate: 3 },
+];
+const SAMPLES = [5, 10, 50, 100, 250, 500, 1000];
 const LIFETIME = 10000;
+
+const rateFor = (headcount) => BRACKETS.find((b) => headcount <= b.upTo).rate;
+const monthlyFor = (headcount) => headcount * rateFor(headcount);
 
 const euro = (locale, amount) => new Intl.NumberFormat(locale === 'ar' ? 'fr' : locale, {
   style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
@@ -25,8 +26,7 @@ function plans(ctx) {
   const { t, esc } = ctx;
   return [
     { n: 1, amount: t('pricing.free'), per: '', featured: false },
-    { n: 2, amount: euro(ctx.locale.code, 5), per: t('pricing.perEmployeeShort'), featured: true },
-    { n: 3, amount: euro(ctx.locale.code, 1500), per: t('pricing.perMonth'), featured: false },
+    { n: 2, amount: euro(ctx.locale.code, BRACKETS[0].rate), per: t('pricing.perEmployeeShort'), featured: true },
     { n: 4, amount: euro(ctx.locale.code, LIFETIME), per: t('pricing.once'), featured: false },
   ].map((plan) => ({
     ...plan,
@@ -57,21 +57,15 @@ function gridRows(ctx) {
   const code = ctx.locale.code;
   const free = `<tr>
                 <th scope="row">${esc(t('pricing.under', { count: FREE_UNDER }))}</th>
-                <td class="c mark-yes">${esc(t('pricing.free'))}</td>
                 <td class="c mark-no">—</td>
+                <td class="c mark-yes">${esc(t('pricing.free'))}</td>
               </tr>`;
-  const rows = GRID.map((row) => {
-    const label = row.headcount === null
-      ? t('pricing.unlimited')
-      : t('pricing.upTo', { count: row.headcount });
-    const perHead = row.headcount === null ? '—' : euro(code, row.monthly / row.headcount);
-    return `<tr>
-                <th scope="row">${esc(label)}</th>
-                <td class="c"><strong>${esc(euro(code, row.monthly))}</strong> ${esc(t('pricing.perMonth'))}</td>
-                <td class="c ${row.headcount === null ? 'mark-no' : 'mark-opt'}">${esc(perHead)}</td>
-              </tr>`;
-  }).join('\n              ');
+  const rows = SAMPLES.map((headcount) => `<tr>
+                <th scope="row">${esc(t('pricing.someEmployees', { count: headcount.toLocaleString(code) }))}</th>
+                <td class="c mark-opt">${esc(euro(code, rateFor(headcount)))}</td>
+                <td class="c"><strong>${esc(euro(code, monthlyFor(headcount)))}</strong> ${esc(t('pricing.perMonth'))}</td>
+              </tr>`).join('\n              ');
   return free + '\n              ' + rows;
 }
 
-module.exports = { GRID, FREE_UNDER, LIFETIME, euro, plans, planCard, gridRows };
+module.exports = { FREE_UNDER, BRACKETS, SAMPLES, LIFETIME, rateFor, monthlyFor, euro, plans, planCard, gridRows };
