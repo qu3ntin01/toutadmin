@@ -58,6 +58,18 @@ Pour refaire les captures : peupler une instance, puis piloter un navigateur —
 la procédure tient en un script, et les fichiers se déposent dans `medias/` sous
 le nom `<écran>.png`, `<écran>-<langue>.png` ou `<écran>-sombre.png`.
 
+## L'adresse du site de documentation
+
+Le lien « Documentation » de la barre, du tiroir et du pied de page pointe vers
+un site séparé. Son adresse est écrite **une seule fois**, en tête de
+`build.js` :
+
+```js
+const DOC_URL = 'https://docs.toutadmin.com/';
+```
+
+Changez cette ligne, reconstruisez, et les quatre-vingt-seize pages suivent.
+
 ## Modifier le contenu
 
 Le texte vit dans `content/fr.js` et ses quinze traductions ; les pages n'en

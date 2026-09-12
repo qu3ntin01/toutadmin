@@ -34,6 +34,11 @@ let LOCALES = [
 
 const PAGES = ['index', 'fonctionnalites', 'ecrans', 'securite', 'tarifs', 'contact'];
 
+// Le site de documentation vit ailleurs — autre branche, autre hébergement.
+// Son adresse est écrite ici et nulle part ailleurs : le jour où elle change,
+// c'est cette ligne qu'on modifie, pas seize fichiers de traduction.
+const DOC_URL = 'https://docs.toutadmin.com/';
+
 /* --------------------------------------------------------------- outillage */
 
 const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -106,6 +111,7 @@ const MEDIA_FILES = new Set(fs.readdirSync(path.join(ROOT, 'medias')));
 /* ------------------------------------------------------------- gabarit */
 
 const layout = fs.readFileSync(path.join(ROOT, 'layout.html'), 'utf8');
+const { DOMAINS } = require(path.join(ROOT, 'pages', '_shared.js'));
 
 function navHtml(t, ctx) {
   const links = [
@@ -115,7 +121,8 @@ function navHtml(t, ctx) {
     ['tarifs', t('nav.pricing')],
     ['contact', t('nav.contact')],
   ].map(([page, label]) =>
-    `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ');
+    `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ')
+    + `\n        <a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a>`;
 
   const langs = LOCALES.map((l) => {
     const active = l.code === ctx.locale.code;
@@ -153,6 +160,51 @@ function navHtml(t, ctx) {
   </header>`;
 }
 
+/* Le bouton à trois traits ouvre ce tiroir, à toutes les largeurs. Il ne se
+   contente pas de répéter la barre : chaque entrée dit ce qu'on trouve
+   derrière, et les quatorze domaines de la page Fonctionnalités sont listés —
+   c'est le plan du site, pas un menu de repli pour petits écrans. */
+function drawerHtml(t, ctx) {
+  const entries = [
+    ['index', 'menu.home', 'menu.home.d', 'layers'],
+    ['fonctionnalites', 'nav.features', 'menu.features.d', 'briefcase'],
+    ['ecrans', 'nav.screens', 'menu.screens.d', 'monitor'],
+    ['securite', 'nav.security', 'menu.security.d', 'shield'],
+    ['tarifs', 'nav.pricing', 'menu.pricing.d', 'chart'],
+    ['contact', 'nav.contact', 'menu.contact.d', 'users'],
+  ].map(([page, label, note, ic]) => `<a class="drawer-item${ctx.page === page ? ' is-active' : ''}" href="${ctx.href(page)}">
+            <span class="ico">${icon(ic)}</span>
+            <span><strong>${esc(t(label))}</strong><span class="drawer-note">${esc(t(note))}</span></span>
+          </a>`).join('\n          ');
+
+  const doc = `<a class="drawer-item" href="${DOC_URL}" rel="noopener">
+            <span class="ico">${icon('code')}</span>
+            <span><strong>${esc(t('nav.docs'))}</strong><span class="drawer-note">${esc(t('menu.docs.d'))}</span></span>
+          </a>`;
+
+  const domains = DOMAINS.map((key) =>
+    `<a href="${ctx.href('fonctionnalites')}#${key}">${esc(t(`dom.${key}.title`))}</a>`).join('\n            ');
+
+  return `  <div class="drawer-backdrop" hidden></div>
+  <aside class="drawer" id="plan-du-site" aria-label="${esc(t('menu.title'))}" hidden>
+    <div class="drawer-head">
+      <span class="brand"><span class="brand-mark">TA</span>${esc(t('menu.title'))}</span>
+      <button class="picker-btn drawer-close" type="button" aria-label="${esc(t('menu.close'))}">${icon('close')}</button>
+    </div>
+    <div class="drawer-body">
+      <nav class="drawer-list" aria-label="${esc(t('menu.title'))}">
+          ${entries}
+          ${doc}
+      </nav>
+      <h4>${esc(t('menu.domains'))}</h4>
+      <div class="drawer-chips">
+            ${domains}
+      </div>
+      <a class="btn drawer-cta" href="${ctx.href('contact')}">${esc(t('nav.demo'))}${icon('arrow')}</a>
+    </div>
+  </aside>`;
+}
+
 function footHtml(t, ctx) {
   const langs = LOCALES.map((l) =>
     `<a lang="${l.code}" hreflang="${l.code}" href="${ctx.hrefIn(l.code, ctx.page)}"><span class="flag">${l.flag}</span> ${esc(dictionaries[l.code]['locale.name'])}</a>`).join('\n          ');
@@ -176,6 +228,7 @@ function footHtml(t, ctx) {
           <h4>${esc(t('foot.resources'))}</h4>
           <ul>
             <li><a href="${ctx.href('tarifs')}">${esc(t('nav.pricing'))}</a></li>
+            <li><a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a></li>
             <li><a href="${ctx.href('contact')}">${esc(t('nav.contact'))}</a></li>
           </ul>
         </div>
@@ -258,7 +311,7 @@ for (const locale of LOCALES) {
       .split('{{DESCRIPTION}}').join(esc(view.description))
       .split('{{BASE}}').join(base)
       .split('{{ALTERNATES}}').join(alternates)
-      .split('{{NAV}}').join(navHtml(t, ctx))
+      .split('{{NAV}}').join(navHtml(t, ctx) + '\n' + drawerHtml(t, ctx))
       .split('{{CONTENT}}').join(view.body)
       .split('{{FOOT}}').join(footHtml(t, ctx))
       .split('{{SKIP}}').join(esc(t('nav.product')));

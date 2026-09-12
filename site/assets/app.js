@@ -37,8 +37,53 @@
     var onScroll = function () { nav.classList.toggle('is-stuck', window.scrollY > 8); };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    var toggle = nav.querySelector('.nav-toggle');
-    if (toggle) toggle.addEventListener('click', function () { nav.classList.toggle('is-open'); });
+  }
+
+  /* ------------------------------------------------- plan du site (tiroir) */
+  var drawer = document.querySelector('.drawer');
+  var backdrop = document.querySelector('.drawer-backdrop');
+  var opener = document.querySelector('.nav-toggle');
+
+  function openDrawer() {
+    if (!drawer) return;
+    drawer.hidden = false;
+    backdrop.hidden = false;
+    // Le navigateur doit avoir peint l'élément avant qu'on l'anime, sinon il
+    // apparaît d'un coup au lieu de glisser.
+    requestAnimationFrame(function () {
+      drawer.classList.add('is-open');
+      backdrop.classList.add('is-open');
+    });
+    opener.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+    drawer.querySelector('.drawer-close').focus();
+  }
+
+  function closeDrawer() {
+    if (!drawer || !drawer.classList.contains('is-open')) return;
+    drawer.classList.remove('is-open');
+    backdrop.classList.remove('is-open');
+    opener.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+    opener.focus();
+    // Retiré du parcours de tabulation une fois l'animation finie : un panneau
+    // invisible mais focusable piège le clavier.
+    window.setTimeout(function () {
+      if (!drawer.classList.contains('is-open')) { drawer.hidden = true; backdrop.hidden = true; }
+    }, 360);
+  }
+
+  if (drawer && opener) {
+    opener.setAttribute('aria-expanded', 'false');
+    opener.setAttribute('aria-controls', 'plan-du-site');
+    opener.addEventListener('click', function () {
+      if (drawer.classList.contains('is-open')) closeDrawer(); else openDrawer();
+    });
+    backdrop.addEventListener('click', closeDrawer);
+    drawer.addEventListener('click', function (e) {
+      if (e.target.closest('.drawer-close') || e.target.closest('a')) closeDrawer();
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDrawer(); });
   }
 
   document.addEventListener('click', function (e) {
