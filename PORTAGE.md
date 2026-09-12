@@ -40,7 +40,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Paie | module optionnel : barèmes paramétrables (base brut ou plafond), calcul du brut au net, part patronale et coût employeur, bulletin détaillé, génération en lot, masse salariale du mois |
 | Gestion (suite) | abonnements qui émettent leurs factures à échéance sans jamais facturer deux fois la même, déclarations de TVA par période avec ventilation par taux et crédit reportable, recouvrement par paliers (rappel, relance, mise en demeure) et balance âgée, parc matériel avec affectations et historique |
 
-230 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+232 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -56,16 +56,18 @@ Node telles quelles : ce sont les mêmes décisions, pas de nouvelles.
 6. **Recrutement** — postes, candidatures, entretiens
 7. **Planning** — roulements, astreintes, présence
 
-## Un manque relevé dans l'édition Node
+## Un manque de l'édition Node, comblé des deux côtés
 
 Le rapprochement à trois compare le commandé, le reçu et le facturé. Le
-rattachement d'une facture fournisseur à son bon de commande existe en
-base (`invoices.purchase_order_id`) et l'écran l'annonce, mais **aucune
-route de l'édition Node ne le renseigne** : le rapprochement ne peut donc
-se déclencher que sur une donnée posée à la main. Le portage PHP reprend
-ce comportement à l'identique plutôt que d'inventer une règle. Ajouter le
-champ au formulaire de facture — dans les deux éditions — est une décision
-à prendre, pas un oubli de portage.
+rattachement d'une facture fournisseur à son bon de commande existait en
+base (`invoices.purchase_order_id`) et l'écran l'annonçait, mais aucune
+route ne le renseignait : le rapprochement ne pouvait rien comparer.
+
+Les deux éditions le portent désormais, avec les mêmes règles : le champ
+« Bon de commande » au formulaire de facture, le rattachement et le
+détachement depuis la fiche de commande, et trois refus — une facture
+client n'a pas de bon de commande, une facture d'un autre fournisseur ne
+se rattache pas, une facture déjà rattachée ailleurs non plus.
 
 ## Ce qui ne sera pas porté à l'identique
 

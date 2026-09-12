@@ -18,6 +18,7 @@ use App\Modules\Currency;
 use App\Modules\Dunning;
 use App\Modules\Finance;
 use App\Modules\Org;
+use App\Modules\Purchasing;
 use App\Modules\Users;
 use App\Modules\Vat;
 
@@ -122,6 +123,8 @@ final class FinanceController
             'assets' => Assets::all(),
             'assetStatuses' => Assets::STATUSES,
             'assetCategories' => Assets::CATEGORIES,
+            // Sans le module Stock, il n'y a pas de bon de commande à proposer.
+            'openOrders' => \App\Modules\Catalogue::isEnabled('stock') ? Purchasing::orders(false) : [],
             'departments' => Org::departments(),
             'employees' => Users::employees(),
             'stats' => [
@@ -276,6 +279,7 @@ final class FinanceController
         $departmentId = (int) $request->input('department_id') ?: null;
         $status = $request->input('status', 'Émise') ?: 'Émise';
         $code = strtoupper($request->input('currency') ?: Currency::base());
+        $purchaseOrderId = (int) $request->input('purchase_order_id') ?: null;
 
         if (!in_array($direction, Finance::INVOICE_DIRECTIONS, true)) {
             return self::back('factures', 'error', 'Sens de facture invalide.');
@@ -317,6 +321,24 @@ final class FinanceController
                 "Aucun taux connu pour $code : renseignez-le dans l'onglet Devises avant de facturer.");
         }
 
+        // Le rattachement au bon de commande est ce qui donne au rapprochement à
+        // trois de quoi comparer. Il ne vaut que pour un achat : le bon de
+        // commande est celui que nous avons passé, pas celui d'un client.
+        $order = null;
+        if ($purchaseOrderId !== null) {
+            $order = Purchasing::orderById($purchaseOrderId);
+            if ($order === null) {
+                return self::back('factures', 'error', 'Bon de commande introuvable.');
+            }
+            if ($direction !== 'Fournisseur') {
+                return self::back('factures', 'error',
+                    "Un bon de commande ne se rattache qu'à une facture fournisseur.");
+            }
+            if ($partnerId !== null && $partnerId !== (int) $order['partner_id']) {
+                return self::back('factures', 'error', 'Ce bon de commande est passé chez un autre fournisseur.');
+            }
+        }
+
         Finance::createInvoice([
             'direction' => $direction,
             'partnerId' => $partnerId,
@@ -331,6 +353,7 @@ final class FinanceController
             'reference' => mb_substr($request->input('reference'), 0, 60),
             'notes' => mb_substr($request->input('notes'), 0, 1000),
             'createdBy' => (int) Session::get('user')['id'],
+            'purchaseOrderId' => $order === null ? null : (int) $order['id'],
         ]);
         return self::back('factures', 'success', 'Facture enregistrée.');
     }

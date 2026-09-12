@@ -250,6 +250,57 @@ final class Purchasing
         ];
     }
 
+    /**
+     * Les factures fournisseur qu'on peut encore rattacher à cette commande :
+     * celles du même tiers, ou sans tiers, qui ne sont rattachées nulle part.
+     * Une facture client n'a rien à faire ici : le bon de commande est celui que
+     * nous avons passé, pas celui d'un client.
+     */
+    public static function attachableInvoices(array $order): array
+    {
+        return Db::all(
+            "SELECT id, reference, label, issue_date, amount_ht, status
+             FROM invoices
+             WHERE direction = 'Fournisseur' AND purchase_order_id IS NULL
+               AND status != 'Annulée'
+               AND (partner_id IS NULL OR partner_id = ?)
+             ORDER BY issue_date DESC, id DESC",
+            [$order['partner_id']]
+        );
+    }
+
+    /**
+     * Rattache une facture à un bon de commande : c'est ce rattachement, et lui
+     * seul, qui donne au rapprochement à trois de quoi comparer.
+     */
+    public static function attachInvoice(int $orderId, int $invoiceId): array
+    {
+        $order = Db::get('SELECT * FROM purchase_orders WHERE id = ?', [$orderId]);
+        $invoice = Db::get('SELECT * FROM invoices WHERE id = ?', [$invoiceId]);
+        if ($order === null || $invoice === null) {
+            return ['ok' => false, 'reason' => 'introuvable'];
+        }
+        if ($invoice['direction'] !== 'Fournisseur') {
+            return ['ok' => false, 'reason' => 'sens'];
+        }
+        if (!empty($invoice['purchase_order_id']) && (int) $invoice['purchase_order_id'] !== (int) $order['id']) {
+            return ['ok' => false, 'reason' => 'deja_rattachee'];
+        }
+        // Le tiers de la facture doit être celui de la commande : rapprocher la
+        // facture d'un autre fournisseur ne compare rien.
+        if (!empty($invoice['partner_id']) && (int) $invoice['partner_id'] !== (int) $order['partner_id']) {
+            return ['ok' => false, 'reason' => 'tiers'];
+        }
+
+        Db::run('UPDATE invoices SET purchase_order_id = ? WHERE id = ?', [$order['id'], $invoice['id']]);
+        return ['ok' => true];
+    }
+
+    public static function detachInvoice(int $invoiceId): bool
+    {
+        return Db::run('UPDATE invoices SET purchase_order_id = NULL WHERE id = ?', [$invoiceId]) > 0;
+    }
+
     public static function invoicesOf(int $orderId): array
     {
         return Db::all(

@@ -253,8 +253,17 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <?php endforeach; ?>
         </select>
       </label>
+      <label><span><?= e(t('ges.purchaseOrder')) ?></span>
+        <select name="purchase_order_id">
+          <option value=""><?= e(t('common.none')) ?></option>
+          <?php foreach ($openOrders as $order): ?>
+            <option value="<?= (int) $order['id'] ?>"><?= e($order['reference']) ?> — <?= e($order['partner_name']) ?></option>
+          <?php endforeach; ?>
+        </select>
+      </label>
       <button type="submit" class="btn btn-primary"><?= e(t('common.create')) ?></button>
     </form>
+    <p class="muted"><?= e(t('ges.purchaseOrderHelp')) ?></p>
   </div>
 
   <div class="card mt-l">

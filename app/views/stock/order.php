@@ -187,7 +187,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
       <thead>
         <tr>
           <th><?= e(t('common.reference')) ?></th><th><?= e(t('common.title')) ?></th>
-          <th><?= e(t('ges.amountExclVat')) ?></th><th><?= e(t('common.status')) ?></th>
+          <th><?= e(t('ges.amountExclVat')) ?></th><th><?= e(t('common.status')) ?></th><th></th>
         </tr>
       </thead>
       <tbody>
@@ -197,10 +197,33 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
             <td><?= e($invoice['label']) ?></td>
             <td><?= e($money((float) $invoice['amount_ht'])) ?></td>
             <td><span class="tag"><?= e($invoice['status']) ?></span></td>
+            <td>
+              <form method="POST" action="/stock/factures/<?= (int) $invoice['id'] ?>/detacher" class="inline-form">
+                <?= $csrf ?>
+                <button type="submit" class="btn btn-sm"><?= e(t('ach.detach')) ?></button>
+              </form>
+            </td>
           </tr>
         <?php endforeach; ?>
       </tbody>
     </table>
+  <?php endif; ?>
+
+  <?php if ($attachable === []): ?>
+    <p class="muted"><?= e(t('ach.noAttachable')) ?></p>
+  <?php else: ?>
+    <form method="POST" action="/stock/commandes/<?= (int) $order['id'] ?>/factures" class="inline-form">
+      <?= $csrf ?>
+      <select name="invoice_id" required>
+        <option value=""><?= e(t('common.choose')) ?></option>
+        <?php foreach ($attachable as $invoice): ?>
+          <option value="<?= (int) $invoice['id'] ?>">
+            <?= e($invoice['reference'] ?: $invoice['label']) ?> — <?= e($money((float) $invoice['amount_ht'])) ?>
+          </option>
+        <?php endforeach; ?>
+      </select>
+      <button type="submit" class="btn btn-sm btn-primary"><?= e(t('ach.attach')) ?></button>
+    </form>
   <?php endif; ?>
   <p class="muted"><?= e(t('ach.linkInvoiceHint')) ?></p>
 </section>

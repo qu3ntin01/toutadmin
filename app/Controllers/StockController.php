@@ -135,6 +135,7 @@ final class StockController
             'receiptList' => Purchasing::receipts((int) $order['id']),
             'invoiceList' => Purchasing::invoicesOf((int) $order['id']),
             'reconciliation' => Purchasing::match($order),
+            'attachable' => Purchasing::attachableInvoices($order),
             'statuses' => Purchasing::ORDER_STATUSES,
             'partners' => Finance::partners(),
             'departments' => Org::departments(),
@@ -282,6 +283,43 @@ final class StockController
         }
         Audit::log('achats.reception', 'purchase_order_lines', (int) $line['id'], ['quantite' => $quantity]);
         return self::toOrder($orderId, 'success', 'Réception enregistrée.');
+    }
+
+    /**
+     * Rattacher une facture fournisseur à sa commande : sans ce lien, le
+     * rapprochement à trois n'a rien à comparer.
+     */
+    public static function attachInvoice(Request $request, array $params): Response
+    {
+        $order = Purchasing::orderById((int) $params['id']);
+        if ($order === null) {
+            return self::back('commandes', 'error', 'Bon de commande introuvable.');
+        }
+        $invoiceId = (int) $request->input('invoice_id');
+        $result = Purchasing::attachInvoice((int) $order['id'], $invoiceId);
+        if (!$result['ok']) {
+            $messages = [
+                'introuvable' => 'Facture introuvable.',
+                'sens' => "Un bon de commande ne se rattache qu'à une facture fournisseur.",
+                'deja_rattachee' => 'Cette facture est déjà rattachée à un autre bon de commande.',
+                'tiers' => "Cette facture vient d'un autre fournisseur que la commande.",
+            ];
+            return self::toOrder((int) $order['id'], 'error', $messages[$result['reason']] ?? 'Rattachement impossible.');
+        }
+        Audit::log('achats.facture_rattachee', 'invoices', $invoiceId, ['commande' => $order['reference']]);
+        return self::toOrder((int) $order['id'], 'success', 'Facture rattachée : le rapprochement la prend en compte.');
+    }
+
+    public static function detachInvoice(Request $request, array $params): Response
+    {
+        $invoice = Db::get('SELECT * FROM invoices WHERE id = ?', [(int) $params['id']]);
+        if ($invoice === null || empty($invoice['purchase_order_id'])) {
+            return self::back('commandes', 'error', 'Facture introuvable.');
+        }
+        $orderId = (int) $invoice['purchase_order_id'];
+        Purchasing::detachInvoice((int) $invoice['id']);
+        Audit::log('achats.facture_detachee', 'invoices', (int) $invoice['id']);
+        return self::toOrder($orderId, 'success', 'Facture détachée.');
     }
 
     // ---------- Articles et mouvements : réservés à la gestion ----------

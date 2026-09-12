@@ -264,3 +264,62 @@ Tests::run('les écrans du stock et d\'un bon de commande rendent leurs données
     assertContains('BC-' . gmdate('Y'), $sheet->body);
     assertContains('180,00', $sheet->body);
 });
+
+Tests::run('une facture fournisseur se rattache à son bon de commande, et le rapprochement compare', function (): void {
+    $ids = seedStock();
+    $partner = Finance::createPartner(['kind' => 'Fournisseur', 'name' => 'Fournitures Nord']);
+    $item = Inventory::createItem(['label' => 'Gants', 'stockMin' => 0]);
+    $order = Purchasing::createOrder(['partnerId' => $partner, 'orderedOn' => '2026-05-04', 'createdBy' => $ids['finance']]);
+    Db::run("UPDATE purchase_orders SET status = 'Envoyée' WHERE id = ?", [$order]);
+    $line = Purchasing::addLine(['orderId' => $order, 'itemId' => $item, 'label' => 'Gants', 'quantity' => 10, 'unitPrice' => 50]);
+    Purchasing::receive(['lineId' => $line, 'quantity' => 5, 'receivedOn' => '2026-05-10', 'receivedBy' => $ids['finance']]);
+
+    // La facture est créée depuis la gestion, rattachée à la commande dans le même geste.
+    visit('POST', '/connexion', ['email' => 'gestion@entreprise.com', 'password' => 'Gestion-Demo-2026!']);
+    visit('POST', '/gestion/factures', [
+        'direction' => 'Fournisseur', 'partner_id' => (string) $partner, 'label' => 'Fourniture de gants',
+        'issue_date' => '2026-05-12', 'amount_ht' => '600', 'vat_rate' => '20',
+        'purchase_order_id' => (string) $order,
+    ]);
+    $invoice = Db::get("SELECT * FROM invoices WHERE label = 'Fourniture de gants'");
+    assertTrue($invoice !== null, "la facture n'a pas été créée");
+    assertSame($order, (int) $invoice['purchase_order_id'], 'la facture ne porte pas son bon de commande');
+
+    $match = Purchasing::match((array) Purchasing::orderById($order));
+    assertSame(500.0, $match['ordered']);
+    assertSame(250.0, $match['received']);
+    assertSame(600.0, $match['invoiced']);
+    assertSame(['sur_commande', 'sur_reception'], array_column($match['issues'], 'kind'));
+    assertSame(1, count(Purchasing::discrepancies()));
+
+    // Détacher retire l'écart ; rattacher depuis la fiche de commande le remet.
+    visit('POST', '/stock/factures/' . $invoice['id'] . '/detacher');
+    assertSame(0.0, Purchasing::match((array) Purchasing::orderById($order))['invoiced']);
+    visit('POST', "/stock/commandes/$order/factures", ['invoice_id' => (string) $invoice['id']]);
+    assertSame(600.0, Purchasing::match((array) Purchasing::orderById($order))['invoiced']);
+});
+
+Tests::run('une facture client ne se rattache pas à un bon de commande', function (): void {
+    $ids = seedStock();
+    $partner = Finance::createPartner(['kind' => 'Fournisseur', 'name' => 'Fournitures Nord']);
+    $autre = Finance::createPartner(['kind' => 'Fournisseur', 'name' => 'Autre fournisseur']);
+    $order = Purchasing::createOrder(['partnerId' => $partner, 'orderedOn' => '2026-05-04']);
+
+    visit('POST', '/connexion', ['email' => 'gestion@entreprise.com', 'password' => 'Gestion-Demo-2026!']);
+    visit('POST', '/gestion/factures', [
+        'direction' => 'Client', 'label' => 'Prestation cliente', 'issue_date' => '2026-05-12',
+        'amount_ht' => '100', 'vat_rate' => '20', 'purchase_order_id' => (string) $order,
+    ]);
+    assertSame(null, Db::get("SELECT * FROM invoices WHERE label = 'Prestation cliente'"),
+        'une facture client a été rattachée à un bon de commande');
+
+    // Et une facture d'un autre fournisseur non plus.
+    $stranger = (int) Finance::createInvoice([
+        'direction' => 'Fournisseur', 'partnerId' => $autre, 'label' => 'Ailleurs',
+        'issueDate' => '2026-05-12', 'amountHt' => 100, 'vatRate' => 20,
+    ]);
+    visit('POST', "/stock/commandes/$order/factures", ['invoice_id' => (string) $stranger]);
+    assertSame(null, Db::get('SELECT purchase_order_id FROM invoices WHERE id = ?', [$stranger])['purchase_order_id']);
+    // Elle n'est pas non plus proposée au rattachement.
+    assertSame(0, count(Purchasing::attachableInvoices((array) Purchasing::orderById($order))));
+});

@@ -218,13 +218,13 @@ final class Finance
         }
         $id = Db::insert(
             'INSERT INTO invoices (direction, partner_id, department_id, reference, label, issue_date, due_date,
-                                   amount_ht, vat_rate, status, notes, created_by, currency, exchange_rate)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                   amount_ht, vat_rate, status, notes, created_by, currency, exchange_rate, purchase_order_id)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
             [
                 $data['direction'], $data['partnerId'] ?? null, $data['departmentId'] ?? null,
                 $data['reference'] ?? '', $data['label'], $data['issueDate'], $data['dueDate'] ?? null,
                 $data['amountHt'], $data['vatRate'], $data['status'] ?? 'Émise', $data['notes'] ?? '',
-                $data['createdBy'] ?? null, $code, $rate,
+                $data['createdBy'] ?? null, $code, $rate, $data['purchaseOrderId'] ?? null,
             ]
         );
         Audit::log('facture.creee', 'invoices', $id, ['libelle' => $data['label'], 'sens' => $data['direction']]);

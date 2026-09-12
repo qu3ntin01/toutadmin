@@ -275,6 +275,8 @@ final class Kernel
         $router->post('/stock/commandes/{id}/lignes', StockController::addLine(...));
         $router->post('/stock/lignes/{id}/supprimer', StockController::deleteLine(...));
         $router->post('/stock/lignes/{id}/reception', StockController::receiveLine(...));
+        $router->post('/stock/commandes/{id}/factures', StockController::attachInvoice(...));
+        $router->post('/stock/factures/{id}/detacher', StockController::detachInvoice(...));
         $router->post('/stock/articles', StockController::createItem(...));
         $router->post('/stock/articles/{id}/statut', StockController::toggleItem(...));
         $router->post('/stock/articles/{id}/supprimer', StockController::deleteItem(...));
@@ -468,7 +470,7 @@ final class Kernel
                 return $this->error(t('err.notAccessible'), 404, base64_encode(random_bytes(16)));
             }
             $reserved = false;
-            foreach (['/stock/articles', '/stock/mouvements', '/stock/commandes', '/stock/lignes'] as $prefix) {
+            foreach (['/stock/articles', '/stock/mouvements', '/stock/commandes', '/stock/lignes', '/stock/factures'] as $prefix) {
                 if (str_starts_with($request->path, $prefix)) {
                     $reserved = true;
                 }
