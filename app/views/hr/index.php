@@ -161,6 +161,56 @@ $statusClass = static fn (string $status): string => match ($status) {
   </div>
 </section>
 
+<!-- ------------------------------------------------- Rémunération -->
+<section class="tab-panel" id="remuneration">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h3><?= e(t('nav.remuneration')) ?> — freelances</h3>
+        <p class="card-sub"><?= e(t('hr.timeNotice')) ?></p>
+      </div>
+    </div>
+    <?php if ($freelancers === []): ?>
+      <div class="empty-state"><?= e(t('hr.noFreelance')) ?></div>
+    <?php else: ?>
+      <table class="table">
+        <thead>
+          <tr>
+            <th><?= e(t('common.member')) ?></th><th>TJM</th>
+            <th><?= e(t('hr.hoursMonth')) ?></th><th><?= e(t('hr.estMonth')) ?></th>
+            <th><?= e(t('hr.hoursTotal')) ?></th><th><?= e(t('hr.estTotal')) ?></th><th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <?php foreach ($freelancers as $freelance): ?>
+            <?php $stats = $freelanceStats[(int) $freelance['id']]; ?>
+            <tr>
+              <td>
+                <div class="cell-strong"><?= e(trim($freelance['first_name'] . ' ' . $freelance['last_name'])) ?></div>
+                <?php if ($openEntries[(int) $freelance['id']]): ?>
+                  <span class="status status-on"><?= e(t('status.running')) ?></span>
+                <?php endif; ?>
+              </td>
+              <td class="num">
+                <?= $freelance['daily_rate'] === null
+                    ? '—' : e(number_format((float) $freelance['daily_rate'], 2, ',', ' ')) . ' €' ?>
+              </td>
+              <td class="num"><?= e(number_format($stats['monthHours'], 1, ',', ' ')) ?> h</td>
+              <td class="num cell-strong"><?= e(number_format($stats['monthEstimate'], 2, ',', ' ')) ?> €</td>
+              <td class="num"><?= e(number_format($stats['totalHours'], 1, ',', ' ')) ?> h</td>
+              <td class="num cell-strong"><?= e(number_format($stats['totalEstimate'], 2, ',', ' ')) ?> €</td>
+              <td class="actions">
+                <a href="/rh/temps/<?= (int) $freelance['id'] ?>" class="btn btn-sm"><?= e(t('common.detail')) ?></a>
+              </td>
+            </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    <?php endif; ?>
+    <p class="hint"><?= e(t('hr.estimateNotice')) ?></p>
+  </div>
+</section>
+
 <!-- ---------------------------------------------------- Documents -->
 <section class="tab-panel" id="documents">
   <div class="card">

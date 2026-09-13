@@ -73,15 +73,23 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Intégrations | webhooks sortants signés (HMAC-SHA256 du corps, secret chiffré en base et montré une seule fois), adresse interne ou en clair refusée sauf case cochée, file d'attente vidée par la tâche planifiée avec réessais espacés puis abandon, webhook qui s'éteint tout seul après une série d'échecs plutôt que de faire croire que l'information passe ; ouvrir cette porte relève de l'administration seule |
 | API v1 | jetons dont seule l'empreinte SHA-256 vit en base, portée explicite (annuaire, RH, gestion, projets, pilotage), expiration et révocation immédiate, lecture seule — un jeton volé lit, il n'écrit ni ne paie ; servie avant toute session, sans cookie ni jeton CSRF, plafonnée à la minute, respectant le retrait de l'annuaire et taisant le motif d'une absence |
 | Recherche globale | une requête, tous les espaces ouverts à celui qui la pose : chaque source est interrogée avec ses droits à lui et une source fermée n'est pas interrogée du tout — rien n'est filtré après coup, ce qui fuit ne se rattrape pas à l'affichage |
+| Pointage des freelances | commencer et terminer, un seul pointage ouvert à la fois — deux en compteraient les heures deux fois —, durée du pointage en cours mesurée jusqu'à maintenant, taux horaire déduit du TJM sur une base de huit heures, mois en cours compté à part du total ; supervision RH : fiche de temps d'un membre, clôture d'un pointage oublié, suppression d'une entrée fausse |
 
-530 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+538 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
-Plus rien. Les 51 espaces de l'édition Node ont le leur ici, avec les mêmes
-règles — ce sont les mêmes décisions, pas de nouvelles. Ce qui sera ajouté à
-l'une le sera à l'autre : les deux éditions avancent ensemble.
+Les 51 espaces de l'édition Node ont le leur ici. Reste la parité fine :
+comparer non plus les espaces, mais chaque point d'entrée. La comparaison
+mécanique des 531 routes de l'édition Node aux 507 de celle-ci a déjà rendu
+trois manques, dont le pointage ci-dessus. Les deux autres, en cours :
+
+1. **Double authentification en libre-service** — la préparer, l'activer, la
+   retirer et regénérer ses codes de secours depuis son profil ; l'écran de
+   premier accès ; la fermeture de ses propres autres sessions
+2. **Parc de salles** — créer une salle, basculer sa disponibilité, la
+   supprimer, et libérer une réservation qui n'est pas la sienne
 
 ## Un défaut du socle PHP, corrigé
 

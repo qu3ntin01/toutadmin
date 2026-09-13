@@ -17,6 +17,7 @@ use App\Modules\Notifications;
 use App\Modules\Workflows;
 use App\Modules\Org;
 use App\Modules\Talent;
+use App\Modules\Timesheet;
 use App\Modules\Users;
 
 /** L'espace du salarié : ce qu'une personne voit en arrivant. */
@@ -43,6 +44,9 @@ final class MemberController
         );
 
         $eligible = Hr::isEligible($user);
+        // Un freelance n'a ni congés ni bulletin : ce qui se compte chez lui,
+        // c'est le temps passé.
+        $freelance = $user['contract_type'] === 'Freelance';
         return Response::html(View::page('member/espace', [
             'title' => t('nav.mySpace') . ' — ' . t('app.name'),
             'panelLabel' => t('app.portal'),
@@ -58,8 +62,12 @@ final class MemberController
             'requestTypes' => Hr::REQUEST_TYPES,
             'requests' => $eligible ? Hr::requestsFor((int) $user['id'], 20) : [],
             'payslips' => $eligible ? Hr::payslipsFor((int) $user['id'], 12) : [],
+            'freelance' => $freelance,
+            'openEntry' => $freelance ? Timesheet::openEntry((int) $user['id']) : null,
+            'entries' => $freelance ? Timesheet::entries((int) $user['id'], 30) : [],
+            'timeStats' => $freelance ? Timesheet::stats((int) $user['id'], $user['daily_rate']) : null,
             'navItems' => self::nav($user),
-            'scripts' => ['/js/confirm.js'],
+            'scripts' => $freelance ? ['/js/confirm.js', '/js/timer.js'] : ['/js/confirm.js'],
             'documents' => Talent::documentsFor((int) $user['id']),
             'sessions' => Talent::sessions(),
             'registrations' => Talent::registrations(null, (int) $user['id']),
@@ -67,6 +75,40 @@ final class MemberController
             'expenseCategories' => \App\Modules\Finance::EXPENSE_CATEGORIES,
             'myClaims' => \App\Modules\Finance::claimsFor((int) $user['id']),
         ]));
+    }
+
+    // ---------- Pointage (freelances seulement) ----------
+
+    /** Le pointage appartient au freelance : il ne pointe que pour lui-même. */
+    private static function freelance(): ?array
+    {
+        $session = Session::get('user');
+        $user = $session === null ? null : Users::byId((int) $session['id']);
+        return $user !== null && $user['contract_type'] === 'Freelance' ? $user : null;
+    }
+
+    public static function clockIn(Request $request): Response
+    {
+        $user = self::freelance();
+        if ($user === null) {
+            return Response::redirect('/mon-espace');
+        }
+        if (!Timesheet::clockIn((int) $user['id'])['ok']) {
+            Flash::set('error', 'Un pointage est déjà en cours.');
+        }
+        return Response::redirect('/mon-espace');
+    }
+
+    public static function clockOut(Request $request): Response
+    {
+        $user = self::freelance();
+        if ($user === null) {
+            return Response::redirect('/mon-espace');
+        }
+        if (!Timesheet::clockOut((int) $user['id'])['ok']) {
+            Flash::set('error', 'Aucun pointage en cours.');
+        }
+        return Response::redirect('/mon-espace');
     }
 
     /** La barre de gauche d'un salarié : ce qui lui est ouvert, et rien d'autre. */

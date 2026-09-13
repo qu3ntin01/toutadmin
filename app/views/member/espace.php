@@ -41,6 +41,88 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
   </article>
 </section>
 
+<?php if ($freelance): ?>
+  <section class="grid grid-2 mt-l">
+    <article class="card">
+      <div class="card-head">
+        <div>
+          <h2><?= e(t('timer.title')) ?></h2>
+          <p class="card-sub"><?= e(t('timer.subtitle')) ?></p>
+        </div>
+        <span class="status <?= $openEntry !== null ? 'status-on' : 'status-off' ?>">
+          <?= e($openEntry !== null ? t('status.running') : t('status.stopped')) ?>
+        </span>
+      </div>
+
+      <div class="timer-display" id="live-timer"
+           data-start="<?= e($openEntry !== null ? (string) $openEntry['clock_in'] : '') ?>">00:00:00</div>
+
+      <?php if ($openEntry !== null): ?>
+        <form method="POST" action="/mon-espace/pointage/terminer">
+          <?= $csrf ?>
+          <button type="submit" class="btn btn-danger btn-block"><?= e(t('timer.stop')) ?></button>
+        </form>
+      <?php else: ?>
+        <form method="POST" action="/mon-espace/pointage/commencer">
+          <?= $csrf ?>
+          <button type="submit" class="btn btn-primary btn-block"><?= e(t('timer.start')) ?></button>
+        </form>
+      <?php endif; ?>
+
+      <div class="timer-stats">
+        <div>
+          <span class="stat-value"><?= e(number_format($timeStats['monthHours'], 1, ',', ' ')) ?> h</span>
+          <span class="stat-label"><?= e(t('timer.thisMonth')) ?></span>
+        </div>
+        <div>
+          <span class="stat-value"><?= e(number_format($timeStats['monthEstimate'], 2, ',', ' ')) ?> €</span>
+          <span class="stat-label"><?= e(t('timer.monthEstimate')) ?></span>
+        </div>
+        <div>
+          <span class="stat-value"><?= e(number_format($timeStats['hourlyRate'], 2, ',', ' ')) ?> €</span>
+          <span class="stat-label"><?= e(t('timer.hourlyRate')) ?></span>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="card-head"><h2><?= e(t('timer.history')) ?></h2></div>
+      <?php if ($entries === []): ?>
+        <div class="empty-state"><?= e(t('messages.empty')) ?></div>
+      <?php else: ?>
+        <table class="table">
+          <thead>
+            <tr>
+              <th><?= e(t('common.date')) ?></th><th><?= e(t('timer.start_label')) ?></th>
+              <th><?= e(t('timer.end_label')) ?></th><th><?= e(t('timer.duration')) ?></th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($entries as $entry): ?>
+              <?php
+                $start = strtotime((string) $entry['clock_in']);
+                $end = $entry['clock_out'] === null ? null : strtotime((string) $entry['clock_out']);
+              ?>
+              <tr>
+                <td class="cell-strong"><?= e(date('d/m/Y', $start)) ?></td>
+                <td class="cell-sub"><?= e(date('H:i', $start)) ?></td>
+                <td class="cell-sub"><?= $end === null ? '—' : e(date('H:i', $end)) ?></td>
+                <td>
+                  <?php if ($end === null): ?>
+                    <span class="status status-on"><?= e(t('status.running')) ?></span>
+                  <?php else: ?>
+                    <span class="num cell-strong"><?= e(number_format(($end - $start) / 3600, 2, ',', ' ')) ?> h</span>
+                  <?php endif; ?>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
+      <?php endif; ?>
+    </article>
+  </section>
+<?php endif; ?>
+
 <?php if ($eligible): ?>
   <section class="card mt-l">
     <h2><?= e(t('leave.newRequest')) ?></h2>

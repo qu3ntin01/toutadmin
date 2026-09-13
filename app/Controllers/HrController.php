@@ -14,6 +14,7 @@ use App\Core\View;
 use App\Modules\Hr;
 use App\Modules\Org;
 use App\Modules\Talent;
+use App\Modules\Timesheet;
 use App\Modules\Users;
 
 /**
@@ -38,6 +39,18 @@ final class HrController
         $requests = Hr::allRequests();
         $pending = array_values(array_filter($requests, static fn (array $r): bool => $r['status'] === 'En attente'));
 
+        $freelancers = Db::all(
+            "SELECT * FROM users WHERE role = 'employee' AND contract_type = 'Freelance'
+             ORDER BY last_name COLLATE NOCASE"
+        );
+        $freelanceStats = [];
+        $openEntries = [];
+        foreach ($freelancers as $freelance) {
+            $id = (int) $freelance['id'];
+            $freelanceStats[$id] = Timesheet::stats($id, $freelance['daily_rate']);
+            $openEntries[$id] = Timesheet::openEntry($id) !== null;
+        }
+
         return Response::html(View::page('hr/index', [
             'title' => t('nav.hrSpace') . ' — ' . t('app.name'),
             'panelLabel' => t('nav.hrSpace'),
@@ -47,6 +60,7 @@ final class HrController
                 ['tab' => 'demandes', 'label' => t('nav.requests'), 'badge' => count($pending) ?: null],
                 ['tab' => 'personnel', 'label' => t('admin.staffMembers')],
                 ['tab' => 'paie', 'label' => t('nav.payroll')],
+                ['tab' => 'remuneration', 'label' => t('nav.remuneration')],
                 ['tab' => 'documents', 'label' => t('hr.catalogue')],
                 ['tab' => 'formations', 'label' => t('hr.training')],
                 ['tab' => 'entretiens', 'label' => t('erp.reviews')],
@@ -62,6 +76,11 @@ final class HrController
             'requests' => $requests,
             'pendingCount' => count($pending),
             'payslips' => Hr::allPayslips(),
+            // La rémunération des freelances est un sujet RH : elle vit ici,
+            // plus dans la console d'administration.
+            'freelancers' => $freelancers,
+            'freelanceStats' => $freelanceStats,
+            'openEntries' => $openEntries,
             'types' => Hr::REQUEST_TYPES,
             'documents' => Talent::documents(),
             'documentCategories' => Talent::DOCUMENT_CATEGORIES,
@@ -889,5 +908,60 @@ final class HrController
         );
         \App\Modules\Ats::rescoreCandidate((int) $candidate['id']);
         return self::recruitBack('success', 'CV supprimé.');
+    }
+
+    // ---------- Pointage des freelances (supervision) ----------
+
+    /**
+     * La fiche de temps d'un membre. Les RH la consultent parce que la
+     * rémunération d'un freelance se lit là, et nulle part ailleurs.
+     */
+    public static function timesheet(Request $request, array $params): Response
+    {
+        $id = (int) $params['id'];
+        $employee = Db::get("SELECT * FROM users WHERE id = ? AND role = 'employee'", [$id]);
+        if ($employee === null) {
+            Flash::set('error', 'Membre introuvable.');
+            return Response::redirect('/rh#remuneration');
+        }
+
+        return Response::html(View::page('hr/timesheet', [
+            'title' => 'Pointage ' . $employee['first_name'] . ' — ' . t('app.name'),
+            'panelLabel' => t('nav.hrSpace'),
+            'headerTitle' => trim($employee['first_name'] . ' ' . $employee['last_name']),
+            'headerSubtitle' => t('tim.headerSub', [
+                'rate' => $employee['daily_rate'] !== null
+                    ? number_format((float) $employee['daily_rate'], 2, ',', ' ') . ' €'
+                    : t('tim.notSet'),
+            ]),
+            'navItems' => [
+                ['href' => '/rh', 'label' => t('nav.hrSpace')],
+                ['href' => '/mon-espace', 'label' => t('nav.mySpace')],
+            ],
+            'footLinks' => [['href' => '/annuaire', 'label' => t('nav.directory')]],
+            'scripts' => ['/js/confirm.js'],
+            'employee' => $employee,
+            'entries' => Timesheet::entries($id, 200),
+            'openEntry' => Timesheet::openEntry($id),
+            'timeStats' => Timesheet::stats($id, $employee['daily_rate']),
+        ]));
+    }
+
+    public static function closeTimeEntry(Request $request, array $params): Response
+    {
+        $id = (int) $params['id'];
+        $done = Timesheet::clockOut($id)['ok'];
+        Flash::set($done ? 'success' : 'error', $done
+            ? 'Pointage clôturé.'
+            : 'Aucun pointage en cours pour ce membre.');
+        return Response::redirect('/rh/temps/' . $id);
+    }
+
+    public static function deleteTimeEntry(Request $request, array $params): Response
+    {
+        $id = (int) $params['id'];
+        Timesheet::removeEntry($id, (int) $params['entree']);
+        Flash::set('success', 'Entrée supprimée.');
+        return Response::redirect('/rh/temps/' . $id);
     }
 }

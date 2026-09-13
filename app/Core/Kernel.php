@@ -133,6 +133,10 @@ final class Kernel
 
         // Espace RH : congés, soldes, fiches de paie.
         $router->get('/rh', HrController::home(...));
+        // Pointage des freelances : consulté et corrigé par les RH.
+        $router->get('/rh/temps/{id}', HrController::timesheet(...));
+        $router->post('/rh/temps/{id}/cloturer', HrController::closeTimeEntry(...));
+        $router->post('/rh/temps/{id}/{entree}/supprimer', HrController::deleteTimeEntry(...));
         $router->post('/rh/demandes/{id}/approuver', HrController::approve(...));
         $router->post('/rh/demandes/{id}/refuser', HrController::reject(...));
         $router->post('/rh/demandes/{id}/annuler', HrController::revoke(...));
@@ -180,6 +184,9 @@ final class Kernel
         $router->post('/rh/cse/reunions/{id}/supprimer', HrController::deleteCseMeeting(...));
 
         $router->post('/mon-espace/demandes', MemberController::createRequest(...));
+        // Pointage : deux gestes, réservés au freelance pour lui-même.
+        $router->post('/mon-espace/pointage/commencer', MemberController::clockIn(...));
+        $router->post('/mon-espace/pointage/terminer', MemberController::clockOut(...));
         $router->post('/mon-espace/documents/{id}/accuser', MemberController::acknowledgeDocument(...));
         $router->post('/mon-espace/formations/{id}/inscription', MemberController::requestSeat(...));
         $router->post('/mon-espace/formations/{id}/annuler', MemberController::cancelSeat(...));
