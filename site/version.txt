@@ -11,7 +11,7 @@ Barème
   1000 salariés : 3 €/salarié → 3000 €/mois
   licence à vie : 10000 € une fois
 
-Pages     : 80 (5 × 16 langues)
-Clés      : 311 par langue
+Pages     : 96 (6 × 16 langues)
+Clés      : 353 par langue
 Captures  : 144 fichiers
-Ressources: style e9f56e9674 · thème 32440868c8 · script 2cf372e760
+Ressources: style d426237083 · thème 32440868c8 · script 2cf372e760

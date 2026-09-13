@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="ja" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>導入 — Toutadmin</title>
+<meta name="description" content="同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。" />
+<meta name="color-scheme" content="light dark" />
+<!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
+     aucune directive de cache sur le HTML : le navigateur applique alors sa
+     propre heuristique et peut resservir pendant des heures une page d'avant
+     la mise à jour — avec, par exemple, un bouton dont le script ne connaît
+     plus le nom. Les ressources, elles, portent leur empreinte : elles
+     peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta property="og:title" content="導入 — Toutadmin" />
+<meta property="og:description" content="同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。" />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="../assets/style.css?v=d426237083" />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" hreflang="fr" href="../installation.html" />
+  <link rel="alternate" hreflang="en" href="../en/installation.html" />
+  <link rel="alternate" hreflang="es" href="../es/installation.html" />
+  <link rel="alternate" hreflang="de" href="../de/installation.html" />
+  <link rel="alternate" hreflang="it" href="../it/installation.html" />
+  <link rel="alternate" hreflang="pt" href="../pt/installation.html" />
+  <link rel="alternate" hreflang="nl" href="../nl/installation.html" />
+  <link rel="alternate" hreflang="pl" href="../pl/installation.html" />
+  <link rel="alternate" hreflang="ru" href="../ru/installation.html" />
+  <link rel="alternate" hreflang="tr" href="../tr/installation.html" />
+  <link rel="alternate" hreflang="ar" href="../ar/installation.html" />
+  <link rel="alternate" hreflang="hi" href="../hi/installation.html" />
+  <link rel="alternate" hreflang="zh" href="../zh/installation.html" />
+  <link rel="alternate" hreflang="ja" href="../installation.html" />
+  <link rel="alternate" hreflang="ko" href="../ko/installation.html" />
+  <link rel="alternate" hreflang="vi" href="../vi/installation.html" />
+<script src="../assets/theme-boot.js?v=32440868c8"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">製品</a>
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">TA</span>Toutadmin
+      </a>
+      <nav class="nav-links" aria-label="製品">
+        <a href="../fonctionnalites.html">機能</a>
+        <a href="../securite.html">セキュリティ</a>
+        <a href="../installation.html" class="is-active" aria-current="page">導入</a>
+        <a href="../tarifs.html">料金</a>
+        <a href="../contact.html">お問い合わせ</a>
+        <a href="https://docs.toutadmin.com/" rel="noopener">ドキュメント</a>
+      </nav>
+      <div class="nav-right">
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg><span>JA</span></button>
+          <div class="picker-pop cols" role="menu" aria-label="言語">
+            <a lang="fr" hreflang="fr" href="../installation.html"><span class="flag">🇫🇷</span>Français</a>
+            <a lang="en" hreflang="en" href="../en/installation.html"><span class="flag">🇬🇧</span>English</a>
+            <a lang="es" hreflang="es" href="../es/installation.html"><span class="flag">🇪🇸</span>Español</a>
+            <a lang="de" hreflang="de" href="../de/installation.html"><span class="flag">🇩🇪</span>Deutsch</a>
+            <a lang="it" hreflang="it" href="../it/installation.html"><span class="flag">🇮🇹</span>Italiano</a>
+            <a lang="pt" hreflang="pt" href="../pt/installation.html"><span class="flag">🇵🇹</span>Português</a>
+            <a lang="nl" hreflang="nl" href="../nl/installation.html"><span class="flag">🇳🇱</span>Nederlands</a>
+            <a lang="pl" hreflang="pl" href="../pl/installation.html"><span class="flag">🇵🇱</span>Polski</a>
+            <a lang="ru" hreflang="ru" href="../ru/installation.html"><span class="flag">🇷🇺</span>Русский</a>
+            <a lang="tr" hreflang="tr" href="../tr/installation.html"><span class="flag">🇹🇷</span>Türkçe</a>
+            <a lang="ar" hreflang="ar" href="../ar/installation.html"><span class="flag">🇸🇦</span>العربية</a>
+            <a lang="hi" hreflang="hi" href="../hi/installation.html"><span class="flag">🇮🇳</span>हिन्दी</a>
+            <a lang="zh" hreflang="zh" href="../zh/installation.html"><span class="flag">🇨🇳</span>中文</a>
+            <a lang="ja" hreflang="ja" href="../installation.html" class="is-active"><span class="flag">🇯🇵</span>日本語</a>
+            <a lang="ko" hreflang="ko" href="../ko/installation.html"><span class="flag">🇰🇷</span>한국어</a>
+            <a lang="vi" hreflang="vi" href="../vi/installation.html"><span class="flag">🇻🇳</span>Tiếng Việt</a>
+          </div>
+        </div>
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true" aria-label="テーマ"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+          <div class="picker-pop" role="menu">
+            <button type="button" data-theme-choice="light"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>ライト</button>
+            <button type="button" data-theme-choice="dark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>ダーク</button>
+            <button type="button" data-theme-choice="system"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>システム</button>
+          </div>
+        </div>
+        <a class="btn btn-sm" href="../contact.html">デモ</a>
+        <button class="picker-btn nav-toggle" type="button" aria-label="メニュー"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+  <div class="drawer-backdrop" hidden></div>
+  <aside class="drawer" id="plan-du-site" aria-label="サイト全体" hidden>
+    <div class="drawer-head">
+      <span class="brand"><span class="brand-mark">TA</span>サイト全体</span>
+      <button class="picker-btn drawer-close" type="button" aria-label="サイトマップを閉じる"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <h4>製品</h4>
+      <nav class="drawer-list" aria-label="製品">
+          <a class="drawer-item" href="../index.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <span><strong>ホーム</strong><span class="drawer-note">製品がカバーする範囲を数字で、そして画面のあらまし。</span></span>
+          </a>
+          <a class="drawer-item" href="../fonctionnalites.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7M3 12h18"/></svg></span>
+            <span><strong>機能</strong><span class="drawer-note">領域ごとの完全な一覧。出荷され、テストを経た百三十を超える機能。</span></span>
+          </a>
+          <a class="drawer-item" href="../fonctionnalites.html#ecrans">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></span>
+            <span><strong>画面</strong><span class="drawer-note">実際のインスタンスから四十枚。ライトとダークの両テーマで。</span></span>
+          </a>
+      </nav>
+      <div class="drawer-chips">
+            <a href="../fonctionnalites.html#socle">基盤と組織</a>
+            <a href="../fonctionnalites.html#espace">従業員のスペース</a>
+            <a href="../fonctionnalites.html#rh">人事</a>
+            <a href="../fonctionnalites.html#talent">採用と人材</a>
+            <a href="../fonctionnalites.html#sst">安全衛生と従業員代表</a>
+            <a href="../fonctionnalites.html#finance">財務と管理</a>
+            <a href="../fonctionnalites.html#compta">会計、給与、消費税</a>
+            <a href="../fonctionnalites.html#achats">購買、在庫、債権回収</a>
+            <a href="../fonctionnalites.html#projets">プロジェクト、工数、採算</a>
+            <a href="../fonctionnalites.html#support">サポートとナレッジ</a>
+            <a href="../fonctionnalites.html#ops">業務と総務</a>
+            <a href="../fonctionnalites.html#direction">経営とガバナンス</a>
+            <a href="../fonctionnalites.html#it">情報システムと開発</a>
+            <a href="../fonctionnalites.html#conformite">コンプライアンス、会社法務、個人データ</a>
+      </div>
+      <h4>判断のために</h4>
+      <nav class="drawer-list" aria-label="判断のために">
+          <a class="drawer-item" href="../securite.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
+            <span><strong>セキュリティ</strong><span class="drawer-note">認証、封印された監査ログ、個人データ、内部通報窓口、バックアップ——そして認めている限界。</span></span>
+          </a>
+          <a class="drawer-item is-active" href="../installation.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <span><strong>導入</strong><span class="drawer-note">二つの版を順を追って。自前のサーバーでも、共用レンタルサーバーでも。</span></span>
+          </a>
+          <a class="drawer-item" href="../tarifs.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9m5 11V4m5 16v-7m5 7V8"/></svg></span>
+            <span><strong>料金</strong><span class="drawer-note">従業員あたりの価格、人数別の一覧、そして買い切りライセンス。</span></span>
+          </a>
+      </nav>
+      <h4>さらに先へ</h4>
+      <nav class="drawer-list" aria-label="さらに先へ">
+          <a class="drawer-item" href="../contact.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1.5A3.5 3.5 0 0 0 12.5 14h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="8" r="3.2"/><path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/></svg></span>
+            <span><strong>お問い合わせ</strong><span class="drawer-note">御社の実際の場面でのデモを依頼する、あるいはご連絡ください。</span></span>
+          </a>
+          <a class="drawer-item" href="https://docs.toutadmin.com/" rel="noopener">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <span><strong>ドキュメント</strong><span class="drawer-note">導入、設定、セキュリティ、API、用語集。別サイトです。</span></span>
+          </a>
+      </nav>
+      <a class="btn drawer-cta" href="../contact.html">デモ<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </aside>
+<main id="contenu">
+
+    <section class="hero section-tight">
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="wrap center">
+        <span class="eyebrow reveal">導入</span>
+        <h1 class="reveal">Toutadmin を導入する</h1>
+        <p class="lede reveal">同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。</p>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>どちらを入れるか</h2>
+          <p class="lede">決め手は機能ではなくサーバー環境です。二つの版にできることは、まったく同じです。</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Node 版</h3>
+            <p>ご自身で管理するサーバー向け。一台の機械、常駐するサービス、その前に置くリバースプロキシ。</p>
+            <p class="muted">Node 22、C コンパイラ、ローカルディスク。数十人なら一コアの機械で足ります。</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>PHP 版</h3>
+            <p>共用レンタルサーバー向け。フォルダーを上げ、ファイルを埋め、定期実行を一つ登録するだけ。コマンドラインは不要です。</p>
+            <p class="muted">PHP 8.1 と SQLite 拡張。入れるものはありません。Composer もパッケージ管理も使いません。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>選択はあとから覆せます</h3>
+          <p>二つの版はデータベースの構造もパスワードの形式も共通です。乗り換えは、データベースのファイル一つとフォルダー五つを写すだけ。変換作業はなく、誰もパスワードを変えずに済みます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Node 版</span>
+          <h2>自前のサーバーで、四段階</h2>
+          
+        </div>
+        <ol class="steps stagger">
+            <li class="reveal">
+              <h3>取得して入れる</h3>
+              <p>npm install ではなく npm ci を。ロックファイルの記述どおりに入ります。サーバーで版がずれると、誰にも理由の分からない障害になります。</p>
+              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+cd /var/www/toutadmin
+npm ci --omit=dev</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>設定する</h3>
+              <p>設定はすべて環境変数で、必須のものは一つもありません。ポートを開ける前に INSTALL_TOKEN を置いてください。初回起動からあなたが導入画面に入るまでの間は、先に来た者が管理者アカウントを作れてしまいます。</p>
+              <pre><code>cp .env.example .env
+# PORT, NODE_ENV=production, INSTALL_TOKEN…</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>システムに預ける</h3>
+              <p>手で起動すると、端末を閉じた時点で止まります。サービスなら自分で立ち上がり直し、書き込めるのは自分のデータフォルダーだけです。</p>
+              <pre><code>sudo systemctl enable --now toutadmin
+journalctl -u toutadmin -f</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>通信を暗号化する</h3>
+              <p>アプリの待ち受けポートをそのままインターネットに出さないでください。プロキシの後ろで、本体が自ら安全性のヘッダーを付けます。HSTS も含め、すでに暗号化された通信でだけ付けます。</p>
+              <pre><code>sudo certbot --nginx -d intranet.exemple.fr</code></pre>
+            </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">PHP 版</span>
+          <h2>共用レンタルサーバーで、四段階</h2>
+          
+        </div>
+        <ol class="steps stagger">
+            <li class="reveal">
+              <h3>ファイルを置く</h3>
+              <p>間違えるのはここです。フォルダー全体を公開してしまうと、データベースが誰にでも落とせるようになります。アカウントもパスワードの要約も金庫も、まとめて。</p>
+              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>設定を書く</h3>
+              <p>見本のファイルを写し、この導入だけの鍵を一つ作ります。この鍵が署名フォルダーの署名を封じ、データベース内の秘密を暗号化します。他と一緒に控えを取ってください。</p>
+              <pre><code>cp config.sample.php config.php
+php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>書き込み権限を開ける</h3>
+              <p>SQLite はデータベースの隣にも書き込みます。書き込めるべきはフォルダーであって、ファイルだけではありません。製品の残りは読み取り専用のままで構いません。</p>
+              <pre><code>chmod 770 data/     # le dossier, pas seulement la base</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>定期実行を登録する</h3>
+              <p>PHP のサイトは要求のあいだしか生きていません。定期実行が、満了した契約を閉じ、定期請求を起こし、Webhook を送り、バックアップを作ります。</p>
+              <pre><code>* * * * * /usr/bin/php /var/www/toutadmin/tools/cron.php</code></pre>
+            </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>同僚に開く前に</h2>
+          
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <h3>建物の外に出るバックアップ</h3>
+            <p>データベースが小さいうちに一つ取り、外部の保管先を設定してください。守る対象と同じサーバーに残る書庫は、何も守りません。</p>
+          </article>
+          <article class="card reveal">
+            <h3>権限のないお試しアカウント</h3>
+            <p>それで入って歩き回ってください。同僚の目で製品を見る方法はこれだけで、そして最もよく飛ばされる確認でもあります。</p>
+          </article>
+          <article class="card reveal">
+            <h3>管理者は一人ではなく二人</h3>
+            <p>二要素認証を入れたうえで、端末と再発行コードを両方なくすと、扉を開けられるのは別の管理者だけです。抜け道はありません。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>完全な手引きはドキュメントにあります</h2>
+          <p>このページは筋道だけです。残りはすべてドキュメントに。前段サーバーの設定、正確な権限、証明書、復元、更新、症状からたどるトラブル対応、そして版ごとに一つずつ、二つの手引きの全文です。</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">導入の手引きを読む<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>無料で始め、大きくなったらプランを変える</h2>
+          <p>五名未満ならすべて無料です。それを超えると従業員ひとり月額 5 ユーロ（二百五十名から逓減）、あるいは買い切りライセンスなら一度きりの 10,000 ユーロ。試すのにカードは要りません。</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="../tarifs.html">インスタンスを作成<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-onbrand" href="../contact.html">担当者と話す</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</main>
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
+          <p class="lede">会社全体を運営する CMS</p>
+          <p class="stat-n">Node 22 · Express · SQLite。無駄な依存はひとつもありません。</p>
+        </div>
+        <div>
+          <h4>製品</h4>
+          <ul>
+            <li><a href="../fonctionnalites.html">機能</a></li>
+            <li><a href="../fonctionnalites.html#ecrans">画面</a></li>
+            <li><a href="../securite.html">セキュリティ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>資料</h4>
+          <ul>
+            <li><a href="../tarifs.html">料金</a></li>
+            <li><a href="https://docs.toutadmin.com/" rel="noopener">ドキュメント</a></li>
+            <li><a href="../contact.html">お問い合わせ</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>会社情報</h4>
+          <ul>
+            <li><a href="../contact.html">チームに連絡する</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h4 class="sr">このサイトは十六言語で提供しています</h4>
+        <div class="foot-langs">
+          <a lang="fr" hreflang="fr" href="../installation.html"><span class="flag">🇫🇷</span> Français</a>
+          <a lang="en" hreflang="en" href="../en/installation.html"><span class="flag">🇬🇧</span> English</a>
+          <a lang="es" hreflang="es" href="../es/installation.html"><span class="flag">🇪🇸</span> Español</a>
+          <a lang="de" hreflang="de" href="../de/installation.html"><span class="flag">🇩🇪</span> Deutsch</a>
+          <a lang="it" hreflang="it" href="../it/installation.html"><span class="flag">🇮🇹</span> Italiano</a>
+          <a lang="pt" hreflang="pt" href="../pt/installation.html"><span class="flag">🇵🇹</span> Português</a>
+          <a lang="nl" hreflang="nl" href="../nl/installation.html"><span class="flag">🇳🇱</span> Nederlands</a>
+          <a lang="pl" hreflang="pl" href="../pl/installation.html"><span class="flag">🇵🇱</span> Polski</a>
+          <a lang="ru" hreflang="ru" href="../ru/installation.html"><span class="flag">🇷🇺</span> Русский</a>
+          <a lang="tr" hreflang="tr" href="../tr/installation.html"><span class="flag">🇹🇷</span> Türkçe</a>
+          <a lang="ar" hreflang="ar" href="../ar/installation.html"><span class="flag">🇸🇦</span> العربية</a>
+          <a lang="hi" hreflang="hi" href="../hi/installation.html"><span class="flag">🇮🇳</span> हिन्दी</a>
+          <a lang="zh" hreflang="zh" href="../zh/installation.html"><span class="flag">🇨🇳</span> 中文</a>
+          <a lang="ja" hreflang="ja" href="../installation.html"><span class="flag">🇯🇵</span> 日本語</a>
+          <a lang="ko" hreflang="ko" href="../ko/installation.html"><span class="flag">🇰🇷</span> 한국어</a>
+          <a lang="vi" hreflang="vi" href="../vi/installation.html"><span class="flag">🇻🇳</span> Tiếng Việt</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Toutadmin. 無断転載を禁じます。</span>
+        <span>このサイトは十六言語で提供しています</span>
+      </div>
+    </div>
+  </footer>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
+</body>
+</html>

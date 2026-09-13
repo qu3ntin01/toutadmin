@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="es" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Instalación — Toutadmin</title>
+<meta name="description" content="Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora." />
+<meta name="color-scheme" content="light dark" />
+<!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
+     aucune directive de cache sur le HTML : le navigateur applique alors sa
+     propre heuristique et peut resservir pendant des heures une page d'avant
+     la mise à jour — avec, par exemple, un bouton dont le script ne connaît
+     plus le nom. Les ressources, elles, portent leur empreinte : elles
+     peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta property="og:title" content="Instalación — Toutadmin" />
+<meta property="og:description" content="Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora." />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="../assets/style.css?v=d426237083" />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" hreflang="fr" href="../installation.html" />
+  <link rel="alternate" hreflang="en" href="../en/installation.html" />
+  <link rel="alternate" hreflang="es" href="../installation.html" />
+  <link rel="alternate" hreflang="de" href="../de/installation.html" />
+  <link rel="alternate" hreflang="it" href="../it/installation.html" />
+  <link rel="alternate" hreflang="pt" href="../pt/installation.html" />
+  <link rel="alternate" hreflang="nl" href="../nl/installation.html" />
+  <link rel="alternate" hreflang="pl" href="../pl/installation.html" />
+  <link rel="alternate" hreflang="ru" href="../ru/installation.html" />
+  <link rel="alternate" hreflang="tr" href="../tr/installation.html" />
+  <link rel="alternate" hreflang="ar" href="../ar/installation.html" />
+  <link rel="alternate" hreflang="hi" href="../hi/installation.html" />
+  <link rel="alternate" hreflang="zh" href="../zh/installation.html" />
+  <link rel="alternate" hreflang="ja" href="../ja/installation.html" />
+  <link rel="alternate" hreflang="ko" href="../ko/installation.html" />
+  <link rel="alternate" hreflang="vi" href="../vi/installation.html" />
+<script src="../assets/theme-boot.js?v=32440868c8"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">Producto</a>
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">TA</span>Toutadmin
+      </a>
+      <nav class="nav-links" aria-label="Producto">
+        <a href="../fonctionnalites.html">Funciones</a>
+        <a href="../securite.html">Seguridad</a>
+        <a href="../installation.html" class="is-active" aria-current="page">Instalación</a>
+        <a href="../tarifs.html">Precios</a>
+        <a href="../contact.html">Contacto</a>
+        <a href="https://docs.toutadmin.com/" rel="noopener">Documentación</a>
+      </nav>
+      <div class="nav-right">
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg><span>ES</span></button>
+          <div class="picker-pop cols" role="menu" aria-label="Idioma">
+            <a lang="fr" hreflang="fr" href="../installation.html"><span class="flag">🇫🇷</span>Français</a>
+            <a lang="en" hreflang="en" href="../en/installation.html"><span class="flag">🇬🇧</span>English</a>
+            <a lang="es" hreflang="es" href="../installation.html" class="is-active"><span class="flag">🇪🇸</span>Español</a>
+            <a lang="de" hreflang="de" href="../de/installation.html"><span class="flag">🇩🇪</span>Deutsch</a>
+            <a lang="it" hreflang="it" href="../it/installation.html"><span class="flag">🇮🇹</span>Italiano</a>
+            <a lang="pt" hreflang="pt" href="../pt/installation.html"><span class="flag">🇵🇹</span>Português</a>
+            <a lang="nl" hreflang="nl" href="../nl/installation.html"><span class="flag">🇳🇱</span>Nederlands</a>
+            <a lang="pl" hreflang="pl" href="../pl/installation.html"><span class="flag">🇵🇱</span>Polski</a>
+            <a lang="ru" hreflang="ru" href="../ru/installation.html"><span class="flag">🇷🇺</span>Русский</a>
+            <a lang="tr" hreflang="tr" href="../tr/installation.html"><span class="flag">🇹🇷</span>Türkçe</a>
+            <a lang="ar" hreflang="ar" href="../ar/installation.html"><span class="flag">🇸🇦</span>العربية</a>
+            <a lang="hi" hreflang="hi" href="../hi/installation.html"><span class="flag">🇮🇳</span>हिन्दी</a>
+            <a lang="zh" hreflang="zh" href="../zh/installation.html"><span class="flag">🇨🇳</span>中文</a>
+            <a lang="ja" hreflang="ja" href="../ja/installation.html"><span class="flag">🇯🇵</span>日本語</a>
+            <a lang="ko" hreflang="ko" href="../ko/installation.html"><span class="flag">🇰🇷</span>한국어</a>
+            <a lang="vi" hreflang="vi" href="../vi/installation.html"><span class="flag">🇻🇳</span>Tiếng Việt</a>
+          </div>
+        </div>
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true" aria-label="Tema"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+          <div class="picker-pop" role="menu">
+            <button type="button" data-theme-choice="light"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Claro</button>
+            <button type="button" data-theme-choice="dark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>Oscuro</button>
+            <button type="button" data-theme-choice="system"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>Sistema</button>
+          </div>
+        </div>
+        <a class="btn btn-sm" href="../contact.html">Demo</a>
+        <button class="picker-btn nav-toggle" type="button" aria-label="Menú"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+  <div class="drawer-backdrop" hidden></div>
+  <aside class="drawer" id="plan-du-site" aria-label="Todo el sitio" hidden>
+    <div class="drawer-head">
+      <span class="brand"><span class="brand-mark">TA</span>Todo el sitio</span>
+      <button class="picker-btn drawer-close" type="button" aria-label="Cerrar el mapa del sitio"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <h4>El producto</h4>
+      <nav class="drawer-list" aria-label="El producto">
+          <a class="drawer-item" href="../index.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <span><strong>Inicio</strong><span class="drawer-note">Lo que cubre el producto, en cifras, y un vistazo a las pantallas.</span></span>
+          </a>
+          <a class="drawer-item" href="../fonctionnalites.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7M3 12h18"/></svg></span>
+            <span><strong>Funciones</strong><span class="drawer-note">La lista completa, dominio por dominio: más de ciento treinta funciones entregadas y probadas.</span></span>
+          </a>
+          <a class="drawer-item" href="../fonctionnalites.html#ecrans">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></span>
+            <span><strong>Las pantallas</strong><span class="drawer-note">Cuarenta capturas de una instancia real, en tema claro y oscuro.</span></span>
+          </a>
+      </nav>
+      <div class="drawer-chips">
+            <a href="../fonctionnalites.html#socle">Base y organización</a>
+            <a href="../fonctionnalites.html#espace">Espacio del empleado</a>
+            <a href="../fonctionnalites.html#rh">Recursos humanos</a>
+            <a href="../fonctionnalites.html#talent">Selección y talento</a>
+            <a href="../fonctionnalites.html#sst">Salud, seguridad y comité</a>
+            <a href="../fonctionnalites.html#finance">Finanzas y gestión</a>
+            <a href="../fonctionnalites.html#compta">Contabilidad, nóminas e IVA</a>
+            <a href="../fonctionnalites.html#achats">Compras, almacén y cobros</a>
+            <a href="../fonctionnalites.html#projets">Proyectos, tiempo y rentabilidad</a>
+            <a href="../fonctionnalites.html#support">Soporte y conocimiento</a>
+            <a href="../fonctionnalites.html#ops">Operaciones y servicios generales</a>
+            <a href="../fonctionnalites.html#direction">Dirección y gobernanza</a>
+            <a href="../fonctionnalites.html#it">Informática y desarrollo</a>
+            <a href="../fonctionnalites.html#conformite">Cumplimiento, jurídico y datos personales</a>
+      </div>
+      <h4>Para decidir</h4>
+      <nav class="drawer-list" aria-label="Para decidir">
+          <a class="drawer-item" href="../securite.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
+            <span><strong>Seguridad</strong><span class="drawer-note">Autenticación, registro sellado, datos personales, canal de alertas, copias de seguridad — y los límites que asumimos.</span></span>
+          </a>
+          <a class="drawer-item is-active" href="../installation.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <span><strong>Instalación</strong><span class="drawer-note">Las dos ediciones, paso a paso: servidor propio o alojamiento compartido.</span></span>
+          </a>
+          <a class="drawer-item" href="../tarifs.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9m5 11V4m5 16v-7m5 7V8"/></svg></span>
+            <span><strong>Precios</strong><span class="drawer-note">El precio por empleado, la tabla por plantilla y la licencia de por vida.</span></span>
+          </a>
+      </nav>
+      <h4>Ir más lejos</h4>
+      <nav class="drawer-list" aria-label="Ir más lejos">
+          <a class="drawer-item" href="../contact.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1.5A3.5 3.5 0 0 0 12.5 14h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="8" r="3.2"/><path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/></svg></span>
+            <span><strong>Contacto</strong><span class="drawer-note">Pedir una demostración sobre sus casos, o escribirnos.</span></span>
+          </a>
+          <a class="drawer-item" href="https://docs.toutadmin.com/" rel="noopener">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <span><strong>Documentación</strong><span class="drawer-note">Instalación, configuración, seguridad, API y glosario completo. Sitio aparte.</span></span>
+          </a>
+      </nav>
+      <a class="btn drawer-cta" href="../contact.html">Demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </aside>
+<main id="contenu">
+
+    <section class="hero section-tight">
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="wrap center">
+        <span class="eyebrow reveal">Instalación</span>
+        <h1 class="reveal">Instalar Toutadmin</h1>
+        <p class="lede reveal">Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora.</p>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Cuál instalar</h2>
+          <p class="lede">La elección depende de su alojamiento, no de sus necesidades funcionales: ambas ediciones hacen exactamente lo mismo.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Edición Node</h3>
+            <p>Para un servidor que usted administra: una máquina, un servicio permanente, un proxy inverso delante.</p>
+            <p class="muted">Node 22, un compilador C, un disco local. Una máquina de un núcleo basta para unas decenas de personas.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>Edición PHP</h3>
+            <p>Para un alojamiento compartido: una carpeta que subir, un archivo que rellenar, una tarea programada. No hace falta línea de comandos.</p>
+            <p class="muted">PHP 8.1 y la extensión SQLite. Nada que instalar: ni Composer, ni gestor de paquetes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>La elección sigue siendo reversible</h3>
+          <p>Ambas ediciones comparten el mismo esquema de base de datos y el mismo formato de contraseña. Pasar de una a otra es copiar un archivo de base y cinco carpetas: no hay conversión, y nadie tiene que cambiar de contraseña.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Edición Node</span>
+          <h2>En su servidor, en cuatro pasos</h2>
+          
+        </div>
+        <ol class="steps stagger">
+            <li class="reveal">
+              <h3>Obtener e instalar</h3>
+              <p>npm ci en lugar de npm install: instala exactamente lo que describe el archivo de bloqueo. En un servidor, una versión que se desplaza es una avería que nadie entiende.</p>
+              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+cd /var/www/toutadmin
+npm ci --omit=dev</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Configurar</h3>
+              <p>Todo se ajusta con variables de entorno, y ninguna es obligatoria. Ponga INSTALL_TOKEN antes de abrir el puerto: entre el primer arranque y su paso por el asistente, el primero en llegar crearía la cuenta de administración.</p>
+              <pre><code>cp .env.example .env
+# PORT, NODE_ENV=production, INSTALL_TOKEN…</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Confiarlo al sistema</h3>
+              <p>Lanzado a mano, el producto se detiene al cerrar la terminal. El servicio se reinicia solo y solo tiene permiso de escritura en su carpeta de datos.</p>
+              <pre><code>sudo systemctl enable --now toutadmin
+journalctl -u toutadmin -f</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Cifrar la conexión</h3>
+              <p>Nunca sirva el puerto de la aplicación directamente en internet. Detrás del proxy, la instancia pone ella misma las cabeceras de seguridad, incluida HSTS, y solo sobre una conexión ya cifrada.</p>
+              <pre><code>sudo certbot --nginx -d intranet.exemple.fr</code></pre>
+            </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Edición PHP</span>
+          <h2>En alojamiento compartido, en cuatro pasos</h2>
+          
+        </div>
+        <ol class="steps stagger">
+            <li class="reveal">
+              <h3>Subir los archivos</h3>
+              <p>Es el paso en el que se falla. Si el servidor sirve la carpeta entera, la base de datos queda descargable por cualquiera: cuentas, huellas de contraseñas y caja fuerte incluidas.</p>
+              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Escribir la configuración</h3>
+              <p>Un archivo de ejemplo que copiar y una clave propia de la instancia que generar. Sella las firmas del portafirmas y cifra los secretos en la base: guárdela con el resto.</p>
+              <pre><code>cp config.sample.php config.php
+php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Abrir los permisos de escritura</h3>
+              <p>SQLite escribe archivos vecinos junto a la base: es la carpeta la que debe ser escribible, no solo el archivo. El resto del producto puede quedar en solo lectura.</p>
+              <pre><code>chmod 770 data/     # le dossier, pas seulement la base</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Programar el barrido</h3>
+              <p>Un sitio PHP solo vive durante una petición. La tarea programada cierra los contratos vencidos, emite las facturas recurrentes, envía los webhooks y crea las copias de seguridad.</p>
+              <pre><code>* * * * * /usr/bin/php /var/www/toutadmin/tools/cron.php</code></pre>
+            </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Antes de abrirlo a los compañeros</h2>
+          
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <h3>Una copia que sale del edificio</h3>
+            <p>Haga una enseguida, mientras la base es pequeña, y configure el destino remoto. Un archivo que se queda en el servidor que protege no protege nada.</p>
+          </article>
+          <article class="card reveal">
+            <h3>Una cuenta de prueba sin permisos</h3>
+            <p>Entre con ella y dé una vuelta. Es la única forma de ver la herramienta como la verán sus compañeros, y la comprobación que más se salta.</p>
+          </article>
+          <article class="card reveal">
+            <h3>Dos administradores, no uno</h3>
+            <p>Si activa la doble autenticación y pierde a la vez el teléfono y los códigos de recuperación, solo otro administrador puede volver a abrirle la puerta. No hay puerta trasera.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>El tutorial completo está en la documentación</h2>
+          <p>Esta página da el esquema. La documentación da todo lo demás: configuración del servidor frontal, permisos exactos, certificados, restauración, actualización, resolución de problemas por síntoma, y los dos tutoriales enteros, uno por edición.</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Leer los tutoriales de instalación<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>Empiece gratis y cambie de plan cuando crezca</h2>
+          <p>Por debajo de cinco empleados todo es gratis. Por encima, 5 € por empleado y mes —decreciente a partir de doscientos cincuenta— o 10.000 € una vez por la licencia de por vida. Ninguna tarjeta para probar.</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="../tarifs.html">Crear mi instancia<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-onbrand" href="../contact.html">Hablar con alguien</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</main>
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
+          <p class="lede">El CMS que administra toda la empresa</p>
+          <p class="stat-n">Node 22 · Express · SQLite. Ninguna dependencia inútil.</p>
+        </div>
+        <div>
+          <h4>Producto</h4>
+          <ul>
+            <li><a href="../fonctionnalites.html">Funciones</a></li>
+            <li><a href="../fonctionnalites.html#ecrans">Las pantallas</a></li>
+            <li><a href="../securite.html">Seguridad</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Recursos</h4>
+          <ul>
+            <li><a href="../tarifs.html">Precios</a></li>
+            <li><a href="https://docs.toutadmin.com/" rel="noopener">Documentación</a></li>
+            <li><a href="../contact.html">Contacto</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Quiénes somos</h4>
+          <ul>
+            <li><a href="../contact.html">Escribir al equipo</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h4 class="sr">Este sitio existe en dieciséis idiomas</h4>
+        <div class="foot-langs">
+          <a lang="fr" hreflang="fr" href="../installation.html"><span class="flag">🇫🇷</span> Français</a>
+          <a lang="en" hreflang="en" href="../en/installation.html"><span class="flag">🇬🇧</span> English</a>
+          <a lang="es" hreflang="es" href="../installation.html"><span class="flag">🇪🇸</span> Español</a>
+          <a lang="de" hreflang="de" href="../de/installation.html"><span class="flag">🇩🇪</span> Deutsch</a>
+          <a lang="it" hreflang="it" href="../it/installation.html"><span class="flag">🇮🇹</span> Italiano</a>
+          <a lang="pt" hreflang="pt" href="../pt/installation.html"><span class="flag">🇵🇹</span> Português</a>
+          <a lang="nl" hreflang="nl" href="../nl/installation.html"><span class="flag">🇳🇱</span> Nederlands</a>
+          <a lang="pl" hreflang="pl" href="../pl/installation.html"><span class="flag">🇵🇱</span> Polski</a>
+          <a lang="ru" hreflang="ru" href="../ru/installation.html"><span class="flag">🇷🇺</span> Русский</a>
+          <a lang="tr" hreflang="tr" href="../tr/installation.html"><span class="flag">🇹🇷</span> Türkçe</a>
+          <a lang="ar" hreflang="ar" href="../ar/installation.html"><span class="flag">🇸🇦</span> العربية</a>
+          <a lang="hi" hreflang="hi" href="../hi/installation.html"><span class="flag">🇮🇳</span> हिन्दी</a>
+          <a lang="zh" hreflang="zh" href="../zh/installation.html"><span class="flag">🇨🇳</span> 中文</a>
+          <a lang="ja" hreflang="ja" href="../ja/installation.html"><span class="flag">🇯🇵</span> 日本語</a>
+          <a lang="ko" hreflang="ko" href="../ko/installation.html"><span class="flag">🇰🇷</span> 한국어</a>
+          <a lang="vi" hreflang="vi" href="../vi/installation.html"><span class="flag">🇻🇳</span> Tiếng Việt</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Toutadmin. Todos los derechos reservados.</span>
+        <span>Este sitio existe en dieciséis idiomas</span>
+      </div>
+    </div>
+  </footer>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
+</body>
+</html>

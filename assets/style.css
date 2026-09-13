@@ -614,3 +614,47 @@ td.c { text-align: center; }
 }
 .drawer-chips a:hover { border-color: var(--brand-2); color: var(--brand); }
 .drawer-cta { margin-block-start: 26px; inline-size: calc(100% - 26px); margin-inline: 13px; }
+
+/* ------------------------------------------------ étapes d'installation */
+/* Les blocs de commandes ne sont pas traduits : ils débordent donc de la même
+   façon dans les seize langues, et c'est le bloc qui défile, jamais la page. */
+.steps {
+  list-style: none; counter-reset: step;
+  display: grid; gap: 18px; margin-block-start: 34px;
+}
+.steps > li {
+  position: relative; counter-increment: step;
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 24px 26px 24px 74px;
+  /* Sans cela, un élément de grille prend la largeur de son contenu le plus
+     large : le bloc de commandes pousserait la page entière au lieu de
+     défiler dans son cadre. */
+  min-inline-size: 0;
+}
+.steps > li::before {
+  content: counter(step);
+  position: absolute; inset-block-start: 24px; inset-inline-start: 26px;
+  inline-size: 30px; block-size: 30px; border-radius: 999px;
+  display: grid; place-items: center;
+  background: var(--brand); color: var(--on-brand);
+  font-size: .92rem; font-weight: 650; font-variant-numeric: tabular-nums;
+}
+.steps > li h3 { font-size: 1.05rem; }
+.steps > li p { color: var(--ink-2); margin-block-start: 8px; font-size: .97rem; }
+
+pre {
+  margin-block-start: 16px; padding: 14px 16px; overflow-x: auto;
+  max-inline-size: 100%;
+  background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius-s);
+}
+pre code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .86rem; line-height: 1.65; color: var(--ink-2); white-space: pre;
+}
+
+.muted { color: var(--ink-3); font-size: .92rem; margin-block-start: 10px; }
+
+@media (max-width: 700px) {
+  .steps > li { padding: 58px 20px 22px; }
+  .steps > li::before { inset-inline-start: 20px; }
+}

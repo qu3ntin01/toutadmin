@@ -33,7 +33,7 @@ let LOCALES = [
   { code: 'ko', flag: '🇰🇷', dir: 'ltr' }, { code: 'vi', flag: '🇻🇳', dir: 'ltr' },
 ];
 
-const PAGES = ['index', 'fonctionnalites', 'securite', 'tarifs', 'contact'];
+const PAGES = ['index', 'fonctionnalites', 'securite', 'installation', 'tarifs', 'contact'];
 
 // Les écrans ont rejoint la page Fonctionnalités : décrire une fonction et
 // montrer l'écran qui la porte, c'est la même chose. L'ancienne adresse reste
@@ -134,6 +134,7 @@ function navHtml(t, ctx) {
   const links = [
     ['fonctionnalites', t('nav.features')],
     ['securite', t('nav.security')],
+    ['installation', t('nav.install')],
     ['tarifs', t('nav.pricing')],
     ['contact', t('nav.contact')],
   ].map(([page, label]) =>
@@ -206,6 +207,7 @@ function drawerHtml(t, ctx) {
     ], true],
     ['menu.group.decide', [
       ['securite', 'nav.security', 'menu.security.d', 'shield'],
+      ['installation', 'nav.install', 'menu.install.d', 'box'],
       ['tarifs', 'nav.pricing', 'menu.pricing.d', 'chart'],
     ], false],
     ['menu.group.more', [

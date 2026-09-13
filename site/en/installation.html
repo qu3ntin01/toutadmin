@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Installation — Toutadmin</title>
+<meta name="description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour." />
+<meta name="color-scheme" content="light dark" />
+<!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
+     aucune directive de cache sur le HTML : le navigateur applique alors sa
+     propre heuristique et peut resservir pendant des heures une page d'avant
+     la mise à jour — avec, par exemple, un bouton dont le script ne connaît
+     plus le nom. Les ressources, elles, portent leur empreinte : elles
+     peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
+<meta http-equiv="Cache-Control" content="no-cache" />
+<meta property="og:title" content="Installation — Toutadmin" />
+<meta property="og:description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour." />
+<meta property="og:type" content="website" />
+<link rel="stylesheet" href="../assets/style.css?v=d426237083" />
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" hreflang="fr" href="../installation.html" />
+  <link rel="alternate" hreflang="en" href="../installation.html" />
+  <link rel="alternate" hreflang="es" href="../es/installation.html" />
+  <link rel="alternate" hreflang="de" href="../de/installation.html" />
+  <link rel="alternate" hreflang="it" href="../it/installation.html" />
+  <link rel="alternate" hreflang="pt" href="../pt/installation.html" />
+  <link rel="alternate" hreflang="nl" href="../nl/installation.html" />
+  <link rel="alternate" hreflang="pl" href="../pl/installation.html" />
+  <link rel="alternate" hreflang="ru" href="../ru/installation.html" />
+  <link rel="alternate" hreflang="tr" href="../tr/installation.html" />
+  <link rel="alternate" hreflang="ar" href="../ar/installation.html" />
+  <link rel="alternate" hreflang="hi" href="../hi/installation.html" />
+  <link rel="alternate" hreflang="zh" href="../zh/installation.html" />
+  <link rel="alternate" hreflang="ja" href="../ja/installation.html" />
+  <link rel="alternate" hreflang="ko" href="../ko/installation.html" />
+  <link rel="alternate" hreflang="vi" href="../vi/installation.html" />
+<script src="../assets/theme-boot.js?v=32440868c8"></script>
+</head>
+<body>
+<a class="skip" href="#contenu">Product</a>
+  <header class="nav">
+    <div class="wrap nav-in">
+      <a class="brand" href="../index.html">
+        <span class="brand-mark">TA</span>Toutadmin
+      </a>
+      <nav class="nav-links" aria-label="Product">
+        <a href="../fonctionnalites.html">Features</a>
+        <a href="../securite.html">Security</a>
+        <a href="../installation.html" class="is-active" aria-current="page">Installation</a>
+        <a href="../tarifs.html">Pricing</a>
+        <a href="../contact.html">Contact</a>
+        <a href="https://docs.toutadmin.com/" rel="noopener">Documentation</a>
+      </nav>
+      <div class="nav-right">
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg><span>EN</span></button>
+          <div class="picker-pop cols" role="menu" aria-label="Language">
+            <a lang="fr" hreflang="fr" href="../installation.html"><span class="flag">🇫🇷</span>Français</a>
+            <a lang="en" hreflang="en" href="../installation.html" class="is-active"><span class="flag">🇬🇧</span>English</a>
+            <a lang="es" hreflang="es" href="../es/installation.html"><span class="flag">🇪🇸</span>Español</a>
+            <a lang="de" hreflang="de" href="../de/installation.html"><span class="flag">🇩🇪</span>Deutsch</a>
+            <a lang="it" hreflang="it" href="../it/installation.html"><span class="flag">🇮🇹</span>Italiano</a>
+            <a lang="pt" hreflang="pt" href="../pt/installation.html"><span class="flag">🇵🇹</span>Português</a>
+            <a lang="nl" hreflang="nl" href="../nl/installation.html"><span class="flag">🇳🇱</span>Nederlands</a>
+            <a lang="pl" hreflang="pl" href="../pl/installation.html"><span class="flag">🇵🇱</span>Polski</a>
+            <a lang="ru" hreflang="ru" href="../ru/installation.html"><span class="flag">🇷🇺</span>Русский</a>
+            <a lang="tr" hreflang="tr" href="../tr/installation.html"><span class="flag">🇹🇷</span>Türkçe</a>
+            <a lang="ar" hreflang="ar" href="../ar/installation.html"><span class="flag">🇸🇦</span>العربية</a>
+            <a lang="hi" hreflang="hi" href="../hi/installation.html"><span class="flag">🇮🇳</span>हिन्दी</a>
+            <a lang="zh" hreflang="zh" href="../zh/installation.html"><span class="flag">🇨🇳</span>中文</a>
+            <a lang="ja" hreflang="ja" href="../ja/installation.html"><span class="flag">🇯🇵</span>日本語</a>
+            <a lang="ko" hreflang="ko" href="../ko/installation.html"><span class="flag">🇰🇷</span>한국어</a>
+            <a lang="vi" hreflang="vi" href="../vi/installation.html"><span class="flag">🇻🇳</span>Tiếng Việt</a>
+          </div>
+        </div>
+        <div class="picker">
+          <button class="picker-btn" type="button" aria-haspopup="true" aria-label="Theme"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+          <div class="picker-pop" role="menu">
+            <button type="button" data-theme-choice="light"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Light</button>
+            <button type="button" data-theme-choice="dark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>Dark</button>
+            <button type="button" data-theme-choice="system"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>System</button>
+          </div>
+        </div>
+        <a class="btn btn-sm" href="../contact.html">Demo</a>
+        <button class="picker-btn nav-toggle" type="button" aria-label="Menu"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+      </div>
+    </div>
+  </header>
+  <div class="drawer-backdrop" hidden></div>
+  <aside class="drawer" id="plan-du-site" aria-label="The whole site" hidden>
+    <div class="drawer-head">
+      <span class="brand"><span class="brand-mark">TA</span>The whole site</span>
+      <button class="picker-btn drawer-close" type="button" aria-label="Close the site map"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <h4>The product</h4>
+      <nav class="drawer-list" aria-label="The product">
+          <a class="drawer-item" href="../index.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <span><strong>Home</strong><span class="drawer-note">What the product covers, in numbers, and a look at the screens.</span></span>
+          </a>
+          <a class="drawer-item" href="../fonctionnalites.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7M3 12h18"/></svg></span>
+            <span><strong>Features</strong><span class="drawer-note">The complete list, domain by domain: more than a hundred and thirty functions shipped and tested.</span></span>
+          </a>
+          <a class="drawer-item" href="../fonctionnalites.html#ecrans">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></span>
+            <span><strong>Screens</strong><span class="drawer-note">Forty screenshots from a real instance, in light and dark themes.</span></span>
+          </a>
+      </nav>
+      <div class="drawer-chips">
+            <a href="../fonctionnalites.html#socle">Foundation and organisation</a>
+            <a href="../fonctionnalites.html#espace">The employee's workspace</a>
+            <a href="../fonctionnalites.html#rh">Human resources</a>
+            <a href="../fonctionnalites.html#talent">Recruitment and talent</a>
+            <a href="../fonctionnalites.html#sst">Health, safety and works council</a>
+            <a href="../fonctionnalites.html#finance">Finance and administration</a>
+            <a href="../fonctionnalites.html#compta">Accounting, payroll and VAT</a>
+            <a href="../fonctionnalites.html#achats">Purchasing, stock and collections</a>
+            <a href="../fonctionnalites.html#projets">Projects, time and profitability</a>
+            <a href="../fonctionnalites.html#support">Support and knowledge</a>
+            <a href="../fonctionnalites.html#ops">Operations and facilities</a>
+            <a href="../fonctionnalites.html#direction">Management and governance</a>
+            <a href="../fonctionnalites.html#it">IT and development</a>
+            <a href="../fonctionnalites.html#conformite">Compliance, corporate and personal data</a>
+      </div>
+      <h4>To decide</h4>
+      <nav class="drawer-list" aria-label="To decide">
+          <a class="drawer-item" href="../securite.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
+            <span><strong>Security</strong><span class="drawer-note">Authentication, sealed log, personal data, whistleblowing channel, backups — and the limits we own up to.</span></span>
+          </a>
+          <a class="drawer-item is-active" href="../installation.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <span><strong>Installation</strong><span class="drawer-note">Both editions, step by step: your own server or shared hosting.</span></span>
+          </a>
+          <a class="drawer-item" href="../tarifs.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9m5 11V4m5 16v-7m5 7V8"/></svg></span>
+            <span><strong>Pricing</strong><span class="drawer-note">The per-employee price, the grid by headcount and the lifetime licence.</span></span>
+          </a>
+      </nav>
+      <h4>Going further</h4>
+      <nav class="drawer-list" aria-label="Going further">
+          <a class="drawer-item" href="../contact.html">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 19v-1.5A3.5 3.5 0 0 0 12.5 14h-5A3.5 3.5 0 0 0 4 17.5V19"/><circle cx="10" cy="8" r="3.2"/><path d="M20 19v-1.5a3.5 3.5 0 0 0-2.6-3.4M15.5 5.2a3.2 3.2 0 0 1 0 5.6"/></svg></span>
+            <span><strong>Contact</strong><span class="drawer-note">Book a demonstration on your own cases, or write to us.</span></span>
+          </a>
+          <a class="drawer-item" href="https://docs.toutadmin.com/" rel="noopener">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <span><strong>Documentation</strong><span class="drawer-note">Installation, configuration, security, API and the full glossary. Separate site.</span></span>
+          </a>
+      </nav>
+      <a class="btn drawer-cta" href="../contact.html">Demo<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+  </aside>
+<main id="contenu">
+
+    <section class="hero section-tight">
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="wrap center">
+        <span class="eyebrow reveal">Installation</span>
+        <h1 class="reveal">Installing Toutadmin</h1>
+        <p class="lede reveal">Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour.</p>
+      </div>
+    </section>
+
+    <section class="section-tight">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Which one to install</h2>
+          <p class="lede">The choice depends on your hosting, not on what you need the product to do: both editions do exactly the same things.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Node edition</h3>
+            <p>For a server you administer: one machine, a long-running service, a reverse proxy in front.</p>
+            <p class="muted">Node 22, a C compiler, a local disk. A single-core machine is enough for a few dozen people.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>PHP edition</h3>
+            <p>For shared hosting: a folder to upload, a file to fill in, a scheduled task. No command line required.</p>
+            <p class="muted">PHP 8.1 and the SQLite extension. Nothing to install: no Composer, no package manager.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>The choice stays reversible</h3>
+          <p>Both editions share the same database schema and the same password format. Moving from one to the other means copying one database file and five folders: there is no conversion, and nobody has to change their password.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Node edition</span>
+          <h2>On your own server, in four steps</h2>
+          
+        </div>
+        <ol class="steps stagger">
+            <li class="reveal">
+              <h3>Fetch and install</h3>
+              <p>npm ci rather than npm install: it installs exactly what the lockfile describes. On a server, a version that drifts is an outage nobody can explain.</p>
+              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+cd /var/www/toutadmin
+npm ci --omit=dev</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Configure</h3>
+              <p>Everything is set through environment variables, and none of them is mandatory. Set INSTALL_TOKEN before opening the port: between first boot and your visit to the wizard, whoever arrives first would create the administrator account.</p>
+              <pre><code>cp .env.example .env
+# PORT, NODE_ENV=production, INSTALL_TOKEN…</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Hand it to the system</h3>
+              <p>Started by hand, the product stops when you close the terminal. The service restarts on its own, and is allowed to write only inside its data folder.</p>
+              <pre><code>sudo systemctl enable --now toutadmin
+journalctl -u toutadmin -f</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Encrypt the connection</h3>
+              <p>Never serve the application port straight onto the internet. Behind the proxy, the instance sets its own security headers — including HSTS, and only over a connection that is already encrypted.</p>
+              <pre><code>sudo certbot --nginx -d intranet.exemple.fr</code></pre>
+            </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">PHP edition</span>
+          <h2>On shared hosting, in four steps</h2>
+          
+        </div>
+        <ol class="steps stagger">
+            <li class="reveal">
+              <h3>Upload the files</h3>
+              <p>This is the step people get wrong. If the server serves the whole folder, the database becomes downloadable by anyone: accounts, password hashes and the vault included.</p>
+              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Write the configuration</h3>
+              <p>A sample file to copy, and one instance key to generate. It seals signature-book signatures and encrypts secrets in the database: back it up along with everything else.</p>
+              <pre><code>cp config.sample.php config.php
+php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Open write access</h3>
+              <p>SQLite writes sibling files next to the database: it is the folder that must be writable, not just the file. The rest of the product can stay read-only.</p>
+              <pre><code>chmod 770 data/     # le dossier, pas seulement la base</code></pre>
+            </li>
+            <li class="reveal">
+              <h3>Schedule the sweep</h3>
+              <p>A PHP site only lives during a request. The scheduled task closes expired contracts, issues recurring invoices, sends webhooks and creates backups.</p>
+              <pre><code>* * * * * /usr/bin/php /var/www/toutadmin/tools/cron.php</code></pre>
+            </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Before opening it to colleagues</h2>
+          
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <h3>A backup that leaves the building</h3>
+            <p>Make one right away, while the database is still small, and configure the off-site destination. An archive that stays on the server it protects protects nothing.</p>
+          </article>
+          <article class="card reveal">
+            <h3>A test account with no rights</h3>
+            <p>Log in with it and wander around. It is the only way to see the product as your colleagues will — and the check most often skipped.</p>
+          </article>
+          <article class="card reveal">
+            <h3>Two administrators, not one</h3>
+            <p>If you turn on two-factor authentication and lose both the phone and the recovery codes, only another administrator can let you back in. There is no back door.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>The complete tutorial is in the documentation</h2>
+          <p>This page gives the outline. The documentation gives everything else: front-end server configuration, exact permissions, certificates, restore, upgrades, troubleshooting by symptom — and both tutorials in full, one per edition.</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Read the installation tutorials<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="band reveal">
+          <h2>Start free, change plan when you grow</h2>
+          <p>Under five employees everything is free. Above that, €5 per employee per month — tapering from two hundred and fifty — or €10,000 once for the lifetime licence. No credit card to try.</p>
+          <div class="band-cta">
+            <a class="btn btn-light" href="../tarifs.html">Create my instance<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-onbrand" href="../contact.html">Talk to someone</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+</main>
+  <footer class="foot">
+    <div class="wrap">
+      <div class="foot-grid">
+        <div>
+          <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
+          <p class="lede">The CMS that runs the whole company</p>
+          <p class="stat-n">Node 22 · Express · SQLite. No needless dependency.</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="../fonctionnalites.html">Features</a></li>
+            <li><a href="../fonctionnalites.html#ecrans">Screens</a></li>
+            <li><a href="../securite.html">Security</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="../tarifs.html">Pricing</a></li>
+            <li><a href="https://docs.toutadmin.com/" rel="noopener">Documentation</a></li>
+            <li><a href="../contact.html">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>About</h4>
+          <ul>
+            <li><a href="../contact.html">Write to the team</a></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <h4 class="sr">This site exists in sixteen languages</h4>
+        <div class="foot-langs">
+          <a lang="fr" hreflang="fr" href="../installation.html"><span class="flag">🇫🇷</span> Français</a>
+          <a lang="en" hreflang="en" href="../installation.html"><span class="flag">🇬🇧</span> English</a>
+          <a lang="es" hreflang="es" href="../es/installation.html"><span class="flag">🇪🇸</span> Español</a>
+          <a lang="de" hreflang="de" href="../de/installation.html"><span class="flag">🇩🇪</span> Deutsch</a>
+          <a lang="it" hreflang="it" href="../it/installation.html"><span class="flag">🇮🇹</span> Italiano</a>
+          <a lang="pt" hreflang="pt" href="../pt/installation.html"><span class="flag">🇵🇹</span> Português</a>
+          <a lang="nl" hreflang="nl" href="../nl/installation.html"><span class="flag">🇳🇱</span> Nederlands</a>
+          <a lang="pl" hreflang="pl" href="../pl/installation.html"><span class="flag">🇵🇱</span> Polski</a>
+          <a lang="ru" hreflang="ru" href="../ru/installation.html"><span class="flag">🇷🇺</span> Русский</a>
+          <a lang="tr" hreflang="tr" href="../tr/installation.html"><span class="flag">🇹🇷</span> Türkçe</a>
+          <a lang="ar" hreflang="ar" href="../ar/installation.html"><span class="flag">🇸🇦</span> العربية</a>
+          <a lang="hi" hreflang="hi" href="../hi/installation.html"><span class="flag">🇮🇳</span> हिन्दी</a>
+          <a lang="zh" hreflang="zh" href="../zh/installation.html"><span class="flag">🇨🇳</span> 中文</a>
+          <a lang="ja" hreflang="ja" href="../ja/installation.html"><span class="flag">🇯🇵</span> 日本語</a>
+          <a lang="ko" hreflang="ko" href="../ko/installation.html"><span class="flag">🇰🇷</span> 한국어</a>
+          <a lang="vi" hreflang="vi" href="../vi/installation.html"><span class="flag">🇻🇳</span> Tiếng Việt</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>© 2026 Toutadmin. All rights reserved.</span>
+        <span>This site exists in sixteen languages</span>
+      </div>
+    </div>
+  </footer>
+<script src="../assets/app.js?v=2cf372e760" defer></script>
+</body>
+</html>
