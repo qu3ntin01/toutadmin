@@ -14,7 +14,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Espace | Ce qui marche |
 | --- | --- |
 | Socle | base et schéma (143 tables), sessions en base, jeton CSRF, en-têtes, plafonds, journal scellé, 16 langues (2 770 clés) |
-| Installation | vérification de l'hébergement, entreprise, langue, compte d'administration, fermeture automatique |
+| Installation | jeton d'installation exigé avant tout (posé dans la configuration ou l'environnement, comparé à temps constant) pour que l'instance ne soit pas à qui la trouve entre le dépôt des fichiers et l'assistant, vérification de l'hébergement avec prérequis bloquants, entreprise, langue, congés annuels, compte d'administration, fermeture automatique |
 | Connexion | mot de passe, double authentification, codes de secours, verrouillage, changement de mot de passe forcé |
 | Mon espace | accueil du salarié |
 | Annuaire | recherche, masquage décidé par l'administration |
@@ -77,7 +77,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Double authentification | mise en service depuis son profil : secret préparé mais inactif tant qu'un premier code n'est pas validé — sans quoi une application mal réglée enfermerait la personne dehors —, code QR dessiné dans la page (codeur écrit à la main, aucune image distante), saisie manuelle possible, huit codes de secours affichés une seule fois puis conservés hachés, à usage unique et regénérables ; le retrait redemande le mot de passe et reste impossible si l'entreprise l'exige pour le rôle ; fermeture de toutes ses sessions, la sienne comprise |
 | Parc de salles | tenu par la gestion : création (nom unique, capacité bornée), ouverture et fermeture qui ne touchent pas aux réservations posées, suppression qui emporte les siennes, et libération d'une réservation qui n'est pas la sienne |
 
-550 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+552 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -95,6 +95,14 @@ sont des différences de forme, vérifiées une par une :
 | `/mon-profil/informations` | `POST /mon-profil` |
 | `/mon-profil/mot-de-passe`, `/mon-profil/premier-acces` | `/mot-de-passe`, où le noyau conduit d'office tant qu'un mot de passe temporaire est en place |
 | `/notifications/tout-lu` | `/notifications/tout-lire` |
+
+La comparaison a ensuite porté sur les fonctions elles-mêmes : les 1 161 noms
+exportés par les 72 modules de l'édition Node, confrontés aux classes d'ici.
+Ce qui restait sans correspondance était, à une exception près, une différence
+de nom (`list` devient `all`, `getEntries` devient `entries`, `assetById`
+devient `Assets::byId`) ou une notion sans objet en PHP (les intergiciels
+d'Express, le magasin de sessions). L'exception était le jeton d'installation,
+maintenant porté.
 
 Ce que l'une sait faire, l'autre le sait. Ce qui sera ajouté à l'une le sera
 à l'autre.

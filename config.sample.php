@@ -17,6 +17,13 @@ return [
     // Clé propre à l'instance. À engendrer une fois : bin2hex(random_bytes(32)).
     'session_secret' => 'à-remplacer-à-l-installation',
 
+    // Jeton d'installation. Entre le dépôt des fichiers sur l'hébergement et
+    // le passage de l'assistant, l'instance est à qui la trouve : posez ici une
+    // valeur au hasard, elle sera demandée à l'installation. Laissé vide, rien
+    // n'est demandé. (La variable d'environnement INSTALL_TOKEN fait aussi
+    // l'affaire.)
+    'install_token' => '',
+
     // Adresse publique du site, utile aux liens envoyés par courriel.
     'base_url' => 'https://exemple.fr',
 

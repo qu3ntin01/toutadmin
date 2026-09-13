@@ -266,16 +266,14 @@ final class AuthController
         }
 
         Users::setPassword((int) $user['id'], $next);
-        // Les autres sessions tombent : c'est ce qui rend le changement utile
-        // quand le mot de passe a fuité.
-        $sid = Session::id();
+        // Toutes les sessions tombent, la courante comprise : c'est ce qui rend
+        // le changement utile quand le mot de passe a fuité, et l'on ne peut
+        // pas savoir laquelle des sessions ouvertes est celle de l'intrus.
         Session::destroyAllFor((int) $user['id']);
-        Session::start($sid);
-        Session::set('opened_at', time());
-        Session::set('user', Users::forSession(array_merge($user, ['must_change_password' => 0])));
-
-        Flash::set('success', 'Mot de passe modifié.');
-        return Response::redirect(self::homeFor((string) $user['role']));
+        Session::destroy();
+        Audit::log('mot_de_passe.change', 'users', (int) $user['id']);
+        Flash::set('success', 'Mot de passe mis à jour. Les autres sessions ont été fermées : reconnectez-vous.');
+        return Response::redirect('/connexion');
     }
 
     /** Changer de langue depuis n'importe quelle page, connecté ou non. */

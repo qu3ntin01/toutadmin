@@ -57,6 +57,21 @@ cp config.sample.php config.php
 php -S localhost:8000 -t public public/index.php
 ```
 
+### Sur un serveur exposé : le jeton d'installation
+
+Entre le dépôt des fichiers et le passage de l'assistant, l'instance est à qui
+la trouve : le premier arrivé crée le compte d'administration. Posez donc une
+valeur au hasard dans `config.php` avant la mise en ligne —
+
+```php
+'install_token' => 'un-jeton-long-et-aleatoire',
+```
+
+— ou dans l'environnement (`INSTALL_TOKEN`). L'assistant la demande, la
+compare à temps constant, et sans elle ne crée rien. Une fois l'instance
+installée, l'assistant se referme de lui-même : le jeton peut rester ou
+partir, il ne sert plus.
+
 ## Tests
 
 ```bash

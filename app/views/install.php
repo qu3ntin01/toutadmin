@@ -14,9 +14,9 @@
       <table class="table">
         <caption class="sr-only">Vérifications de l'hébergement</caption>
         <tbody>
-        <?php foreach ($checks as [$label, $ok, $detail]): ?>
+        <?php foreach ($checks as [$label, $ok, $detail, $blocking]): ?>
           <tr>
-            <td><?= e($label) ?></td>
+            <td><?= e($label) ?><?= $blocking ? '' : ' <span class="muted">(facultatif)</span>' ?></td>
             <td class="<?= $ok ? 'ok' : 'ko' ?>"><?= $ok ? '✓' : '✗' ?> <span class="muted"><?= e((string) $detail) ?></span></td>
           </tr>
         <?php endforeach; ?>
@@ -25,9 +25,20 @@
 
       <form method="POST" action="/installation" class="auth-form">
         <?= \App\Core\Csrf::field() ?>
+        <?php if ($tokenRequired): ?>
+          <label>
+            <span>Jeton d'installation</span>
+            <input type="text" name="install_token" required autocomplete="off" autofocus />
+            <span class="hint">Celui que porte la configuration de cette instance.</span>
+          </label>
+        <?php endif; ?>
         <label>
           <span>Nom de l'entreprise</span>
-          <input type="text" name="company_name" required autofocus />
+          <input type="text" name="company_name" required<?= $tokenRequired ? '' : ' autofocus' ?> />
+        </label>
+        <label>
+          <span>Congés annuels (jours ouvrés)</span>
+          <input type="number" name="annual_leave_days" value="25" min="0" max="365" step="1" />
         </label>
         <label>
           <span>Langue par défaut</span>

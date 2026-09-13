@@ -33,6 +33,50 @@ Tests::run('l\'installation refuse un mot de passe trop court', function (): voi
     assertSame(0, Users::count());
 });
 
+Tests::run("le jeton d'installation garde l'instance avant qu'elle soit à quelqu'un", function (): void {
+    // Entre le dépôt des fichiers et le passage de l'assistant, l'instance est
+    // à qui la trouve : le jeton referme cette fenêtre.
+    \App\Core\Config::set('install_token', 'jeton-de-mise-en-ligne');
+    assertSame(true, \App\Controllers\InstallController::tokenRequired());
+    assertContains("Jeton d'installation", visit('GET', '/installation')->body);
+
+    $fields = [
+        'company_name' => 'Vertane Industries', 'locale' => 'fr', 'annual_leave_days' => '25',
+        'email' => 'admin@demo.test', 'password' => 'Administration-2026!', 'confirm' => 'Administration-2026!',
+    ];
+
+    // Sans jeton, ou avec le mauvais, rien n'est créé — et le refus est au journal.
+    visit('POST', '/installation', $fields);
+    visit('POST', '/installation', array_merge($fields, ['install_token' => 'presque']));
+    assertSame(0, Users::count());
+    assertSame(2, (int) Db::value("SELECT COUNT(*) FROM audit_log WHERE action = 'installation.jeton_refuse'"));
+
+    // Un préfixe juste ne renseigne pas davantage : la comparaison est à temps
+    // constant, et le verdict est le même.
+    visit('POST', '/installation', array_merge($fields, ['install_token' => 'jeton-de-mise-en-lign']));
+    assertSame(0, Users::count());
+
+    visit('POST', '/installation', array_merge($fields, ['install_token' => 'jeton-de-mise-en-ligne']));
+    assertSame(1, Users::count());
+    \App\Core\Config::set('install_token', '');
+});
+
+Tests::run("l'installation retient les congés annuels de l'entreprise", function (): void {
+    visit('POST', '/installation', [
+        'company_name' => 'Vertane Industries', 'locale' => 'fr', 'annual_leave_days' => '30',
+        'email' => 'admin@demo.test', 'password' => 'Administration-2026!', 'confirm' => 'Administration-2026!',
+    ]);
+    assertSame('30', \App\Core\Settings::get('annual_leave_days'));
+
+    // Un nombre de jours absurde est refusé avant que quoi que ce soit existe.
+    Tests::fresh();
+    visit('POST', '/installation', [
+        'company_name' => 'Vertane Industries', 'locale' => 'fr', 'annual_leave_days' => '400',
+        'email' => 'admin@demo.test', 'password' => 'Administration-2026!', 'confirm' => 'Administration-2026!',
+    ]);
+    assertSame(0, Users::count());
+});
+
 Tests::run('une fois installée, la page d\'installation se ferme', function (): void {
     seed();
     $response = visit('GET', '/installation');
@@ -155,7 +199,7 @@ Tests::run('le mot de passe à changer barre le reste du site', function (): voi
     assertSame('/mot-de-passe', $response->headers['Location']);
 });
 
-Tests::run('changer de mot de passe ferme les autres sessions', function (): void {
+Tests::run('changer de mot de passe ferme toutes les sessions, la sienne comprise', function (): void {
     seed();
     visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
     $id = Users::byEmail('admin@demo.test')['id'];
@@ -163,11 +207,19 @@ Tests::run('changer de mot de passe ferme les autres sessions', function (): voi
     Db::run('INSERT INTO sessions (sid, user_id, data, expires_at) VALUES (?, ?, ?, ?)',
         ['autre-session', $id, '{}', time() + 3600]);
 
-    visit('POST', '/mot-de-passe', [
+    $response = visit('POST', '/mot-de-passe', [
         'current' => 'Administration-2026!', 'password' => 'Nouveau-Passe-2026!', 'confirm' => 'Nouveau-Passe-2026!',
     ]);
     assertSame(null, Db::get('SELECT sid FROM sessions WHERE sid = ?', ['autre-session']), 'une session ailleurs a survécu');
     assertTrue(Security::verifyPassword('Nouveau-Passe-2026!', Users::byId((int) $id)['password_hash']));
+
+    // On ne sait pas laquelle des sessions ouvertes est celle de l'intrus : la
+    // courante tombe donc avec les autres, et l'on se reconnecte.
+    assertSame('/connexion', $response->headers['Location']);
+    assertSame(0, (int) Db::value('SELECT COUNT(*) FROM sessions WHERE user_id = ?', [$id]));
+    assertSame(302, visit('GET', '/mon-espace')->status);
+    $back = visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Nouveau-Passe-2026!']);
+    assertSame('/mon-espace', $back->headers['Location']);
 });
 
 Tests::run('la déconnexion efface la session', function (): void {
