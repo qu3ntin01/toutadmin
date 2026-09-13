@@ -47,6 +47,7 @@ use App\Controllers\QualityController;
 use App\Controllers\RequestsController;
 use App\Controllers\RoomsController;
 use App\Controllers\SafetyController;
+use App\Controllers\SearchController;
 use App\Controllers\SecurityController;
 use App\Controllers\StockController;
 use App\Controllers\SigningController;
@@ -676,6 +677,9 @@ final class Kernel
 
         $router->get('/organigramme', OrgChartController::index(...));
         $router->get('/mon-espace', MemberController::home(...));
+        // Recherche globale : ouverte à toute personne connectée, mais chaque
+        // source est interrogée avec ses droits à elle.
+        $router->get('/recherche', SearchController::index(...));
         $router->get('/annuaire', DirectoryController::index(...));
         $router->get('/mon-profil', ProfileController::show(...));
         $router->post('/mon-profil', ProfileController::update(...));
