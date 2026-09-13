@@ -196,3 +196,33 @@ Tests::run('la liste des projets s\'affiche selon la place de chacun', function 
     assertTrue(!str_contains(visit('GET', '/projets')->body, 'Refonte de la ligne 2'),
         'un projet étranger apparaît dans la liste');
 });
+
+Tests::run('un temps non facturable se saisit, et sort de la rentabilité', function (): void {
+    $ids = seed();
+    $id = projet($ids, $ids['admin']);
+    Projects::addMember($id, $ids['member']);
+    visit('POST', '/connexion', ['email' => 'claire.moreau@entreprise.com', 'password' => 'Salariee-Demo-2026!']);
+
+    // Le formulaire porte un champ caché : une case décochée n'envoie rien, et
+    // sans lui le « non » du salarié ne parviendrait jamais au serveur.
+    $form = visit('GET', "/projets/$id")->body;
+    assertContains('name="billable" value="0"', $form);
+    assertContains('name="billable" value="1"', $form);
+
+    visit('POST', "/projets/$id/temps", ['spent_on' => '2026-01-06', 'hours' => '4', 'billable' => '1']);
+    visit('POST', "/projets/$id/temps", ['spent_on' => '2026-01-07', 'hours' => '3', 'billable' => '0']);
+
+    $entries = Projects::timeEntries($id);
+    assertSame(2, count($entries));
+    assertSame(0, (int) $entries[0]['billable'], 'la dernière saisie est non facturable');
+    assertSame(1, (int) $entries[1]['billable']);
+
+    // Les heures sont toutes comptées — c'est le temps passé —, mais seules
+    // les heures facturables se retrouvent dans ce qu'on peut facturer.
+    $profit = Projects::profitability((array) Projects::byId($id));
+    assertSame(7.0, $profit['hours']);
+    assertSame(4.0, $profit['billableHours']);
+
+    // L'écran distingue les deux d'une astérisque, comme l'autre édition.
+    assertContains('3 h *', visit('GET', "/projets/$id")->body);
+});

@@ -165,8 +165,15 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       </select>
     </label>
     <label><span><?= e(t('common.note')) ?></span><input type="text" name="note" maxlength="300" /></label>
+    <?php /* La case décochée n'envoie rien : le champ caché porte alors le « non ». */ ?>
+    <input type="hidden" name="billable" value="0" />
+    <label class="check-row span-2">
+      <input type="checkbox" name="billable" value="1" checked />
+      <span><?= e(t('prj.billable')) ?></span>
+    </label>
     <button type="submit" class="btn btn-primary"><?= e(t('common.save')) ?></button>
   </form>
+  <p class="hint"><?= e(t('prj.nonBillableNote')) ?></p>
 
   <?php if ($entries !== []): ?>
     <table class="table mt-l">
@@ -178,7 +185,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <tr>
             <td><?= e($entry['spent_on']) ?></td>
             <td><?= e($fullName($entry)) ?></td>
-            <td><?= e((string) $entry['hours']) ?> h</td>
+            <td><?= e((string) $entry['hours']) ?> h<?= (int) $entry['billable'] === 1 ? '' : ' *' ?></td>
             <td><?= e((string) $entry['note']) ?><?php if (!empty($entry['task_title'])): ?><br /><span class="cell-sub"><?= e($entry['task_title']) ?></span><?php endif; ?></td>
             <td>
               <form method="POST" action="/projets/temps/<?= (int) $entry['id'] ?>/supprimer">

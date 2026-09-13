@@ -30,7 +30,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Agenda | grille du mois, événements saisis, congés, salles, formations et fin de contrat posés d'eux-mêmes, agenda partagé d'équipe et de service |
 | Salles | parc, réservations sans chevauchement, annulation par son auteur |
 | Messagerie | boîtes de réception et d'envoi, réponse, marque « lu » posée par le seul destinataire, suppression par ceux que le message concerne |
-| Projets | projets, équipe projet, jalons, tâches en tableau, temps passé, rentabilité et écart au budget |
+| Projets | projets, équipe projet, jalons, tâches en tableau, temps passé facturable ou non, rentabilité et écart au budget |
 | Support | tickets internes et clients, délai de première réponse selon la priorité, notes internes, files par catégorie |
 | Gestion | tiers (clients, fournisseurs), contrats et alerte de préavis, factures client et fournisseur avec TVA, retard déduit de l'échéance, budgets par service avec consommé, notes de frais du dépôt au remboursement, multidevise à taux figé à l'émission |
 | Trésorerie | module optionnel : comptes bancaires dont le solde se recalcule des mouvements, rapprochement qui distingue émis d'encaissé et refuse un mouvement de sens contraire, prévisionnel et projection à douze semaines avec son point bas |
@@ -77,7 +77,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Double authentification | mise en service depuis son profil : secret préparé mais inactif tant qu'un premier code n'est pas validé — sans quoi une application mal réglée enfermerait la personne dehors —, code QR dessiné dans la page (codeur écrit à la main, aucune image distante), saisie manuelle possible, huit codes de secours affichés une seule fois puis conservés hachés, à usage unique et regénérables ; le retrait redemande le mot de passe et reste impossible si l'entreprise l'exige pour le rôle ; fermeture de toutes ses sessions, la sienne comprise |
 | Parc de salles | tenu par la gestion : création (nom unique, capacité bornée), ouverture et fermeture qui ne touchent pas aux réservations posées, suppression qui emporte les siennes, et libération d'une réservation qui n'est pas la sienne |
 
-557 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+558 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
