@@ -88,7 +88,7 @@
                 <h3><%= projectList.length %> projet(s)</h3>
                 <% if (canManage) { %>
                   <a class="btn btn-outline btn-sm" href="/projets<%= showArchived ? '' : '?archives=1' %>">
-                    <%= showArchived ? 'Masquer les archives' : 'Voir les archives' %>
+                    <%= showArchived ? t('prj.hideArchives') : t('prj.showArchives') %>
                   </a>
                 <% } %>
               </div>

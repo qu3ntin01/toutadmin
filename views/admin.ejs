@@ -976,7 +976,7 @@
                   <span class="palette-text"><%= p.description %></span>
 
                   <button type="submit" class="btn btn-sm <%= p.active ? 'btn-outline' : 'btn-primary' %>" <%= p.active ? 'disabled' : '' %>>
-                    <%= p.active ? 'Palette actuelle' : 'Appliquer' %>
+                    <%= p.active ? t('adm.currentPalette') : t('common.apply') %>
                   </button>
                 </form>
               <% }) %>
