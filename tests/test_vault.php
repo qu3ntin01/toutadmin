@@ -221,3 +221,12 @@ Tests::run('la conservation court sur cinquante ans', function (): void {
     assertSame((int) gmdate('Y') + 50, (int) substr((string) $document['retention_until'], 0, 4));
     assertSame('2076-01-15', Vault::retentionFrom('2026-01-15'));
 });
+
+Tests::run("l'écran de connexion dit aux anciens salariés par où passer", function (): void {
+    seed();
+    $page = visit('GET', '/connexion')->body;
+    // Le coffre reste atteignable sans compte : encore faut-il que la porte se
+    // voie, sinon la fonction existe sans servir.
+    assertContains('/coffre-fort/acces', $page);
+    assertSame(200, visit('GET', '/coffre-fort/acces')->status);
+});

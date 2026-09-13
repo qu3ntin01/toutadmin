@@ -233,3 +233,65 @@ Tests::run('la décision laisse une trace et un commentaire', function (): void 
     assertTrue(in_array('demande.refusee', $actions, true));
     assertSame(null, \App\Core\Audit::verify());
 });
+
+Tests::run('la liste des demandes se filtre, mais le compteur reste global', function (): void {
+    $ids = seed();
+    \App\Core\Db::run(
+        "INSERT INTO hr_requests (employee_id, type, start_date, end_date, days, status)
+         VALUES (?, 'Congés payés', '2099-01-05', '2099-01-06', 2, 'En attente')",
+        [$ids['member']]
+    );
+    \App\Core\Db::run(
+        "INSERT INTO hr_requests (employee_id, type, start_date, end_date, days, status)
+         VALUES (?, 'Congés payés', '2099-02-05', '2099-02-06', 2, 'Refusée')",
+        [$ids['member']]
+    );
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+
+    $all = visit('GET', '/rh')->body;
+    assertContains('2099-01-05', $all);
+    assertContains('2099-02-05', $all);
+
+    // Filtrée, la liste ne montre que ce qu'on demande…
+    $refused = visit('GET', '/rh', [], ['statut' => 'Refusée'])->body;
+    assertContains('2099-02-05', $refused);
+    assertTrue(!str_contains($refused, '2099-01-05'), 'la demande en attente est filtrée');
+
+    // … mais le compteur des demandes en attente reste celui de l'entreprise :
+    // filtrer ne doit pas faire disparaître le travail qui reste.
+    assertContains('<span class="muted">(1)</span>', $refused);
+
+    // Un statut inventé ne filtre rien plutôt que de tout cacher.
+    $bogus = visit('GET', '/rh', [], ['statut' => 'Inventée'])->body;
+    assertContains('2099-01-05', $bogus);
+    assertContains('2099-02-05', $bogus);
+});
+
+Tests::run('le salarié voit ce qui lui est confié : outils et matériel', function (): void {
+    $ids = seed();
+    $tool = \App\Modules\Tools::create([
+        'name' => 'Suite comptable', 'category' => 'Logiciel', 'reference' => 'CPT-42',
+        'login_url' => 'https://compta.exemple.fr', 'description' => 'Comptabilité générale',
+    ]);
+    \App\Modules\Tools::assign($ids['member'], $tool, 'Accès lecture', 'c.moreau');
+
+    $asset = \App\Modules\Assets::create([
+        'name' => 'Ordinateur portable', 'category' => 'Informatique', 'serialNumber' => 'SN-2026-7',
+    ]);
+    \App\Modules\Assets::assign($asset, $ids['member'], 'Remis à l’arrivée');
+
+    visit('POST', '/connexion', ['email' => 'claire.moreau@entreprise.com', 'password' => 'Salariee-Demo-2026!']);
+    $page = visit('GET', '/mon-espace')->body;
+
+    assertContains('Suite comptable', $page);
+    assertContains('c.moreau', $page, "l'identifiant de connexion lui est rappelé");
+    assertContains('https://compta.exemple.fr', $page);
+    assertContains('Ordinateur portable', $page);
+    assertContains('SN-2026-7', $page);
+
+    // Ce qui est confié à un autre ne s'affiche pas chez soi.
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+    $other = visit('GET', '/mon-espace')->body;
+    assertTrue(!str_contains($other, 'Suite comptable'));
+    assertTrue(!str_contains($other, 'SN-2026-7'));
+});

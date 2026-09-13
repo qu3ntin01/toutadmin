@@ -246,6 +246,80 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
   <p><a class="btn btn-sm" href="/annuaire"><?= e(t('directory.title')) ?></a></p>
 </section>
 
+<section class="card mt-l" id="outils">
+  <div class="card-head">
+    <div>
+      <h2><?= e(t('tools.mine')) ?> <span class="muted">(<?= count($tools) ?>)</span></h2>
+      <p class="card-sub"><?= e(t('tools.subtitle')) ?></p>
+    </div>
+  </div>
+  <?php if ($tools === []): ?>
+    <div class="empty-state"><?= e(t('tools.none')) ?></div>
+  <?php else: ?>
+    <div class="tool-grid">
+      <?php foreach ($tools as $tool): ?>
+        <article class="tool-card">
+          <div class="tool-card-top">
+            <?php if (!empty($tool['category'])): ?><span class="tag"><?= e((string) $tool['category']) ?></span><?php endif; ?>
+          </div>
+          <div>
+            <div class="tool-name"><?= e((string) $tool['name']) ?></div>
+            <?php if (!empty($tool['reference'])): ?>
+              <div class="tool-ref"><?= e(t('tools.reference', ['reference' => (string) $tool['reference']])) ?></div>
+            <?php endif; ?>
+          </div>
+
+          <?php if (!empty($tool['username']) || !empty($tool['login_url'])): ?>
+            <div class="cred-box">
+              <?php if (!empty($tool['username'])): ?>
+                <div class="cred-row">
+                  <span class="k"><?= e(t('tools.credentials')) ?></span>
+                  <span class="v"><?= e((string) $tool['username']) ?></span>
+                </div>
+              <?php endif; ?>
+              <?php if (!empty($tool['login_url'])): ?>
+                <div class="cred-row">
+                  <span class="k"><?= e(t('tools.access')) ?></span>
+                  <a href="<?= e((string) $tool['login_url']) ?>" target="_blank" rel="noopener noreferrer"
+                     class="btn btn-sm btn-outline"><?= e(t('common.open')) ?></a>
+                </div>
+              <?php endif; ?>
+            </div>
+          <?php endif; ?>
+
+          <?php if (!empty($tool['note'])): ?><p class="tool-note"><?= e((string) $tool['note']) ?></p><?php endif; ?>
+          <div class="tool-foot">
+            <?= e(t('tools.assignedOn', ['date' => date('d/m/Y', (int) strtotime((string) $tool['assigned_at']))])) ?>
+          </div>
+        </article>
+      <?php endforeach; ?>
+    </div>
+  <?php endif; ?>
+</section>
+
+<section class="card mt-l" id="materiel">
+  <div class="card-head">
+    <h2><?= e(t('erp.myAssets')) ?> <span class="muted">(<?= count($myAssets) ?>)</span></h2>
+  </div>
+  <?php if ($myAssets === []): ?>
+    <div class="empty-state"><?= e(t('esp.noEquipment')) ?></div>
+  <?php else: ?>
+    <ul class="people">
+      <?php foreach ($myAssets as $asset): ?>
+        <li>
+          <strong><?= e((string) $asset['name']) ?></strong>
+          <span class="muted"> ·
+            <?php $about = array_filter([(string) $asset['category'], (string) $asset['serial_number']]); ?>
+            <?= e($about === [] ? '—' : implode(' · ', $about)) ?>
+            · <?= e(t('esp.entrustedOn', ['date' => date('d/m/Y', (int) strtotime((string) $asset['assigned_at']))])) ?>
+          </span>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+    <p class="hint"><?= e(t('esp.returnNote')) ?></p>
+  <?php endif; ?>
+</section>
+
 <section class="card mt-l" id="documents">
   <h2><?= e(t('hr.catalogue')) ?></h2>
   <?php if ($documents === []): ?>

@@ -36,8 +36,16 @@ final class HrController
         $employees = array_values(array_filter(Users::employees(), static fn (array $e): bool => Hr::isEligible($e)));
         $openings = Talent::openings();
         $cvQuery = trim($request->input('cv'));
-        $requests = Hr::allRequests();
-        $pending = array_values(array_filter($requests, static fn (array $r): bool => $r['status'] === 'En attente'));
+        // Le filtre ne porte que sur la liste : le compteur des demandes en
+        // attente, lui, reste global — sinon filtrer ferait disparaître le
+        // travail qui reste à faire.
+        $statuses = ['En attente', 'Approuvée', 'Refusée', 'Annulée'];
+        $filter = in_array($request->input('statut'), $statuses, true) ? $request->input('statut') : null;
+        $requests = Hr::allRequests($filter);
+        $pending = array_values(array_filter(
+            Hr::allRequests('En attente'),
+            static fn (array $r): bool => $r['status'] === 'En attente'
+        ));
 
         $freelancers = Db::all(
             "SELECT * FROM users WHERE role = 'employee' AND contract_type = 'Freelance'
@@ -74,6 +82,7 @@ final class HrController
             'scripts' => ['/js/admin.js', '/js/confirm.js'],
             'employees' => $employees,
             'requests' => $requests,
+            'statusFilter' => $filter,
             'pendingCount' => count($pending),
             'payslips' => Hr::allPayslips(),
             // La rémunération des freelances est un sujet RH : elle vit ici,

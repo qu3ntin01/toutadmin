@@ -10,7 +10,27 @@ $statusClass = static fn (string $status): string => match ($status) {
 ?>
 <section class="tab-panel is-active" id="demandes">
   <div class="card">
-    <h2><?= e(t('nav.requests')) ?> <span class="muted">(<?= (int) $pendingCount ?>)</span></h2>
+    <div class="card-head">
+      <div>
+        <h2><?= e(t('nav.requests')) ?> <span class="muted">(<?= (int) $pendingCount ?>)</span></h2>
+        <p class="card-sub"><?= e(t('hr.requestsSub')) ?></p>
+      </div>
+      <div class="filter-pills">
+        <?php
+          $pills = [
+            [null, t('hr.filterAll')],
+            ['En attente', t('status.pending')],
+            ['Approuvée', t('hr.filterApproved')],
+            ['Refusée', t('hr.filterRefused')],
+            ['Annulée', t('hr.filterCancelled')],
+          ];
+        ?>
+        <?php foreach ($pills as [$value, $label]): ?>
+          <a href="/rh<?= $value === null ? '' : '?statut=' . rawurlencode($value) ?>#demandes"
+             class="tag<?= $statusFilter === $value ? ' tag-accent' : '' ?>"><?= e($label) ?></a>
+        <?php endforeach; ?>
+      </div>
+    </div>
     <?php if ($requests === []): ?>
       <div class="empty-state"><?= e(t('hr.noRequestForFilter')) ?></div>
     <?php else: ?>

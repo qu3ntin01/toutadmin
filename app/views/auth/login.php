@@ -35,6 +35,11 @@
         <button type="submit" class="btn btn-primary btn-block"><?= e(t('auth.signIn')) ?></button>
       </form>
 
+      <p class="auth-note">
+        <?= e(t('lgn.formerEmployee')) ?>
+        <a href="/coffre-fort/acces"><?= e(t('lgn.accessVault')) ?></a>.
+      </p>
+
       <div class="auth-foot">
         <p><?= e(t('auth.note')) ?></p>
         <p class="cell-sub"><?= e(t('common.language')) ?></p>

@@ -73,7 +73,7 @@ final class Tools
     public static function forEmployee(int $employeeId): array
     {
         return Db::all(
-            'SELECT a.*, t.name, t.category, t.login_url FROM assignments a
+            'SELECT a.*, t.name, t.category, t.reference, t.login_url FROM assignments a
              JOIN tools t ON t.id = a.tool_id WHERE a.employee_id = ?
              ORDER BY t.name COLLATE NOCASE',
             [$employeeId]

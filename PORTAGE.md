@@ -22,7 +22,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Administration | services, équipes, encadrement, rattachement, annuaire, personnel (création avec mot de passe temporaire, modification, activation, réinitialisation, suppression), messagerie du membre, actualités, outils, affectations, droits transverses, modules, palette et réglages de l'instance |
 | Organigramme | services, équipes, rattachements, sans-rattachement ; effectif entier pour l'administration et les RH |
 | Congés et paie | demande déposée par le salarié, décompte en jours ouvrés, approbation, refus, annulation avec recrédit du solde, ajustements de solde, fiches de paie |
-| Espace du salarié | informations, managers, demandes, solde, fiches de paie, actualités, collègues |
+| Espace du salarié | informations, managers, demandes, solde, fiches de paie, actualités, collègues, outils et accès confiés avec leur identifiant de connexion, matériel confié |
 | Demandes internes | types de demande et circuits configurables, seuils, validation étape par étape, refus motivé, retrait par le demandeur |
 | Notifications | file personnelle, déduplication, marquage lu, purge |
 | Documents, formation, entretiens | documents avec accusé de réception, catalogue et sessions de formation, inscriptions, entretiens annuels et commentaire du salarié |
@@ -77,7 +77,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Double authentification | mise en service depuis son profil : secret préparé mais inactif tant qu'un premier code n'est pas validé — sans quoi une application mal réglée enfermerait la personne dehors —, code QR dessiné dans la page (codeur écrit à la main, aucune image distante), saisie manuelle possible, huit codes de secours affichés une seule fois puis conservés hachés, à usage unique et regénérables ; le retrait redemande le mot de passe et reste impossible si l'entreprise l'exige pour le rôle ; fermeture de toutes ses sessions, la sienne comprise |
 | Parc de salles | tenu par la gestion : création (nom unique, capacité bornée), ouverture et fermeture qui ne touchent pas aux réservations posées, suppression qui emporte les siennes, et libération d'une réservation qui n'est pas la sienne |
 
-552 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+555 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -103,6 +103,15 @@ de nom (`list` devient `all`, `getEntries` devient `entries`, `assetById`
 devient `Assets::byId`) ou une notion sans objet en PHP (les intergiciels
 d'Express, le magasin de sessions). L'exception était le jeton d'installation,
 maintenant porté.
+
+Enfin la comparaison a porté sur les écrans : les clés de traduction employées
+par chacun des 79 gabarits de l'édition Node, cherchées dans toutes les sources
+d'ici. Là encore, l'essentiel de l'écart était du vocabulaire — mais quatre
+blocs manquaient vraiment, et ils sont posés : les outils et accès confiés au
+salarié (avec l'identifiant de connexion qu'on lui a donné), le matériel qui
+lui est remis, le filtre par statut de la liste des demandes RH, et le lien qui
+mène les anciens salariés au coffre-fort depuis l'écran de connexion — une
+fonction qu'on n'atteint pas est une fonction qui n'existe pas.
 
 Ce que l'une sait faire, l'autre le sait. Ce qui sera ajouté à l'une le sera
 à l'autre.

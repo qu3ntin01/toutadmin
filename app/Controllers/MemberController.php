@@ -12,12 +12,14 @@ use App\Core\Response;
 use App\Core\Session;
 use App\Core\View;
 use App\Modules\Announcements;
+use App\Modules\Assets;
 use App\Modules\Hr;
 use App\Modules\Notifications;
 use App\Modules\Workflows;
 use App\Modules\Org;
 use App\Modules\Talent;
 use App\Modules\Timesheet;
+use App\Modules\Tools;
 use App\Modules\Users;
 
 /** L'espace du salarié : ce qu'une personne voit en arrivant. */
@@ -68,6 +70,9 @@ final class MemberController
             'timeStats' => $freelance ? Timesheet::stats((int) $user['id'], $user['daily_rate']) : null,
             'navItems' => self::nav($user),
             'scripts' => $freelance ? ['/js/confirm.js', '/js/timer.js'] : ['/js/confirm.js'],
+            // Ce qui lui est confié : les accès applicatifs et le matériel.
+            'tools' => Tools::forEmployee((int) $user['id']),
+            'myAssets' => Assets::of((int) $user['id']),
             'documents' => Talent::documentsFor((int) $user['id']),
             'sessions' => Talent::sessions(),
             'registrations' => Talent::registrations(null, (int) $user['id']),
