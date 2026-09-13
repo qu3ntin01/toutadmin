@@ -13,7 +13,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 
 | Espace | Ce qui marche |
 | --- | --- |
-| Socle | base et schéma (143 tables), sessions en base, jeton CSRF, en-têtes, plafonds, journal scellé, 16 langues (2 770 clés) |
+| Socle | base et schéma (143 tables, celles de l'édition Node plus les plafonds tenus en base), sessions en base, jeton CSRF, en-têtes, plafonds, journal scellé, 16 langues (2 770 clés) |
 | Installation | jeton d'installation exigé avant tout (posé dans la configuration ou l'environnement, comparé à temps constant) pour que l'instance ne soit pas à qui la trouve entre le dépôt des fichiers et l'assistant, vérification de l'hébergement avec prérequis bloquants, entreprise, langue, congés annuels, compte d'administration, fermeture automatique |
 | Connexion | mot de passe, double authentification, codes de secours, verrouillage, changement de mot de passe forcé |
 | Mon espace | accueil du salarié |
@@ -77,7 +77,7 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Double authentification | mise en service depuis son profil : secret préparé mais inactif tant qu'un premier code n'est pas validé — sans quoi une application mal réglée enfermerait la personne dehors —, code QR dessiné dans la page (codeur écrit à la main, aucune image distante), saisie manuelle possible, huit codes de secours affichés une seule fois puis conservés hachés, à usage unique et regénérables ; le retrait redemande le mot de passe et reste impossible si l'entreprise l'exige pour le rôle ; fermeture de toutes ses sessions, la sienne comprise |
 | Parc de salles | tenu par la gestion : création (nom unique, capacité bornée), ouverture et fermeture qui ne touchent pas aux réservations posées, suppression qui emporte les siennes, et libération d'une réservation qui n'est pas la sienne |
 
-560 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+567 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
@@ -103,6 +103,16 @@ de nom (`list` devient `all`, `getEntries` devient `entries`, `assetById`
 devient `Assets::byId`) ou une notion sans objet en PHP (les intergiciels
 d'Express, le magasin de sessions). L'exception était le jeton d'installation,
 maintenant porté.
+
+La comparaison a aussi porté sur le schéma, sur les dictionnaires et sur la
+tâche planifiée. Les **142 tables** de l'édition Node sont ici colonne pour
+colonne, sans une de moins ni une de plus — hors `rate_limits`, qu'un site PHP
+doit tenir en base puisqu'il ne garde rien entre deux requêtes. Les **16
+dictionnaires** portent les mêmes 2 762 clés, plus huit propres à cette
+édition : les sept jours de la semaine, que PHP ne sait pas nommer sans
+`intl`, et un libellé de déverrouillage. La **tâche planifiée**, elle,
+oubliait trois choses que le balayage de l'édition Node fait chaque heure :
+elles sont reprises, et un test lance le script pour de vrai pour le vérifier.
 
 Enfin la comparaison a porté sur les écrans : les clés de traduction employées
 par chacun des 79 gabarits de l'édition Node, cherchées dans toutes les sources

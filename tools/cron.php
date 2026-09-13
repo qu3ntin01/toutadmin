@@ -21,12 +21,16 @@ if (PHP_SAPI !== 'cli') {
 
 require_once dirname(__DIR__) . '/app/bootstrap.php';
 
+use App\Core\Audit;
 use App\Core\Db;
+use App\Core\Settings;
 use App\Modules\Backup;
+use App\Modules\Billing;
 use App\Modules\Deadlines;
-use App\Modules\Webhooks;
 use App\Modules\Mailbox;
+use App\Modules\Notifications;
 use App\Modules\Users;
+use App\Modules\Webhooks;
 
 Db::migrate();
 
@@ -36,11 +40,32 @@ if ($closed > 0) {
     echo "$closed compte(s) fermé(s) : contrat arrivé à terme.\n";
 }
 
+// Facturation récurrente : les échéances atteintes partent d'elles-mêmes.
+// Une émission déjà faite est écartée par l'index unique, donc une tâche
+// rejouée ne facture jamais deux fois.
+$recurring = Billing::run();
+if ($recurring['issued'] !== [] || $recurring['skipped'] !== []) {
+    echo 'Abonnements : ' . count($recurring['issued']) . ' facture(s) émise(s)';
+    echo $recurring['skipped'] === []
+        ? "\n"
+        : ', ' . count($recurring['skipped']) . ' écartée(s) ('
+          . implode(', ', array_column($recurring['skipped'], 'reason')) . ")\n";
+}
+
 // Les échéances de l'entreprise deviennent des notifications. Rejouable :
 // la clé de déduplication empêche qu'une même échéance alerte deux fois.
 $notified = Deadlines::notify();
 if ($notified > 0) {
     echo "$notified notification(s) d'échéance posée(s).\n";
+}
+
+// Ce qui a été lu depuis deux mois n'a plus à encombrer la file, et le
+// journal d'audit s'efface au terme de conservation choisi par l'instance.
+Notifications::purgeRead();
+$retention = (int) Settings::get('audit_retention_days') ?: 365;
+$purged = Audit::purgeOlderThan($retention);
+if ($purged > 0) {
+    echo "$purged entrée(s) de journal purgée(s) (conservation : $retention jours).\n";
 }
 
 // Relève de la boîte aux lettres comptable : les factures reçues par courriel

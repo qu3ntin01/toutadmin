@@ -87,3 +87,37 @@ Tests::run('le code temporaire suit la même formule que l\'édition Node', func
     assertTrue(Totp::verify($secret, Totp::currentCode($secret)));
     assertTrue(!Totp::verify($secret, '123'), 'un code trop court est accepté');
 });
+
+Tests::run('les en-têtes de sécurité suivent ceux de l’autre édition', function (): void {
+    seed();
+    $response = visit('GET', '/connexion');
+    $headers = $response->headers;
+
+    // Le socle : politique de contenu à nonce, pas de cadre, pas de reniflage
+    // de type, référent limité au site, et rien à charger d'ailleurs.
+    assertContains("script-src 'self' 'nonce-", $headers['Content-Security-Policy']);
+    assertContains("frame-ancestors 'none'", $headers['Content-Security-Policy']);
+    assertContains("object-src 'none'", $headers['Content-Security-Policy']);
+    assertSame('nosniff', $headers['X-Content-Type-Options']);
+    assertSame('DENY', $headers['X-Frame-Options']);
+    assertSame('same-origin', $headers['Referrer-Policy']);
+    assertSame('same-origin', $headers['Cross-Origin-Opener-Policy']);
+    assertSame('same-origin', $headers['Cross-Origin-Resource-Policy']);
+    assertSame('none', $headers['X-Permitted-Cross-Domain-Policies']);
+
+    // En clair, pas de HSTS : annoncé depuis une page non chiffrée il n'est
+    // pas lu, et il enfermerait un essai local pour six mois.
+    assertTrue(!isset($headers['Strict-Transport-Security']), 'HSTS posé sur une connexion en clair');
+
+    // Chiffrée, il est là.
+    $_SERVER['HTTPS'] = 'on';
+    $secure = visit('GET', '/connexion');
+    unset($_SERVER['HTTPS']);
+    assertContains('max-age=15552000', $secure->headers['Strict-Transport-Security']);
+    assertContains('includeSubDomains', $secure->headers['Strict-Transport-Security']);
+
+    // Le nonce change à chaque réponse : sans quoi il ne servirait à rien.
+    $first = visit('GET', '/connexion')->headers['Content-Security-Policy'];
+    $second = visit('GET', '/connexion')->headers['Content-Security-Policy'];
+    assertTrue($first !== $second, 'le nonce est le même d’une réponse à l’autre');
+});

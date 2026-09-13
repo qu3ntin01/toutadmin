@@ -3,6 +3,9 @@
 /**
  * Configuration de déploiement.
  *
+ * Ce fichier est lu depuis la racine du dossier. Pour le tenir ailleurs, posez
+ * son chemin dans la variable d'environnement TOUTADMIN_CONFIG.
+ *
  * L'installateur écrit config.php à partir de ce modèle. Ce fichier-ci est
  * versionné et documente chaque entrée ; config.php, lui, ne l'est jamais — il
  * porte la clé de session de l'instance.

@@ -17,7 +17,10 @@ final class Config
 
     public static function load(?string $file = null): void
     {
-        $file ??= APP_ROOT . '/config.php';
+        // La variable d'environnement sert aux hébergements qui préfèrent tenir
+        // leur configuration ailleurs, et à la tâche planifiée quand on veut la
+        // faire tourner sur une autre instance que celle du dossier.
+        $file ??= ((string) (getenv('TOUTADMIN_CONFIG') ?: '')) ?: APP_ROOT . '/config.php';
         $defaults = [
             'db_path' => APP_ROOT . '/data/app.sqlite',
             'data_dir' => APP_ROOT . '/data',

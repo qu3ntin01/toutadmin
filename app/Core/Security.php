@@ -91,10 +91,25 @@ final class Security
         password_verify($password, self::DUMMY_HASH);
     }
 
+    /** La requête courante voyage-t-elle chiffrée ? */
+    private static function isSecure(): bool
+    {
+        if (($_SERVER['HTTPS'] ?? '') !== '' && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+            return true;
+        }
+        if ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443) {
+            return true;
+        }
+        // Derrière un proxy de confiance seulement : sinon n'importe qui
+        // annoncerait le protocole de son choix dans un en-tête.
+        return Config::get('trust_proxy', false)
+            && strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+    }
+
     /** En-têtes de sécurité, posés sur chaque réponse HTML. */
     public static function headers(string $nonce): array
     {
-        return [
+        $headers = [
             'Content-Security-Policy' => "default-src 'self'; script-src 'self' 'nonce-$nonce'; "
                 . "style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; "
                 . "form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'",
@@ -102,7 +117,19 @@ final class Security
             'X-Frame-Options' => 'DENY',
             'Referrer-Policy' => 'same-origin',
             'Cross-Origin-Opener-Policy' => 'same-origin',
+            // Une ressource de ce site ne se charge pas depuis un autre site.
+            'Cross-Origin-Resource-Policy' => 'same-origin',
+            'X-Permitted-Cross-Domain-Policies' => 'none',
+            'X-DNS-Prefetch-Control' => 'off',
             'Permissions-Policy' => 'geolocation=(), camera=(), microphone=(), payment=()',
         ];
+
+        // HSTS ne se pose que sur une connexion déjà chiffrée : annoncé depuis
+        // une page en clair, il n'est pas lu, et il enfermerait un essai local
+        // en https pour six mois.
+        if (self::isSecure()) {
+            $headers['Strict-Transport-Security'] = 'max-age=15552000; includeSubDomains';
+        }
+        return $headers;
     }
 }
