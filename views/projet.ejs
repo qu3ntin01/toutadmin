@@ -182,6 +182,8 @@
                   </select>
                 </label>
                 <label class="span-2"><span><%= t('common.note') %></span><input type="text" name="note" maxlength="300" /></label>
+                <%# La case décochée n'envoie rien : le champ caché porte alors le « non ». %>
+                <input type="hidden" name="billable" value="0" />
                 <label class="check-row span-2">
                   <input type="checkbox" name="billable" value="1" checked />
                   <span><%= t('prj.billable') %></span>

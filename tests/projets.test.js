@@ -123,6 +123,30 @@ test('Projets, tâches et temps passé', async (t) => {
     assert.equal(profit.consumed, 3);        // 750 / 30 000
   });
 
+  await t.test('un temps non facturable sort de ce qui est facturable', async () => {
+    // La case décochée n'envoie rien : c'est le champ caché du formulaire qui
+    // porte le « non ». Sans lui, tout temps serait facturable malgré la case.
+    const { body: form } = await admin.html(`/projets/${projectId}`);
+    assert.match(form, /name="billable" value="0"/);
+    assert.match(form, /name="billable" value="1"/);
+
+    await admin.refreshToken(`/projets/${projectId}`);
+    await admin.post(`/projets/${projectId}/temps`, { spent_on: today(), hours: '2', billable: '0' });
+
+    const entry = db.prepare('SELECT * FROM project_time ORDER BY id DESC LIMIT 1').get();
+    assert.equal(entry.billable, 0);
+
+    const profit = projects.profitability(projects.byId(projectId));
+    assert.equal(profit.hours, 12);          // le temps passé se compte en entier
+    assert.equal(profit.billableHours, 10);  // ce qu'on peut facturer, non
+
+    // L'écran distingue les deux d'une astérisque.
+    assert.match((await admin.html(`/projets/${projectId}`)).body, /2 h \*/);
+
+    await admin.refreshToken(`/projets/${projectId}`);
+    await admin.post(`/projets/temps/${entry.id}/supprimer`);
+  });
+
   await t.test('refuse une saisie démesurée ou dans le futur', async () => {
     await admin.refreshToken(`/projets/${projectId}`);
     await admin.post(`/projets/${projectId}/temps`, { spent_on: today(), hours: '30' });
