@@ -1,7 +1,23 @@
 <form method="GET" action="/annuaire" class="toolbar">
   <label class="sr-only" for="q"><?= e(t('directory.search')) ?></label>
   <input type="search" id="q" name="q" value="<?= e($search) ?>" placeholder="<?= e(t('directory.search')) ?>" />
-  <button type="submit" class="btn btn-sm"><?= e(t('directory.search')) ?></button>
+  <select name="service">
+    <option value=""><?= e(t('common.department')) ?></option>
+    <?php foreach ($departments as $department): ?>
+      <option value="<?= (int) $department['id'] ?>"<?= $departmentFilter === (int) $department['id'] ? ' selected' : '' ?>>
+        <?= e((string) $department['name']) ?>
+      </option>
+    <?php endforeach; ?>
+  </select>
+  <select name="equipe">
+    <option value=""><?= e(t('common.team')) ?></option>
+    <?php foreach ($teams as $team): ?>
+      <option value="<?= (int) $team['id'] ?>"<?= $teamFilter === (int) $team['id'] ? ' selected' : '' ?>>
+        <?= e((string) $team['name']) ?>
+      </option>
+    <?php endforeach; ?>
+  </select>
+  <button type="submit" class="btn btn-sm"><?= e(t('common.search')) ?></button>
 </form>
 
 <p class="muted"><?= e(t('directory.count', ['count' => count($people)])) ?></p>

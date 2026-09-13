@@ -248,14 +248,18 @@ Tests::run('la liste des demandes se filtre, mais le compteur reste global', fun
     );
     visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
 
+    // Les dates sont écrites dans la langue du lecteur, comme dans l'autre
+    // édition : on cherche donc la forme rendue, pas la forme stockée.
+    $janvier = \App\Core\Dates::short('2099-01-05');
+    $fevrier = \App\Core\Dates::short('2099-02-05');
     $all = visit('GET', '/rh')->body;
-    assertContains('2099-01-05', $all);
-    assertContains('2099-02-05', $all);
+    assertContains($janvier, $all);
+    assertContains($fevrier, $all);
 
     // Filtrée, la liste ne montre que ce qu'on demande…
     $refused = visit('GET', '/rh', [], ['statut' => 'Refusée'])->body;
-    assertContains('2099-02-05', $refused);
-    assertTrue(!str_contains($refused, '2099-01-05'), 'la demande en attente est filtrée');
+    assertContains($fevrier, $refused);
+    assertTrue(!str_contains($refused, $janvier), 'la demande en attente est filtrée');
 
     // … mais le compteur des demandes en attente reste celui de l'entreprise :
     // filtrer ne doit pas faire disparaître le travail qui reste.
@@ -263,8 +267,8 @@ Tests::run('la liste des demandes se filtre, mais le compteur reste global', fun
 
     // Un statut inventé ne filtre rien plutôt que de tout cacher.
     $bogus = visit('GET', '/rh', [], ['statut' => 'Inventée'])->body;
-    assertContains('2099-01-05', $bogus);
-    assertContains('2099-02-05', $bogus);
+    assertContains($janvier, $bogus);
+    assertContains($fevrier, $bogus);
 });
 
 Tests::run('le salarié voit ce qui lui est confié : outils et matériel', function (): void {

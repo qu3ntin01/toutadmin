@@ -69,13 +69,13 @@ $statusClass = static fn (string $s): string => match ($s) {
     <div class="org-head">
       <h2><?= e($isAgent ? t('nav.support') : t('nav.support')) ?></h2>
       <form method="GET" action="/support" class="inline-form">
-        <select name="statut" onchange="this.form.submit()">
+        <select name="statut">
           <option value=""><?= e(t('hr.filterAll')) ?></option>
           <?php foreach ($statuses as $status): ?>
             <option value="<?= e($status) ?>"<?= $filters['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
           <?php endforeach; ?>
         </select>
-        <noscript><button type="submit" class="btn btn-sm"><?= e(t('directory.search')) ?></button></noscript>
+        <button type="submit" class="btn btn-sm"><?= e(t('directory.search')) ?></button>
       </form>
     </div>
 

@@ -167,7 +167,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
       <tbody>
         <?php foreach ($receiptList as $receipt): ?>
           <tr>
-            <td><?= e($receipt['received_on']) ?></td>
+            <td><?= e(\App\Core\Dates::short((string) $receipt['received_on'])) ?></td>
             <td><?= e($receipt['label']) ?></td>
             <td><?= e((string) $receipt['quantity']) ?></td>
             <td><?= e(trim(($receipt['first_name'] ?? '') . ' ' . ($receipt['last_name'] ?? ''))) ?></td>

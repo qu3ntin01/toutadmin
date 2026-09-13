@@ -32,16 +32,29 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <br /><span class="cell-sub"><?= e($fullName($task)) ?></span>
             <?php endif; ?>
             <?php if (!empty($task['due_date'])): ?>
-              <br /><span class="cell-sub"><?= e($task['due_date']) ?></span>
+              <br /><span class="cell-sub"><?= e(\App\Core\Dates::short((string) $task['due_date'])) ?></span>
             <?php endif; ?>
             <form method="POST" action="/projets/taches/<?= (int) $task['id'] ?>/statut" class="inline-form">
               <?= $csrf ?>
-              <select name="status" onchange="this.form.submit()">
+              <select name="status">
                 <?php foreach ($taskStatuses as $status): ?>
                   <option value="<?= e($status) ?>"<?= $task['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                 <?php endforeach; ?>
               </select>
-              <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+              <button type="submit" class="btn btn-sm"><?= e(t('prj.move')) ?></button>
+            </form>
+            <form method="POST" action="/projets/taches/<?= (int) $task['id'] ?>/affecter" class="inline-form">
+              <?= $csrf ?>
+              <select name="assignee_id">
+                <option value="">—</option>
+                <?php foreach ($people as $person): ?>
+                  <option value="<?= (int) $person['id'] ?>"
+                          <?= (int) ($task['assignee_id'] ?? 0) === (int) $person['id'] ? ' selected' : '' ?>>
+                    <?= e($fullName($person)) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+              <button type="submit" class="btn btn-sm"><?= e(t('common.assign')) ?></button>
             </form>
             <?php if ($canManage): ?>
               <form method="POST" action="/projets/taches/<?= (int) $task['id'] ?>/supprimer" class="inline-form">
@@ -91,7 +104,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <strong><?= e($milestone['title']) ?></strong>
           <span class="cell-sub"> · <?= e((string) ($milestone['due_date'] ?? '—')) ?></span>
           <?php if ($milestone['reached_on'] !== null): ?>
-            <span class="status status-on"><?= e($milestone['reached_on']) ?></span>
+            <span class="status status-on"><?= e(\App\Core\Dates::short((string) $milestone['reached_on'])) ?></span>
           <?php endif; ?>
           <?php if ($canManage): ?>
             <form method="POST" action="/projets/jalons/<?= (int) $milestone['id'] ?>/basculer" class="inline-form">
@@ -183,7 +196,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <tbody>
         <?php foreach ($entries as $entry): ?>
           <tr>
-            <td><?= e($entry['spent_on']) ?></td>
+            <td><?= e(\App\Core\Dates::short((string) $entry['spent_on'])) ?></td>
             <td><?= e($fullName($entry)) ?></td>
             <td><?= e((string) $entry['hours']) ?> h<?= (int) $entry['billable'] === 1 ? '' : ' *' ?></td>
             <td><?= e((string) $entry['note']) ?><?php if (!empty($entry['task_title'])): ?><br /><span class="cell-sub"><?= e($entry['task_title']) ?></span><?php endif; ?></td>

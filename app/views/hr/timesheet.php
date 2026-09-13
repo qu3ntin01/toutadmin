@@ -67,9 +67,9 @@ $money = static fn (float $value): string => number_format($value, 2, ',', ' ');
             $end = $entry['clock_out'] === null ? null : (int) strtotime((string) $entry['clock_out']);
           ?>
           <tr>
-            <td class="cell-strong"><?= e(date('d/m/Y', $start)) ?></td>
-            <td class="cell-sub"><?= e(date('H:i', $start)) ?></td>
-            <td class="cell-sub"><?= $end === null ? '—' : e(date('H:i', $end)) ?></td>
+            <td class="cell-strong"><?= e(\App\Core\Dates::short(gmdate('Y-m-d', $start))) ?></td>
+            <td class="cell-sub"><?= e(gmdate('H:i', $start)) ?></td>
+            <td class="cell-sub"><?= $end === null ? '—' : e(gmdate('H:i', $end)) ?></td>
             <td>
               <?php if ($end === null): ?>
                 <span class="status status-on"><?= e(t('status.running')) ?></span>

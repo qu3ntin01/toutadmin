@@ -89,7 +89,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <td>
                 <?= e((string) $employee['contract_type']) ?>
                 <?php if (!empty($employee['contract_end_date'])): ?>
-                  <br /><span class="cell-sub"><?= e($employee['contract_end_date']) ?></span>
+                  <br /><span class="cell-sub"><?= e(\App\Core\Dates::short((string) $employee['contract_end_date'])) ?></span>
                 <?php endif; ?>
               </td>
               <td>
@@ -452,7 +452,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <article class="sub-card">
         <h3><?= e($item['title']) ?></h3>
         <p class="cell-sub">
-          <?= e($item['created_at']) ?> ·
+          <?= e(\App\Core\Dates::moment((string) $item['created_at'])) ?> ·
           <?= e($item['scope'] === 'company' ? t('home.companyNews') : (string) $item['scope_name']) ?>
         </p>
         <p><?= nl2br(e((string) $item['body'])) ?></p>

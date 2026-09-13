@@ -851,6 +851,17 @@ final class Kernel
             }
             return null;
         }
+        // L'espace du salarié et son agenda appartiennent au personnel :
+        // l'administration a sa console, et un compte d'administration n'a ni
+        // solde de congés, ni manager, ni fiche de paie à y lire. Même règle
+        // que l'édition Node, où ces deux espaces exigent le rôle « employee ».
+        foreach (['/mon-espace', '/agenda'] as $staffOnly) {
+            if (($request->path === $staffOnly || str_starts_with($request->path, $staffOnly . '/'))
+                && $user['role'] !== 'employee') {
+                return Response::redirect('/admin');
+            }
+        }
+
         // Mot de passe à changer : aucune autre page tant que ce n'est pas fait.
         if ((int) $user['must_change_password'] === 1 && $request->path !== '/mot-de-passe' && $request->path !== '/deconnexion') {
             return Response::redirect('/mot-de-passe');

@@ -91,7 +91,7 @@
       <ul class="people">
         <?php foreach ($upcoming as $entry): ?>
           <li>
-            <strong><?= e($entry['date']) ?></strong>
+            <strong><?= e(\App\Core\Dates::short((string) $entry['date'])) ?></strong>
             <?= e($entry['title']) ?>
             <?php if ($entry['time'] !== ''): ?><span class="cell-sub"> · <?= e($entry['time']) ?></span><?php endif; ?>
           </li>
@@ -128,18 +128,18 @@
       <tbody>
         <?php foreach ($mine as $entry): ?>
           <tr>
-            <td><?= e($entry['date']) ?><?= $entry['time'] === '' ? '' : '<br />' ?><span class="cell-sub"><?= e($entry['time']) ?></span></td>
+            <td><?= e(\App\Core\Dates::short((string) $entry['date'])) ?><?= $entry['time'] === '' ? '' : '<br />' ?><span class="cell-sub"><?= e($entry['time']) ?></span></td>
             <td><?= e($entry['title']) ?><br /><span class="cell-sub"><?= e((string) $entry['category']) ?></span></td>
             <td>
               <form method="POST" action="/agenda/<?= (int) $entry['id'] ?>/partage" class="inline-form">
                 <?= $csrf ?>
                 <input type="hidden" name="mois" value="<?= e($month) ?>" />
-                <select name="visibility" onchange="this.form.submit()">
+                <select name="visibility">
                   <?php foreach ($visibilities as $visibility): ?>
                     <option value="<?= e($visibility) ?>"<?= $entry['visibility'] === $visibility ? ' selected' : '' ?>><?= e($visibility) ?></option>
                   <?php endforeach; ?>
                 </select>
-                <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
               </form>
             </td>
             <td>

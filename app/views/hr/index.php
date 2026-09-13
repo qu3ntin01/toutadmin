@@ -50,7 +50,7 @@ $statusClass = static fn (string $status): string => match ($status) {
             <tr>
               <td><?= e($fullName($row)) ?><br /><span class="cell-sub"><?= e($row['email']) ?></span></td>
               <td><?= e($row['type']) ?></td>
-              <td><?= e($row['start_date']) ?> → <?= e($row['end_date']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $row['start_date'])) ?> → <?= e(\App\Core\Dates::short((string) $row['end_date'])) ?></td>
               <td><?= (int) $row['days'] ?></td>
               <td><span class="status <?= e($statusClass($row['status'])) ?>"><?= e(st($row['status'])) ?></span></td>
               <td class="row-actions">
@@ -355,7 +355,7 @@ $statusClass = static fn (string $status): string => match ($status) {
           <?php foreach ($sessions as $session): ?>
             <tr>
               <td><strong><?= e($session['title']) ?></strong><br /><span class="cell-sub"><?= e((string) $session['location']) ?></span></td>
-              <td><?= e($session['start_date']) ?><?= empty($session['end_date']) ? '' : ' → ' . e($session['end_date']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $session['start_date'])) ?><?= empty($session['end_date']) ? '' : ' → ' . e(\App\Core\Dates::short((string) $session['end_date'])) ?></td>
               <td>
                 <?= (int) $session['taken'] ?><?= (int) $session['seats'] > 0 ? ' / ' . (int) $session['seats'] : '' ?>
                 <?php if ((int) $session['pending'] > 0): ?>
@@ -365,12 +365,12 @@ $statusClass = static fn (string $status): string => match ($status) {
               <td>
                 <form method="POST" action="/rh/sessions/<?= (int) $session['id'] ?>/statut" class="inline-form">
                   <?= $csrf ?>
-                  <select name="status" onchange="this.form.submit()">
+                  <select name="status">
                     <?php foreach ($sessionStatuses as $status): ?>
                       <option value="<?= e($status) ?>"<?= $session['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
                 </form>
               </td>
               <td>
@@ -405,7 +405,7 @@ $statusClass = static fn (string $status): string => match ($status) {
           <?php foreach ($registrations as $registration): ?>
             <tr>
               <td><?= e($fullName($registration)) ?></td>
-              <td><?= e($registration['title']) ?><br /><span class="cell-sub"><?= e($registration['start_date']) ?></span></td>
+              <td><?= e($registration['title']) ?><br /><span class="cell-sub"><?= e(\App\Core\Dates::short((string) $registration['start_date'])) ?></span></td>
               <td><span class="status <?= $registration['status'] === 'Inscrite' ? 'status-on' : ($registration['status'] === 'Demandée' ? 'status-wait' : 'status-off') ?>"><?= e(st($registration['status'])) ?></span></td>
               <td class="row-actions">
                 <?php if ($registration['status'] === 'Demandée'): ?>
@@ -460,7 +460,7 @@ $statusClass = static fn (string $status): string => match ($status) {
         <div>
           <span class="org-name"><?= e($fullName($review)) ?> — <?= e($review['period']) ?></span>
           <span class="cell-sub">
-            <?= e((string) $review['scheduled_on']) ?>
+            <?= e(\App\Core\Dates::short((string) $review['scheduled_on'])) ?>
             <?php if (!empty($review['reviewer_first_name'])): ?>
               · <?= e(trim($review['reviewer_first_name'] . ' ' . $review['reviewer_last_name'])) ?>
             <?php endif; ?>
@@ -569,9 +569,9 @@ $statusClass = static fn (string $status): string => match ($status) {
                     <strong><?= e(trim($member['first_name'] . ' ' . $member['last_name'])) ?></strong>
                     <div class="cell-sub"><?= e($member['email']) ?></div>
                   </td>
-                  <td><span class="tag"><?= e($member['mandate_role']) ?></span></td>
+                  <td><span class="tag"><?= e(\App\Core\Dates::short((string) $member['mandate_role'])) ?></span></td>
                   <td>
-                    <?= e($member['started_on']) ?><?= !empty($member['ends_on']) ? ' → ' . e($member['ends_on']) : '' ?>
+                    <?= e(\App\Core\Dates::short((string) $member['started_on'])) ?><?= !empty($member['ends_on']) ? ' → ' . e(\App\Core\Dates::short((string) $member['ends_on'])) : '' ?>
                   </td>
                   <td class="actions">
                     <form method="POST" action="/rh/cse/mandats/<?= (int) $member['user_id'] ?>/retirer"
@@ -768,7 +768,7 @@ $statusClass = static fn (string $status): string => match ($status) {
             <?php foreach ($cseMeetings as $meeting): ?>
               <tr>
                 <td>
-                  <strong><?= e($meeting['meeting_date']) ?></strong>
+                  <strong><?= e(\App\Core\Dates::short((string) $meeting['meeting_date'])) ?></strong>
                   <?php if ($meeting['meeting_time'] !== ''): ?><div class="cell-sub"><?= e($meeting['meeting_time']) ?></div><?php endif; ?>
                 </td>
                 <td><?= e($meeting['title']) ?></td>

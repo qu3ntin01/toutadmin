@@ -34,7 +34,7 @@ $rows = $box === 'envoyes' ? $sent : $inbox;
             <td>
               <a href="/messagerie?boite=<?= e($box) ?>&amp;message=<?= (int) $row['id'] ?>"><?= e($row['subject']) ?></a>
             </td>
-            <td><span class="cell-sub"><?= e($row['created_at']) ?></span></td>
+            <td><span class="cell-sub"><?= e(\App\Core\Dates::moment((string) $row['created_at'])) ?></span></td>
             <td>
               <form method="POST" action="/messagerie/<?= (int) $row['id'] ?>/supprimer">
                 <?= $csrf ?>
@@ -54,7 +54,7 @@ $rows = $box === 'envoyes' ? $sent : $inbox;
     <p class="cell-sub">
       <?= e(trim($opened['sender_first'] . ' ' . $opened['sender_last'])) ?>
       → <?= e(trim($opened['recipient_first'] . ' ' . $opened['recipient_last'])) ?>
-      · <?= e($opened['created_at']) ?>
+      · <?= e(\App\Core\Dates::moment((string) $opened['created_at'])) ?>
     </p>
     <p><?= nl2br(e((string) $opened['body'])) ?></p>
 

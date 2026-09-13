@@ -38,7 +38,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
         </select>
       </label>
       <label class="span-2"><span><?= e(t('common.note')) ?></span><input type="text" name="note" maxlength="500" /></label>
-      <button type="submit" class="btn btn-primary"><?= e(t('common.record')) ?></button>
+      <button type="submit" class="btn btn-primary"><?= e(t('common.save')) ?></button>
     </form>
     <p class="muted"><?= e(t('imm.decliningNote')) ?></p>
   </div>
@@ -60,7 +60,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
                 ])) ?>
               </span>
               <span class="cell-sub">
-                <?= e(t('imm.acquired')) ?> <?= e($asset['acquired_on']) ?>
+                <?= e(t('imm.acquired')) ?> <?= e(\App\Core\Dates::short((string) $asset['acquired_on'])) ?>
                 · <?= e($money((float) $asset['amount'])) ?>
                 · <?= e(t('imm.netBookValue')) ?> <?= e($money($asset['bookValue'])) ?>
                 <?php if (!empty($asset['disposed_on'])): ?>

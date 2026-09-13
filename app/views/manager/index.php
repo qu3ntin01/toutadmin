@@ -72,7 +72,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                 <?= e($row['type']) ?>
                 <?php if (!empty($row['reason'])): ?><br /><span class="cell-sub"><?= e($row['reason']) ?></span><?php endif; ?>
               </td>
-              <td><?= e($row['start_date']) ?> → <?= e($row['end_date']) ?> (<?= (int) $row['days'] ?>)</td>
+              <td><?= e(\App\Core\Dates::short((string) $row['start_date'])) ?> → <?= e(\App\Core\Dates::short((string) $row['end_date'])) ?> (<?= (int) $row['days'] ?>)</td>
               <td>
                 <span class="status <?= $row['status'] === 'Approuvée' ? 'status-on' : ($row['status'] === 'En attente' ? 'status-wait' : 'status-off') ?>">
                   <?= e(st($row['status'])) ?>
@@ -133,7 +133,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <div class="org-head">
         <div>
           <span class="org-name"><?= e($fullName($point)) ?></span>
-          <span class="cell-sub"><?= e($point['scheduled_on']) ?></span>
+          <span class="cell-sub"><?= e(\App\Core\Dates::short((string) $point['scheduled_on'])) ?></span>
         </div>
         <span class="status <?= $point['status'] === 'Tenu' ? 'status-on' : ($point['status'] === 'Planifié' ? 'status-wait' : 'status-off') ?>">
           <?= e(st($point['status'])) ?>
@@ -212,7 +212,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
     <?php foreach ($teamNews as $item): ?>
       <article class="sub-card">
         <h3><?= e($item['title']) ?></h3>
-        <p class="cell-sub"><?= e($item['created_at']) ?> · <?= e((string) $item['scope_name']) ?></p>
+        <p class="cell-sub"><?= e(\App\Core\Dates::moment((string) $item['created_at'])) ?> · <?= e((string) $item['scope_name']) ?></p>
         <p><?= nl2br(e((string) $item['body'])) ?></p>
         <form method="POST" action="/mon-equipe/actualites/<?= (int) $item['id'] ?>/supprimer">
           <?= $csrf ?>

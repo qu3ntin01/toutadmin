@@ -226,3 +226,28 @@ Tests::run('un temps non facturable se saisit, et sort de la rentabilité', func
     // L'écran distingue les deux d'une astérisque, comme l'autre édition.
     assertContains('3 h *', visit('GET', "/projets/$id")->body);
 });
+
+Tests::run('une tâche s’affecte depuis l’écran, et son statut s’y change vraiment', function (): void {
+    $ids = seed();
+    $id = projet($ids, $ids['admin']);
+    Projects::addMember($id, $ids['member']);
+    $task = Projects::createTask(['projectId' => $id, 'title' => 'Chiffrage']);
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+
+    $page = visit('GET', "/projets/$id")->body;
+    // La politique de contenu interdit les gestionnaires en ligne : un menu qui
+    // comptait sur « onchange » ne partirait jamais. Il faut un vrai bouton.
+    assertTrue(!str_contains($page, 'onchange='), 'un gestionnaire en ligne subsiste, il sera bloqué');
+    assertContains('/projets/taches/' . $task . '/affecter', $page);
+    assertContains('/projets/taches/' . $task . '/statut', $page);
+
+    visit('POST', '/projets/taches/' . $task . '/affecter', ['assignee_id' => (string) $ids['member']]);
+    assertSame($ids['member'], (int) \App\Core\Db::value('SELECT assignee_id FROM project_tasks WHERE id = ?', [$task]));
+
+    visit('POST', '/projets/taches/' . $task . '/statut', ['status' => 'Terminée']);
+    assertSame('Terminée', (string) \App\Core\Db::value('SELECT status FROM project_tasks WHERE id = ?', [$task]));
+
+    // Et l'affectation se retire.
+    visit('POST', '/projets/taches/' . $task . '/affecter', ['assignee_id' => '']);
+    assertSame(null, \App\Core\Db::value('SELECT assignee_id FROM project_tasks WHERE id = ?', [$task]));
+});

@@ -181,10 +181,10 @@ Tests::run('le salarié lit ses points individuels, sans la note privée du mana
     visit('POST', '/connexion', ['email' => 'marc.leroy@entreprise.com', 'password' => 'Salarie-Demo-2026!']);
     $page = visit('GET', '/mon-espace')->body;
 
-    assertContains('02/03/2099', $page);
+    assertContains(\App\Core\Dates::short('2099-03-02'), $page);
     assertContains('Charge de travail', $page);
     assertContains('Point partagé', $page);
-    assertContains('02/06/2099', $page, 'le prochain rendez-vous est annoncé');
+    assertContains(\App\Core\Dates::short('2099-06-02'), $page, 'le prochain rendez-vous est annoncé');
     // Ce que le manager garde pour lui ne traverse pas l'écran du salarié.
     assertTrue(!str_contains($page, 'entre nous'), 'la note privée reste privée');
 });

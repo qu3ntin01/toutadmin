@@ -77,7 +77,7 @@ $statusClass = static fn (string $status): string => match ($status) {
         <tbody>
           <?php foreach ($mine as $row): ?>
             <tr>
-              <td><?= e($row['form']['label'] ?? '—') ?><br /><span class="cell-sub"><?= e($row['created_at']) ?></span></td>
+              <td><?= e($row['form']['label'] ?? '—') ?><br /><span class="cell-sub"><?= e(\App\Core\Dates::moment((string) $row['created_at'])) ?></span></td>
               <td><?= e((string) $row['summary']) ?></td>
               <td><span class="status <?= e($statusClass($row['status'])) ?>"><?= e(st($row['status'])) ?></span></td>
               <td><a class="btn btn-sm" href="/demandes/<?= (int) $row['id'] ?>"><?= e(t('common.open')) ?></a></td>
@@ -149,7 +149,7 @@ $statusClass = static fn (string $status): string => match ($status) {
             </div>
           <?php endfor; ?>
         </div>
-        <button type="submit" class="btn btn-primary"><?= e(t('common.create')) ?></button>
+        <button type="submit" class="btn btn-primary"><?= e(t('dmd.createTheType')) ?></button>
       </form>
     </div>
 

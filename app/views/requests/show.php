@@ -3,7 +3,7 @@
   <div class="org-head">
     <div>
       <span class="org-name"><?= e($request['form']['label'] ?? '—') ?></span>
-      <span class="cell-sub"><?= e(t('req.submitted')) ?> <?= e($request['created_at']) ?> · <?= e($request['requesterName']) ?></span>
+      <span class="cell-sub"><?= e(t('req.submitted')) ?> <?= e(\App\Core\Dates::moment((string) $request['created_at'])) ?> · <?= e($request['requesterName']) ?></span>
     </div>
     <span class="status <?= $request['status'] === 'Approuvée' ? 'status-on' : ($request['status'] === 'En cours' ? 'status-wait' : 'status-off') ?>">
       <?= e(st($request['status'])) ?>

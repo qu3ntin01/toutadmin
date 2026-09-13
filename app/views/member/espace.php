@@ -104,9 +104,9 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                 $end = $entry['clock_out'] === null ? null : strtotime((string) $entry['clock_out']);
               ?>
               <tr>
-                <td class="cell-strong"><?= e(date('d/m/Y', $start)) ?></td>
-                <td class="cell-sub"><?= e(date('H:i', $start)) ?></td>
-                <td class="cell-sub"><?= $end === null ? '—' : e(date('H:i', $end)) ?></td>
+                <td class="cell-strong"><?= e(\App\Core\Dates::short(gmdate('Y-m-d', $start))) ?></td>
+                <td class="cell-sub"><?= e(gmdate('H:i', $start)) ?></td>
+                <td class="cell-sub"><?= $end === null ? '—' : e(gmdate('H:i', $end)) ?></td>
                 <td>
                   <?php if ($end === null): ?>
                     <span class="status status-on"><?= e(t('status.running')) ?></span>
@@ -165,7 +165,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                 <?= e($row['type']) ?>
                 <?php if (!empty($row['reason'])): ?><br /><span class="cell-sub"><?= e($row['reason']) ?></span><?php endif; ?>
               </td>
-              <td><?= e($row['start_date']) ?> → <?= e($row['end_date']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $row['start_date'])) ?> → <?= e(\App\Core\Dates::short((string) $row['end_date'])) ?></td>
               <td><?= (int) $row['days'] ?></td>
               <td>
                 <span class="status <?= $row['status'] === 'Approuvée' ? 'status-on' : ($row['status'] === 'En attente' ? 'status-wait' : 'status-off') ?>">
@@ -220,7 +220,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <article class="sub-card">
         <h3><?= e($item['title']) ?></h3>
         <p class="cell-sub">
-          <?= e($item['created_at']) ?> ·
+          <?= e(\App\Core\Dates::moment((string) $item['created_at'])) ?> ·
           <?= e($item['scope'] === 'company' ? t('home.companyNews') : t('home.teamNews')) ?>
         </p>
         <p><?= nl2br(e((string) $item['body'])) ?></p>
@@ -254,14 +254,14 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
     <ul class="people">
       <?php foreach ($myPoints as $point): ?>
         <li>
-          <strong><?= e(date('d/m/Y', (int) strtotime((string) $point['scheduled_on']))) ?></strong>
+          <strong><?= e(\App\Core\Dates::short((string) $point['scheduled_on'])) ?></strong>
           <span class="status <?= $point['status'] === 'Tenu' ? 'status-on' : 'status-warning' ?>">
             <?= e(st((string) $point['status'])) ?>
           </span>
           <span class="muted"> ·
             <?= e(trim(($point['manager_first_name'] ?? '') . ' ' . ($point['manager_last_name'] ?? '')) ?: '—') ?>
             <?php if (!empty($point['next_on'])): ?>
-              · <?= e(t('oto.nextOnValue', ['date' => date('d/m/Y', (int) strtotime((string) $point['next_on']))])) ?>
+              · <?= e(t('oto.nextOnValue', ['date' => \App\Core\Dates::short((string) $point['next_on'])])) ?>
             <?php endif; ?>
           </span>
           <?php if (!empty($point['topics'])): ?>
@@ -320,7 +320,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
 
           <?php if (!empty($tool['note'])): ?><p class="tool-note"><?= e((string) $tool['note']) ?></p><?php endif; ?>
           <div class="tool-foot">
-            <?= e(t('tools.assignedOn', ['date' => date('d/m/Y', (int) strtotime((string) $tool['assigned_at']))])) ?>
+            <?= e(t('tools.assignedOn', ['date' => \App\Core\Dates::moment((string) $tool['assigned_at'])])) ?>
           </div>
         </article>
       <?php endforeach; ?>
@@ -342,7 +342,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <span class="muted"> ·
             <?php $about = array_filter([(string) $asset['category'], (string) $asset['serial_number']]); ?>
             <?= e($about === [] ? '—' : implode(' · ', $about)) ?>
-            · <?= e(t('esp.entrustedOn', ['date' => date('d/m/Y', (int) strtotime((string) $asset['assigned_at']))])) ?>
+            · <?= e(t('esp.entrustedOn', ['date' => \App\Core\Dates::moment((string) $asset['assigned_at'])])) ?>
           </span>
         </li>
       <?php endforeach; ?>
@@ -378,7 +378,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                     <button type="submit" class="btn btn-sm btn-primary"><?= e(t('hr.requireAck')) ?></button>
                   </form>
                 <?php else: ?>
-                  <span class="status status-on"><?= e($document['acked_at']) ?></span>
+                  <span class="status status-on"><?= e(\App\Core\Dates::moment((string) $document['acked_at'])) ?></span>
                 <?php endif; ?>
               <?php endif; ?>
             </td>
@@ -415,7 +415,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <?php $registration = $mine[(int) $session['id']] ?? null; ?>
           <tr>
             <td><strong><?= e($session['title']) ?></strong><br /><span class="cell-sub"><?= e((string) $session['location']) ?></span></td>
-            <td><?= e($session['start_date']) ?></td>
+            <td><?= e(\App\Core\Dates::short((string) $session['start_date'])) ?></td>
             <td>
               <?php if ($registration !== null): ?>
                 <span class="status <?= $registration['status'] === 'Inscrite' ? 'status-on' : 'status-wait' ?>"><?= e(st($registration['status'])) ?></span>
@@ -449,7 +449,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
         <div class="org-head">
           <div>
             <span class="org-name"><?= e($review['period']) ?></span>
-            <span class="cell-sub"><?= e((string) $review['scheduled_on']) ?></span>
+            <span class="cell-sub"><?= e(\App\Core\Dates::short((string) $review['scheduled_on'])) ?></span>
           </div>
           <span class="status <?= $review['status'] === 'Réalisé' ? 'status-on' : 'status-wait' ?>"><?= e(st($review['status'])) ?></span>
         </div>
@@ -507,7 +507,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <tbody>
         <?php foreach ($myClaims as $claim): ?>
           <tr>
-            <td><?= e($claim['spent_on']) ?></td>
+            <td><?= e(\App\Core\Dates::short((string) $claim['spent_on'])) ?></td>
             <td><?= e($claim['category']) ?><br /><span class="cell-sub"><?= e((string) $claim['description']) ?></span></td>
             <td><?= e(number_format((float) $claim['amount'], 2, ',', ' ')) ?></td>
             <td>

@@ -94,7 +94,7 @@ $who = static fn (array $row): string =>
                   <?= e($day($meeting['held_on'])) ?>
                   <?php if ($meeting['starts_at'] !== ''): ?>
                     <br /><span class="cell-sub">
-                      <?= e($meeting['starts_at']) ?><?= $meeting['ends_at'] !== '' ? ' – ' . e($meeting['ends_at']) : '' ?>
+                      <?= e(\App\Core\Dates::moment((string) $meeting['starts_at'])) ?><?= $meeting['ends_at'] !== '' ? ' – ' . e(\App\Core\Dates::moment((string) $meeting['ends_at'])) : '' ?>
                     </span>
                   <?php endif; ?>
                 </td>

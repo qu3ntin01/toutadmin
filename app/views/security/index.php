@@ -60,7 +60,7 @@ $query = static function (array $extra) use ($filters): string {
         <tbody>
           <?php foreach ($journal['rows'] as $row): ?>
             <tr>
-              <td class="nowrap"><?= e((string) $row['occurred_at']) ?></td>
+              <td class="nowrap"><?= e(\App\Core\Dates::moment((string) $row['occurred_at'])) ?></td>
               <td><?= e((string) $row['actor_label']) ?></td>
               <td><span class="tag"><?= e($row['action']) ?></span></td>
               <td><?= e((string) $row['entity']) ?><?= $row['entity_id'] ? ' #' . (int) $row['entity_id'] : '' ?></td>

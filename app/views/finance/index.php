@@ -176,16 +176,16 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
             <tr>
               <td><?= e($contract['title']) ?><br /><span class="cell-sub"><?= e((string) $contract['reference']) ?></span></td>
               <td><?= e($contract['partner_name']) ?></td>
-              <td><?= e((string) $contract['start_date']) ?> → <?= e((string) $contract['end_date']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $contract['start_date'])) ?> → <?= e(\App\Core\Dates::short((string) $contract['end_date'])) ?></td>
               <td>
                 <form method="POST" action="/gestion/contrats/<?= (int) $contract['id'] ?>/statut" class="inline-form">
                   <?= $csrf ?>
-                  <select name="status" onchange="this.form.submit()">
+                  <select name="status">
                     <?php foreach ($contractStatuses as $status): ?>
                       <option value="<?= e($status) ?>"<?= $contract['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
                 </form>
               </td>
               <td>
@@ -298,18 +298,18 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                 <?php endif; ?>
               </td>
               <td>
-                <?= e((string) $invoice['due_date']) ?>
+                <?= e(\App\Core\Dates::short((string) $invoice['due_date'])) ?>
                 <?php if ($invoice['overdue']): ?><br /><span class="tag tag-off"><?= e(t('ges.overdue')) ?></span><?php endif; ?>
               </td>
               <td>
                 <form method="POST" action="/gestion/factures/<?= (int) $invoice['id'] ?>/statut" class="inline-form">
                   <?= $csrf ?>
-                  <select name="status" onchange="this.form.submit()">
+                  <select name="status">
                     <?php foreach ($invoiceStatuses as $status): ?>
                       <option value="<?= e($status) ?>"<?= $invoice['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
                 </form>
               </td>
               <td>
@@ -410,7 +410,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <?php foreach ($claims as $claim): ?>
             <tr>
               <td><?= e($fullName($claim)) ?><br /><span class="cell-sub"><?= e((string) $claim['department_name']) ?></span></td>
-              <td><?= e($claim['spent_on']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $claim['spent_on'])) ?></td>
               <td><?= e($claim['category']) ?><br /><span class="cell-sub"><?= e((string) $claim['description']) ?></span></td>
               <td><?= e($money((float) $claim['amount'])) ?></td>
               <td>
@@ -570,7 +570,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
             <tr>
               <td><?= e($invoice['reference'] ?: $invoice['label']) ?></td>
               <td><?= e((string) $invoice['partner_name']) ?></td>
-              <td><?= e((string) $invoice['due_date']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $invoice['due_date'])) ?></td>
               <td><?= e($money((float) $invoice['amount_ht'])) ?></td>
               <td><?= (int) $invoice['overdueDays'] > 0 ? (int) $invoice['overdueDays'] : '—' ?></td>
               <td>
@@ -790,15 +790,15 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <td>
                 <form method="POST" action="/gestion/tva/<?= (int) $return['id'] ?>/statut" class="inline-form">
                   <?= $csrf ?>
-                  <select name="status" onchange="this.form.submit()">
+                  <select name="status">
                     <?php foreach ($vatStatuses as $status): ?>
                       <option value="<?= e($status) ?>"<?= $return['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
                 </form>
                 <?php if (!empty($return['filed_on'])): ?>
-                  <span class="cell-sub"><?= e(t('ges.filedOn')) ?> <?= e($return['filed_on']) ?></span>
+                  <span class="cell-sub"><?= e(t('ges.filedOn')) ?> <?= e(\App\Core\Dates::short((string) $return['filed_on'])) ?></span>
                 <?php endif; ?>
               </td>
               <td>
@@ -889,12 +889,12 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
               <td>
                 <form method="POST" action="/gestion/equipements/<?= (int) $asset['id'] ?>/statut" class="inline-form">
                   <?= $csrf ?>
-                  <select name="status" onchange="this.form.submit()">
+                  <select name="status">
                     <?php foreach ($assetStatuses as $status): ?>
                       <option value="<?= e($status) ?>"<?= $asset['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
                     <?php endforeach; ?>
                   </select>
-                  <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+                  <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
                 </form>
               </td>
               <td>
@@ -1006,7 +1006,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
                 <span class="person-body">
                   <span class="person-name"><?= e((string) $booking['title']) ?></span>
                   <span class="cell-sub">
-                    <?= e((string) $booking['room_name']) ?> · <?= e((string) $booking['booking_date']) ?>
+                    <?= e((string) $booking['room_name']) ?> · <?= e(\App\Core\Dates::short((string) $booking['booking_date'])) ?>
                     · <?= e((string) $booking['start_time']) ?> – <?= e((string) $booking['end_time']) ?>
                     · <?= e(trim($booking['first_name'] . ' ' . $booking['last_name'])) ?>
                   </span>

@@ -42,7 +42,7 @@ $registered = $myRegistration !== null && $myRegistration['status'] !== 'Annulé
     <?php if (!empty($event['registration_closes_on'])): ?>
       <li class="org-item"><span><?= e(t('evt.closesOn')) ?></span>
         <span class="<?= $event['registration_closes_on'] < $today ? 'text-danger' : 'cell-strong' ?>">
-          <?= e($event['registration_closes_on']) ?>
+          <?= e(\App\Core\Dates::short((string) $event['registration_closes_on'])) ?>
         </span>
       </li>
     <?php endif; ?>

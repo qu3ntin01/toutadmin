@@ -130,7 +130,7 @@ $fullName = static fn (array $row): string => trim(($row['first_name'] ?? '') . 
               </span>
             </div>
             <p class="cell-sub">
-              <?= e($meeting['meeting_date']) ?><?= $meeting['meeting_time'] !== '' ? ' · ' . e($meeting['meeting_time']) : '' ?><?= $meeting['location'] !== '' ? ' · ' . e($meeting['location']) : '' ?>
+              <?= e(\App\Core\Dates::short((string) $meeting['meeting_date'])) ?><?= $meeting['meeting_time'] !== '' ? ' · ' . e($meeting['meeting_time']) : '' ?><?= $meeting['location'] !== '' ? ' · ' . e($meeting['location']) : '' ?>
             </p>
             <?php if ($meeting['agenda'] !== ''): ?>
               <p class="cell-sub"><strong><?= e(t('cse.agenda')) ?> :</strong> <?= e($meeting['agenda']) ?></p>
@@ -171,7 +171,7 @@ $fullName = static fn (array $row): string => trim(($row['first_name'] ?? '') . 
             <span class="person-body">
               <span class="person-name"><?= e($fullName($member)) ?></span>
               <span class="cell-sub">
-                <?= e($member['mandate_role']) ?> · <?= e(t('agenda.from')) ?> <?= e($member['started_on']) ?><?= !empty($member['ends_on']) ? ' → ' . e($member['ends_on']) : '' ?>
+                <?= e(\App\Core\Dates::short((string) $member['mandate_role'])) ?> · <?= e(t('agenda.from')) ?> <?= e(\App\Core\Dates::short((string) $member['started_on'])) ?><?= !empty($member['ends_on']) ? ' → ' . e(\App\Core\Dates::short((string) $member['ends_on'])) : '' ?>
               </span>
             </span>
           </li>

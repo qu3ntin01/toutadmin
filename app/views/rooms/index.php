@@ -77,7 +77,7 @@
       <tbody>
         <?php foreach ($myBookings as $booking): ?>
           <tr>
-            <td><?= e($booking['booking_date']) ?><br /><span class="cell-sub"><?= e($booking['start_time']) ?> – <?= e($booking['end_time']) ?></span></td>
+            <td><?= e(\App\Core\Dates::short((string) $booking['booking_date'])) ?><br /><span class="cell-sub"><?= e($booking['start_time']) ?> – <?= e($booking['end_time']) ?></span></td>
             <td><?= e($booking['room_name']) ?></td>
             <td><?= e($booking['title']) ?></td>
             <td>

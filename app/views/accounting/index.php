@@ -142,7 +142,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
             <tr>
               <td>
                 <?= e($invoice['label']) ?>
-                <br /><span class="cell-sub"><?= e($invoice['direction']) ?> · <?= e($invoice['issue_date']) ?></span>
+                <br /><span class="cell-sub"><?= e($invoice['direction']) ?> · <?= e(\App\Core\Dates::short((string) $invoice['issue_date'])) ?></span>
               </td>
               <td><?= e($money($invoice['amount_base_ttc'])) ?></td>
               <td>
@@ -167,7 +167,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
         <div class="org-item">
           <div class="org-head">
             <div>
-              <span class="org-name"><?= e($entry['entry_date']) ?> · <?= e($entry['label']) ?></span>
+              <span class="org-name"><?= e(\App\Core\Dates::short((string) $entry['entry_date'])) ?> · <?= e($entry['label']) ?></span>
               <span class="cell-sub">
                 <?= e($entry['journal_code']) ?>
                 <?= $entry['reference'] ? ' · ' . e($entry['reference']) : '' ?>
@@ -279,7 +279,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
         <tbody>
           <?php foreach ($ledger as $line): ?>
             <tr>
-              <td><?= e($line['entry_date']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $line['entry_date'])) ?></td>
               <td><?= e($line['journal_code']) ?></td>
               <td><?= e($line['label'] ?: $line['entry_label']) ?></td>
               <td><?= (float) $line['debit'] > 0 ? e($money((float) $line['debit'])) : '' ?></td>

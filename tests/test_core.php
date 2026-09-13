@@ -121,3 +121,32 @@ Tests::run('les en-têtes de sécurité suivent ceux de l’autre édition', fun
     $second = visit('GET', '/connexion')->headers['Content-Security-Policy'];
     assertTrue($first !== $second, 'le nonce est le même d’une réponse à l’autre');
 });
+
+Tests::run('aucun écran ne compte sur un gestionnaire d’événement en ligne', function (): void {
+    // La politique de contenu n'autorise que les scripts du site portant le
+    // nonce : un « onchange » écrit dans le HTML est bloqué par le navigateur,
+    // et le contrôle qui comptait dessus ne fait rien du tout. Le défaut ne se
+    // voit pas dans un test de requête — seulement à l'usage — d'où ce garde-fou.
+    $offenders = [];
+    $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(APP_DIR . '/views'));
+    foreach ($iterator as $file) {
+        if ($file->isFile() && str_ends_with((string) $file, '.php')) {
+            $body = (string) file_get_contents((string) $file);
+            if (preg_match('/\son(?:change|click|submit|input|load|focus|blur)\s*=/i', $body)) {
+                $offenders[] = basename(dirname((string) $file)) . '/' . $file->getBasename();
+            }
+        }
+    }
+    assertSame([], $offenders, 'gestionnaires en ligne : ' . implode(', ', $offenders));
+
+    // Le style en ligne est bloqué de la même façon.
+    $styled = [];
+    $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator(APP_DIR . '/views'));
+    foreach ($iterator as $file) {
+        if ($file->isFile() && str_ends_with((string) $file, '.php')
+            && preg_match('/\sstyle\s*=\s*"/i', (string) file_get_contents((string) $file))) {
+            $styled[] = $file->getBasename();
+        }
+    }
+    assertSame([], $styled, 'styles en ligne : ' . implode(', ', $styled));
+});

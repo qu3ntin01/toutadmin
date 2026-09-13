@@ -21,9 +21,9 @@ $fullName = static fn (array $p, string $prefix = ''): string =>
   </div>
   <p><?= nl2br(e((string) $ticket['body'])) ?></p>
   <p class="cell-sub">
-    <?= e(t('tkt.responseDeadline')) ?> : <?= e((string) $ticket['due_at']) ?>
+    <?= e(t('tkt.responseDeadline')) ?> : <?= e(\App\Core\Dates::moment((string) $ticket['due_at'])) ?>
     <?php if (!empty($ticket['first_reply_at'])): ?>
-      · <?= e(t('tkt.firstReply')) ?> : <?= e($ticket['first_reply_at']) ?>
+      · <?= e(t('tkt.firstReply')) ?> : <?= e(\App\Core\Dates::moment((string) $ticket['first_reply_at'])) ?>
     <?php endif; ?>
   </p>
 </div>
@@ -36,7 +36,7 @@ $fullName = static fn (array $p, string $prefix = ''): string =>
   <?php foreach ($messageList as $message): ?>
     <article class="sub-card<?= (int) $message['internal'] === 1 ? ' is-internal' : '' ?>">
       <p class="cell-sub">
-        <?= e($fullName($message)) ?> · <?= e($message['created_at']) ?>
+        <?= e($fullName($message)) ?> · <?= e(\App\Core\Dates::moment((string) $message['created_at'])) ?>
         <?php if ((int) $message['internal'] === 1): ?><span class="tag"><?= e(t('tkt.internalNote')) ?></span><?php endif; ?>
       </p>
       <p><?= nl2br(e((string) $message['body'])) ?></p>
@@ -61,27 +61,27 @@ $fullName = static fn (array $p, string $prefix = ''): string =>
     <div class="grid grid-3">
       <form method="POST" action="/support/tickets/<?= (int) $ticket['id'] ?>/statut" class="inline-form">
         <?= $csrf ?>
-        <select name="status" onchange="this.form.submit()">
+        <select name="status">
           <?php foreach ($statuses as $status): ?>
             <option value="<?= e($status) ?>"<?= $ticket['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
           <?php endforeach; ?>
         </select>
-        <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+        <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
       </form>
 
       <form method="POST" action="/support/tickets/<?= (int) $ticket['id'] ?>/priorite" class="inline-form">
         <?= $csrf ?>
-        <select name="priority" onchange="this.form.submit()">
+        <select name="priority">
           <?php foreach ($priorities as $priority): ?>
             <option value="<?= e($priority) ?>"<?= $ticket['priority'] === $priority ? ' selected' : '' ?>><?= e($priority) ?></option>
           <?php endforeach; ?>
         </select>
-        <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+        <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
       </form>
 
       <form method="POST" action="/support/tickets/<?= (int) $ticket['id'] ?>/affecter" class="inline-form">
         <?= $csrf ?>
-        <select name="assignee_id" onchange="this.form.submit()">
+        <select name="assignee_id">
           <option value=""><?= e(t('sup.noAssignee')) ?></option>
           <?php foreach ($people as $person): ?>
             <option value="<?= (int) $person['id'] ?>"<?= (int) ($ticket['assignee_id'] ?? 0) === (int) $person['id'] ? ' selected' : '' ?>>
@@ -89,7 +89,7 @@ $fullName = static fn (array $p, string $prefix = ''): string =>
             </option>
           <?php endforeach; ?>
         </select>
-        <noscript><button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button></noscript>
+        <button type="submit" class="btn btn-sm"><?= e(t('common.save')) ?></button>
       </form>
     </div>
 

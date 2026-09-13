@@ -1,13 +1,11 @@
 <?php $csrf = \App\Core\Csrf::field(); ?>
 <div class="card">
   <div class="org-head">
-    <h2><?= e(t('nav.notifications')) ?> <span class="muted">(<?= (int) $unread ?>)</span></h2>
-    <?php if ($unread > 0): ?>
-      <form method="POST" action="/notifications/tout-lire">
-        <?= $csrf ?>
-        <button type="submit" class="btn btn-sm"><?= e(t('ntf.markAllRead')) ?></button>
-      </form>
-    <?php endif; ?>
+    <h2><?= e(t('ntf.unreadOf', ['unread' => (string) (int) $unread, 'total' => (string) count($notifications)])) ?></h2>
+    <form method="POST" action="/notifications/tout-lire" class="inline-form">
+      <?= $csrf ?>
+      <button type="submit" class="btn btn-outline btn-sm"><?= e(t('ntf.markAllRead')) ?></button>
+    </form>
   </div>
 
   <?php if ($notifications === []): ?>
@@ -19,7 +17,7 @@
           <div class="org-head">
             <div>
               <span class="org-name"><?= e($item['title']) ?></span>
-              <span class="cell-sub"><?= e($item['created_at']) ?></span>
+              <span class="cell-sub"><?= e(\App\Core\Dates::moment((string) $item['created_at'])) ?></span>
             </div>
             <div class="row-actions">
               <?php if (!empty($item['link'])): ?>

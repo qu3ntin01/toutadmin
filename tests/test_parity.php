@@ -201,3 +201,24 @@ Tests::run('la tâche planifiée reprend tout le balayage périodique', function
     assertTrue(str_contains(implode("\n", $output), 'Sauvegarde')
         || str_contains(implode("\n", $output), "intervalle de sauvegarde"), implode("\n", $output));
 });
+
+Tests::run('l’espace du salarié et l’agenda appartiennent au personnel', function (): void {
+    $ids = seed();
+
+    // Un compte d'administration n'a ni manager, ni solde de congés, ni fiche
+    // de paie : sa console est son espace. Même règle que l'édition Node, où
+    // ces deux espaces exigent le rôle « employee ».
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+    foreach (['/mon-espace', '/agenda'] as $path) {
+        $response = visit('GET', $path);
+        assertSame(302, $response->status, "$path devrait renvoyer l'administration vers sa console");
+        assertSame('/admin', $response->headers['Location']);
+    }
+    // Les envois de ces espaces sont fermés de la même façon.
+    assertSame('/admin', visit('POST', '/mon-espace/frais', ['amount' => '12'])->headers['Location']);
+
+    // Le salarié, lui, y est chez lui.
+    visit('POST', '/connexion', ['email' => 'claire.moreau@entreprise.com', 'password' => 'Salariee-Demo-2026!']);
+    assertSame(200, visit('GET', '/mon-espace')->status);
+    assertSame(200, visit('GET', '/agenda')->status);
+});

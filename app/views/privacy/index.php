@@ -81,7 +81,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
       <label class="span-2"><span><?= e(t('gdpr.dataCategories')) ?></span><textarea name="data_categories" rows="2" maxlength="1000"></textarea></label>
       <label class="span-2"><span><?= e(t('common.recipients')) ?></span><textarea name="recipients" rows="2" maxlength="1000"></textarea></label>
       <label class="span-2"><span><?= e(t('gdpr.securityMeasures')) ?></span><textarea name="measures" rows="2" maxlength="1000"></textarea></label>
-      <button type="submit" class="btn btn-primary"><?= e(t('common.create')) ?></button>
+      <button type="submit" class="btn btn-primary"><?= e(t('acc.register')) ?></button>
     </form>
   </div>
 </section>

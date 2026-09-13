@@ -102,7 +102,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
       </label>
       <label><span><?= e(t('tre.amountEuro')) ?></span><input type="text" name="amount" inputmode="decimal" required /></label>
       <label><span><?= e(t('common.category')) ?></span><input type="text" name="category" maxlength="60" /></label>
-      <button type="submit" class="btn btn-primary"><?= e(t('common.record')) ?></button>
+      <button type="submit" class="btn btn-primary"><?= e(t('common.save')) ?></button>
     </form>
     <p class="muted"><?= e(t('tre.signNote')) ?></p>
   </div>
@@ -122,7 +122,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
       <tbody>
         <?php foreach ($movements as $movement): ?>
           <tr>
-            <td><?= e($movement['value_date']) ?></td>
+            <td><?= e(\App\Core\Dates::short((string) $movement['value_date'])) ?></td>
             <td>
               <?= e($movement['label']) ?>
               <?php if (!empty($movement['invoice_id'])): ?>
@@ -157,7 +157,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
         <form method="POST" action="/tresorerie/mouvements/<?= (int) $movement['id'] ?>/rapprocher" class="form-grid">
           <?= $csrf ?>
           <label class="span-2">
-            <span><?= e($movement['value_date']) ?> · <?= e($movement['label']) ?></span>
+            <span><?= e(\App\Core\Dates::short((string) $movement['value_date'])) ?> · <?= e($movement['label']) ?></span>
             <input type="text" readonly value="<?= e($money((float) $movement['amount'])) ?> · <?= e($movement['account_label']) ?>" />
           </label>
           <label><span><?= e(t('ges.invoice')) ?></span>
@@ -215,7 +215,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
         <tbody>
           <?php foreach ($forecastList as $forecast): ?>
             <tr>
-              <td><?= e($forecast['expected_on']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $forecast['expected_on'])) ?></td>
               <td><?= e($forecast['label']) ?></td>
               <td><?= e($money((float) $forecast['amount'])) ?></td>
               <td><span class="tag"><?= e($forecast['certainty']) ?></span></td>
@@ -249,7 +249,7 @@ $money = static fn (?float $value): string => $value === null ? '—' : number_f
         <tbody>
           <?php foreach ($projection['points'] as $point): ?>
             <tr>
-              <td><?= e((string) $point['on_date']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $point['on_date'])) ?></td>
               <td><?= e((string) $point['label']) ?></td>
               <td><span class="tag"><?= e((string) $point['origin']) ?></span></td>
               <td><?= e($money((float) $point['amount'])) ?></td>

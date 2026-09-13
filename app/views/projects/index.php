@@ -151,7 +151,7 @@ $euro = static fn (?float $v): string => $v === null ? '—' : number_format($v,
         <tbody>
           <?php foreach ($myTime as $entry): ?>
             <tr>
-              <td><?= e($entry['spent_on']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $entry['spent_on'])) ?></td>
               <td><?= e($entry['project_name']) ?><?php if (!empty($entry['task_title'])): ?><br /><span class="cell-sub"><?= e($entry['task_title']) ?></span><?php endif; ?></td>
               <td><?= e((string) $entry['hours']) ?> h</td>
               <td>

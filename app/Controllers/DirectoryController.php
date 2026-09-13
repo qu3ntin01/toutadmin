@@ -21,13 +21,27 @@ final class DirectoryController
 {
     public static function index(Request $request): Response
     {
-        $search = $request->input('q');
+        $search = mb_substr($request->input('q'), 0, 80);
+        // Filtres de navigation : par équipe ou par service.
+        $teamFilter = (int) $request->input('equipe') ?: null;
+        $departmentFilter = (int) $request->input('service') ?: null;
+
         $params = [];
-        $where = "u.active = 1 AND u.directory_hidden = 0";
+        $where = "u.role = 'employee' AND u.active = 1 AND u.directory_hidden = 0";
         if ($search !== '') {
-            $where .= " AND (u.first_name LIKE ? OR u.last_name LIKE ? OR u.grade LIKE ? OR u.email LIKE ? OR d.name LIKE ?)";
-            $like = '%' . $search . '%';
-            $params = [$like, $like, $like, $like, $like];
+            $where .= " AND (lower(u.first_name) LIKE ? OR lower(u.last_name) LIKE ? OR lower(u.grade) LIKE ?
+                             OR lower(u.email) LIKE ? OR lower(COALESCE(tm.name, '')) LIKE ?
+                             OR lower(COALESCE(d.name, '')) LIKE ?)";
+            $like = '%' . mb_strtolower($search) . '%';
+            $params = [$like, $like, $like, $like, $like, $like];
+        }
+        if ($teamFilter !== null) {
+            $where .= ' AND u.team_id = ?';
+            $params[] = $teamFilter;
+        }
+        if ($departmentFilter !== null) {
+            $where .= ' AND u.department_id = ?';
+            $params[] = $departmentFilter;
         }
 
         $people = Db::all(
@@ -48,6 +62,10 @@ final class DirectoryController
             'headerSubtitle' => t('directory.subtitle'),
             'people' => $people,
             'search' => $search,
+            'teamFilter' => $teamFilter,
+            'departmentFilter' => $departmentFilter,
+            'teams' => \App\Modules\Org::teams(),
+            'departments' => \App\Modules\Org::departments(),
         ]));
     }
 }

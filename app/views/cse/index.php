@@ -70,7 +70,7 @@ $fullName = static fn (array $row): string => trim(($row['first_name'] ?? '') . 
             <span class="person-body">
               <span class="person-name"><?= e($fullName($member)) ?></span>
               <span class="cell-sub">
-                <?= e($member['mandate_role']) ?><?= !empty($member['department_name']) ? ' · ' . e($member['department_name']) : '' ?>
+                <?= e(\App\Core\Dates::short((string) $member['mandate_role'])) ?><?= !empty($member['department_name']) ? ' · ' . e($member['department_name']) : '' ?>
               </span>
             </span>
             <a href="/messagerie" class="btn btn-outline btn-sm"><?= e(t('nav.messages')) ?></a>
@@ -92,7 +92,7 @@ $fullName = static fn (array $row): string => trim(($row['first_name'] ?? '') . 
             <div class="meeting-head">
               <span class="meeting-title"><?= e($meeting['title']) ?></span>
               <span class="cell-sub">
-                <?= e($meeting['meeting_date']) ?><?= $meeting['meeting_time'] !== '' ? ' · ' . e($meeting['meeting_time']) : '' ?><?= $meeting['location'] !== '' ? ' · ' . e($meeting['location']) : '' ?>
+                <?= e(\App\Core\Dates::short((string) $meeting['meeting_date'])) ?><?= $meeting['meeting_time'] !== '' ? ' · ' . e($meeting['meeting_time']) : '' ?><?= $meeting['location'] !== '' ? ' · ' . e($meeting['location']) : '' ?>
               </span>
             </div>
             <?php if ($meeting['agenda'] !== ''): ?>

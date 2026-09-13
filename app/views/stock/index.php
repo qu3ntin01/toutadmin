@@ -304,7 +304,7 @@ $statusClass = static fn (string $status): string => match ($status) {
         <tbody>
           <?php foreach ($movements as $movement): ?>
             <tr>
-              <td><?= e($movement['moved_on']) ?></td>
+              <td><?= e(\App\Core\Dates::short((string) $movement['moved_on'])) ?></td>
               <td><?= e($movement['item_label']) ?></td>
               <td><span class="tag"><?= e($movement['kind']) ?></span></td>
               <td><?= e((string) $movement['quantity']) ?> <?= e((string) $movement['unit']) ?></td>
