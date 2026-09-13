@@ -166,3 +166,25 @@ Tests::run('perdre le périmètre ferme l\'accès au point', function (): void {
     Org::assignMembership($team['marc'], null, null);
     assertSame(null, OneOnOne::ownedBy($id, $ids['member']));
 });
+
+Tests::run('le salarié lit ses points individuels, sans la note privée du manager', function (): void {
+    $ids = seed();
+    $team = equipe($ids);
+    // Claire encadre Marc : c'est donc Marc qui lit son point sur son espace.
+    $point = OneOnOne::create($ids['member'], $team['marc'], '2099-03-02', 'Charge de travail');
+    OneOnOne::update((int) $point['id'], $ids['member'], [
+        'scheduledOn' => '2099-03-02', 'heldOn' => '2099-03-02', 'topics' => 'Charge de travail',
+        'sharedNote' => 'Point partagé : priorités revues.', 'privateNote' => 'À surveiller, entre nous.',
+        'mood' => 4, 'nextOn' => '2099-06-02', 'status' => 'Tenu',
+    ]);
+
+    visit('POST', '/connexion', ['email' => 'marc.leroy@entreprise.com', 'password' => 'Salarie-Demo-2026!']);
+    $page = visit('GET', '/mon-espace')->body;
+
+    assertContains('02/03/2099', $page);
+    assertContains('Charge de travail', $page);
+    assertContains('Point partagé', $page);
+    assertContains('02/06/2099', $page, 'le prochain rendez-vous est annoncé');
+    // Ce que le manager garde pour lui ne traverse pas l'écran du salarié.
+    assertTrue(!str_contains($page, 'entre nous'), 'la note privée reste privée');
+});

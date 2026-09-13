@@ -246,6 +246,37 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
   <p><a class="btn btn-sm" href="/annuaire"><?= e(t('directory.title')) ?></a></p>
 </section>
 
+<?php if ($myPoints !== []): ?>
+  <section class="card mt-l" id="points">
+    <div class="card-head">
+      <h2><?= e(t('oto.mine')) ?> <span class="muted">(<?= count($myPoints) ?>)</span></h2>
+    </div>
+    <ul class="people">
+      <?php foreach ($myPoints as $point): ?>
+        <li>
+          <strong><?= e(date('d/m/Y', (int) strtotime((string) $point['scheduled_on']))) ?></strong>
+          <span class="status <?= $point['status'] === 'Tenu' ? 'status-on' : 'status-warning' ?>">
+            <?= e(st((string) $point['status'])) ?>
+          </span>
+          <span class="muted"> ·
+            <?= e(trim(($point['manager_first_name'] ?? '') . ' ' . ($point['manager_last_name'] ?? '')) ?: '—') ?>
+            <?php if (!empty($point['next_on'])): ?>
+              · <?= e(t('oto.nextOnValue', ['date' => date('d/m/Y', (int) strtotime((string) $point['next_on']))])) ?>
+            <?php endif; ?>
+          </span>
+          <?php if (!empty($point['topics'])): ?>
+            <div class="cell-sub"><strong><?= e(t('oto.topics')) ?></strong> <?= e((string) $point['topics']) ?></div>
+          <?php endif; ?>
+          <?php if (!empty($point['shared_note'])): ?>
+            <div class="cell-sub"><strong><?= e(t('oto.sharedNote')) ?></strong> <?= e((string) $point['shared_note']) ?></div>
+          <?php endif; ?>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+    <p class="hint"><?= e(t('oto.mineHint')) ?></p>
+  </section>
+<?php endif; ?>
+
 <section class="card mt-l" id="outils">
   <div class="card-head">
     <div>

@@ -286,3 +286,33 @@ Tests::run('chaque décision d\'administration laisse une trace', function (): v
     assertTrue(in_array('service.cree', $actions, true), 'création de service non tracée');
     assertSame(null, \App\Core\Audit::verify(), 'journal rompu');
 });
+
+Tests::run('un droit transverse se donne en sachant ce qu’il ouvre', function (): void {
+    $ids = seed();
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+    $page = visit('GET', '/admin')->body;
+
+    // Chaque droit dit sa portée et sa nuance avant qu'on l'accorde.
+    assertContains('Demandes, soldes de congés et fiches de paie', $page);
+    assertContains('Tiers, contrats, factures, budgets', $page);
+    assertContains('Parc logiciel, accès applicatifs', $page);
+    assertContains('Recueil des signalements', $page);
+    // Celle du dispositif d'alerte est la plus importante à lire : on désigne
+    // les référents, on ne lit pas les signalements.
+    assertContains('vous ne lisez pas les signalements', $page);
+
+    // Les quatre droits sont attribuables, et la liste part vide.
+    foreach (['is_hr', 'is_finance', 'is_it', 'is_referent'] as $flag) {
+        assertContains('/admin/droits/' . $flag, $page);
+    }
+    assertContains('Aucun référent désigné', $page);
+
+    visit('POST', '/admin/droits/is_hr', ['employee_id' => (string) $ids['member']]);
+    $page = visit('GET', '/admin')->body;
+    assertContains('claire.moreau@entreprise.com', $page, 'le membre nommé figure avec son adresse');
+    assertContains('/admin/droits/is_hr/' . $ids['member'] . '/retirer', $page);
+    assertSame(1, (int) \App\Core\Db::value('SELECT is_hr FROM users WHERE id = ?', [$ids['member']]));
+
+    visit('POST', '/admin/droits/is_hr/' . $ids['member'] . '/retirer');
+    assertSame(0, (int) \App\Core\Db::value('SELECT is_hr FROM users WHERE id = ?', [$ids['member']]));
+});

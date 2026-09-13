@@ -467,36 +467,117 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
 
 <!-- -------------------------------------------------------------- Droits -->
 <section class="tab-panel" id="droits">
-  <?php foreach (\App\Modules\Users::ROLE_FLAGS as $flag => $label): ?>
-    <div class="card mt-l">
-      <h2><?= e(ucfirst($label)) ?></h2>
-      <?php $members = $flagMembers[$flag] ?? []; ?>
-      <?php if ($members === []): ?>
-        <div class="empty-state"><?= e(t('common.none')) ?></div>
-      <?php else: ?>
-        <ul class="people">
-          <?php foreach ($members as $member): ?>
-            <li>
-              <?= e($fullName($member)) ?>
-              <form method="POST" action="/admin/droits/<?= e($flag) ?>/<?= (int) $member['id'] ?>/retirer" class="inline-form">
-                <?= $csrf ?>
-                <button type="submit" class="btn btn-sm"><?= e(t('common.remove')) ?></button>
-              </form>
-            </li>
-          <?php endforeach; ?>
-        </ul>
-      <?php endif; ?>
+  <?php
+    /* Un droit transverse s'accorde en sachant ce qu'il ouvre : chaque bloc
+       porte donc sa portée et sa nuance, comme dans l'édition Node. */
+    $rights = [
+      'is_hr' => [
+        'title' => t('nav.hrSpace'), 'scope' => t('admin.hrScope'),
+        'href' => '/rh', 'open' => t('nav.openHrSpace'),
+        'appoint' => t('admin.appointHr'), 'grant' => t('admin.grantHr'),
+        'all' => t('admin.allHaveHr'), 'help' => t('admin.hrHelp'),
+        'members' => t('admin.hrMembers'), 'none' => t('admin.noHrYet'),
+        'confirm' => t('admin.revokeHr'),
+      ],
+      'is_finance' => [
+        'title' => t('admin.financeTitle'), 'scope' => t('admin.financeScope'),
+        'href' => '/gestion', 'open' => t('admin.openFinance'),
+        'appoint' => t('admin.appointManager'), 'grant' => t('admin.grantFinance'),
+        'all' => t('admin.allHaveFinance'), 'help' => t('admin.financeHelp'),
+        'members' => t('common.managers'), 'none' => t('admin.noManagerYet'),
+        'confirm' => t('admin.revokeFinance'),
+      ],
+      'is_it' => [
+        'title' => t('admin.itTitle'), 'scope' => t('admin.itScope'),
+        'href' => '/informatique', 'open' => t('admin.openIt'),
+        'appoint' => t('admin.appointIt'), 'grant' => t('admin.grantIt'),
+        'all' => t('admin.allHaveIt'), 'help' => t('admin.itHelp'),
+        'members' => t('admin.itMembers'), 'none' => t('admin.noItYet'),
+        'confirm' => t('admin.revokeIt'),
+      ],
+      'is_referent' => [
+        'title' => t('admin.referentTitle'), 'scope' => t('admin.referentScope'),
+        'href' => '/alertes', 'open' => t('admin.openWhistleblow'),
+        'appoint' => t('admin.appointReferent'), 'grant' => t('admin.grantReferent'),
+        'all' => t('admin.allAreReferent'), 'help' => t('admin.referentHelp'),
+        'members' => t('admin.referentMembers'), 'none' => t('admin.noReferentYet'),
+        'confirm' => t('admin.revokeReferent'),
+      ],
+    ];
+  ?>
 
-      <form method="POST" action="/admin/droits/<?= e($flag) ?>" class="inline-form">
-        <?= $csrf ?>
-        <select name="employee_id" required>
-          <option value=""></option>
-          <?php foreach (($flagEligible[$flag] ?? []) as $employee): ?>
-            <option value="<?= (int) $employee['id'] ?>"><?= e($fullName($employee)) ?></option>
-          <?php endforeach; ?>
-        </select>
-        <button type="submit" class="btn btn-sm btn-primary"><?= e(t('common.add')) ?></button>
-      </form>
+  <?php foreach ($rights as $flag => $right): ?>
+    <div class="card mt-l">
+      <div class="card-head">
+        <div>
+          <h2><?= e($right['title']) ?></h2>
+          <p class="card-sub"><?= e($right['scope']) ?></p>
+        </div>
+        <a href="<?= e($right['href']) ?>" class="btn btn-sm"><?= e($right['open']) ?></a>
+      </div>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-head"><h3><?= e($right['appoint']) ?></h3></div>
+        <?php $eligible = $flagEligible[$flag] ?? []; ?>
+        <?php if ($eligible === []): ?>
+          <div class="empty-state"><?= e($right['all']) ?></div>
+        <?php else: ?>
+          <form method="POST" action="/admin/droits/<?= e($flag) ?>" class="form-grid">
+            <?= $csrf ?>
+            <label class="span-2">
+              <span><?= e(t('common.member')) ?></span>
+              <select name="employee_id" required>
+                <option value=""></option>
+                <?php foreach ($eligible as $employee): ?>
+                  <option value="<?= (int) $employee['id'] ?>">
+                    <?= e($fullName($employee)) ?><?= $employee['grade'] ? ' — ' . e((string) $employee['grade']) : '' ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </label>
+            <div class="span-2">
+              <button type="submit" class="btn btn-primary btn-block"><?= e($right['grant']) ?></button>
+            </div>
+          </form>
+        <?php endif; ?>
+        <p class="hint"><?= e($right['help']) ?></p>
+      </div>
+
+      <div class="card">
+        <?php $members = $flagMembers[$flag] ?? []; ?>
+        <div class="card-head">
+          <h3><?= e($right['members']) ?> <span class="muted">(<?= count($members) ?>)</span></h3>
+        </div>
+        <?php if ($members === []): ?>
+          <div class="empty-state"><?= e($right['none']) ?></div>
+        <?php else: ?>
+          <table class="table">
+            <thead>
+              <tr><th><?= e(t('common.member')) ?></th><th><?= e(t('common.grade')) ?></th><th></th></tr>
+            </thead>
+            <tbody>
+              <?php foreach ($members as $member): ?>
+                <tr>
+                  <td>
+                    <div class="cell-strong"><?= e($fullName($member)) ?></div>
+                    <div class="cell-sub"><?= e((string) $member['email']) ?></div>
+                  </td>
+                  <td><span class="tag"><?= e((string) $member['grade']) ?></span></td>
+                  <td class="row-actions">
+                    <form method="POST" action="/admin/droits/<?= e($flag) ?>/<?= (int) $member['id'] ?>/retirer"
+                          data-confirm="<?= e($right['confirm']) ?>">
+                      <?= $csrf ?>
+                      <button type="submit" class="btn btn-sm btn-danger"><?= e(t('admin.revokeAccess')) ?></button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </div>
     </div>
   <?php endforeach; ?>
 </section>

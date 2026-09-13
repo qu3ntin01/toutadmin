@@ -15,6 +15,7 @@ use App\Modules\Announcements;
 use App\Modules\Assets;
 use App\Modules\Hr;
 use App\Modules\Notifications;
+use App\Modules\OneOnOne;
 use App\Modules\Workflows;
 use App\Modules\Org;
 use App\Modules\Talent;
@@ -73,6 +74,8 @@ final class MemberController
             // Ce qui lui est confié : les accès applicatifs et le matériel.
             'tools' => Tools::forEmployee((int) $user['id']),
             'myAssets' => Assets::of((int) $user['id']),
+            // Les points individuels, privés de ce que le manager garde pour lui.
+            'myPoints' => OneOnOne::forEmployee((int) $user['id']),
             'documents' => Talent::documentsFor((int) $user['id']),
             'sessions' => Talent::sessions(),
             'registrations' => Talent::registrations(null, (int) $user['id']),
