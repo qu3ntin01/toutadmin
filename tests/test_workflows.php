@@ -234,3 +234,35 @@ Tests::run('le circuit complet passe par les écrans', function (): void {
     visit('POST', "/demandes/$id/decision", ['decision' => 'Approuvée', 'note' => 'Accord']);
     assertSame('Approuvée', Workflows::byId($id)['status']);
 });
+
+Tests::run('une étape porte le nom qu’on lui donne, et le circuit le reprend', function (): void {
+    $ids = seed();
+    visit('POST', '/connexion', ['email' => 'admin@demo.test', 'password' => 'Administration-2026!']);
+    visit('POST', '/demandes/types', [
+        'label' => 'Achat de matériel', 'amount_field' => 'montant',
+        'field_names' => ['montant'], 'field_labels' => ['Montant'],
+        'field_types' => ['montant'], 'field_required' => ['1'], 'field_options' => [''],
+    ]);
+    $form = Db::get('SELECT * FROM request_forms ORDER BY id DESC LIMIT 1');
+    assertTrue($form !== null, 'le type de demande n’a pas été créé');
+
+    // Le formulaire d'étape porte bien de quoi la nommer.
+    assertContains('name="label"', visit('GET', '/demandes')->body);
+
+    visit('POST', '/demandes/types/' . $form['id'] . '/etapes', [
+        'approver' => 'manager', 'label' => 'Visa du responsable direct', 'threshold' => '0',
+    ]);
+    $step = Db::get('SELECT * FROM request_steps WHERE form_id = ?', [$form['id']]);
+    assertSame('Visa du responsable direct', $step['label']);
+
+    // L'écran montre ce nom, et rappelle tout de même qui décide.
+    $page = visit('GET', '/demandes')->body;
+    assertContains('Visa du responsable direct', $page);
+    assertContains('Le manager du demandeur', $page, 'le rôle qui décide reste rappelé');
+
+    // Sans nom, l'étape reste lisible : c'est le rôle qui la nomme.
+    visit('POST', '/demandes/types/' . $form['id'] . '/etapes', ['approver' => 'admin', 'threshold' => '0']);
+    $steps = Db::all('SELECT * FROM request_steps WHERE form_id = ? ORDER BY position', [$form['id']]);
+    assertSame(2, count($steps));
+    assertSame('', (string) $steps[1]['label']);
+});

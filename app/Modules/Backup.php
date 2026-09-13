@@ -32,7 +32,7 @@ final class Backup
     // fichier directement dans le dossier des sauvegardes.
     public const MAX_UPLOAD_BYTES = 64 * 1024 * 1024;
 
-    public const ARCHIVE_ROOTS = ['db', 'coffre', 'parapheur', 'meta'];
+    public const ARCHIVE_ROOTS = ['db', 'uploads', 'cv', 'coffre', 'parapheur', 'pieces', 'meta'];
 
     private const DEFAULT_INTERVAL = 60;
     private const DEFAULT_KEEP = 24;
@@ -53,11 +53,16 @@ final class Backup
     public static function fileRoots(): array
     {
         return [
+            ['root' => 'uploads', 'dir' => Avatars::directory()],
+            ['root' => 'cv', 'dir' => Cv::directory()],
             ['root' => 'coffre', 'dir' => Vault::directory()],
             // Les documents mis à la signature font preuve : une sauvegarde qui
             // les oublierait rendrait une instance dont les attestations
             // pointent vers rien.
             ['root' => 'parapheur', 'dir' => Signing::directory()],
+            // Les pièces reçues justifient des écritures : une sauvegarde sans
+            // elles rendrait une comptabilité sans justificatifs.
+            ['root' => 'pieces', 'dir' => Intake::directory()],
         ];
     }
 

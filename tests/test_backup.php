@@ -208,3 +208,48 @@ Tests::run('l\'écran des sauvegardes rend ses archives', function (): void {
     assertSame(200, $download->status);
     assertSame($created['bytes'], strlen($download->body));
 });
+
+Tests::run('la sauvegarde et l’export emportent aussi photos, CV et pièces reçues', function (): void {
+    seedBackup();
+
+    // Trois fichiers déposés dans les trois dossiers qui restaient dehors.
+    $files = [
+        [\App\Modules\Avatars::directory(), 'photo.jpg', 'contenu de photo'],
+        [\App\Modules\Cv::directory(), 'cv.pdf', "%PDF-1.4\ncandidature\n%%EOF\n"],
+        [\App\Modules\Intake::directory(), 'facture.pdf', "%PDF-1.4\nfacture recue\n%%EOF\n"],
+    ];
+    foreach ($files as [$dir, $name, $body]) {
+        if (!is_dir($dir)) {
+            mkdir($dir, 0770, true);
+        }
+        file_put_contents($dir . '/' . $name, $body);
+    }
+
+    $created = Backup::create();
+    $names = array_column(Backup::inspectFile($created['fileName'])['manifest']['files'], 'name');
+    assertTrue(in_array('uploads/photo.jpg', $names, true), 'la photo de profil manque à l’archive');
+    assertTrue(in_array('cv/cv.pdf', $names, true), 'le CV manque à l’archive');
+    assertTrue(in_array('pieces/facture.pdf', $names, true), 'la pièce reçue manque à l’archive');
+
+    // Effacés du disque, ils reviennent par la restauration : une sauvegarde
+    // qui les oublierait rendrait une comptabilité sans justificatifs.
+    foreach ($files as [$dir, $name, $body]) {
+        unlink($dir . '/' . $name);
+    }
+    Backup::restore((string) file_get_contents((string) Backup::pathOf($created['fileName'])));
+    foreach ($files as [$dir, $name, $body]) {
+        assertSame($body, (string) @file_get_contents($dir . '/' . $name), "$name n’est pas revenu");
+    }
+
+    // L'export intégral les compte et les emporte aussi : partir, c'est partir
+    // avec tout.
+    $preview = Exporter::preview();
+    assertSame(1, $preview['files']['uploads']);
+    assertSame(1, $preview['files']['cv']);
+    assertSame(1, $preview['files']['pieces']);
+
+    $exported = array_column(Tar::unpack((string) gzdecode(Exporter::build()['buffer'])), 'name');
+    assertTrue(in_array('fichiers/uploads/photo.jpg', $exported, true));
+    assertTrue(in_array('fichiers/cv/cv.pdf', $exported, true));
+    assertTrue(in_array('fichiers/pieces/facture.pdf', $exported, true));
+});

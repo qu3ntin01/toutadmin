@@ -50,8 +50,11 @@ final class Exporter
 
           donnees/<table>.json   une table par fichier, un tableau d'objets JSON,
                                  les noms de colonnes tels qu'ils sont en base.
+          fichiers/uploads/      photos de profil
+          fichiers/cv/           CV reçus
           fichiers/coffre/       coffre-fort (bulletins et documents scellés)
           fichiers/parapheur/    documents mis à la signature
+          fichiers/pieces/       factures reçues (dépôts et captures de messagerie)
           meta/manifeste.json    inventaire, empreintes SHA-256, date de l'export
 
         Ce que l'export ne contient pas, volontairement :
@@ -128,8 +131,11 @@ final class Exporter
         }
 
         $files = array_merge(
+            self::collectFiles('uploads', Avatars::directory()),
+            self::collectFiles('cv', Cv::directory()),
             self::collectFiles('coffre', Vault::directory()),
-            self::collectFiles('parapheur', Signing::directory())
+            self::collectFiles('parapheur', Signing::directory()),
+            self::collectFiles('pieces', Intake::directory())
         );
         $entries = array_merge($entries, $files);
         $entries[] = ['name' => 'LISEZMOI.txt', 'bytes' => self::README . "\n"];
@@ -186,8 +192,11 @@ final class Exporter
             'tableCount' => count($inventory),
             'rows' => array_sum(array_column($inventory, 'lignes')),
             'files' => [
+                'uploads' => $count(Avatars::directory()),
+                'cv' => $count(Cv::directory()),
                 'coffre' => $count(Vault::directory()),
                 'parapheur' => $count(Signing::directory()),
+                'pieces' => $count(Intake::directory()),
             ],
             'skipped' => self::SKIPPED_TABLES,
             'skippedColumns' => self::SKIPPED_COLUMNS,

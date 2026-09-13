@@ -171,9 +171,18 @@ $statusClass = static fn (string $status): string => match ($status) {
           </div>
 
           <ol class="steps">
+            <?php if ($form['steps'] === []): ?>
+              <li class="cell-sub"><?= e(t('dmd.noStep')) ?></li>
+            <?php endif; ?>
             <?php foreach ($form['steps'] as $step): ?>
               <li>
-                <?= e(array_column(\App\Modules\Workflows::APPROVERS, 'label', 'key')[$step['approver']] ?? $step['approver']) ?>
+                <?php $byKey = array_column(\App\Modules\Workflows::APPROVERS, 'label', 'key'); ?>
+                <?= e(trim((string) ($step['label'] ?? '')) !== ''
+                      ? (string) $step['label']
+                      : ($byKey[$step['approver']] ?? $step['approver'])) ?>
+                <?php if (trim((string) ($step['label'] ?? '')) !== ''): ?>
+                  <span class="cell-sub"><?= e($byKey[$step['approver']] ?? $step['approver']) ?></span>
+                <?php endif; ?>
                 <?php if ($step['approver'] === 'user'): ?>
                   — <?= e(trim(($step['first_name'] ?? '') . ' ' . ($step['last_name'] ?? ''))) ?>
                 <?php endif; ?>
@@ -201,6 +210,7 @@ $statusClass = static fn (string $status): string => match ($status) {
                 <option value="<?= (int) $employee['id'] ?>"><?= e(trim($employee['first_name'] . ' ' . $employee['last_name'])) ?></option>
               <?php endforeach; ?>
             </select>
+            <input type="text" name="label" maxlength="80" placeholder="<?= e(t('dmd.stepPlaceholder')) ?>" />
             <input type="text" name="threshold" inputmode="decimal" placeholder="<?= e(t('common.threshold')) ?>" />
             <button type="submit" class="btn btn-sm btn-primary"><?= e(t('dmd.addStep')) ?></button>
           </form>

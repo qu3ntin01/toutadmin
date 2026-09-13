@@ -7,9 +7,10 @@ $mo = static fn (int $bytes): string => number_format($bytes / 1048576, 1, ',', 
       [(string) $summary['count'], t('bak.kept')],
       [$mo($summary['bytes']), t('bak.totalSize')],
       [$summary['latest'] === null ? '—' : substr((string) $summary['latest']['createdAt'], 0, 16), t('bak.createdOn')],
-      [$summary['enabled']
-          ? t('bak.everyKept', ['minutes' => $summary['intervalMinutes'], 'count' => $summary['keep']])
-          : t('common.inactive'), t('bak.automatic')],
+      [$summary['enabled'] ? t('bak.running') : t('bak.stopped'),
+       $summary['enabled']
+           ? t('bak.everyKept', ['minutes' => $summary['intervalMinutes'], 'count' => $summary['keep']])
+           : t('bak.automatic')],
   ] as [$value, $label]): ?>
     <div class="stat-card">
       <span class="stat-body">
@@ -157,8 +158,9 @@ $mo = static fn (int $bytes): string => number_format($bytes / 1048576, 1, ',', 
 
       <?php if ($destination['status'] !== null): ?>
         <p class="status <?= $destination['status']['ok'] ? 'status-on' : 'status-off' ?>">
-          <?= e(t('bak.lastAttempt')) ?> <?= e(substr((string) $destination['status']['at'], 0, 19)) ?>
-          — <?= e((string) $destination['status']['message']) ?>
+          <?= e(t('bak.lastAttempt')) ?> <?= e(substr((string) $destination['status']['at'], 0, 19)) ?> :
+          <?= e($destination['status']['ok'] ? t('bak.attemptOk') : t('bak.attemptFailed')) ?>
+          <?= $destination['status']['message'] === '' ? '' : ' — ' . e((string) $destination['status']['message']) ?>
         </p>
       <?php endif; ?>
 
@@ -247,8 +249,11 @@ $mo = static fn (int $bytes): string => number_format($bytes / 1048576, 1, ',', 
       <div><dt><?= e(t('bak.table')) ?></dt><dd><?= (int) $exportPreview['tableCount'] ?> · <?= (int) $exportPreview['rows'] ?></dd></div>
       <div><dt><?= e(t('bak.attachments')) ?></dt>
         <dd>
-          <?= e(t('nav.vault')) ?> <?= (int) $exportPreview['files']['coffre'] ?>
+          <?= e(t('bak.profilePhotos')) ?> <?= (int) $exportPreview['files']['uploads'] ?>
+          · <?= e(t('bak.cvsReceived')) ?> <?= (int) $exportPreview['files']['cv'] ?>
+          · <?= e(t('nav.vault')) ?> <?= (int) $exportPreview['files']['coffre'] ?>
           · <?= e(t('nav.signing')) ?> <?= (int) $exportPreview['files']['parapheur'] ?>
+          · <?= e(t('nav.intake')) ?> <?= (int) $exportPreview['files']['pieces'] ?>
         </dd>
       </div>
     </dl>
