@@ -59,7 +59,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
         </select>
       </label>
       <label><span><?= e(t('emp.dailyRate')) ?></span><input type="text" name="daily_rate" inputmode="decimal" /></label>
-      <button type="submit" class="btn btn-primary"><?= e(t('admin.addMember')) ?></button>
+      <button type="submit" class="btn btn-primary"><?= e(t('admin.createAccount')) ?></button>
     </form>
   </div>
 
@@ -656,7 +656,7 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
           <h3><?= e($palette['label']) ?></h3>
           <p class="muted"><?= e($palette['description']) ?></p>
           <button type="submit" class="btn btn-sm<?= $palette['active'] ? '' : ' btn-primary' ?>" <?= $palette['active'] ? 'disabled' : '' ?>>
-            <?= e($palette['active'] ? t('common.active') : t('common.choose')) ?>
+            <?= e($palette['active'] ? t('adm.currentPalette') : t('common.apply')) ?>
           </button>
         </form>
       <?php endforeach; ?>

@@ -93,6 +93,11 @@ final class SupportController
             'origins' => Support::ORIGINS,
             'responseHours' => Support::RESPONSE_HOURS,
             'people' => $agent ? Db::all('SELECT id, first_name, last_name FROM users WHERE active = 1 ORDER BY last_name COLLATE NOCASE') : [],
+            // Un ticket peut concerner un client : l'équipe support le rattache
+            // au tiers, le demandeur non.
+            'partners' => $agent
+                ? Db::all("SELECT id, name FROM partners WHERE active = 1 ORDER BY name COLLATE NOCASE")
+                : [],
         ]));
     }
 

@@ -136,6 +136,7 @@ final class ProjectsController
             'summary' => Projects::summary(),
             'statuses' => Projects::STATUSES,
             'people' => self::people(),
+            'partners' => \App\Core\Db::all("SELECT id, name FROM partners WHERE active = 1 ORDER BY name COLLATE NOCASE"),
             'departments' => Org::departments(),
             'teams' => Org::teams(),
         ]));
@@ -227,6 +228,7 @@ final class ProjectsController
             'taskStatuses' => Projects::TASK_STATUSES,
             'priorities' => Projects::PRIORITIES,
             'people' => self::people(),
+            'partners' => \App\Core\Db::all("SELECT id, name FROM partners WHERE active = 1 ORDER BY name COLLATE NOCASE"),
             'today' => gmdate('Y-m-d'),
         ]));
     }

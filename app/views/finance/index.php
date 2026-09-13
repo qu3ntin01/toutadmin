@@ -330,7 +330,18 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
 <!-- ---------------------------------------------------------- Budgets -->
 <section class="tab-panel" id="budgets">
   <div class="card">
-    <h2><?= e(t('erp.budgets')) ?> <?= (int) $year ?></h2>
+    <div class="org-head">
+      <h2><?= e(t('erp.budgets')) ?> <?= (int) $year ?></h2>
+      <form method="GET" action="/gestion" class="inline-form">
+        <label class="sr-only" for="annee"><?= e(t('common.fiscalYear')) ?></label>
+        <select name="annee" id="annee">
+          <?php foreach ($years as $choice): ?>
+            <option value="<?= (int) $choice ?>"<?= (int) $choice === (int) $year ? ' selected' : '' ?>><?= (int) $choice ?></option>
+          <?php endforeach; ?>
+        </select>
+        <button type="submit" class="btn btn-sm"><?= e(t('common.open')) ?></button>
+      </form>
+    </div>
     <form method="POST" action="/gestion/budgets" class="form-grid">
       <?= $csrf ?>
       <label><span><?= e(t('common.department')) ?></span>

@@ -82,7 +82,28 @@
 <section class="card mt-l">
   <h2><?= e(t('profile.password')) ?></h2>
   <p class="muted"><?= e(t('profile.passwordHelp')) ?></p>
-  <p><a class="btn btn-sm" href="/mot-de-passe"><?= e(t('profile.password')) ?></a></p>
+  <?php /* Le changement se fait ici, sans quitter la page, comme dans l'autre
+           édition ; la route est la même que celle du premier accès, donc la
+           politique de mot de passe et la fermeture des sessions s'appliquent
+           de la même façon. */ ?>
+  <form method="POST" action="/mot-de-passe" class="form-grid">
+    <?= \App\Core\Csrf::field() ?>
+    <label class="span-2">
+      <span><?= e(t('profile.currentPassword')) ?></span>
+      <input type="password" name="current" required autocomplete="current-password" />
+    </label>
+    <label>
+      <span><?= e(t('profile.newPassword')) ?></span>
+      <input type="password" name="password" required minlength="12" autocomplete="new-password" />
+    </label>
+    <label>
+      <span><?= e(t('profile.confirmPassword')) ?></span>
+      <input type="password" name="confirm" required minlength="12" autocomplete="new-password" />
+    </label>
+    <div class="span-2">
+      <button type="submit" class="btn btn-primary btn-block"><?= e(t('profile.password')) ?></button>
+    </div>
+  </form>
 </section>
 
 <section class="card mt-l" id="securite">

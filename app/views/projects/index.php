@@ -26,6 +26,14 @@ $euro = static fn (?float $v): string => $v === null ? '—' : number_format($v,
         <?= $csrf ?>
         <label><span><?= e(t('common.reference')) ?></span><input type="text" name="code" maxlength="20" /></label>
         <label><span><?= e(t('common.name')) ?></span><input type="text" name="name" required maxlength="160" /></label>
+        <label><span><?= e(t('common.client')) ?></span>
+          <select name="partner_id">
+            <option value="">—</option>
+            <?php foreach ($partners as $partner): ?>
+              <option value="<?= (int) $partner['id'] ?>"><?= e((string) $partner['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
         <label><span><?= e(t('prj.who')) ?></span>
           <select name="lead_id">
             <option value=""></option>
@@ -71,7 +79,7 @@ $euro = static fn (?float $v): string => $v === null ? '—' : number_format($v,
     <div class="org-head">
       <h2><?= e(t('nav.projects')) ?></h2>
       <a class="btn btn-sm" href="/projets?archives=<?= $showArchived ? '0' : '1' ?>">
-        <?= e($showArchived ? t('prj.tabAll') : t('prj.archived')) ?>
+        <?= e($showArchived ? t('prj.hideArchives') : t('prj.showArchives')) ?>
       </a>
     </div>
     <?php if ($projectList === []): ?>

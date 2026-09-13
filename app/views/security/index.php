@@ -43,6 +43,7 @@ $query = static function (array $extra) use ($filters): string {
       <label><span><?= e(t('leave.from')) ?></span><input type="date" name="du" value="<?= e((string) $filters['from']) ?>" /></label>
       <label><span><?= e(t('leave.to')) ?></span><input type="date" name="au" value="<?= e((string) $filters['to']) ?>" /></label>
       <button type="submit" class="btn btn-sm"><?= e(t('common.filter')) ?></button>
+      <a class="btn btn-sm" href="/securite"><?= e(t('common.viewAll')) ?></a>
       <a class="btn btn-sm" href="/securite/journal.csv?<?= e($query([])) ?>"><?= e(t('sec.exportCsv')) ?></a>
     </form>
 

@@ -40,6 +40,16 @@ $statusClass = static fn (string $s): string => match ($s) {
           <?php endforeach; ?>
         </select>
       </label>
+      <?php if ($isAgent): ?>
+        <label><span><?= e(t('sup.clientConcerned')) ?></span>
+          <select name="partner_id">
+            <option value="">—</option>
+            <?php foreach ($partners as $partner): ?>
+              <option value="<?= (int) $partner['id'] ?>"><?= e((string) $partner['name']) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+      <?php endif; ?>
       <label><span><?= e(t('common.priority')) ?></span>
         <select name="priority" required>
           <?php foreach ($priorities as $priority): ?>
@@ -50,7 +60,7 @@ $statusClass = static fn (string $s): string => match ($s) {
         </select>
       </label>
       <?php if ($isAgent): ?>
-        <label><span><?= e(t('sup.clientConcerned')) ?></span>
+        <label><span><?= e(t('common.origin')) ?></span>
           <select name="origin">
             <?php foreach ($origins as $origin): ?>
               <option value="<?= e($origin) ?>"><?= e($origin) ?></option>
@@ -59,7 +69,7 @@ $statusClass = static fn (string $s): string => match ($s) {
         </label>
       <?php endif; ?>
       <label class="span-2"><span><?= e(t('messages.body')) ?></span><textarea name="body" rows="4" maxlength="5000"></textarea></label>
-      <button type="submit" class="btn btn-primary"><?= e(t('sup.tabOpen')) ?></button>
+      <button type="submit" class="btn btn-primary"><?= e(t('common.open')) ?></button>
     </form>
   </div>
 </section>
@@ -68,14 +78,30 @@ $statusClass = static fn (string $s): string => match ($s) {
   <div class="card">
     <div class="org-head">
       <h2><?= e($isAgent ? t('nav.support') : t('nav.support')) ?></h2>
-      <form method="GET" action="/support" class="inline-form">
-        <select name="statut">
-          <option value=""><?= e(t('hr.filterAll')) ?></option>
-          <?php foreach ($statuses as $status): ?>
-            <option value="<?= e($status) ?>"<?= $filters['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
-          <?php endforeach; ?>
-        </select>
-        <button type="submit" class="btn btn-sm"><?= e(t('directory.search')) ?></button>
+      <form method="GET" action="/support" class="form-grid">
+        <label><span><?= e(t('common.status')) ?></span>
+          <select name="statut">
+            <option value=""><?= e(t('sup.all')) ?></option>
+            <?php foreach ($statuses as $status): ?>
+              <option value="<?= e($status) ?>"<?= $filters['status'] === $status ? ' selected' : '' ?>><?= e(st($status)) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+        <label><span><?= e(t('common.category')) ?></span>
+          <select name="categorie">
+            <option value=""><?= e(t('hr.filterAll')) ?></option>
+            <?php foreach ($categories as $category): ?>
+              <option value="<?= e($category) ?>"<?= $filters['category'] === $category ? ' selected' : '' ?>><?= e($category) ?></option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+        <label class="check-row span-2">
+          <input type="checkbox" name="tous" value="1" <?= $filters['openOnly'] ? '' : 'checked' ?> />
+          <span><?= e(t('sup.includeClosed')) ?></span>
+        </label>
+        <div class="span-2">
+          <button type="submit" class="btn btn-outline btn-block"><?= e(t('common.filter')) ?></button>
+        </div>
       </form>
     </div>
 

@@ -2,9 +2,9 @@
 <div class="card">
   <div class="org-head">
     <div class="row-actions">
-      <a class="btn btn-sm" href="/salles?jour=<?= e($previousDay) ?>">←</a>
-      <strong><?= e($date) ?></strong>
-      <a class="btn btn-sm" href="/salles?jour=<?= e($nextDay) ?>">→</a>
+      <a class="btn btn-sm" href="/salles?jour=<?= e($previousDay) ?>" aria-label="<?= e($previousDay) ?>">‹</a>
+      <strong><?= e(\App\Core\Dates::long($date)) ?></strong>
+      <a class="btn btn-sm" href="/salles?jour=<?= e($nextDay) ?>" aria-label="<?= e($nextDay) ?>">›</a>
       <a class="btn btn-sm" href="/salles?jour=<?= e($today) ?>"><?= e(t('agenda.today')) ?></a>
     </div>
   </div>
