@@ -10,7 +10,9 @@ use App\Controllers\AgendaController;
 use App\Controllers\AlertsController;
 use App\Controllers\CrmController;
 use App\Controllers\EInvoicingController;
+use App\Controllers\ApiController;
 use App\Controllers\ImportController;
+use App\Controllers\IntegrationsController;
 use App\Controllers\EventsController;
 use App\Controllers\JourneysController;
 use App\Controllers\KnowledgeController;
@@ -208,6 +210,20 @@ final class Kernel
         $router->post('/agenda', AgendaController::create(...));
         $router->post('/agenda/{id}/partage', AgendaController::share(...));
         $router->post('/agenda/{id}/supprimer', AgendaController::delete(...));
+        // API de lecture : pas de session, pas de cookie, un jeton en en-tête.
+        $router->get('/api/v1', ApiController::dispatch(...));
+        $router->get('/api/v1/{resource}', ApiController::dispatch(...));
+
+        // Intégrations : jetons d'API et webhooks sortants.
+        $router->get('/integrations', IntegrationsController::index(...));
+        $router->post('/integrations/jetons', IntegrationsController::createToken(...));
+        $router->post('/integrations/jetons/{id}/revoquer', IntegrationsController::revokeToken(...));
+        $router->post('/integrations/jetons/{id}/supprimer', IntegrationsController::deleteToken(...));
+        $router->post('/integrations/webhooks', IntegrationsController::createWebhook(...));
+        $router->post('/integrations/webhooks/{id}/etat', IntegrationsController::setWebhookState(...));
+        $router->post('/integrations/webhooks/{id}/supprimer', IntegrationsController::deleteWebhook(...));
+        $router->post('/integrations/webhooks/{id}/tester', IntegrationsController::testWebhook(...));
+
         // Import de données en masse : aperçu d'abord, écriture ensuite.
         $router->get('/import', ImportController::index(...));
         $router->post('/import/apercu', ImportController::preview(...));
@@ -683,6 +699,18 @@ final class Kernel
             return Response::redirect('/connexion');
         }
 
+        // L'API est servie avant toute session : elle ne pose ni ne lit de
+        // cookie, son authentification tient dans l'en-tête, et elle est en
+        // lecture seule. Un jeton n'a donc pas de jeton CSRF à présenter.
+        if ($request->path === '/api/v1' || str_starts_with($request->path, '/api/v1/')) {
+            $match = $this->router->match($request);
+            if ($match === null || $match['handler'] === null) {
+                return Response::text('{"error":"Ressource inconnue."}', 404)
+                    ->withHeaders(['Content-Type' => 'application/json; charset=utf-8', 'Cache-Control' => 'no-store']);
+            }
+            return ($match['handler'])($request, $match['params']);
+        }
+
         $user = $this->currentUser();
         $this->prepareLocale($request, $user);
 
@@ -1004,6 +1032,11 @@ final class Kernel
         // RH et administration seulement.
         if (str_starts_with($request->path, '/planning') && $request->isPost()
             && !PlanningController::canPlan($user)) {
+            return $refuse();
+        }
+        // Ouvrir une porte d'entrée sur les données de l'entreprise relève de
+        // l'administration seule, jamais d'un droit délégué.
+        if (str_starts_with($request->path, '/integrations') && $user['role'] !== 'admin') {
             return $refuse();
         }
         // Importer, c'est écrire en masse : l'accès suit le droit qu'il faudrait

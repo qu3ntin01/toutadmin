@@ -24,6 +24,7 @@ require_once dirname(__DIR__) . '/app/bootstrap.php';
 use App\Core\Db;
 use App\Modules\Backup;
 use App\Modules\Deadlines;
+use App\Modules\Webhooks;
 use App\Modules\Mailbox;
 use App\Modules\Users;
 
@@ -55,6 +56,14 @@ if (Mailbox::config()['enabled'] && Mailbox::isReady()) {
         echo 'Relève de la boîte aux lettres interrompue : ' . $error->getMessage() . "\n";
     }
 }
+
+// La file des webhooks est vidée ici, avec ses réessais : un envoi qui échoue
+// n'interrompt pas les autres et repasse au balayage suivant.
+$sent = Webhooks::flush();
+if ($sent['delivered'] > 0 || $sent['failed'] > 0) {
+    echo "Webhooks : {$sent['delivered']} livré(s), {$sent['failed']} en échec.\n";
+}
+Webhooks::purge();
 
 $created = Backup::runScheduled();
 if ($created === null) {

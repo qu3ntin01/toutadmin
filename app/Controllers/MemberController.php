@@ -116,6 +116,7 @@ final class MemberController
             $items[] = ['href' => '/rgpd', 'label' => t('nav.privacy')];
             $items[] = ['href' => '/sauvegardes', 'label' => t('nav.backups')];
             $items[] = ['href' => '/import', 'label' => t('nav.dataImport')];
+            $items[] = ['href' => '/integrations', 'label' => t('nav.integrations')];
         }
         if (Org::isManager((int) $user['id'])) {
             $items[] = ['href' => '/mon-equipe', 'label' => t('nav.team')];

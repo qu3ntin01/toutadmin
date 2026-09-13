@@ -228,7 +228,7 @@ final class Finance
             ]
         );
         Audit::log('facture.creee', 'invoices', $id, ['libelle' => $data['label'], 'sens' => $data['direction']]);
-        Webhooks::emit('facture.emise', [
+        Webhooks::emit('facture.creee', [
             'id' => $id, 'reference' => $data['reference'] ?? '', 'libelle' => $data['label'],
             'sens' => $data['direction'], 'montant_ht' => $data['amountHt'], 'devise' => $code,
             'echeance' => $data['dueDate'] ?? null,

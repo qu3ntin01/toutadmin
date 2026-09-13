@@ -70,19 +70,19 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | Pièces reçues | corbeille du comptable : dépôt d'une facture dont le type réel est contrôlé avant écriture, empreinte SHA-256 qui interdit le doublon et revérifiée avant de servir le fichier, lecture par règles (numéro, dates, montants, taux, SIRET et IBAN vérifiés par leur clé, rapprochement avec un tiers connu) dont la confiance se compose et tombe si HT + TVA ne fait pas TTC, analyse assistée par modèle optionnelle et éteinte par défaut, relève IMAP d'une boîte dédiée qui ne supprime jamais un message, mise en facture qui enregistre ce qui est validé à l'écran et non ce qui a été lu |
 | Photos de profil | envoi contrôlé sur le contenu et non sur le type annoncé, nom de fichier aléatoire, fichier servi par une route qui demande une session et ne sort pas de son dossier, retrait |
 | Planning | grille de la semaine par personne, créneau refusé s'il chevauche un autre poste ou une absence accordée, brouillon tant que la semaine n'est pas publiée, roulements appliqués sur trois mois au plus qui sautent les jours en conflit et le disent, poste de nuit terminé le lendemain, astreintes lues à la semaine et à l'instant, charge par personne ; un manager ne planifie que les siens, tout le monde consulte |
+| Intégrations | webhooks sortants signés (HMAC-SHA256 du corps, secret chiffré en base et montré une seule fois), adresse interne ou en clair refusée sauf case cochée, file d'attente vidée par la tâche planifiée avec réessais espacés puis abandon, webhook qui s'éteint tout seul après une série d'échecs plutôt que de faire croire que l'information passe ; ouvrir cette porte relève de l'administration seule |
+| API v1 | jetons dont seule l'empreinte SHA-256 vit en base, portée explicite (annuaire, RH, gestion, projets, pilotage), expiration et révocation immédiate, lecture seule — un jeton volé lit, il n'écrit ni ne paie ; servie avant toute session, sans cookie ni jeton CSRF, plafonnée à la minute, respectant le retrait de l'annuaire et taisant le motif d'une absence |
 
-495 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+519 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
-Trois espaces de l'édition Node n'ont pas encore le leur ici. Chacun
-reprendra les règles de l'édition Node telles quelles : ce sont les mêmes
-décisions, pas de nouvelles. Par ordre d'utilité :
+Un seul espace de l'édition Node n'a pas encore le sien ici. Il reprendra les
+règles de l'édition Node telles quelles : ce sont les mêmes décisions, pas de
+nouvelles.
 
-1. **Intégrations** — webhooks sortants et leurs livraisons
-2. **API v1** — jetons et points d'accès en lecture
-3. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
+1. **Recherche globale** — une requête, tous les espaces ouverts à celui qui
    la pose ; elle vient en dernier, une fois que toutes ses sources existent
 
 ## Un défaut du socle PHP, corrigé

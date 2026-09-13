@@ -76,7 +76,7 @@ final class Support
         );
         Db::run('UPDATE tickets SET reference = ? WHERE id = ?', [self::reference($id), $id]);
         Audit::log('ticket.ouvert', 'tickets', $id, ['sujet' => $fields['subject']]);
-        Webhooks::emit('incident.ouvert', [
+        Webhooks::emit('ticket.ouvert', [
             'id' => $id, 'reference' => self::reference($id), 'sujet' => $fields['subject'],
             'priorite' => $fields['priority'], 'origine' => $fields['origin'],
         ]);

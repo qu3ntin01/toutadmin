@@ -95,15 +95,32 @@ function assertContains(string $needle, string $haystack, string $message = ''):
 }
 
 /** Joue une requête à travers le noyau, comme le ferait le serveur web. */
-function visit(string $method, string $path, array $body = [], array $query = [], array $files = []): Response
-{
+function visit(
+    string $method,
+    string $path,
+    array $body = [],
+    array $query = [],
+    array $files = [],
+    array $headers = []
+): Response {
     $kernel = new Kernel();
     if ($method === 'POST' && !isset($body['_csrf'])) {
         $body['_csrf'] = \App\Core\Csrf::token();
     }
     $_SERVER['REQUEST_METHOD'] = $method;
     $_SERVER['REQUEST_URI'] = $path;
-    return $kernel->handle(new Request($method, '/' . trim(parse_url($path, PHP_URL_PATH) ?: '/', '/'), $query, $body, $files));
+    $sent = [];
+    foreach ($headers as $name => $value) {
+        $sent[strtolower((string) $name)] = (string) $value;
+    }
+    return $kernel->handle(new Request(
+        $method,
+        '/' . trim(parse_url($path, PHP_URL_PATH) ?: '/', '/'),
+        $query,
+        $body,
+        $files,
+        $sent
+    ));
 }
 
 /** Installe une instance : entreprise, compte d'administration, un salarié. */
