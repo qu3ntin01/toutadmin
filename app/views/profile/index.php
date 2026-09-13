@@ -84,3 +84,87 @@
   <p class="muted"><?= e(t('profile.passwordHelp')) ?></p>
   <p><a class="btn btn-sm" href="/mot-de-passe"><?= e(t('profile.password')) ?></a></p>
 </section>
+
+<section class="card mt-l" id="securite">
+  <div class="card-head">
+    <h2><?= e(t('prf.twoFactor')) ?></h2>
+    <?php if ($twoFactorState['enabled']): ?>
+      <span class="tag tag-success"><?= e(t('common.active')) ?></span>
+    <?php elseif ($twoFactorRequired): ?>
+      <span class="tag tag-danger"><?= e(t('prf.required')) ?></span>
+    <?php endif; ?>
+  </div>
+
+  <?php if ($recoveryCodes !== null): ?>
+    <div class="flash flash-success"><?= e(t('prf.backupCodes')) ?></div>
+    <ul class="code-list">
+      <?php foreach ($recoveryCodes as $code): ?><li><?= e($code) ?></li><?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
+
+  <?php if ($twoFactorState['enabled']): ?>
+    <p class="muted">
+      <?= e(t('prf.codeAsked')) ?>
+      <?= e(t('prf.remainingCodes', ['count' => (string) $twoFactorState['remainingCodes']])) ?>
+    </p>
+    <form method="POST" action="/mon-profil/2fa/codes" class="form-actions">
+      <?= \App\Core\Csrf::field() ?>
+      <button type="submit" class="btn btn-outline btn-sm"><?= e(t('prf.regenerate')) ?></button>
+    </form>
+    <?php if (!$twoFactorRequired): ?>
+      <form method="POST" action="/mon-profil/2fa/desactiver" class="form-grid"
+            data-confirm="<?= e(t('prf.confirmDisable2fa')) ?>">
+        <?= \App\Core\Csrf::field() ?>
+        <label class="span-2">
+          <span><?= e(t('prf.passwordToConfirm')) ?></span>
+          <input type="password" name="current_password" required autocomplete="current-password" />
+        </label>
+        <div class="span-2">
+          <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.disable')) ?></button>
+        </div>
+      </form>
+    <?php endif; ?>
+
+  <?php elseif ($twoFactorState['pending']): ?>
+    <p class="muted"><?= e(t('prf.scanQr')) ?></p>
+    <?php if ($twoFactorQr !== null): ?>
+      <?= $twoFactorQr ?>
+    <?php endif; ?>
+    <?php
+      // Le libellé porte le secret : on l'échappe, puis on repose la balise
+      // <code> à la place du repère — le secret ne traverse jamais le HTML brut.
+      $manual = e(t('prf.manualEntry', ['secret' => '@@secret@@']));
+      $manual = str_replace('@@secret@@', '<code class="totp-secret">' . e((string) $twoFactorSecret) . '</code>', $manual);
+    ?>
+    <p class="muted"><?= $manual ?></p>
+    <form method="POST" action="/mon-profil/2fa/activer" class="form-grid">
+      <?= \App\Core\Csrf::field() ?>
+      <label class="span-2">
+        <span><?= e(t('prf.sixDigitCode')) ?></span>
+        <input type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
+      </label>
+      <div class="span-2">
+        <button type="submit" class="btn btn-primary btn-block"><?= e(t('common.enable')) ?></button>
+      </div>
+    </form>
+
+  <?php else: ?>
+    <p class="muted">
+      <?= e(t('prf.stolenPassword')) ?>
+      <?php if ($twoFactorRequired): ?><strong><?= e(t('prf.roleRequires')) ?></strong><?php endif; ?>
+    </p>
+    <form method="POST" action="/mon-profil/2fa/preparer">
+      <?= \App\Core\Csrf::field() ?>
+      <button type="submit" class="btn btn-primary btn-block"><?= e(t('prf.enable')) ?></button>
+    </form>
+  <?php endif; ?>
+</section>
+
+<section class="card mt-l">
+  <h2><?= e(t('sec.tabSessions')) ?></h2>
+  <p class="muted"><?= e(t('prf.sessionNote')) ?></p>
+  <form method="POST" action="/sessions/fermer" data-confirm="<?= e(t('prf.confirmCloseAll')) ?>">
+    <?= \App\Core\Csrf::field() ?>
+    <button type="submit" class="btn btn-outline btn-block"><?= e(t('prf.closeAll')) ?></button>
+  </form>
+</section>

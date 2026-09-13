@@ -326,6 +326,13 @@ final class Kernel
         // Photo de profil : l'envoi, le retrait, et le fichier lui-même.
         $router->post('/mon-profil/photo', ProfileController::uploadPhoto(...));
         $router->post('/mon-profil/photo/supprimer', ProfileController::deletePhoto(...));
+        // Double authentification, pilotée par la personne elle-même.
+        $router->post('/mon-profil/2fa/preparer', ProfileController::prepareTwoFactor(...));
+        $router->post('/mon-profil/2fa/activer', ProfileController::enableTwoFactor(...));
+        $router->post('/mon-profil/2fa/desactiver', ProfileController::disableTwoFactor(...));
+        $router->post('/mon-profil/2fa/codes', ProfileController::newRecoveryCodes(...));
+        // Fermer toutes ses sessions : après un doute, un voyage, un poste prêté.
+        $router->post('/sessions/fermer', AuthController::closeSessions(...));
         $router->get('/media/avatars/{name}', ProfileController::photo(...));
 
         // Pièces reçues : dépôt, relève de la boîte aux lettres, mise en facture.
@@ -414,6 +421,11 @@ final class Kernel
         $router->post('/gestion/tva/{id}/supprimer', FinanceController::deleteVatReturn(...));
         $router->post('/gestion/relances', FinanceController::recordNotice(...));
         $router->post('/gestion/relances/{id}/supprimer', FinanceController::deleteNotice(...));
+        // Parc de salles : réserver est ouvert à tous, le tenir relève de la gestion.
+        $router->post('/gestion/salles', FinanceController::createRoom(...));
+        $router->post('/gestion/salles/{id}/statut', FinanceController::toggleRoom(...));
+        $router->post('/gestion/salles/{id}/supprimer', FinanceController::deleteRoom(...));
+        $router->post('/gestion/reservations/{id}/annuler', FinanceController::cancelBooking(...));
         $router->post('/gestion/equipements', FinanceController::createAsset(...));
         $router->post('/gestion/equipements/{id}/affecter', FinanceController::assignAsset(...));
         $router->post('/gestion/equipements/{id}/reprendre', FinanceController::takeBackAsset(...));

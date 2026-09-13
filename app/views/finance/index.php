@@ -911,3 +911,116 @@ $fullName = static fn (array $p): string => trim(($p['first_name'] ?? '') . ' ' 
     <?php endif; ?>
   </div>
 </section>
+
+<!-- ------------------------------------------------------ Salles -->
+<section class="tab-panel" id="salles">
+  <div class="grid grid-2">
+    <div class="card">
+      <div class="card-head"><h3><?= e(t('nav.rooms')) ?></h3></div>
+      <form method="POST" action="/gestion/salles" class="stack">
+        <?= \App\Core\Csrf::field() ?>
+        <label>
+          <span><?= e(t('common.name')) ?></span>
+          <input type="text" name="name" maxlength="120" required />
+        </label>
+        <div class="form-grid">
+          <label>
+            <span><?= e(t('agenda.location')) ?></span>
+            <input type="text" name="location" maxlength="140" />
+          </label>
+          <label>
+            <span><?= e(t('ges.capacity')) ?></span>
+            <input type="number" name="capacity" min="0" max="10000" value="8" />
+          </label>
+        </div>
+        <label>
+          <span><?= e(t('common.equipment')) ?></span>
+          <input type="text" name="equipment" maxlength="300" placeholder="<?= e(t('ges.roomEquipmentExample')) ?>" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-block"><?= e(t('common.create')) ?></button>
+      </form>
+    </div>
+
+    <div class="stack">
+      <div class="card">
+        <div class="card-head">
+          <h3><?= e(t('nav.rooms')) ?> <span class="muted">(<?= count($rooms) ?>)</span></h3>
+        </div>
+        <?php if ($rooms === []): ?>
+          <div class="empty-state"><?= e(t('erp.noRoom')) ?></div>
+        <?php else: ?>
+          <table class="table">
+            <thead>
+              <tr>
+                <th><?= e(t('ges.room')) ?></th><th><?= e(t('ges.capacity')) ?></th>
+                <th><?= e(t('common.status')) ?></th><th class="actions"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <?php foreach ($rooms as $room): ?>
+                <?php $active = (int) $room['active'] === 1; ?>
+                <tr>
+                  <td>
+                    <div class="cell-strong"><?= e((string) $room['name']) ?></div>
+                    <div class="cell-sub">
+                      <?php $details = array_filter([(string) $room['location'], (string) $room['equipment']]); ?>
+                      <?= e($details === [] ? '—' : implode(' · ', $details)) ?>
+                    </div>
+                  </td>
+                  <td class="num"><?= (int) $room['capacity'] === 0 ? '—' : (int) $room['capacity'] ?></td>
+                  <td>
+                    <span class="status <?= $active ? 'status-on' : 'status-off' ?>">
+                      <?= e($active ? t('common.active') : t('common.inactive')) ?>
+                    </span>
+                  </td>
+                  <td class="actions">
+                    <form method="POST" action="/gestion/salles/<?= (int) $room['id'] ?>/statut" class="inline-form">
+                      <?= \App\Core\Csrf::field() ?>
+                      <button type="submit" class="btn btn-sm">
+                        <?= e($active ? t('common.disable') : t('common.enable')) ?>
+                      </button>
+                    </form>
+                    <form method="POST" action="/gestion/salles/<?= (int) $room['id'] ?>/supprimer" class="inline-form"
+                          data-confirm="<?= e(t('ges.deleteRoom')) ?>">
+                      <?= \App\Core\Csrf::field() ?>
+                      <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.delete')) ?></button>
+                    </form>
+                  </td>
+                </tr>
+              <?php endforeach; ?>
+            </tbody>
+          </table>
+        <?php endif; ?>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <h3><?= e(t('erp.bookings')) ?> <span class="muted">(<?= count($roomBookings) ?>)</span></h3>
+        </div>
+        <?php if ($roomBookings === []): ?>
+          <div class="empty-state"><?= e(t('ges.noUpcomingBooking')) ?></div>
+        <?php else: ?>
+          <ul class="person-list">
+            <?php foreach (array_slice($roomBookings, 0, 20) as $booking): ?>
+              <li class="person-row">
+                <span class="person-body">
+                  <span class="person-name"><?= e((string) $booking['title']) ?></span>
+                  <span class="cell-sub">
+                    <?= e((string) $booking['room_name']) ?> · <?= e((string) $booking['booking_date']) ?>
+                    · <?= e((string) $booking['start_time']) ?> – <?= e((string) $booking['end_time']) ?>
+                    · <?= e(trim($booking['first_name'] . ' ' . $booking['last_name'])) ?>
+                  </span>
+                </span>
+                <form method="POST" action="/gestion/reservations/<?= (int) $booking['id'] ?>/annuler"
+                      data-confirm="<?= e(t('ges.cancelBooking')) ?>">
+                  <?= \App\Core\Csrf::field() ?>
+                  <button type="submit" class="btn btn-danger btn-sm"><?= e(t('common.cancel')) ?></button>
+                </form>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        <?php endif; ?>
+      </div>
+    </div>
+  </div>
+</section>

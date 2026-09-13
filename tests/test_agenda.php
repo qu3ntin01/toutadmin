@@ -195,3 +195,58 @@ Tests::run('les écrans agenda et salles s\'affichent', function (): void {
     assertContains('2026-01', $agenda->body);
     assertSame(200, visit('GET', '/salles')->status);
 });
+
+// ---------- Le parc de salles, tenu par la gestion ----------
+
+Tests::run('ouvrir, fermer et supprimer une salle relève de la gestion', function (): void {
+    $ids = seed();
+
+    // Un salarié réserve, mais ne tient pas le parc.
+    visit('POST', '/connexion', ['email' => 'claire.moreau@entreprise.com', 'password' => 'Salariee-Demo-2026!']);
+    assertSame(403, visit('POST', '/gestion/salles', ['name' => 'Atelier'])->status);
+    assertSame(0, (int) \App\Core\Db::value('SELECT COUNT(*) FROM rooms'));
+
+    \App\Modules\Users::setRoleFlag($ids['member'], 'is_finance', true);
+    visit('POST', '/connexion', ['email' => 'claire.moreau@entreprise.com', 'password' => 'Salariee-Demo-2026!']);
+
+    assertSame(302, visit('POST', '/gestion/salles', [
+        'name' => 'Salle du conseil', 'location' => '2e étage', 'capacity' => '12', 'equipment' => 'Écran',
+    ])->status);
+    $room = \App\Core\Db::get('SELECT * FROM rooms');
+    assertSame('Salle du conseil', $room['name']);
+    assertSame(12, (int) $room['capacity']);
+
+    // Deux salles du même nom prêteraient à confusion sur toutes les réservations.
+    visit('POST', '/gestion/salles', ['name' => 'salle du conseil', 'capacity' => '4']);
+    assertSame(1, (int) \App\Core\Db::value('SELECT COUNT(*) FROM rooms'));
+    // Et une capacité absurde est refusée avant d'exister.
+    visit('POST', '/gestion/salles', ['name' => 'Hangar', 'capacity' => '99999']);
+    assertSame(1, (int) \App\Core\Db::value('SELECT COUNT(*) FROM rooms'));
+
+    // Fermer une salle la retire des salles réservables, sans rien effacer.
+    visit('POST', '/gestion/salles/' . $room['id'] . '/statut');
+    assertSame(0, (int) \App\Core\Db::value('SELECT active FROM rooms WHERE id = ?', [$room['id']]));
+    assertSame(0, count(\App\Modules\Rooms::all(true)));
+    visit('POST', '/gestion/salles/' . $room['id'] . '/statut');
+    assertSame(1, (int) \App\Core\Db::value('SELECT active FROM rooms WHERE id = ?', [$room['id']]));
+
+    // La gestion libère une réservation qui n'est pas la sienne.
+    $booked = \App\Modules\Rooms::book(
+        (int) $room['id'],
+        $ids['admin'],
+        'Comité',
+        gmdate('Y-m-d', time() + 86400),
+        '09:00',
+        '10:00'
+    );
+    assertSame(true, $booked['ok']);
+    $bookingId = (int) \App\Core\Db::value('SELECT id FROM room_bookings');
+    assertSame(302, visit('POST', '/gestion/reservations/' . $bookingId . '/annuler')->status);
+    assertSame(0, (int) \App\Core\Db::value('SELECT COUNT(*) FROM room_bookings'));
+
+    // Supprimer la salle emporte ses réservations avec elle.
+    \App\Modules\Rooms::book((int) $room['id'], $ids['admin'], 'Comité', gmdate('Y-m-d', time() + 86400), '09:00', '10:00');
+    visit('POST', '/gestion/salles/' . $room['id'] . '/supprimer');
+    assertSame(0, (int) \App\Core\Db::value('SELECT COUNT(*) FROM rooms'));
+    assertSame(0, (int) \App\Core\Db::value('SELECT COUNT(*) FROM room_bookings'));
+});

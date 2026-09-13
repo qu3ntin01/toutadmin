@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
+use App\Core\Audit;
 use App\Core\Flash;
 use App\Core\I18n;
+use App\Core\QrCode;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\Security;
 use App\Core\Session;
+use App\Core\Settings;
 use App\Core\View;
 use App\Modules\Avatars;
+use App\Modules\TwoFactor;
 use App\Modules\Users;
 
 /**
@@ -31,12 +36,27 @@ final class ProfileController
         if ($user === null) {
             return Response::redirect('/connexion');
         }
+        $state = TwoFactor::stateOf($user);
+        // Les codes de secours ne s'affichent qu'une fois, juste après leur
+        // création : ils sont retirés de la session avant même le rendu.
+        $codes = Session::get('recovery_codes');
+        Session::forget('recovery_codes');
+
         return Response::html(View::page('profile/index', [
             'title' => t('profile.title') . ' — ' . t('app.name'),
             'panelLabel' => t('app.portal'),
             'headerTitle' => t('profile.title'),
             'headerSubtitle' => t('profile.subtitle'),
             'member' => $user,
+            'twoFactorState' => $state,
+            'twoFactorRequired' => TwoFactor::requiredFor($user),
+            'twoFactorSecret' => $state['pending'] ? (string) $user['totp_secret'] : null,
+            // Le code QR porte le secret : il est dessiné dans la page, jamais
+            // écrit dans un fichier ni demandé à un service distant.
+            'twoFactorQr' => $state['pending']
+                ? QrCode::svg(TwoFactor::uri($user, Settings::get('company_name')), 220, t('prf.qrAlt'))
+                : null,
+            'recoveryCodes' => is_array($codes) ? $codes : null,
         ]));
     }
 
@@ -137,5 +157,89 @@ final class ProfileController
             'Cache-Control' => 'private, max-age=604800',
             'Content-Disposition' => 'inline',
         ]);
+    }
+
+    // ---------- Double authentification ----------
+
+    private static function current(): ?array
+    {
+        $session = Session::get('user');
+        return is_array($session) ? Users::byId((int) $session['id']) : null;
+    }
+
+    public static function prepareTwoFactor(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        if ((int) $user['totp_enabled'] === 1) {
+            Flash::set('error', 'La double authentification est déjà active.');
+            return Response::redirect('/mon-profil');
+        }
+
+        TwoFactor::beginEnrolment((int) $user['id']);
+        Flash::set('success', 'Scannez le QR code, puis saisissez le code affiché pour confirmer.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    public static function enableTwoFactor(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+
+        $verdict = TwoFactor::confirmEnrolment((int) $user['id'], $request->input('code'));
+        if (!$verdict['ok']) {
+            Flash::set('error', $verdict['message']);
+            return Response::redirect('/mon-profil#securite');
+        }
+
+        Session::set('recovery_codes', $verdict['recoveryCodes']);
+        Audit::log('2fa.activee', 'users', (int) $user['id']);
+        Flash::set('success', 'Double authentification activée. Conservez les codes de secours ci-dessous.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    public static function disableTwoFactor(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+
+        // Le mot de passe est redemandé : retirer le second facteur depuis une
+        // session déjà ouverte serait sinon gratuit pour qui passe derrière un
+        // écran resté déverrouillé.
+        if (!Security::verifyPassword((string) ($request->body['current_password'] ?? ''), (string) $user['password_hash'])) {
+            Flash::set('error', 'Mot de passe incorrect.');
+            return Response::redirect('/mon-profil#securite');
+        }
+        if (TwoFactor::requiredFor($user)) {
+            Flash::set('error', "La double authentification est exigée par l'entreprise pour votre rôle.");
+            return Response::redirect('/mon-profil#securite');
+        }
+
+        TwoFactor::disable((int) $user['id']);
+        Audit::log('2fa.desactivee', 'users', (int) $user['id']);
+        Flash::set('success', 'Double authentification désactivée.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    public static function newRecoveryCodes(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        if ((int) $user['totp_enabled'] !== 1) {
+            return Response::redirect('/mon-profil#securite');
+        }
+
+        Session::set('recovery_codes', TwoFactor::regenerateRecoveryCodes((int) $user['id']));
+        Audit::log('2fa.codes_regeneres', 'users', (int) $user['id']);
+        Flash::set('success', 'Nouveaux codes de secours. Les précédents ne valent plus.');
+        return Response::redirect('/mon-profil#securite');
     }
 }

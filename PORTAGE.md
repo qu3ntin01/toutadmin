@@ -74,22 +74,30 @@ fait, et c'est lui qui rend les lots suivants mécaniques.
 | API v1 | jetons dont seule l'empreinte SHA-256 vit en base, portée explicite (annuaire, RH, gestion, projets, pilotage), expiration et révocation immédiate, lecture seule — un jeton volé lit, il n'écrit ni ne paie ; servie avant toute session, sans cookie ni jeton CSRF, plafonnée à la minute, respectant le retrait de l'annuaire et taisant le motif d'une absence |
 | Recherche globale | une requête, tous les espaces ouverts à celui qui la pose : chaque source est interrogée avec ses droits à lui et une source fermée n'est pas interrogée du tout — rien n'est filtré après coup, ce qui fuit ne se rattrape pas à l'affichage |
 | Pointage des freelances | commencer et terminer, un seul pointage ouvert à la fois — deux en compteraient les heures deux fois —, durée du pointage en cours mesurée jusqu'à maintenant, taux horaire déduit du TJM sur une base de huit heures, mois en cours compté à part du total ; supervision RH : fiche de temps d'un membre, clôture d'un pointage oublié, suppression d'une entrée fausse |
+| Double authentification | mise en service depuis son profil : secret préparé mais inactif tant qu'un premier code n'est pas validé — sans quoi une application mal réglée enfermerait la personne dehors —, code QR dessiné dans la page (codeur écrit à la main, aucune image distante), saisie manuelle possible, huit codes de secours affichés une seule fois puis conservés hachés, à usage unique et regénérables ; le retrait redemande le mot de passe et reste impossible si l'entreprise l'exige pour le rôle ; fermeture de toutes ses sessions, la sienne comprise |
+| Parc de salles | tenu par la gestion : création (nom unique, capacité bornée), ouverture et fermeture qui ne touchent pas aux réservations posées, suppression qui emporte les siennes, et libération d'une réservation qui n'est pas la sienne |
 
-538 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
+550 tests passent (`php tests/run.php`), et `php tools/check-keys.php` vérifie
 qu'aucun écran n'emploie une clé de traduction absente des dictionnaires.
 
 ## À porter
 
-Les 51 espaces de l'édition Node ont le leur ici. Reste la parité fine :
-comparer non plus les espaces, mais chaque point d'entrée. La comparaison
-mécanique des 531 routes de l'édition Node aux 507 de celle-ci a déjà rendu
-trois manques, dont le pointage ci-dessus. Les deux autres, en cours :
+Plus rien de connu. La comparaison ne porte plus sur les espaces mais sur
+chaque point d'entrée : les 531 routes de l'édition Node ont été confrontées
+une à une aux 513 de celle-ci. Les 28 qui n'ont pas d'équivalent littéral
+sont des différences de forme, vérifiées une par une :
 
-1. **Double authentification en libre-service** — la préparer, l'activer, la
-   retirer et regénérer ses codes de secours depuis son profil ; l'écran de
-   premier accès ; la fermeture de ses propres autres sessions
-2. **Parc de salles** — créer une salle, basculer sa disponibilité, la
-   supprimer, et libérer une réservation qui n'est pas la sienne
+| Édition Node | Ici |
+| --- | --- |
+| les neuf ressources de `/api/v1/…` | une seule route `/api/v1/{ressource}` |
+| `/installation/{étape}` et ses cinq POST | un seul assistant, `/installation` |
+| `/admin/rh/nommer`, `/admin/gestion/nommer`… | `/admin/droits/{droit}` |
+| `/mon-profil/informations` | `POST /mon-profil` |
+| `/mon-profil/mot-de-passe`, `/mon-profil/premier-acces` | `/mot-de-passe`, où le noyau conduit d'office tant qu'un mot de passe temporaire est en place |
+| `/notifications/tout-lu` | `/notifications/tout-lire` |
+
+Ce que l'une sait faire, l'autre le sait. Ce qui sera ajouté à l'une le sera
+à l'autre.
 
 ## Un défaut du socle PHP, corrigé
 

@@ -16,6 +16,7 @@ use App\Core\Session;
 use App\Core\Settings;
 use App\Core\Totp;
 use App\Core\View;
+use App\Modules\TwoFactor;
 use App\Modules\Users;
 
 /**
@@ -156,22 +157,12 @@ final class AuthController
             return Response::redirect('/connexion');
         }
 
-        $code = $request->input('code');
-        $secret = (string) ($user['totp_secret'] ?? '');
-        $ok = Totp::verify($secret, $code);
-
-        if (!$ok) {
-            // Code de secours : usage unique, consommé à la première réussite.
-            $hash = Totp::hashRecoveryCode($code);
-            $row = Db::get(
-                'SELECT id FROM totp_recovery_codes WHERE user_id = ? AND code_hash = ? AND used_at IS NULL',
-                [$user['id'], $hash]
-            );
-            if ($row !== null) {
-                Db::run("UPDATE totp_recovery_codes SET used_at = datetime('now') WHERE id = ?", [$row['id']]);
-                Audit::log('second_facteur.code_secours', 'users', (int) $user['id']);
-                $ok = true;
-            }
+        // Le code du téléphone, ou à défaut un code de secours — consommé à
+        // la première réussite. La règle vit dans le module, pas ici.
+        $verdict = TwoFactor::verifyLogin($user, $request->input('code'));
+        $ok = $verdict['ok'];
+        if ($ok && $verdict['usedRecovery']) {
+            Audit::log('second_facteur.code_secours', 'users', (int) $user['id']);
         }
 
         if (!$ok) {
@@ -181,7 +172,32 @@ final class AuthController
         }
 
         Session::forget('pending_totp');
+        if ($verdict['usedRecovery']) {
+            Flash::set('success', 'Code de secours utilisé : il ne resservira pas. Pensez à en régénérer.');
+        }
         return self::openSession($user);
+    }
+
+    /**
+     * Ferme toutes les autres sessions du compte : le geste qu'on fait après un
+     * doute, un voyage, ou un ordinateur laissé ouvert ailleurs. La session
+     * courante tombe avec les autres — c'est la seule façon d'être sûr — et
+     * l'on se reconnecte.
+     */
+    public static function closeSessions(Request $request): Response
+    {
+        $session = Session::get('user');
+        if (!is_array($session)) {
+            return Response::redirect('/connexion');
+        }
+
+        $closed = Session::destroyAllFor((int) $session['id']);
+        Audit::log('sessions.revoquees', 'users', (int) $session['id'], ['fermees' => $closed]);
+        // destroy() referme la session courante et en ouvre une vide : le
+        // message ci-dessous voyage donc dans celle-là.
+        Session::destroy();
+        Flash::set('success', $closed . ' session(s) fermée(s). Reconnectez-vous.');
+        return Response::redirect('/connexion');
     }
 
     private static function openSession(array $user): Response

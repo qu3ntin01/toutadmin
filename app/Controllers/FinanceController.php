@@ -19,6 +19,7 @@ use App\Modules\Dunning;
 use App\Modules\Finance;
 use App\Modules\Org;
 use App\Modules\Purchasing;
+use App\Modules\Rooms;
 use App\Modules\Users;
 use App\Modules\Vat;
 
@@ -84,12 +85,17 @@ final class FinanceController
                  'badge' => count(array_filter($claims, static fn (array $c): bool => $c['status'] === 'En attente')) ?: null],
                 ['tab' => 'devises', 'label' => t('nav.currencies')],
                 ['tab' => 'equipements', 'label' => t('erp.assets')],
+                ['tab' => 'salles', 'label' => t('nav.rooms')],
             ],
             'footLinks' => [['href' => '/mon-espace', 'label' => t('nav.mySpace')]],
             'scripts' => ['/js/admin.js', '/js/confirm.js'],
             'year' => $year,
             'years' => [$year + 1, $year, $year - 1, $year - 2],
             'today' => gmdate('Y-m-d'),
+            // Le parc de salles se tient ici : réserver est ouvert à tous, mais
+            // ouvrir, fermer ou supprimer une salle relève de la gestion.
+            'rooms' => Rooms::all(),
+            'roomBookings' => Rooms::bookings(gmdate('Y-m-d')),
             'summary' => Finance::financialSummary($year),
             'partners' => $partners,
             'partnerKinds' => Finance::PARTNER_KINDS,
@@ -764,5 +770,64 @@ final class FinanceController
     {
         Assets::remove((int) $params['id']);
         return self::back('equipements', 'success', 'Équipement retiré du parc.');
+    }
+
+    // ---------- Parc de salles ----------
+
+    public static function createRoom(Request $request): Response
+    {
+        $name = mb_substr(trim($request->input('name')), 0, 120);
+        $capacity = (int) $request->input('capacity');
+
+        if ($name === '') {
+            return self::back('salles', 'error', 'Le nom de la salle est obligatoire.');
+        }
+        if ($capacity < 0 || $capacity > 10000) {
+            return self::back('salles', 'error', 'Capacité invalide.');
+        }
+        foreach (Rooms::all() as $room) {
+            if (mb_strtolower((string) $room['name']) === mb_strtolower($name)) {
+                return self::back('salles', 'error', 'Une salle porte déjà ce nom.');
+            }
+        }
+
+        $id = Rooms::create([
+            'name' => $name,
+            'location' => mb_substr(trim($request->input('location')), 0, 140),
+            'capacity' => $capacity,
+            'equipment' => mb_substr(trim($request->input('equipment')), 0, 300),
+        ]);
+        Audit::log('salle.creee', 'rooms', $id, ['nom' => $name]);
+        return self::back('salles', 'success', 'Salle ajoutée.');
+    }
+
+    /**
+     * Fermer une salle ne touche pas aux réservations déjà posées : elle cesse
+     * simplement d'être proposée.
+     */
+    public static function toggleRoom(Request $request, array $params): Response
+    {
+        if (!Rooms::toggle((int) $params['id'])) {
+            return self::back('salles', 'error', 'Salle introuvable.');
+        }
+        Audit::log('salle.statut', 'rooms', (int) $params['id']);
+        return self::back('salles', 'success', 'Disponibilité de la salle mise à jour.');
+    }
+
+    public static function deleteRoom(Request $request, array $params): Response
+    {
+        Rooms::remove((int) $params['id']);
+        Audit::log('salle.supprimee', 'rooms', (int) $params['id']);
+        return self::back('salles', 'success', 'Salle supprimée, avec ses réservations.');
+    }
+
+    /** La gestion peut libérer n'importe quelle réservation, pas seulement les siennes. */
+    public static function cancelBooking(Request $request, array $params): Response
+    {
+        if (!Rooms::cancel((int) $params['id'], (int) Session::get('user')['id'], true)) {
+            return self::back('salles', 'error', 'Réservation introuvable.');
+        }
+        Audit::log('reservation.annulee', 'room_bookings', (int) $params['id'], ['par' => 'gestion']);
+        return self::back('salles', 'success', 'Réservation annulée.');
     }
 }
