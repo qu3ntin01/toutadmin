@@ -6,7 +6,12 @@
     var pref = localStorage.getItem('ta-theme') || 'system';
     var dark = pref === 'dark' || (pref === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+    // La préférence elle-même, pas seulement son résultat : la barre replie
+    // les deux thèmes non choisis, et doit savoir lequel montrer avant que le
+    // script différé n'arrive.
+    document.documentElement.setAttribute('data-theme-pref', pref);
   } catch (e) {
     document.documentElement.setAttribute('data-theme', 'light');
+    document.documentElement.setAttribute('data-theme-pref', 'light');
   }
 }());

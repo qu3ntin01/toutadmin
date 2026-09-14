@@ -198,12 +198,32 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .picker-btn:hover { border-color: var(--line-2); color: var(--ink); background: var(--bg-3); }
 .picker-btn .i { inline-size: 16px; block-size: 16px; }
-/* Le sélecteur de langue montre le drapeau du pays et le code : on reconnaît
-   le premier d'un coup d'œil, on vérifie sur le second. */
-.lang-btn { gap: 8px; font-weight: 600; color: var(--ink); padding-inline-end: 9px; }
+/* Le sélecteur de langue se réduit à son drapeau : c'est ce qu'on reconnaît
+   d'un coup d'œil, et la barre y gagne la place de deux libellés. Le code et
+   le chevron reviennent au survol, au clavier, et tant que le menu est
+   ouvert — pour qu'on puisse vérifier ce qu'on a reconnu. */
+.lang-btn { gap: 0; font-weight: 600; color: var(--ink); padding-inline: 10px; }
 .lang-btn .flag { font-size: 1.15rem; }
 .lang-btn .i { inline-size: 14px; block-size: 14px; color: var(--ink-3); transition: transform .22s var(--ease); }
 .picker.is-open .lang-btn .i { transform: rotate(180deg); }
+
+@media (hover: hover) {
+  .lang-btn .lang-code {
+    max-inline-size: 0; overflow: hidden; white-space: nowrap; opacity: 0;
+    margin-inline-start: 0;
+    transition: max-inline-size .22s var(--ease), opacity .18s, margin-inline-start .22s var(--ease);
+  }
+  .lang-btn .i {
+    inline-size: 0; opacity: 0; margin-inline-start: 0;
+    transition: inline-size .22s var(--ease), opacity .18s, margin-inline-start .22s var(--ease);
+  }
+  .lang-btn:hover .lang-code, .lang-btn:focus-visible .lang-code, .picker.is-open .lang-code {
+    max-inline-size: 4ch; opacity: 1; margin-inline-start: 7px;
+  }
+  .lang-btn:hover .i, .lang-btn:focus-visible .i, .picker.is-open .lang-btn .i {
+    inline-size: 14px; opacity: 1; margin-inline-start: 5px;
+  }
+}
 
 /* ------------------------------------------------- thème, en trois touches */
 .seg {
@@ -213,13 +233,40 @@ ul { margin: 0; padding: 0; list-style: none; }
 .seg-btn {
   display: inline-flex; align-items: center; justify-content: center;
   inline-size: 32px; block-size: 32px; border-radius: 999px;
-  border: 0; background: transparent; color: var(--ink-3);
+  /* Le remplissage par défaut d'un bouton vaut douze pixels de large : replié
+     à zéro, il en resterait douze. */
+  border: 0; padding: 0; background: transparent; color: var(--ink-3);
   cursor: pointer; transition: background .2s, color .2s;
 }
 .seg-btn:hover { color: var(--ink); background: var(--bg-3); }
 .seg-btn .i { inline-size: 16px; block-size: 16px; }
 .seg-btn.is-active {
   color: var(--brand); background: color-mix(in srgb, var(--brand-2) 14%, transparent);
+}
+
+/* Dans la barre, seul le thème courant est montré ; les deux autres se
+   déplient au survol ou dès qu'on entre au clavier. Le thème est connu avant
+   le premier rendu (data-theme-pref, posé par theme-boot), sans quoi les trois
+   touches apparaîtraient une fraction de seconde avant de se replier.
+   Sur un écran tactile, où rien ne survole, les trois restent montrées. */
+@media (hover: hover) {
+  .nav-right .seg { gap: 0; }
+  .nav-right .seg-btn {
+    /* Un élément de flex ne descend pas sous la taille de son contenu sans
+       qu'on le lui permette : sans cette ligne l'icône tiendrait la place
+       d'une touche repliée. */
+    inline-size: 0; min-inline-size: 0; overflow: hidden; opacity: 0; pointer-events: none;
+    transition: inline-size .24s var(--ease), opacity .2s, margin .24s var(--ease);
+  }
+  :root[data-theme-pref="light"] .nav-right .seg-btn[data-theme-choice="light"],
+  :root[data-theme-pref="dark"] .nav-right .seg-btn[data-theme-choice="dark"],
+  :root[data-theme-pref="system"] .nav-right .seg-btn[data-theme-choice="system"],
+  .nav-right .seg:hover .seg-btn,
+  .nav-right .seg:focus-within .seg-btn {
+    inline-size: 32px; opacity: 1; pointer-events: auto;
+  }
+  .nav-right .seg:hover .seg-btn + .seg-btn,
+  .nav-right .seg:focus-within .seg-btn + .seg-btn { margin-inline-start: 2px; }
 }
 .drawer-theme { display: flex; justify-content: flex-start; padding-block-end: 14px; }
 .picker-pop {

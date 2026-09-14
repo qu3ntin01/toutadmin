@@ -14,4 +14,4 @@ Barème
 Pages     : 96 (6 × 16 langues)
 Clés      : 380 par langue
 Captures  : 146 fichiers
-Ressources: style b1490b97ea · thème 32440868c8 · script 2cf372e760
+Ressources: style 0fc4ac02b9 · thème 4869e2e78f · script c1a98fc324

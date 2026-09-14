@@ -15,6 +15,7 @@
   function apply(pref) {
     var dark = pref === 'dark' || (pref === 'system' && media && media.matches);
     root.setAttribute('data-theme', dark ? 'dark' : 'light');
+    root.setAttribute('data-theme-pref', pref);
     var list = document.querySelectorAll('[data-theme-choice]');
     for (var i = 0; i < list.length; i += 1) {
       list[i].classList.toggle('is-active', list[i].getAttribute('data-theme-choice') === pref);

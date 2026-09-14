@@ -173,7 +173,7 @@ function navHtml(t, ctx) {
       </nav>
       <div class="nav-right">
         <div class="picker">
-          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.language'))}"><span class="flag">${ctx.locale.flag}</span><span>${esc(ctx.locale.code.toUpperCase())}</span>${icon('chevron')}</button>
+          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.language'))}"><span class="flag">${ctx.locale.flag}</span><span class="lang-code">${esc(ctx.locale.code.toUpperCase())}</span>${icon('chevron')}</button>
           <div class="picker-pop cols" role="menu" aria-label="${esc(t('nav.language'))}">
             ${langs}
           </div>
