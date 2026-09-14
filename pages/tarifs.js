@@ -27,7 +27,7 @@ module.exports = function pricing(ctx) {
     ['pricing.f.updates', yes, yes, yes],
     ['pricing.f.api', yes, yes, yes],
     ['pricing.f.saas', yes, yes, opt],
-    ['pricing.f.local', no, opt, yes],
+    ['pricing.f.local', yes, yes, yes],
     ['pricing.f.backupOff', no, yes, yes],
     ['pricing.f.migration', no, opt, opt],
     ['pricing.f.multisite', no, yes, yes],

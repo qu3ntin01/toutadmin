@@ -4,11 +4,10 @@ const { band, frame, head } = require('./_shared');
 // la même documentation, sur le même site, et l'un des deux est forcément mort.
 const DOC_URL = 'https://docs.toutadmin.com/';
 
-/* L'auto-hébergement suppose une formule payante : c'est la même règle que
-   sur la page des tarifs, où l'hébergement local est « non » sur la formule
-   gratuite. Une page d'installation qui l'oublierait enverrait quelqu'un
-   installer ce qu'il n'a pas le droit d'installer. */
-const CLIENT_URL = 'https://app.toutadmin.com/';
+/* Le téléchargement est ouvert à tout le monde, formule gratuite comprise :
+   ce qui décide de la formule, c'est l'effectif, pas l'endroit où tourne
+   l'instance. L'adresse est écrite ici et nulle part ailleurs. */
+const DOWNLOAD_URL = 'https://app.toutadmin.com/telecharger';
 
 /* Les blocs de commandes ne sont pas traduits : ce sont les mêmes lignes dans
    les seize langues, et traduire une commande la rendrait fausse. Seule la
@@ -86,7 +85,7 @@ module.exports = function installation(ctx) {
         <p class="lede reveal">${esc(t('install.lede'))}</p>
         <div class="hero-cta reveal">
           <a class="btn" href="${ctx.href('contact')}">${esc(t('install.saasCta'))}${icon('arrow')}</a>
-          <a class="btn btn-ghost" href="${CLIENT_URL}" rel="noopener">${icon('box')}${esc(t('install.dlCta'))}</a>
+          <a class="btn btn-ghost" href="${DOWNLOAD_URL}" rel="noopener">${icon('box')}${esc(t('install.dlCta'))}</a>
         </div>
         <p class="hero-note reveal">${esc(t('install.saasNote'))}</p>
       </div>
