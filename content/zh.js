@@ -11,6 +11,7 @@ module.exports = {
   'nav.pricing': '价格',
   'nav.contact': '联系',
   'nav.demo': '演示',
+  'nav.client': '客户中心',
   'nav.menu': '菜单',
   'nav.language': '语言',
   'nav.theme': '主题',

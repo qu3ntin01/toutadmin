@@ -11,6 +11,7 @@ module.exports = {
   'nav.pricing': '料金',
   'nav.contact': 'お問い合わせ',
   'nav.demo': 'デモ',
+  'nav.client': 'お客様ページ',
   'nav.menu': 'メニュー',
   'nav.language': '言語',
   'nav.theme': 'テーマ',

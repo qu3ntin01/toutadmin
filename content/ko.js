@@ -11,6 +11,7 @@ module.exports = {
   'nav.pricing': '요금',
   'nav.contact': '문의',
   'nav.demo': '데모',
+  'nav.client': '고객 공간',
   'nav.menu': '메뉴',
   'nav.language': '언어',
   'nav.theme': '테마',

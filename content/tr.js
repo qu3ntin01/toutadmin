@@ -11,6 +11,7 @@ module.exports = {
   'nav.pricing': 'Fiyatlar',
   'nav.contact': 'İletişim',
   'nav.demo': 'Demo',
+  'nav.client': 'Müşteri alanı',
   'nav.menu': 'Menü',
   'nav.language': 'Dil',
   'nav.theme': 'Tema',

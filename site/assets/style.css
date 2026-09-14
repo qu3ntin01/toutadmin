@@ -126,6 +126,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .btn-onbrand { --btn-bg: rgba(255, 255, 255, .12); --btn-fg: #fff; --btn-bd: rgba(255, 255, 255, .38); box-shadow: none; }
 .btn-onbrand:hover { --btn-bg: rgba(255, 255, 255, .2); box-shadow: none; }
 .btn-sm { padding: 9px 16px; font-size: .9rem; }
+.btn-pill { border-radius: 999px; padding-inline: 20px; }
 .btn .i { inline-size: 18px; block-size: 18px; flex: none; }
 .link-arrow { display: inline-flex; align-items: center; gap: 7px; color: var(--brand); font-weight: 650; }
 .link-arrow .i { inline-size: 17px; block-size: 17px; transition: transform .25s var(--ease); }
@@ -142,7 +143,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   transition: border-color .3s, background .3s, box-shadow .3s;
 }
 .nav.is-stuck { border-block-end-color: var(--line); box-shadow: 0 1px 24px rgba(13, 20, 48, .06); }
-.nav-in { display: flex; align-items: center; gap: 18px; block-size: var(--nav-h); }
+.nav-in { display: flex; align-items: center; gap: 14px; block-size: var(--nav-h); }
 .brand { display: inline-flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -.02em; font-size: 1.06rem; }
 .brand-mark {
   inline-size: 34px; block-size: 34px; border-radius: 9px; flex: none;
@@ -150,30 +151,77 @@ ul { margin: 0; padding: 0; list-style: none; }
   color: #fff; display: grid; place-items: center; font-size: .84rem; font-weight: 800; letter-spacing: .02em;
   box-shadow: 0 4px 14px color-mix(in srgb, var(--brand) 38%, transparent);
 }
-.nav-links { display: flex; align-items: center; gap: 4px; margin-inline-start: 12px; }
+/* Le nom porte deux tons : la moitié de marque prend la couleur de marque.
+   C'est ce qui fait reconnaître le logotype de loin, avant même de le lire. */
+.brand-name { white-space: nowrap; }
+.brand-accent { color: var(--brand); }
+.nav-links { display: flex; align-items: center; gap: 2px; margin-inline-start: 6px; min-inline-size: 0; }
 .nav-links a {
-  position: relative; padding: 8px 12px; border-radius: 8px; font-size: .95rem; font-weight: 550; color: var(--ink-2);
+  position: relative; padding: 9px 14px; border-radius: 999px; font-size: .95rem; font-weight: 550; color: var(--ink-2);
   transition: color .2s, background .2s;
 }
 .nav-links a::after {
-  content: ''; position: absolute; inset-block-end: 2px; inset-inline-start: 12px; inline-size: 0;
+  content: ''; position: absolute; inset-block-end: 4px; inset-inline-start: 14px; inline-size: 0;
   block-size: 2px; border-radius: 2px; background: var(--brand-2); transition: inline-size .25s var(--ease);
 }
-.nav-links a:hover { color: var(--ink); }
-.nav-links a:hover::after { inline-size: calc(100% - 24px); }
-.nav-links a.is-active { color: var(--brand); }
-.nav-links a.is-active::after { inline-size: calc(100% - 24px); }
-.nav-right { margin-inline-start: auto; display: flex; align-items: center; gap: 8px; }
-.nav-toggle { display: inline-flex; }
+.nav-links a:hover { color: var(--ink); background: var(--bg-3); }
+.nav-links a:hover::after { inline-size: calc(100% - 28px); }
+.nav-links a.is-active {
+  color: var(--brand); background: color-mix(in srgb, var(--brand-2) 10%, transparent);
+}
+.nav-links a.is-active::after { inline-size: calc(100% - 28px); }
+.nav-right { margin-inline-start: auto; display: flex; align-items: center; gap: 10px; flex: none; }
+/* Dans la barre, le libellé du bouton tient sur une ligne : c'est ailleurs
+   qu'un bouton a le droit de replier son texte, pas dans une barre haute de
+   68 pixels. Ce sont les liens qui cèdent la place, pas lui. */
+.nav-right .btn { white-space: nowrap; flex: none; }
+/* Les trois traits ouvrent le plan du site, à toutes les largeurs. Ils sont
+   en tête de barre parce que le tiroir s'ouvre de ce côté-là : le bouton et
+   ce qu'il ouvre doivent être du même bord, sinon le geste se contredit. */
+.nav-toggle { display: inline-flex; flex: none; }
+
+/* ------------------------------------------------------- boutons ronds */
+.icon-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  inline-size: 38px; block-size: 38px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink-2);
+  font: inherit; cursor: pointer; transition: border-color .2s, color .2s, background .2s;
+}
+.icon-btn:hover { border-color: var(--line-2); color: var(--ink); background: var(--bg-3); }
+.icon-btn .i { inline-size: 18px; block-size: 18px; }
 
 .picker { position: relative; }
 .picker-btn {
-  display: inline-flex; align-items: center; gap: 7px; padding: 8px 11px; border-radius: 9px;
+  display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 999px;
   border: 1px solid var(--line); background: var(--card); color: var(--ink-2);
-  font: inherit; font-size: .9rem; cursor: pointer; transition: border-color .2s, color .2s;
+  font: inherit; font-size: .9rem; cursor: pointer; transition: border-color .2s, color .2s, background .2s;
 }
-.picker-btn:hover { border-color: var(--line-2); color: var(--ink); }
+.picker-btn:hover { border-color: var(--line-2); color: var(--ink); background: var(--bg-3); }
 .picker-btn .i { inline-size: 16px; block-size: 16px; }
+/* Le sélecteur de langue montre le drapeau du pays et le code : on reconnaît
+   le premier d'un coup d'œil, on vérifie sur le second. */
+.lang-btn { gap: 8px; font-weight: 600; color: var(--ink); padding-inline-end: 9px; }
+.lang-btn .flag { font-size: 1.15rem; }
+.lang-btn .i { inline-size: 14px; block-size: 14px; color: var(--ink-3); transition: transform .22s var(--ease); }
+.picker.is-open .lang-btn .i { transform: rotate(180deg); }
+
+/* ------------------------------------------------- thème, en trois touches */
+.seg {
+  display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card);
+}
+.seg-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  inline-size: 32px; block-size: 32px; border-radius: 999px;
+  border: 0; background: transparent; color: var(--ink-3);
+  cursor: pointer; transition: background .2s, color .2s;
+}
+.seg-btn:hover { color: var(--ink); background: var(--bg-3); }
+.seg-btn .i { inline-size: 16px; block-size: 16px; }
+.seg-btn.is-active {
+  color: var(--brand); background: color-mix(in srgb, var(--brand-2) 14%, transparent);
+}
+.drawer-theme { display: flex; justify-content: flex-start; padding-block-end: 14px; }
 .picker-pop {
   position: absolute; inset-block-start: calc(100% + 8px); inset-inline-end: 0; z-index: 70;
   background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-m);
@@ -464,13 +512,25 @@ td.c { text-align: center; }
   .dom-body { grid-template-columns: 1.05fr .95fr; gap: 42px; }
   .dom.rev .dom-body > .dom-shot { order: -1; }
 }
+/* Les langues n'écrivent pas de la même longueur : en russe, les cinq liens
+   prennent cent pixels de plus qu'en français. Plutôt que de laisser le
+   dernier passer sous le bouton, les liens se resserrent. */
+@media (max-width: 1140px) {
+  .nav-links a { padding-inline: 10px; font-size: .92rem; }
+}
 @media (max-width: 899px) {
   .nav-links, .nav-right .btn { display: none; }
+  .nav-in { gap: 10px; }
   .hero-shot .float { display: none; }
   .foot-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 560px) {
   body { font-size: 16px; }
+  /* Sous cette largeur, la barre ne garde que ce qui ne peut pas attendre :
+     les trois traits, la marque, la langue. Le choix du thème n'est pas
+     perdu pour autant — il est en tête du tiroir. */
+  .nav-right .seg { display: none; }
+  .brand-name { font-size: .98rem; }
   .foot-grid { grid-template-columns: 1fr; }
   .section { padding-block: 56px; }
   .plan-amount { font-size: 2.3rem; }
@@ -574,13 +634,13 @@ td.c { text-align: center; }
 }
 .drawer-backdrop.is-open { opacity: 1; }
 .drawer {
-  position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 95;
-  inline-size: min(430px, 92vw); background: var(--card); border-inline-start: 1px solid var(--line);
-  box-shadow: -24px 0 60px rgba(13, 20, 48, .18);
+  position: fixed; inset-block: 0; inset-inline-start: 0; z-index: 95;
+  inline-size: min(430px, 92vw); background: var(--card); border-inline-end: 1px solid var(--line);
+  box-shadow: 24px 0 60px rgba(13, 20, 48, .18);
   display: flex; flex-direction: column;
-  transform: translateX(100%); transition: transform .34s var(--ease);
+  transform: translateX(-100%); transition: transform .34s var(--ease);
 }
-[dir="rtl"] .drawer { transform: translateX(-100%); box-shadow: 24px 0 60px rgba(13, 20, 48, .18); }
+[dir="rtl"] .drawer { transform: translateX(100%); box-shadow: -24px 0 60px rgba(13, 20, 48, .18); }
 .drawer.is-open, [dir="rtl"] .drawer.is-open { transform: none; }
 .drawer-head {
   display: flex; align-items: center; gap: 12px; padding: 14px 18px;
@@ -589,6 +649,7 @@ td.c { text-align: center; }
 .drawer-head .brand { font-size: 1rem; }
 .drawer-close { margin-inline-start: auto; }
 .drawer-body { overflow-y: auto; padding: 16px 18px 28px; }
+.drawer-ctas { display: grid; gap: 10px; margin-block-start: 22px; }
 .drawer-list { display: grid; gap: 4px; }
 .drawer-item {
   display: flex; align-items: flex-start; gap: 13px; padding: 12px 13px; border-radius: var(--radius-s);

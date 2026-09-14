@@ -11,6 +11,7 @@ module.exports = {
   'nav.pricing': 'Cennik',
   'nav.contact': 'Kontakt',
   'nav.demo': 'Demo',
+  'nav.client': 'Strefa klienta',
   'nav.menu': 'Menu',
   'nav.language': 'Język',
   'nav.theme': 'Motyw',

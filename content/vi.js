@@ -11,6 +11,7 @@ module.exports = {
   'nav.pricing': 'Bảng giá',
   'nav.contact': 'Liên hệ',
   'nav.demo': 'Demo',
+  'nav.client': 'Khu vực khách hàng',
   'nav.menu': 'Menu',
   'nav.language': 'Ngôn ngữ',
   'nav.theme': 'Giao diện',

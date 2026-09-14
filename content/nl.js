@@ -11,6 +11,7 @@ module.exports = {
   'nav.pricing': 'Prijzen',
   'nav.contact': 'Contact',
   'nav.demo': 'Demo',
+  'nav.client': 'Klantenzone',
   'nav.menu': 'Menu',
   'nav.language': 'Taal',
   'nav.theme': 'Thema',

@@ -45,6 +45,10 @@ const MERGED = { ecrans: 'fonctionnalites.html#ecrans' };
 // c'est cette ligne qu'on modifie, pas seize fichiers de traduction.
 const DOC_URL = 'https://docs.toutadmin.com/';
 
+// L'espace client — la connexion à son instance. Même règle que ci-dessus :
+// une seule ligne à changer le jour où l'adresse change.
+const CLIENT_URL = 'https://app.toutadmin.com/';
+
 /* --------------------------------------------------------------- outillage */
 
 const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -58,6 +62,7 @@ const ICONS = {
   moon: '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>',
   monitor: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
   close: '<path d="M6 6l12 12M18 6 6 18"/>',
   left: '<path d="M15 6l-6 6 6 6"/>',
   right: '<path d="M9 6l6 6-6 6"/>',
@@ -138,43 +143,60 @@ function navHtml(t, ctx) {
     ['tarifs', t('nav.pricing')],
     ['contact', t('nav.contact')],
   ].map(([page, label]) =>
-    `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ')
-    + `\n        <a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a>`;
+    `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ');
+  // La documentation n'est plus dans la barre : elle vit dans le tiroir et
+  // dans le pied de page. Une barre où le dernier lien passe sous le bouton
+  // ne rend service à personne, et c'est le lien qu'on trouve partout
+  // ailleurs qui cède la place.
 
   const langs = LOCALES.map((l) => {
     const active = l.code === ctx.locale.code;
     return `<a lang="${l.code}" hreflang="${l.code}" href="${ctx.hrefIn(l.code, ctx.page)}"${active ? ' class="is-active"' : ''}><span class="flag">${l.flag}</span>${esc(dictionaries[l.code]['locale.name'])}</a>`;
   }).join('\n            ');
 
-  const themes = [['light', 'sun', t('nav.themeLight')], ['dark', 'moon', t('nav.themeDark')], ['system', 'monitor', t('nav.themeSystem')]]
-    .map(([value, ic, label]) => `<button type="button" data-theme-choice="${value}">${icon(ic)}${esc(label)}</button>`).join('\n            ');
+  // Le nom porte deux tons : la marque se reconnaît à cela autant qu'au
+  // sigle. Si une langue écrit le nom autrement, il sort d'un seul ton
+  // plutôt que coupé au mauvais endroit.
+  const name = t('site.name');
+  const wordmark = name.startsWith('Tout')
+    ? `Tout<span class="brand-accent">${esc(name.slice(4))}</span>`
+    : esc(name);
 
   return `  <header class="nav">
     <div class="wrap nav-in">
+      <button class="icon-btn nav-toggle" type="button" aria-label="${esc(t('nav.menu'))}" aria-controls="plan-du-site" aria-expanded="false">${icon('menu')}</button>
       <a class="brand" href="${ctx.href('index')}">
-        <span class="brand-mark">TA</span>${esc(t('site.name'))}
+        <span class="brand-mark">TA</span><span class="brand-name">${wordmark}</span>
       </a>
       <nav class="nav-links" aria-label="${esc(t('nav.product'))}">
         ${links}
       </nav>
       <div class="nav-right">
         <div class="picker">
-          <button class="picker-btn" type="button" aria-haspopup="true">${icon('globe')}<span>${esc(ctx.locale.code.toUpperCase())}</span></button>
+          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.language'))}"><span class="flag">${ctx.locale.flag}</span><span>${esc(ctx.locale.code.toUpperCase())}</span>${icon('chevron')}</button>
           <div class="picker-pop cols" role="menu" aria-label="${esc(t('nav.language'))}">
             ${langs}
           </div>
         </div>
-        <div class="picker">
-          <button class="picker-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.theme'))}">${icon('sun')}</button>
-          <div class="picker-pop" role="menu">
-            ${themes}
-          </div>
-        </div>
-        <a class="btn btn-sm" href="${ctx.href('contact')}">${esc(t('nav.demo'))}</a>
-        <button class="picker-btn nav-toggle" type="button" aria-label="${esc(t('nav.menu'))}">${icon('menu')}</button>
+        ${segHtml(t)}
+        <a class="btn btn-sm btn-pill" href="${CLIENT_URL}" rel="noopener">${esc(t('nav.client'))}</a>
       </div>
     </div>
   </header>`;
+}
+
+/* Les trois thèmes sont montrés, pas cachés dans un menu : le choix tient en
+   trois icônes, et un menu qu'il faut ouvrir pour voir trois icônes coûte un
+   geste de plus pour rien. */
+function segHtml(t) {
+  const themes = [['light', 'sun', t('nav.themeLight')], ['dark', 'moon', t('nav.themeDark')], ['system', 'monitor', t('nav.themeSystem')]]
+    .map(([value, ic, label]) =>
+      `<button class="seg-btn" type="button" data-theme-choice="${value}" aria-label="${esc(label)}" title="${esc(label)}">${icon(ic)}</button>`)
+    .join('\n        ');
+
+  return `<div class="seg" role="group" aria-label="${esc(t('nav.theme'))}">
+        ${themes}
+      </div>`;
 }
 
 /* Le bouton à trois traits ouvre ce tiroir, à toutes les largeurs. Il ne se
@@ -226,11 +248,15 @@ function drawerHtml(t, ctx) {
   <aside class="drawer" id="plan-du-site" aria-label="${esc(t('menu.title'))}" hidden>
     <div class="drawer-head">
       <span class="brand"><span class="brand-mark">TA</span>${esc(t('menu.title'))}</span>
-      <button class="picker-btn drawer-close" type="button" aria-label="${esc(t('menu.close'))}">${icon('close')}</button>
+      <button class="icon-btn drawer-close" type="button" aria-label="${esc(t('menu.close'))}">${icon('close')}</button>
     </div>
     <div class="drawer-body">
+      <div class="drawer-theme">${segHtml(t)}</div>
       ${groups}
-      <a class="btn drawer-cta" href="${ctx.href('contact')}">${esc(t('nav.demo'))}${icon('arrow')}</a>
+      <div class="drawer-ctas">
+        <a class="btn drawer-cta" href="${ctx.href('contact')}">${esc(t('nav.demo'))}${icon('arrow')}</a>
+        <a class="btn btn-ghost drawer-cta" href="${CLIENT_URL}" rel="noopener">${esc(t('nav.client'))}${icon('arrow')}</a>
+      </div>
     </div>
   </aside>`;
 }
