@@ -13,7 +13,6 @@ const BRACKETS = [
   { upTo: Infinity, rate: 3 },
 ];
 const SAMPLES = [5, 10, 50, 100, 250, 500, 1000];
-const LIFETIME = 10000;
 
 const rateFor = (headcount) => BRACKETS.find((b) => headcount <= b.upTo).rate;
 const monthlyFor = (headcount) => headcount * rateFor(headcount);
@@ -27,7 +26,6 @@ function plans(ctx) {
   return [
     { n: 1, amount: t('pricing.free'), per: '', featured: false },
     { n: 2, amount: euro(ctx.locale.code, BRACKETS[0].rate), per: t('pricing.perEmployeeShort'), featured: true },
-    { n: 4, amount: euro(ctx.locale.code, LIFETIME), per: t('pricing.once'), featured: false },
   ].map((plan) => ({
     ...plan,
     name: esc(t(`pricing.p${plan.n}.name`)),
@@ -48,7 +46,7 @@ function planCard(ctx, plan, list = '') {
             </div>
             <p>${plan.body}</p>
             ${list}
-            <a class="btn ${plan.featured ? '' : 'btn-ghost'} mt-l" href="${ctx.href('contact')}">${esc(t(plan.n === 4 ? 'pricing.ctaCustom' : 'pricing.cta'))}</a>
+            <a class="btn ${plan.featured ? '' : 'btn-ghost'} mt-l" href="${ctx.href('contact')}">${esc(t('pricing.cta'))}</a>
           </article>`;
 }
 
@@ -68,4 +66,4 @@ function gridRows(ctx) {
   return free + '\n              ' + rows;
 }
 
-module.exports = { FREE_UNDER, BRACKETS, SAMPLES, LIFETIME, rateFor, monthlyFor, euro, plans, planCard, gridRows };
+module.exports = { FREE_UNDER, BRACKETS, SAMPLES, rateFor, monthlyFor, euro, plans, planCard, gridRows };

@@ -507,7 +507,12 @@ ul { margin: 0; padding: 0; list-style: none; }
 .lb-next { inset-inline-end: 18px; }
 
 /* ---------------------------------------------------------------- tarifs */
-.plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(252px, 1fr)); gap: 18px; align-items: start; }
+/* Deux formules plutôt que trois : sans plafond, chaque carte prendrait la
+   moitié de la page et le prix flotterait au milieu du vide. */
+.plans {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(252px, 400px));
+  justify-content: center; gap: 18px; align-items: start;
+}
 .plan { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-l);
   padding: 30px 26px; display: flex; flex-direction: column; gap: 4px; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
 .plan:hover { transform: translateY(-4px); box-shadow: var(--shadow-m); }

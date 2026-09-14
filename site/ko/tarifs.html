@@ -16,7 +16,7 @@
 <meta property="og:title" content="요금 — Toutadmin" />
 <meta property="og:description" content="회사 전체를 운영하는 가격은 하나뿐입니다 — 직원 한 명당, 한 달에. 모듈을 따로 사지도, 기능마다 더 내지도 않습니다. 모든 요금제에 제품 전체가 들어 있습니다." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=258588408f" />
+<link rel="stylesheet" href="../assets/style.css?v=5913b60cd3" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../tarifs.html" />
   <link rel="alternate" hreflang="en" href="../en/tarifs.html" />
@@ -143,7 +143,7 @@
           </a>
           <a class="drawer-item is-active" href="../tarifs.html">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V9m5 11V4m5 16v-7m5 7V8"/></svg></span>
-            <span><strong>요금</strong><span class="drawer-note">직원당 가격, 인원수별 표, 그리고 평생 라이선스.</span></span>
+            <span><strong>요금</strong><span class="drawer-note">직원당 가격과 인원수별 표.</span></span>
           </a>
       </nav>
       <h4>더 알아보기</h4>
@@ -214,24 +214,6 @@
             </ul>
             <a class="btn  mt-l" href="../contact.html">시작하기</a>
           </article>
-          <article class="plan reveal">
-            
-            <div class="plan-name">평생 라이선스</div>
-            <div class="plan-for">1회 결제</div>
-            <div class="plan-price">
-              <span class="plan-amount">€10,000</span>
-              <span class="plan-per">한 번</span>
-            </div>
-            <p>한 번에 10,000유로. 구독 없음, 기한 없음, 인원 상한 없음. 쓰고 싶은 동안 소프트웨어는 여러분의 것입니다.</p>
-            <ul class="plan-list">
-              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>35개 업무 공간과 7개 모듈</span></li>
-              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>업데이트 포함</span></li>
-              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>데이터 자체 운영</span></li>
-              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>여러 사업장, 여러 법인</span></li>
-              <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>읽기 API와 웹훅</span></li>
-            </ul>
-            <a class="btn btn-ghost mt-l" href="../contact.html">문의하기</a>
-          </article>
         </div>
         <p class="center stat-n mt-m reveal">세금 별도. 월 요금제에는 약정 기간이 없습니다.</p>
       </div>
@@ -297,15 +279,9 @@
             </tbody>
           </table>
         </div>
-        <div class="grid g2 mt-l">
-          <div class="note reveal">
-            <h3>한 사람당 5유로로, 전부</h3>
-            <p>인사 도구 하나, 회계 프로그램 하나, 프로젝트 관리 하나, 고객 문의 시스템 하나, 급여명세서 금고 하나. 사용자당 8유로나 15유로짜리 구독 다섯 개, 서로 대화하지 않는 데이터베이스 다섯 개, 청구서 다섯 장. Toutadmin은 그 가운데 가장 싼 것 하나의 값으로 더미 전체를 대신합니다 — 그리고 데이터는 마침내 한곳에 모입니다.</p>
-          </div>
-          <div class="note reveal">
-            <h3>평생 라이선스가 있는 이유</h3>
-            <p>한 번에 1만 유로, 구독도 기한도 없습니다. 같은 인스턴스, 같은 업데이트, 인원 상한도 없습니다. 백 명 규모라면 스무 달, 오백 명 규모라면 다섯 달이면 본전을 뽑습니다. 매달 나가는 비용 항목보다 한 번의 투자를 택하고 싶은 분 — 그리고 계속 일하기 위해 누구에게도 기대고 싶지 않은 분을 위한 제안입니다.</p>
-          </div>
+        <div class="note reveal mx-auto mt-l">
+          <h3>한 사람당 5유로로, 전부</h3>
+          <p>인사 도구 하나, 회계 프로그램 하나, 프로젝트 관리 하나, 고객 문의 시스템 하나, 급여명세서 금고 하나. 사용자당 8유로나 15유로짜리 구독 다섯 개, 서로 대화하지 않는 데이터베이스 다섯 개, 청구서 다섯 장. Toutadmin은 그 가운데 가장 싼 것 하나의 값으로 더미 전체를 대신합니다 — 그리고 데이터는 마침내 한곳에 모입니다.</p>
         </div>
       </div>
     </section>
@@ -324,22 +300,21 @@
                 <th scope="col"></th>
                 <th scope="col">무료</th>
                 <th scope="col">구독</th>
-                <th scope="col">평생 라이선스</th>
               </tr>
             </thead>
             <tbody>
-              <tr><th scope="row">35개 업무 공간과 7개 모듈</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">16개 언어와 3가지 색상</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">완전한 보안, 봉인 로그, GDPR</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">업데이트 포함</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">읽기 API와 웹훅</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">유럽 SaaS 호스팅</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-opt">선택</span></td></tr>
-              <tr><th scope="row">데이터 자체 운영</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">백업 외부 보관</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">데이터 이관</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-opt">선택</span></td><td class="c"><span class="mark-opt">선택</span></td></tr>
-              <tr><th scope="row">여러 사업장, 여러 법인</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
-              <tr><th scope="row">서비스 수준 약속(SLA)</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-opt">선택</span></td><td class="c"><span class="mark-opt">선택</span></td></tr>
-              <tr><th scope="row">지원</th><td class="c"><span class="mark-no">문서</span></td><td class="c"><span class="mark-opt">이메일</span></td><td class="c"><span class="mark-opt">이메일</span></td></tr>
+              <tr><th scope="row">35개 업무 공간과 7개 모듈</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">16개 언어와 3가지 색상</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">완전한 보안, 봉인 로그, GDPR</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">업데이트 포함</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">읽기 API와 웹훅</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">유럽 SaaS 호스팅</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">데이터 자체 운영</th><td class="c"><span class="mark-yes">포함</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">백업 외부 보관</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">데이터 이관</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-opt">선택</span></td></tr>
+              <tr><th scope="row">여러 사업장, 여러 법인</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-yes">포함</span></td></tr>
+              <tr><th scope="row">서비스 수준 약속(SLA)</th><td class="c"><span class="mark-no">없음</span></td><td class="c"><span class="mark-opt">선택</span></td></tr>
+              <tr><th scope="row">지원</th><td class="c"><span class="mark-no">문서</span></td><td class="c"><span class="mark-opt">이메일</span></td></tr>
             </tbody>
           </table>
         </div>
@@ -367,10 +342,6 @@
             <div class="answer">가격도 양방향으로 따라갑니다. 다음 달부터 적용되며 소급은 없습니다. 구간을 넘게 만드는 채용은 그다음 달에 청구되고, 구간 아래로 내려가게 하는 퇴사도 마찬가지입니다. 닫힌 계정 몫을 내는 사람은 없습니다.</div>
           </details>
           <details class="reveal">
-            <summary>평생 라이선스에 업데이트가 포함되나요?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
-            <div class="answer">포함되며 기한도 없습니다 — 그것이 '평생'이라는 말의 뜻입니다. 월 요금제와 같은 버전을 받고, 데이터베이스를 자체 운영할 수도 있습니다. 라이선스에 포함되지 않는 것은 우선 지원이며, 이는 별도의 서비스로 남습니다.</div>
-          </details>
-          <details class="reveal">
             <summary>제품의 일부만 켤 수 있나요?<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary>
             <div class="answer">가능합니다. 일곱 개 모듈 — 회계, 급여, 전자세금계산서, 재고와 구매, 자금, 유형자산, CRM — 은 기본적으로 꺼져 있고 하나씩 켭니다. 꺼져 있는 동안 해당 주소는 404를 돌려줍니다.</div>
           </details>
@@ -390,7 +361,7 @@
       <div class="wrap">
         <div class="band reveal">
           <h2>무료로 시작하고, 커지면 요금제를 바꾸세요</h2>
-          <p>직원 5명 미만이면 전부 무료입니다. 그 이상이면 직원 한 명당 월 5유로(이백오십 명부터 체감), 또는 평생 라이선스로 한 번에 10,000유로. 시험해 보는 데 카드는 필요 없습니다.</p>
+          <p>직원 5명 미만이면 전부 무료입니다. 그 이상이면 직원 한 명당 월 5유로이며, 이백오십 명부터 체감합니다. 시험해 보는 데 카드는 필요 없습니다.</p>
           <div class="band-cta">
             <a class="btn btn-light" href="../tarifs.html">내 인스턴스 만들기<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             <a class="btn btn-onbrand" href="../contact.html">담당자와 이야기하기</a>

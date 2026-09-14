@@ -443,7 +443,6 @@ const plans = require(path.join(ROOT, 'pages', '_plans.js'));
 const barème = [
   `gratuit sous ${plans.FREE_UNDER} salariés`,
   ...plans.SAMPLES.map((n) => `${n} salariés : ${plans.rateFor(n)} €/salarié → ${plans.monthlyFor(n)} €/mois`),
-  `licence à vie : ${plans.LIFETIME} € une fois`,
 ].join('\n  ');
 fs.writeFileSync(path.join(OUT, 'version.txt'),
   `Toutadmin — vitrine\n\nBarème\n  ${barème}\n\n`

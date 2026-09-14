@@ -9,9 +9,8 @@ Barème
   250 salariés : 4 €/salarié → 1000 €/mois
   500 salariés : 4 €/salarié → 2000 €/mois
   1000 salariés : 3 €/salarié → 3000 €/mois
-  licence à vie : 10000 € une fois
 
 Pages     : 96 (6 × 16 langues)
-Clés      : 380 par langue
+Clés      : 371 par langue
 Captures  : 146 fichiers
-Ressources: style 258588408f · thème 4869e2e78f · script c1a98fc324
+Ressources: style 5913b60cd3 · thème 4869e2e78f · script c1a98fc324
