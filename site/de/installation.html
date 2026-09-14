@@ -16,7 +16,7 @@
 <meta property="og:title" content="Installation — Toutadmin" />
 <meta property="og:description" content="Zwei Editionen desselben Produkts: die eine läuft als Dienst auf Ihrem Server, die andere wird auf ein Shared Hosting gelegt. Keine externe Datenbank, kein Fremddienst. Rechnen Sie mit einer Stunde." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Installation</span>
         <h1 class="reveal">Toutadmin installieren</h1>
         <p class="lede reveal">Zwei Editionen desselben Produkts: die eine läuft als Dienst auf Ihrem Server, die andere wird auf ein Shared Hosting gelegt. Keine externe Datenbank, kein Fremddienst. Rechnen Sie mit einer Stunde.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">Kostenlos starten, bei uns gehostet<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Produkt herunterladen</a>
+        </div>
+        <p class="hero-note reveal">In Europa gehostet, nichts zu installieren: kostenlos bis fünf Mitarbeitende, und vom ersten Tag an das ganze Produkt.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Selbst hosten setzt einen kostenpflichtigen Tarif voraus</h3>
+          <p>Den kostenlosen Tarif hosten wir: nichts zu installieren, nichts zu verwalten. Das Produkt auf dem eigenen Server zu installieren — eigene Dateien, eigene Datenbank, eigene Sicherungen — setzt ein Abonnement oder eine Lebenszeitlizenz voraus. Es ist dieselbe Regel wie auf der Tarifseite, und die Installationsseite wollte nicht das Gegenteil behaupten.</p>
+          <p><a class="link-arrow" href="../tarifs.html">Tarife ansehen<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>Die Wahl bleibt umkehrbar</h3>
           <p>Beide Editionen teilen dasselbe Datenbankschema und dasselbe Passwortformat. Der Wechsel bedeutet, eine Datenbankdatei und fünf Ordner zu kopieren: es gibt keine Umwandlung, und niemand muss sein Passwort ändern.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">In fünf Minuten</span>
+          <h2>Die schnelle Installation</h2>
+          <p class="lede">Gerade genug, um den Assistenten zu öffnen. Das Ausführliche folgt gleich danach, Schritt für Schritt, mit dem, was jeder Befehl tut und warum.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Node-Edition</h3>
+            <p>Drei Befehle auf einem Server, den Sie verwalten. Der letzte erzeugt ein Installationstoken und startet die Instanz.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>PHP-Edition</h3>
+            <p>Gar keine Kommandozeile: ein Ordner zum Ablegen, eine Datei zum Kopieren, ein Schreibrecht zum Öffnen.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Den Rest erledigt der Assistent</h2>
+          <p class="lede">Die Instanz startet leer und schließt sich um sich selbst: solange sie nicht installiert ist, führt jede Adresse zum Assistenten, und nach der Installation ist der Assistent endgültig fort.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Sprache</strong><span class="muted">Die der Instanz, unter den sechzehn. Sie lässt sich später ändern, und jede und jeder behält die eigene.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Voraussetzungen</strong><span class="muted">Der Assistent prüft, worauf er steht: Version, Schreibrechte, Datenbank, Ordner. Was fehlt, wird benannt und nicht erraten.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Organisation</strong><span class="muted">Der Name des Unternehmens und der Jahresurlaubsanspruch. Zwei Antworten, später änderbar.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Verwaltung</strong><span class="muted">Das erste Konto. Mindestens zwölf Zeichen: es ist das einzige Konto, das weitere anlegen kann.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Fertig</strong><span class="muted">Der Assistent schließt endgültig. Sie landen auf der Anmeldeseite, und die Instanz gehört Ihnen.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Setzen Sie das Installationstoken, bevor Sie den Port öffnen</h3>
+              <p>Zwischen dem ersten Start und Ihrem Besuch im Assistenten würde das Verwaltungskonto anlegen, wer zuerst kommt. INSTALL_TOKEN schließt dieses Fenster: ohne es öffnet sich der Assistent nicht.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Installationsassistent</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Installationsassistent" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Installationsassistent" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>Die vollständige Anleitung steht in der Dokumentation</h2>
           <p>Diese Seite gibt den Rahmen. Die Dokumentation gibt alles Weitere: Konfiguration des vorgeschalteten Servers, genaue Berechtigungen, Zertifikate, Wiederherstellung, Aktualisierung, Fehlersuche nach Symptom — und beide Anleitungen vollständig, eine je Edition.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Die Installationsanleitungen lesen<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Die Installationsanleitungen lesen<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@
 <meta property="og:title" content="Cài đặt — Toutadmin" />
 <meta property="og:description" content="Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không cần cơ sở dữ liệu ngoài, không cần dịch vụ bên thứ ba. Hãy dành một giờ." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Cài đặt</span>
         <h1 class="reveal">Cài đặt Toutadmin</h1>
         <p class="lede reveal">Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không cần cơ sở dữ liệu ngoài, không cần dịch vụ bên thứ ba. Hãy dành một giờ.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">Bắt đầu miễn phí trên SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Tải sản phẩm về</a>
+        </div>
+        <p class="hero-note reveal">Đặt tại châu Âu, không phải cài gì: miễn phí đến năm nhân viên, và trọn sản phẩm ngay từ ngày đầu.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Tự đặt máy chủ đòi hỏi gói trả phí</h3>
+          <p>Gói miễn phí do chúng tôi đặt máy chủ: không phải cài, không phải quản trị. Cài sản phẩm trên máy chủ của bạn — tệp của bạn, cơ sở dữ liệu của bạn, bản sao lưu của bạn — đòi hỏi một thuê bao hoặc một giấy phép trọn đời. Đó cũng là quy tắc ghi ở trang bảng giá, và trang cài đặt không nói khác đi.</p>
+          <p><a class="link-arrow" href="../tarifs.html">Xem các gói<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>Lựa chọn vẫn có thể đảo lại</h3>
           <p>Hai bản dùng chung một lược đồ cơ sở dữ liệu và một định dạng mật khẩu. Chuyển từ bản này sang bản kia là chép một tệp cơ sở dữ liệu và năm thư mục: không có bước chuyển đổi, và không ai phải đổi mật khẩu.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Trong năm phút</span>
+          <h2>Cài đặt nhanh</h2>
+          <p class="lede">Vừa đủ để mở trình trợ giúp. Chi tiết đến ngay sau đó, từng bước một, kèm việc mỗi lệnh làm gì và vì sao.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Bản Node</h3>
+            <p>Ba lệnh trên máy chủ do bạn quản trị. Lệnh cuối sinh ra một thẻ cài đặt và khởi động bản chạy.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>Bản PHP</h3>
+            <p>Không cần dòng lệnh nào: một thư mục để tải lên, một tệp để chép, một quyền ghi để mở.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Rồi trình trợ giúp làm phần còn lại</h2>
+          <p class="lede">Bản chạy khởi động rỗng và khép lại quanh chính nó: khi chưa cài xong, mọi địa chỉ đều dẫn tới trình trợ giúp; cài xong rồi thì nó biến mất hẳn.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Ngôn ngữ</strong><span class="muted">Ngôn ngữ của bản chạy, trong mười sáu thứ tiếng. Đổi được về sau, và ai cũng giữ tiếng của mình.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Điều kiện cần</strong><span class="muted">Trình trợ giúp xem nó đang đứng trên cái gì: phiên bản, quyền ghi, cơ sở dữ liệu, thư mục. Thiếu gì thì gọi tên ra, không đoán.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Tổ chức</strong><span class="muted">Tên doanh nghiệp và số ngày phép mỗi năm. Hai câu trả lời, sửa được về sau.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Quản trị viên</strong><span class="muted">Tài khoản đầu tiên. Tối thiểu mười hai ký tự: đó là tài khoản duy nhất tạo được tài khoản khác.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Xong</strong><span class="muted">Trình trợ giúp đóng lại vĩnh viễn. Bạn tới màn hình đăng nhập, và bản chạy là của bạn.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Đặt thẻ cài đặt trước khi mở cổng</h3>
+              <p>Giữa lần khởi động đầu tiên và lúc bạn vào trình trợ giúp, ai đến trước sẽ tạo được tài khoản quản trị. INSTALL_TOKEN đóng cửa sổ ấy lại: không có nó, trình trợ giúp không chịu mở.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Trình trợ giúp cài đặt</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Trình trợ giúp cài đặt" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Trình trợ giúp cài đặt" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>Hướng dẫn đầy đủ nằm trong tài liệu</h2>
           <p>Trang này cho bạn khung sườn. Tài liệu cho tất cả phần còn lại: cấu hình máy chủ phía trước, quyền chính xác, chứng chỉ, khôi phục, nâng cấp, khắc phục sự cố theo triệu chứng — và trọn vẹn hai hướng dẫn, mỗi bản một.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Đọc hướng dẫn cài đặt<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Đọc hướng dẫn cài đặt<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

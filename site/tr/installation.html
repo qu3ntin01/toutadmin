@@ -16,7 +16,7 @@
 <meta property="og:title" content="Kurulum — Toutadmin" />
 <meta property="og:description" content="Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Dış veritabanı yok, üçüncü taraf servis yok. Bir saat ayırın." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Kurulum</span>
         <h1 class="reveal">Toutadmin'i kurmak</h1>
         <p class="lede reveal">Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Dış veritabanı yok, üçüncü taraf servis yok. Bir saat ayırın.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">SaaS'ta ücretsiz başlamak<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Ürünü indirmek</a>
+        </div>
+        <p class="hero-note reveal">Avrupa'da barındırılır, kurulacak bir şey yoktur: beş çalışana kadar ücretsiz, ve ilk günden itibaren ürünün tamamı.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Kendi sunucunuzda barındırmak ücretli bir formül ister</h3>
+          <p>Ücretsiz formülü biz barındırırız: kuracak bir şey yok, yönetecek bir şey yok. Ürünü kendi sunucunuza kurmak — kendi dosyalarınız, kendi veritabanınız, kendi yedekleriniz — bir abonelik ya da ömür boyu lisans gerektirir. Bu, fiyat sayfasındaki kuralın aynısıdır; kurulum sayfası da tersini söyleyecek değildi.</p>
+          <p><a class="link-arrow" href="../tarifs.html">Formülleri görmek<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>Seçim geri alınabilir kalır</h3>
           <p>İki sürüm aynı veritabanı şemasını ve aynı parola biçimini paylaşır. Birinden diğerine geçmek, bir veritabanı dosyasını ve beş klasörü kopyalamaktır: dönüştürme yoktur ve kimsenin parolasını değiştirmesi gerekmez.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Beş dakikada</span>
+          <h2>Hızlı kurulum</h2>
+          <p class="lede">Sihirbazı açmaya yetecek kadarı. Ayrıntı hemen ardından gelir: adım adım, her komutun ne yaptığı ve neden yaptığıyla.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Node sürümü</h3>
+            <p>Yönettiğiniz bir sunucuda üç komut. Sonuncusu bir kurulum jetonu üretir ve örneği başlatır.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>PHP sürümü</h3>
+            <p>Hiç komut satırı yok: bırakılacak bir klasör, kopyalanacak bir dosya, açılacak bir yazma hakkı.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Gerisini sihirbaz yapar</h2>
+          <p class="lede">Örnek boş başlar ve kendi üzerine kapanır: kurulmadığı sürece her adres sihirbaza çıkar, kurulduktan sonra sihirbaz temelli gider.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Dil</strong><span class="muted">Örneğin dili, on altı dil arasından. Sonra değişir, ve herkes kendi dilini korur.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Önkoşullar</strong><span class="muted">Sihirbaz ayağının altındakine bakar: sürüm, yazma hakları, veritabanı, klasörler. Eksik olan adıyla söylenir, tahmin edilmez.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Kuruluş</strong><span class="muted">Şirketin adı ve yıllık izin hakkı. İki yanıt, sonradan değiştirilebilir.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Yönetici</strong><span class="muted">İlk hesap. En az on iki karakter: başkalarını oluşturabilen tek hesap odur.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Bitti</strong><span class="muted">Sihirbaz temelli kapanır. Giriş ekranına varırsınız, ve örnek sizindir.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Bağlantı noktasını açmadan önce kurulum jetonunu koyun</h3>
+              <p>İlk başlatma ile sizin sihirbazdan geçişiniz arasında, yönetim hesabını ilk gelen oluştururdu. INSTALL_TOKEN bu pencereyi kapatır: o olmadan sihirbaz açılmayı reddeder.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Kurulum sihirbazı</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Kurulum sihirbazı" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Kurulum sihirbazı" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>Eksiksiz kılavuz belgelerdedir</h2>
           <p>Bu sayfa ana hatları verir. Belgeler geri kalan her şeyi verir: ön uç sunucu yapılandırması, tam izinler, sertifikalar, geri yükleme, güncelleme, belirtiye göre sorun giderme — ve her sürüm için birer tane olmak üzere iki kılavuzun tamamı.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Kurulum kılavuzlarını okuyun<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Kurulum kılavuzlarını okuyun<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

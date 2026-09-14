@@ -16,7 +16,7 @@
 <meta property="og:title" content="安装 — Toutadmin" />
 <meta property="og:description" content="同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。无需外部数据库，无需第三方服务。预留一小时。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">安装</span>
         <h1 class="reveal">安装 Toutadmin</h1>
         <p class="lede reveal">同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。无需外部数据库，无需第三方服务。预留一小时。</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">免费开始使用 SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>下载产品</a>
+        </div>
+        <p class="hero-note reveal">托管在欧洲，什么都不用装：五名员工以内免费，而且第一天就是完整的产品。</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>自行托管需要付费方案</h3>
+          <p>免费方案由我们托管：不用安装，也不用运维。把产品装到自己的服务器上——自己的文件、自己的数据库、自己的备份——则需要订阅或永久授权。这与价格页上的规则一致，安装页自然不会说反话。</p>
+          <p><a class="link-arrow" href="../tarifs.html">查看方案<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>这个选择是可逆的</h3>
           <p>两个版本共用同一套数据库结构和同一种密码格式。从一个换到另一个，就是复制一个数据库文件和五个目录：没有转换步骤，也没有人需要改密码。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">五分钟</span>
+          <h2>快速安装</h2>
+          <p class="lede">刚好够把向导打开。详细步骤紧随其后，一步一步说明每条命令做什么、为什么这样做。</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Node 版</h3>
+            <p>在你自己管理的服务器上执行三条命令。最后一条生成安装令牌并启动实例。</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>PHP 版</h3>
+            <p>完全不需要命令行：上传一个目录，复制一个文件，打开一项写权限。</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>剩下的交给安装向导</h2>
+          <p class="lede">实例以空白状态启动，并把自己关起来：未安装之前，任何地址都通向向导；安装完成后，向导就彻底消失。</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>语言</strong><span class="muted">实例的语言，从十六种里选。以后可以改，而且每个人都保留自己的。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>先决条件</strong><span class="muted">向导检查脚下的一切：版本、写权限、数据库、目录。缺什么就点名说清，而不是靠猜。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>组织</strong><span class="muted">公司名称和年度假期额度。两个回答，之后都可以改。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>管理员</strong><span class="muted">第一个账号。至少十二个字符：只有它能创建其他账号。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>完成</strong><span class="muted">向导就此永久关闭。你会到达登录页，实例从此归你。</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>开放端口之前先设好安装令牌</h3>
+              <p>从第一次启动到你自己走进向导之间，谁先到谁就能创建管理员账号。INSTALL_TOKEN 把这扇窗关上：没有它，向导拒绝打开。</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>安装向导</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="安装向导" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="安装向导" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>完整教程在文档中</h2>
           <p>本页给出主线。文档给出其余全部：前端服务器配置、确切权限、证书、恢复、升级、按症状排查故障——以及两份完整教程，每个版本各一份。</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">阅读安装教程<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">阅读安装教程<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@
 <meta property="og:title" content="Instalación — Toutadmin" />
 <meta property="og:description" content="Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Instalación</span>
         <h1 class="reveal">Instalar Toutadmin</h1>
         <p class="lede reveal">Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">Empezar gratis en SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Descargar el producto</a>
+        </div>
+        <p class="hero-note reveal">Alojado en Europa, sin nada que instalar: gratis hasta cinco empleados, y el producto entero desde el primer día.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>El autoalojamiento exige una fórmula de pago</h3>
+          <p>La fórmula gratuita la alojamos nosotros: nada que instalar, nada que administrar. Instalar el producto en su propio servidor — sus ficheros, su base, sus copias de seguridad — supone una suscripción o una licencia de por vida. Es la misma regla que en la página de tarifas, y la página de instalación no iba a decir lo contrario.</p>
+          <p><a class="link-arrow" href="../tarifs.html">Ver las fórmulas<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>La elección sigue siendo reversible</h3>
           <p>Ambas ediciones comparten el mismo esquema de base de datos y el mismo formato de contraseña. Pasar de una a otra es copiar un archivo de base y cinco carpetas: no hay conversión, y nadie tiene que cambiar de contraseña.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">En cinco minutos</span>
+          <h2>La instalación rápida</h2>
+          <p class="lede">Lo justo para abrir el asistente. El detalle viene justo después, paso a paso, con lo que hace cada orden y por qué.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Edición Node</h3>
+            <p>Tres órdenes en un servidor que usted administra. La última genera un testigo de instalación y arranca la instancia.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>Edición PHP</h3>
+            <p>Ninguna línea de órdenes: una carpeta que depositar, un fichero que copiar, un permiso de escritura que abrir.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Luego el asistente hace el resto</h2>
+          <p class="lede">La instancia arranca vacía y se cierra sobre sí misma: mientras no esté instalada, toda dirección lleva al asistente, y una vez instalada el asistente desaparece para siempre.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Idioma</strong><span class="muted">El de la instancia, entre los dieciséis. Se cambia más tarde, y cada cual conserva el suyo.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Requisitos</strong><span class="muted">El asistente comprueba lo que tiene bajo los pies: versión, permisos de escritura, base, carpetas. Lo que falta se nombra, no se adivina.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Organización</strong><span class="muted">El nombre de la empresa y la cuota anual de vacaciones. Dos respuestas, modificables después.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Administrador</strong><span class="muted">La primera cuenta. Doce caracteres como mínimo: es la única cuenta que puede crear otras.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Terminado</strong><span class="muted">El asistente se cierra definitivamente. Llega a la pantalla de conexión, y la instancia es suya.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Ponga el testigo de instalación antes de abrir el puerto</h3>
+              <p>Entre el primer arranque y su paso por el asistente, el primero en llegar crearía la cuenta de administración. INSTALL_TOKEN cierra esa ventana: sin él, el asistente se niega a abrirse.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Asistente de instalación</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Asistente de instalación" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Asistente de instalación" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>El tutorial completo está en la documentación</h2>
           <p>Esta página da el esquema. La documentación da todo lo demás: configuración del servidor frontal, permisos exactos, certificados, restauración, actualización, resolución de problemas por síntoma, y los dos tutoriales enteros, uno por edición.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Leer los tutoriales de instalación<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Leer los tutoriales de instalación<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

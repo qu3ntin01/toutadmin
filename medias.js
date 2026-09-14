@@ -3,7 +3,7 @@
 module.exports = {
   // Les écrans qui existent dans les deux thèmes : la page bascule l'image
   // avec elle, sans quoi un site sombre montrerait des captures claires.
-  pairs: ['pilotage', 'membre-espace', 'gestion', 'projets', 'juridique', 'securite'],
+  pairs: ['pilotage', 'membre-espace', 'gestion', 'projets', 'juridique', 'securite', 'assistant'],
   tour: ['pilotage', 'membre-espace', 'rh', 'gestion', 'projets', 'juridique'],
   hero: 'membre-espace',
   groups: [

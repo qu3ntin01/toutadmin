@@ -16,7 +16,7 @@
 <meta property="og:title" content="Installatie — Toutadmin" />
 <meta property="og:description" content="Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen externe database, geen dienst van derden. Reken op een uur." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Installatie</span>
         <h1 class="reveal">Toutadmin installeren</h1>
         <p class="lede reveal">Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen externe database, geen dienst van derden. Reken op een uur.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">Gratis beginnen, bij ons gehost<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Het product downloaden</a>
+        </div>
+        <p class="hero-note reveal">In Europa gehost, niets te installeren: gratis tot vijf medewerkers, en het hele product vanaf de eerste dag.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Zelf hosten vraagt een betaalde formule</h3>
+          <p>De gratis formule hosten wij: niets te installeren, niets te beheren. Het product op uw eigen server zetten — uw bestanden, uw databank, uw reservekopieën — veronderstelt een abonnement of een levenslange licentie. Het is dezelfde regel als op de tariefpagina, en de installatiepagina ging niet het tegendeel beweren.</p>
+          <p><a class="link-arrow" href="../tarifs.html">De formules bekijken<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>De keuze blijft omkeerbaar</h3>
           <p>Beide edities delen hetzelfde databaseschema en hetzelfde wachtwoordformaat. Overstappen betekent één databasebestand en vijf mappen kopiëren: er is geen conversie, en niemand hoeft zijn wachtwoord te wijzigen.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">In vijf minuten</span>
+          <h2>De snelle installatie</h2>
+          <p class="lede">Net genoeg om de assistent te openen. Het uitvoerige volgt er meteen op, stap voor stap, met wat elk bevel doet en waarom.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Node-editie</h3>
+            <p>Drie bevelen op een server die u zelf beheert. Het laatste maakt een installatiepenning aan en start het exemplaar.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>PHP-editie</h3>
+            <p>Geen enkele opdrachtregel: een map om neer te zetten, een bestand om te kopiëren, een schrijfrecht om te openen.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>De assistent doet daarna de rest</h2>
+          <p class="lede">Het exemplaar start leeg en sluit zich om zichzelf: zolang het niet geïnstalleerd is leidt elk adres naar de assistent, en eenmaal geïnstalleerd is de assistent voorgoed weg.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Taal</strong><span class="muted">Die van het exemplaar, uit de zestien. Ze verandert later, en ieder houdt de zijne.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Vereisten</strong><span class="muted">De assistent kijkt waarop hij staat: versie, schrijfrechten, databank, mappen. Wat ontbreekt wordt benoemd, niet geraden.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Organisatie</strong><span class="muted">De naam van het bedrijf en het jaarlijkse verlofrecht. Twee antwoorden, achteraf te wijzigen.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Beheerder</strong><span class="muted">Het eerste account. Minstens twaalf tekens: het is het enige account dat andere kan aanmaken.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Klaar</strong><span class="muted">De assistent sluit voorgoed. U komt op het aanmeldscherm, en het exemplaar is van u.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Zet de installatiepenning vóór u de poort opent</h3>
+              <p>Tussen de eerste start en uw eigen gang door de assistent zou wie het eerst komt het beheerdersaccount aanmaken. INSTALL_TOKEN sluit dat venster: zonder de penning weigert de assistent open te gaan.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Installatieassistent</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Installatieassistent" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Installatieassistent" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>De volledige handleiding staat in de documentatie</h2>
           <p>Deze pagina geeft de hoofdlijn. De documentatie geeft al het overige: instelling van de voorliggende server, exacte rechten, certificaten, herstel, bijwerken, probleemoplossing per verschijnsel — en beide handleidingen volledig, één per editie.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">De installatiehandleidingen lezen<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">De installatiehandleidingen lezen<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

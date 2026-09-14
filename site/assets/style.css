@@ -272,6 +272,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 }
 .hero .lede { margin-block-start: 20px; font-size: 1.16rem; }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-block-start: 30px; }
+/* Quand le héros est centré — la page d'installation —, ses boutons le sont
+   aussi : deux boutons alignés à gauche sous un titre centré se lisent comme
+   une erreur de mise en page. */
+.center .hero-cta { justify-content: center; }
 .hero-note { margin-block-start: 16px; color: var(--ink-3); font-size: .9rem; }
 .hero-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-block-start: 26px; }
 .chip {
@@ -505,6 +509,27 @@ td.c { text-align: center; }
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--ease), transform .7s var(--ease); transition-delay: var(--d, 0ms); }
 .reveal.is-in { opacity: 1; transform: none; }
 
+/* ------------------------------------------------- assistant d'installation
+   Les cinq étapes d'un côté, l'écran de l'autre. Une capture d'assistant vaut
+   trois paragraphes : on reconnaît l'écran quand on y arrive. */
+.wizard { display: grid; gap: 34px; align-items: center; }
+.wizard-steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: none; }
+.wizard-steps > li { display: flex; align-items: flex-start; gap: 14px; }
+.wizard-steps .num {
+  inline-size: 28px; block-size: 28px; border-radius: 999px; flex: none;
+  display: grid; place-items: center; font-size: .84rem; font-weight: 700;
+  background: color-mix(in srgb, var(--brand-2) 14%, transparent); color: var(--brand);
+}
+.wizard-steps > li > span:last-child { display: grid; gap: 3px; }
+.wizard-steps strong { font-weight: 650; }
+.wizard-steps .muted { font-size: .93rem; }
+.wizard-text > pre { margin-block-start: 20px; }
+.wizard-text > .note { margin-block-start: 20px; }
+
+@media (min-width: 900px) {
+  .wizard { grid-template-columns: .92fr 1.08fr; gap: 44px; }
+}
+
 /* ------------------------------------------------------------ responsive */
 @media (min-width: 900px) {
   .hero-in { grid-template-columns: 1.02fr .98fr; align-items: center; gap: 52px; }
@@ -686,7 +711,9 @@ td.c { text-align: center; }
 .steps > li {
   position: relative; counter-increment: step;
   background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: 24px 26px 24px 74px;
+  /* Marge logique, pas physique : en arabe la pastille du numéro passe à
+     droite, et une réserve restée à gauche la laissait chevaucher le titre. */
+  padding-block: 24px; padding-inline: 74px 26px;
   /* Sans cela, un élément de grille prend la largeur de son contenu le plus
      large : le bloc de commandes pousserait la page entière au lieu de
      défiler dans son cadre. */
@@ -702,6 +729,11 @@ td.c { text-align: center; }
 }
 .steps > li h3 { font-size: 1.05rem; }
 .steps > li p { color: var(--ink-2); margin-block-start: 8px; font-size: .97rem; }
+
+/* Une carte dans une grille prend par défaut la largeur de son contenu : un
+   bloc de commandes un peu long l'étirerait hors de sa colonne. On lui rend
+   le droit de rétrécir, et c'est le bloc qui défile. */
+.grid > .card, .grid > article { min-inline-size: 0; }
 
 pre {
   margin-block-start: 16px; padding: 14px 16px; overflow-x: auto;

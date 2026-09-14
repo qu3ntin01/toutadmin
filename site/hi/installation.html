@@ -16,7 +16,7 @@
 <meta property="og:title" content="संस्थापन — Toutadmin" />
 <meta property="og:description" content="एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न बाहरी डेटाबेस, न कोई तीसरी सेवा। एक घंटा मानकर चलिए।" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">संस्थापन</span>
         <h1 class="reveal">Toutadmin संस्थापित करना</h1>
         <p class="lede reveal">एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न बाहरी डेटाबेस, न कोई तीसरी सेवा। एक घंटा मानकर चलिए।</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">SaaS पर मुफ़्त शुरू करें<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>उत्पाद उतारें</a>
+        </div>
+        <p class="hero-note reveal">यूरोप में रखा हुआ, कुछ भी लगाना नहीं: पाँच कर्मचारियों तक मुफ़्त, और पहले ही दिन से पूरा उत्पाद।</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>अपने सर्वर पर रखना किसी सशुल्क योजना की माँग करता है</h3>
+          <p>मुफ़्त योजना हम अपने यहाँ रखते हैं: न कुछ लगाना है, न कुछ सँभालना। उत्पाद को अपने ही सर्वर पर लगाना — अपनी संचिकाएँ, अपना आधार, अपनी प्रतिलिपियाँ — के लिए अभिदान या आजीवन अनुज्ञप्ति चाहिए। यही नियम मूल्य-पृष्ठ पर भी लिखा है, और संस्थापन का पृष्ठ इसके उलट नहीं कहने वाला था।</p>
+          <p><a class="link-arrow" href="../tarifs.html">योजनाएँ देखें<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>चुनाव पलटा जा सकता है</h3>
           <p>दोनों संस्करणों का डेटाबेस ढाँचा और पासवर्ड का स्वरूप एक ही है। एक से दूसरे पर जाना यानी एक डेटाबेस फ़ाइल और पाँच फ़ोल्डर की नकल करना: कोई रूपांतरण नहीं, और किसी को पासवर्ड बदलना नहीं पड़ता।</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">पाँच मिनट में</span>
+          <h2>तेज़ संस्थापन</h2>
+          <p class="lede">सहायक खोलने भर को। ब्योरा ठीक इसके बाद आता है, चरण दर चरण — कि हर आदेश क्या करता है और क्यों।</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Node संस्करण</h3>
+            <p>आपके अपने सर्वर पर तीन आदेश। अन्तिम आदेश संस्थापन-टोकन बनाता है और उदाहरण चालू करता है।</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>PHP संस्करण</h3>
+            <p>आदेश-पंक्ति बिलकुल नहीं: एक फ़ोल्डर रखना, एक संचिका नक़ल करना, एक लेखन-अधिकार खोलना।</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>फिर बाकी काम सहायक करता है</h2>
+          <p class="lede">उदाहरण खाली चलता है और अपने ऊपर बन्द हो जाता है: जब तक संस्थापित न हो, हर पता सहायक तक ले जाता है; और संस्थापित होते ही सहायक हमेशा के लिए चला जाता है।</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>भाषा</strong><span class="muted">उदाहरण की भाषा, सोलह में से। बाद में बदलती है, और हर कोई अपनी रखता है।</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>पूर्वापेक्षाएँ</strong><span class="muted">सहायक देखता है कि उसके पैरों तले क्या है: संस्करण, लेखन-अधिकार, आधार, फ़ोल्डर। जो नहीं है, उसका नाम लिया जाता है — अनुमान नहीं।</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>संगठन</strong><span class="muted">कंपनी का नाम और वार्षिक अवकाश की मात्रा। दो उत्तर, बाद में बदले जा सकते हैं।</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>प्रशासक</strong><span class="muted">पहला खाता। कम से कम बारह अक्षर: यही एक खाता है जो और खाते बना सकता है।</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>पूरा हुआ</strong><span class="muted">सहायक सदा के लिए बन्द हो जाता है। आप प्रवेश-पटल पर पहुँचते हैं, और उदाहरण आपका है।</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>द्वार खोलने से पहले संस्थापन-टोकन रख दें</h3>
+              <p>पहली बार चालू होने और आपके सहायक तक पहुँचने के बीच, जो पहले आ जाए वही प्रशासन-खाता बना लेता। INSTALL_TOKEN उस खिड़की को बन्द करता है: उसके बिना सहायक खुलने से मना कर देता है।</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>संस्थापन सहायक</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="संस्थापन सहायक" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="संस्थापन सहायक" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>पूरा निर्देश प्रलेखन में है</h2>
           <p>यह पृष्ठ रूपरेखा देता है। प्रलेखन बाक़ी सब देता है: अग्रिम सर्वर का विन्यास, सटीक अनुमतियाँ, प्रमाणपत्र, पुनर्स्थापन, उन्नयन, लक्षण के अनुसार समस्या-निवारण — और दोनों निर्देश पूरे, हर संस्करण के लिए एक।</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">संस्थापन निर्देश पढ़ें<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">संस्थापन निर्देश पढ़ें<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

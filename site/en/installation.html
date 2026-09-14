@@ -16,7 +16,7 @@
 <meta property="og:title" content="Installation — Toutadmin" />
 <meta property="og:description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Installation</span>
         <h1 class="reveal">Installing Toutadmin</h1>
         <p class="lede reveal">Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">Start free, hosted by us<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Download the product</a>
+        </div>
+        <p class="hero-note reveal">Hosted in Europe, nothing to install: free up to five employees, and the whole product from day one.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Self-hosting requires a paid plan</h3>
+          <p>The free plan is hosted by us: nothing to install, nothing to administer. Installing the product on your own server — your files, your database, your backups — requires a subscription or a lifetime licence. That is the same rule as on the pricing page, and the installation page was not going to say otherwise.</p>
+          <p><a class="link-arrow" href="../tarifs.html">See the plans<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>The choice stays reversible</h3>
           <p>Both editions share the same database schema and the same password format. Moving from one to the other means copying one database file and five folders: there is no conversion, and nobody has to change their password.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">In five minutes</span>
+          <h2>The quick install</h2>
+          <p class="lede">Enough to open the wizard. The detail follows right after, step by step, with what each command does and why.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Node edition</h3>
+            <p>Three commands on a server you administer. The last one generates an installation token and starts the instance.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>PHP edition</h3>
+            <p>No command line at all: a folder to drop, a file to copy, a write permission to open.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Then the wizard does the rest</h2>
+          <p class="lede">The instance starts empty and closes on itself: until it is installed every address leads to the wizard, and once installed the wizard is gone for good.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Language</strong><span class="muted">The instance's own, among the sixteen. It can be changed later, and everyone keeps theirs.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Prerequisites</strong><span class="muted">The wizard checks what it stands on: version, write permissions, database, folders. What is missing is named, not guessed.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Organisation</strong><span class="muted">The company name and the annual leave quota. Two answers, editable afterwards.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Administrator</strong><span class="muted">The first account. Twelve characters minimum: it is the only account that can create others.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Done</strong><span class="muted">The wizard closes for good. You land on the sign-in screen, and the instance is yours.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Set the installation token before opening the port</h3>
+              <p>Between the first start and your own visit to the wizard, whoever arrives first would create the administrator account. INSTALL_TOKEN closes that window: without it the wizard refuses to open.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Installation wizard</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Installation wizard" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Installation wizard" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>The complete tutorial is in the documentation</h2>
           <p>This page gives the outline. The documentation gives everything else: front-end server configuration, exact permissions, certificates, restore, upgrades, troubleshooting by symptom — and both tutorials in full, one per edition.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Read the installation tutorials<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Read the installation tutorials<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

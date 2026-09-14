@@ -12,6 +12,6 @@ Barème
   licence à vie : 10000 € une fois
 
 Pages     : 96 (6 × 16 langues)
-Clés      : 354 par langue
-Captures  : 144 fichiers
-Ressources: style b58eb5ddd4 · thème 32440868c8 · script 2cf372e760
+Clés      : 380 par langue
+Captures  : 146 fichiers
+Ressources: style b1490b97ea · thème 32440868c8 · script 2cf372e760

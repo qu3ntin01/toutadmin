@@ -16,7 +16,7 @@
 <meta property="og:title" content="Установка — Toutadmin" />
 <meta property="og:description" content="Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без внешней базы данных, без сторонних служб. Рассчитывайте на час." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Установка</span>
         <h1 class="reveal">Установка Toutadmin</h1>
         <p class="lede reveal">Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без внешней базы данных, без сторонних служб. Рассчитывайте на час.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">Начать бесплатно в SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Скачать продукт</a>
+        </div>
+        <p class="hero-note reveal">Размещено в Европе, ставить нечего: бесплатно до пяти сотрудников, и весь продукт с первого дня.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Размещение у себя требует платного тарифа</h3>
+          <p>Бесплатный тариф размещаем мы: ничего не нужно ставить и нечего администрировать. Поставить продукт на свой сервер — свои файлы, своя база, свои резервные копии — предполагает подписку или пожизненную лицензию. Это то же правило, что на странице тарифов, и страница установки не собиралась говорить обратное.</p>
+          <p><a class="link-arrow" href="../tarifs.html">Посмотреть тарифы<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>Выбор остаётся обратимым</h3>
           <p>У обеих редакций одна и та же схема базы и один формат паролей. Перейти с одной на другую — это скопировать файл базы и пять папок: никакого преобразования, и никому не придётся менять пароль.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">За пять минут</span>
+          <h2>Быстрая установка</h2>
+          <p class="lede">Ровно столько, чтобы открыть помощник. Подробности идут сразу следом, шаг за шагом, с тем, что делает каждая команда и зачем.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Редакция Node</h3>
+            <p>Три команды на сервере, которым вы управляете. Последняя создаёт установочный жетон и запускает экземпляр.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>Редакция PHP</h3>
+            <p>Никакой командной строки: папку выложить, файл скопировать, право записи открыть.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Дальше всё делает помощник</h2>
+          <p class="lede">Экземпляр запускается пустым и замыкается на себе: пока он не установлен, любой адрес ведёт к помощнику, а после установки помощник исчезает окончательно.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Язык</strong><span class="muted">Язык экземпляра, один из шестнадцати. Позже меняется, и каждый сохраняет свой.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Предпосылки</strong><span class="muted">Помощник проверяет, на чём он стоит: версия, права записи, база, папки. Чего не хватает — названо, а не угадано.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Организация</strong><span class="muted">Название предприятия и годовая норма отпуска. Два ответа, изменяемые потом.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Администратор</strong><span class="muted">Первая учётная запись. Не меньше двенадцати знаков: это единственная запись, которая может создавать другие.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Готово</strong><span class="muted">Помощник закрывается навсегда. Вы попадаете на экран входа, и экземпляр — ваш.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Поставьте установочный жетон прежде, чем открыть порт</h3>
+              <p>Между первым запуском и вашим приходом в помощник учётную запись управления создал бы тот, кто успел первым. INSTALL_TOKEN закрывает это окно: без него помощник не открывается.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Помощник установки</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Помощник установки" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Помощник установки" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>Полное руководство — в документации</h2>
           <p>Эта страница даёт канву. Документация даёт всё остальное: настройку фронтального сервера, точные права, сертификаты, восстановление, обновление, разбор неполадок по симптому — и оба руководства целиком, по одному на редакцию.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Читать руководства по установке<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Читать руководства по установке<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

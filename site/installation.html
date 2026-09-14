@@ -16,7 +16,7 @@
 <meta property="og:title" content="Installation — Toutadmin" />
 <meta property="og:description" content="Deux éditions du même produit : l'une tourne comme un service sur votre serveur, l'autre se dépose sur un hébergement mutualisé. Aucune base de données externe, aucun service tiers. Comptez une heure." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="installation.html" />
   <link rel="alternate" hreflang="en" href="en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Installation</span>
         <h1 class="reveal">Installer Toutadmin</h1>
         <p class="lede reveal">Deux éditions du même produit : l'une tourne comme un service sur votre serveur, l'autre se dépose sur un hébergement mutualisé. Aucune base de données externe, aucun service tiers. Comptez une heure.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="contact.html">Commencer gratuitement en SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Télécharger le produit</a>
+        </div>
+        <p class="hero-note reveal">Hébergé en Europe, rien à installer : gratuit jusqu'à cinq salariés, et le produit entier dès le premier jour.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>L'auto-hébergement demande une formule payante</h3>
+          <p>La formule gratuite est hébergée par nos soins : vous n'avez rien à installer, et rien à administrer. Installer le produit sur votre propre serveur — vos fichiers, votre base, vos sauvegardes — suppose un abonnement ou une licence à vie. C'est la même règle que sur la page des tarifs, et la page d'installation n'allait pas dire l'inverse.</p>
+          <p><a class="link-arrow" href="tarifs.html">Voir les formules<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>Le choix reste réversible</h3>
           <p>Les deux éditions partagent le même schéma de base et le même format de mot de passe. Passer de l'une à l'autre, c'est copier un fichier de base et cinq dossiers : il n'y a pas de conversion, et personne n'a à changer de mot de passe.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">En cinq minutes</span>
+          <h2>L'installation rapide</h2>
+          <p class="lede">De quoi ouvrir l'assistant. Le détail vient juste après, étape par étape, avec ce que chaque commande fait et pourquoi.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Édition Node</h3>
+            <p>Trois commandes sur un serveur que vous administrez. La dernière engendre un jeton d'installation et démarre l'instance.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>Édition PHP</h3>
+            <p>Aucune ligne de commande : un dossier à déposer, un fichier à copier, un droit d'écriture à ouvrir.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Puis l'assistant fait le reste</h2>
+          <p class="lede">L'instance démarre vide et se referme sur elle-même : tant qu'elle n'est pas installée, toute adresse mène à l'assistant, et une fois installée l'assistant disparaît pour de bon.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Langue</strong><span class="muted">Celle de l'instance, parmi les seize. Elle se change plus tard, et chacun garde la sienne.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Prérequis</strong><span class="muted">L'assistant vérifie ce qu'il a sous les pieds : version, droits d'écriture, base, dossiers. Ce qui manque est nommé, pas deviné.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Organisation</strong><span class="muted">Le nom de l'entreprise et le quota annuel de congés. Deux réponses, modifiables ensuite.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Administrateur</strong><span class="muted">Le premier compte. Douze caractères au minimum : c'est le seul compte qui peut en créer d'autres.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Terminé</strong><span class="muted">L'assistant se referme définitivement. Vous arrivez sur l'écran de connexion, et l'instance est à vous.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Posez le jeton d'installation avant d'ouvrir le port</h3>
+              <p>Entre le premier démarrage et votre passage dans l'assistant, le premier arrivé créerait le compte d'administration. INSTALL_TOKEN ferme cette fenêtre : sans lui, l'assistant refuse de s'ouvrir.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Assistant d'installation</span></div>
+            <img class="only-light" src="medias/assistant.png" alt="Assistant d'installation" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="medias/assistant-sombre.png" alt="Assistant d'installation" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>Le tutoriel complet est dans la documentation</h2>
           <p>Cette page donne la trame. La documentation donne tout le reste : configuration du serveur frontal, permissions exactes, certificats, restauration, mise à jour, dépannage par symptôme — et les deux tutoriels en entier, pour chaque édition.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Lire les tutoriels d'installation<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Lire les tutoriels d'installation<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

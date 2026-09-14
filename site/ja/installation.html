@@ -16,7 +16,7 @@
 <meta property="og:title" content="導入 — Toutadmin" />
 <meta property="og:description" content="同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">導入</span>
         <h1 class="reveal">Toutadmin を導入する</h1>
         <p class="lede reveal">同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">SaaS で無料に始める<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>製品を取り寄せる</a>
+        </div>
+        <p class="hero-note reveal">欧州に置かれ、入れるものは何もありません。五人までは無料で、初日から製品はまるごとです。</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>自分の場に置くには有料の形が要ります</h3>
+          <p>無料の形はこちらで預かります。入れるものも、面倒を見るものもありません。製品をご自分のサーバーに置く —— ご自分の綴り、ご自分の台帳、ご自分の控え —— には、月ぎめか買い切りの免許が要ります。料金の頁に書いてある決まりと同じもので、導入の頁がその逆を言うわけにはいきませんでした。</p>
+          <p><a class="link-arrow" href="../tarifs.html">料金の形を見る<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>選択はあとから覆せます</h3>
           <p>二つの版はデータベースの構造もパスワードの形式も共通です。乗り換えは、データベースのファイル一つとフォルダー五つを写すだけ。変換作業はなく、誰もパスワードを変えずに済みます。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">五分で</span>
+          <h2>手早い導入</h2>
+          <p class="lede">案内役を開くのに足りるだけ。細かいところはすぐ後に、一段ずつ —— どの命令が何をして、なぜそうするのかとともに。</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Node 版</h3>
+            <p>ご自分で見るサーバーで三つの命令。最後の一つが導入の合言葉をこしらえ、instance を立ち上げます。</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>PHP 版</h3>
+            <p>命令行はいっさい要りません。置く一つの入れ物、写す一つの綴り、開く一つの書き込みの許し。</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>あとは案内役がやります</h2>
+          <p class="lede">instance は空のまま立ち上がり、自らの上に閉じます。据え付けが済むまではどの宛先も案内役に行き着き、済んだとたんに案内役は二度と現れません。</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>言語</strong><span class="muted">instance の言語を十六のうちから。後で変えられますし、各人は自分の言語を持ち続けます。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>前提</strong><span class="muted">案内役は足もとを確かめます。版、書き込みの許し、台帳、入れ物。足りないものは名指されます —— 推しはかりではなく。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>組織</strong><span class="muted">会社の名と、年ごとの休みの日数。二つの答えで、あとから直せます。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>管理者</strong><span class="muted">最初の口座。十二文字以上。ほかの口座をこしらえられるのはこれだけです。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>終わり</strong><span class="muted">案内役はそこで永久に閉じます。入口の画面に着き、instance はあなたのものです。</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>口を開ける前に、導入の合言葉を置いてください</h3>
+              <p>最初の立ち上げからあなたが案内役を通るまでのあいだ、先に来た者が管理の口座をこしらえてしまいます。INSTALL_TOKEN はその隙間を閉じます。これがなければ案内役は開きません。</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>導入の案内役</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="導入の案内役" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="導入の案内役" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>完全な手引きはドキュメントにあります</h2>
           <p>このページは筋道だけです。残りはすべてドキュメントに。前段サーバーの設定、正確な権限、証明書、復元、更新、症状からたどるトラブル対応、そして版ごとに一つずつ、二つの手引きの全文です。</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">導入の手引きを読む<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">導入の手引きを読む<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

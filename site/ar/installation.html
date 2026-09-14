@@ -16,7 +16,7 @@
 <meta property="og:title" content="التثبيت — Toutadmin" />
 <meta property="og:description" content="إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات خارجية ولا خدمة من طرف ثالث. احسب ساعة واحدة." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">التثبيت</span>
         <h1 class="reveal">تثبيت Toutadmin</h1>
         <p class="lede reveal">إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات خارجية ولا خدمة من طرف ثالث. احسب ساعة واحدة.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">ابدأ مجانًا على SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>نزِّل المنتج</a>
+        </div>
+        <p class="hero-note reveal">مُستضاف في أوروبا، ولا شيء تُثبِّته: مجاني حتى خمسة موظفين، والمنتج كاملًا من اليوم الأول.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>الاستضافة الذاتية تقتضي صيغة مدفوعة</h3>
+          <p>الصيغة المجانية نستضيفها نحن: لا شيء تُثبِّته، ولا شيء تُديره. أما تثبيت المنتج على خادمك أنت — ملفاتك وقاعدتك ونسخك الاحتياطية — فيفترض اشتراكًا أو رخصة مدى الحياة. وهي القاعدة نفسها المذكورة في صفحة الأسعار، ولم يكن لصفحة التثبيت أن تقول عكسها.</p>
+          <p><a class="link-arrow" href="../tarifs.html">انظر الصيغ<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>الاختيار يبقى قابلًا للرجوع</h3>
           <p>يتقاسم الإصداران مخطط قاعدة البيانات نفسه وصيغة كلمة المرور نفسها. الانتقال من أحدهما إلى الآخر هو نسخ ملف قاعدة وخمسة مجلدات: لا تحويل، ولا أحد مضطر إلى تغيير كلمة مروره.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">في خمس دقائق</span>
+          <h2>التثبيت السريع</h2>
+          <p class="lede">ما يكفي لفتح المساعد. أما التفصيل فيأتي بعده مباشرة، خطوة خطوة، مع ما يفعله كل أمر ولماذا.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>إصدار Node</h3>
+            <p>ثلاثة أوامر على خادم تُديره أنت. والأخير يولِّد رمز تثبيت ويشغِّل النسخة.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>إصدار PHP</h3>
+            <p>ولا سطر أوامر واحد: مجلد يُودَع، وملف يُنسَخ، وحق كتابة يُفتَح.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>ثم يتولى المساعد الباقي</h2>
+          <p class="lede">تبدأ النسخة فارغة وتنغلق على نفسها: ما دامت غير مثبَّتة فكل عنوان يفضي إلى المساعد، وما إن تُثبَّت حتى يختفي المساعد إلى الأبد.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>اللغة</strong><span class="muted">لغة النسخة، من بين الست عشرة. تُغيَّر لاحقًا، ويحتفظ كل واحد بلغته.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>المتطلبات</strong><span class="muted">يتفقَّد المساعد ما تحت قدميه: الإصدار، وحقوق الكتابة، والقاعدة، والمجلدات. وما ينقص يُسمَّى ولا يُخمَّن.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>المنظمة</strong><span class="muted">اسم الشركة ورصيد الإجازة السنوي. جوابان، يمكن تعديلهما بعد ذلك.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>المدير</strong><span class="muted">الحساب الأول. اثنا عشر محرفًا على الأقل: وهو الحساب الوحيد الذي ينشئ غيره.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>انتهى</strong><span class="muted">ينغلق المساعد نهائيًّا. تصل إلى شاشة الدخول، وتصير النسخة لك.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>ضع رمز التثبيت قبل أن تفتح المنفذ</h3>
+              <p>بين أول تشغيل ومرورك أنت بالمساعد، يستطيع أوَّل قادم أن ينشئ حساب الإدارة. ورمز INSTALL_TOKEN يغلق هذه النافذة: فبدونه يرفض المساعد أن يُفتَح.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>مساعد التثبيت</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="مساعد التثبيت" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="مساعد التثبيت" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>الدليل الكامل في التوثيق</h2>
           <p>هذه الصفحة تعطي الخطوط العامة. أما التوثيق فيعطي كل ما بقي: إعداد الخادم الأمامي، والصلاحيات الدقيقة، والشهادات، والاستعادة، والترقية، وحل المشكلات حسب العَرَض — والدليلين كاملين، واحدًا لكل إصدار.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">اقرأ دليلَي التثبيت<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">اقرأ دليلَي التثبيت<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>

@@ -16,7 +16,7 @@
 <meta property="og:title" content="Instalacja — Toutadmin" />
 <meta property="og:description" content="Dwie edycje tego samego produktu: jedna działa jako usługa na Twoim serwerze, druga wgrywa się na hosting współdzielony. Bez zewnętrznej bazy danych, bez usług obcych. Licz na godzinę." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b58eb5ddd4" />
+<link rel="stylesheet" href="../assets/style.css?v=b1490b97ea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../installation.html" />
   <link rel="alternate" hreflang="en" href="../en/installation.html" />
@@ -165,10 +165,25 @@
         <span class="eyebrow reveal">Instalacja</span>
         <h1 class="reveal">Instalacja Toutadmin</h1>
         <p class="lede reveal">Dwie edycje tego samego produktu: jedna działa jako usługa na Twoim serwerze, druga wgrywa się na hosting współdzielony. Bez zewnętrznej bazy danych, bez usług obcych. Licz na godzinę.</p>
+        <div class="hero-cta reveal">
+          <a class="btn" href="../contact.html">Zacząć za darmo w SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn btn-ghost" href="https://app.toutadmin.com/" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Pobrać produkt</a>
+        </div>
+        <p class="hero-note reveal">Hostowane w Europie, nic do instalowania: za darmo do pięciu pracowników i cały produkt od pierwszego dnia.</p>
       </div>
     </section>
 
     <section class="section-tight">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>Własny hosting wymaga formuły płatnej</h3>
+          <p>Formułę darmową hostujemy my: nic do instalowania, nic do administrowania. Postawienie produktu na własnym serwerze — własne pliki, własna baza, własne kopie — wymaga abonamentu albo licencji dożywotniej. To ta sama zasada co na stronie cennika, a strona instalacji nie miała mówić czegoś przeciwnego.</p>
+          <p><a class="link-arrow" href="../tarifs.html">Zobaczyć formuły<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -197,6 +212,82 @@
         <div class="note reveal mx-auto">
           <h3>Wybór pozostaje odwracalny</h3>
           <p>Obie edycje mają ten sam schemat bazy i ten sam format haseł. Przejście z jednej na drugą to skopiowanie pliku bazy i pięciu katalogów: nie ma żadnej konwersji, a nikt nie musi zmieniać hasła.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">W pięć minut</span>
+          <h2>Szybka instalacja</h2>
+          <p class="lede">Tyle, by otworzyć kreatora. Szczegóły przychodzą zaraz potem, krok po kroku, z tym, co robi każde polecenie i dlaczego.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <h3>Edycja Node</h3>
+            <p>Trzy polecenia na serwerze, którym zarządzasz. Ostatnie tworzy żeton instalacyjny i uruchamia instancję.</p>
+            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+cd toutadmin && npm ci --omit=dev
+INSTALL_TOKEN=$(openssl rand -hex 16) \
+NODE_ENV=production node src/server.js</code></pre>
+          </article>
+          <article class="card reveal">
+            <h3>Edycja PHP</h3>
+            <p>Żadnej linii poleceń: katalog do wgrania, plik do skopiowania, prawo zapisu do otwarcia.</p>
+            <pre><code># 1. déposer le dossier (racine web → public/)
+# 2. cp config.sample.php config.php
+# 3. chmod 770 data/
+# 4. ouvrir https://votre-domaine/installation</code></pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
+          <h2>Resztę robi kreator</h2>
+          <p class="lede">Instancja startuje pusta i zamyka się wokół siebie: dopóki nie jest zainstalowana, każdy adres prowadzi do kreatora, a po instalacji kreator znika na dobre.</p>
+        </div>
+        <div class="wizard">
+          <div class="wizard-text reveal">
+            <ol class="wizard-steps">
+            <li class="reveal">
+              <span class="num">1</span>
+              <span><strong>Język</strong><span class="muted">Język instancji, spośród szesnastu. Zmienia się później, a każdy zachowuje swój.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">2</span>
+              <span><strong>Wymagania</strong><span class="muted">Kreator sprawdza, na czym stoi: wersja, prawa zapisu, baza, katalogi. To, czego brakuje, jest nazwane, a nie zgadywane.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">3</span>
+              <span><strong>Organizacja</strong><span class="muted">Nazwa firmy i roczny wymiar urlopu. Dwie odpowiedzi, później do zmiany.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">4</span>
+              <span><strong>Administrator</strong><span class="muted">Pierwsze konto. Co najmniej dwanaście znaków: to jedyne konto, które może tworzyć kolejne.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">5</span>
+              <span><strong>Gotowe</strong><span class="muted">Kreator zamyka się na zawsze. Trafiasz na ekran logowania, a instancja jest twoja.</span></span>
+            </li>
+            </ol>
+            <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
+            <div class="note">
+              <h3>Ustaw żeton instalacyjny, zanim otworzysz port</h3>
+              <p>Między pierwszym uruchomieniem a twoim wejściem do kreatora konto administracyjne założyłby ten, kto przyjdzie pierwszy. INSTALL_TOKEN zamyka to okno: bez niego kreator odmawia otwarcia.</p>
+            </div>
+          </div>
+          <div class="wizard-shot reveal">
+            <div class="shot-frame">
+            <div class="shot-bar"><i></i><i></i><i></i><span>Kreator instalacji</span></div>
+            <img class="only-light" src="../medias/assistant.png" alt="Kreator instalacji" loading="lazy" decoding="async" width="1440" height="900" />
+            <img class="only-dark" src="../medias/assistant-sombre.png" alt="Kreator instalacji" loading="lazy" decoding="async" width="1440" height="900" />
+          </div>
+          </div>
         </div>
       </div>
     </section>
@@ -300,7 +391,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
           <h2>Pełny przewodnik jest w dokumentacji</h2>
           <p>Ta strona daje zarys. Dokumentacja daje całą resztę: konfigurację serwera frontowego, dokładne uprawnienia, certyfikaty, odtwarzanie, aktualizację, rozwiązywanie problemów według objawu — oraz oba przewodniki w całości, po jednym na edycję.</p>
           <div class="band-cta">
-            <a class="btn btn-light" href="https://docs.toutadmin.fr" rel="noopener">Przeczytać przewodniki instalacji<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+            <a class="btn btn-light" href="https://docs.toutadmin.com/" rel="noopener">Przeczytać przewodniki instalacji<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           </div>
         </div>
       </div>
