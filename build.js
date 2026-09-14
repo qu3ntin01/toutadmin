@@ -143,11 +143,11 @@ function navHtml(t, ctx) {
     ['tarifs', t('nav.pricing')],
     ['contact', t('nav.contact')],
   ].map(([page, label]) =>
-    `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ');
-  // La documentation n'est plus dans la barre : elle vit dans le tiroir et
-  // dans le pied de page. Une barre où le dernier lien passe sous le bouton
-  // ne rend service à personne, et c'est le lien qu'on trouve partout
-  // ailleurs qui cède la place.
+    `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ')
+    // La documentation est un site voisin, mais elle se cherche dans la même
+    // barre que le reste : l'en écarter obligeait à ouvrir le tiroir pour la
+    // trouver. La place vient de la langue et du thème, qui se replient.
+    + `\n        <a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a>`;
 
   const langs = LOCALES.map((l) => {
     const active = l.code === ctx.locale.code;
@@ -173,29 +173,54 @@ function navHtml(t, ctx) {
       </nav>
       <div class="nav-right">
         <div class="picker">
-          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.language'))}"><span class="flag">${ctx.locale.flag}</span><span class="lang-code">${esc(ctx.locale.code.toUpperCase())}</span>${icon('chevron')}</button>
+          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.language'))}"><span class="flag">${ctx.locale.flag}</span><span class="lang-tip" aria-hidden="true"><span class="lang-tip-card">${esc(dictionaries[ctx.locale.code]['locale.name'])}</span></span></button>
           <div class="picker-pop cols" role="menu" aria-label="${esc(t('nav.language'))}">
             ${langs}
           </div>
         </div>
-        ${segHtml(t)}
+        ${themerHtml(t)}
         <a class="btn btn-sm btn-pill" href="${CLIENT_URL}" rel="noopener">${esc(t('nav.client'))}</a>
       </div>
     </div>
   </header>`;
 }
 
-/* Les trois thèmes sont montrés, pas cachés dans un menu : le choix tient en
-   trois icônes, et un menu qu'il faut ouvrir pour voir trois icônes coûte un
-   geste de plus pour rien. */
-function segHtml(t) {
-  const themes = [['light', 'sun', t('nav.themeLight')], ['dark', 'moon', t('nav.themeDark')], ['system', 'monitor', t('nav.themeSystem')]]
+/**
+ * Le thème dans la barre : la touche du thème en cours, et les trois choix
+ * qui se posent dessous au survol ou dès qu'on entre au clavier.
+ *
+ * Pourquoi un panneau plutôt que les trois touches dépliées sur place : la
+ * barre porte six liens, et en russe ils tiennent cent pixels de plus qu'en
+ * français. Un dépliage qui pousse ses voisins rognait le dernier lien —
+ * « Документация » devenait « Документа ». Un panneau ne coûte rien à la
+ * barre : elle garde la même largeur, ouverte ou fermée.
+ */
+function themerHtml(t) {
+  const faces = [['light', 'sun'], ['dark', 'moon'], ['system', 'monitor']]
+    .map(([value, ic]) => `<span class="face" data-face="${value}">${icon(ic)}</span>`).join('');
+
+  return `<div class="themer">
+          <span class="themer-face" aria-hidden="true">${faces}</span>
+          <div class="themer-pop">
+            <span class="themer-card" role="group" aria-label="${esc(t('nav.theme'))}">
+              ${themeButtons(t)}
+            </span>
+          </div>
+        </div>`;
+}
+
+function themeButtons(t) {
+  return [['light', 'sun', t('nav.themeLight')], ['dark', 'moon', t('nav.themeDark')], ['system', 'monitor', t('nav.themeSystem')]]
     .map(([value, ic, label]) =>
       `<button class="seg-btn" type="button" data-theme-choice="${value}" aria-label="${esc(label)}" title="${esc(label)}">${icon(ic)}</button>`)
-    .join('\n        ');
+    .join('\n              ');
+}
 
+/* Dans le tiroir, les trois touches restent posées côte à côte : c'est un
+   menu, pas une barre dont il faut économiser la largeur. */
+function segHtml(t) {
   return `<div class="seg" role="group" aria-label="${esc(t('nav.theme'))}">
-        ${themes}
+        ${themeButtons(t)}
       </div>`;
 }
 

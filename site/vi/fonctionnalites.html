@@ -16,7 +16,7 @@
 <meta property="og:title" content="Tính năng — Toutadmin" />
 <meta property="og:description" content="Danh sách đầy đủ, theo từng lĩnh vực. Mỗi dòng ứng với mã đã bàn giao và đã kiểm thử, không phải một dự định." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=0fc4ac02b9" />
+<link rel="stylesheet" href="../assets/style.css?v=258588408f" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../fonctionnalites.html" />
   <link rel="alternate" hreflang="en" href="../en/fonctionnalites.html" />
@@ -50,10 +50,11 @@
         <a href="../installation.html">Cài đặt</a>
         <a href="../tarifs.html">Bảng giá</a>
         <a href="../contact.html">Liên hệ</a>
+        <a href="https://docs.toutadmin.com/" rel="noopener">Tài liệu</a>
       </nav>
       <div class="nav-right">
         <div class="picker">
-          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="Ngôn ngữ"><span class="flag">🇻🇳</span><span class="lang-code">VI</span><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="Ngôn ngữ"><span class="flag">🇻🇳</span><span class="lang-tip" aria-hidden="true"><span class="lang-tip-card">Tiếng Việt</span></span></button>
           <div class="picker-pop cols" role="menu" aria-label="Ngôn ngữ">
             <a lang="fr" hreflang="fr" href="../fonctionnalites.html"><span class="flag">🇫🇷</span>Français</a>
             <a lang="en" hreflang="en" href="../en/fonctionnalites.html"><span class="flag">🇬🇧</span>English</a>
@@ -73,11 +74,16 @@
             <a lang="vi" hreflang="vi" href="../fonctionnalites.html" class="is-active"><span class="flag">🇻🇳</span>Tiếng Việt</a>
           </div>
         </div>
-        <div class="seg" role="group" aria-label="Giao diện">
-        <button class="seg-btn" type="button" data-theme-choice="light" aria-label="Sáng" title="Sáng"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-        <button class="seg-btn" type="button" data-theme-choice="dark" aria-label="Tối" title="Tối"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
-        <button class="seg-btn" type="button" data-theme-choice="system" aria-label="Hệ thống" title="Hệ thống"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></button>
-      </div>
+        <div class="themer">
+          <span class="themer-face" aria-hidden="true"><span class="face" data-face="light"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><span class="face" data-face="dark"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></span><span class="face" data-face="system"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></span></span>
+          <div class="themer-pop">
+            <span class="themer-card" role="group" aria-label="Giao diện">
+              <button class="seg-btn" type="button" data-theme-choice="light" aria-label="Sáng" title="Sáng"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+              <button class="seg-btn" type="button" data-theme-choice="dark" aria-label="Tối" title="Tối"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
+              <button class="seg-btn" type="button" data-theme-choice="system" aria-label="Hệ thống" title="Hệ thống"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></button>
+            </span>
+          </div>
+        </div>
         <a class="btn btn-sm btn-pill" href="https://app.toutadmin.com/" rel="noopener">Khu vực khách hàng</a>
       </div>
     </div>
@@ -91,8 +97,8 @@
     <div class="drawer-body">
       <div class="drawer-theme"><div class="seg" role="group" aria-label="Giao diện">
         <button class="seg-btn" type="button" data-theme-choice="light" aria-label="Sáng" title="Sáng"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-        <button class="seg-btn" type="button" data-theme-choice="dark" aria-label="Tối" title="Tối"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
-        <button class="seg-btn" type="button" data-theme-choice="system" aria-label="Hệ thống" title="Hệ thống"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></button>
+              <button class="seg-btn" type="button" data-theme-choice="dark" aria-label="Tối" title="Tối"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
+              <button class="seg-btn" type="button" data-theme-choice="system" aria-label="Hệ thống" title="Hệ thống"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></button>
       </div></div>
       <h4>Sản phẩm</h4>
       <nav class="drawer-list" aria-label="Sản phẩm">

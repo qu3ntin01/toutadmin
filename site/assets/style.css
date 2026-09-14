@@ -155,21 +155,29 @@ ul { margin: 0; padding: 0; list-style: none; }
    C'est ce qui fait reconnaître le logotype de loin, avant même de le lire. */
 .brand-name { white-space: nowrap; }
 .brand-accent { color: var(--brand); }
-.nav-links { display: flex; align-items: center; gap: 2px; margin-inline-start: 6px; min-inline-size: 0; }
+/* La barre porte six liens : en russe ils tiennent cent pixels de plus qu'en
+   français, et le survol de la langue ou du thème en réclame soixante-huit de
+   plus. Le rognage garde la barre d'une seule ligne dans le pire des cas
+   plutôt que de laisser un libellé passer sous le bouton. */
+.nav-links {
+  display: flex; align-items: center; gap: 2px; margin-inline-start: 4px;
+  min-inline-size: 0; overflow: hidden;
+}
 .nav-links a {
-  position: relative; padding: 9px 14px; border-radius: 999px; font-size: .95rem; font-weight: 550; color: var(--ink-2);
+  position: relative; padding: 9px 11px; border-radius: 999px; font-size: .95rem; font-weight: 550; color: var(--ink-2);
+  white-space: nowrap;
   transition: color .2s, background .2s;
 }
 .nav-links a::after {
-  content: ''; position: absolute; inset-block-end: 4px; inset-inline-start: 14px; inline-size: 0;
+  content: ''; position: absolute; inset-block-end: 4px; inset-inline-start: 11px; inline-size: 0;
   block-size: 2px; border-radius: 2px; background: var(--brand-2); transition: inline-size .25s var(--ease);
 }
 .nav-links a:hover { color: var(--ink); background: var(--bg-3); }
-.nav-links a:hover::after { inline-size: calc(100% - 28px); }
+.nav-links a:hover::after { inline-size: calc(100% - 22px); }
 .nav-links a.is-active {
   color: var(--brand); background: color-mix(in srgb, var(--brand-2) 10%, transparent);
 }
-.nav-links a.is-active::after { inline-size: calc(100% - 28px); }
+.nav-links a.is-active::after { inline-size: calc(100% - 22px); }
 .nav-right { margin-inline-start: auto; display: flex; align-items: center; gap: 10px; flex: none; }
 /* Dans la barre, le libellé du bouton tient sur une ligne : c'est ailleurs
    qu'un bouton a le droit de replier son texte, pas dans une barre haute de
@@ -199,31 +207,35 @@ ul { margin: 0; padding: 0; list-style: none; }
 .picker-btn:hover { border-color: var(--line-2); color: var(--ink); background: var(--bg-3); }
 .picker-btn .i { inline-size: 16px; block-size: 16px; }
 /* Le sélecteur de langue se réduit à son drapeau : c'est ce qu'on reconnaît
-   d'un coup d'œil, et la barre y gagne la place de deux libellés. Le code et
-   le chevron reviennent au survol, au clavier, et tant que le menu est
-   ouvert — pour qu'on puisse vérifier ce qu'on a reconnu. */
-.lang-btn { gap: 0; font-weight: 600; color: var(--ink); padding-inline: 10px; }
+   d'un coup d'œil, et la barre y gagne la place d'un libellé. Le nom de la
+   langue se pose dessous au survol ou au clavier — comme le panneau du thème,
+   il ne coûte rien à la largeur de la barre. */
+.lang-btn { position: relative; gap: 0; padding-inline: 10px; }
 .lang-btn .flag { font-size: 1.15rem; }
-.lang-btn .i { inline-size: 14px; block-size: 14px; color: var(--ink-3); transition: transform .22s var(--ease); }
-.picker.is-open .lang-btn .i { transform: rotate(180deg); }
 
-@media (hover: hover) {
-  .lang-btn .lang-code {
-    max-inline-size: 0; overflow: hidden; white-space: nowrap; opacity: 0;
-    margin-inline-start: 0;
-    transition: max-inline-size .22s var(--ease), opacity .18s, margin-inline-start .22s var(--ease);
-  }
-  .lang-btn .i {
-    inline-size: 0; opacity: 0; margin-inline-start: 0;
-    transition: inline-size .22s var(--ease), opacity .18s, margin-inline-start .22s var(--ease);
-  }
-  .lang-btn:hover .lang-code, .lang-btn:focus-visible .lang-code, .picker.is-open .lang-code {
-    max-inline-size: 4ch; opacity: 1; margin-inline-start: 7px;
-  }
-  .lang-btn:hover .i, .lang-btn:focus-visible .i, .picker.is-open .lang-btn .i {
-    inline-size: 14px; opacity: 1; margin-inline-start: 5px;
-  }
+.lang-tip {
+  position: absolute; inset-block-start: 100%; inset-inline-start: 50%;
+  /* Le remplissage transparent fait le pont : un vrai espace entre la pastille
+     et l'étiquette perdrait le survol à mi-chemin. */
+  padding-block-start: 8px; z-index: 70;
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transform: translate(-50%, -6px);
+  transition: opacity .2s var(--ease), transform .2s var(--ease), visibility .2s;
 }
+[dir="rtl"] .lang-tip { transform: translate(50%, -6px); }
+.lang-btn:hover .lang-tip, .lang-btn:focus-visible .lang-tip {
+  opacity: 1; visibility: visible; transform: translate(-50%, 0);
+}
+[dir="rtl"] .lang-btn:hover .lang-tip, [dir="rtl"] .lang-btn:focus-visible .lang-tip {
+  transform: translate(50%, 0);
+}
+.lang-tip-card {
+  display: block; white-space: nowrap; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  font-size: .85rem; font-weight: 600; box-shadow: var(--shadow-m);
+}
+/* Le menu ouvert dit déjà quelle langue est active : l'étiquette s'efface. */
+.picker.is-open .lang-tip { opacity: 0; visibility: hidden; }
 
 /* ------------------------------------------------- thème, en trois touches */
 .seg {
@@ -244,29 +256,52 @@ ul { margin: 0; padding: 0; list-style: none; }
   color: var(--brand); background: color-mix(in srgb, var(--brand-2) 14%, transparent);
 }
 
-/* Dans la barre, seul le thème courant est montré ; les deux autres se
-   déplient au survol ou dès qu'on entre au clavier. Le thème est connu avant
-   le premier rendu (data-theme-pref, posé par theme-boot), sans quoi les trois
-   touches apparaîtraient une fraction de seconde avant de se replier.
-   Sur un écran tactile, où rien ne survole, les trois restent montrées. */
-@media (hover: hover) {
-  .nav-right .seg { gap: 0; }
-  .nav-right .seg-btn {
-    /* Un élément de flex ne descend pas sous la taille de son contenu sans
-       qu'on le lui permette : sans cette ligne l'icône tiendrait la place
-       d'une touche repliée. */
-    inline-size: 0; min-inline-size: 0; overflow: hidden; opacity: 0; pointer-events: none;
-    transition: inline-size .24s var(--ease), opacity .2s, margin .24s var(--ease);
-  }
-  :root[data-theme-pref="light"] .nav-right .seg-btn[data-theme-choice="light"],
-  :root[data-theme-pref="dark"] .nav-right .seg-btn[data-theme-choice="dark"],
-  :root[data-theme-pref="system"] .nav-right .seg-btn[data-theme-choice="system"],
-  .nav-right .seg:hover .seg-btn,
-  .nav-right .seg:focus-within .seg-btn {
-    inline-size: 32px; opacity: 1; pointer-events: auto;
-  }
-  .nav-right .seg:hover .seg-btn + .seg-btn,
-  .nav-right .seg:focus-within .seg-btn + .seg-btn { margin-inline-start: 2px; }
+/* Dans la barre, seule la touche du thème en cours est montrée ; les trois
+   choix se posent dessous au survol ou dès qu'on entre au clavier. Le thème
+   est connu avant le premier rendu (data-theme-pref, posé par theme-boot),
+   sans quoi la mauvaise touche s'afficherait une fraction de seconde.
+   Un panneau ne coûte rien à la barre : elle garde la même largeur, ouverte
+   ou fermée — ce qu'un dépliage sur place ne permettait pas, en russe où les
+   six liens tiennent cent pixels de plus qu'en français. */
+.themer { position: relative; display: inline-flex; }
+.themer-face {
+  display: inline-flex; align-items: center; justify-content: center;
+  inline-size: 38px; block-size: 38px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card); color: var(--ink-2);
+  transition: border-color .2s, color .2s, background .2s;
+}
+.themer:hover .themer-face, .themer:focus-within .themer-face {
+  border-color: var(--line-2); color: var(--ink); background: var(--bg-3);
+}
+.themer-face .i { inline-size: 17px; block-size: 17px; }
+.themer-face .face { display: none; }
+:root[data-theme-pref="light"] .themer-face .face[data-face="light"],
+:root[data-theme-pref="dark"] .themer-face .face[data-face="dark"],
+:root[data-theme-pref="system"] .themer-face .face[data-face="system"],
+/* Tant que la préférence n'est pas posée, c'est « système » qui est vrai. */
+:root:not([data-theme-pref]) .themer-face .face[data-face="system"] { display: inline-flex; }
+
+.themer-pop {
+  position: absolute; inset-block-start: 100%; inset-inline-end: 0; z-index: 70;
+  /* Ce remplissage transparent fait le pont entre la touche et le panneau :
+     un vrai espace entre les deux perdrait le survol à mi-chemin. */
+  padding-block-start: 8px;
+  opacity: 0; visibility: hidden; transform: translateY(-6px);
+  transition: opacity .2s var(--ease), transform .2s var(--ease), visibility .2s;
+}
+.themer:hover .themer-pop, .themer:focus-within .themer-pop {
+  opacity: 1; visibility: visible; transform: none;
+}
+.themer-card {
+  display: inline-flex; align-items: center; gap: 2px; padding: 4px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow-m);
+}
+
+/* Sur un écran tactile, où rien ne survole, les trois touches sont posées
+   dans la barre comme dans le tiroir. */
+@media (hover: none) {
+  .themer-face { display: none; }
+  .themer-pop { position: static; padding: 0; opacity: 1; visibility: visible; transform: none; }
 }
 .drawer-theme { display: flex; justify-content: flex-start; padding-block-end: 14px; }
 .picker-pop {
@@ -588,7 +623,7 @@ td.c { text-align: center; }
    prennent cent pixels de plus qu'en français. Plutôt que de laisser le
    dernier passer sous le bouton, les liens se resserrent. */
 @media (max-width: 1140px) {
-  .nav-links a { padding-inline: 10px; font-size: .92rem; }
+  .nav-links a { padding-inline: 9px; font-size: .92rem; }
 }
 @media (max-width: 899px) {
   .nav-links, .nav-right .btn { display: none; }
