@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': 'Stündliches Archiv, Integritätsprüfung über ein Manifest, Wiederherstellung von Datenbank und Dateien, Auslagerung per FTPS oder Google Drive, und Warnung an die Administratoren bei Fehlschlag.',
   'security.6.title': 'Verschlüsselte Geheimnisse',
   'security.6.body': 'Passwörter von Drittdiensten, API-Token, Webhook-Geheimnisse: mit AES-256-GCM verschlüsselt, nie wieder im Klartext gezeigt, nach Manipulation unlesbar.',
+  'security.7.title': 'Protokollzentrum',
+  'security.7.body': 'Acht Stufen, sieben Kanäle, Aufbewahrung je Stufe und eine laufende Kopie an Ihren Syslog-Server oder an Wazuh. Kein Geheimnis gelangt hinein, jedes Ziel merkt sich die Nummer der zuletzt empfangenen Zeile — ein Ausfall des Kollektors verliert also nichts —, und ein Ziel, das zehnmal fehlschlägt, schaltet sich ab und sagt es, statt glauben zu lassen, die Protokolle gingen hinaus.',
   'security.hostTitle': 'SaaS oder bei Ihnen',
   'security.hostBody': 'Als SaaS hosten wir in Europa, Sicherungen inbegriffen. In den kostenpflichtigen Tarifen ist lokales Hosting möglich: Sie installieren auf Ihrem Server, die Datenbank verlässt Ihre Mauern nie, und Sie erhalten dieselben Updates. Eine Maschine genügt — Node 22 und SQLite, keine externe Datenbank zu betreuen.',
   'security.limitsTitle': 'Was wir nicht behaupten',

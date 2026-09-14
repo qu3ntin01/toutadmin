@@ -16,7 +16,7 @@
 <meta property="og:title" content="安全 — Toutadmin" />
 <meta property="og:description" content="下面的一切都在产品里，无论哪种方案——包括免费方案。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=5913b60cd3" />
+<link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../securite.html" />
   <link rel="alternate" hreflang="en" href="../en/securite.html" />
@@ -206,6 +206,11 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>加密的密钥</h3>
             <p>第三方服务密码、API 令牌、Webhook 密钥：以 AES-256-GCM 加密，之后绝不再明文显示，被篡改后即不可读。</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>日志中心</h3>
+            <p>八个级别、七个通道、按级别设定的保存期限，以及持续发往你的 syslog 服务器或 Wazuh 的副本。密钥绝不会进入其中；每个目标保存最后收到的那条记录的编号，因此采集器故障不会丢失任何东西；某个目标连续十次失败便会自行停用并写下记录，而不是让人以为日志仍在外送。</p>
           </article>
         </div>
       </div>

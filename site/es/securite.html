@@ -16,7 +16,7 @@
 <meta property="og:title" content="Seguridad — Toutadmin" />
 <meta property="og:description" content="Todo lo que sigue está en el producto, sea cual sea el plan, incluido el gratuito." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=5913b60cd3" />
+<link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../securite.html" />
   <link rel="alternate" hreflang="en" href="../en/securite.html" />
@@ -206,6 +206,11 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Secretos cifrados</h3>
             <p>Contraseñas de servicios externos, tokens de API, secretos de webhooks: cifrados en AES-256-GCM, nunca vueltos a mostrar en claro, ilegibles tras cualquier alteración.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Centro de registros</h3>
+            <p>Ocho niveles, siete canales, conservación por nivel y copia continua hacia su servidor syslog o hacia Wazuh. Ningún secreto entra en él, cada destino retiene el número de la última línea recibida —así una avería del colector no pierde nada— y un destino que falla diez veces se apaga diciéndolo, en vez de dejar creer que los registros salen.</p>
           </article>
         </div>
       </div>

@@ -421,6 +421,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 .g2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
 .g3 { grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
 .g4 { grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); }
+/* Une dernière carte restée seule sur sa ligne tient toute la largeur plutôt
+   que de laisser deux trous : la mesure du texte, elle, reste lisible. */
+.g3 > .card:last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
+.g3 > .card:last-child:nth-child(3n + 1) p { max-inline-size: 68ch; }
 .card {
   position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
   padding: 26px; transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s;

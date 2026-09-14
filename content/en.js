@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': 'Hourly archive, integrity checked against a manifest, restore that puts back both database and files, off-site copy over FTPS or Google Drive, and administrators alerted on failure.',
   'security.6.title': 'Encrypted secrets',
   'security.6.body': 'Third-party service passwords, API tokens, webhook secrets: encrypted with AES-256-GCM, never shown again in the clear, unreadable once tampered with.',
+  'security.7.title': 'Log centre',
+  'security.7.body': 'Eight levels, seven channels, retention per level, and a continuous copy to your syslog server or to Wazuh. No secret ever enters it, each target keeps the number of the last entry received — so a collector outage loses nothing — and a target that fails ten times switches itself off and says so, rather than letting you believe the logs are leaving.',
   'security.hostTitle': 'SaaS, or on your own servers',
   'security.hostBody': 'On SaaS we host in Europe, backups included. On paid plans, local hosting is available: you install on your server, the database never leaves your walls, and you get the same updates. One machine is enough — Node 22 and SQLite, no external database to administer.',
   'security.limitsTitle': 'What we do not claim to do',

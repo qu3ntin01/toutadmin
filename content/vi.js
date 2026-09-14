@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': 'Lưu trữ mỗi giờ, kiểm tra toàn vẹn bằng bản kê, khôi phục cả cơ sở dữ liệu lẫn tệp, chuyển ra ngoài qua FTPS hoặc Google Drive, và cảnh báo cho quản trị viên khi thất bại.',
   'security.6.title': 'Bí mật được mã hoá',
   'security.6.body': 'Mật khẩu dịch vụ bên thứ ba, token API, khoá bí mật của webhook: mã hoá AES-256-GCM, không bao giờ hiển thị lại dạng rõ, và không đọc được sau khi bị can thiệp.',
+  'security.7.title': 'Trung tâm nhật ký',
+  'security.7.body': 'Tám mức độ, bảy kênh, thời hạn lưu giữ theo từng mức, và bản sao gửi liên tục tới máy chủ syslog của bạn hoặc tới Wazuh. Không một bí mật nào lọt vào đó, mỗi đích giữ số của dòng cuối cùng đã nhận — nên bộ thu hỏng cũng không mất gì — và một đích thất bại mười lần sẽ tự tắt và nói rõ điều đó, thay vì để bạn tưởng nhật ký vẫn đang được gửi đi.',
   'security.hostTitle': 'SaaS, hoặc đặt tại chỗ',
   'security.hostBody': 'Với SaaS, chúng tôi lưu trữ tại châu Âu, gồm cả bản sao lưu. Ở các gói trả phí, việc tự lưu trữ là khả thi: bạn cài trên máy chủ của mình, cơ sở dữ liệu không bao giờ rời khỏi tường nhà bạn, và bạn nhận cùng những bản cập nhật. Một máy là đủ — Node 22 và SQLite, không có cơ sở dữ liệu bên ngoài nào phải quản trị.',
   'security.limitsTitle': 'Những gì chúng tôi không nhận là làm được',

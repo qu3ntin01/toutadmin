@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': 'Saatlik arşiv, bildirim dosyasıyla bütünlük denetimi, veritabanını ve dosyaları geri koyan kurtarma, FTPS veya Google Drive\'a dışa taşıma ve başarısızlıkta yöneticilere uyarı.',
   'security.6.title': 'Şifrelenmiş sırlar',
   'security.6.body': 'Üçüncü taraf servis parolaları, API belirteçleri, webhook sırları: AES-256-GCM ile şifrelenir, bir daha açık gösterilmez, değiştirildiğinde okunamaz hâle gelir.',
+  'security.7.title': 'Günlük merkezi',
+  'security.7.body': "Sekiz düzey, yedi kanal, düzeye göre saklama ve syslog sunucunuza ya da Wazuh'a giden sürekli bir kopya. İçine hiçbir sır girmez, her hedef aldığı son satırın numarasını saklar — böylece toplayıcının arızası hiçbir şey yitirmez — ve on kez başarısız olan bir hedef, günlüklerin gittiğine inandırmak yerine kendini kapatır ve bunu söyler.",
   'security.hostTitle': 'SaaS ya da sizde',
   'security.hostBody': 'SaaS\'ta Avrupa\'da barındırıyoruz, yedekler dahil. Ücretli planlarda yerel barındırma mümkündür: kendi sunucunuza kurarsınız, veritabanı duvarlarınızdan hiç çıkmaz ve aynı güncellemeleri alırsınız. Tek makine yeter — Node 22 ve SQLite, yönetilecek dış veritabanı yok.',
   'security.limitsTitle': 'Yaptığımızı iddia etmediklerimiz',

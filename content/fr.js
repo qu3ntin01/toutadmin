@@ -108,6 +108,8 @@ module.exports = {
   'security.5.body': "Archive horaire, contrôle d'intégrité par manifeste, restauration qui remet base et fichiers, externalisation FTPS ou Google Drive, et alerte aux administrateurs en cas d'échec.",
   'security.6.title': 'Secrets chiffrés',
   'security.6.body': "Mots de passe de services tiers, jetons d'API, secrets de webhooks : chiffrés en AES-256-GCM, jamais réaffichés en clair, illisibles après altération.",
+  'security.7.title': 'Centre de journaux',
+  'security.7.body': "Huit niveaux, sept canaux, conservation par niveau, et recopie continue vers votre serveur syslog ou vers Wazuh. Aucun secret n'y entre, chaque cible retient le numéro de la dernière ligne reçue — une panne du collecteur ne perd donc rien —, et une cible qui échoue dix fois s'éteint en le disant plutôt que de laisser croire que les journaux partent.",
   'security.hostTitle': 'SaaS, ou chez vous',
   'security.hostBody': "En SaaS, nous hébergeons en Europe, sauvegardes comprises. Sur les offres payantes, l'hébergement local est possible : vous installez sur votre serveur, la base ne sort jamais de vos murs, et vous recevez les mêmes mises à jour. Une seule machine suffit — Node 22 et SQLite, aucune base externe à administrer.",
   'security.limitsTitle': 'Ce que nous ne prétendons pas faire',

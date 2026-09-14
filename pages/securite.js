@@ -2,8 +2,8 @@ const { band, pageHero, head } = require('./_shared');
 
 module.exports = function security(ctx) {
   const { t, esc, icon } = ctx;
-  const icons = ['lock', 'shield', 'users', 'life', 'box', 'code'];
-  const cards = [1, 2, 3, 4, 5, 6].map((n, i) => `<article class="card reveal">
+  const icons = ['lock', 'shield', 'users', 'life', 'box', 'code', 'layers'];
+  const cards = [1, 2, 3, 4, 5, 6, 7].map((n, i) => `<article class="card reveal">
             <span class="ico">${icon(icons[i])}</span>
             <h3>${esc(t(`security.${n}.title`))}</h3>
             <p>${esc(t(`security.${n}.body`))}</p>

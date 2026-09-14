@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': 'Arquivo de hora a hora, verificação de integridade por manifesto, restauro que repõe base e ficheiros, externalização por FTPS ou Google Drive, e aviso aos administradores em caso de falha.',
   'security.6.title': 'Segredos cifrados',
   'security.6.body': 'Palavras-passe de serviços externos, tokens de API, segredos de webhooks: cifrados em AES-256-GCM, nunca mostrados de novo em claro, ilegíveis após qualquer alteração.',
+  'security.7.title': 'Centro de registos',
+  'security.7.body': 'Oito níveis, sete canais, conservação por nível e cópia contínua para o seu servidor syslog ou para o Wazuh. Nenhum segredo lá entra, cada destino guarda o número da última linha recebida — uma avaria do coletor não perde nada — e um destino que falha dez vezes apaga-se dizendo-o, em vez de deixar crer que os registos partem.',
   'security.hostTitle': 'SaaS, ou consigo',
   'security.hostBody': 'Em SaaS alojamos na Europa, cópias incluídas. Nos planos pagos o alojamento local é possível: instala no seu servidor, a base nunca sai das suas paredes, e recebe as mesmas atualizações. Basta uma máquina — Node 22 e SQLite, nenhuma base externa para administrar.',
   'security.limitsTitle': 'O que não pretendemos fazer',

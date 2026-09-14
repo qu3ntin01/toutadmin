@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': 'Uurlijks archief, integriteitscontrole via manifest, herstel dat database én bestanden terugzet, externalisatie via FTPS of Google Drive, en waarschuwing aan de beheerders bij mislukking.',
   'security.6.title': 'Versleutelde geheimen',
   'security.6.body': 'Wachtwoorden van externe diensten, API-tokens, webhook-geheimen: versleuteld met AES-256-GCM, nooit opnieuw leesbaar getoond, onleesbaar na manipulatie.',
+  'security.7.title': 'Logboekcentrum',
+  'security.7.body': 'Acht niveaus, zeven kanalen, bewaring per niveau en een doorlopende kopie naar uw syslog-server of naar Wazuh. Er komt geen enkel geheim in, elk doel bewaart het nummer van de laatst ontvangen regel — een storing van de collector verliest dus niets — en een doel dat tien keer faalt schakelt zichzelf uit en zegt het, in plaats van te doen geloven dat de logboeken vertrekken.',
   'security.hostTitle': 'SaaS, of bij u',
   'security.hostBody': 'In SaaS hosten wij in Europa, back-ups inbegrepen. In de betaalde formules is lokale hosting mogelijk: u installeert op uw server, de database verlaat uw muren nooit, en u krijgt dezelfde updates. Eén machine volstaat — Node 22 en SQLite, geen externe database om te beheren.',
   'security.limitsTitle': 'Wat wij niet beweren te doen',

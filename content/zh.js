@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': '每小时归档、按清单校验完整性、可恢复数据库与文件、通过 FTPS 或 Google Drive 异地保存，失败时向管理员发出告警。',
   'security.6.title': '加密的密钥',
   'security.6.body': '第三方服务密码、API 令牌、Webhook 密钥：以 AES-256-GCM 加密，之后绝不再明文显示，被篡改后即不可读。',
+  'security.7.title': '日志中心',
+  'security.7.body': '八个级别、七个通道、按级别设定的保存期限，以及持续发往你的 syslog 服务器或 Wazuh 的副本。密钥绝不会进入其中；每个目标保存最后收到的那条记录的编号，因此采集器故障不会丢失任何东西；某个目标连续十次失败便会自行停用并写下记录，而不是让人以为日志仍在外送。',
   'security.hostTitle': 'SaaS，或放在您那里',
   'security.hostBody': 'SaaS 模式下我们在欧洲托管，含备份。付费方案支持本地托管：您安装在自己的服务器上，数据库绝不出门，并获得同样的更新。一台机器足矣——Node 22 与 SQLite，无需维护外部数据库。',
   'security.limitsTitle': '我们不声称能做的事',

@@ -91,6 +91,8 @@ module.exports = {
   'security.5.body': 'Archiwum co godzinę, kontrola spójności przez manifest, odtworzenie przywracające bazę i pliki, wynoszenie kopii przez FTPS lub Google Drive oraz ostrzeżenie dla administratorów przy niepowodzeniu.',
   'security.6.title': 'Zaszyfrowane sekrety',
   'security.6.body': 'Hasła usług zewnętrznych, tokeny API, sekrety webhooków: szyfrowane AES-256-GCM, nigdy więcej niepokazywane jawnie, nieczytelne po naruszeniu.',
+  'security.7.title': 'Centrum dzienników',
+  'security.7.body': 'Osiem poziomów, siedem kanałów, przechowywanie zależne od poziomu i ciągła kopia do Twojego serwera syslog albo do Wazuh. Żaden sekret tam nie trafia, każdy cel zapamiętuje numer ostatniego otrzymanego wiersza — awaria kolektora niczego więc nie gubi — a cel, który zawiedzie dziesięć razy, wyłącza się i mówi o tym, zamiast pozwalać wierzyć, że dzienniki wychodzą.',
   'security.hostTitle': 'SaaS albo u Ciebie',
   'security.hostBody': 'W SaaS hostujemy w Europie, z kopiami zapasowymi. W planach płatnych możliwy jest hosting lokalny: instalujesz na swoim serwerze, baza nigdy nie opuszcza Twoich murów, a aktualizacje dostajesz te same. Wystarczy jedna maszyna — Node 22 i SQLite, żadnej zewnętrznej bazy do administrowania.',
   'security.limitsTitle': 'Czego nie udajemy',
