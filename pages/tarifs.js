@@ -16,25 +16,37 @@ module.exports = function pricing(ctx) {
     return planCard(ctx, plan, list);
   }).join('\n          ');
 
+  /*
+   * Ce qui est compris — une colonne, pas deux.
+   *
+   * La page comparait deux formules fonction par fonction, avec des « Non » en
+   * face de la colonne gratuite : sauvegardes externalisées, multisite, SLA. Ce
+   * tableau datait des paliers. Depuis qu'il n'y en a plus — cinq salariés
+   * offerts, puis cinq euros par salarié —, il n'y a plus qu'un produit, et il
+   * est entier pour tout le monde. Le laisser aurait contredit, quinze lignes
+   * plus haut, la promesse « tout le produit est dans toutes les formules ».
+   *
+   * Restent deux prestations qui ne sont pas du logiciel et se chiffrent au cas
+   * par cas : reprendre des données existantes, et s'engager sur un niveau de
+   * service. Elles sont dites « en option », ce qu'elles sont.
+   */
   const yes = `<span class="mark-yes">${esc(t('pricing.yes'))}</span>`;
-  const no = `<span class="mark-no">${esc(t('pricing.no'))}</span>`;
   const opt = `<span class="mark-opt">${esc(t('pricing.option'))}</span>`;
   const rows = [
-    ['pricing.f.allSpaces', yes, yes],
-    ['pricing.f.languages', yes, yes],
-    ['pricing.f.security', yes, yes],
-    ['pricing.f.updates', yes, yes],
-    ['pricing.f.api', yes, yes],
-    ['pricing.f.saas', yes, yes],
-    ['pricing.f.local', yes, yes],
-    ['pricing.f.backupOff', no, yes],
-    ['pricing.f.migration', no, opt],
-    ['pricing.f.multisite', no, yes],
-    ['pricing.f.sla', no, opt],
-    ['pricing.f.support', `<span class="mark-no">${esc(t('pricing.f.supportCommunity'))}</span>`,
-      `<span class="mark-opt">${esc(t('pricing.f.supportMail'))}</span>`],
-  ].map(([key, a, b]) =>
-    `<tr><th scope="row">${esc(t(key))}</th><td class="c">${a}</td><td class="c">${b}</td></tr>`).join('\n              ');
+    ['pricing.f.allSpaces', yes],
+    ['pricing.f.languages', yes],
+    ['pricing.f.security', yes],
+    ['pricing.f.updates', yes],
+    ['pricing.f.api', yes],
+    ['pricing.f.saas', yes],
+    ['pricing.f.local', yes],
+    ['pricing.f.backupOff', yes],
+    ['pricing.f.multisite', yes],
+    ['pricing.f.support', `<span class="mark-yes">${esc(t('pricing.f.supportMail'))}</span>`],
+    ['pricing.f.migration', opt],
+    ['pricing.f.sla', opt],
+  ].map(([key, valeur]) =>
+    `<tr><th scope="row">${esc(t(key))}</th><td class="c">${valeur}</td></tr>`).join('\n              ');
 
   // Les trois paliers d'une licence qui s'arrête. On les met sur la page qui
   // vend : un client a le droit de savoir ce qui se passe s'il cesse de payer,
@@ -134,8 +146,7 @@ module.exports = function pricing(ctx) {
             <thead>
               <tr>
                 <th scope="col">${esc(t('pricing.col.feature'))}</th>
-                <th scope="col">${esc(t('pricing.p1.name'))}</th>
-                <th scope="col">${esc(t('pricing.p2.name'))}</th>
+                <th scope="col">${esc(t('pricing.col.included'))}</th>
               </tr>
             </thead>
             <tbody>
