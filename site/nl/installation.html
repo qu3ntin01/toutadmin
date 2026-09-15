@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Installatie — Toutadmin</title>
-<meta name="description" content="Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen externe database, geen dienst van derden. Reken op een uur." />
+<meta name="description" content="Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen database vereist, geen dienst van derden — maar een MySQL-server wordt aangestuurd als u er een hebt. Reken op een uur." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Installatie — Toutadmin" />
-<meta property="og:description" content="Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen externe database, geen dienst van derden. Reken op een uur." />
+<meta property="og:description" content="Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen database vereist, geen dienst van derden — maar een MySQL-server wordt aangestuurd als u er een hebt. Reken op een uur." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Installatie</span>
         <h1 class="reveal">Toutadmin installeren</h1>
-        <p class="lede reveal">Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen externe database, geen dienst van derden. Reken op een uur.</p>
+        <p class="lede reveal">Twee edities van hetzelfde product: de ene draait als dienst op uw server, de andere zet u neer op gedeelde hosting. Geen database vereist, geen dienst van derden — maar een MySQL-server wordt aangestuurd als u er een hebt. Reken op een uur.</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">Gratis beginnen, bij ons gehost<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Het product downloaden</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite of MySQL</span>
+          <h2>En welke database</h2>
+          <p class="lede">De tweede keuze, en de enige die moeilijk te herzien is. Zij hangt niet van de editie af: beide aanvaarden beide engines, en alle vier de combinaties doorstaan dezelfde tests.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>Eén bestand op de schijf van de server. Niets te installeren, niets te beheren, niets te bewaken — en de instantie verhuist door een map te kopiëren.</p>
+            <p class="muted">Het is de standaard, en in de meeste gevallen het juiste antwoord: één applicatieserver, een lokale schijf die van de ene uitrol tot de volgende blijft.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL of MariaDB</h3>
+            <p>Een databaseserver, op de machine of elders in het netwerk. De gegevens wonen waar uw IT-afdeling ze al back-upt, repliceert en bewaakt.</p>
+            <p class="muted">Te nemen om drie redenen: meerdere applicatieservers op één database, een intern voorschrift dat het oplegt, of een vluchtige applicatieschijf — een container die bij elke uitrol opnieuw wordt gebouwd.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL is niet de keuze voor snelheid</h3>
+          <p>Dat is het meest verbreide geloof, en het is onjuist: SQLite leeft in het proces, MySQL achter een socket. Hier gemeten over tweeduizend bewerkingen is SQLite twee en een half tot honderdvijftig maal sneller, afhankelijk van de bewerking — en het houdt de vergelijking zelfs met acht gelijktijdige schrijvers. MySQL kiest men om waar de gegevens wonen en wie ze beheert, niet om de responstijd.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/nl/moteurs.html" rel="noopener">De details, met cijfers<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">In vijf minuten</span>
           <h2>De snelle installatie</h2>
           <p class="lede">Net genoeg om de assistent te openen. Het uitvoerige volgt er meteen op, stap voor stap, met wat elk bevel doet en waarom.</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Organisatie</strong><span class="muted">De naam van het bedrijf en het jaarlijkse verlofrecht. Twee antwoorden, achteraf te wijzigen.</span></span>
+              <span><strong>Database</strong><span class="muted">SQLite in een bestand, dat niets vraagt, of MySQL / MariaDB als u er een hebt. De assistent probeert de verbinding voordat hij zich eraan bindt.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Beheerder</strong><span class="muted">Het eerste account. Minstens twaalf tekens: het is het enige account dat andere kan aanmaken.</span></span>
+              <span><strong>Organisatie</strong><span class="muted">De naam van het bedrijf en het jaarlijkse verlofrecht. Twee antwoorden, achteraf te wijzigen.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Klaar</strong><span class="muted">De assistent sluit voorgoed. U komt op het aanmeldscherm, en het exemplaar is van u.</span></span>
+              <span><strong>Beheerder</strong><span class="muted">Het eerste account. Minstens twaalf tekens: het is het enige account dat andere kan aanmaken.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>Installatie</strong><span class="muted">De samenvatting, daarna het aanleggen in vier op het scherm aangekondigde etappes. De assistent sluit zich definitief.</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">Het CMS dat het hele bedrijf beheert</p>
-          <p class="stat-n">Node 22 · Express · SQLite. Geen nutteloze afhankelijkheid.</p>
+          <p class="stat-n">Node 22 · Express · SQLite of MySQL. Geen nutteloze afhankelijkheid.</p>
         </div>
         <div>
           <h4>Product</h4>

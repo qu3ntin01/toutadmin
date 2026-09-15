@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Cài đặt — Toutadmin</title>
-<meta name="description" content="Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không cần cơ sở dữ liệu ngoài, không cần dịch vụ bên thứ ba. Hãy dành một giờ." />
+<meta name="description" content="Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không bắt buộc cơ sở dữ liệu, không cần dịch vụ bên thứ ba — nhưng vẫn dùng được máy chủ MySQL nếu bạn có. Hãy dành một giờ." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Cài đặt — Toutadmin" />
-<meta property="og:description" content="Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không cần cơ sở dữ liệu ngoài, không cần dịch vụ bên thứ ba. Hãy dành một giờ." />
+<meta property="og:description" content="Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không bắt buộc cơ sở dữ liệu, không cần dịch vụ bên thứ ba — nhưng vẫn dùng được máy chủ MySQL nếu bạn có. Hãy dành một giờ." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Cài đặt</span>
         <h1 class="reveal">Cài đặt Toutadmin</h1>
-        <p class="lede reveal">Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không cần cơ sở dữ liệu ngoài, không cần dịch vụ bên thứ ba. Hãy dành một giờ.</p>
+        <p class="lede reveal">Hai bản của cùng một sản phẩm: một bản chạy như dịch vụ trên máy chủ của bạn, bản kia chỉ cần đặt lên hosting dùng chung. Không bắt buộc cơ sở dữ liệu, không cần dịch vụ bên thứ ba — nhưng vẫn dùng được máy chủ MySQL nếu bạn có. Hãy dành một giờ.</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">Bắt đầu miễn phí trên SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Tải sản phẩm về</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite hay MySQL</span>
+          <h2>Và cơ sở dữ liệu nào</h2>
+          <p class="lede">Lựa chọn thứ hai, và là lựa chọn duy nhất khó đổi. Nó không phụ thuộc vào bản: cả hai đều chấp nhận cả hai bộ máy, và bốn tổ hợp đều qua cùng những bài kiểm thử.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>Một tệp trên đĩa của máy chủ. Không có gì để cài, để quản, để canh — và thể hiện dời đi chỉ bằng cách chép một thư mục.</p>
+            <p class="muted">Đó là mặc định, và là câu trả lời đúng trong phần lớn trường hợp: một máy chủ ứng dụng, và một đĩa cục bộ còn lại qua các lần triển khai.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL hoặc MariaDB</h3>
+            <p>Một máy chủ cơ sở dữ liệu, trên cùng máy hoặc ở nơi khác trong mạng. Dữ liệu sống ở chỗ mà bộ phận tin học của bạn vốn đã sao lưu, nhân bản và giám sát.</p>
+            <p class="muted">Chọn nó vì ba lẽ: nhiều máy chủ ứng dụng trên cùng một cơ sở, một quy định nội bộ buộc như vậy, hoặc một đĩa ứng dụng phù du — vùng chứa được dựng lại sau mỗi lần triển khai.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL không phải lựa chọn vì tốc độ</h3>
+          <p>Đó là niềm tin phổ biến nhất, và nó sai: SQLite sống bên trong tiến trình, MySQL sống sau một socket. Đo tại chỗ trên hai nghìn thao tác, SQLite nhanh hơn từ hai lần rưỡi đến một trăm năm mươi lần tuỳ thao tác — và vẫn đứng vững khi có tám tiến trình ghi cùng lúc. Người ta chọn MySQL vì nơi dữ liệu sống và vì ai quản nó, chứ không vì thời gian đáp.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/vi/moteurs.html" rel="noopener">Chi tiết, kèm con số<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">Trong năm phút</span>
           <h2>Cài đặt nhanh</h2>
           <p class="lede">Vừa đủ để mở trình trợ giúp. Chi tiết đến ngay sau đó, từng bước một, kèm việc mỗi lệnh làm gì và vì sao.</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Tổ chức</strong><span class="muted">Tên doanh nghiệp và số ngày phép mỗi năm. Hai câu trả lời, sửa được về sau.</span></span>
+              <span><strong>Cơ sở dữ liệu</strong><span class="muted">SQLite trong một tệp, chẳng đòi hỏi gì, hoặc MySQL / MariaDB nếu bạn có sẵn. Trình hướng dẫn thử kết nối trước khi gắn mình vào đó.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Quản trị viên</strong><span class="muted">Tài khoản đầu tiên. Tối thiểu mười hai ký tự: đó là tài khoản duy nhất tạo được tài khoản khác.</span></span>
+              <span><strong>Tổ chức</strong><span class="muted">Tên doanh nghiệp và số ngày phép mỗi năm. Hai câu trả lời, sửa được về sau.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Xong</strong><span class="muted">Trình trợ giúp đóng lại vĩnh viễn. Bạn tới màn hình đăng nhập, và bản chạy là của bạn.</span></span>
+              <span><strong>Quản trị viên</strong><span class="muted">Tài khoản đầu tiên. Tối thiểu mười hai ký tự: đó là tài khoản duy nhất tạo được tài khoản khác.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>Cài đặt</strong><span class="muted">Bản tóm tắt, rồi việc dựng đặt qua bốn chặng được báo trên màn hình. Trình hướng dẫn đóng lại vĩnh viễn.</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">CMS điều hành toàn bộ doanh nghiệp</p>
-          <p class="stat-n">Node 22 · Express · SQLite. Không một phụ thuộc thừa.</p>
+          <p class="stat-n">Node 22 · Express · SQLite hoặc MySQL. Không một phụ thuộc thừa.</p>
         </div>
         <div>
           <h4>Sản phẩm</h4>

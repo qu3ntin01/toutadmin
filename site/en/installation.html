@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Installation — Toutadmin</title>
-<meta name="description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour." />
+<meta name="description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Allow an hour." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Installation — Toutadmin" />
-<meta property="og:description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour." />
+<meta property="og:description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Allow an hour." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Installation</span>
         <h1 class="reveal">Installing Toutadmin</h1>
-        <p class="lede reveal">Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No external database, no third-party service. Allow an hour.</p>
+        <p class="lede reveal">Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Allow an hour.</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">Start free, hosted by us<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Download the product</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite or MySQL</span>
+          <h2>And which database</h2>
+          <p class="lede">The second choice, and the only one that is hard to reverse. It does not depend on the edition: both accept both engines, and all four combinations pass the same tests.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>A file on the server's disk. Nothing to install, nothing to administer, nothing to watch — and the instance moves by copying a folder.</p>
+            <p class="muted">It is the default, and the right answer in most cases: one application server, a local disk that survives from one deployment to the next.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL or MariaDB</h3>
+            <p>A database server, on the machine or elsewhere on the network. The data lives where your IT department already backs it up, replicates it and watches it.</p>
+            <p class="muted">Take it for three reasons: several application servers on one database, an internal policy that requires it, or an ephemeral application disk — a container rebuilt at every deployment.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL is not the choice for speed</h3>
+          <p>That is the most widespread belief, and it is false: SQLite lives inside the process, MySQL behind a socket. Measured here over two thousand operations, SQLite is between two and a half and a hundred and fifty times faster depending on the operation — and it holds the comparison even with eight simultaneous writers. MySQL is chosen for where the data lives and who administers it, not for response time.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/en/moteurs.html" rel="noopener">The detail, figures in hand<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">In five minutes</span>
           <h2>The quick install</h2>
           <p class="lede">Enough to open the wizard. The detail follows right after, step by step, with what each command does and why.</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Organisation</strong><span class="muted">The company name and the annual leave quota. Two answers, editable afterwards.</span></span>
+              <span><strong>Database</strong><span class="muted">SQLite in a file, which asks for nothing, or MySQL / MariaDB if you have one. The wizard tries the connection before committing to it.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Administrator</strong><span class="muted">The first account. Twelve characters minimum: it is the only account that can create others.</span></span>
+              <span><strong>Organisation</strong><span class="muted">The company name and the annual leave quota. Two answers, editable afterwards.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Done</strong><span class="muted">The wizard closes for good. You land on the sign-in screen, and the instance is yours.</span></span>
+              <span><strong>Administrator</strong><span class="muted">The first account. Twelve characters minimum: it is the only account that can create others.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>Installation</strong><span class="muted">The summary, then the laying down in four stages announced on screen. The wizard closes for good.</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">The CMS that runs the whole company</p>
-          <p class="stat-n">Node 22 · Express · SQLite. No needless dependency.</p>
+          <p class="stat-n">Node 22 · Express · SQLite or MySQL. No needless dependency.</p>
         </div>
         <div>
           <h4>Product</h4>

@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>संस्थापन — Toutadmin</title>
-<meta name="description" content="एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न बाहरी डेटाबेस, न कोई तीसरी सेवा। एक घंटा मानकर चलिए।" />
+<meta name="description" content="एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न कोई डेटाबेस अनिवार्य, न कोई तीसरी सेवा — पर MySQL सर्वर हो तो वह भी चलाया जाता है। एक घंटा मानकर चलिए।" />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="संस्थापन — Toutadmin" />
-<meta property="og:description" content="एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न बाहरी डेटाबेस, न कोई तीसरी सेवा। एक घंटा मानकर चलिए।" />
+<meta property="og:description" content="एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न कोई डेटाबेस अनिवार्य, न कोई तीसरी सेवा — पर MySQL सर्वर हो तो वह भी चलाया जाता है। एक घंटा मानकर चलिए।" />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">संस्थापन</span>
         <h1 class="reveal">Toutadmin संस्थापित करना</h1>
-        <p class="lede reveal">एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न बाहरी डेटाबेस, न कोई तीसरी सेवा। एक घंटा मानकर चलिए।</p>
+        <p class="lede reveal">एक ही उत्पाद के दो संस्करण: एक आपके सर्वर पर सेवा की तरह चलता है, दूसरा साझा होस्टिंग पर रख दिया जाता है। न कोई डेटाबेस अनिवार्य, न कोई तीसरी सेवा — पर MySQL सर्वर हो तो वह भी चलाया जाता है। एक घंटा मानकर चलिए।</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">SaaS पर मुफ़्त शुरू करें<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>उत्पाद उतारें</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite या MySQL</span>
+          <h2>और कौन-सा डेटाबेस</h2>
+          <p class="lede">दूसरा चुनाव, और एकमात्र जो कठिनाई से बदलता है। यह संस्करण पर निर्भर नहीं: दोनों दोनों इंजन स्वीकार करते हैं, और चारों संयोजन वही परीक्षण उत्तीर्ण करते हैं।</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>सर्वर की डिस्क पर एक फ़ाइल। संस्थापित करने को कुछ नहीं, प्रशासित करने को कुछ नहीं, देखने को कुछ नहीं — और प्रतिरूप एक फ़ोल्डर की प्रतिलिपि से खिसक जाता है।</p>
+            <p class="muted">यही पूर्वनिर्धारित है, और अधिकांश स्थितियों में सही उत्तर: एक अनुप्रयोग-सर्वर, और एक स्थानीय डिस्क जो एक परिनियोजन से दूसरे तक टिकती है।</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL या MariaDB</h3>
+            <p>एक डेटाबेस सर्वर, उसी मशीन पर या नेटवर्क में कहीं और। आँकड़े वहीं रहते हैं जहाँ आपका सूचना-प्रौद्योगिकी विभाग उन्हें पहले से सहेजता, प्रतिकृत करता और देखता है।</p>
+            <p class="muted">तीन कारणों से लीजिए: एक ही आधार पर कई अनुप्रयोग-सर्वर, ऐसी आंतरिक नीति जो इसे अनिवार्य करती है, या क्षणभंगुर अनुप्रयोग-डिस्क — हर परिनियोजन पर पुनः रचा जाने वाला कंटेनर।</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL गति का चुनाव नहीं है</h3>
+          <p>यही सबसे फैली हुई धारणा है, और वह ग़लत है: SQLite प्रक्रिया के भीतर रहता है, MySQL सॉकेट के पीछे। हमारे यहाँ दो हज़ार क्रियाओं पर मापा गया — SQLite क्रिया के अनुसार ढाई से एक सौ पचास गुना तेज़ है, और आठ एक साथ लिखने वालों के साथ भी तुलना में टिकता है। MySQL इसलिए चुना जाता है कि आँकड़े कहाँ रहें और उन्हें कौन सँभाले, प्रतिक्रिया-काल के लिए नहीं।</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/hi/moteurs.html" rel="noopener">ब्योरा, अंकों के साथ<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">पाँच मिनट में</span>
           <h2>तेज़ संस्थापन</h2>
           <p class="lede">सहायक खोलने भर को। ब्योरा ठीक इसके बाद आता है, चरण दर चरण — कि हर आदेश क्या करता है और क्यों।</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>संगठन</strong><span class="muted">कंपनी का नाम और वार्षिक अवकाश की मात्रा। दो उत्तर, बाद में बदले जा सकते हैं।</span></span>
+              <span><strong>डेटाबेस</strong><span class="muted">एक फ़ाइल में SQLite, जो कुछ नहीं माँगता, या MySQL / MariaDB यदि आपके पास हो। सहायक स्वयं को बाँधने से पहले संयोजन आज़माता है।</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>प्रशासक</strong><span class="muted">पहला खाता। कम से कम बारह अक्षर: यही एक खाता है जो और खाते बना सकता है।</span></span>
+              <span><strong>संगठन</strong><span class="muted">कंपनी का नाम और वार्षिक अवकाश की मात्रा। दो उत्तर, बाद में बदले जा सकते हैं।</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>पूरा हुआ</strong><span class="muted">सहायक सदा के लिए बन्द हो जाता है। आप प्रवेश-पटल पर पहुँचते हैं, और उदाहरण आपका है।</span></span>
+              <span><strong>प्रशासक</strong><span class="muted">पहला खाता। कम से कम बारह अक्षर: यही एक खाता है जो और खाते बना सकता है।</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>संस्थापन</strong><span class="muted">सारांश, फिर स्क्रीन पर घोषित चार चरणों में स्थापना। सहायक सदा के लिए बंद हो जाता है।</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">वह CMS जो पूरी कंपनी चलाता है</p>
-          <p class="stat-n">Node 22 · Express · SQLite. कोई बेकार निर्भरता नहीं।</p>
+          <p class="stat-n">Node 22 · Express · SQLite या MySQL. कोई बेकार निर्भरता नहीं।</p>
         </div>
         <div>
           <h4>उत्पाद</h4>

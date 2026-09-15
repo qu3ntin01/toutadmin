@@ -4,6 +4,12 @@ const { band, frame, head } = require('./_shared');
 // la même documentation, sur le même site, et l'un des deux est forcément mort.
 const DOC_URL = 'https://docs.toutadmin.com/';
 
+// La documentation existe dans les seize langues ; seule celle de référence n'a
+// pas de préfixe. Envoyer un lecteur japonais sur la page française serait lui
+// dire que la traduction s'arrête ici.
+const docPage = (ctx, name) =>
+  `${DOC_URL}${ctx.locale.code === 'fr' ? '' : ctx.locale.code + '/'}${name}.html`;
+
 /* Le téléchargement est ouvert à tout le monde, formule gratuite comprise :
    ce qui décide de la formule, c'est l'effectif, pas l'endroit où tourne
    l'instance. L'adresse est écrite ici et nulle part ailleurs. */
@@ -56,6 +62,15 @@ module.exports = function installation(ctx) {
             <p class="muted">${esc(t(`install.${key}.needs`))}</p>
           </article>`;
 
+  /* Les deux moteurs, du même gabarit que les deux éditions : le choix se pose
+     de la même façon, et il se pose pour l'une comme pour l'autre. */
+  const engineCard = (key, ic) => `<article class="card reveal">
+            <span class="ico">${icon(ic)}</span>
+            <h3>${esc(t(`install.db.${key}.name`))}</h3>
+            <p>${esc(t(`install.db.${key}.for`))}</p>
+            <p class="muted">${esc(t(`install.db.${key}.when`))}</p>
+          </article>`;
+
   const quickCard = (key, code) => `<article class="card reveal">
             <h3>${esc(t(`install.${key}.name`))}</h3>
             <p>${esc(t(`install.quick.${key}`))}</p>
@@ -67,8 +82,8 @@ module.exports = function installation(ctx) {
             <p>${esc(t(`install.check${n}b`))}</p>
           </article>`).join('\n          ');
 
-  // Les cinq étapes de l'assistant, dans l'ordre où il les présente.
-  const wizardSteps = [1, 2, 3, 4, 5].map((n) => `<li class="reveal">
+  // Les six étapes de l'assistant, dans l'ordre où il les présente.
+  const wizardSteps = [1, 2, 3, 4, 5, 6].map((n) => `<li class="reveal">
               <span class="num">${n}</span>
               <span><strong>${esc(t(`install.w${n}t`))}</strong><span class="muted">${esc(t(`install.w${n}b`))}</span></span>
             </li>`).join('\n            ');
@@ -116,6 +131,26 @@ module.exports = function installation(ctx) {
         <div class="note reveal mx-auto">
           <h3>${esc(t('install.sameTitle'))}</h3>
           <p>${esc(t('install.sameBody'))}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        ${head(ctx, t('install.dbEyebrow'), t('install.dbTitle'), t('install.dbLede'))}
+        <div class="grid g2 stagger">
+          ${engineCard('sqlite', 'box')}
+          ${engineCard('mysql', 'globe')}
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>${esc(t('install.dbSpeedTitle'))}</h3>
+          <p>${esc(t('install.dbSpeedBody'))}</p>
+          <p><a class="link-arrow" href="${docPage(ctx, 'moteurs')}" rel="noopener">${esc(t('install.dbCta'))}${icon('arrow')}</a></p>
         </div>
       </div>
     </section>

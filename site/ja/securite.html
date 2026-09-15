@@ -222,7 +222,7 @@
           <div class="reveal">
             <span class="eyebrow">自社サーバーでの運用も可</span>
             <h2 class="mt-m">SaaS、または自社運用</h2>
-            <p class="lede mt-m">SaaS では欧州でホスティングし、バックアップも含みます。有料プランではローカル運用も可能です。自社サーバーに導入すればデータベースは壁の外に出ず、更新は同じものが届きます。必要なのは一台だけ——Node 22 と SQLite、管理すべき外部データベースはありません。</p>
+            <p class="lede mt-m">SaaS では欧州でホスティングし、バックアップも含みます。有料プランではローカル運用も可能です。自社サーバーに導入すればデータベースは壁の外に出ず、更新は同じものが届きます。必要なのは一台だけ——Node 22 と SQLite、管理すべき外部データベースはありません。MySQL サーバーをお持ちなら使えますが、必須ではありません。</p>
           </div>
           <div class="note reveal">
             <h3>できるとは言わないこと</h3>
@@ -240,7 +240,7 @@
           
         </div>
         <div class="faq mx-auto stagger">
-          <details class="reveal"><summary>データを自社サーバーに置けますか。<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><div class="answer">はい、有料プランで可能です。ソフトは Node 22 と SQLite により一台のマシンで動きます。データベースサーバーも外部サービスも不要です。データベース、書類、バックアップはお手元に残ります。</div></details>
+          <details class="reveal"><summary>データを自社サーバーに置けますか。<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><div class="answer">はい、有料プランで可能です。ソフトは Node 22 と SQLite により一台のマシンで動きます。データベースサーバーも外部サービスも不要です。データベース、書類、バックアップはお手元に残ります。MySQL サーバーをお持ちなら使えますが、必須ではありません。</div></details>
           <details class="reveal"><summary>利用をやめたらどうなりますか。<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><div class="answer">管理コンソールから、インスタンス全体を書類ごと JSON で書き出せます。人質に取るものは何もありません。お客様のデータベースであり、読める形式で一緒に出ていきます。</div></details>
           <details class="reveal"><summary>社内ツールとの連携はどうですか。<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></summary><div class="answer">スコープ付きの読み取り REST API と、署名付きの送信 Webhook はどのプランにも含まれます。人事システムや ERP、請求との個別連携はご相談ください。案件ごとにお見積もりします。</div></details>
         </div>
@@ -267,7 +267,7 @@
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">会社全体を運営する CMS</p>
-          <p class="stat-n">Node 22 · Express · SQLite。無駄な依存はひとつもありません。</p>
+          <p class="stat-n">Node 22 · Express · SQLite か MySQL。無駄な依存はひとつもありません。</p>
         </div>
         <div>
           <h4>製品</h4>

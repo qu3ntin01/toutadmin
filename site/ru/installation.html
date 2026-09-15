@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Установка — Toutadmin</title>
-<meta name="description" content="Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без внешней базы данных, без сторонних служб. Рассчитывайте на час." />
+<meta name="description" content="Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без обязательной базы данных, без сторонних служб — но сервер MySQL поддерживается, если он у вас есть. Рассчитывайте на час." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Установка — Toutadmin" />
-<meta property="og:description" content="Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без внешней базы данных, без сторонних служб. Рассчитывайте на час." />
+<meta property="og:description" content="Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без обязательной базы данных, без сторонних служб — но сервер MySQL поддерживается, если он у вас есть. Рассчитывайте на час." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Установка</span>
         <h1 class="reveal">Установка Toutadmin</h1>
-        <p class="lede reveal">Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без внешней базы данных, без сторонних служб. Рассчитывайте на час.</p>
+        <p class="lede reveal">Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без обязательной базы данных, без сторонних служб — но сервер MySQL поддерживается, если он у вас есть. Рассчитывайте на час.</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">Начать бесплатно в SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Скачать продукт</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite или MySQL</span>
+          <h2>И какая база данных</h2>
+          <p class="lede">Второй выбор — и единственный, который трудно изменить. Он не зависит от редакции: обе принимают оба движка, и все четыре сочетания проходят одни и те же тесты.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>Файл на диске сервера. Ничего устанавливать, ничем управлять, ни за чем следить — а экземпляр переезжает копированием папки.</p>
+            <p class="muted">Это значение по умолчанию и верный ответ в большинстве случаев: один сервер приложения и локальный диск, который остаётся от развёртывания к развёртыванию.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL или MariaDB</h3>
+            <p>Сервер базы данных, на этой машине или где-то в сети. Данные живут там, где ваша ИТ-служба уже их сохраняет, реплицирует и наблюдает.</p>
+            <p class="muted">Брать по трём причинам: несколько серверов приложения на одной базе, внутреннее правило, которое этого требует, или эфемерный диск приложения — контейнер, пересоздаваемый при каждом развёртывании.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL — не выбор ради скорости</h3>
+          <p>Это самое распространённое убеждение, и оно ложно: SQLite живёт внутри процесса, MySQL — за сокетом. По нашим измерениям на двух тысячах операций SQLite быстрее в два с половиной — сто пятьдесят раз, смотря по операции, и выдерживает сравнение даже при восьми одновременно пишущих. MySQL выбирают из-за того, где живут данные и кто ими управляет, а не ради времени отклика.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/ru/moteurs.html" rel="noopener">Подробности, с цифрами<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">За пять минут</span>
           <h2>Быстрая установка</h2>
           <p class="lede">Ровно столько, чтобы открыть помощник. Подробности идут сразу следом, шаг за шагом, с тем, что делает каждая команда и зачем.</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Организация</strong><span class="muted">Название предприятия и годовая норма отпуска. Два ответа, изменяемые потом.</span></span>
+              <span><strong>База данных</strong><span class="muted">SQLite в файле, который ничего не требует, или MySQL / MariaDB, если он у вас есть. Мастер пробует соединение прежде, чем на него положиться.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Администратор</strong><span class="muted">Первая учётная запись. Не меньше двенадцати знаков: это единственная запись, которая может создавать другие.</span></span>
+              <span><strong>Организация</strong><span class="muted">Название предприятия и годовая норма отпуска. Два ответа, изменяемые потом.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Готово</strong><span class="muted">Помощник закрывается навсегда. Вы попадаете на экран входа, и экземпляр — ваш.</span></span>
+              <span><strong>Администратор</strong><span class="muted">Первая учётная запись. Не меньше двенадцати знаков: это единственная запись, которая может создавать другие.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>Установка</strong><span class="muted">Сводка, затем установка в четыре объявляемых на экране этапа. Мастер закрывается окончательно.</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">CMS, которая ведёт всю компанию</p>
-          <p class="stat-n">Node 22 · Express · SQLite. Ни одной лишней зависимости.</p>
+          <p class="stat-n">Node 22 · Express · SQLite или MySQL. Ни одной лишней зависимости.</p>
         </div>
         <div>
           <h4>Продукт</h4>

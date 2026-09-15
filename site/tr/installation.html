@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Kurulum — Toutadmin</title>
-<meta name="description" content="Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Dış veritabanı yok, üçüncü taraf servis yok. Bir saat ayırın." />
+<meta name="description" content="Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf servis yok — ama varsa bir MySQL sunucusu da sürülür. Bir saat ayırın." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Kurulum — Toutadmin" />
-<meta property="og:description" content="Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Dış veritabanı yok, üçüncü taraf servis yok. Bir saat ayırın." />
+<meta property="og:description" content="Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf servis yok — ama varsa bir MySQL sunucusu da sürülür. Bir saat ayırın." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Kurulum</span>
         <h1 class="reveal">Toutadmin'i kurmak</h1>
-        <p class="lede reveal">Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Dış veritabanı yok, üçüncü taraf servis yok. Bir saat ayırın.</p>
+        <p class="lede reveal">Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf servis yok — ama varsa bir MySQL sunucusu da sürülür. Bir saat ayırın.</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">SaaS'ta ücretsiz başlamak<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Ürünü indirmek</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite mi MySQL mi</span>
+          <h2>Peki hangi veritabanı</h2>
+          <p class="lede">İkinci seçim, ve zor değiştirilen tek seçim. Sürümden bağımsızdır: ikisi de iki motoru kabul eder ve dört bileşim de aynı testlerden geçer.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>Sunucunun diskinde bir dosya. Kurulacak, yönetilecek, gözetilecek bir şey yok — ve örnek bir klasör kopyalanarak taşınır.</p>
+            <p class="muted">Varsayılan budur ve çoğu durumda doğru yanıttır: tek bir uygulama sunucusu ve yayımdan yayıma kalan yerel bir disk.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL ya da MariaDB</h3>
+            <p>Bir veritabanı sunucusu, aynı makinede ya da ağda başka bir yerde. Veri, bilgi işleminizin onu zaten yedeklediği, çoğalttığı ve izlediği yerde yaşar.</p>
+            <p class="muted">Üç nedenle alınır: aynı veritabanı üzerinde birden çok uygulama sunucusu, bunu şart koşan bir iç kural, ya da geçici bir uygulama diski — her yayımda yeniden kurulan bir kapsayıcı.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL hız için yapılan bir seçim değildir</h3>
+          <p>En yaygın inanış budur ve yanlıştır: SQLite sürecin içinde, MySQL bir yuvanın ardında yaşar. Burada iki bin işlem üzerinde ölçüldüğünde SQLite, işleme göre iki buçuk ila yüz elli kat daha hızlıdır — ve sekiz eşzamanlı yazanla bile karşılaştırmayı kaldırır. MySQL, verinin nerede yaşadığı ve kimin yönettiği için seçilir, yanıt süresi için değil.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/tr/moteurs.html" rel="noopener">Ayrıntısı, sayılarla<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">Beş dakikada</span>
           <h2>Hızlı kurulum</h2>
           <p class="lede">Sihirbazı açmaya yetecek kadarı. Ayrıntı hemen ardından gelir: adım adım, her komutun ne yaptığı ve neden yaptığıyla.</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Kuruluş</strong><span class="muted">Şirketin adı ve yıllık izin hakkı. İki yanıt, sonradan değiştirilebilir.</span></span>
+              <span><strong>Veritabanı</strong><span class="muted">Hiçbir şey istemeyen bir dosyada SQLite, ya da varsa MySQL / MariaDB. Sihirbaz kendini bağlamadan önce bağlantıyı dener.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Yönetici</strong><span class="muted">İlk hesap. En az on iki karakter: başkalarını oluşturabilen tek hesap odur.</span></span>
+              <span><strong>Kuruluş</strong><span class="muted">Şirketin adı ve yıllık izin hakkı. İki yanıt, sonradan değiştirilebilir.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Bitti</strong><span class="muted">Sihirbaz temelli kapanır. Giriş ekranına varırsınız, ve örnek sizindir.</span></span>
+              <span><strong>Yönetici</strong><span class="muted">İlk hesap. En az on iki karakter: başkalarını oluşturabilen tek hesap odur.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>Kurulum</strong><span class="muted">Özet, ardından ekranda duyurulan dört aşamada kurulum. Sihirbaz kendini bir daha açılmamak üzere kapatır.</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">Tüm şirketi yöneten CMS</p>
-          <p class="stat-n">Node 22 · Express · SQLite. Gereksiz hiçbir bağımlılık yok.</p>
+          <p class="stat-n">Node 22 · Express · SQLite ya da MySQL. Gereksiz hiçbir bağımlılık yok.</p>
         </div>
         <div>
           <h4>Ürün</h4>

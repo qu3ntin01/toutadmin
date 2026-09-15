@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>導入 — Toutadmin</title>
-<meta name="description" content="同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。" />
+<meta name="description" content="同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。データベースは必須ではなく、他社のサービスも要りません——ただし MySQL サーバーをお持ちなら、それも使えます。一時間を見てください。" />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="導入 — Toutadmin" />
-<meta property="og:description" content="同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。" />
+<meta property="og:description" content="同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。データベースは必須ではなく、他社のサービスも要りません——ただし MySQL サーバーをお持ちなら、それも使えます。一時間を見てください。" />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">導入</span>
         <h1 class="reveal">Toutadmin を導入する</h1>
-        <p class="lede reveal">同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。外部のデータベースも他社のサービスも要りません。一時間を見てください。</p>
+        <p class="lede reveal">同じ製品の二つの版。一方はサーバー上でサービスとして動き、もう一方は共用レンタルサーバーに置くだけです。データベースは必須ではなく、他社のサービスも要りません——ただし MySQL サーバーをお持ちなら、それも使えます。一時間を見てください。</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">SaaS で無料に始める<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>製品を取り寄せる</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite か MySQL か</span>
+          <h2>そしてどのデータベースか</h2>
+          <p class="lede">二つめの選択であり、変えるのが難しい唯一の選択です。版には依りません。どちらの版も両方のエンジンを受け入れ、四つの組み合わせが同じテストを通ります。</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>サーバーのディスク上のファイル一つ。導入するものも、管理するものも、見張るものもありません——インスタンスはフォルダーを写すだけで移せます。</p>
+            <p class="muted">これが既定であり、多くの場合の正解です。アプリケーションサーバーが一台、そして配備をまたいで残るローカルディスクがあれば。</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL または MariaDB</h3>
+            <p>データベースサーバー。同じ機械でも、網の別の場所でも。データは、貴社の情報システム部門がすでに保存し、複製し、監視している場所に住みます。</p>
+            <p class="muted">取る理由は三つ。同じデータベースに複数のアプリケーションサーバー、それを求める社内規定、あるいは揮発性のアプリケーションディスク——配備のたびに作り直されるコンテナ。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL は速さのための選択ではありません</h3>
+          <p>これが最も広く信じられていることで、そして誤りです。SQLite はプロセスの内側に、MySQL はソケットの向こうに住みます。当方で二千回の操作を測ったところ、SQLite は操作に応じて二・五倍から百五十倍速く、八つの書き手が同時に走っても比較に耐えます。MySQL は、データがどこに住み、誰が管理するかのために選ぶものであって、応答時間のためではありません。</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/ja/moteurs.html" rel="noopener">数字を添えた詳細<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">五分で</span>
           <h2>手早い導入</h2>
           <p class="lede">案内役を開くのに足りるだけ。細かいところはすぐ後に、一段ずつ —— どの命令が何をして、なぜそうするのかとともに。</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>組織</strong><span class="muted">会社の名と、年ごとの休みの日数。二つの答えで、あとから直せます。</span></span>
+              <span><strong>データベース</strong><span class="muted">何も要求しないファイル一つの SQLite か、お持ちであれば MySQL / MariaDB。ウィザードは身を委ねる前に接続を試します。</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>管理者</strong><span class="muted">最初の口座。十二文字以上。ほかの口座をこしらえられるのはこれだけです。</span></span>
+              <span><strong>組織</strong><span class="muted">会社の名と、年ごとの休みの日数。二つの答えで、あとから直せます。</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>終わり</strong><span class="muted">案内役はそこで永久に閉じます。入口の画面に着き、instance はあなたのものです。</span></span>
+              <span><strong>管理者</strong><span class="muted">最初の口座。十二文字以上。ほかの口座をこしらえられるのはこれだけです。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>導入</strong><span class="muted">要約のあと、画面に告げられる四段階で据え付けます。ウィザードはそのまま永久に閉じます。</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">会社全体を運営する CMS</p>
-          <p class="stat-n">Node 22 · Express · SQLite。無駄な依存はひとつもありません。</p>
+          <p class="stat-n">Node 22 · Express · SQLite か MySQL。無駄な依存はひとつもありません。</p>
         </div>
         <div>
           <h4>製品</h4>

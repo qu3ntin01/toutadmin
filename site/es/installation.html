@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Instalación — Toutadmin</title>
-<meta name="description" content="Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora." />
+<meta name="description" content="Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos exigida, sin servicio de terceros — pero se maneja un servidor MySQL si usted tiene uno. Cuente una hora." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Instalación — Toutadmin" />
-<meta property="og:description" content="Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora." />
+<meta property="og:description" content="Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos exigida, sin servicio de terceros — pero se maneja un servidor MySQL si usted tiene uno. Cuente una hora." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Instalación</span>
         <h1 class="reveal">Instalar Toutadmin</h1>
-        <p class="lede reveal">Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos externa, sin servicio de terceros. Cuente una hora.</p>
+        <p class="lede reveal">Dos ediciones del mismo producto: una funciona como servicio en su servidor, la otra se deposita en un alojamiento compartido. Sin base de datos exigida, sin servicio de terceros — pero se maneja un servidor MySQL si usted tiene uno. Cuente una hora.</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">Empezar gratis en SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Descargar el producto</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite o MySQL</span>
+          <h2>Y qué base de datos</h2>
+          <p class="lede">La segunda elección, y la única que se cambia con dificultad. No depende de la edición: ambas aceptan los dos motores, y las cuatro combinaciones pasan las mismas pruebas.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>Un archivo en el disco del servidor. Nada que instalar, nada que administrar, nada que vigilar — y la instancia se muda copiando una carpeta.</p>
+            <p class="muted">Es el valor por defecto, y la respuesta correcta en la mayoría de los casos: un servidor de aplicación y un disco local que sobrevive de un despliegue a otro.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL o MariaDB</h3>
+            <p>Un servidor de base de datos, en la máquina o en otro punto de la red. Los datos viven donde su departamento de informática ya los respalda, replica y vigila.</p>
+            <p class="muted">Tómelo por tres razones: varios servidores de aplicación sobre una misma base, una política interna que lo impone, o un disco de aplicación efímero — un contenedor recreado en cada despliegue.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>MySQL no es la elección de la velocidad</h3>
+          <p>Es la creencia más extendida y es falsa: SQLite vive dentro del proceso, MySQL detrás de un socket. Medido aquí sobre dos mil operaciones, SQLite va de dos veces y media a ciento cincuenta veces más rápido según la operación — y aguanta la comparación incluso con ocho escritores simultáneos. MySQL se elige por dónde viven los datos y por quién los administra, no por el tiempo de respuesta.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/es/moteurs.html" rel="noopener">El detalle, con las cifras<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">En cinco minutos</span>
           <h2>La instalación rápida</h2>
           <p class="lede">Lo justo para abrir el asistente. El detalle viene justo después, paso a paso, con lo que hace cada orden y por qué.</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Organización</strong><span class="muted">El nombre de la empresa y la cuota anual de vacaciones. Dos respuestas, modificables después.</span></span>
+              <span><strong>Base de datos</strong><span class="muted">SQLite en un archivo, que no pide nada, o MySQL / MariaDB si dispone de uno. El asistente prueba la conexión antes de comprometerse con ella.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Administrador</strong><span class="muted">La primera cuenta. Doce caracteres como mínimo: es la única cuenta que puede crear otras.</span></span>
+              <span><strong>Organización</strong><span class="muted">El nombre de la empresa y la cuota anual de vacaciones. Dos respuestas, modificables después.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Terminado</strong><span class="muted">El asistente se cierra definitivamente. Llega a la pantalla de conexión, y la instancia es suya.</span></span>
+              <span><strong>Administrador</strong><span class="muted">La primera cuenta. Doce caracteres como mínimo: es la única cuenta que puede crear otras.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>Instalación</strong><span class="muted">El resumen y luego la instalación en cuatro fases anunciadas en pantalla. El asistente se cierra definitivamente.</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">El CMS que administra toda la empresa</p>
-          <p class="stat-n">Node 22 · Express · SQLite. Ninguna dependencia inútil.</p>
+          <p class="stat-n">Node 22 · Express · SQLite o MySQL. Ninguna dependencia inútil.</p>
         </div>
         <div>
           <h4>Producto</h4>

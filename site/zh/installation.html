@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>安装 — Toutadmin</title>
-<meta name="description" content="同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。无需外部数据库，无需第三方服务。预留一小时。" />
+<meta name="description" content="同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。不强制要求数据库，无需第三方服务——但您若有 MySQL 服务器，它也照样驱动。预留一小时。" />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="安装 — Toutadmin" />
-<meta property="og:description" content="同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。无需外部数据库，无需第三方服务。预留一小时。" />
+<meta property="og:description" content="同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。不强制要求数据库，无需第三方服务——但您若有 MySQL 服务器，它也照样驱动。预留一小时。" />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">安装</span>
         <h1 class="reveal">安装 Toutadmin</h1>
-        <p class="lede reveal">同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。无需外部数据库，无需第三方服务。预留一小时。</p>
+        <p class="lede reveal">同一产品的两个版本：一个作为服务常驻在您的服务器上，另一个直接放到虚拟主机里。不强制要求数据库，无需第三方服务——但您若有 MySQL 服务器，它也照样驱动。预留一小时。</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">免费开始使用 SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>下载产品</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite 还是 MySQL</span>
+          <h2>那么用哪种数据库</h2>
+          <p class="lede">第二个选择，也是唯一难以更改的那个。它与版本无关：两个版本都支持两种引擎，四种组合通过同一套测试。</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>服务器磁盘上的一个文件。没有东西要装、要管、要盯——搬迁实例只需复制一个目录。</p>
+            <p class="muted">这是默认值，也是大多数情况下正确的答案：一台应用服务器，加上一块能跨部署留存的本地磁盘。</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL 或 MariaDB</h3>
+            <p>一台数据库服务器，可以在本机，也可以在网络的别处。数据就住在贵司信息部门已经在备份、复制和监控的地方。</p>
+            <p class="muted">出于三个理由选它：多台应用服务器共用一个库；有内部规定要求如此；或者应用磁盘是临时的——每次部署都重建的容器。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>选 MySQL 不是为了快</h3>
+          <p>这是流传最广的看法，而它是错的：SQLite 活在进程内部，MySQL 活在套接字之后。我们在两千次操作上实测，SQLite 视操作而定要快上两倍半到一百五十倍——即便八个进程同时写入，它也扛得住比较。选 MySQL，是为了数据住在哪里、由谁来管，而不是为了响应时间。</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/zh/moteurs.html" rel="noopener">详情与实测数字<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">五分钟</span>
           <h2>快速安装</h2>
           <p class="lede">刚好够把向导打开。详细步骤紧随其后，一步一步说明每条命令做什么、为什么这样做。</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>组织</strong><span class="muted">公司名称和年度假期额度。两个回答，之后都可以改。</span></span>
+              <span><strong>数据库</strong><span class="muted">放在一个文件里的 SQLite，什么都不要求；或者 MySQL / MariaDB，如果您有的话。向导会在确定之前先试着连上。</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>管理员</strong><span class="muted">第一个账号。至少十二个字符：只有它能创建其他账号。</span></span>
+              <span><strong>组织</strong><span class="muted">公司名称和年度假期额度。两个回答，之后都可以改。</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>完成</strong><span class="muted">向导就此永久关闭。你会到达登录页，实例从此归你。</span></span>
+              <span><strong>管理员</strong><span class="muted">第一个账号。至少十二个字符：只有它能创建其他账号。</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>安装</strong><span class="muted">先是摘要，然后分四个阶段安装，每一步都在屏幕上告知。向导随即彻底关闭。</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">管理整个企业的 CMS</p>
-          <p class="stat-n">Node 22 · Express · SQLite。没有一个多余的依赖。</p>
+          <p class="stat-n">Node 22 · Express · SQLite 或 MySQL。没有一个多余的依赖。</p>
         </div>
         <div>
           <h4>产品</h4>

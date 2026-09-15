@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>التثبيت — Toutadmin</title>
-<meta name="description" content="إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات خارجية ولا خدمة من طرف ثالث. احسب ساعة واحدة." />
+<meta name="description" content="إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات مطلوبة ولا خدمة من طرف ثالث — غير أنّ خادوم MySQL يُقاد إن كان لديك واحد. احسب ساعة واحدة." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,7 +14,7 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="التثبيت — Toutadmin" />
-<meta property="og:description" content="إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات خارجية ولا خدمة من طرف ثالث. احسب ساعة واحدة." />
+<meta property="og:description" content="إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات مطلوبة ولا خدمة من طرف ثالث — غير أنّ خادوم MySQL يُقاد إن كان لديك واحد. احسب ساعة واحدة." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
@@ -170,7 +170,7 @@
       <div class="wrap center">
         <span class="eyebrow reveal">التثبيت</span>
         <h1 class="reveal">تثبيت Toutadmin</h1>
-        <p class="lede reveal">إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات خارجية ولا خدمة من طرف ثالث. احسب ساعة واحدة.</p>
+        <p class="lede reveal">إصداران من المنتج نفسه: أحدهما يعمل خدمةً على خادمك، والآخر يُوضع على استضافة مشتركة. لا قاعدة بيانات مطلوبة ولا خدمة من طرف ثالث — غير أنّ خادوم MySQL يُقاد إن كان لديك واحد. احسب ساعة واحدة.</p>
         <div class="hero-cta reveal">
           <a class="btn" href="../contact.html">ابدأ مجانًا على SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://app.toutadmin.com/telecharger" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>نزِّل المنتج</a>
@@ -225,6 +225,40 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">SQLite أم MySQL</span>
+          <h2>وأيّ قاعدة بيانات</h2>
+          <p class="lede">الاختيار الثاني، وهو وحده العسير تبديله. ولا يتعلّق بالإصدار: كلاهما يقبل المحرّكين، والتوليفات الأربع تمرّ على الاختبارات نفسها.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>SQLite</h3>
+            <p>ملفّ على قرص الخادوم. لا شيء يُثبَّت، ولا شيء يُدار، ولا شيء يُراقَب — والنسخة المُشغَّلة تنتقل بنسخ مجلّد.</p>
+            <p class="muted">هو الافتراضيّ، والجواب الصحيح في أكثر الحالات: خادوم تطبيق واحد، وقرص محلّيّ يبقى من نشرٍ إلى نشر.</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18"/></svg></span>
+            <h3>MySQL أو MariaDB</h3>
+            <p>خادوم قواعد بيانات، على الآلة نفسها أو في مكان آخر من الشبكة. فتعيش البيانات حيث يحفظها قسم المعلوماتية عندكم ويستنسخها ويراقبها أصلًا.</p>
+            <p class="muted">يُؤخذ لثلاثة أسباب: عدّة خواديم تطبيق على قاعدة واحدة، أو سياسة داخلية تفرضه، أو قرص تطبيق زائل — حاوية تُعاد صناعتها عند كلّ نشر.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="note reveal mx-auto">
+          <h3>ليس MySQL خيار السرعة</h3>
+          <p>هذا أشيع الاعتقادات، وهو خاطئ: فـSQLite يعيش داخل العملية، وMySQL خلف مقبس. وبقياسنا على ألفي عملية، يكون SQLite أسرع بمرّتين ونصف إلى مئة وخمسين مرّة بحسب العملية — ويصمد في المقارنة حتّى مع ثمانية كتّاب متزامنين. إنّما يُختار MySQL لمكان سكن البيانات ولمن يديرها، لا لزمن الاستجابة.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/ar/moteurs.html" rel="noopener">التفصيل، بالأرقام<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">في خمس دقائق</span>
           <h2>التثبيت السريع</h2>
           <p class="lede">ما يكفي لفتح المساعد. أما التفصيل فيأتي بعده مباشرة، خطوة خطوة، مع ما يفعله كل أمر ولماذا.</p>
@@ -270,15 +304,19 @@ NODE_ENV=production node src/server.js</code></pre>
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>المنظمة</strong><span class="muted">اسم الشركة ورصيد الإجازة السنوي. جوابان، يمكن تعديلهما بعد ذلك.</span></span>
+              <span><strong>قاعدة البيانات</strong><span class="muted">SQLite في ملفّ لا يطلب شيئًا، أو MySQL / MariaDB إن كان لديك واحد. يجرّب المُرشد الاتّصال قبل أن يلتزم به.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>المدير</strong><span class="muted">الحساب الأول. اثنا عشر محرفًا على الأقل: وهو الحساب الوحيد الذي ينشئ غيره.</span></span>
+              <span><strong>المؤسّسة</strong><span class="muted">اسم الشركة ورصيد الإجازة السنوي. جوابان، يمكن تعديلهما بعد ذلك.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>انتهى</strong><span class="muted">ينغلق المساعد نهائيًّا. تصل إلى شاشة الدخول، وتصير النسخة لك.</span></span>
+              <span><strong>المدير</strong><span class="muted">الحساب الأول. اثنا عشر محرفًا على الأقل: وهو الحساب الوحيد الذي ينشئ غيره.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">6</span>
+              <span><strong>التثبيت</strong><span class="muted">الملخّص، ثمّ الوضع على أربع مراحل تُعلَن على الشاشة. ويُغلق المُرشد نفسه إلى غير رجعة.</span></span>
             </li>
             </ol>
             <pre class="reveal"><code>https://votre-domaine/installation</code></pre>
@@ -423,7 +461,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
           <p class="lede">نظام إدارة المحتوى الذي يدير الشركة بأكملها</p>
-          <p class="stat-n">Node 22 · Express · SQLite. بلا أي اعتمادية زائدة.</p>
+          <p class="stat-n">Node 22 · Express · SQLite أو MySQL. بلا أي اعتمادية زائدة.</p>
         </div>
         <div>
           <h4>المنتج</h4>
