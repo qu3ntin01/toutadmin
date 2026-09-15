@@ -28,7 +28,7 @@ const QUICK_NODE = 'git clone &lt;votre-dépôt&gt; toutadmin\n'
 const QUICK_PHP = '# 1. déposer le dossier (racine web → public/)\n'
   + '# 2. cp config.sample.php config.php\n'
   + '# 3. chmod 770 data/\n'
-  + '# 4. ouvrir https://votre-domaine/installation';
+  + '# 4. ouvrir https://votre-domaine/install';
 
 const NODE_STEPS = [
   'git clone &lt;votre-dépôt&gt; /var/www/toutadmin\ncd /var/www/toutadmin\nnpm ci --omit=dev',
@@ -44,7 +44,7 @@ const PHP_STEPS = [
   '* * * * * /usr/bin/php /var/www/toutadmin/tools/cron.php',
 ];
 
-const WIZARD_URL = 'https://votre-domaine/installation';
+const WIZARD_URL = 'https://votre-domaine/install';
 
 module.exports = function installation(ctx) {
   const { t, esc, icon } = ctx;
