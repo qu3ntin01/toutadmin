@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Zet de installatiepenning vóór u de poort opent',
   'install.tokenBody': 'Tussen de eerste start en uw eigen gang door de assistent zou wie het eerst komt het beheerdersaccount aanmaken. INSTALL_TOKEN sluit dat venster: zonder de penning weigert de assistent open te gaan.',
   'shot.assistant': 'Installatieassistent',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Hoe de licentie werkt',
+  'licence.lede': 'Eén sleutel, één keer geplakt bij de installatie. Hij opent zowel uw licentie als uw updates, en vernieuwt zichzelf elke nacht.',
+  'licence.col.when': 'Wanneer',
+  'licence.col.what': 'Wat er gebeurt',
+  'licence.step1.when': 'Zolang het abonnement loopt',
+  'licence.step1.what': 'Niets bijzonders. Geen banner, geen limiet.',
+  'licence.step2.when': 'Het abonnement is net verlopen',
+  'licence.step2.what': 'Alles blijft werken. Een banner waarschuwt en telt de dagen die u nog hebt — een op vrijdagavond vergeten verlenging legt uw bedrijf maandagochtend niet stil.',
+  'licence.step3.when': 'Na de respijttermijn',
+  'licence.step3.what': 'De instantie gaat op alleen lezen: niet meer schrijven, maar u meldt zich aan, leest alles en exporteert alles.',
+  'licence.neverTitle': 'Wat wij nooit zullen doen',
+  'licence.neverBody': 'Er wordt niets gewist, niets versleuteld, niets verborgen. Ook in alleen lezen blijven aanmelden, de volledige export, de back-ups en de kluis van uw oud-medewerkers open. U bent verwerkingsverantwoordelijke in de zin van de AVG: u moet op elk moment met uw gegevens kunnen vertrekken. Een onbetaalde factuur los je op met een telefoontje, niet door loonstroken te gijzelen.',
+  'licence.offlineTitle': 'Zonder uitgaande internettoegang',
+  'licence.offlineBody': 'Sommige hostings hebben geen enkele route naar buiten. Wij geven dan een offline licentie uit, die het hele abonnement dekt en per bestand wordt vernieuwd. De keerzijde wordt vooraf gezegd: een offline licentie kan vóór haar vervaldatum niet worden ingetrokken.',
 };

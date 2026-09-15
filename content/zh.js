@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': '开放端口之前先设好安装令牌',
   'install.tokenBody': '从第一次启动到你自己走进向导之间，谁先到谁就能创建管理员账号。INSTALL_TOKEN 把这扇窗关上：没有它，向导拒绝打开。',
   'shot.assistant': '安装向导',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': '许可证如何运作',
+  'licence.lede': '一把密钥，安装时粘贴一次。它同时打开你的许可证和更新，并且每晚自动续期。',
+  'licence.col.when': '何时',
+  'licence.col.what': '会发生什么',
+  'licence.step1.when': '订阅有效期内',
+  'licence.step1.what': '没有任何特别之处。没有横幅，也没有限制。',
+  'licence.step2.when': '订阅刚刚到期',
+  'licence.step2.what': '一切照常运作。一条横幅提醒并倒数你剩下的天数——周五傍晚忘记的续期，不会让你的公司在周一早上停摆。',
+  'licence.step3.when': '宽限期之后',
+  'licence.step3.what': '实例转为只读：不能再写入，但你照常登录、查看全部、导出全部。',
+  'licence.neverTitle': '我们绝不会做的事',
+  'licence.neverBody': '不删除任何东西，不加密任何东西，不隐藏任何东西。即便在只读状态，登录、完整导出、备份以及离职员工的保险箱依然开放。在 GDPR 意义上你是数据控制者：你必须能随时带着自己的数据离开。未付的账单靠一通电话解决，而不是靠扣押工资单。',
+  'licence.offlineTitle': '没有出站互联网访问时',
+  'licence.offlineBody': '有些主机根本没有对外的出口。这种情况下我们签发离线许可证，覆盖整个订阅期，通过文件续期。代价事先讲明：离线许可证在到期前无法吊销。',
 };

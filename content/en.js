@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Set the installation token before opening the port',
   'install.tokenBody': 'Between the first start and your own visit to the wizard, whoever arrives first would create the administrator account. INSTALL_TOKEN closes that window: without it the wizard refuses to open.',
   'shot.assistant': 'Installation wizard',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'How licensing works',
+  'licence.lede': 'One key, pasted once at installation. It opens both your licence and your updates, and renews itself every night.',
+  'licence.col.when': 'When',
+  'licence.col.what': 'What happens',
+  'licence.step1.when': 'While the subscription runs',
+  'licence.step1.what': 'Nothing in particular. No banner, no limit.',
+  'licence.step2.when': 'The subscription has just lapsed',
+  'licence.step2.what': 'Everything keeps working. A banner warns and counts the days you have left — a renewal forgotten on a Friday evening does not stop your company on Monday morning.',
+  'licence.step3.when': 'Past the grace period',
+  'licence.step3.what': 'The instance turns read-only: no more writing, but you sign in, you read everything and you export everything.',
+  'licence.neverTitle': 'What we will never do',
+  'licence.neverBody': 'Nothing is erased, nothing is encrypted, nothing is hidden. Even in read-only, signing in, the full export, backups and your former employees\' vault stay open. You are a data controller under the GDPR: you must be able to leave with your data at any time. An unpaid invoice is settled with a phone call, not by holding payslips hostage.',
+  'licence.offlineTitle': 'Without outbound internet access',
+  'licence.offlineBody': 'Some hosting has no route to the outside at all. We then issue an offline licence, which covers the whole subscription and is renewed by file. The trade-off is stated up front: an offline licence cannot be revoked before it expires.',
 };

@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Ponha o testemunho de instalação antes de abrir a porta',
   'install.tokenBody': 'Entre o primeiro arranque e a sua passagem pelo assistente, o primeiro a chegar criaria a conta de administração. INSTALL_TOKEN fecha essa janela: sem ele, o assistente recusa-se a abrir.',
   'shot.assistant': 'Assistente de instalação',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Como funciona a licença',
+  'licence.lede': 'Uma chave, colada uma só vez na instalação. Abre ao mesmo tempo a sua licença e as suas atualizações, e renova-se sozinha todas as noites.',
+  'licence.col.when': 'Quando',
+  'licence.col.what': 'O que acontece',
+  'licence.step1.when': 'Enquanto a assinatura corre',
+  'licence.step1.what': 'Nada de especial. Nenhum aviso, nenhum limite.',
+  'licence.step2.when': 'A assinatura acabou de expirar',
+  'licence.step2.what': 'Tudo continua a funcionar. Um aviso previne e conta os dias que lhe restam: uma renovação esquecida numa sexta-feira à noite não para a sua empresa na segunda de manhã.',
+  'licence.step3.when': 'Passado o prazo de tolerância',
+  'licence.step3.what': 'A instância passa a só leitura: acabaram-se as escritas, mas o utilizador liga-se, consulta tudo e exporta tudo.',
+  'licence.neverTitle': 'O que nunca faremos',
+  'licence.neverBody': 'Nada é apagado, nada é cifrado, nada é escondido. Mesmo em só leitura, a ligação, a exportação integral, as cópias de segurança e o cofre dos seus antigos trabalhadores continuam abertos. É responsável pelo tratamento nos termos do RGPD: tem de poder sair com os seus dados a qualquer momento. Uma fatura por pagar resolve-se com um telefonema, não sequestrando recibos de vencimento.',
+  'licence.offlineTitle': 'Sem acesso à internet de saída',
+  'licence.offlineBody': 'Alguns alojamentos não têm qualquer saída para o exterior. Emitimos então uma licença fora de linha, que cobre toda a assinatura e se renova por ficheiro. A contrapartida é dita de antemão: uma licença fora de linha não pode ser revogada antes do vencimento.',
 };

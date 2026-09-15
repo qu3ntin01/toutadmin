@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Mettete il gettone d\'installazione prima di aprire la porta',
   'install.tokenBody': 'Fra il primo avvio e il vostro passaggio nell\'assistente, il primo arrivato creerebbe il conto d\'amministrazione. INSTALL_TOKEN chiude quella finestra: senza di esso l\'assistente si rifiuta di aprirsi.',
   'shot.assistant': 'Assistente d\'installazione',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Come funziona la licenza',
+  'licence.lede': 'Una chiave, incollata una volta all\'installazione. Apre insieme la licenza e gli aggiornamenti, e si rinnova da sola ogni notte.',
+  'licence.col.when': 'Quando',
+  'licence.col.what': 'Che cosa succede',
+  'licence.step1.when': 'Finché l\'abbonamento corre',
+  'licence.step1.what': 'Nulla di particolare. Nessun avviso, nessun limite.',
+  'licence.step2.when': 'L\'abbonamento è appena scaduto',
+  'licence.step2.what': 'Tutto continua a funzionare. Un avviso previene e conta i giorni che restano: un rinnovo dimenticato un venerdì sera non ferma la tua azienda il lunedì mattina.',
+  'licence.step3.when': 'Superato il periodo di tolleranza',
+  'licence.step3.what': 'L\'istanza passa in sola lettura: niente più scritture, ma ti colleghi, consulti tutto ed esporti tutto.',
+  'licence.neverTitle': 'Quello che non faremo mai',
+  'licence.neverBody': 'Nulla viene cancellato, nulla cifrato, nulla nascosto. Anche in sola lettura restano aperti l\'accesso, l\'esportazione integrale, i backup e la cassaforte dei tuoi ex dipendenti. Sei titolare del trattamento ai sensi del GDPR: devi poter uscire con i tuoi dati in qualunque momento. Una fattura non pagata si risolve con una telefonata, non sequestrando buste paga.',
+  'licence.offlineTitle': 'Senza accesso a internet in uscita',
+  'licence.offlineBody': 'Certi hosting non hanno alcuna uscita verso l\'esterno. Emettiamo allora una licenza offline, che copre tutto l\'abbonamento e si rinnova per file. Il prezzo da pagare è detto in anticipo: una licenza offline non può essere revocata prima della scadenza.',
 };

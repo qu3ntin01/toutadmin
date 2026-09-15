@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Ustaw żeton instalacyjny, zanim otworzysz port',
   'install.tokenBody': 'Między pierwszym uruchomieniem a twoim wejściem do kreatora konto administracyjne założyłby ten, kto przyjdzie pierwszy. INSTALL_TOKEN zamyka to okno: bez niego kreator odmawia otwarcia.',
   'shot.assistant': 'Kreator instalacji',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Jak działa licencja',
+  'licence.lede': 'Jeden klucz, wklejony raz przy instalacji. Otwiera zarazem licencję i aktualizacje, a odnawia się sam każdej nocy.',
+  'licence.col.when': 'Kiedy',
+  'licence.col.what': 'Co się dzieje',
+  'licence.step1.when': 'Dopóki abonament trwa',
+  'licence.step1.what': 'Nic szczególnego. Żadnego paska, żadnego limitu.',
+  'licence.step2.when': 'Abonament właśnie wygasł',
+  'licence.step2.what': 'Wszystko wciąż działa. Pasek ostrzega i liczy pozostałe dni — odnowienie zapomniane w piątek wieczorem nie zatrzyma firmy w poniedziałek rano.',
+  'licence.step3.when': 'Po okresie karencji',
+  'licence.step3.what': 'Instancja przechodzi w tryb tylko do odczytu: koniec zapisów, ale logujesz się, wszystko przeglądasz i wszystko eksportujesz.',
+  'licence.neverTitle': 'Czego nigdy nie zrobimy',
+  'licence.neverBody': 'Nic nie jest kasowane, nic szyfrowane, nic ukrywane. Nawet w trybie tylko do odczytu pozostają otwarte logowanie, pełny eksport, kopie zapasowe i sejf byłych pracowników. Jesteś administratorem danych w rozumieniu RODO: musisz móc odejść ze swoimi danymi w każdej chwili. Niezapłaconą fakturę załatwia się telefonem, a nie przetrzymywaniem pasków płacowych.',
+  'licence.offlineTitle': 'Bez wychodzącego dostępu do internetu',
+  'licence.offlineBody': 'Niektóre hostingi nie mają żadnego wyjścia na zewnątrz. Wydajemy wtedy licencję offline, która obejmuje cały abonament i odnawia się przez plik. Cena tego jest powiedziana z góry: licencji offline nie da się cofnąć przed jej wygaśnięciem.',
 };

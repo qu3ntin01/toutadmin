@@ -11,6 +11,6 @@ Barème
   1000 salariés : 3 €/salarié → 3000 €/mois
 
 Pages     : 96 (6 × 16 langues)
-Clés      : 387 par langue
+Clés      : 401 par langue
 Captures  : 146 fichiers
 Ressources: style 7d1a384692 · thème 4869e2e78f · script c1a98fc324

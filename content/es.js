@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Ponga el testigo de instalación antes de abrir el puerto',
   'install.tokenBody': 'Entre el primer arranque y su paso por el asistente, el primero en llegar crearía la cuenta de administración. INSTALL_TOKEN cierra esa ventana: sin él, el asistente se niega a abrirse.',
   'shot.assistant': 'Asistente de instalación',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Cómo funciona la licencia',
+  'licence.lede': 'Una clave, pegada una sola vez en la instalación. Abre a la vez su licencia y sus actualizaciones, y se renueva sola cada noche.',
+  'licence.col.when': 'Cuándo',
+  'licence.col.what': 'Qué ocurre',
+  'licence.step1.when': 'Mientras corre la suscripción',
+  'licence.step1.what': 'Nada en particular. Ningún aviso, ningún límite.',
+  'licence.step2.when': 'La suscripción acaba de vencer',
+  'licence.step2.what': 'Todo sigue funcionando. Un aviso previene y cuenta los días que le quedan: una renovación olvidada un viernes por la tarde no detiene su empresa el lunes por la mañana.',
+  'licence.step3.when': 'Pasado el plazo de gracia',
+  'licence.step3.what': 'La instancia pasa a solo lectura: se acabaron las escrituras, pero usted se conecta, lo consulta todo y lo exporta todo.',
+  'licence.neverTitle': 'Lo que nunca haremos',
+  'licence.neverBody': 'No se borra nada, no se cifra nada, no se oculta nada. Incluso en solo lectura, la conexión, la exportación íntegra, las copias de seguridad y la caja fuerte de sus antiguos empleados siguen abiertas. Usted es responsable del tratamiento según el RGPD: debe poder marcharse con sus datos en cualquier momento. Una factura impagada se arregla con una llamada, no secuestrando nóminas.',
+  'licence.offlineTitle': 'Sin acceso a internet saliente',
+  'licence.offlineBody': 'Algunos alojamientos no tienen ninguna salida al exterior. Emitimos entonces una licencia sin conexión, que cubre toda la suscripción y se renueva por archivo. La contrapartida se dice de antemano: una licencia sin conexión no puede revocarse antes de su vencimiento.',
 };

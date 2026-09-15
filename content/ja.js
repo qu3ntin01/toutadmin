@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': '口を開ける前に、導入の合言葉を置いてください',
   'install.tokenBody': '最初の立ち上げからあなたが案内役を通るまでのあいだ、先に来た者が管理の口座をこしらえてしまいます。INSTALL_TOKEN はその隙間を閉じます。これがなければ案内役は開きません。',
   'shot.assistant': '導入の案内役',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'ライセンスの仕組み',
+  'licence.lede': '鍵ひとつを、導入時に一度貼るだけ。ライセンスと更新の両方を開き、毎晩ひとりでに更新されます。',
+  'licence.col.when': 'いつ',
+  'licence.col.what': '何が起きるか',
+  'licence.step1.when': '購読が続いているあいだ',
+  'licence.step1.what': '特段のことは何も。帯も制限もありません。',
+  'licence.step2.when': '購読が切れた直後',
+  'licence.step2.what': 'すべてそのまま動きます。帯が知らせ、残り日数を数えます——金曜の夕方に忘れた更新が、月曜の朝に会社を止めることはありません。',
+  'licence.step3.when': '猶予期間を過ぎたら',
+  'licence.step3.what': '導入は読み取り専用になります。書き込みはできませんが、ログインし、すべてを閲覧し、すべてを書き出せます。',
+  'licence.neverTitle': '私たちが決してしないこと',
+  'licence.neverBody': '何も消さず、何も暗号化せず、何も隠しません。読み取り専用でも、ログイン、完全な書き出し、バックアップ、退職者の金庫は開いたままです。GDPR の意味での管理者はお客様です。いつでもご自分のデータとともに去れなければなりません。未払いの請求は電話一本で片づくものであり、給与明細を人質に取って片づけるものではありません。',
+  'licence.offlineTitle': '外向きのインターネット接続がない場合',
+  'licence.offlineBody': '外への出口がまったくない設置環境もあります。その場合はオフラインライセンスを発行します。購読期間全体を覆い、ファイルで更新します。引き換えは前もって申し上げます——オフラインライセンスは期限前に取り消せません。',
 };

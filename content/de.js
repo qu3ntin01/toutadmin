@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Setzen Sie das Installationstoken, bevor Sie den Port öffnen',
   'install.tokenBody': 'Zwischen dem ersten Start und Ihrem Besuch im Assistenten würde das Verwaltungskonto anlegen, wer zuerst kommt. INSTALL_TOKEN schließt dieses Fenster: ohne es öffnet sich der Assistent nicht.',
   'shot.assistant': 'Installationsassistent',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Wie die Lizenz funktioniert',
+  'licence.lede': 'Ein Schlüssel, einmal bei der Installation eingefügt. Er öffnet Ihre Lizenz und Ihre Aktualisierungen zugleich und erneuert sich jede Nacht von selbst.',
+  'licence.col.when': 'Wann',
+  'licence.col.what': 'Was geschieht',
+  'licence.step1.when': 'Solange das Abonnement läuft',
+  'licence.step1.what': 'Nichts Besonderes. Kein Hinweisband, keine Grenze.',
+  'licence.step2.when': 'Das Abonnement ist eben abgelaufen',
+  'licence.step2.what': 'Alles funktioniert weiter. Ein Hinweisband warnt und zählt die verbleibenden Tage — eine am Freitagabend vergessene Verlängerung legt Ihr Unternehmen am Montagmorgen nicht lahm.',
+  'licence.step3.when': 'Nach der Kulanzfrist',
+  'licence.step3.what': 'Die Instanz wechselt auf Nur-Lesen: kein Schreiben mehr, aber Sie melden sich an, lesen alles und exportieren alles.',
+  'licence.neverTitle': 'Was wir niemals tun werden',
+  'licence.neverBody': 'Nichts wird gelöscht, nichts verschlüsselt, nichts verborgen. Auch im Nur-Lese-Modus bleiben Anmeldung, vollständiger Export, Sicherungen und der Tresor Ihrer ehemaligen Mitarbeitenden offen. Sie sind Verantwortlicher im Sinne der DSGVO: Sie müssen jederzeit mit Ihren Daten gehen können. Eine offene Rechnung klärt man mit einem Anruf, nicht indem man Gehaltsabrechnungen festhält.',
+  'licence.offlineTitle': 'Ohne ausgehenden Internetzugang',
+  'licence.offlineBody': 'Manche Hostings haben überhaupt keinen Weg nach außen. Dann stellen wir eine Offline-Lizenz aus, die das ganze Abonnement abdeckt und per Datei erneuert wird. Der Preis dafür wird vorab genannt: eine Offline-Lizenz kann vor ihrem Ablauf nicht widerrufen werden.',
 };

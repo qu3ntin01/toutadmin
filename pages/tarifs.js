@@ -36,6 +36,16 @@ module.exports = function pricing(ctx) {
   ].map(([key, a, b]) =>
     `<tr><th scope="row">${esc(t(key))}</th><td class="c">${a}</td><td class="c">${b}</td></tr>`).join('\n              ');
 
+  // Les trois paliers d'une licence qui s'arrête. On les met sur la page qui
+  // vend : un client a le droit de savoir ce qui se passe s'il cesse de payer,
+  // et le savoir d'avance vaut mieux que le découvrir.
+  const steps = [
+    ['licence.step1.when', 'licence.step1.what'],
+    ['licence.step2.when', 'licence.step2.what'],
+    ['licence.step3.when', 'licence.step3.what'],
+  ].map(([when, what]) =>
+    `<tr><th scope="row">${esc(t(when))}</th><td>${esc(t(what))}</td></tr>`).join('\n              ');
+
   const faq = [1, 9, 6, 7, 4].map((n) => `<details class="reveal">
             <summary>${esc(t(`faq.q${n}`))}${icon('plus')}</summary>
             <div class="answer">${esc(t(`faq.a${n}`))}</div>
@@ -101,6 +111,36 @@ module.exports = function pricing(ctx) {
         <div class="note reveal mt-l">
           <h3>${esc(t('pricing.countTitle'))}</h3>
           <p>${esc(t('pricing.countBody'))}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        ${head(ctx, null, t('licence.title'), t('licence.lede'))}
+
+        <div class="table-wrap reveal">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">${esc(t('licence.col.when'))}</th>
+                <th scope="col">${esc(t('licence.col.what'))}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${steps}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="note reveal mx-auto mt-l">
+          <h3>${esc(t('licence.neverTitle'))}</h3>
+          <p>${esc(t('licence.neverBody'))}</p>
+        </div>
+
+        <div class="note reveal mx-auto mt-l">
+          <h3>${esc(t('licence.offlineTitle'))}</h3>
+          <p>${esc(t('licence.offlineBody'))}</p>
         </div>
       </div>
     </section>

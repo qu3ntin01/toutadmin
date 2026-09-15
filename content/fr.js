@@ -574,4 +574,21 @@ module.exports = {
   'install.tokenTitle': 'Posez le jeton d\'installation avant d\'ouvrir le port',
   'install.tokenBody': 'Entre le premier démarrage et votre passage dans l\'assistant, le premier arrivé créerait le compte d\'administration. INSTALL_TOKEN ferme cette fenêtre : sans lui, l\'assistant refuse de s\'ouvrir.',
   'shot.assistant': 'Assistant d\'installation',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Comment marche la licence',
+  'licence.lede': 'Une clé, collée une fois à l\'installation. Elle ouvre à la fois votre licence et vos mises à jour, et se renouvelle toute seule chaque nuit.',
+  'licence.col.when': 'Quand',
+  'licence.col.what': 'Ce qui se passe',
+  'licence.step1.when': 'Tant que l\'abonnement court',
+  'licence.step1.what': 'Rien de particulier. Aucun bandeau, aucune limite.',
+  'licence.step2.when': 'L\'abonnement vient d\'échoir',
+  'licence.step2.what': 'Tout continue de fonctionner. Un bandeau prévient et compte les jours qu\'il vous reste — un renouvellement oublié un vendredi soir n\'arrête pas votre entreprise le lundi matin.',
+  'licence.step3.when': 'Passé le délai de grâce',
+  'licence.step3.what': 'L\'instance passe en lecture seule : plus d\'écriture, mais vous vous connectez, vous consultez tout et vous exportez tout.',
+  'licence.neverTitle': 'Ce que nous ne ferons jamais',
+  'licence.neverBody': 'Rien n\'est effacé, rien n\'est chiffré, rien n\'est caché. Même en lecture seule, la connexion, l\'export intégral, les sauvegardes et le coffre-fort de vos anciens salariés restent ouverts. Vous êtes responsable de traitement au sens du RGPD : vous devez pouvoir sortir avec vos données à tout moment. Une facture impayée se règle par un coup de fil, pas en séquestrant des bulletins de paie.',
+  'licence.offlineTitle': 'Sans accès internet sortant',
+  'licence.offlineBody': 'Certains hébergements n\'ont aucune sortie vers l\'extérieur. Nous émettons alors une licence hors ligne, qui couvre tout l\'abonnement et se renouvelle par fichier. La contrepartie est dite d\'avance : une licence hors ligne ne peut pas être révoquée avant son échéance.',
 };

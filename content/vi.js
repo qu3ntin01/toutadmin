@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Đặt thẻ cài đặt trước khi mở cổng',
   'install.tokenBody': 'Giữa lần khởi động đầu tiên và lúc bạn vào trình trợ giúp, ai đến trước sẽ tạo được tài khoản quản trị. INSTALL_TOKEN đóng cửa sổ ấy lại: không có nó, trình trợ giúp không chịu mở.',
   'shot.assistant': 'Trình trợ giúp cài đặt',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Giấy phép vận hành thế nào',
+  'licence.lede': 'Một khoá, dán một lần lúc cài đặt. Nó mở cả giấy phép lẫn các bản cập nhật của bạn, và tự gia hạn mỗi đêm.',
+  'licence.col.when': 'Khi nào',
+  'licence.col.what': 'Điều gì xảy ra',
+  'licence.step1.when': 'Trong lúc kỳ thuê bao còn chạy',
+  'licence.step1.what': 'Không có gì đặc biệt. Không dải báo, không giới hạn.',
+  'licence.step2.when': 'Kỳ thuê bao vừa hết',
+  'licence.step2.what': 'Mọi thứ vẫn chạy. Một dải báo nhắc và đếm số ngày bạn còn — một lần gia hạn bị quên chiều thứ Sáu không làm công ty bạn dừng lại sáng thứ Hai.',
+  'licence.step3.when': 'Sau thời hạn ân hạn',
+  'licence.step3.what': 'Bản chạy chuyển sang chỉ đọc: không ghi được nữa, nhưng bạn vẫn đăng nhập, xem hết và xuất hết.',
+  'licence.neverTitle': 'Điều chúng tôi sẽ không bao giờ làm',
+  'licence.neverBody': 'Không xoá gì, không mã hoá gì, không giấu gì. Ngay cả ở chế độ chỉ đọc, việc đăng nhập, xuất toàn bộ, các bản sao lưu và két của nhân viên cũ vẫn mở. Bạn là bên kiểm soát dữ liệu theo nghĩa của GDPR: bạn phải có thể ra đi cùng dữ liệu của mình bất cứ lúc nào. Một hoá đơn chưa thanh toán được giải quyết bằng một cuộc gọi, chứ không phải bằng cách giữ phiếu lương làm con tin.',
+  'licence.offlineTitle': 'Khi không có kết nối internet đi ra',
+  'licence.offlineBody': 'Có những nơi lưu trữ hoàn toàn không có lối ra bên ngoài. Khi đó chúng tôi cấp một giấy phép ngoại tuyến, bao trọn kỳ thuê bao và gia hạn bằng tệp. Cái giá được nói trước: giấy phép ngoại tuyến không thể bị thu hồi trước khi hết hạn.',
 };

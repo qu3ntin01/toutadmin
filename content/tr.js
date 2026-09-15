@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': 'Bağlantı noktasını açmadan önce kurulum jetonunu koyun',
   'install.tokenBody': 'İlk başlatma ile sizin sihirbazdan geçişiniz arasında, yönetim hesabını ilk gelen oluştururdu. INSTALL_TOKEN bu pencereyi kapatır: o olmadan sihirbaz açılmayı reddeder.',
   'shot.assistant': 'Kurulum sihirbazı',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': 'Lisans nasıl işler',
+  'licence.lede': 'Tek bir anahtar, kurulumda bir kez yapıştırılır. Hem lisansınızı hem güncellemelerinizi açar ve her gece kendiliğinden yenilenir.',
+  'licence.col.when': 'Ne zaman',
+  'licence.col.what': 'Ne olur',
+  'licence.step1.when': 'Abonelik sürdüğü sürece',
+  'licence.step1.what': 'Özel bir şey yok. Ne şerit, ne sınır.',
+  'licence.step2.when': 'Abonelik yeni doldu',
+  'licence.step2.what': 'Her şey çalışmaya devam eder. Bir şerit uyarır ve kalan günlerinizi sayar — cuma akşamı unutulan bir yenileme, pazartesi sabahı şirketinizi durdurmaz.',
+  'licence.step3.when': 'Hoşgörü süresi geçtikten sonra',
+  'licence.step3.what': 'Örnek salt okunur duruma geçer: artık yazma yok, ama oturum açar, her şeyi görür ve her şeyi dışa aktarırsınız.',
+  'licence.neverTitle': 'Asla yapmayacağımız şey',
+  'licence.neverBody': 'Hiçbir şey silinmez, şifrelenmez, gizlenmez. Salt okunur durumda bile oturum açma, tam dışa aktarma, yedekler ve eski çalışanlarınızın kasası açık kalır. KVKK/GDPR anlamında veri sorumlusu sizsiniz: her an verilerinizle çıkabilmelisiniz. Ödenmemiş bir fatura bir telefonla çözülür, bordroları rehin alarak değil.',
+  'licence.offlineTitle': 'Giden internet erişimi olmadan',
+  'licence.offlineBody': 'Bazı barındırmaların dışarıya hiçbir çıkışı yoktur. O zaman, tüm aboneliği kapsayan ve dosyayla yenilenen bir çevrimdışı lisans düzenleriz. Bedeli önceden söylenir: çevrimdışı bir lisans, süresi dolmadan iptal edilemez.',
 };

@@ -524,4 +524,21 @@ module.exports = {
   'install.tokenTitle': '포트를 열기 전에 설치 토큰을 두십시오',
   'install.tokenBody': '처음 띄운 때부터 당신이 마법사를 지나기까지, 먼저 온 사람이 관리 계정을 만들어 버립니다. INSTALL_TOKEN이 그 창을 닫습니다. 그것이 없으면 마법사는 열리기를 거부합니다.',
   'shot.assistant': '설치 마법사',
+
+  // La licence, expliquée sur la page qui vend : ce qui se passe quand un
+  // abonnement s'arrête, et ce que nous ne ferons jamais.
+  'licence.title': '라이선스는 어떻게 움직이는가',
+  'licence.lede': '열쇠 하나를 설치할 때 한 번 붙여 넣습니다. 라이선스와 업데이트를 함께 열고, 매일 밤 스스로 갱신됩니다.',
+  'licence.col.when': '언제',
+  'licence.col.what': '무슨 일이 일어나는가',
+  'licence.step1.when': '구독이 이어지는 동안',
+  'licence.step1.what': '특별한 것은 없습니다. 띠도, 제한도 없습니다.',
+  'licence.step2.when': '구독이 막 끝났을 때',
+  'licence.step2.what': '모두 그대로 움직입니다. 띠가 알리고 남은 날을 셉니다 — 금요일 저녁에 잊은 갱신이 월요일 아침 회사를 멈추게 하지 않습니다.',
+  'licence.step3.when': '유예 기간이 지나면',
+  'licence.step3.what': '인스턴스가 읽기 전용이 됩니다. 더는 쓰지 못하지만, 로그인하고, 모두 열람하고, 모두 내보낼 수 있습니다.',
+  'licence.neverTitle': '우리가 결코 하지 않을 일',
+  'licence.neverBody': '아무것도 지우지 않고, 아무것도 암호화하지 않으며, 아무것도 숨기지 않습니다. 읽기 전용에서도 로그인, 전체 내보내기, 백업, 전 직원의 금고는 열려 있습니다. GDPR상 개인정보처리자는 고객님입니다. 언제든 자신의 자료와 함께 떠날 수 있어야 합니다. 미납 청구서는 전화 한 통으로 푸는 것이지, 급여 명세를 볼모로 잡아 푸는 것이 아닙니다.',
+  'licence.offlineTitle': '바깥으로 나가는 인터넷 접속이 없을 때',
+  'licence.offlineBody': '바깥으로 나가는 길이 아예 없는 호스팅도 있습니다. 그럴 때는 오프라인 라이선스를 발급합니다. 구독 전체를 덮고 파일로 갱신합니다. 그 대가는 미리 말씀드립니다 — 오프라인 라이선스는 만료 전에 취소할 수 없습니다.',
 };
