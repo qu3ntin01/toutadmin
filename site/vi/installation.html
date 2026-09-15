@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Bản Node</h3>
             <p>Dành cho máy chủ bạn tự quản trị: một máy, một dịch vụ chạy thường trực, phía trước là một proxy ngược.</p>
-            <p class="muted">Node 22, một trình biên dịch C, một ổ đĩa cục bộ. Máy một nhân là đủ cho vài chục người.</p>
+            <p class="muted">Node 22, một trình biên dịch C, một ổ đĩa cục bộ. Một máy một nhân đủ cho vài chục người. Máy chủ MySQL được hỗ trợ nếu bạn có; nếu không, SQLite chẳng đòi hỏi gì.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>Bản PHP</h3>
             <p>Dành cho hosting dùng chung: một thư mục để tải lên, một tệp để điền, một tác vụ định kỳ. Không cần dòng lệnh.</p>
-            <p class="muted">PHP 8.1 và phần mở rộng SQLite. Không phải cài gì cả: không Composer, không trình quản lý gói.</p>
+            <p class="muted">PHP 8.1 và phần mở rộng SQLite. Không phải cài phụ thuộc nào: không Composer, không trình quản lý gói. Thêm phần mở rộng PDO MySQL nếu bạn muốn một máy chủ cơ sở dữ liệu.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Viết cấu hình</h3>
-              <p>Một tệp mẫu để chép, và một khoá riêng của bản cài để sinh ra. Khoá này niêm phong chữ ký trong cặp ký và mã hoá các bí mật trong cơ sở dữ liệu: hãy lưu nó cùng phần còn lại.</p>
+              <p>Chính trình hướng dẫn ghi cấu hình, và ghi sau cùng: chừng nào tệp chưa tồn tại, một lần cài dở dang chưa để lại gì. Nó đặt vào đó một khoá riêng của phiên bản, khoá này niêm phong chữ ký và mã hoá các bí mật trong cơ sở dữ liệu — hãy sao lưu nó cùng phần còn lại.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Node 版</h3>
             <p>适合您自己维护的服务器：一台机器、一个常驻服务、前面加一层反向代理。</p>
-            <p class="muted">Node 22、一个 C 编译器、一块本地磁盘。单核机器足以支撑几十人。</p>
+            <p class="muted">Node 22、一个 C 编译器、一块本地磁盘。几十人规模，单核机器足矣。有 MySQL 服务器就用它；没有的话，SQLite 一无所求。</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>PHP 版</h3>
             <p>适合虚拟主机：上传一个目录、填一个文件、设一个定时任务。不需要命令行。</p>
-            <p class="muted">PHP 8.1 和 SQLite 扩展。没有任何东西要装：不用 Composer，也不用包管理器。</p>
+            <p class="muted">PHP 8.1 与 SQLite 扩展。无需安装任何依赖：不用 Composer，也不用包管理器。若你更想用数据库服务器，再加上 PDO MySQL 扩展。</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>写好配置</h3>
-              <p>复制一个示例文件，再生成一把本实例专属的密钥。它为签署夹的签名加封，并加密数据库中的机密：请连同其他内容一起备份。</p>
+              <p>配置由向导写入，而且放在最后写：只要文件还不存在，中断的安装就什么也没留下。它会在其中放一把本实例专属的密钥，用来封缄签章、加密库中的机密——请连同其他一起备份。</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

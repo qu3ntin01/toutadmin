@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Node edition</h3>
             <p>For a server you administer: one machine, a long-running service, a reverse proxy in front.</p>
-            <p class="muted">Node 22, a C compiler, a local disk. A single-core machine is enough for a few dozen people.</p>
+            <p class="muted">Node 22, a C compiler, a local disk. A one-core machine is enough for a few dozen people. A MySQL server is driven if you have one; otherwise SQLite asks for nothing.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>PHP edition</h3>
             <p>For shared hosting: a folder to upload, a file to fill in, a scheduled task. No command line required.</p>
-            <p class="muted">PHP 8.1 and the SQLite extension. Nothing to install: no Composer, no package manager.</p>
+            <p class="muted">PHP 8.1 and the SQLite extension. No dependency to install: no Composer, no package manager. The PDO MySQL extension as well if you prefer a database server.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Write the configuration</h3>
-              <p>A sample file to copy, and one instance key to generate. It seals signature-book signatures and encrypts secrets in the database: back it up along with everything else.</p>
+              <p>The wizard writes the configuration, and writes it last: until the file exists, an interrupted install has left nothing behind. It puts an instance-specific key in it, which seals the signing book and encrypts the secrets in the database — back it up with the rest.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

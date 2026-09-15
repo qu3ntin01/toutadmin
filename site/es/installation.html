@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Edición Node</h3>
             <p>Para un servidor que usted administra: una máquina, un servicio permanente, un proxy inverso delante.</p>
-            <p class="muted">Node 22, un compilador C, un disco local. Una máquina de un núcleo basta para unas decenas de personas.</p>
+            <p class="muted">Node 22, un compilador de C, un disco local. Una máquina de un núcleo basta para unas decenas de personas. Se maneja un servidor MySQL si dispone de uno; si no, SQLite no pide nada.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>Edición PHP</h3>
             <p>Para un alojamiento compartido: una carpeta que subir, un archivo que rellenar, una tarea programada. No hace falta línea de comandos.</p>
-            <p class="muted">PHP 8.1 y la extensión SQLite. Nada que instalar: ni Composer, ni gestor de paquetes.</p>
+            <p class="muted">PHP 8.1 y la extensión SQLite. Ninguna dependencia que instalar: ni Composer, ni gestor de paquetes. Y la extensión PDO MySQL si prefiere un servidor de base de datos.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Escribir la configuración</h3>
-              <p>Un archivo de ejemplo que copiar y una clave propia de la instancia que generar. Sella las firmas del portafirmas y cifra los secretos en la base: guárdela con el resto.</p>
+              <p>Es el asistente quien escribe la configuración, y lo hace en último lugar: mientras el archivo no exista, una instalación interrumpida no ha dejado nada tras de sí. Pone allí una clave propia de la instancia, que sella las firmas y cifra los secretos en la base: guárdela con lo demás.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

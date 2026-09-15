@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Node 판</h3>
             <p>직접 관리하는 서버용: 기계 한 대, 상시 도는 서비스, 그 앞의 역방향 프록시.</p>
-            <p class="muted">Node 22, C 컴파일러, 로컬 디스크. 수십 명 규모라면 코어 하나짜리 기계로 충분합니다.</p>
+            <p class="muted">Node 22, C 컴파일러, 로컬 디스크. 수십 명 규모라면 1코어로 충분합니다. MySQL 서버가 있으면 그것을 쓰고, 없으면 SQLite가 아무것도 요구하지 않습니다.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>PHP 판</h3>
             <p>공용 호스팅용: 올릴 폴더 하나, 채울 파일 하나, 예약 작업 하나. 명령줄은 필요 없습니다.</p>
-            <p class="muted">PHP 8.1과 SQLite 확장. 설치할 것은 없습니다. Composer도, 패키지 관리자도 쓰지 않습니다.</p>
+            <p class="muted">PHP 8.1과 SQLite 확장. 설치할 의존성은 없습니다. Composer도, 패키지 관리자도 필요 없습니다. 데이터베이스 서버를 원한다면 PDO MySQL 확장도 함께.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>설정 적기</h3>
-              <p>예시 파일을 복사하고, 이 설치에만 쓰는 열쇠를 하나 만듭니다. 이 열쇠가 결재함의 서명을 봉인하고 데이터베이스의 비밀을 암호화합니다. 나머지와 함께 보관하십시오.</p>
+              <p>설정은 마법사가 쓰며, 그것도 맨 마지막에 씁니다. 파일이 없는 한, 중단된 설치는 아무것도 남기지 않은 것입니다. 거기에 인스턴스 고유의 키를 넣습니다. 서명을 봉인하고 데이터베이스의 비밀을 암호화하는 키이니, 나머지와 함께 백업해 두세요.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

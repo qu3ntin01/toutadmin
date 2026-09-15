@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Edição Node</h3>
             <p>Para um servidor que você administra: uma máquina, um serviço permanente, um proxy inverso à frente.</p>
-            <p class="muted">Node 22, um compilador C, um disco local. Uma máquina de um núcleo chega para algumas dezenas de pessoas.</p>
+            <p class="muted">Node 22, um compilador C, um disco local. Uma máquina de um núcleo chega para algumas dezenas de pessoas. Um servidor MySQL é conduzido se tiver um; caso contrário, o SQLite não pede nada.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>Edição PHP</h3>
             <p>Para um alojamento partilhado: uma pasta para enviar, um ficheiro para preencher, uma tarefa agendada. Não é precisa linha de comandos.</p>
-            <p class="muted">PHP 8.1 e a extensão SQLite. Nada para instalar: nem Composer, nem gestor de pacotes.</p>
+            <p class="muted">PHP 8.1 e a extensão SQLite. Nenhuma dependência a instalar: nem Composer, nem gestor de pacotes. E a extensão PDO MySQL, se preferir um servidor de base de dados.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Escrever a configuração</h3>
-              <p>Um ficheiro de exemplo para copiar e uma chave própria da instância para gerar. Sela as assinaturas do livro de assinaturas e cifra os segredos na base: guarde-a com o resto.</p>
+              <p>É o assistente que escreve a configuração, e fá-lo em último lugar: enquanto o ficheiro não existir, uma instalação interrompida não deixou nada atrás de si. Coloca nele uma chave própria da instância, que sela as assinaturas e cifra os segredos na base — guarde-a com o resto.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

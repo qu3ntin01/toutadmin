@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Node-Edition</h3>
             <p>Für einen Server, den Sie selbst verwalten: eine Maschine, ein dauerhaft laufender Dienst, ein vorgeschalteter Reverse-Proxy.</p>
-            <p class="muted">Node 22, ein C-Compiler, eine lokale Festplatte. Ein Rechner mit einem Kern reicht für einige Dutzend Personen.</p>
+            <p class="muted">Node 22, ein C-Compiler, eine lokale Platte. Eine Maschine mit einem Kern genügt für einige Dutzend Personen. Ein MySQL-Server wird angesteuert, wenn Sie einen haben; sonst verlangt SQLite nichts.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>PHP-Edition</h3>
             <p>Für Shared Hosting: ein Ordner zum Hochladen, eine Datei zum Ausfüllen, eine geplante Aufgabe. Keine Kommandozeile nötig.</p>
-            <p class="muted">PHP 8.1 und die SQLite-Erweiterung. Nichts zu installieren: weder Composer noch Paketverwaltung.</p>
+            <p class="muted">PHP 8.1 und die SQLite-Erweiterung. Keine Abhängigkeit zu installieren: kein Composer, kein Paketmanager. Dazu die Erweiterung PDO MySQL, wenn Sie einen Datenbankserver vorziehen.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Die Konfiguration schreiben</h3>
-              <p>Eine Beispieldatei zum Kopieren und ein instanzeigener Schlüssel zum Erzeugen. Er versiegelt die Unterschriften der Unterschriftenmappe und verschlüsselt Geheimnisse in der Datenbank: sichern Sie ihn mit dem Rest.</p>
+              <p>Der Assistent schreibt die Konfiguration, und zwar zuletzt: Solange die Datei nicht besteht, hat eine abgebrochene Installation nichts hinterlassen. Er legt einen instanzeigenen Schlüssel hinein, der die Signaturen versiegelt und die Geheimnisse in der Datenbank verschlüsselt – sichern Sie ihn mit dem Rest.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

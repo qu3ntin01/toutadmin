@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Node-editie</h3>
             <p>Voor een server die u zelf beheert: één machine, een blijvend draaiende dienst, een omgekeerde proxy ervoor.</p>
-            <p class="muted">Node 22, een C-compiler, een lokale schijf. Een machine met één kern volstaat voor enkele tientallen mensen.</p>
+            <p class="muted">Node 22, een C-compiler, een lokale schijf. Eén core volstaat voor enkele tientallen mensen. Een MySQL-server wordt aangestuurd als u er een hebt; anders vraagt SQLite niets.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>PHP-editie</h3>
             <p>Voor gedeelde hosting: een map om te uploaden, een bestand om in te vullen, een geplande taak. Geen opdrachtregel nodig.</p>
-            <p class="muted">PHP 8.1 en de SQLite-uitbreiding. Niets te installeren: geen Composer, geen pakketbeheerder.</p>
+            <p class="muted">PHP 8.1 en de SQLite-extensie. Geen afhankelijkheid te installeren: geen Composer, geen pakketbeheerder. Daarbij de extensie PDO MySQL als u een databaseserver verkiest.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>De configuratie schrijven</h3>
-              <p>Een voorbeeldbestand om te kopiëren en één eigen sleutel om te genereren. Hij verzegelt de handtekeningen van de tekenmap en versleutelt geheimen in de database: bewaar hem samen met de rest.</p>
+              <p>De wizard schrijft de configuratie, en doet dat als laatste: zolang het bestand niet bestaat, heeft een afgebroken installatie niets achtergelaten. Hij zet er een instantie-eigen sleutel in, die de handtekeningen verzegelt en de geheimen in de database versleutelt — bewaar hem met de rest.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

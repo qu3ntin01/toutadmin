@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Node 版</h3>
             <p>ご自身で管理するサーバー向け。一台の機械、常駐するサービス、その前に置くリバースプロキシ。</p>
-            <p class="muted">Node 22、C コンパイラ、ローカルディスク。数十人なら一コアの機械で足ります。</p>
+            <p class="muted">Node 22、C コンパイラ、ローカルディスク。数十人なら 1 コアで足ります。MySQL サーバーがあれば使えますし、なければ SQLite が何も要求しません。</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>PHP 版</h3>
             <p>共用レンタルサーバー向け。フォルダーを上げ、ファイルを埋め、定期実行を一つ登録するだけ。コマンドラインは不要です。</p>
-            <p class="muted">PHP 8.1 と SQLite 拡張。入れるものはありません。Composer もパッケージ管理も使いません。</p>
+            <p class="muted">PHP 8.1 と SQLite 拡張。導入すべき依存はありません。Composer もパッケージ管理も不要です。データベースサーバーを選ぶなら PDO MySQL 拡張も。</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>設定を書く</h3>
-              <p>見本のファイルを写し、この導入だけの鍵を一つ作ります。この鍵が署名フォルダーの署名を封じ、データベース内の秘密を暗号化します。他と一緒に控えを取ってください。</p>
+              <p>設定を書くのはウィザードで、しかも最後に書きます。ファイルが無い限り、途中で止まったインストールは何も残していません。そこにインスタンス固有の鍵を置きます。署名を封じ、データベースの機密を暗号化する鍵です。ほかのものと一緒に控えを取ってください。</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Edizione Node</h3>
             <p>Per un server che amministrate voi: una macchina, un servizio permanente, un proxy inverso davanti.</p>
-            <p class="muted">Node 22, un compilatore C, un disco locale. Una macchina a un core basta per qualche decina di persone.</p>
+            <p class="muted">Node 22, un compilatore C, un disco locale. Una macchina a un core basta per qualche decina di persone. Un server MySQL viene gestito se ne avete uno; altrimenti SQLite non chiede nulla.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>Edizione PHP</h3>
             <p>Per un hosting condiviso: una cartella da caricare, un file da compilare, un'attività pianificata. Nessuna riga di comando necessaria.</p>
-            <p class="muted">PHP 8.1 e l'estensione SQLite. Niente da installare: né Composer, né gestore di pacchetti.</p>
+            <p class="muted">PHP 8.1 e l'estensione SQLite. Nessuna dipendenza da installare: né Composer, né gestore di pacchetti. In più l'estensione PDO MySQL se preferite un server di database.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Scrivere la configurazione</h3>
-              <p>Un file d'esempio da copiare e una chiave propria dell'istanza da generare. Sigilla le firme del libro firme e cifra i segreti nella banca dati: salvatela insieme al resto.</p>
+              <p>È la procedura a scrivere la configurazione, e per ultima: finché il file non esiste, un'installazione interrotta non ha lasciato nulla dietro di sé. Vi pone una chiave propria dell'istanza, che sigilla le firme e cifra i segreti nel database: salvatela con il resto.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

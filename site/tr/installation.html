@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Node sürümü</h3>
             <p>Kendi yönettiğiniz bir sunucu için: bir makine, sürekli çalışan bir servis, önünde ters vekil sunucu.</p>
-            <p class="muted">Node 22, bir C derleyicisi, yerel bir disk. Birkaç düzine kişi için tek çekirdekli bir makine yeter.</p>
+            <p class="muted">Node 22, bir C derleyicisi, yerel bir disk. Birkaç düzine kişi için tek çekirdekli bir makine yeter. Varsa bir MySQL sunucusu yürütülür; yoksa SQLite hiçbir şey istemez.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>PHP sürümü</h3>
             <p>Paylaşımlı barındırma için: yüklenecek bir klasör, doldurulacak bir dosya, zamanlanmış bir görev. Komut satırı gerekmez.</p>
-            <p class="muted">PHP 8.1 ve SQLite eklentisi. Kurulacak hiçbir şey yok: ne Composer, ne paket yöneticisi.</p>
+            <p class="muted">PHP 8.1 ve SQLite eklentisi. Kurulacak hiçbir bağımlılık yok: ne Composer, ne paket yöneticisi. Bir veritabanı sunucusu yeğliyorsanız ayrıca PDO MySQL eklentisi.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Yapılandırmayı yazmak</h3>
-              <p>Kopyalanacak bir örnek dosya ve üretilecek bir örnek anahtarı. İmza klasörünün imzalarını mühürler ve veritabanındaki sırları şifreler: onu da geri kalanla birlikte yedekleyin.</p>
+              <p>Yapılandırmayı sihirbaz yazar ve bunu en sona bırakır: dosya var olmadığı sürece, yarıda kalmış bir kurulum ardında hiçbir şey bırakmamıştır. İçine örneğe özgü bir anahtar koyar; bu anahtar imzaları mühürler ve veritabanındaki sırları şifreler — onu da geri kalanla birlikte yedekleyin.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>

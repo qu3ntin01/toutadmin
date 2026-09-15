@@ -201,13 +201,13 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Edycja Node</h3>
             <p>Dla serwera, którym sam zarządzasz: jedna maszyna, stale działająca usługa, serwer pośredniczący z przodu.</p>
-            <p class="muted">Node 22, kompilator C, dysk lokalny. Maszyna z jednym rdzeniem wystarczy dla kilkudziesięciu osób.</p>
+            <p class="muted">Node 22, kompilator C, dysk lokalny. Maszyna z jednym rdzeniem wystarczy kilkudziesięciu osobom. Serwer MySQL jest obsługiwany, jeśli go masz; w przeciwnym razie SQLite niczego nie wymaga.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>Edycja PHP</h3>
             <p>Dla hostingu współdzielonego: katalog do wgrania, plik do wypełnienia, zadanie cykliczne. Wiersz poleceń nie jest potrzebny.</p>
-            <p class="muted">PHP 8.1 i rozszerzenie SQLite. Nic do instalowania: ani Composer, ani menedżer pakietów.</p>
+            <p class="muted">PHP 8.1 i rozszerzenie SQLite. Żadnej zależności do zainstalowania: ani Composera, ani menedżera pakietów. Do tego rozszerzenie PDO MySQL, jeśli wolisz serwer bazy danych.</p>
           </article>
         </div>
       </div>
@@ -349,7 +349,7 @@ journalctl -u toutadmin -f</code></pre>
             </li>
             <li class="reveal">
               <h3>Zapisać konfigurację</h3>
-              <p>Plik przykładowy do skopiowania i własny klucz instancji do wygenerowania. Pieczętuje podpisy w teczce podpisów i szyfruje sekrety w bazie: zapisz go razem z resztą.</p>
+              <p>To kreator zapisuje konfigurację, i robi to na końcu: dopóki plik nie istnieje, przerwana instalacja nie zostawiła po sobie niczego. Umieszcza w nim klucz właściwy instancji, który pieczętuje podpisy i szyfruje sekrety w bazie — zachowaj go razem z resztą.</p>
               <pre><code>cp config.sample.php config.php
 php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
             </li>
