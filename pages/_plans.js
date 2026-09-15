@@ -2,20 +2,29 @@
    Un seul endroit : la page Tarifs et l'aperçu de l'accueil doivent annoncer
    le même prix, et deux listes séparées finissent toujours par diverger. */
 
-// Le tarif par salarié, par tranche d'effectif. Tout le reste — le montant
-// mensuel, la colonne « par salarié », les exemples — se calcule à partir
-// d'ici : deux chiffres qui ne concordent pas sur une page de tarifs, et
-// c'est la confiance qui part.
-const FREE_UNDER = 5;
-const BRACKETS = [
-  { upTo: 249, rate: 5 },
-  { upTo: 500, rate: 4 },
-  { upTo: Infinity, rate: 3 },
-];
-const SAMPLES = [5, 10, 50, 100, 250, 500, 1000];
+// Deux nombres, et rien d'autre. Tout le reste — le montant mensuel, la colonne
+// « par salarié », les exemples, le simulateur — se calcule à partir d'ici :
+// deux chiffres qui ne concordent pas sur une page de tarifs, et c'est la
+// confiance qui part.
+//
+// Les cinq premiers salariés ne sont jamais facturés. Pas « gratuit en dessous
+// de cinq puis payant à partir du sixième pour tout le monde » — les cinq
+// restent offerts quel que soit l'effectif. Une entreprise de six salariés paie
+// donc cinq euros, pas trente : la courbe n'a pas de marche.
+const FREE_SEATS = 5;
+const RATE = 5;
+const SAMPLES = [5, 6, 10, 25, 50, 100, 250, 1000];
 
-const rateFor = (headcount) => BRACKETS.find((b) => headcount <= b.upTo).rate;
-const monthlyFor = (headcount) => headcount * rateFor(headcount);
+/** Les salariés effectivement facturés. */
+const billableFor = (headcount) => Math.max(0, headcount - FREE_SEATS);
+const monthlyFor = (headcount) => billableFor(headcount) * RATE;
+
+/**
+ * Le prix moyen par salarié, celui qu'on affiche à côté du montant. Il baisse
+ * tout seul quand l'effectif monte, puisque les cinq offerts pèsent de moins en
+ * moins lourd — c'est la dégressivité, sans grille à maintenir.
+ */
+const rateFor = (headcount) => (headcount > 0 ? monthlyFor(headcount) / headcount : 0);
 
 const euro = (locale, amount) => new Intl.NumberFormat(locale === 'ar' ? 'fr' : locale, {
   style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
@@ -25,7 +34,7 @@ function plans(ctx) {
   const { t, esc } = ctx;
   return [
     { n: 1, amount: t('pricing.free'), per: '', featured: false },
-    { n: 2, amount: euro(ctx.locale.code, BRACKETS[0].rate), per: t('pricing.perEmployeeShort'), featured: true },
+    { n: 2, amount: euro(ctx.locale.code, RATE), per: t('pricing.perEmployeeShort'), featured: true },
   ].map((plan) => ({
     ...plan,
     name: esc(t(`pricing.p${plan.n}.name`)),
@@ -53,17 +62,23 @@ function planCard(ctx, plan, list = '') {
 function gridRows(ctx) {
   const { t, esc } = ctx;
   const code = ctx.locale.code;
-  const free = `<tr>
-                <th scope="row">${esc(t('pricing.under', { count: FREE_UNDER }))}</th>
-                <td class="c mark-no">—</td>
-                <td class="c mark-yes">${esc(t('pricing.free'))}</td>
-              </tr>`;
-  const rows = SAMPLES.map((headcount) => `<tr>
+  // Le prix moyen par salarié se donne au centime : à six salariés il vaut
+  // 0,83 €, et l'arrondir à l'euro afficherait « 1 € » à côté de « 5 € »,
+  // ce qui se lit comme une erreur.
+  const moyen = (headcount) => new Intl.NumberFormat(code === 'ar' ? 'fr' : code, {
+    style: 'currency', currency: 'EUR', maximumFractionDigits: 2,
+  }).format(rateFor(headcount));
+
+  return SAMPLES.map((headcount) => {
+    const gratuit = monthlyFor(headcount) === 0;
+    return `<tr>
                 <th scope="row">${esc(t('pricing.someEmployees', { count: headcount.toLocaleString(code) }))}</th>
-                <td class="c mark-opt">${esc(euro(code, rateFor(headcount)))}</td>
-                <td class="c"><strong>${esc(euro(code, monthlyFor(headcount)))}</strong> ${esc(t('pricing.perMonth'))}</td>
-              </tr>`).join('\n              ');
-  return free + '\n              ' + rows;
+                <td class="c ${gratuit ? 'mark-no' : 'mark-opt'}">${gratuit ? '—' : esc(moyen(headcount))}</td>
+                <td class="c">${gratuit
+                  ? `<span class="mark-yes">${esc(t('pricing.free'))}</span>`
+                  : `<strong>${esc(euro(code, monthlyFor(headcount)))}</strong> ${esc(t('pricing.perMonth'))}`}</td>
+              </tr>`;
+  }).join('\n              ');
 }
 
-module.exports = { FREE_UNDER, BRACKETS, SAMPLES, rateFor, monthlyFor, euro, plans, planCard, gridRows };
+module.exports = { FREE_SEATS, RATE, SAMPLES, billableFor, rateFor, monthlyFor, euro, plans, planCard, gridRows };

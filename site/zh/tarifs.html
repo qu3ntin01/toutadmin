@@ -16,7 +16,7 @@
 <meta property="og:title" content="价格 — Toutadmin" />
 <meta property="og:description" content="一个价格——按员工、按月——管理整家公司。没有按模块选购，没有按功能加价：每种方案都包含完整产品。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
+<link rel="stylesheet" href="../assets/style.css?v=636b208cea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../tarifs.html" />
   <link rel="alternate" hreflang="en" href="../en/tarifs.html" />
@@ -204,7 +204,7 @@
               <span class="plan-amount">€5</span>
               <span class="plan-per">每位员工 / 每月</span>
             </div>
-            <p>每位员工每月 5 欧元，两百五十至五百人为 4 欧元，超过五百人为 3 欧元。你按现有人数付费，而不是按将来也许会有的人数。</p>
+            <p>每名员工每月五欧元，超出前五名之后；那五名无论你规模多大都免费。你为现有的人付费，而不是为将来可能有的人。</p>
             <ul class="plan-list">
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>全部 35 个空间与 7 个模块</span></li>
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>您的数据本地托管</span></li>
@@ -223,8 +223,43 @@
       <div class="wrap">
         <div class="section-head center reveal">
           
+          <h2>你要付多少？</h2>
+          <p class="lede">填入你确切的员工人数。前五名员工从不计费。</p>
+        </div>
+
+        <div class="sim reveal mx-auto" data-sim
+             data-sim-free="5" data-sim-rate="5"
+             data-sim-currency="EUR" data-sim-free-label="免费">
+          <label class="sim-field">
+            <span>员工人数</span>
+            <span class="sim-input">
+              <button type="button" class="sim-step" data-sim-step="-1"
+                      aria-label="少一名员工">−</button>
+              <input type="number" min="0" max="100000" step="1" value="12"
+                     data-sim-count inputmode="numeric" />
+              <button type="button" class="sim-step" data-sim-step="1"
+                      aria-label="多一名员工">+</button>
+            </span>
+          </label>
+
+          <p class="sim-total" aria-live="polite">
+            <span data-sim-total>€35</span>
+            <span class="sim-per">/ 月</span>
+          </p>
+
+          <p class="sim-detail" data-sim-detail data-model="人数 {total} · 免费 {free} · 计费 {billable} × {rate}">人数 12 · 免费 5 · 计费 7 × €5</p>
+
+          <p class="sim-note">无需承诺，无开通费用，按月可取消。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
           <h2>按人数的价格表</h2>
-          <p class="lede">价格只跟着人数走：两百四十九人以内每人 5 欧元，两百五十至五百人每人 4 欧元，超过五百人每人 3 欧元。跨过一档，账单对所有人都下降，而不只是对新来的人。</p>
+          <p class="lede">五名员工永远免费，之后每多一名加五欧元。没有要跨越的档位，没有让账单跳涨的台阶：价格一个人一个人地跟着人数走。</p>
         </div>
         <div class="table-wrap reveal grid-table">
           <table>
@@ -237,50 +272,50 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">少于 5 人</th>
+                <th scope="row">5 人</th>
                 <td class="c mark-no">—</td>
-                <td class="c mark-yes">免费</td>
+                <td class="c"><span class="mark-yes">免费</span></td>
               </tr>
               <tr>
-                <th scope="row">5 人</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€25</strong> / 月</td>
+                <th scope="row">6 人</th>
+                <td class="c mark-opt">€0.83</td>
+                <td class="c"><strong>€5</strong> / 月</td>
               </tr>
               <tr>
                 <th scope="row">10 人</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€50</strong> / 月</td>
+                <td class="c mark-opt">€2.50</td>
+                <td class="c"><strong>€25</strong> / 月</td>
+              </tr>
+              <tr>
+                <th scope="row">25 人</th>
+                <td class="c mark-opt">€4.00</td>
+                <td class="c"><strong>€100</strong> / 月</td>
               </tr>
               <tr>
                 <th scope="row">50 人</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€250</strong> / 月</td>
+                <td class="c mark-opt">€4.50</td>
+                <td class="c"><strong>€225</strong> / 月</td>
               </tr>
               <tr>
                 <th scope="row">100 人</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€500</strong> / 月</td>
+                <td class="c mark-opt">€4.75</td>
+                <td class="c"><strong>€475</strong> / 月</td>
               </tr>
               <tr>
                 <th scope="row">250 人</th>
-                <td class="c mark-opt">€4</td>
-                <td class="c"><strong>€1,000</strong> / 月</td>
-              </tr>
-              <tr>
-                <th scope="row">500 人</th>
-                <td class="c mark-opt">€4</td>
-                <td class="c"><strong>€2,000</strong> / 月</td>
+                <td class="c mark-opt">€4.90</td>
+                <td class="c"><strong>€1,225</strong> / 月</td>
               </tr>
               <tr>
                 <th scope="row">1,000 人</th>
-                <td class="c mark-opt">€3</td>
-                <td class="c"><strong>€3,000</strong> / 月</td>
+                <td class="c mark-opt">€4.98</td>
+                <td class="c"><strong>€4,975</strong> / 月</td>
               </tr>
             </tbody>
           </table>
         </div>
         <div class="note reveal mx-auto mt-l">
-          <h3>每位员工五欧元，涵盖一切</h3>
+          <h3>每名员工五欧元，涵盖一切</h3>
           <p>一套人事工具、一套会计软件、一个项目管理器、一个工单系统、一个工资单保险库：五份每用户 8 到 15 欧元的订阅，五个互不对话的数据库，五张账单。Toutadmin 以其中最便宜的那份价格，替掉了整堆——而数据终于待在同一个地方。</p>
         </div>
       </div>
@@ -397,7 +432,7 @@
       <div class="wrap">
         <div class="band reveal">
           <h2>免费开始，长大了再换方案</h2>
-          <p>五人以下，一切免费。超过之后，每位员工每月 5 欧元，两百五十人起递减。试用无需银行卡。</p>
+          <p>前五名员工永远免费。超出部分，每名员工每月 5 €。试用无需信用卡。</p>
           <div class="band-cta">
             <a class="btn btn-light" href="../tarifs.html">创建我的实例<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             <a class="btn btn-onbrand" href="../contact.html">找人聊聊</a>
@@ -465,6 +500,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=c1a98fc324" defer></script>
+<script src="../assets/app.js?v=3bdd9a51fd" defer></script>
 </body>
 </html>

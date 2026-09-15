@@ -16,7 +16,7 @@
 <meta property="og:title" content="Pricing — Toutadmin" />
 <meta property="og:description" content="One price, per employee per month, to run the whole company. No à la carte modules, no per-feature surcharge: the entire product is in every plan." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
+<link rel="stylesheet" href="../assets/style.css?v=636b208cea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../tarifs.html" />
   <link rel="alternate" hreflang="en" href="../tarifs.html" />
@@ -204,7 +204,7 @@
               <span class="plan-amount">€5</span>
               <span class="plan-per">per employee / month</span>
             </div>
-            <p>€5 per employee per month, then €4 from two hundred and fifty to five hundred, and €3 beyond. You pay for the headcount you have, not for the one you might have one day.</p>
+            <p>Five euros per employee per month, beyond the first five, which stay free whatever your headcount. You pay for the staff you have, not the staff you might one day have.</p>
             <ul class="plan-list">
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>All 35 workspaces and 7 modules</span></li>
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Local hosting of your data</span></li>
@@ -223,8 +223,43 @@
       <div class="wrap">
         <div class="section-head center reveal">
           
+          <h2>What will you pay?</h2>
+          <p class="lede">Enter your exact headcount. The first five employees are never billed.</p>
+        </div>
+
+        <div class="sim reveal mx-auto" data-sim
+             data-sim-free="5" data-sim-rate="5"
+             data-sim-currency="EUR" data-sim-free-label="Free">
+          <label class="sim-field">
+            <span>Number of employees</span>
+            <span class="sim-input">
+              <button type="button" class="sim-step" data-sim-step="-1"
+                      aria-label="One fewer employee">−</button>
+              <input type="number" min="0" max="100000" step="1" value="12"
+                     data-sim-count inputmode="numeric" />
+              <button type="button" class="sim-step" data-sim-step="1"
+                      aria-label="One more employee">+</button>
+            </span>
+          </label>
+
+          <p class="sim-total" aria-live="polite">
+            <span data-sim-total>€35</span>
+            <span class="sim-per">/ month</span>
+          </p>
+
+          <p class="sim-detail" data-sim-detail data-model="Headcount {total} · free {free} · billed {billable} × {rate}">Headcount 12 · free 5 · billed 7 × €5</p>
+
+          <p class="sim-note">No commitment, no setup fee, cancel monthly.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
           <h2>The grid, by headcount</h2>
-          <p class="lede">The price follows headcount and nothing else: €5 per employee up to two hundred and forty-nine, €4 from two hundred and fifty to five hundred, €3 above. Crossing a bracket lowers the bill for everyone, not just for the newcomers.</p>
+          <p class="lede">Five employees free, always, then five euros for each additional one. No bracket to cross, no step that makes the bill jump: the price follows headcount one person at a time.</p>
         </div>
         <div class="table-wrap reveal grid-table">
           <table>
@@ -237,44 +272,44 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">Under 5 employees</th>
+                <th scope="row">5 employees</th>
                 <td class="c mark-no">—</td>
-                <td class="c mark-yes">Free</td>
+                <td class="c"><span class="mark-yes">Free</span></td>
               </tr>
               <tr>
-                <th scope="row">5 employees</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€25</strong> / month</td>
+                <th scope="row">6 employees</th>
+                <td class="c mark-opt">€0.83</td>
+                <td class="c"><strong>€5</strong> / month</td>
               </tr>
               <tr>
                 <th scope="row">10 employees</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€50</strong> / month</td>
+                <td class="c mark-opt">€2.50</td>
+                <td class="c"><strong>€25</strong> / month</td>
+              </tr>
+              <tr>
+                <th scope="row">25 employees</th>
+                <td class="c mark-opt">€4.00</td>
+                <td class="c"><strong>€100</strong> / month</td>
               </tr>
               <tr>
                 <th scope="row">50 employees</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€250</strong> / month</td>
+                <td class="c mark-opt">€4.50</td>
+                <td class="c"><strong>€225</strong> / month</td>
               </tr>
               <tr>
                 <th scope="row">100 employees</th>
-                <td class="c mark-opt">€5</td>
-                <td class="c"><strong>€500</strong> / month</td>
+                <td class="c mark-opt">€4.75</td>
+                <td class="c"><strong>€475</strong> / month</td>
               </tr>
               <tr>
                 <th scope="row">250 employees</th>
-                <td class="c mark-opt">€4</td>
-                <td class="c"><strong>€1,000</strong> / month</td>
-              </tr>
-              <tr>
-                <th scope="row">500 employees</th>
-                <td class="c mark-opt">€4</td>
-                <td class="c"><strong>€2,000</strong> / month</td>
+                <td class="c mark-opt">€4.90</td>
+                <td class="c"><strong>€1,225</strong> / month</td>
               </tr>
               <tr>
                 <th scope="row">1,000 employees</th>
-                <td class="c mark-opt">€3</td>
-                <td class="c"><strong>€3,000</strong> / month</td>
+                <td class="c mark-opt">€4.98</td>
+                <td class="c"><strong>€4,975</strong> / month</td>
               </tr>
             </tbody>
           </table>
@@ -397,7 +432,7 @@
       <div class="wrap">
         <div class="band reveal">
           <h2>Start free, change plan when you grow</h2>
-          <p>Under five employees everything is free. Above that, €5 per employee per month, tapering from two hundred and fifty. No credit card to try.</p>
+          <p>The first five employees are free, always. Above that, €5 per employee per month. No credit card to try.</p>
           <div class="band-cta">
             <a class="btn btn-light" href="../tarifs.html">Create my instance<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             <a class="btn btn-onbrand" href="../contact.html">Talk to someone</a>
@@ -465,6 +500,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=c1a98fc324" defer></script>
+<script src="../assets/app.js?v=3bdd9a51fd" defer></script>
 </body>
 </html>

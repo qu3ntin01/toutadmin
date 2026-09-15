@@ -1,5 +1,5 @@
 const { band, pageHero, head } = require('./_shared');
-const { plans, planCard, gridRows } = require('./_plans');
+const { plans, planCard, gridRows, FREE_SEATS, RATE, euro, monthlyFor, billableFor } = require('./_plans');
 
 module.exports = function pricing(ctx) {
   const { t, esc, icon } = ctx;
@@ -68,6 +68,41 @@ module.exports = function pricing(ctx) {
     </section>
 
     <section class="section tinted">
+      <div class="wrap">
+        ${head(ctx, null, t('sim.title'), t('sim.lede'))}
+
+        <div class="sim reveal mx-auto" data-sim
+             data-sim-free="${FREE_SEATS}" data-sim-rate="${RATE}"
+             data-sim-currency="EUR" data-sim-free-label="${esc(t('pricing.free'))}">
+          <label class="sim-field">
+            <span>${esc(t('sim.count'))}</span>
+            <span class="sim-input">
+              <button type="button" class="sim-step" data-sim-step="-1"
+                      aria-label="${esc(t('sim.less'))}">−</button>
+              <input type="number" min="0" max="100000" step="1" value="12"
+                     data-sim-count inputmode="numeric" />
+              <button type="button" class="sim-step" data-sim-step="1"
+                      aria-label="${esc(t('sim.more'))}">+</button>
+            </span>
+          </label>
+
+          <p class="sim-total" aria-live="polite">
+            <span data-sim-total>${esc(euro(ctx.locale.code, monthlyFor(12)))}</span>
+            <span class="sim-per">${esc(t('pricing.perMonth'))}</span>
+          </p>
+
+          <p class="sim-detail" data-sim-detail data-model="${esc(t('sim.detail'))}">${
+            esc(t('sim.detail')
+              .replace('{total}', '12').replace('{free}', String(FREE_SEATS))
+              .replace('{billable}', String(billableFor(12))).replace('{rate}', euro(ctx.locale.code, RATE)))
+          }</p>
+
+          <p class="sim-note">${esc(t('sim.note'))}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         ${head(ctx, null, t('pricing.gridTitle'), t('pricing.gridLede'))}
         <div class="table-wrap reveal grid-table">

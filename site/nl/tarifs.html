@@ -16,7 +16,7 @@
 <meta property="og:title" content="Prijzen — Toutadmin" />
 <meta property="og:description" content="Eén prijs, per medewerker per maand, om het hele bedrijf te beheren. Geen modules à la carte, geen toeslag per functie: het hele product zit in elke formule." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=7d1a384692" />
+<link rel="stylesheet" href="../assets/style.css?v=636b208cea" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../tarifs.html" />
   <link rel="alternate" hreflang="en" href="../en/tarifs.html" />
@@ -204,7 +204,7 @@
               <span class="plan-amount">€ 5</span>
               <span class="plan-per">per medewerker / maand</span>
             </div>
-            <p>€ 5 per medewerker per maand, daarna € 4 van tweehonderdvijftig tot vijfhonderd en € 3 daarboven. U betaalt het bestand dat u hebt, niet dat wat u ooit zou kunnen hebben.</p>
+            <p>Vijf euro per medewerker per maand, boven de eerste vijf, die gratis blijven ongeacht uw omvang. U betaalt voor het personeel dat u hebt, niet voor wat u ooit zou kunnen hebben.</p>
             <ul class="plan-list">
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>De 35 werkruimten en de 7 modules</span></li>
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Lokale hosting van uw gegevens</span></li>
@@ -223,8 +223,43 @@
       <div class="wrap">
         <div class="section-head center reveal">
           
+          <h2>Wat betaalt u?</h2>
+          <p class="lede">Vul uw precieze personeelsbestand in. De eerste vijf medewerkers worden nooit gefactureerd.</p>
+        </div>
+
+        <div class="sim reveal mx-auto" data-sim
+             data-sim-free="5" data-sim-rate="5"
+             data-sim-currency="EUR" data-sim-free-label="Gratis">
+          <label class="sim-field">
+            <span>Aantal medewerkers</span>
+            <span class="sim-input">
+              <button type="button" class="sim-step" data-sim-step="-1"
+                      aria-label="Eén medewerker minder">−</button>
+              <input type="number" min="0" max="100000" step="1" value="12"
+                     data-sim-count inputmode="numeric" />
+              <button type="button" class="sim-step" data-sim-step="1"
+                      aria-label="Eén medewerker meer">+</button>
+            </span>
+          </label>
+
+          <p class="sim-total" aria-live="polite">
+            <span data-sim-total>€ 35</span>
+            <span class="sim-per">/ maand</span>
+          </p>
+
+          <p class="sim-detail" data-sim-detail data-model="Personeel {total} · gratis {free} · gefactureerd {billable} × {rate}">Personeel 12 · gratis 5 · gefactureerd 7 × € 5</p>
+
+          <p class="sim-note">Zonder verplichting, zonder opstartkosten, maandelijks opzegbaar.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
           <h2>De staffel, naar personeelsbestand</h2>
-          <p class="lede">De prijs volgt het personeelsbestand en niets anders: € 5 per medewerker tot tweehonderdnegenenveertig, € 4 van tweehonderdvijftig tot vijfhonderd, € 3 daarboven. Een staffel overschrijden verlaagt de rekening voor iedereen, niet alleen voor de nieuwkomers.</p>
+          <p class="lede">Vijf medewerkers gratis, altijd, en daarna vijf euro per extra persoon. Geen schijf om over te gaan, geen trede die de rekening laat springen: de prijs volgt het personeel persoon voor persoon.</p>
         </div>
         <div class="table-wrap reveal grid-table">
           <table>
@@ -237,44 +272,44 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">Minder dan 5 medewerkers</th>
+                <th scope="row">5 medewerkers</th>
                 <td class="c mark-no">—</td>
-                <td class="c mark-yes">Gratis</td>
+                <td class="c"><span class="mark-yes">Gratis</span></td>
               </tr>
               <tr>
-                <th scope="row">5 medewerkers</th>
-                <td class="c mark-opt">€ 5</td>
-                <td class="c"><strong>€ 25</strong> / maand</td>
+                <th scope="row">6 medewerkers</th>
+                <td class="c mark-opt">€ 0,83</td>
+                <td class="c"><strong>€ 5</strong> / maand</td>
               </tr>
               <tr>
                 <th scope="row">10 medewerkers</th>
-                <td class="c mark-opt">€ 5</td>
-                <td class="c"><strong>€ 50</strong> / maand</td>
+                <td class="c mark-opt">€ 2,50</td>
+                <td class="c"><strong>€ 25</strong> / maand</td>
+              </tr>
+              <tr>
+                <th scope="row">25 medewerkers</th>
+                <td class="c mark-opt">€ 4,00</td>
+                <td class="c"><strong>€ 100</strong> / maand</td>
               </tr>
               <tr>
                 <th scope="row">50 medewerkers</th>
-                <td class="c mark-opt">€ 5</td>
-                <td class="c"><strong>€ 250</strong> / maand</td>
+                <td class="c mark-opt">€ 4,50</td>
+                <td class="c"><strong>€ 225</strong> / maand</td>
               </tr>
               <tr>
                 <th scope="row">100 medewerkers</th>
-                <td class="c mark-opt">€ 5</td>
-                <td class="c"><strong>€ 500</strong> / maand</td>
+                <td class="c mark-opt">€ 4,75</td>
+                <td class="c"><strong>€ 475</strong> / maand</td>
               </tr>
               <tr>
                 <th scope="row">250 medewerkers</th>
-                <td class="c mark-opt">€ 4</td>
-                <td class="c"><strong>€ 1.000</strong> / maand</td>
-              </tr>
-              <tr>
-                <th scope="row">500 medewerkers</th>
-                <td class="c mark-opt">€ 4</td>
-                <td class="c"><strong>€ 2.000</strong> / maand</td>
+                <td class="c mark-opt">€ 4,90</td>
+                <td class="c"><strong>€ 1.225</strong> / maand</td>
               </tr>
               <tr>
                 <th scope="row">1.000 medewerkers</th>
-                <td class="c mark-opt">€ 3</td>
-                <td class="c"><strong>€ 3.000</strong> / maand</td>
+                <td class="c mark-opt">€ 4,98</td>
+                <td class="c"><strong>€ 4.975</strong> / maand</td>
               </tr>
             </tbody>
           </table>
@@ -397,7 +432,7 @@
       <div class="wrap">
         <div class="band reveal">
           <h2>Begin gratis, verander van formule wanneer u groeit</h2>
-          <p>Onder vijf medewerkers is alles gratis. Daarboven € 5 per medewerker per maand, degressief vanaf tweehonderdvijftig. Geen bankkaart om te proberen.</p>
+          <p>De eerste vijf medewerkers zijn altijd gratis. Daarboven 5 € per medewerker per maand. Geen creditcard om te proberen.</p>
           <div class="band-cta">
             <a class="btn btn-light" href="../tarifs.html">Mijn instantie aanmaken<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             <a class="btn btn-onbrand" href="../contact.html">Met iemand praten</a>
@@ -465,6 +500,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=c1a98fc324" defer></script>
+<script src="../assets/app.js?v=3bdd9a51fd" defer></script>
 </body>
 </html>

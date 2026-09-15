@@ -16,7 +16,7 @@
 <meta property="og:title" content="Tarifs — Toutadmin" />
 <meta property="og:description" content="Un seul tarif, par salarié et par mois, pour gérer toute l'entreprise. Pas de module à la carte, pas de supplément par fonction : tout le produit est dans toutes les formules." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="assets/style.css?v=7d1a384692" />
+<link rel="stylesheet" href="assets/style.css?v=636b208cea" />
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="tarifs.html" />
   <link rel="alternate" hreflang="en" href="en/tarifs.html" />
@@ -204,7 +204,7 @@
               <span class="plan-amount">5 €</span>
               <span class="plan-per">par salarié / mois</span>
             </div>
-            <p>5 € par salarié et par mois, puis 4 € de deux cent cinquante à cinq cents, et 3 € au-delà. Vous payez l'effectif que vous avez, pas celui que vous aurez peut-être un jour.</p>
+            <p>Cinq euros par salarié et par mois, au-delà des cinq premiers, qui restent offerts quel que soit votre effectif. Vous payez l'effectif que vous avez, pas celui que vous aurez peut-être un jour.</p>
             <ul class="plan-list">
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Les 35 espaces et les 7 modules</span></li>
               <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span>Hébergement local de vos données</span></li>
@@ -223,8 +223,43 @@
       <div class="wrap">
         <div class="section-head center reveal">
           
+          <h2>Combien payez-vous ?</h2>
+          <p class="lede">Posez votre effectif exact. Les cinq premiers salariés ne sont jamais facturés.</p>
+        </div>
+
+        <div class="sim reveal mx-auto" data-sim
+             data-sim-free="5" data-sim-rate="5"
+             data-sim-currency="EUR" data-sim-free-label="Gratuit">
+          <label class="sim-field">
+            <span>Nombre de salariés</span>
+            <span class="sim-input">
+              <button type="button" class="sim-step" data-sim-step="-1"
+                      aria-label="Un salarié de moins">−</button>
+              <input type="number" min="0" max="100000" step="1" value="12"
+                     data-sim-count inputmode="numeric" />
+              <button type="button" class="sim-step" data-sim-step="1"
+                      aria-label="Un salarié de plus">+</button>
+            </span>
+          </label>
+
+          <p class="sim-total" aria-live="polite">
+            <span data-sim-total>35 €</span>
+            <span class="sim-per">/ mois</span>
+          </p>
+
+          <p class="sim-detail" data-sim-detail data-model="Effectif {total} · offert {free} · facturé {billable} × {rate}">Effectif 12 · offert 5 · facturé 7 × 5 €</p>
+
+          <p class="sim-note">Sans engagement, sans frais de mise en service, résiliable au mois.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          
           <h2>La grille, par effectif</h2>
-          <p class="lede">Le prix suit l'effectif et rien d'autre : 5 € par salarié jusqu'à deux cent quarante-neuf, 4 € de deux cent cinquante à cinq cents, 3 € au-delà. Franchir une tranche fait baisser la facture de tout le monde, pas seulement des nouveaux venus.</p>
+          <p class="lede">Cinq salariés offerts, toujours, puis cinq euros par salarié supplémentaire. Pas de tranche à franchir, pas de palier qui fait bondir la facture : le prix suit l'effectif ligne à ligne.</p>
         </div>
         <div class="table-wrap reveal grid-table">
           <table>
@@ -237,44 +272,44 @@
             </thead>
             <tbody>
               <tr>
-                <th scope="row">Moins de 5 salariés</th>
+                <th scope="row">5 salariés</th>
                 <td class="c mark-no">—</td>
-                <td class="c mark-yes">Gratuit</td>
+                <td class="c"><span class="mark-yes">Gratuit</span></td>
               </tr>
               <tr>
-                <th scope="row">5 salariés</th>
-                <td class="c mark-opt">5 €</td>
-                <td class="c"><strong>25 €</strong> / mois</td>
+                <th scope="row">6 salariés</th>
+                <td class="c mark-opt">0,83 €</td>
+                <td class="c"><strong>5 €</strong> / mois</td>
               </tr>
               <tr>
                 <th scope="row">10 salariés</th>
-                <td class="c mark-opt">5 €</td>
-                <td class="c"><strong>50 €</strong> / mois</td>
+                <td class="c mark-opt">2,50 €</td>
+                <td class="c"><strong>25 €</strong> / mois</td>
+              </tr>
+              <tr>
+                <th scope="row">25 salariés</th>
+                <td class="c mark-opt">4,00 €</td>
+                <td class="c"><strong>100 €</strong> / mois</td>
               </tr>
               <tr>
                 <th scope="row">50 salariés</th>
-                <td class="c mark-opt">5 €</td>
-                <td class="c"><strong>250 €</strong> / mois</td>
+                <td class="c mark-opt">4,50 €</td>
+                <td class="c"><strong>225 €</strong> / mois</td>
               </tr>
               <tr>
                 <th scope="row">100 salariés</th>
-                <td class="c mark-opt">5 €</td>
-                <td class="c"><strong>500 €</strong> / mois</td>
+                <td class="c mark-opt">4,75 €</td>
+                <td class="c"><strong>475 €</strong> / mois</td>
               </tr>
               <tr>
                 <th scope="row">250 salariés</th>
-                <td class="c mark-opt">4 €</td>
-                <td class="c"><strong>1 000 €</strong> / mois</td>
-              </tr>
-              <tr>
-                <th scope="row">500 salariés</th>
-                <td class="c mark-opt">4 €</td>
-                <td class="c"><strong>2 000 €</strong> / mois</td>
+                <td class="c mark-opt">4,90 €</td>
+                <td class="c"><strong>1 225 €</strong> / mois</td>
               </tr>
               <tr>
                 <th scope="row">1 000 salariés</th>
-                <td class="c mark-opt">3 €</td>
-                <td class="c"><strong>3 000 €</strong> / mois</td>
+                <td class="c mark-opt">4,98 €</td>
+                <td class="c"><strong>4 975 €</strong> / mois</td>
               </tr>
             </tbody>
           </table>
@@ -397,7 +432,7 @@
       <div class="wrap">
         <div class="band reveal">
           <h2>Commencez gratuitement, changez de formule quand vous grandirez</h2>
-          <p>Sous cinq salariés, tout est gratuit. Au-delà, 5 € par salarié et par mois, dégressif à partir de deux cent cinquante. Aucune carte bancaire pour essayer.</p>
+          <p>Les cinq premiers salariés sont gratuits, toujours. Au-delà, 5 € par salarié et par mois. Aucune carte bancaire pour essayer.</p>
           <div class="band-cta">
             <a class="btn btn-light" href="tarifs.html">Créer mon instance<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
             <a class="btn btn-onbrand" href="contact.html">Parler à quelqu’un</a>
@@ -465,6 +500,6 @@
       </div>
     </div>
   </footer>
-<script src="assets/app.js?v=c1a98fc324" defer></script>
+<script src="assets/app.js?v=3bdd9a51fd" defer></script>
 </body>
 </html>

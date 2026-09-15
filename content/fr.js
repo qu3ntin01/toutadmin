@@ -128,7 +128,7 @@ module.exports = {
   'pricing.p1.body': 'Tout le produit, gratuitement, sans limite de durée et sans fonction bridée. La formule pour une jeune entreprise, une association ou un cabinet qui démarre.',
   'pricing.p2.name': 'Abonnement',
   'pricing.p2.for': 'À partir de 5 salariés',
-  'pricing.p2.body': '5 € par salarié et par mois, puis 4 € de deux cent cinquante à cinq cents, et 3 € au-delà. Vous payez l\'effectif que vous avez, pas celui que vous aurez peut-être un jour.',
+  'pricing.p2.body': 'Cinq euros par salarié et par mois, au-delà des cinq premiers, qui restent offerts quel que soit votre effectif. Vous payez l\'effectif que vous avez, pas celui que vous aurez peut-être un jour.',
   'pricing.tableTitle': 'Ce que comprend chaque formule',
   'pricing.col.feature': '',
   'pricing.yes': 'Compris',
@@ -188,7 +188,7 @@ module.exports = {
 
   /* -------------------------------------------------------------- bandeaux */
   'cta.title': 'Commencez gratuitement, changez de formule quand vous grandirez',
-  'cta.body': 'Sous cinq salariés, tout est gratuit. Au-delà, 5 € par salarié et par mois, dégressif à partir de deux cent cinquante. Aucune carte bancaire pour essayer.',
+  'cta.body': 'Les cinq premiers salariés sont gratuits, toujours. Au-delà, 5 € par salarié et par mois. Aucune carte bancaire pour essayer.',
   'cta.primary': 'Créer mon instance',
   'cta.secondary': 'Parler à quelqu’un',
 
@@ -463,12 +463,11 @@ module.exports = {
   'pricing.argTitle': 'Cinq euros par salarié, pour tout',
   'pricing.argBody': 'Un outil RH, un logiciel de compta, un gestionnaire de projets, une billetterie de support, un coffre-fort de bulletins : cinq abonnements à 8 ou 15 € par utilisateur, cinq bases qui ne se parlent pas, cinq factures. Toutadmin remplace la pile entière pour le prix du moins cher — et les données, elles, sont enfin au même endroit.',
   'pricing.gridTitle': 'La grille, par effectif',
-  'pricing.gridLede': 'Le prix suit l\'effectif et rien d\'autre : 5 € par salarié jusqu\'à deux cent quarante-neuf, 4 € de deux cent cinquante à cinq cents, 3 € au-delà. Franchir une tranche fait baisser la facture de tout le monde, pas seulement des nouveaux venus.',
+  'pricing.gridLede': 'Cinq salariés offerts, toujours, puis cinq euros par salarié supplémentaire. Pas de tranche à franchir, pas de palier qui fait bondir la facture : le prix suit l\'effectif ligne à ligne.',
   'pricing.col.headcount': 'Effectif',
   'pricing.col.monthly': 'Par mois',
   'pricing.col.perEmployee': 'Par salarié',
   'pricing.upTo': 'Jusqu\'à {count} salariés',
-  'pricing.under': 'Moins de {count} salariés',
   'faq.q9': 'Que se passe-t-il si mon effectif change en cours d\'année ?',
   'faq.a9': 'Le tarif suit, dans les deux sens, au mois suivant et sans rétroactivité. Une embauche qui vous fait passer un palier se facture le mois d\'après ; un départ qui vous en fait redescendre aussi. Personne ne paie pour des comptes fermés.',
   'pricing.someEmployees': '{count} salariés',
@@ -591,4 +590,14 @@ module.exports = {
   'licence.neverBody': 'Rien n\'est effacé, rien n\'est chiffré, rien n\'est caché. Même en lecture seule, la connexion, l\'export intégral, les sauvegardes et le coffre-fort de vos anciens salariés restent ouverts. Vous êtes responsable de traitement au sens du RGPD : vous devez pouvoir sortir avec vos données à tout moment. Une facture impayée se règle par un coup de fil, pas en séquestrant des bulletins de paie.',
   'licence.offlineTitle': 'Sans accès internet sortant',
   'licence.offlineBody': 'Certains hébergements n\'ont aucune sortie vers l\'extérieur. Nous émettons alors une licence hors ligne, qui couvre tout l\'abonnement et se renouvelle par fichier. La contrepartie est dite d\'avance : une licence hors ligne ne peut pas être révoquée avant son échéance.',
+
+  // Le simulateur d'effectif : le client pose son nombre exact et lit sa
+  // facture. Les nombres du calcul viennent de _plans.js, pas d'ici.
+  'sim.title': 'Combien payez-vous ?',
+  'sim.lede': 'Posez votre effectif exact. Les cinq premiers salariés ne sont jamais facturés.',
+  'sim.count': 'Nombre de salariés',
+  'sim.less': 'Un salarié de moins',
+  'sim.more': 'Un salarié de plus',
+  'sim.detail': 'Effectif {total} · offert {free} · facturé {billable} × {rate}',
+  'sim.note': 'Sans engagement, sans frais de mise en service, résiliable au mois.',
 };
