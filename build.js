@@ -45,13 +45,11 @@ const MERGED = { ecrans: 'fonctionnalites.html#ecrans' };
 // c'est cette ligne qu'on modifie, pas seize fichiers de traduction.
 const DOC_URL = 'https://docs.toutadmin.com/';
 
-// L'espace client — la connexion à son instance. Même règle que ci-dessus :
-// une seule ligne à changer le jour où l'adresse change.
 // L'espace client, où l'on suit ses abonnements, ses factures et ses licences.
-// L'adresse est celle de l'espace, pas la racine du domaine : la racine mène
-// bien là aussi, mais un lien qui dit où il va vieillit mieux qu'une
-// redirection qu'on oublie.
-const CLIENT_URL = 'https://app.toutadmin.com/espace';
+// Même règle que ci-dessus : une seule ligne à changer le jour où l'adresse
+// change — et elle vient de changer. L'espace a quitté le panneau éditeur pour
+// son propre hébergement, où il sert à la racine.
+const CLIENT_URL = 'https://manager.toutadmin.com/';
 
 /* --------------------------------------------------------------- outillage */
 
