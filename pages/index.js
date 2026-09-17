@@ -18,9 +18,9 @@ module.exports = function index(ctx) {
   const stats = [
     ['35', 'stats.spaces', 'stats.spacesNote'],
     ['16', 'stats.languages', 'stats.languagesNote'],
-    ['1678', 'stats.tests', 'stats.testsNote'],
+    ['1738', 'stats.tests', 'stats.testsNote'],
     ['7', 'stats.modules', 'stats.modulesNote'],
-    ['3145', 'stats.keys', 'stats.keysNote'],
+    ['3204', 'stats.keys', 'stats.keysNote'],
     ['0', 'stats.deps', 'stats.depsNote'],
   ].map(([value, key, note], i) => `<div class="stat reveal">
             <div class="stat-v" data-count="${value}">0</div>
