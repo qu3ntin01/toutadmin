@@ -15,6 +15,31 @@ const FREE_SEATS = 5;
 const RATE = 5;
 const SAMPLES = [5, 6, 10, 25, 50, 100, 250, 1000];
 
+/*
+ * L'assistance, et ce qu'elle coûte.
+ *
+ * Elle ne s'étage pas à l'effectif, et c'est délibéré : le besoin d'aide est
+ * inversement proportionnel à la taille. L'entreprise de cinquante salariés a
+ * quelqu'un qui bricole l'informatique ; celle de huit n'a personne. Un seuil à
+ * l'effectif ferait donc payer l'assistance exactement là où on peut le moins
+ * la payer, et créerait une marche absurde à expliquer — payante à dix-neuf
+ * salariés, offerte à vingt.
+ *
+ * Elle s'étage au périmètre. Ce qui relève du produit est compris dès le
+ * premier euro ; ce qui relève de la machine du client est une prestation, au
+ * forfait, et se vend à toute taille. La formule gratuite, elle, a la
+ * documentation et la communauté : c'est ce qui permet de l'offrir sans limite
+ * de durée plutôt que de la transformer en essai de trente jours.
+ *
+ * Les prestations sont bornées — un forfait, un taux horaire, un pack d'heures.
+ * « Assistance illimitée » est une promesse dont on ne connaît pas la taille.
+ */
+const REPLY_DAYS = 3;        // jours ouvrés, délai de réponse annoncé
+const SETUP_FEE = 250;       // installation assistée, forfait unique
+const HOURLY_RATE = 90;      // intervention prioritaire, à l'heure
+const HOURS_PACK = 5;        // le pack d'heures, et son prix
+const HOURS_PACK_FEE = 400;
+
 /** Les salariés effectivement facturés. */
 const billableFor = (headcount) => Math.max(0, headcount - FREE_SEATS);
 const monthlyFor = (headcount) => billableFor(headcount) * RATE;
@@ -81,4 +106,7 @@ function gridRows(ctx) {
   }).join('\n              ');
 }
 
-module.exports = { FREE_SEATS, RATE, SAMPLES, billableFor, rateFor, monthlyFor, euro, plans, planCard, gridRows };
+module.exports = {
+  FREE_SEATS, RATE, SAMPLES,
+  REPLY_DAYS, SETUP_FEE, HOURLY_RATE, HOURS_PACK, HOURS_PACK_FEE,
+  billableFor, rateFor, monthlyFor, euro, plans, planCard, gridRows };

@@ -1,5 +1,6 @@
 const { band, pageHero, head } = require('./_shared');
-const { plans, planCard, gridRows, FREE_SEATS, RATE, euro, monthlyFor, billableFor } = require('./_plans');
+const { plans, planCard, gridRows, FREE_SEATS, RATE, euro, monthlyFor, billableFor,
+  REPLY_DAYS, SETUP_FEE, HOURLY_RATE, HOURS_PACK, HOURS_PACK_FEE } = require('./_plans');
 
 module.exports = function pricing(ctx) {
   const { t, esc, icon } = ctx;
@@ -43,6 +44,7 @@ module.exports = function pricing(ctx) {
     ['pricing.f.backupOff', yes],
     ['pricing.f.multisite', yes],
     ['pricing.f.support', `<span class="mark-yes">${esc(t('pricing.f.supportMail'))}</span>`],
+    ['pricing.f.setup', opt],
     ['pricing.f.migration', opt],
     ['pricing.f.sla', opt],
   ].map(([key, valeur]) =>
@@ -157,6 +159,56 @@ module.exports = function pricing(ctx) {
         <div class="note reveal mt-l">
           <h3>${esc(t('pricing.countTitle'))}</h3>
           <p>${esc(t('pricing.countBody'))}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        ${head(ctx, null, t('support.title'), t('support.lede'))}
+
+        <div class="plans plans-3 stagger mt-l">
+          ${[
+            ['support.t1', t('pricing.free'), ''],
+            ['support.t2', t('support.t2.amount', { jours: String(REPLY_DAYS) }), t('support.included')],
+            ['support.t3', t('support.t3.amount'), ''],
+          ].map(([cle, montant, per], i) => `<article class="plan${i === 1 ? ' is-featured' : ''} reveal">
+            <div class="plan-name">${esc(t(`${cle}.name`))}</div>
+            <div class="plan-for">${esc(t(`${cle}.who`))}</div>
+            <p class="plan-value">${esc(montant)}${per ? ` <span class="plan-per">${esc(per)}</span>` : ''}</p>
+            <p>${esc(t(`${cle}.what`))}</p>
+          </article>`).join('\n          ')}
+        </div>
+
+        <div class="note reveal mx-auto mt-l">
+          <h3>${esc(t('support.scopeTitle'))}</h3>
+          <p>${esc(t('support.scopeBody'))}</p>
+        </div>
+
+        <div class="table-wrap reveal mt-l">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">${esc(t('support.optTitle'))}</th>
+                <th scope="col">${esc(t('support.col.price'))}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${[
+                ['support.opt.setup', euro(ctx.locale.code, SETUP_FEE)],
+                ['support.opt.migration', t('support.quote')],
+                ['support.opt.priority', t('support.opt.priorityPrice', {
+                  rate: euro(ctx.locale.code, HOURLY_RATE),
+                  hours: String(HOURS_PACK),
+                  pack: euro(ctx.locale.code, HOURS_PACK_FEE),
+                })],
+                ['support.opt.sla', t('support.quote')],
+              ].map(([cle, prix]) => `<tr>
+                <th scope="row">${esc(t(cle))}<span class="opt-what">${esc(t(`${cle}Body`))}</span></th>
+                <td class="c"><strong>${esc(prix)}</strong></td>
+              </tr>`).join('\n              ')}
+            </tbody>
+          </table>
         </div>
       </div>
     </section>

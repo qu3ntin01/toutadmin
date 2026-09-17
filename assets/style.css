@@ -517,6 +517,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: grid; grid-template-columns: repeat(auto-fit, minmax(252px, 400px));
   justify-content: center; gap: 18px; align-items: start;
 }
+
+/* Trois cartes plutôt que deux : la grille des formules plafonne à 400 px par
+   colonne, ce qui en laisse deux côte à côte et rejette la troisième seule sur
+   une ligne. L'assistance en compte trois, et elles se lisent ensemble. */
+.plans-3 { grid-template-columns: repeat(auto-fit, minmax(240px, 330px)); }
 .plan { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-l);
   padding: 30px 26px; display: flex; flex-direction: column; gap: 4px; transition: transform .3s var(--ease), box-shadow .3s var(--ease); }
 .plan:hover { transform: translateY(-4px); box-shadow: var(--shadow-m); }
@@ -527,6 +532,17 @@ ul { margin: 0; padding: 0; list-style: none; }
   background: linear-gradient(120deg, var(--brand-2), #7c5cff); color: #fff; font-size: .74rem; font-weight: 700; letter-spacing: .04em; }
 .plan-name { font-size: 1.2rem; font-weight: 720; }
 .plan-for { color: var(--ink-3); font-size: .9rem; }
+
+/* Ce que fait une prestation, sous son nom, dans le tableau des options : une
+   ligne de moins que le nom, et grise — on lit d'abord la colonne, ensuite le
+   détail. */
+/* La valeur d'une carte d'assistance : un délai, un mode de tarification. Ce
+   n'est pas un prix, et le corps de « plan-amount » — taillé pour « 5 € » —
+   faisait éclater « Réponse sous trois jours ouvrés » sur trois lignes. */
+.plan-value { font-size: 1.05rem; font-weight: 650; margin-block: 10px 0; }
+.plan-value .plan-per { font-size: .85rem; font-weight: 400; color: var(--ink-3); }
+
+.opt-what { display: block; color: var(--ink-3); font-size: .85rem; font-weight: 400; margin-block-start: 3px; }
 .plan-price { display: flex; align-items: baseline; gap: 6px; margin-block: 18px 4px; }
 .plan-amount { font-size: 2.7rem; font-weight: 780; letter-spacing: -.04em; }
 .plan-per { color: var(--ink-3); font-size: .92rem; }

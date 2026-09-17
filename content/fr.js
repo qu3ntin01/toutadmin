@@ -142,13 +142,51 @@ module.exports = {
   'pricing.f.local': 'Hébergement local de vos données',
   'pricing.f.backupOff': 'Externalisation des sauvegardes',
   'pricing.f.support': 'Assistance',
-  'pricing.f.supportMail': 'Par courriel',
+  'pricing.f.supportMail': 'Par écrit, dès le premier euro',
+  'pricing.f.setup': 'Installation assistée',
   'pricing.f.migration': 'Reprise de vos données',
   'pricing.f.sla': 'Engagement de service (SLA)',
   'pricing.f.api': 'API de lecture et webhooks',
   'pricing.f.multisite': 'Plusieurs sites, plusieurs entités',
   'pricing.countTitle': 'Comment on compte les salariés',
   'pricing.countBody': 'Le nombre de comptes actifs, freelances et stagiaires compris, administrateurs exclus. Un compte fermé ne compte plus, même s\'il garde l\'accès à son coffre-fort. Votre effectif change ? Le changement se fait au mois suivant, sans rétroactivité — à la hausse comme à la baisse. Il n\'y a pas de palier : chaque salarié compte pour cinq euros.',
+
+  /* ------------------------------------------------------------- Assistance
+
+     Elle ne s'étage pas à l'effectif : le besoin d'aide est inversement
+     proportionnel à la taille, et un seuil ferait payer l'assistance là où on
+     peut le moins la payer. Elle s'étage au périmètre. */
+  'support.title': 'L’assistance',
+  'support.lede': 'Ce qui relève du produit est compris dès le premier euro. Ce qui relève de votre machine est une prestation, au forfait, et se vend quelle que soit votre taille.',
+  'support.included': 'comprise',
+  'support.quote': 'Sur devis',
+
+  'support.t1.name': 'Formule gratuite',
+  'support.t1.who': 'Jusqu’à 5 salariés',
+  'support.t1.what': 'La documentation complète, en seize langues, et la communauté. Pas d’assistance directe — c’est ce qui nous permet d’offrir le produit sans limite de durée plutôt que d’en faire un essai de trente jours.',
+  'support.t2.name': 'Abonnement',
+  'support.t2.who': 'Dès le premier salarié facturé',
+  'support.t2.amount': 'Réponse sous {jours} jours ouvrés',
+  'support.t2.what': 'Assistance par écrit, comprise dans l’abonnement, sans supplément et sans pack à acheter. Elle porte sur le produit : une question, un comportement inattendu, une manipulation qu’on ne trouve pas.',
+  'support.t3.name': 'Prestations',
+  'support.t3.who': 'À toute taille, à la demande',
+  'support.t3.amount': 'Au forfait',
+  'support.t3.what': 'Ce qui demande du temps sur votre installation : la poser, reprendre vos données, intervenir vite. Bornées à l’avance — un forfait, un taux, un pack d’heures — plutôt qu’un engagement dont personne ne connaît la taille.',
+
+  'support.scopeTitle': 'Ce que l’assistance couvre, et ce qu’elle ne couvre pas',
+  'support.scopeBody': 'L’assistance porte sur Toutadmin. Elle ne porte pas sur votre hébergement : une version de PHP à changer, des droits de dossier, un serveur de courriel à régler, un pare-feu qui referme un port relèvent de votre hébergeur, qui les connaît mieux que nous. Nous vous disons ce qui manque et pourquoi — c’est le rôle de l’assistant d’installation, qui nomme chaque prérequis et son remède. Si vous préférez ne pas vous en occuper, l’installation assistée existe pour cela.',
+
+  'support.optTitle': 'Les prestations',
+  'support.col.price': 'Prix',
+  'support.opt.setup': 'Installation assistée',
+  'support.opt.setupBody': 'Nous posons et configurons l’instance sur votre hébergement, licence comprise. Forfait unique.',
+  'support.opt.migration': 'Reprise de vos données',
+  'support.opt.migrationBody': 'Import de vos salariés, tiers, factures ou articles depuis vos fichiers ou votre outil actuel. Chiffré sur pièces.',
+  'support.opt.priority': 'Intervention prioritaire',
+  'support.opt.priorityBody': 'Une urgence traitée dans la journée ouvrée, hors périmètre habituel de l’assistance.',
+  'support.opt.priorityPrice': '{rate} l’heure · pack de {hours} h : {pack}',
+  'support.opt.sla': 'Engagement de service',
+  'support.opt.slaBody': 'Un délai contractuel plutôt qu’annoncé, pour les instances dont l’arrêt coûte cher.',
 
   /* ------------------------------------------------------------------- FAQ */
   'faq.title': 'Questions fréquentes',
