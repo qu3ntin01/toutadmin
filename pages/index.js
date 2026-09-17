@@ -4,12 +4,23 @@ const { plans, planCard } = require('./_plans');
 module.exports = function index(ctx) {
   const { t, esc, icon, media } = ctx;
 
+  /*
+   * Ces chiffres se relèvent dans le code, ils ne s'inventent pas.
+   *
+   *   tests    : « npm test » côté Node, « php tests/run.php » côté PHP, additionnés —
+   *              la page vend le produit, pas une de ses deux éditions.
+   *   libellés : le nombre de clés du dictionnaire français de l'édition Node.
+   *
+   * Relevé le 17 septembre 2026 : 970 + 708 tests, 3 145 clés. Le site de
+   * documentation les relit à chaque construction et les publie aussi ; si les
+   * deux ne concordent plus, c'est cette ligne-ci qui a vieilli.
+   */
   const stats = [
     ['35', 'stats.spaces', 'stats.spacesNote'],
     ['16', 'stats.languages', 'stats.languagesNote'],
-    ['797', 'stats.tests', 'stats.testsNote'],
+    ['1678', 'stats.tests', 'stats.testsNote'],
     ['7', 'stats.modules', 'stats.modulesNote'],
-    ['2754', 'stats.keys', 'stats.keysNote'],
+    ['3145', 'stats.keys', 'stats.keysNote'],
     ['0', 'stats.deps', 'stats.depsNote'],
   ].map(([value, key, note], i) => `<div class="stat reveal">
             <div class="stat-v" data-count="${value}">0</div>
