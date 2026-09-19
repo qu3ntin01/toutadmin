@@ -167,7 +167,7 @@ module.exports = function index(ctx) {
     <section class="section tinted">
       <div class="wrap">
         ${head(ctx, t('nav.pricing'), t('pricing.title'), t('pricing.lede'))}
-        <p class="center reveal"><span class="eyebrow">${icon('users')}${esc(t('pricing.perEmployee'))}</span></p>
+        <p class="center reveal"><span class="eyebrow">${icon('users')}${esc(t('pricing.flat'))}</span></p>
         <div class="plans stagger mt-l">
           ${planCards}
         </div>

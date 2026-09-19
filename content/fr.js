@@ -25,7 +25,7 @@ module.exports = {
   /* ----------------------------------------------------------------- héros */
   'hero.eyebrow': 'Logiciel de gestion d’entreprise',
   'hero.title': 'Toute votre entreprise,\ndans un seul logiciel.',
-  'hero.lede': 'Personnel, ressources humaines, finance, opérations, gouvernance, conformité, moyens généraux. Trente-cinq espaces qui se parlent, une seule base, aucune application à recoller. En seize langues, et 5 € par salarié et par mois pour tout gérer.',
+  'hero.lede': 'Personnel, ressources humaines, finance, opérations, gouvernance, conformité, moyens généraux. Trente-cinq espaces qui se parlent, une seule base, aucune application à recoller. En seize langues, et 15 € par mois pour tout gérer.',
   'hero.ctaPrimary': 'Essayer gratuitement',
   'hero.ctaSecondary': 'Voir les fonctionnalités',
   'hero.note': 'Sans carte bancaire. Vos données restent les vôtres, et peuvent rester chez vous.',
@@ -117,18 +117,27 @@ module.exports = {
 
   /* ---------------------------------------------------------------- tarifs */
   'pricing.title': 'Des tarifs lisibles, sans surprise',
-  'pricing.lede': 'Un seul tarif, par salarié et par mois, pour gérer toute l\'entreprise. Pas de module à la carte, pas de supplément par fonction : tout le produit est dans toutes les formules.',
+  'pricing.lede': 'Un forfait unique, quinze euros par mois, pour gérer toute l’entreprise. Pas de prix au salarié, pas de palier, pas de module à la carte : tout le produit est dans toutes les formules.',
   'pricing.perMonth': '/ mois',
   'pricing.free': 'Gratuit',
+  'pricing.launch.termUnit': 'mois, puis 15 €',
+  'pricing.launch.termName': 'La durée',
+  'pricing.launch.seatsUnit': 'premiers clients',
+  'pricing.launch.seatsName': 'Les places',
+  'pricing.launch.priceName': 'Le prix',
+  'pricing.launchLede': 'Dix euros par mois au lieu de quinze, pour les cent premiers clients, pendant leur première année. Passé ces cent-là, ou passée l’année, c’est le tarif normal — nous préférons le dire avant plutôt que de le faire découvrir sur une facture.',
+  'pricing.launchTitle': 'Le tarif de lancement',
+  'pricing.perMonthShort': 'par mois',
+  'pricing.flat': '15 € par mois, quel que soit l’effectif',
   'pricing.vat': 'Prix hors taxes. Aucun engagement de durée sur les formules mensuelles.',
   'pricing.cta': 'Commencer',
   'pricing.popular': 'Le plus choisi',
   'pricing.p1.name': 'Gratuit',
-  'pricing.p1.for': 'Moins de 5 salariés',
+  'pricing.p1.for': 'Jusqu’à 5 salariés',
   'pricing.p1.body': 'Tout le produit, gratuitement, sans limite de durée et sans fonction bridée. La formule pour une jeune entreprise, une association ou un cabinet qui démarre.',
   'pricing.p2.name': 'Abonnement',
-  'pricing.p2.for': 'À partir de 5 salariés',
-  'pricing.p2.body': 'Cinq euros par salarié et par mois, au-delà des cinq premiers, qui restent offerts quel que soit votre effectif. Vous payez l\'effectif que vous avez, pas celui que vous aurez peut-être un jour.',
+  'pricing.p2.for': 'Au-delà de 5 salariés',
+  'pricing.p2.body': 'Quinze euros par mois, quel que soit votre effectif. Six salariés ou six cents : le même prix, la même facture, et rien à recalculer le jour où vous embauchez.',
   'pricing.tableTitle': 'Ce qui est compris',
   'pricing.col.included': 'Le produit',
   'pricing.col.feature': '',
@@ -149,7 +158,7 @@ module.exports = {
   'pricing.f.api': 'API de lecture et webhooks',
   'pricing.f.multisite': 'Plusieurs sites, plusieurs entités',
   'pricing.countTitle': 'Comment on compte les salariés',
-  'pricing.countBody': 'Le nombre de comptes actifs, freelances et stagiaires compris, administrateurs exclus. Un compte fermé ne compte plus, même s\'il garde l\'accès à son coffre-fort. Votre effectif change ? Le changement se fait au mois suivant, sans rétroactivité — à la hausse comme à la baisse. Il n\'y a pas de palier : chaque salarié compte pour cinq euros.',
+  'pricing.countBody': 'Le nombre de comptes actifs, freelances et stagiaires compris, administrateurs exclus. Vous le déclarez parce qu’il dit la taille de la maison qu’on sert — il ne facture rien. Embaucher ne fait pas monter la note, et un départ ne la fait pas baisser : c’est un forfait.',
 
   /* ------------------------------------------------------------- Assistance
 
@@ -223,7 +232,7 @@ module.exports = {
 
   /* -------------------------------------------------------------- bandeaux */
   'cta.title': 'Commencez gratuitement, changez de formule quand vous grandirez',
-  'cta.body': 'Les cinq premiers salariés sont gratuits, toujours. Au-delà, 5 € par salarié et par mois. Aucune carte bancaire pour essayer.',
+  'cta.body': 'Jusqu’à cinq salariés, c’est gratuit, toujours. Au-delà, 15 € par mois quel que soit votre effectif — et 10 € la première année pour les cent premiers clients. Aucune carte bancaire pour essayer.',
   'cta.primary': 'Créer mon instance',
   'cta.secondary': 'Parler à quelqu’un',
 
@@ -493,19 +502,10 @@ module.exports = {
   'tour.gestion': "Tiers, contrats et préavis, factures dans les deux sens, budgets par service, notes de frais, recouvrement. Le consommé d'un budget s'agrège de lui-même.",
   'tour.projets': "Jalons, tâches en colonnes, temps passé et rentabilité face au budget. Le coût n'est pas saisi : il se déduit des heures et du taux horaire.",
   'tour.juridique': "Capital, mandats sociaux, assemblées et procès-verbaux, délégations, déclarations d'intérêts. Ce qu'une entreprise doit pouvoir prouver, tenu au fil de l'eau.",
-  'pricing.perEmployee': '5 € par salarié et par mois',
-  'pricing.perEmployeeShort': 'par salarié / mois',
-  'pricing.argTitle': 'Cinq euros par salarié, pour tout',
-  'pricing.argBody': 'Un outil RH, un logiciel de compta, un gestionnaire de projets, une billetterie de support, un coffre-fort de bulletins : cinq abonnements à 8 ou 15 € par utilisateur, cinq bases qui ne se parlent pas, cinq factures. Toutadmin remplace la pile entière pour le prix du moins cher — et les données, elles, sont enfin au même endroit.',
-  'pricing.gridTitle': 'La grille, par effectif',
-  'pricing.gridLede': 'Cinq salariés offerts, toujours, puis cinq euros par salarié supplémentaire. Pas de tranche à franchir, pas de palier qui fait bondir la facture : le prix suit l\'effectif ligne à ligne.',
-  'pricing.col.headcount': 'Effectif',
-  'pricing.col.monthly': 'Par mois',
-  'pricing.col.perEmployee': 'Par salarié',
-  'pricing.upTo': 'Jusqu\'à {count} salariés',
-  'faq.q9': 'Que se passe-t-il si mon effectif change en cours d\'année ?',
-  'faq.a9': 'Le tarif suit, dans les deux sens, au mois suivant et sans rétroactivité. Une embauche se facture le mois d\'après ; un départ sort de la facture de la même façon. Personne ne paie pour des comptes fermés.',
-  'pricing.someEmployees': '{count} salariés',
+  'pricing.argTitle': 'Quinze euros par mois, pour tout',
+  'pricing.argBody': 'Un outil RH, un logiciel de compta, un gestionnaire de projets, une billetterie de support, un coffre-fort de bulletins : cinq abonnements à 8 ou 15 € par utilisateur, cinq bases qui ne se parlent pas, cinq factures. Toutadmin remplace la pile entière pour le prix d’un seul utilisateur chez l’un d’eux — et les données, elles, sont enfin au même endroit.',
+  'faq.q9': 'Que se passe-t-il si mon effectif change en cours d’année ?',
+  'faq.a9': 'Rien. Le prix est un forfait : il ne bouge ni à la hausse ni à la baisse avec l’effectif. Vous embauchez dix personnes, la facture est la même ; il en part dix, elle est la même aussi. Le seul seuil du produit est celui de la formule gratuite, à cinq salariés.',
   'nav.docs': 'Documentation',
   'menu.title': 'Tout le site',
   'menu.close': 'Fermer le plan du site',
@@ -514,7 +514,7 @@ module.exports = {
   'menu.features.d': 'La liste complète, domaine par domaine : plus de cent trente fonctions livrées et testées.',
   'menu.screens.d': 'Quarante captures d\'une instance réelle, en thème clair et sombre.',
   'menu.security.d': 'Authentification, journal scellé, données personnelles, alerte interne, sauvegardes — et les limites assumées.',
-  'menu.pricing.d': 'Le tarif par salarié et la grille par effectif.',
+  'menu.pricing.d': 'Le forfait, et le tarif de lancement des cent premiers clients.',
   'menu.contact.d': 'Demander une démonstration sur vos cas, ou nous écrire.',
   'menu.docs.d': 'Installation, configuration, sécurité, API et lexique complet. Site séparé.',
   'menu.home': 'Accueil',
@@ -628,11 +628,4 @@ module.exports = {
 
   // Le simulateur d'effectif : le client pose son nombre exact et lit sa
   // facture. Les nombres du calcul viennent de _plans.js, pas d'ici.
-  'sim.title': 'Combien payez-vous ?',
-  'sim.lede': 'Posez votre effectif exact. Les cinq premiers salariés ne sont jamais facturés.',
-  'sim.count': 'Nombre de salariés',
-  'sim.less': 'Un salarié de moins',
-  'sim.more': 'Un salarié de plus',
-  'sim.detail': 'Effectif {total} · offert {free} · facturé {billable} × {rate}',
-  'sim.note': 'Sans engagement, sans frais de mise en service, résiliable au mois.',
 };

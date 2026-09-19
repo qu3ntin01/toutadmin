@@ -301,62 +301,6 @@
     });
   }
 
-  /* ------------------------------------------- le simulateur d'effectif
-
-     Le client pose son effectif exact et lit sa facture. Les deux nombres du
-     calcul — les sièges offerts et le prix unitaire — viennent du HTML, posés
-     par le générateur depuis la même source que le reste de la page : un prix
-     en dur ici finirait par contredire le tableau juste au-dessus.
-
-     Sans JavaScript, le champ reste un champ de nombre et le tableau d'exemples
-     au-dessus dit déjà le prix : personne ne se retrouve devant une page qui ne
-     répond pas. */
-  var sim = document.querySelector('[data-sim]');
-  if (sim) {
-    var champ = sim.querySelector('[data-sim-count]');
-    var sortie = sim.querySelector('[data-sim-total]');
-    var detail = sim.querySelector('[data-sim-detail]');
-    var offerts = parseInt(sim.getAttribute('data-sim-free'), 10) || 0;
-    var unitaire = parseFloat(sim.getAttribute('data-sim-rate')) || 0;
-    var devise = sim.getAttribute('data-sim-currency') || 'EUR';
-    var langue = document.documentElement.lang || 'fr';
-
-    var sou = function (montant, decimales) {
-      try {
-        return new Intl.NumberFormat(langue === 'ar' ? 'fr' : langue, {
-          style: 'currency', currency: devise, maximumFractionDigits: decimales || 0,
-        }).format(montant);
-      } catch (e) {
-        return montant + ' €';
-      }
-    };
-
-    var calculer = function () {
-      var effectif = Math.max(0, Math.min(100000, parseInt(champ.value, 10) || 0));
-      var factures = Math.max(0, effectif - offerts);
-      var total = factures * unitaire;
-
-      sortie.textContent = total === 0 ? sim.getAttribute('data-sim-free-label') : sou(total);
-      // On montre le calcul plutôt que le seul résultat : un prix qu'on peut
-      // refaire de tête est un prix auquel on croit.
-      detail.textContent = detail.getAttribute('data-model')
-        .replace('{total}', String(effectif))
-        .replace('{free}', String(Math.min(effectif, offerts)))
-        .replace('{billable}', String(factures))
-        .replace('{rate}', sou(unitaire));
-    };
-
-    champ.addEventListener('input', calculer);
-    sim.querySelectorAll('[data-sim-step]').forEach(function (bouton) {
-      bouton.addEventListener('click', function () {
-        var pas = parseInt(bouton.getAttribute('data-sim-step'), 10) || 0;
-        champ.value = Math.max(0, (parseInt(champ.value, 10) || 0) + pas);
-        calculer();
-      });
-    });
-    calculer();
-  }
-
   /* ------------------------------------------------- parallaxe discrète */
   var floatShot = document.querySelector('[data-parallax]');
   if (floatShot && !still) {

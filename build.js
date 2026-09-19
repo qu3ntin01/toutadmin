@@ -443,8 +443,10 @@ fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nAllow: /\n');
    ce qu'on cherche à vérifier. */
 const plans = require(path.join(ROOT, 'pages', '_plans.js'));
 const barème = [
-  `gratuit sous ${plans.FREE_UNDER} salariés`,
-  ...plans.SAMPLES.map((n) => `${n} salariés : ${plans.rateFor(n)} €/salarié → ${plans.monthlyFor(n)} €/mois`),
+  `gratuit jusqu'à ${plans.FREE_SEATS} salariés`,
+  `abonnement : ${plans.PRICE} €/mois, quel que soit l'effectif`,
+  `lancement : ${plans.LAUNCH_PRICE} €/mois pendant ${plans.LAUNCH_MONTHS} mois, `
+    + `pour les ${plans.LAUNCH_CLIENTS} premiers clients`,
 ].join('\n  ');
 fs.writeFileSync(path.join(OUT, 'version.txt'),
   `Toutadmin — vitrine\n\nBarème\n  ${barème}\n\n`

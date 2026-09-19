@@ -1,19 +1,27 @@
-/* Les formules, et la grille par effectif.
+/* Les formules.
    Un seul endroit : la page Tarifs et l'aperçu de l'accueil doivent annoncer
    le même prix, et deux listes séparées finissent toujours par diverger. */
 
-// Deux nombres, et rien d'autre. Tout le reste — le montant mensuel, la colonne
-// « par salarié », les exemples, le simulateur — se calcule à partir d'ici :
-// deux chiffres qui ne concordent pas sur une page de tarifs, et c'est la
-// confiance qui part.
+// Cinq nombres, et rien d'autre. Tout le reste — les cartes, la bande de
+// lancement, les exemples — se lit à partir d'ici : deux chiffres qui ne
+// concordent pas sur une page de tarifs, et c'est la confiance qui part.
 //
-// Les cinq premiers salariés ne sont jamais facturés. Pas « gratuit en dessous
-// de cinq puis payant à partir du sixième pour tout le monde » — les cinq
-// restent offerts quel que soit l'effectif. Une entreprise de six salariés paie
-// donc cinq euros, pas trente : la courbe n'a pas de marche.
+// Un forfait : quinze euros par mois, quel que soit l'effectif. C'était cinq
+// euros par salarié au-delà de cinq offerts — un prix qu'il fallait calculer
+// pour le connaître, et qui montait le jour où l'on embauchait. Une punition à
+// l'embauche, dans un logiciel qui sert justement à gérer du personnel.
+//
+// Les cent premiers clients paient dix euros leur première année. Ce n'est pas
+// un rabais au volume déguisé : c'est une date d'entrée, la même pour tout le
+// monde, et elle expire.
+//
+// Sous cinq salariés, c'est gratuit, sans limite de durée. Cette limite-là est
+// un plafond technique que la licence porte, pas un tarif.
+const PRICE = 15;
+const LAUNCH_PRICE = 10;
+const LAUNCH_CLIENTS = 100;
+const LAUNCH_MONTHS = 12;
 const FREE_SEATS = 5;
-const RATE = 5;
-const SAMPLES = [5, 6, 10, 25, 50, 100, 250, 1000];
 
 /*
  * L'assistance, et ce qu'elle coûte.
@@ -40,17 +48,6 @@ const HOURLY_RATE = 90;      // intervention prioritaire, à l'heure
 const HOURS_PACK = 5;        // le pack d'heures, et son prix
 const HOURS_PACK_FEE = 400;
 
-/** Les salariés effectivement facturés. */
-const billableFor = (headcount) => Math.max(0, headcount - FREE_SEATS);
-const monthlyFor = (headcount) => billableFor(headcount) * RATE;
-
-/**
- * Le prix moyen par salarié, celui qu'on affiche à côté du montant. Il baisse
- * tout seul quand l'effectif monte, puisque les cinq offerts pèsent de moins en
- * moins lourd — c'est la dégressivité, sans grille à maintenir.
- */
-const rateFor = (headcount) => (headcount > 0 ? monthlyFor(headcount) / headcount : 0);
-
 const euro = (locale, amount) => new Intl.NumberFormat(locale === 'ar' ? 'fr' : locale, {
   style: 'currency', currency: 'EUR', maximumFractionDigits: 0,
 }).format(amount);
@@ -59,7 +56,7 @@ function plans(ctx) {
   const { t, esc } = ctx;
   return [
     { n: 1, amount: t('pricing.free'), per: '', featured: false },
-    { n: 2, amount: euro(ctx.locale.code, RATE), per: t('pricing.perEmployeeShort'), featured: true },
+    { n: 2, amount: euro(ctx.locale.code, PRICE), per: t('pricing.perMonthShort'), featured: true },
   ].map((plan) => ({
     ...plan,
     name: esc(t(`pricing.p${plan.n}.name`)),
@@ -84,29 +81,7 @@ function planCard(ctx, plan, list = '') {
           </article>`;
 }
 
-function gridRows(ctx) {
-  const { t, esc } = ctx;
-  const code = ctx.locale.code;
-  // Le prix moyen par salarié se donne au centime : à six salariés il vaut
-  // 0,83 €, et l'arrondir à l'euro afficherait « 1 € » à côté de « 5 € »,
-  // ce qui se lit comme une erreur.
-  const moyen = (headcount) => new Intl.NumberFormat(code === 'ar' ? 'fr' : code, {
-    style: 'currency', currency: 'EUR', maximumFractionDigits: 2,
-  }).format(rateFor(headcount));
-
-  return SAMPLES.map((headcount) => {
-    const gratuit = monthlyFor(headcount) === 0;
-    return `<tr>
-                <th scope="row">${esc(t('pricing.someEmployees', { count: headcount.toLocaleString(code) }))}</th>
-                <td class="c ${gratuit ? 'mark-no' : 'mark-opt'}">${gratuit ? '—' : esc(moyen(headcount))}</td>
-                <td class="c">${gratuit
-                  ? `<span class="mark-yes">${esc(t('pricing.free'))}</span>`
-                  : `<strong>${esc(euro(code, monthlyFor(headcount)))}</strong> ${esc(t('pricing.perMonth'))}`}</td>
-              </tr>`;
-  }).join('\n              ');
-}
-
 module.exports = {
-  FREE_SEATS, RATE, SAMPLES,
+  PRICE, LAUNCH_PRICE, LAUNCH_CLIENTS, LAUNCH_MONTHS, FREE_SEATS,
   REPLY_DAYS, SETUP_FEE, HOURLY_RATE, HOURS_PACK, HOURS_PACK_FEE,
-  billableFor, rateFor, monthlyFor, euro, plans, planCard, gridRows };
+  euro, plans, planCard };

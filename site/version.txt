@@ -1,17 +1,11 @@
 Toutadmin — vitrine
 
 Barème
-  gratuit sous undefined salariés
-  5 salariés : 0 €/salarié → 0 €/mois
-  6 salariés : 0.8333333333333334 €/salarié → 5 €/mois
-  10 salariés : 2.5 €/salarié → 25 €/mois
-  25 salariés : 4 €/salarié → 100 €/mois
-  50 salariés : 4.5 €/salarié → 225 €/mois
-  100 salariés : 4.75 €/salarié → 475 €/mois
-  250 salariés : 4.9 €/salarié → 1225 €/mois
-  1000 salariés : 4.975 €/salarié → 4975 €/mois
+  gratuit jusqu'à 5 salariés
+  abonnement : 15 €/mois, quel que soit l'effectif
+  lancement : 10 €/mois pendant 12 mois, pour les 100 premiers clients
 
 Pages     : 96 (6 × 16 langues)
-Clés      : 433 par langue
+Clés      : 426 par langue
 Captures  : 146 fichiers
-Ressources: style 8d1defd5fd · thème 4869e2e78f · script 3bdd9a51fd
+Ressources: style 32d1267828 · thème 4869e2e78f · script c1a98fc324

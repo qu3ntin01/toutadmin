@@ -746,10 +746,9 @@ td.c { text-align: center; }
    « reviens en arrière ». Elle se retourne comme le reste de la page. */
 [dir="rtl"] .btn .i { transform: scaleX(-1); }
 
-/* « une fois », « par salarié / mois » : une unité de prix coupée en deux
-   lignes se lit comme une autre offre. Elle reste d'un seul tenant. */
+/* « une fois », « par mois » : une unité de prix coupée en deux lignes se lit
+   comme une autre offre. Elle reste d'un seul tenant. */
 .plan-per { white-space: nowrap; }
-.grid-table td.c strong { font-variant-numeric: tabular-nums; }
 
 /* ------------------------------------------------------ plan du site (tiroir)
 
@@ -859,48 +858,3 @@ pre code {
   .steps > li::before { inset-inline-start: 20px; }
 }
 
-/* ---------------------------------------------- Le simulateur d'effectif
-
-   Le client pose son nombre exact de salariés et lit sa facture. Il reprend le
-   vocabulaire des cartes d'offres — même carte, même rayon, même ombre — parce
-   qu'il répond à la même question qu'elles, en plus précis. */
-.sim { max-width: 560px; background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius-l); padding: 30px 26px; box-shadow: var(--shadow-m);
-  text-align: center; }
-.sim-field { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.sim-field > span:first-child { font-size: .84rem; font-weight: 600; color: var(--ink-2);
-  letter-spacing: .02em; }
-
-/* Le champ et ses deux boutons ne forment qu'un objet : un liseré autour des
-   trois, et aucun entre eux. */
-.sim-input { display: inline-flex; align-items: stretch; border: 1px solid var(--line-2);
-  border-radius: 999px; overflow: hidden; background: var(--bg); }
-.sim-input input { width: 6.5ch; border: 0; padding: 12px 4px; text-align: center;
-  font: inherit; font-size: 1.5rem; font-weight: 720; color: var(--ink);
-  background: transparent; -moz-appearance: textfield; }
-/* Les flèches natives feraient doublon avec les deux boutons, et ne se stylent
-   pas de la même façon d'un navigateur à l'autre. */
-.sim-input input::-webkit-outer-spin-button,
-.sim-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-/* Le liseré de focus tient sur l'objet entier, pas sur le champ seul : posé à
-   l'intérieur d'une pilule, un rectangle la casserait en trois. */
-.sim-input input:focus-visible { outline: none; }
-.sim-input:focus-within { border-color: var(--brand-2);
-  box-shadow: 0 0 0 3px rgba(10, 102, 255, .18); }
-.sim-step { border: 0; background: var(--bg-3); color: var(--ink-2); width: 46px;
-  font-size: 1.3rem; line-height: 1; cursor: pointer; transition: background .2s var(--ease); }
-.sim-step:hover { background: var(--line); color: var(--ink); }
-.sim-step:focus-visible { outline: 2px solid var(--brand-2); outline-offset: -3px; border-radius: 999px; }
-
-.sim-total { margin: 22px 0 6px; display: flex; align-items: baseline;
-  justify-content: center; gap: 8px; }
-.sim-total [data-sim-total] { font-size: 2.6rem; font-weight: 760; letter-spacing: -.02em;
-  color: var(--brand); }
-.sim-per { color: var(--ink-3); font-size: .95rem; }
-.sim-detail { margin: 0; color: var(--ink-2); font-size: .92rem; }
-.sim-note { margin: 16px 0 0; color: var(--ink-3); font-size: .84rem; }
-
-@media (max-width: 560px) {
-  .sim { padding: 24px 18px; }
-  .sim-total [data-sim-total] { font-size: 2.1rem; }
-}

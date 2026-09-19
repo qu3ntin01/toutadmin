@@ -1,5 +1,5 @@
 const { band, pageHero, head } = require('./_shared');
-const { plans, planCard, gridRows, FREE_SEATS, RATE, euro, monthlyFor, billableFor,
+const { plans, planCard, euro, LAUNCH_PRICE, LAUNCH_CLIENTS, LAUNCH_MONTHS,
   REPLY_DAYS, SETUP_FEE, HOURLY_RATE, HOURS_PACK, HOURS_PACK_FEE } = require('./_plans');
 
 module.exports = function pricing(ctx) {
@@ -22,9 +22,9 @@ module.exports = function pricing(ctx) {
    *
    * La page comparait deux formules fonction par fonction, avec des « Non » en
    * face de la colonne gratuite : sauvegardes externalisées, multisite, SLA. Ce
-   * tableau datait des paliers. Depuis qu'il n'y en a plus — cinq salariés
-   * offerts, puis cinq euros par salarié —, il n'y a plus qu'un produit, et il
-   * est entier pour tout le monde. Le laisser aurait contredit, quinze lignes
+   * tableau datait des paliers. Depuis qu'il n'y en a plus — un forfait, et
+   * rien d'autre —, il n'y a plus qu'un produit, et il est entier pour tout le
+   * monde. Le laisser aurait contredit, quinze lignes
    * plus haut, la promesse « tout le produit est dans toutes les formules ».
    *
    * Restent deux prestations qui ne sont pas du logiciel et se chiffrent au cas
@@ -60,6 +60,12 @@ module.exports = function pricing(ctx) {
   ].map(([when, what]) =>
     `<tr><th scope="row">${esc(t(when))}</th><td>${esc(t(what))}</td></tr>`).join('\n              ');
 
+  /*
+   * Le tarif de lancement a une section à lui, et trois nombres qui se lisent
+   * d'un coup : dix euros, cent clients, douze mois. Il est daté et il est
+   * compté — une promotion sans fin n'est pas une promotion, c'est le prix, et
+   * un client qui la découvre en la perdant la vit comme une hausse.
+   */
   const faq = [1, 9, 6, 7, 4].map((n) => `<details class="reveal">
             <summary>${esc(t(`faq.q${n}`))}${icon('plus')}</summary>
             <div class="answer">${esc(t(`faq.a${n}`))}</div>
@@ -73,7 +79,7 @@ module.exports = function pricing(ctx) {
 
     <section class="section-tight">
       <div class="wrap">
-        <p class="center reveal"><span class="eyebrow">${icon('users')}${esc(t('pricing.perEmployee'))}</span></p>
+        <p class="center reveal"><span class="eyebrow">${icon('users')}${esc(t('pricing.flat'))}</span></p>
         <div class="plans stagger mt-l">
           ${cards}
         </div>
@@ -83,56 +89,22 @@ module.exports = function pricing(ctx) {
 
     <section class="section tinted">
       <div class="wrap">
-        ${head(ctx, null, t('sim.title'), t('sim.lede'))}
+        ${head(ctx, null, t('pricing.launchTitle'), t('pricing.launchLede'))}
 
-        <div class="sim reveal mx-auto" data-sim
-             data-sim-free="${FREE_SEATS}" data-sim-rate="${RATE}"
-             data-sim-currency="EUR" data-sim-free-label="${esc(t('pricing.free'))}">
-          <label class="sim-field">
-            <span>${esc(t('sim.count'))}</span>
-            <span class="sim-input">
-              <button type="button" class="sim-step" data-sim-step="-1"
-                      aria-label="${esc(t('sim.less'))}">−</button>
-              <input type="number" min="0" max="100000" step="1" value="12"
-                     data-sim-count inputmode="numeric" />
-              <button type="button" class="sim-step" data-sim-step="1"
-                      aria-label="${esc(t('sim.more'))}">+</button>
-            </span>
-          </label>
-
-          <p class="sim-total" aria-live="polite">
-            <span data-sim-total>${esc(euro(ctx.locale.code, monthlyFor(12)))}</span>
-            <span class="sim-per">${esc(t('pricing.perMonth'))}</span>
-          </p>
-
-          <p class="sim-detail" data-sim-detail data-model="${esc(t('sim.detail'))}">${
-            esc(t('sim.detail')
-              .replace('{total}', '12').replace('{free}', String(FREE_SEATS))
-              .replace('{billable}', String(billableFor(12))).replace('{rate}', euro(ctx.locale.code, RATE)))
-          }</p>
-
-          <p class="sim-note">${esc(t('sim.note'))}</p>
+        <div class="plans plans-3 stagger mt-l">
+          ${[
+            [t('pricing.launch.priceName'), euro(ctx.locale.code, LAUNCH_PRICE), t('pricing.perMonth')],
+            [t('pricing.launch.seatsName'), String(LAUNCH_CLIENTS), t('pricing.launch.seatsUnit')],
+            [t('pricing.launch.termName'), String(LAUNCH_MONTHS), t('pricing.launch.termUnit')],
+          ].map(([nom, valeur, unite], i) => `<article class="plan${i === 0 ? ' is-featured' : ''} reveal">
+            <div class="plan-name">${esc(nom)}</div>
+            <div class="plan-price">
+              <span class="plan-amount">${esc(valeur)}</span>
+              <span class="plan-per">${esc(unite)}</span>
+            </div>
+          </article>`).join('\n          ')}
         </div>
-      </div>
-    </section>
 
-    <section class="section">
-      <div class="wrap">
-        ${head(ctx, null, t('pricing.gridTitle'), t('pricing.gridLede'))}
-        <div class="table-wrap reveal grid-table">
-          <table>
-            <thead>
-              <tr>
-                <th scope="col">${esc(t('pricing.col.headcount'))}</th>
-                <th scope="col">${esc(t('pricing.col.perEmployee'))}</th>
-                <th scope="col">${esc(t('pricing.col.monthly'))}</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${gridRows(ctx)}
-            </tbody>
-          </table>
-        </div>
         <div class="note reveal mx-auto mt-l">
           <h3>${esc(t('pricing.argTitle'))}</h3>
           <p>${esc(t('pricing.argBody'))}</p>
