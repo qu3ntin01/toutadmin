@@ -54,7 +54,7 @@ const CLIENT_URL = 'https://manager.toutadmin.com/';
 // La vitrine du catalogue : ce que le produit sait faire, rayon par rayon, et
 // à quel prix. Site voisin, même règle que les deux au-dessus — une seule
 // ligne à changer le jour où l'adresse bouge.
-const STORE_URL = 'https://store.toutadmin.com/';
+const STORE_URL = 'https://appstore.toutadmin.com/';
 
 /* --------------------------------------------------------------- outillage */
 
