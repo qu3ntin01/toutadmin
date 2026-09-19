@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'Een HR-tool, een boekhoudpakket, een projectbeheerder, een supportticketsysteem, een loonstrookkluis: vijf abonnementen van 8 of 15 € per gebruiker, vijf databases die niet met elkaar praten, vijf facturen. Toutadmin vervangt de hele stapel voor de prijs van één gebruiker bij een van hen — en de gegevens staan eindelijk op één plek.',
   'faq.q9': 'Wat gebeurt er als mijn personeelsbestand in de loop van het jaar verandert?',
   'faq.a9': 'Niets. De prijs is een vast bedrag: hij gaat niet omhoog of omlaag met het aantal medewerkers. U neemt tien mensen aan, de factuur is dezelfde; er vertrekken er tien, ook dan. De enige drempel in het product is die van het gratis pakket, bij vijf medewerkers.',
+  'nav.store': 'De toepassingen',
+  'menu.store.d': 'Alles wat het product kan, schap voor schap, en tegen welke prijs. Aparte website.',
   'nav.docs': 'Documentatie',
   'menu.title': 'De hele site',
   'menu.close': 'Sitemap sluiten',

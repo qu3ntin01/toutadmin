@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'Una herramienta de RR. HH., un programa de contabilidad, un gestor de proyectos, una mesa de soporte, una caja fuerte de nóminas: cinco suscripciones a 8 o 15 € por usuario, cinco bases que no se hablan, cinco facturas. Toutadmin sustituye toda la pila por el precio de un solo usuario en cualquiera de ellas — y los datos, por fin, están en el mismo sitio.',
   'faq.q9': '¿Qué pasa si mi plantilla cambia a lo largo del año?',
   'faq.a9': 'Nada. El precio es una tarifa plana: no sube ni baja con la plantilla. Contrata a diez personas, la factura es la misma; se van diez, también es la misma. El único umbral del producto es el de la fórmula gratuita, en cinco empleados.',
+  'nav.store': 'Las aplicaciones',
+  'menu.store.d': 'Todo lo que el producto sabe hacer, estante por estante, y a qué precio. Sitio aparte.',
   'nav.docs': 'Documentación',
   'menu.title': 'Todo el sitio',
   'menu.close': 'Cerrar el mapa del sitio',

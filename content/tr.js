@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'Bir İK aracı, bir muhasebe yazılımı, bir proje yöneticisi, bir destek talep sistemi, bir bordro kasası: kullanıcı başına 8 ya da 15 € tutan beş abonelik, birbiriyle konuşmayan beş veritabanı, beş fatura. Toutadmin bunlardan herhangi birindeki tek bir kullanıcının fiyatına tüm yığının yerini alır — ve veriler nihayet tek bir yerdedir.',
   'faq.q9': 'Yıl içinde çalışan sayım değişirse ne olur?',
   'faq.a9': 'Hiçbir şey. Fiyat sabittir: çalışan sayısıyla ne artar ne azalır. On kişi işe alırsınız, fatura aynıdır; on kişi ayrılır, yine aynıdır. Üründeki tek eşik, beş çalışandaki ücretsiz formülün eşiğidir.',
+  'nav.store': 'Uygulamalar',
+  'menu.store.d': 'Ürünün yapabildiği her şey, raf raf, ve hangi fiyata. Ayrı site.',
   'nav.docs': 'Belgeler',
   'menu.title': 'Sitenin tamamı',
   'menu.close': 'Site haritasını kapat',

@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'Một công cụ nhân sự, một phần mềm kế toán, một trình quản lý dự án, một hệ thống phiếu hỗ trợ, một két phiếu lương: năm gói thuê bao 8 hoặc 15 € mỗi người dùng, năm cơ sở dữ liệu không nói chuyện với nhau, năm hoá đơn. Toutadmin thay cả chồng đó bằng giá một người dùng ở bất kỳ cái nào — và dữ liệu, cuối cùng, nằm cùng một chỗ.',
   'faq.q9': 'Nếu quy mô nhân sự của tôi thay đổi giữa năm thì sao?',
   'faq.a9': 'Không gì cả. Giá là mức trọn gói: không tăng cũng không giảm theo số nhân sự. Quý khách tuyển mười người, hoá đơn vẫn thế; mười người nghỉ, cũng vẫn thế. Ngưỡng duy nhất trong sản phẩm là ngưỡng của gói miễn phí, ở năm nhân viên.',
+  'nav.store': 'Các ứng dụng',
+  'menu.store.d': 'Tất cả những gì sản phẩm làm được, từng kệ một, và với giá nào. Trang riêng.',
   'nav.docs': 'Tài liệu',
   'menu.title': 'Toàn bộ trang',
   'menu.close': 'Đóng sơ đồ trang',

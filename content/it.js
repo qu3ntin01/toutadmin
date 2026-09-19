@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'Uno strumento HR, un software di contabilità, un gestore di progetti, un sistema di ticket, una cassaforte di buste paga: cinque abbonamenti da 8 o 15 € per utente, cinque basi che non si parlano, cinque fatture. Toutadmin sostituisce l’intera pila al prezzo di un solo utente presso uno di loro — e i dati, finalmente, sono nello stesso posto.',
   'faq.q9': 'Che succede se il mio organico cambia durante l’anno?',
   'faq.a9': 'Niente. Il prezzo è un forfait: non sale né scende con l’organico. Assume dieci persone, la fattura è la stessa; ne partono dieci, è la stessa anche allora. L’unica soglia del prodotto è quella della formula gratuita, a cinque dipendenti.',
+  'nav.store': 'Le applicazioni',
+  'menu.store.d': 'Tutto ciò che il prodotto sa fare, scaffale per scaffale, e a quale prezzo. Sito separato.',
   'nav.docs': 'Documentazione',
   'menu.title': 'Tutto il sito',
   'menu.close': 'Chiudere la mappa del sito',

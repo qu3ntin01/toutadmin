@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'An HR tool, an accounting package, a project manager, a support ticketing system, a payslip vault: five subscriptions at €8 or €15 per user, five databases that do not talk to each other, five invoices. Toutadmin replaces the whole stack for the price of one user at any one of them — and the data, at last, is in one place.',
   'faq.q9': 'What happens if my headcount changes during the year?',
   'faq.a9': 'Nothing. The price is a flat fee: it moves neither up nor down with headcount. You hire ten people, the invoice is the same; ten leave, it is the same too. The only threshold in the product is the free plan’s, at five employees.',
+  'nav.store': 'The applications',
+  'menu.store.d': 'Everything the product can do, shelf by shelf, and at what price. Separate site.',
   'nav.docs': 'Documentation',
   'menu.title': 'The whole site',
   'menu.close': 'Close the site map',

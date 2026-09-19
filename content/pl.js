@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'Narzędzie HR, program księgowy, menedżer projektów, system zgłoszeń, sejf na paski płacowe: pięć abonamentów po 8 lub 15 € za użytkownika, pięć baz, które ze sobą nie rozmawiają, pięć faktur. Toutadmin zastępuje cały stos za cenę jednego użytkownika u któregokolwiek z nich — a dane są wreszcie w jednym miejscu.',
   'faq.q9': 'Co się stanie, jeśli liczba pracowników zmieni się w ciągu roku?',
   'faq.a9': 'Nic. Cena jest ryczałtem: nie rośnie ani nie maleje wraz z liczbą pracowników. Zatrudnia Pan/Pani dziesięć osób — faktura ta sama; odchodzi dziesięć — również ta sama. Jedyny próg w produkcie to próg formuły darmowej, przy pięciu pracownikach.',
+  'nav.store': 'Aplikacje',
+  'menu.store.d': 'Wszystko, co potrafi produkt, półka po półce, i w jakiej cenie. Osobna strona.',
   'nav.docs': 'Dokumentacja',
   'menu.title': 'Cała strona',
   'menu.close': 'Zamknij mapę strony',

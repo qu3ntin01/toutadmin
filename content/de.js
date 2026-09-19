@@ -422,6 +422,8 @@ module.exports = {
   'pricing.argBody': 'Ein HR-Werkzeug, eine Buchhaltung, eine Projektverwaltung, ein Support-Ticketsystem, ein Lohnzettel-Tresor: fünf Abonnements zu 8 oder 15 € pro Nutzer, fünf Datenbanken, die nicht miteinander reden, fünf Rechnungen. Toutadmin ersetzt den ganzen Stapel zum Preis eines einzigen Nutzers bei einem davon — und die Daten liegen endlich an einem Ort.',
   'faq.q9': 'Was passiert, wenn sich meine Mitarbeiterzahl im Jahr ändert?',
   'faq.a9': 'Nichts. Der Preis ist eine Pauschale: er steigt und fällt nicht mit der Mitarbeiterzahl. Sie stellen zehn Menschen ein, die Rechnung bleibt gleich; zehn gehen, sie bleibt ebenfalls gleich. Die einzige Schwelle im Produkt ist die des kostenlosen Tarifs, bei fünf Mitarbeitenden.',
+  'nav.store': 'Die Anwendungen',
+  'menu.store.d': 'Alles, was das Produkt kann, Regal für Regal, und zu welchem Preis. Eigene Website.',
   'nav.docs': 'Dokumentation',
   'menu.title': 'Die ganze Seite',
   'menu.close': 'Übersicht schließen',

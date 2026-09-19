@@ -506,6 +506,8 @@ module.exports = {
   'pricing.argBody': 'Un outil RH, un logiciel de compta, un gestionnaire de projets, une billetterie de support, un coffre-fort de bulletins : cinq abonnements à 8 ou 15 € par utilisateur, cinq bases qui ne se parlent pas, cinq factures. Toutadmin remplace la pile entière pour le prix d’un seul utilisateur chez l’un d’eux — et les données, elles, sont enfin au même endroit.',
   'faq.q9': 'Que se passe-t-il si mon effectif change en cours d’année ?',
   'faq.a9': 'Rien. Le prix est un forfait : il ne bouge ni à la hausse ni à la baisse avec l’effectif. Vous embauchez dix personnes, la facture est la même ; il en part dix, elle est la même aussi. Le seul seuil du produit est celui de la formule gratuite, à cinq salariés.',
+  'nav.store': 'Les applications',
+  'menu.store.d': 'Tout ce que le produit sait faire, rayon par rayon, et à quel prix. Site séparé.',
   'nav.docs': 'Documentation',
   'menu.title': 'Tout le site',
   'menu.close': 'Fermer le plan du site',

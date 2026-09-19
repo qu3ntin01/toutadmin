@@ -51,6 +51,11 @@ const DOC_URL = 'https://docs.toutadmin.com/';
 // son propre hébergement, où il sert à la racine.
 const CLIENT_URL = 'https://manager.toutadmin.com/';
 
+// La vitrine du catalogue : ce que le produit sait faire, rayon par rayon, et
+// à quel prix. Site voisin, même règle que les deux au-dessus — une seule
+// ligne à changer le jour où l'adresse bouge.
+const STORE_URL = 'https://store.toutadmin.com/';
+
 /* --------------------------------------------------------------- outillage */
 
 const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -74,6 +79,9 @@ const ICONS = {
   chart: '<path d="M4 20V9m5 11V4m5 16v-7m5 7V8"/>',
   lock: '<rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/>',
+  // La grille : la vitrine du catalogue, où les applications se rangent en
+  // cases. Dessinée ici parce qu'aucune du jeu ne disait cela.
+  grid: '<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
   layers: '<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/>',
   code: '<path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/>',
   scale: '<path d="M12 4v16M7 20h10M5 8h14M8 8l-3 6a3 3 0 0 0 6 0L8 8Zm8 0-3 6a3 3 0 0 0 6 0l-3-6Z"/>',
@@ -258,6 +266,7 @@ function drawerHtml(t, ctx) {
       ['securite', 'nav.security', 'menu.security.d', 'shield'],
       ['installation', 'nav.install', 'menu.install.d', 'box'],
       ['tarifs', 'nav.pricing', 'menu.pricing.d', 'chart'],
+      [STORE_URL, 'nav.store', 'menu.store.d', 'grid'],
     ], false],
     ['menu.group.more', [
       ['contact', 'nav.contact', 'menu.contact.d', 'users'],
@@ -311,6 +320,7 @@ function footHtml(t, ctx) {
           <h4>${esc(t('foot.resources'))}</h4>
           <ul>
             <li><a href="${ctx.href('tarifs')}">${esc(t('nav.pricing'))}</a></li>
+            <li><a href="${STORE_URL}" rel="noopener">${esc(t('nav.store'))}</a></li>
             <li><a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a></li>
             <li><a href="${ctx.href('contact')}">${esc(t('nav.contact'))}</a></li>
           </ul>
