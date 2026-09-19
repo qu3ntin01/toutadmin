@@ -14,11 +14,21 @@ const docPage = (ctx, name) =>
    ce qui décide de la formule, c'est l'effectif, pas l'endroit où tourne
    l'instance. L'adresse est écrite ici et nulle part ailleurs.
 
-   Le nom de machine est neutre, et c'est délibéré : un visiteur qui clique ne
-   doit pas apprendre, dans sa barre d'adresse, qu'il existe une console
-   d'administration et où elle est. Le même serveur répond, sous un nom qui ne
-   dit que ce que le visiteur fait — il vient chercher le produit. */
-const DOWNLOAD_URL = 'https://licences.toutadmin.com/telecharger';
+   Elle a sa propre machine — branche « telechargement » du dépôt —, et son nom
+   ne dit que ce que le visiteur vient y faire. Un visiteur qui clique ne doit
+   pas apprendre, dans sa barre d'adresse, qu'il existe une console
+   d'administration et où elle est.
+
+   La page rendue parle les seize langues du site : le lien porte donc celle du
+   lecteur, sans quoi un visiteur japonais cliquerait « 製品を取り寄せる » pour
+   atterrir sur une page française. */
+const DOWNLOAD_URL = 'https://dl.toutadmin.com/';
+
+/* La page de téléchargement choisit sa langue sur ce que le navigateur annonce,
+   mais un lecteur peut très bien lire le site en japonais depuis un navigateur
+   réglé en anglais. Le lien porte donc la langue de la page qu'il quitte, qui
+   est la meilleure information dont nous disposons. */
+const lienTelechargement = (ctx) => `${DOWNLOAD_URL}?lang=${ctx.locale.code}`;
 
 /* Les blocs de commandes ne sont pas traduits : ce sont les mêmes lignes dans
    les seize langues, et traduire une commande la rendrait fausse. Seule la
@@ -105,7 +115,7 @@ module.exports = function installation(ctx) {
         <p class="lede reveal">${esc(t('install.lede'))}</p>
         <div class="hero-cta reveal">
           <a class="btn" href="${ctx.href('contact')}">${esc(t('install.saasCta'))}${icon('arrow')}</a>
-          <a class="btn btn-ghost" href="${DOWNLOAD_URL}" rel="noopener">${icon('box')}${esc(t('install.dlCta'))}</a>
+          <a class="btn btn-ghost" href="${lienTelechargement(ctx)}" rel="noopener">${icon('box')}${esc(t('install.dlCta'))}</a>
         </div>
         <p class="hero-note reveal">${esc(t('install.saasNote'))}</p>
       </div>
