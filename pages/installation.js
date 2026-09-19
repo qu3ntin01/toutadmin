@@ -12,8 +12,13 @@ const docPage = (ctx, name) =>
 
 /* Le téléchargement est ouvert à tout le monde, formule gratuite comprise :
    ce qui décide de la formule, c'est l'effectif, pas l'endroit où tourne
-   l'instance. L'adresse est écrite ici et nulle part ailleurs. */
-const DOWNLOAD_URL = 'https://app.toutadmin.com/telecharger';
+   l'instance. L'adresse est écrite ici et nulle part ailleurs.
+
+   Le nom de machine est neutre, et c'est délibéré : un visiteur qui clique ne
+   doit pas apprendre, dans sa barre d'adresse, qu'il existe une console
+   d'administration et où elle est. Le même serveur répond, sous un nom qui ne
+   dit que ce que le visiteur fait — il vient chercher le produit. */
+const DOWNLOAD_URL = 'https://licences.toutadmin.com/telecharger';
 
 /* Les blocs de commandes ne sont pas traduits : ce sont les mêmes lignes dans
    les seize langues, et traduire une commande la rendrait fausse. Seule la
