@@ -10,9 +10,16 @@ module.exports = function pricing(ctx) {
     2: ['pricing.f.allSpaces', 'pricing.f.local', 'pricing.f.backupOff', 'pricing.f.api', 'pricing.f.supportMail'],
   };
 
+  /*
+ * Les deux nombres du premier avantage — les espaces et les modules — sortent
+ * de `chiffres.json` comme ceux de la page d'accueil, et pour la même raison :
+ * « Les 35 espaces » était faux dans seize langues à la fois.
+ */
+  const n = ctx.chiffres;
+
   const cards = plans(ctx).map((plan) => {
     const list = `<ul class="plan-list">
-              ${perks[plan.n].map((key) => `<li>${icon('check')}<span>${esc(t(key))}</span></li>`).join('\n              ')}
+              ${perks[plan.n].map((key) => `<li>${icon('check')}<span>${esc(t(key, { espaces: n.espaces, modules: n.modules }))}</span></li>`).join('\n              ')}
             </ul>`;
     return planCard(ctx, plan, list);
   }).join('\n          ');
@@ -48,7 +55,7 @@ module.exports = function pricing(ctx) {
     ['pricing.f.migration', opt],
     ['pricing.f.sla', opt],
   ].map(([key, valeur]) =>
-    `<tr><th scope="row">${esc(t(key))}</th><td class="c">${valeur}</td></tr>`).join('\n              ');
+    `<tr><th scope="row">${esc(t(key, { espaces: n.espaces, modules: n.modules }))}</th><td class="c">${valeur}</td></tr>`).join('\n              ');
 
   // Les trois paliers d'une licence qui s'arrête. On les met sur la page qui
   // vend : un client a le droit de savoir ce qui se passe s'il cesse de payer,

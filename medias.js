@@ -21,6 +21,25 @@ module.exports = {
         'alertes', 'securite', 'rgpd', 'parapheur', 'accueil', 'import', 'integrations', 'sauvegardes'],
     },
     {
+      /*
+       * Ce que le produit sait faire de lui-même. Ces écrans étaient absents
+       * du site alors qu'ils répondent aux questions qu'on pose avant
+       * d'acheter : ce qui prouve la licence, ce qui le tient à jour, et ce
+       * qu'il garde comme trace.
+       *
+       * « applications » et « sondages » n'y sont pas, et c'est délibéré :
+       * sur l'instance de démonstration, la première affiche un bandeau rouge
+       * — elle n'est reliée à aucun éditeur, donc sans catalogue à lire — et
+       * la seconde est vide, le jeu de démonstration ne posant aucun sondage.
+       * Une galerie de vente qui montre un écran d'erreur et un écran vide
+       * dessert le produit mieux que ne le servirait leur absence. Le jour où
+       * la démonstration portera l'un et l'autre, ils reprendront leur place
+       * ici et dans `captures.js`.
+       */
+      key: 'screens.platform',
+      shots: ['licence', 'mises-a-jour', 'journaux'],
+    },
+    {
       key: 'screens.modules',
       shots: ['comptabilite', 'paie', 'tresorerie', 'immobilisations', 'pieces', 'facturation',
         'crm', 'stock', 'flotte'],

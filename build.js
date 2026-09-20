@@ -127,7 +127,43 @@ for (const locale of LOCALES) {
 /* ------------------------------------------------------------- médias */
 
 const MEDIA = require(path.join(ROOT, 'medias.js'));
+/*
+ * Les six nombres de la page d'accueil, comptés une fois par `chiffres.js` et
+ * versionnés à côté. La construction ne va pas les chercher dans le produit :
+ * le site doit se bâtir sur une machine qui n'a pas les deux éditions sous la
+ * main.
+ */
+const CHIFFRES = require(path.join(ROOT, 'chiffres.json'));
 const MEDIA_FILES = new Set(fs.readdirSync(path.join(ROOT, 'medias')));
+
+/*
+ * Une capture trop légère n'est pas une capture.
+ *
+ * Le CMS plafonne les requêtes par adresse et répond au-delà « Too many
+ * requests, please try again later. » — une ligne de texte noir sur blanc. Le
+ * navigateur l'affiche, la photographie, et le fichier part en ligne : cinq
+ * écrans coréens ont ainsi été publiés sous la forme d'un refus en anglais.
+ * Rien ne les distinguait, sinon leur poids : neuf kilo-octets là où une
+ * interface pleine en pèse cent.
+ *
+ * Le script de capture sait maintenant reconnaître le refus à son code de
+ * réponse. Ce contrôle-ci est la seconde barrière, à la dernière porte avant
+ * la publication : il ne sait pas ce qu'il y a sur l'image, mais il sait
+ * qu'une page d'application ne tient pas dans si peu.
+ */
+const PLANCHER = 15 * 1024;
+const maigres = [];
+for (const fichier of MEDIA_FILES) {
+  if (!fichier.endsWith('.png')) continue;
+  const taille = fs.statSync(path.join(ROOT, 'medias', fichier)).size;
+  if (taille < PLANCHER) maigres.push(`${fichier} (${Math.round(taille / 1024)} Ko)`);
+}
+if (maigres.length) {
+  throw new Error(
+    `Capture(s) trop légère(s), probablement une page d'erreur photographiée :\n  ${maigres.join('\n  ')}\n`
+    + 'Refaites-les : node captures.js <nom sans .png>'
+  );
+}
 
 /* ------------------------------------------------------------- gabarit */
 
@@ -247,8 +283,18 @@ function drawerHtml(t, ctx) {
   };
   const item = ([page, label, note, ic]) => `<a class="drawer-item${ctx.page === page ? ' is-active' : ''}" href="${target(page)}"${page.startsWith('http') ? ' rel="noopener"' : ''}>
             <span class="ico">${icon(ic)}</span>
-            <span><strong>${esc(t(label))}</strong><span class="drawer-note">${esc(t(note))}</span></span>
+            <span><strong>${esc(t(label))}</strong><span class="drawer-note">${esc(t(note, { count: NB_CAPTURES }))}</span></span>
           </a>`;
+
+  /*
+   * Le nombre de captures se compte, il ne se recopie pas.
+   *
+   * Le tiroir annonçait « quarante captures » dans les seize langues. Elles
+   * étaient cinquante-quatre, et personne n'avait menti : le chiffre avait
+   * été juste, une fois, puis la galerie avait grossi sans lui. Un nombre
+   * écrit à la main dans seize fichiers vieillit toujours ainsi.
+   */
+  const NB_CAPTURES = MEDIA.groups.reduce((n, groupe) => n + groupe.shots.length, 0);
 
   const domains = DOMAINS.map((key) =>
     `<a href="${ctx.href('fonctionnalites')}#${key}">${esc(t(`dom.${key}.title`))}</a>`).join('\n            ');
@@ -377,6 +423,7 @@ for (const locale of LOCALES) {
       esc,
       icon,
       media: MEDIA,
+      chiffres: CHIFFRES,
       href: (name) => `${base}${name}.html`,
       hrefIn: (code, name) => (code === 'fr' ? `${base}${name}.html` : `${base}${code === locale.code ? '' : (locale.code === 'fr' ? `${code}/` : `../${code}/`)}${name}.html`),
       asset: (file) => `${base}assets/${file}`,
@@ -463,6 +510,12 @@ fs.writeFileSync(path.join(OUT, 'version.txt'),
   + `Pages     : ${written} (${PAGES.length} × ${LOCALES.length} langues)\n`
   + `Clés      : ${refKeys.length} par langue\n`
   + `Captures  : ${fs.readdirSync(path.join(ROOT, 'medias')).length} fichiers\n`
+  // Ce que la page d'accueil annonce au visiteur, relevé le jour où
+  // `chiffres.js` a compté : c'est la première chose qu'on veut vérifier
+  // quand on soupçonne le site d'avoir une version de retard.
+  + `Annoncé   : ${CHIFFRES.espaces} espaces · ${CHIFFRES.langues} langues · `
+  + `${CHIFFRES.tests} tests · ${CHIFFRES.modules} modules · ${CHIFFRES.libelles} libellés`
+  + ` (relevé ${CHIFFRES.releve})\n`
   + `Ressources: style ${VERSIONS.css} · thème ${VERSIONS.boot} · script ${VERSIONS.app}\n`);
 const urls = [];
 for (const locale of LOCALES) {

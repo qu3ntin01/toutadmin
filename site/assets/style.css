@@ -680,6 +680,111 @@ td.c { text-align: center; }
   padding: 10px 16px; border-radius: 0 0 8px 8px; transition: inset-block-start .2s; }
 .skip:focus { inset-block-start: 0; }
 
+/* =========================================================================
+   Finitions
+   =========================================================================
+   Ce qui suit ne porte aucune information : ce sont les quelques degrés qui
+   séparent une page correcte d'une page qu'on a envie de faire défiler. Tout
+   y est facultatif, tout se coupe quand la personne a demandé moins
+   d'animation, et rien ne casse sur un navigateur qui n'en connaît pas la
+   moitié.
+   ========================================================================= */
+
+/* ------------------------------------------------ d'une page à la suivante
+   Le site est fait de pages entières, et chaque clic repeignait tout : un
+   éclair blanc, puis la nouvelle page. La transition de document efface cet
+   éclair. Les navigateurs qui ne la connaissent pas ignorent la règle et
+   gardent le comportement d'avant — il n'y a rien à replier derrière. */
+@view-transition { navigation: auto; }
+
+/* La barre et le pied ne bougent pas d'une page à l'autre : les nommer les
+   fait glisser au lieu de disparaître et reparaître. */
+.nav { view-transition-name: barre; }
+.foot { view-transition-name: pied; }
+
+::view-transition-old(root) { animation-duration: .18s; }
+::view-transition-new(root) { animation-duration: .26s; }
+
+/* --------------------------------------------------- où en est la lecture
+   Un trait sous la barre, qui avance avec le défilement. Il est dessiné par
+   le compositeur à partir de la position de défilement, sans une ligne de
+   script ; là où « animation-timeline » manque, la jauge reste simplement à
+   zéro et ne se voit pas — d'où la transparence par défaut. */
+.nav::after {
+  content: ''; position: absolute; inset-block-end: -1px; inset-inline: 0;
+  block-size: 2px; background: linear-gradient(90deg, var(--brand), var(--brand-3));
+  transform: scaleX(0); transform-origin: left center; opacity: 0;
+}
+[dir="rtl"] .nav::after { transform-origin: right center; }
+
+@supports (animation-timeline: scroll()) {
+  .nav::after {
+    opacity: 1;
+    animation: jauge linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+@keyframes jauge { to { transform: scaleX(1); } }
+
+/* ------------------------------------------------------ reflet des cartes
+   Une lueur très basse suit le pointeur sur la carte survolée. Les deux
+   variables sont posées par le script ; sans lui, le dégradé reste centré et
+   l'opacité à zéro, c'est-à-dire invisible. Rien ne dépend de cet effet. */
+.card, .plan { position: relative; isolation: isolate; }
+.card::before, .plan::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit;
+  pointer-events: none; opacity: 0; transition: opacity .35s var(--ease);
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, var(--brand-2) 16%, transparent), transparent 62%);
+}
+@media (hover: hover) and (pointer: fine) {
+  .card:hover::before, .plan:hover::before { opacity: 1; }
+}
+
+/* L'offre mise en avant porte un filet dégradé plutôt qu'une bordure pleine :
+   elle se distingue sans crier, et le dégradé tourne au survol. */
+.plan.is-featured {
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    linear-gradient(140deg, var(--brand-2), color-mix(in srgb, #7c5cff 70%, var(--brand-3)) 55%, var(--brand)) border-box;
+  border-color: transparent;
+}
+
+/* --------------------------------------------------- profondeur du sombre
+   Le thème sombre était juste, et plat : un aplat presque noir du haut de la
+   page au bas. Deux nappes très diffuses lui rendent le relief que les ombres
+   donnent au thème clair — en sombre, une ombre noire sur un fond noir ne se
+   voit pas, et c'est la lumière qui doit faire le travail. */
+[data-theme="dark"] body {
+  background-image:
+    radial-gradient(1200px 620px at 78% -12%, color-mix(in srgb, var(--brand) 13%, transparent), transparent 66%),
+    radial-gradient(900px 520px at 4% 8%, color-mix(in srgb, #7c5cff 10%, transparent), transparent 62%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Et les ombres reprennent une teinte : du noir pur sur du presque noir ne
+   sépare rien, une ombre bleutée sépare. */
+[data-theme="dark"] {
+  --shadow-s: 0 1px 2px rgba(0, 0, 0, .55), 0 0 0 1px rgba(120, 155, 255, .04);
+  --shadow-m: 0 2px 6px rgba(0, 0, 0, .45), 0 14px 34px rgba(4, 10, 32, .7), 0 0 0 1px rgba(120, 155, 255, .05);
+  --shadow-l: 0 10px 28px rgba(0, 0, 0, .55), 0 34px 84px rgba(3, 8, 28, .78), 0 0 60px rgba(79, 139, 255, .10);
+}
+
+/* ------------------------------------------------------- le survol qui lève
+   Les cartes cliquables se soulèvent d'un cheveu. Celles qui ne mènent nulle
+   part ne bougent pas : une chose qui réagit au survol promet qu'on peut la
+   cliquer. */
+a.card { transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease); }
+a.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-m); border-color: color-mix(in srgb, var(--brand-2) 34%, var(--line)); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nav::after { display: none; }
+  .card::before, .plan::before { display: none; }
+  a.card:hover { transform: none; }
+  @view-transition { navigation: none; }
+}
+
 /* ------------------------------------------------------------- cadences */
 .stagger > * { transition-delay: 0ms; }
 .stagger > :nth-child(2) { transition-delay: 70ms; }

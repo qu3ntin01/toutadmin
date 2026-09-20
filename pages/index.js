@@ -5,24 +5,21 @@ module.exports = function index(ctx) {
   const { t, esc, icon, media } = ctx;
 
   /*
-   * Ces chiffres se relèvent dans le code, ils ne s'inventent pas.
-   *
-   *   tests    : « npm test » côté Node, « php tests/run.php » côté PHP, additionnés —
-   *              la page vend le produit, pas une de ses deux éditions.
-   *   libellés : le nombre de clés du dictionnaire français de l'édition Node.
-   *
-   * Relevé le 17 septembre 2026 : 970 + 708 tests, 3 145 clés. Le site de
-   * documentation les relit à chaque construction et les publie aussi ; si les
-   * deux ne concordent plus, c'est cette ligne-ci qui a vieilli.
+   * Ces chiffres se relèvent dans le code, ils ne s'inventent pas — et
+   * depuis qu'ils vieillissaient malgré le commentaire qui le demandait, ils
+   * ne se recopient plus non plus. `chiffres.js` les compte dans les deux
+   * éditions et les écrit dans `chiffres.json`, versionné à côté ; la
+   * construction ne lit que ce fichier.
    */
+  const n = ctx.chiffres;
   const stats = [
-    ['35', 'stats.spaces', 'stats.spacesNote'],
-    ['16', 'stats.languages', 'stats.languagesNote'],
-    ['1746', 'stats.tests', 'stats.testsNote'],
-    ['7', 'stats.modules', 'stats.modulesNote'],
-    ['3214', 'stats.keys', 'stats.keysNote'],
-    ['0', 'stats.deps', 'stats.depsNote'],
-  ].map(([value, key, note], i) => `<div class="stat reveal">
+    [n.espaces, 'stats.spaces', 'stats.spacesNote'],
+    [n.langues, 'stats.languages', 'stats.languagesNote'],
+    [n.tests, 'stats.tests', 'stats.testsNote'],
+    [n.modules, 'stats.modules', 'stats.modulesNote'],
+    [n.libelles, 'stats.keys', 'stats.keysNote'],
+    [n.services, 'stats.deps', 'stats.depsNote'],
+  ].map(([value, key, note]) => `<div class="stat reveal">
             <div class="stat-v" data-count="${value}">0</div>
             <div class="stat-k">${esc(t(key))}</div>
             <div class="stat-n">${esc(t(note))}</div>
@@ -76,7 +73,7 @@ module.exports = function index(ctx) {
 
   return {
     title: `${t('site.name')} — ${t('site.tagline')}`,
-    description: t('hero.lede'),
+    description: t('hero.lede', { espaces: n.espaces }),
     body: `
     <section class="hero">
       <div class="hero-bg"></div><div class="hero-grid-lines"></div>
@@ -84,7 +81,7 @@ module.exports = function index(ctx) {
         <div>
           <span class="eyebrow reveal">${icon('spark')}${esc(t('hero.eyebrow'))}</span>
           <h1 class="reveal">${esc(title[0])}<br /><span class="g">${esc(title[1] || '')}</span></h1>
-          <p class="lede reveal">${esc(t('hero.lede'))}</p>
+          <p class="lede reveal">${esc(t('hero.lede', { espaces: n.espaces }))}</p>
           <div class="hero-cta reveal">
             <a class="btn" href="${ctx.href('tarifs')}">${esc(t('hero.ctaPrimary'))}${icon('arrow')}</a>
             <a class="btn btn-ghost" href="${ctx.href('fonctionnalites')}">${esc(t('hero.ctaSecondary'))}</a>
@@ -100,11 +97,11 @@ module.exports = function index(ctx) {
           ${frame(ctx, media.hero, null, false)}
           <div class="float float-1">
             <div class="float-k">${esc(t('stats.spaces'))}</div>
-            <div class="float-v">35</div>
+            <div class="float-v">${n.espaces}</div>
           </div>
           <div class="float float-2">
             <div class="float-k">${esc(t('stats.languages'))}</div>
-            <div class="float-v ok">16</div>
+            <div class="float-v ok">${n.langues}</div>
           </div>
         </div>
       </div>

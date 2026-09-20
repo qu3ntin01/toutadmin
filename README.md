@@ -30,7 +30,11 @@ layout.html     gabarit commun
 pages/*.js      une fonction de rendu par page
 content/*.js    un dictionnaire par langue ; fr est la référence
 medias.js       la carte des captures : onglets, galerie, paires clair/sombre
-medias/         les captures d'écran (PNG)
+medias/         les captures d'écran (PNG à palette)
+captures.js     refait les captures sur une instance réelle (Playwright)
+images.js       réduit une capture à 256 couleurs et réécrit le PNG
+chiffres.js     compte les chiffres de la page d'accueil dans les deux éditions
+chiffres.json   ← leur relevé, versionné ; c'est lui que la construction lit
 assets/         feuille de style, script, thème, favicon
 site/           ← sortie générée, versionnée, prête à héberger
 ```
@@ -56,13 +60,51 @@ Toutes viennent d'une instance réelle peuplée d'un jeu de démonstration : auc
 maquette, aucun montage. Les six écrans du héros et du carrousel existent **dans
 chaque langue** — montrer une interface française à un visiteur japonais
 annulerait la promesse des seize langues. Les autres écrans sont en français.
-
-Six écrans existent aussi en thème sombre ; la page bascule l'image avec elle,
+Sept écrans existent aussi en thème sombre ; la page bascule l'image avec elle,
 sans quoi un site sombre afficherait des captures claires.
 
-Pour refaire les captures : peupler une instance, puis piloter un navigateur —
-la procédure tient en un script, et les fichiers se déposent dans `medias/` sous
-le nom `<écran>.png`, `<écran>-<langue>.png` ou `<écran>-sombre.png`.
+**Elles se refont en une commande**, et la marche à suivre est en tête de
+`captures.js` : deux instances du CMS — celle de démonstration, et une seconde
+qu'on laisse devant son assistant d'installation, parce que cette porte se
+referme dès qu'on a fini de l'installer.
+
+```bash
+npm install --no-save playwright        # jamais dans le dépôt du site
+
+CMS=http://127.0.0.1:8500 CMS_NEUF=http://127.0.0.1:8501 \
+ADMIN_MDP=… MEMBRE_MDP=… node captures.js [nom-de-capture …]
+```
+
+Sans argument il refait les cent cinquante et une ; avec des noms il ne refait
+que ceux-là. Chaque image sort du navigateur en couleurs vraies et passe par
+`images.js`, qui la réduit à deux cent cinquante-six couleurs : le poids tombe
+d'un facteur quatre pour un écart qu'on ne voit pas. Les pages plus hautes que
+mille quatre cents points sont coupées là — le site n'en montre jamais autant,
+et la visionneuse écraserait le reste en un ruban illisible.
+
+Le script change la langue des deux comptes de démonstration comme le ferait un
+utilisateur, par l'écran « Mon profil », et les remet en français en partant :
+un cookie ne suffit pas, la préférence enregistrée du compte l'emporte une fois
+la session ouverte.
+
+## Les chiffres de la page d'accueil
+
+Six nombres : des espaces, des langues, des tests, des modules, des libellés.
+Ils étaient écrits à la main. Ils ont vieilli — la page annonçait mille sept
+cent quarante-six tests quand il y en avait mille sept cent quatre-vingt-onze,
+et trente-cinq espaces quand il y en avait quarante-quatre, dans seize langues
+à la fois. Un chiffre invérifiable sur une page de vente est pire qu'un chiffre
+absent : il se vérifie, justement.
+
+```bash
+TOUTADMIN_SOURCE=/chemin/vers/toutadmin \
+TOUTADMIN_PHP_SOURCE=/chemin/vers/version-web node chiffres.js
+```
+
+Le script écrit `chiffres.json`, versionné. **La construction ne lit que ce
+fichier** : le site se bâtit sur une machine qui n'a pas les deux éditions sous
+la main, et le jour où les chiffres bougent, cela se voit dans l'historique au
+lieu de dériver en silence.
 
 ## L'adresse du site de documentation
 

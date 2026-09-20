@@ -1,0 +1,8 @@
+# Playwright, et lui seul.
+#
+# Le site n'a aucune dépendance : « node build.js » suffit, et il n'y a pas de
+# package.json. Le navigateur n'est nécessaire que pour refaire les captures,
+# le temps de les refaire — d'où le « --no-save » de la procédure. Sans cette
+# ligne, un dossier de cent mégaoctets entrerait dans le dépôt le jour où
+# quelqu'un lancerait « captures.js » sans y penser.
+node_modules

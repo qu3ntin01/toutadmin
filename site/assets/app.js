@@ -301,6 +301,30 @@
     });
   }
 
+  /* --------------------------------------------------- reflet des cartes
+     Une lueur suit le pointeur sur la carte survolée. Deux variables CSS, et
+     rien d'autre : le dessin est fait par la feuille de style, qui sait le
+     couper quand on a demandé moins d'animation. Sans ce script, les cartes
+     restent exactement ce qu'elles étaient. */
+  var fin = window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (fin && !still) {
+    var enAttente = false;
+    document.addEventListener('pointermove', function (e) {
+      if (enAttente) return;
+      enAttente = true;
+      // Une seule écriture par image : posée telle quelle, la position du
+      // pointeur ferait recalculer la page à chaque pixel parcouru.
+      requestAnimationFrame(function () {
+        enAttente = false;
+        var carte = e.target.closest && e.target.closest('.card, .plan');
+        if (!carte) return;
+        var boite = carte.getBoundingClientRect();
+        carte.style.setProperty('--mx', (e.clientX - boite.left) + 'px');
+        carte.style.setProperty('--my', (e.clientY - boite.top) + 'px');
+      });
+    }, { passive: true });
+  }
+
   /* ------------------------------------------------- parallaxe discrète */
   var floatShot = document.querySelector('[data-parallax]');
   if (floatShot && !still) {
