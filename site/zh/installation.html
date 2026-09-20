@@ -49,7 +49,6 @@
         <a href="../securite.html">安全</a>
         <a href="../installation.html" class="is-active" aria-current="page">安装</a>
         <a href="../tarifs.html">价格</a>
-        <a href="../contact.html">联系</a>
         <a href="https://docs.toutadmin.com/" rel="noopener">文档</a>
       </nav>
       <div class="nav-right">
@@ -263,6 +262,45 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">三种方式，同一个向导</span>
+          <h2>把引擎立起来</h2>
+          <p class="lede">Docker、一份 Linux 脚本、一份 Windows 脚本。三者都停在同一处：浏览器里的向导之前。它们都不建立数据库、管理员账户或许可证——那是向导的事，八个步骤，随后自行关闭。</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>在容器中</h3>
+            <p>每个版本一个镜像，数据放在一个卷里。无论更换多少次镜像，实例始终是同一个，许可证也是。</p>
+            <pre><code>docker compose up -d
+# puis http://localhost:3000</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>在 Linux 服务器上</h3>
+            <p>apt、dnf 或 apk。脚本安置引擎、一个系统用户、一个会自行重启的服务；给它一个域名，它连反向代理和证书一并备好。</p>
+            <pre><code>sudo ./deploiement/install.sh \
+  --domaine intranet.exemple.fr \
+  --courriel vous@exemple.fr</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>在 Windows 上</h3>
+            <p>Node 以压缩包而非安装程序下载：版本被固定，无需任何编译器。一个任务随机器一同启动。</p>
+            <pre><code># PowerShell, en administrateur
+.\deploiement\install.ps1</code></pre>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <h3>由脚本或镜像安置后，CMS 不再自行更新</h3>
+          <p>这是有意为之：在容器内被改写的文件，第一次更换容器就会消失——更新看上去成功了，随后自行瓦解。「更新」界面仍会通报新版本，但给出的是动作而非按钮：更换镜像，或重新运行脚本。</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/zh/conteneur.html" rel="noopener">在容器中安置实例，一步一步来<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">五分钟</span>
           <h2>快速安装</h2>
           <p class="lede">刚好够把向导打开。详细步骤紧随其后，一步一步说明每条命令做什么、为什么这样做。</p>
@@ -288,7 +326,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -340,7 +378,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Node 版</span>
@@ -376,7 +414,7 @@ journalctl -u toutadmin -f</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">PHP 版</span>
@@ -409,7 +447,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           

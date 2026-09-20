@@ -49,7 +49,6 @@
         <a href="../securite.html">Sicherheit</a>
         <a href="../installation.html" class="is-active" aria-current="page">Installation</a>
         <a href="../tarifs.html">Preise</a>
-        <a href="../contact.html">Kontakt</a>
         <a href="https://docs.toutadmin.com/" rel="noopener">Dokumentation</a>
       </nav>
       <div class="nav-right">
@@ -263,6 +262,45 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">Drei Wege, ein Assistent</span>
+          <h2>Den Motor aufsetzen</h2>
+          <p class="lede">Docker, ein Linux-Skript, ein Windows-Skript. Alle drei enden an derselben Stelle: vor dem Assistenten, im Browser. Keines legt die Datenbank, das Administratorkonto oder die Lizenz an — das tut er, in acht Schritten, und schließt sich danach selbst.</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>Im Container</h3>
+            <p>Ein Image je Edition, ein Volume für die Daten. Die Instanz bleibt über jeden Image-Wechsel dieselbe, Lizenz eingeschlossen.</p>
+            <pre><code>docker compose up -d
+# puis http://localhost:3000</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Auf einem Linux-Server</h3>
+            <p>apt, dnf oder apk. Das Skript setzt den Motor auf, einen Systembenutzer, einen Dienst, der von allein neu startet, und den Reverse-Proxy samt Zertifikat, wenn Sie ihm eine Domain geben.</p>
+            <pre><code>sudo ./deploiement/install.sh \
+  --domaine intranet.exemple.fr \
+  --courriel vous@exemple.fr</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Unter Windows</h3>
+            <p>Node wird als Archiv geladen, nicht als Installer: die Version ist festgelegt, und kein Compiler wird gebraucht. Eine Aufgabe startet mit der Maschine.</p>
+            <pre><code># PowerShell, en administrateur
+.\deploiement\install.ps1</code></pre>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <h3>Von einem Skript oder einem Image aufgesetzt, aktualisiert sich das CMS nicht mehr selbst</h3>
+          <p>Und das mit Absicht: Dateien, die in einem Container überschrieben werden, verschwinden beim ersten Austausch — die Aktualisierung sähe aus, als hätte sie geklappt, und machte sich dann von selbst rückgängig. Der Bildschirm „Aktualisierungen“ meldet weiterhin neue Fassungen, gibt aber den Griff statt der Schaltfläche: Image wechseln oder das Skript erneut laufen lassen.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/de/conteneur.html" rel="noopener">Die Instanz im Container aufsetzen, Schritt für Schritt<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">In fünf Minuten</span>
           <h2>Die schnelle Installation</h2>
           <p class="lede">Gerade genug, um den Assistenten zu öffnen. Das Ausführliche folgt gleich danach, Schritt für Schritt, mit dem, was jeder Befehl tut und warum.</p>
@@ -288,7 +326,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -340,7 +378,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Node-Edition</span>
@@ -376,7 +414,7 @@ journalctl -u toutadmin -f</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">PHP-Edition</span>
@@ -409,7 +447,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           

@@ -49,7 +49,6 @@
         <a href="../securite.html">セキュリティ</a>
         <a href="../installation.html" class="is-active" aria-current="page">導入</a>
         <a href="../tarifs.html">料金</a>
-        <a href="../contact.html">お問い合わせ</a>
         <a href="https://docs.toutadmin.com/" rel="noopener">ドキュメント</a>
       </nav>
       <div class="nav-right">
@@ -263,6 +262,45 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">三つの道、ひとつのアシスタント</span>
+          <h2>エンジンを立てる</h2>
+          <p class="lede">Docker、Linux 用スクリプト、Windows 用スクリプト。三つとも同じ場所で止まります——ブラウザの中、アシスタントの手前です。どれもデータベースも管理者アカウントもライセンスも作りません。それはアシスタントが八段階で行い、そのあと自ら閉じます。</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>コンテナで</h3>
+            <p>版ごとにイメージひとつ、データにはボリュームひとつ。イメージを何度入れ替えてもインスタンスは同じまま、ライセンスも含めて。</p>
+            <pre><code>docker compose up -d
+# puis http://localhost:3000</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux サーバーで</h3>
+            <p>apt、dnf、apk。スクリプトはエンジン、システム利用者、自力で再起動するサービスを据え、ドメインを渡せばリバースプロキシと証明書まで用意します。</p>
+            <pre><code>sudo ./deploiement/install.sh \
+  --domaine intranet.exemple.fr \
+  --courriel vous@exemple.fr</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows で</h3>
+            <p>Node はインストーラーではなく書庫として取得します。版は固定され、コンパイラは要りません。タスクが機械とともに起動します。</p>
+            <pre><code># PowerShell, en administrateur
+.\deploiement\install.ps1</code></pre>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <h3>スクリプトやイメージで据えた CMS は、自分では更新しません</h3>
+          <p>これは意図したものです。コンテナの中で書き換えたファイルは、最初の入れ替えで消えます——更新は成功したように見え、そのあと独りでに解けてしまう。「更新」画面は新しい版を知らせ続けますが、ボタンの代わりに手順を示します。イメージを替えるか、スクリプトを実行し直すか。</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/ja/conteneur.html" rel="noopener">コンテナでインスタンスを据える、手順を追って<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">五分で</span>
           <h2>手早い導入</h2>
           <p class="lede">案内役を開くのに足りるだけ。細かいところはすぐ後に、一段ずつ —— どの命令が何をして、なぜそうするのかとともに。</p>
@@ -288,7 +326,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -340,7 +378,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Node 版</span>
@@ -376,7 +414,7 @@ journalctl -u toutadmin -f</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">PHP 版</span>
@@ -409,7 +447,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           

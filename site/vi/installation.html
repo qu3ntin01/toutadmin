@@ -49,7 +49,6 @@
         <a href="../securite.html">Bảo mật</a>
         <a href="../installation.html" class="is-active" aria-current="page">Cài đặt</a>
         <a href="../tarifs.html">Bảng giá</a>
-        <a href="../contact.html">Liên hệ</a>
         <a href="https://docs.toutadmin.com/" rel="noopener">Tài liệu</a>
       </nav>
       <div class="nav-right">
@@ -263,6 +262,45 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">Ba lối, một trình hướng dẫn</span>
+          <h2>Dựng bộ máy</h2>
+          <p class="lede">Docker, một tập lệnh Linux, một tập lệnh Windows. Cả ba dừng ở cùng một chỗ: trước trình hướng dẫn, trong trình duyệt. Không cái nào tạo cơ sở dữ liệu, tài khoản quản trị hay giấy phép — trình hướng dẫn làm việc đó, qua tám bước, rồi tự đóng lại.</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>Trong container</h3>
+            <p>Mỗi ấn bản một image, dữ liệu nằm trong một volume. Bản cài vẫn là chính nó sau bất kỳ lần thay image nào, kể cả giấy phép.</p>
+            <pre><code>docker compose up -d
+# puis http://localhost:3000</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Trên máy chủ Linux</h3>
+            <p>apt, dnf hoặc apk. Tập lệnh dựng bộ máy, một người dùng hệ thống, một dịch vụ tự khởi động lại, và reverse proxy kèm chứng chỉ nếu bạn đưa cho nó một tên miền.</p>
+            <pre><code>sudo ./deploiement/install.sh \
+  --domaine intranet.exemple.fr \
+  --courriel vous@exemple.fr</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Trên Windows</h3>
+            <p>Node được tải về dưới dạng kho nén chứ không phải trình cài đặt: phiên bản được ghim, và không cần trình biên dịch nào. Một tác vụ khởi động cùng máy.</p>
+            <pre><code># PowerShell, en administrateur
+.\deploiement\install.ps1</code></pre>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <h3>Dựng bằng tập lệnh hay bằng image, CMS không còn tự cập nhật</h3>
+          <p>Và đó là chủ ý: các tệp bị ghi đè bên trong container sẽ biến mất ngay lần thay thế đầu tiên — bản cập nhật trông như đã chạy, rồi tự tháo ra. Màn hình «Cập nhật» vẫn báo có phiên bản mới, nhưng đưa ra thao tác thay vì nút bấm: đổi image, hoặc chạy lại tập lệnh.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/vi/conteneur.html" rel="noopener">Dựng bản cài trong container, từng bước một<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">Trong năm phút</span>
           <h2>Cài đặt nhanh</h2>
           <p class="lede">Vừa đủ để mở trình trợ giúp. Chi tiết đến ngay sau đó, từng bước một, kèm việc mỗi lệnh làm gì và vì sao.</p>
@@ -288,7 +326,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -340,7 +378,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Bản Node</span>
@@ -376,7 +414,7 @@ journalctl -u toutadmin -f</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Bản PHP</span>
@@ -409,7 +447,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           

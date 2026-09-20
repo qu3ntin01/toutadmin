@@ -49,7 +49,6 @@
         <a href="../securite.html">Güvenlik</a>
         <a href="../installation.html" class="is-active" aria-current="page">Kurulum</a>
         <a href="../tarifs.html">Fiyatlar</a>
-        <a href="../contact.html">İletişim</a>
         <a href="https://docs.toutadmin.com/" rel="noopener">Belgeler</a>
       </nav>
       <div class="nav-right">
@@ -263,6 +262,45 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">Üç yol, tek sihirbaz</span>
+          <h2>Motoru ayağa kaldırmak</h2>
+          <p class="lede">Docker, bir Linux betiği, bir Windows betiği. Üçü de aynı yerde durur: tarayıcıda, sihirbazın önünde. Hiçbiri veritabanını, yönetici hesabını ya da lisansı kurmaz — onu sihirbaz yapar, sekiz adımda, sonra da kendini kapatır.</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>Konteynerde</h3>
+            <p>Sürüm başına bir imaj, veriler için bir birim. Kurulum, imaj değişse de aynı kalır — lisansı dâhil.</p>
+            <pre><code>docker compose up -d
+# puis http://localhost:3000</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux sunucuda</h3>
+            <p>apt, dnf ya da apk. Betik motoru, bir sistem kullanıcısı, kendi kendine yeniden başlayan bir servis ve alan adı verirseniz sertifikasıyla ters vekil kurar.</p>
+            <pre><code>sudo ./deploiement/install.sh \
+  --domaine intranet.exemple.fr \
+  --courriel vous@exemple.fr</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows'ta</h3>
+            <p>Node kurulumcu olarak değil arşiv olarak indirilir: sürüm sabittir ve derleyici gerekmez. Bir görev makineyle birlikte başlar.</p>
+            <pre><code># PowerShell, en administrateur
+.\deploiement\install.ps1</code></pre>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <h3>Bir betikle ya da imajla kurulduğunda CMS kendini artık güncellemez</h3>
+          <p>Bilerek öyle: bir konteynerin içinde yeniden yazılan dosyalar ilk değişimde kaybolur — güncelleme işe yaramış gibi görünür, sonra kendiliğinden geri alınır. « Güncellemeler » ekranı sürümleri bildirmeye devam eder, ama düğme yerine hareketi verir: imajı değiştirin ya da betiği yeniden çalıştırın.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/tr/conteneur.html" rel="noopener">Kurulumu konteynerde yapmak, adım adım<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">Beş dakikada</span>
           <h2>Hızlı kurulum</h2>
           <p class="lede">Sihirbazı açmaya yetecek kadarı. Ayrıntı hemen ardından gelir: adım adım, her komutun ne yaptığı ve neden yaptığıyla.</p>
@@ -288,7 +326,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -340,7 +378,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Node sürümü</span>
@@ -376,7 +414,7 @@ journalctl -u toutadmin -f</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">PHP sürümü</span>
@@ -409,7 +447,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           

@@ -59,6 +59,21 @@ const PHP_STEPS = [
   '* * * * * /usr/bin/php /var/www/toutadmin/tools/cron.php',
 ];
 
+/* Les trois façons de poser le moteur. Chacune s'arrête au même endroit :
+   devant l'assistant, dans le navigateur. Aucune ne pose la base, le compte
+   d'administration ni la licence — un script qui créerait le compte devrait
+   aussi choisir un mot de passe, donc l'écrire quelque part, et ce quelque
+   part serait le maillon faible de toute l'installation. */
+const VOIE_DOCKER = 'docker compose up -d\n'
+  + '# puis http://localhost:3000';
+
+const VOIE_LINUX = 'sudo ./deploiement/install.sh \\\n'
+  + '  --domaine intranet.exemple.fr \\\n'
+  + '  --courriel vous@exemple.fr';
+
+const VOIE_WINDOWS = '# PowerShell, en administrateur\n'
+  + '.\\deploiement\\install.ps1';
+
 const WIZARD_URL = 'https://votre-domaine/install';
 
 module.exports = function installation(ctx) {
@@ -84,6 +99,13 @@ module.exports = function installation(ctx) {
             <h3>${esc(t(`install.db.${key}.name`))}</h3>
             <p>${esc(t(`install.db.${key}.for`))}</p>
             <p class="muted">${esc(t(`install.db.${key}.when`))}</p>
+          </article>`;
+
+  const voieCard = (key, ic, code) => `<article class="card reveal">
+            <span class="ico">${icon(ic)}</span>
+            <h3>${esc(t(`install.way.${key}.name`))}</h3>
+            <p>${esc(t(`install.way.${key}.for`))}</p>
+            <pre><code>${code}</code></pre>
           </article>`;
 
   const quickCard = (key, code) => `<article class="card reveal">
@@ -172,6 +194,22 @@ module.exports = function installation(ctx) {
 
     <section class="section">
       <div class="wrap">
+        ${head(ctx, t('install.waysEyebrow'), t('install.waysTitle'), t('install.waysLede'))}
+        <div class="grid g3 stagger">
+          ${voieCard('docker', 'box', VOIE_DOCKER)}
+          ${voieCard('linux', 'code', VOIE_LINUX)}
+          ${voieCard('windows', 'layers', VOIE_WINDOWS)}
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <h3>${esc(t('install.immutableTitle'))}</h3>
+          <p>${esc(t('install.immutableBody'))}</p>
+          <p><a class="link-arrow" href="${docPage(ctx, 'conteneur')}" rel="noopener">${esc(t('install.immutableCta'))}${icon('arrow')}</a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
         ${head(ctx, t('install.quickEyebrow'), t('install.quickTitle'), t('install.quickLede'))}
         <div class="grid g2 stagger">
           ${quickCard('node', QUICK_NODE)}
@@ -180,7 +218,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         ${head(ctx, null, t('install.wizardTitle'), t('install.wizardLede'))}
         <div class="wizard">
@@ -201,7 +239,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         ${head(ctx, t('install.node.name'), t('install.nodeTitle'), null)}
         <ol class="steps stagger">
@@ -210,7 +248,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         ${head(ctx, t('install.php.name'), t('install.phpTitle'), null)}
         <ol class="steps stagger">
@@ -219,7 +257,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         ${head(ctx, null, t('install.checkTitle'), null)}
         <div class="grid g3 stagger">

@@ -49,7 +49,6 @@
         <a href="../securite.html">Безопасность</a>
         <a href="../installation.html" class="is-active" aria-current="page">Установка</a>
         <a href="../tarifs.html">Цены</a>
-        <a href="../contact.html">Контакты</a>
         <a href="https://docs.toutadmin.com/" rel="noopener">Документация</a>
       </nav>
       <div class="nav-right">
@@ -263,6 +262,45 @@
     <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
+          <span class="eyebrow">Три пути, один мастер</span>
+          <h2>Поднять движок</h2>
+          <p class="lede">Docker, скрипт для Linux, скрипт для Windows. Все три останавливаются в одном месте: перед мастером, в браузере. Ни один не создаёт базу, учётную запись администратора или лицензию — это делает мастер, за восемь шагов, и потом закрывается сам.</p>
+        </div>
+        <div class="grid g3 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
+            <h3>В контейнере</h3>
+            <p>По образу на издание, один том для данных. Экземпляр остаётся тем же после любой замены образа, вместе с лицензией.</p>
+            <pre><code>docker compose up -d
+# puis http://localhost:3000</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>На сервере с Linux</h3>
+            <p>apt, dnf или apk. Скрипт ставит движок, системного пользователя, службу, которая перезапускается сама, и обратный прокси с сертификатом, если дать ему домен.</p>
+            <pre><code>sudo ./deploiement/install.sh \
+  --domaine intranet.exemple.fr \
+  --courriel vous@exemple.fr</code></pre>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>На Windows</h3>
+            <p>Node скачивается архивом, а не установщиком: версия зафиксирована, и компилятор не нужен. Задача запускается вместе с машиной.</p>
+            <pre><code># PowerShell, en administrateur
+.\deploiement\install.ps1</code></pre>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <h3>Поставленная скриптом или образом, CMS больше не обновляет себя сама</h3>
+          <p>И так задумано: файлы, переписанные внутри контейнера, исчезают при первой же его замене — обновление выглядело бы удачным, а потом откатилось бы само. Экран «Обновления» по-прежнему сообщает о версиях, но вместо кнопки даёт действие: сменить образ или запустить скрипт заново.</p>
+          <p><a class="link-arrow" href="https://docs.toutadmin.com/ru/conteneur.html" rel="noopener">Поставить экземпляр в контейнере, шаг за шагом<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section tinted">
+      <div class="wrap">
+        <div class="section-head center reveal">
           <span class="eyebrow">За пять минут</span>
           <h2>Быстрая установка</h2>
           <p class="lede">Ровно столько, чтобы открыть помощник. Подробности идут сразу следом, шаг за шагом, с тем, что делает каждая команда и зачем.</p>
@@ -288,7 +326,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           
@@ -340,7 +378,7 @@ NODE_ENV=production node src/server.js</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Редакция Node</span>
@@ -376,7 +414,7 @@ journalctl -u toutadmin -f</code></pre>
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Редакция PHP</span>
@@ -409,7 +447,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </section>
 
-    <section class="section">
+    <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
           

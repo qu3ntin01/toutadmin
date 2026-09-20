@@ -187,7 +187,11 @@ function navHtml(t, ctx) {
     ['securite', t('nav.security')],
     ['installation', t('nav.install')],
     ['tarifs', t('nav.pricing')],
-    ['contact', t('nav.contact')],
+    // « Contact » n'est plus dans la barre : ce n'est pas une étape du
+    // parcours mais une sortie de secours, et elle encombrait cinq liens là
+    // où quatre suffisent. Elle reste dans le tiroir, dans le pied de page,
+    // et au bout de chaque appel à l'action — c'est-à-dire partout où l'on
+    // se met à la chercher.
   ].map(([page, label]) =>
     `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ')
     // La documentation est un site voisin, mais elle se cherche dans la même
