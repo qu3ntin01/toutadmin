@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — वह CMS जो पूरी कंपनी चलाता है" />
 <meta property="og:description" content="कार्मिक, मानव संसाधन, वित्त, संचालन, शासन, अनुपालन, सामान्य सेवाएँ। 44 कार्यक्षेत्र जो आपस में बात करते हैं, एक ही डेटाबेस, जोड़ने के लिए कोई ऐप नहीं। सोलह भाषाओं में, और सब कुछ संभालने के लिए 15 € प्रति माह।" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
+<link rel="stylesheet" href="../assets/style.css?v=7c01bdf8ce" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -185,7 +185,7 @@
 <main id="contenu">
 
     <section class="hero">
-      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div><div class="hero-glow" aria-hidden="true"></div>
       <div class="wrap hero-in stagger-hero">
         <div>
           <span class="eyebrow reveal"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>व्यवसाय प्रबंधन सॉफ़्टवेयर</span>
@@ -210,15 +210,23 @@
             <span data-hero-label>कर्मचारी का कार्यक्षेत्र</span>
           </div>
           <div class="hero-screens">
-            <div class="hero-screen is-on" data-screen="membre-espace" data-label="कर्मचारी का कार्यक्षेत्र">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="कर्मचारी का कार्यक्षेत्र" data-hot="11,8">
               <img src="../medias/membre-espace-hi.png?v=4d1053c9a4" alt="कर्मचारी का कार्यक्षेत्र" width="2160" height="2800" />
             </div>
-            <div class="hero-screen" data-screen="pilotage" data-label="प्रबंधन डैशबोर्ड" aria-hidden="true">
+            <div class="hero-screen" data-screen="pilotage" data-label="प्रबंधन डैशबोर्ड" data-hot="11,25" aria-hidden="true">
               <img src="../medias/pilotage-hi.png?v=888d7501ac" alt="प्रबंधन डैशबोर्ड" loading="lazy" decoding="async" width="2160" height="2186" />
             </div>
-            <div class="hero-screen" data-screen="gestion" data-label="प्रशासनिक और वित्तीय प्रबंधन" aria-hidden="true">
+            <div class="hero-screen" data-screen="gestion" data-label="प्रशासनिक और वित्तीय प्रबंधन" data-hot="11,37" aria-hidden="true">
               <img src="../medias/gestion-hi.png?v=d8be19a152" alt="प्रशासनिक और वित्तीय प्रबंधन" loading="lazy" decoding="async" width="2160" height="1706" />
             </div>
+            <!-- Le curseur vit dans la zone d'écran, pas dans le cadre : les
+                 positions de « heroCible » sont en pourcentage de ce que
+                 montre la fenêtre, barre de titre exclue. Posé un cran plus
+                 haut, il visait la barre de titre au lieu du rail. -->
+            <span class="hero-tap" aria-hidden="true"></span>
+            <span class="hero-cursor" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 2.5 19 12l-6.2 1.3L9.6 20z" /></svg>
+            </span>
           </div>
           <span class="hero-sheen" aria-hidden="true"></span>
         </div>
@@ -686,6 +694,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=f4695f660c" defer></script>
+<script src="../assets/app.js?v=71283d87ad" defer></script>
 </body>
 </html>

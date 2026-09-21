@@ -186,9 +186,29 @@ page. C'est `CADRE_FENETRE` dans ce fichier, et c'est ce qui distingue une
 capture qu'on regarde d'une capture qu'on lit. Les autres suivent la page,
 comme avant.
 
-Le mouvement — redressement à l'arrivée, jeu au pointeur, reflet, défilé — est
-entièrement en `transform` et `opacity`, et s'efface pour qui a demandé moins
-d'animations. Les pastilles, elles, restent : un réglage d'accessibilité ne
+### Le curseur pilote la démonstration
+
+La fenêtre ne fait pas défiler des images : elle mime quelqu'un qui se sert du
+logiciel. Un curseur se porte sur l'entrée de menu du prochain écran, appuie,
+et c'est l'appui qui fait changer la page — la cause avant l'effet.
+
+Le surlignage bleu qu'on voit ensuite dans le rail **est celui du produit** :
+chaque capture a été prise sur la page en question, donc son entrée de menu y
+est déjà active. Rien n'est simulé ; le curseur se pose au bon endroit et la
+capture fait le reste. Les positions sont dans `medias.js`, champ `heroCible`,
+en pourcentage de ce que montre la fenêtre — barre de titre exclue, puisque le
+curseur vit dans la zone d'écran.
+
+Elles sont posées **en pixels** par le script, pas en pourcentage : dans
+`transform: translate3d()`, un pourcentage se rapporte à la boîte de l'élément
+déplacé, pas à celle qui le contient. Onze pour cent d'un curseur de vingt-six
+pixels font trois pixels.
+
+Le mouvement — redressement à l'arrivée, jeu au pointeur, profondeur des
+plans, reflet, nappe de lumière qui suit la main, curseur, poussée d'un écran
+à l'autre — est entièrement en `transform` et `opacity`, et s'efface pour qui
+a demandé moins d'animations : plus de curseur, plus de nappe, plus de
+démonstration. Les pastilles, elles, restent : un réglage d'accessibilité ne
 doit pas retirer une fonction.
 
 **Pour savoir ce que le serveur sert vraiment**, sans ouvrir une page ni vider

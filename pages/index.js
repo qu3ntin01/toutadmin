@@ -76,7 +76,7 @@ module.exports = function index(ctx) {
     description: t('hero.lede', { espaces: n.espaces }),
     body: `
     <section class="hero">
-      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div><div class="hero-glow" aria-hidden="true"></div>
       <div class="wrap hero-in stagger-hero">
         <div>
           <span class="eyebrow reveal">${icon('spark')}${esc(t('hero.eyebrow'))}</span>

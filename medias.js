@@ -18,6 +18,23 @@ module.exports = {
    * montrer une interface claire sur un site sombre.
    */
   heroTour: ['membre-espace', 'pilotage', 'gestion'],
+  /*
+   * Où se trouve, dans chaque écran, l'entrée de menu qui l'a ouvert.
+   *
+   * Les trois captures ont le même rail bleu à gauche, et dans chacune
+   * l'entrée active est déjà surlignée — « Mon espace », « Pilotage »,
+   * « Gestion ». Le curseur de démonstration va s'y poser avant que l'écran
+   * ne change : ce qu'on voit alors n'est pas un diaporama, c'est quelqu'un
+   * qui se sert du logiciel, et le surlignage qui suit est celui du produit,
+   * pas un décor ajouté.
+   *
+   * En pourcentage de la fenêtre, parce que celle-ci se redimensionne.
+   */
+  heroCible: {
+    'membre-espace': [11, 8],
+    pilotage: [11, 25],
+    gestion: [11, 37],
+  },
   groups: [
     {
       key: 'screens.member',

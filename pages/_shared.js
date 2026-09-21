@@ -74,7 +74,9 @@ function heroWindow(ctx) {
       ? `<img class="only-light" src="${ctx.shot(fichier)}" alt="${alt}"${charge}${taille(fichier)} />
               <img class="only-dark" src="${ctx.shot(sombre)}" alt="" aria-hidden="true"${charge}${taille(sombre)} />`
       : `<img src="${ctx.shot(fichier)}" alt="${alt}"${charge}${taille(fichier)} />`;
-    return `<div class="hero-screen${i === 0 ? ' is-on' : ''}" data-screen="${esc(nom)}" data-label="${alt}"${i === 0 ? '' : ' aria-hidden="true"'}>
+    const cible = (media.heroCible || {})[nom];
+    const hot = cible ? ` data-hot="${cible[0]},${cible[1]}"` : '';
+    return `<div class="hero-screen${i === 0 ? ' is-on' : ''}" data-screen="${esc(nom)}" data-label="${alt}"${hot}${i === 0 ? '' : ' aria-hidden="true"'}>
               ${img}
             </div>`;
   }).join('\n            ');
@@ -90,6 +92,14 @@ function heroWindow(ctx) {
           </div>
           <div class="hero-screens">
             ${ecrans}
+            <!-- Le curseur vit dans la zone d'écran, pas dans le cadre : les
+                 positions de « heroCible » sont en pourcentage de ce que
+                 montre la fenêtre, barre de titre exclue. Posé un cran plus
+                 haut, il visait la barre de titre au lieu du rail. -->
+            <span class="hero-tap" aria-hidden="true"></span>
+            <span class="hero-cursor" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 2.5 19 12l-6.2 1.3L9.6 20z" /></svg>
+            </span>
           </div>
           <span class="hero-sheen" aria-hidden="true"></span>
         </div>

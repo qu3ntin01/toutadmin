@@ -349,13 +349,19 @@
     var ecrans = heros.querySelectorAll('.hero-screen');
     var points = heros.querySelectorAll('.hero-dot');
     var etiquette = heros.querySelector('[data-hero-label]');
+    var zone = heros.querySelector('.hero-screens');
     var courant = 0;
     var choisi = false;
     var minuteur = null;
 
     var montrer = function (i) {
       if (i === courant || i < 0 || i >= ecrans.length) return;
-      ecrans[courant].classList.remove('is-on');
+      // Le sortant part par la gauche, l'entrant vient de la droite : c'est le
+      // geste d'une application qui change de page, pas d'une image qui fond.
+      var sortant = ecrans[courant];
+      sortant.classList.remove('is-on');
+      sortant.classList.add('is-sortante');
+      setTimeout(function () { sortant.classList.remove('is-sortante'); }, 700);
       ecrans[courant].setAttribute('aria-hidden', 'true');
       ecrans[i].classList.add('is-on');
       ecrans[i].removeAttribute('aria-hidden');
@@ -384,14 +390,75 @@
     }
 
     var arreter = function () {
-      if (minuteur) { clearInterval(minuteur); minuteur = null; }
+      if (minuteur) { clearTimeout(minuteur); minuteur = null; }
+      heros.classList.remove('is-appuyee');
+      // Dès que quelqu'un prend la main, le curseur de démonstration s'efface :
+      // deux curseurs à l'écran, dont un qui n'obéit pas, est une gêne.
+      heros.classList.remove('is-guidee');
+    };
+    /*
+     * La démonstration.
+     *
+     * Elle ne fait pas défiler des images : elle mime quelqu'un qui se sert
+     * du logiciel. Le curseur part vers l'entrée de menu du prochain écran,
+     * appuie, et c'est l'appui qui fait changer la page — la cause avant
+     * l'effet, comme dans la vraie application.
+     *
+     * Chaque capture porte la position de son entrée de menu, en pourcentage
+     * de la fenêtre ; le surlignage bleu qu'on voit ensuite est celui du
+     * produit, photographié sur la page en question. Rien n'est simulé.
+     */
+    var cible = function (i) {
+      var h = (ecrans[i].getAttribute('data-hot') || '').split(',');
+      return h.length === 2 ? { x: h[0], y: h[1] } : null;
+    };
+    /*
+     * Les positions sont données en pourcentage de la fenêtre, mais posées en
+     * pixels — et ce n'est pas un détail : dans `translate3d`, un pourcentage
+     * se rapporte à la boîte de l'élément déplacé, pas à celle qui le
+     * contient. Onze pour cent d'un curseur de vingt-six pixels font trois
+     * pixels, et le curseur restait collé dans le coin.
+     *
+     * On garde `transform` plutôt que `left` et `top` : c'est la seule façon
+     * de déplacer quelque chose sans refaire la mise en page à chaque image.
+     */
+    var ecranBoite = null;
+    var derniere = null;
+    var poserCurseur = function (c) {
+      if (!c) return false;
+      derniere = c;
+      var b = zone.getBoundingClientRect();
+      ecranBoite = b;
+      heros.style.setProperty('--cx', Math.round(b.width * c.x / 100) + 'px');
+      heros.style.setProperty('--cy', Math.round(b.height * c.y / 100) + 'px');
+      return true;
+    };
+    // La fenêtre change de taille avec la page : le curseur suit, sans
+    // animation, puisque ce n'est pas un geste mais un recalage.
+    window.addEventListener('resize', function () {
+      if (derniere) poserCurseur(derniere);
+    }, { passive: true });
+    var pas = function () {
+      if (choisi || document.hidden) return;
+      var suivant = (courant + 1) % ecrans.length;
+      var c = cible(suivant);
+      if (!poserCurseur(c)) { montrer(suivant); return; }
+      heros.classList.add('is-guidee');
+      // Le curseur met un peu plus de huit dixièmes à se porter là-bas ; on
+      // appuie une fois qu'il y est, pas avant.
+      minuteur = setTimeout(function () {
+        heros.classList.add('is-appuyee');
+        minuteur = setTimeout(function () {
+          heros.classList.remove('is-appuyee');
+          montrer(suivant);
+          // Puis on laisse lire l'écran obtenu.
+          minuteur = setTimeout(pas, 2600);
+        }, 180);
+      }, 880);
     };
     var tourner = function () {
       if (still || choisi || minuteur || ecrans.length < 2) return;
-      minuteur = setInterval(function () {
-        if (document.hidden) return;
-        montrer((courant + 1) % ecrans.length);
-      }, 5000);
+      minuteur = setTimeout(pas, 900);
     };
 
     /* Le redressement. Il part au premier rendu qui suit l'arrivée de la
@@ -449,6 +516,21 @@
         anime = true;
         requestAnimationFrame(suivre);
       };
+      // La nappe de lumière suit la main dans tout le bloc, pas seulement
+      // sur la fenêtre : c'est ce qui donne à la scène l'air d'être éclairée
+      // par quelque chose plutôt que posée à plat.
+      var bloc = heros.closest('.hero');
+      if (bloc) {
+        bloc.addEventListener('pointermove', function (e) {
+          if (e.pointerType !== 'mouse') return;
+          var b = bloc.getBoundingClientRect();
+          bloc.style.setProperty('--mx', (((e.clientX - b.left) / b.width) * 100).toFixed(1) + '%');
+          bloc.style.setProperty('--my', (((e.clientY - b.top) / b.height) * 100).toFixed(1) + '%');
+          bloc.classList.add('est-eclairee');
+        }, { passive: true });
+        bloc.addEventListener('pointerleave', function () { bloc.classList.remove('est-eclairee'); });
+      }
+
       heros.addEventListener('pointermove', function (e) {
         if (e.pointerType !== 'mouse') return;
         var r = heros.getBoundingClientRect();

@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — Il CMS che amministra tutta l'azienda" />
 <meta property="og:description" content="Personale, risorse umane, finanza, operazioni, governance, conformità, servizi generali. 44 spazi che si parlano, una sola base, nessuna applicazione da incollare. In sedici lingue, e 15 € al mese per gestire tutto." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
+<link rel="stylesheet" href="../assets/style.css?v=7c01bdf8ce" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -185,7 +185,7 @@
 <main id="contenu">
 
     <section class="hero">
-      <div class="hero-bg"></div><div class="hero-grid-lines"></div>
+      <div class="hero-bg"></div><div class="hero-grid-lines"></div><div class="hero-glow" aria-hidden="true"></div>
       <div class="wrap hero-in stagger-hero">
         <div>
           <span class="eyebrow reveal"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg>Software gestionale d'impresa</span>
@@ -210,15 +210,23 @@
             <span data-hero-label>Spazio del dipendente</span>
           </div>
           <div class="hero-screens">
-            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Spazio del dipendente">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Spazio del dipendente" data-hot="11,8">
               <img src="../medias/membre-espace-it.png?v=9cbd3e94da" alt="Spazio del dipendente" width="2160" height="2800" />
             </div>
-            <div class="hero-screen" data-screen="pilotage" data-label="Cruscotto di direzione" aria-hidden="true">
+            <div class="hero-screen" data-screen="pilotage" data-label="Cruscotto di direzione" data-hot="11,25" aria-hidden="true">
               <img src="../medias/pilotage-it.png?v=69d429ceac" alt="Cruscotto di direzione" loading="lazy" decoding="async" width="2160" height="2180" />
             </div>
-            <div class="hero-screen" data-screen="gestion" data-label="Amministrazione e finanza" aria-hidden="true">
+            <div class="hero-screen" data-screen="gestion" data-label="Amministrazione e finanza" data-hot="11,37" aria-hidden="true">
               <img src="../medias/gestion-it.png?v=1908c55e6a" alt="Amministrazione e finanza" loading="lazy" decoding="async" width="2160" height="1730" />
             </div>
+            <!-- Le curseur vit dans la zone d'écran, pas dans le cadre : les
+                 positions de « heroCible » sont en pourcentage de ce que
+                 montre la fenêtre, barre de titre exclue. Posé un cran plus
+                 haut, il visait la barre de titre au lieu du rail. -->
+            <span class="hero-tap" aria-hidden="true"></span>
+            <span class="hero-cursor" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 2.5 19 12l-6.2 1.3L9.6 20z" /></svg>
+            </span>
           </div>
           <span class="hero-sheen" aria-hidden="true"></span>
         </div>
@@ -686,6 +694,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=f4695f660c" defer></script>
+<script src="../assets/app.js?v=71283d87ad" defer></script>
 </body>
 </html>

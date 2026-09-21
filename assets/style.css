@@ -532,6 +532,95 @@ ul { margin: 0; padding: 0; list-style: none; }
    La marge est logique, pas latérale : en arabe, la fenêtre déborde à
    gauche, comme le reste de la page. Et `.hero` coupe ce qui dépasse, sinon
    une barre de défilement horizontale apparaîtrait sur les écrans étroits. */
+
+/* --------------------------------------------- le curseur de démonstration
+
+   Ce qui fait la différence entre un diaporama et une démonstration : la
+   cause. Trois captures qui se succèdent toutes seules, c'est une image qui
+   change ; un curseur qui se porte sur une entrée du menu, appuie, et *alors*
+   l'écran change, c'est quelqu'un qui se sert du logiciel.
+
+   Le surlignage bleu qu'on voit apparaître dans le rail est celui du produit,
+   pas un décor : chaque capture a été prise sur la page en question, donc son
+   entrée de menu y est déjà active. Le curseur se pose à l'endroit exact, et
+   la capture fait le reste. Rien n'est simulé.
+
+   Les positions viennent de `medias.js`, en pourcentage — la fenêtre change
+   de taille, l'entrée de menu reste au même endroit relatif. */
+
+.hero-cursor {
+  position: absolute; z-index: 5; inset-block-start: 0; inset-inline-start: 0;
+  inline-size: 26px; block-size: 26px; pointer-events: none; opacity: 0;
+  transform: translate3d(var(--cx, 60px), var(--cy, 200px), 90px);
+  transition: transform .82s var(--ease-sortie), opacity .4s var(--ease-douce);
+  filter: drop-shadow(0 3px 7px rgb(15 23 42 / .45));
+}
+.hero-cursor svg { display: block; fill: #fff; stroke: rgb(15 23 42 / .82); stroke-width: 1.4; }
+.hero-shot.is-guidee .hero-cursor { opacity: 1; }
+/* Au moment de l'appui, le curseur se tasse — comme une vraie main qui
+   appuie, et c'est ce petit écrasement qui rend le geste crédible. */
+.hero-shot.is-appuyee .hero-cursor { transform: translate3d(var(--cx), var(--cy), 90px) scale(.82); transition: transform .12s ease-out; }
+
+/* L'onde de l'appui, partie du même point. */
+.hero-tap {
+  position: absolute; z-index: 4; inset-block-start: 0; inset-inline-start: 0;
+  inline-size: 14px; block-size: 14px; border-radius: 50%; pointer-events: none;
+  margin: -7px 0 0 -7px; opacity: 0;
+  background: rgb(255 255 255 / .55); box-shadow: 0 0 0 2px rgb(255 255 255 / .75);
+  transform: translate3d(var(--cx, 60px), var(--cy, 200px), 88px) scale(.2);
+}
+.hero-shot.is-appuyee .hero-tap { animation: onde .62s var(--ease-douce) forwards; }
+@keyframes onde {
+  from { opacity: .95; transform: translate3d(var(--cx), var(--cy), 88px) scale(.2); }
+  to { opacity: 0; transform: translate3d(var(--cx), var(--cy), 88px) scale(4.6); }
+}
+
+/* --------------------------------------------------------- la profondeur
+
+   La fenêtre, les cartes chiffrées et le curseur ne sont pas sur le même
+   plan : quelques dizaines de points les séparent dans l'espace. Tant que
+   rien ne bouge, cela ne se voit pas. Dès que la fenêtre joue sous le
+   pointeur, les trois plans ne se déplacent plus à la même vitesse — et une
+   image plate devient un objet qu'on tourne entre ses doigts. */
+.hero-window, .hero-frame, .hero-screens { transform-style: preserve-3d; }
+.hero-shot .float-1 { transform: translateZ(74px); }
+.hero-shot .float-2 { transform: translateZ(58px); }
+.hero-shot.is-posee .float-1 { transform: translateZ(74px); }
+.hero-shot.is-posee .float-2 { transform: translateZ(58px); }
+
+/* ------------------------------------------- le passage d'un écran à l'autre
+
+   Une fondue dit « une autre image ». Une poussée latérale dit « la page
+   suivante » — c'est le geste d'une application qui navigue, et c'est ce que
+   le curseur vient de demander. Le cadre coupe ce qui dépasse, donc l'écran
+   sortant s'en va vraiment par le bord. */
+.hero-screen {
+  transition: opacity .52s var(--ease-douce), transform .66s var(--ease-sortie);
+}
+.hero-screen:not(.is-on) { opacity: 0; transform: translateX(7%) scale(1.01); }
+.hero-screen.is-sortante { opacity: 0; transform: translateX(-5%) scale(.985); }
+.hero-screen.is-on { opacity: 1; transform: none; }
+
+/* ------------------------------------------------ la lumière qui suit la main
+
+   Une nappe de lumière derrière la fenêtre, qui suit le pointeur dans tout le
+   bloc. Elle ne se remarque pas ; elle fait seulement que la scène a l'air
+   éclairée par quelque chose plutôt que d'être posée à plat. */
+.hero-glow {
+  position: absolute; inset: -20%; z-index: -1; pointer-events: none; opacity: 0;
+  background: radial-gradient(38% 38% at var(--mx, 70%) var(--my, 40%),
+    rgb(37 99 235 / .20), rgb(124 58 237 / .12) 45%, transparent 70%);
+  transition: opacity .9s var(--ease-douce);
+}
+.hero.est-eclairee .hero-glow { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cursor, .hero-tap { display: none; }
+  .hero-screen { transition: none; }
+  .hero-screen:not(.is-on) { transform: none; }
+  .hero-glow { display: none; }
+}
+
 @media (min-width: 1140px) {
   .hero-shot {
     margin-inline-end: clamp(-150px, calc((100vw - var(--maxw)) / -2 - 6px), 0px);
