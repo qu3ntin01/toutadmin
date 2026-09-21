@@ -158,6 +158,15 @@ visiteur déjà venu garderait l'ancien script une demi-journée alors que le HT
 lui, serait neuf — et un bouton tout neuf ne répondrait pas. Une adresse qui
 change à chaque modification supprime la classe entière de ce problème.
 
+Les cent cinquante captures portent la même empreinte, et pour la même raison
+en pire : l'hébergement les sert avec **un mois** de cache. Sans empreinte,
+refaire une capture ne suffit pas à la montrer — le visiteur déjà venu et tout
+cache posé devant le site gardent l'ancienne image jusqu'à trente jours, le
+héros de la page d'accueil compris. Ce n'est pas une hypothèse : au lendemain
+d'une refonte complète des captures, cent quarante-six des cent cinquante
+étaient à jour en ligne et quatre ne l'étaient pas — le héros, l'écran de
+pilotage, et leurs deux jumelles sombres.
+
 **Pour savoir ce que le serveur sert vraiment**, sans ouvrir une page ni vider
 un cache : `https://votre-domaine/version.txt`. Le fichier relève le barème
 affiché et les décomptes. Il ne porte pas de date — il ne change que lorsque

@@ -137,6 +137,33 @@ const CHIFFRES = require(path.join(ROOT, 'chiffres.json'));
 const MEDIA_FILES = new Set(fs.readdirSync(path.join(ROOT, 'medias')));
 
 /*
+ * L'empreinte de chaque capture, collée à son adresse — comme pour le script
+ * et la feuille de style plus bas.
+ *
+ * Les captures sont servies avec un mois de cache. Tant que leur adresse ne
+ * bouge pas, refaire une capture ne suffit pas : le visiteur déjà venu, et
+ * tout cache posé devant le site, gardent l'ancienne image jusqu'à trente
+ * jours — le héros de la page d'accueil compris. C'est exactement ce qui
+ * vient d'arriver : cent quarante-six captures sur cent cinquante étaient à
+ * jour en ligne, et les quatre restantes — le héros, l'écran de pilotage et
+ * leurs jumelles sombres — dataient de huit jours plus tôt.
+ *
+ * Une adresse qui change avec le contenu supprime la classe entière du
+ * problème, et le fait sans toucher à la durée du cache : une image dont
+ * l'adresse ne change jamais peut, elle, être gardée un mois sans risque.
+ */
+const EMPREINTES_MEDIA = new Map();
+for (const fichier of MEDIA_FILES) {
+  EMPREINTES_MEDIA.set(fichier, crypto.createHash('sha1')
+    .update(fs.readFileSync(path.join(ROOT, 'medias', fichier)))
+    .digest('hex').slice(0, 10));
+}
+const adresseMedia = (base, fichier) => {
+  const v = EMPREINTES_MEDIA.get(fichier);
+  return `${base}medias/${fichier}${v ? `?v=${v}` : ''}`;
+};
+
+/*
  * Une capture trop légère n'est pas une capture.
  *
  * Le CMS plafonne les requêtes par adresse et répond au-delà « Too many
@@ -431,7 +458,7 @@ for (const locale of LOCALES) {
       href: (name) => `${base}${name}.html`,
       hrefIn: (code, name) => (code === 'fr' ? `${base}${name}.html` : `${base}${code === locale.code ? '' : (locale.code === 'fr' ? `${code}/` : `../${code}/`)}${name}.html`),
       asset: (file) => `${base}assets/${file}`,
-      shot: (file) => `${base}medias/${file}`,
+      shot: (file) => adresseMedia(base, file),
       // Les écrans du héros et du carrousel existent dans chaque langue : montrer
       // une interface française à un visiteur japonais annulerait la promesse.
       shotFile: (name) => (MEDIA_FILES.has(`${name}-${locale.code}.png`) ? `${name}-${locale.code}.png` : `${name}.png`),
