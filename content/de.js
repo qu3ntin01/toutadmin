@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': 'Kostenlos testen',
   'hero.ctaSecondary': 'Funktionen ansehen',
   'hero.note': 'Ohne Kreditkarte. Ihre Daten bleiben Ihre — und dürfen bei Ihnen bleiben.',
+  'hero.screens': 'Die Produktbildschirme',
   'hero.badge1': 'SaaS in fünf Minuten bereit',
   'hero.badge2': 'oder bei Ihnen gehostet',
   'hero.badge3': 'DSGVO von Haus aus',

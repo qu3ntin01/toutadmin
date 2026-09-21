@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — O CMS que administra toda a empresa" />
 <meta property="og:description" content="Pessoal, recursos humanos, finanças, operações, governação, conformidade, serviços gerais. 44 espaços que se falam, uma única base, nenhuma aplicação para colar. Em dezasseis línguas, e 15 € por mês para gerir tudo." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>RGPD desde a raiz</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>Espaço do colaborador</span></div>
-            <img src="../medias/membre-espace-pt.png?v=77cd8c0bd7" alt="Espaço do colaborador" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>Espaço do colaborador</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Espaço do colaborador">
+              <img src="../medias/membre-espace-pt.png?v=77cd8c0bd7" alt="Espaço do colaborador" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="Painel de direção" aria-hidden="true">
+              <img src="../medias/pilotage-pt.png?v=7dba39591d" alt="Painel de direção" loading="lazy" decoding="async" width="2160" height="2218" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="Gestão administrativa e financeira" aria-hidden="true">
+              <img src="../medias/gestion-pt.png?v=b3ba1c7d87" alt="Gestão administrativa e financeira" loading="lazy" decoding="async" width="2160" height="1730" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="Os ecrãs do produto">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="Espaço do colaborador" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="Painel de direção"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="Gestão administrativa e financeira"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">espaços de trabalho</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Painel de direção</span></div>
-            <img src="../medias/pilotage-pt.png?v=7dba39591d" alt="Painel de direção" width="1440" height="900" />
+            <img src="../medias/pilotage-pt.png?v=7dba39591d" alt="Painel de direção" width="2160" height="2218" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Espaço do colaborador</span></div>
-            <img src="../medias/membre-espace-pt.png?v=77cd8c0bd7" alt="Espaço do colaborador" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-pt.png?v=77cd8c0bd7" alt="Espaço do colaborador" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Recursos humanos</span></div>
-            <img src="../medias/rh-pt.png?v=a3f3d96a5e" alt="Recursos humanos" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-pt.png?v=a3f3d96a5e" alt="Recursos humanos" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Gestão administrativa e financeira</span></div>
-            <img src="../medias/gestion-pt.png?v=b3ba1c7d87" alt="Gestão administrativa e financeira" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-pt.png?v=b3ba1c7d87" alt="Gestão administrativa e financeira" loading="lazy" decoding="async" width="2160" height="1730" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Projetos, marcos e rentabilidade</span></div>
-            <img src="../medias/projets-pt.png?v=7b4949cd34" alt="Projetos, marcos e rentabilidade" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-pt.png?v=7b4949cd34" alt="Projetos, marcos e rentabilidade" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Vida societária e conformidade</span></div>
-            <img src="../medias/juridique-pt.png?v=11c9ce6945" alt="Vida societária e conformidade" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-pt.png?v=11c9ce6945" alt="Vida societária e conformidade" loading="lazy" decoding="async" width="2160" height="2390" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

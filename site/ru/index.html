@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — CMS, которая ведёт всю компанию" />
 <meta property="og:description" content="Персонал, кадры, финансы, операции, управление, комплаенс, хозяйственная часть. 44 пространств, которые разговаривают друг с другом, одна база, никаких приложений, которые надо склеивать. На шестнадцати языках и за 15 € в месяц на всё." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>GDPR по построению</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>Кабинет сотрудника</span></div>
-            <img src="../medias/membre-espace-ru.png?v=3b427f383f" alt="Кабинет сотрудника" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>Кабинет сотрудника</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Кабинет сотрудника">
+              <img src="../medias/membre-espace-ru.png?v=3b427f383f" alt="Кабинет сотрудника" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="Сводка руководства" aria-hidden="true">
+              <img src="../medias/pilotage-ru.png?v=1649ccb10e" alt="Сводка руководства" loading="lazy" decoding="async" width="2160" height="2218" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="Администрация и финансы" aria-hidden="true">
+              <img src="../medias/gestion-ru.png?v=5c9bf52954" alt="Администрация и финансы" loading="lazy" decoding="async" width="2160" height="1826" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="Экраны продукта">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="Кабинет сотрудника" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="Сводка руководства"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="Администрация и финансы"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">рабочих разделов</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Сводка руководства</span></div>
-            <img src="../medias/pilotage-ru.png?v=1649ccb10e" alt="Сводка руководства" width="1440" height="900" />
+            <img src="../medias/pilotage-ru.png?v=1649ccb10e" alt="Сводка руководства" width="2160" height="2218" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Кабинет сотрудника</span></div>
-            <img src="../medias/membre-espace-ru.png?v=3b427f383f" alt="Кабинет сотрудника" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-ru.png?v=3b427f383f" alt="Кабинет сотрудника" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Кадры</span></div>
-            <img src="../medias/rh-ru.png?v=0aa19b7ed6" alt="Кадры" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-ru.png?v=0aa19b7ed6" alt="Кадры" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Администрация и финансы</span></div>
-            <img src="../medias/gestion-ru.png?v=5c9bf52954" alt="Администрация и финансы" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-ru.png?v=5c9bf52954" alt="Администрация и финансы" loading="lazy" decoding="async" width="2160" height="1826" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Проекты, вехи и рентабельность</span></div>
-            <img src="../medias/projets-ru.png?v=6c6c38e77d" alt="Проекты, вехи и рентабельность" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-ru.png?v=6c6c38e77d" alt="Проекты, вехи и рентабельность" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Корпоративные вопросы и соответствие</span></div>
-            <img src="../medias/juridique-ru.png?v=766fc509e6" alt="Корпоративные вопросы и соответствие" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-ru.png?v=766fc509e6" alt="Корпоративные вопросы и соответствие" loading="lazy" decoding="async" width="2160" height="2390" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

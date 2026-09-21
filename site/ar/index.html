@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — نظام إدارة المحتوى الذي يدير الشركة بأكملها" />
 <meta property="og:description" content="الموظفون، والموارد البشرية، والمالية، والعمليات، والحوكمة، والامتثال، والخدمات العامة. 44 فضاءً يتكلّم بعضها مع بعض، وقاعدة واحدة، ولا تطبيقات تُلصق ببعضها. بستّ عشرة لغة، و15 يورو شهريًا لإدارة كل شيء." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>حماية البيانات من التصميم</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>فضاء الموظف</span></div>
-            <img src="../medias/membre-espace-ar.png?v=5da0e8c472" alt="فضاء الموظف" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>فضاء الموظف</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="فضاء الموظف">
+              <img src="../medias/membre-espace-ar.png?v=5da0e8c472" alt="فضاء الموظف" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="لوحة قيادة الإدارة" aria-hidden="true">
+              <img src="../medias/pilotage-ar.png?v=27607a4582" alt="لوحة قيادة الإدارة" loading="lazy" decoding="async" width="2160" height="2192" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="التسيير الإداري والمالي" aria-hidden="true">
+              <img src="../medias/gestion-ar.png?v=d741c8f43a" alt="التسيير الإداري والمالي" loading="lazy" decoding="async" width="2160" height="1694" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="شاشات المنتج">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="فضاء الموظف" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="لوحة قيادة الإدارة"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="التسيير الإداري والمالي"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">فضاء عمل</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>لوحة قيادة الإدارة</span></div>
-            <img src="../medias/pilotage-ar.png?v=27607a4582" alt="لوحة قيادة الإدارة" width="1440" height="900" />
+            <img src="../medias/pilotage-ar.png?v=27607a4582" alt="لوحة قيادة الإدارة" width="2160" height="2192" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>فضاء الموظف</span></div>
-            <img src="../medias/membre-espace-ar.png?v=5da0e8c472" alt="فضاء الموظف" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-ar.png?v=5da0e8c472" alt="فضاء الموظف" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>الموارد البشرية</span></div>
-            <img src="../medias/rh-ar.png?v=a9cb64c526" alt="الموارد البشرية" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-ar.png?v=a9cb64c526" alt="الموارد البشرية" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>التسيير الإداري والمالي</span></div>
-            <img src="../medias/gestion-ar.png?v=d741c8f43a" alt="التسيير الإداري والمالي" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-ar.png?v=d741c8f43a" alt="التسيير الإداري والمالي" loading="lazy" decoding="async" width="2160" height="1694" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>المشاريع والمراحل والمردودية</span></div>
-            <img src="../medias/projets-ar.png?v=a8159528ba" alt="المشاريع والمراحل والمردودية" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-ar.png?v=a8159528ba" alt="المشاريع والمراحل والمردودية" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>شؤون الشركة والامتثال</span></div>
-            <img src="../medias/juridique-ar.png?v=2895d3cba2" alt="شؤون الشركة والامتثال" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-ar.png?v=2895d3cba2" alt="شؤون الشركة والامتثال" loading="lazy" decoding="async" width="2160" height="2382" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

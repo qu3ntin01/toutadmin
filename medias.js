@@ -6,6 +6,18 @@ module.exports = {
   pairs: ['pilotage', 'membre-espace', 'gestion', 'projets', 'juridique', 'securite', 'assistant'],
   tour: ['pilotage', 'membre-espace', 'rh', 'gestion', 'projets', 'juridique'],
   hero: 'membre-espace',
+  /*
+   * Les écrans que la fenêtre du héros fait défiler d'elle-même.
+   *
+   * Un héros immobile ne montre qu'un écran sur les cent cinquante. Trois
+   * suffisent à dire ce qu'est le produit — ce que voit un salarié, ce que
+   * voit une direction, ce que voit une comptabilité — et trois est aussi ce
+   * qu'on peut précharger sans peser sur l'arrivée de la page.
+   *
+   * Tous trois sont dans `pairs` : la fenêtre change d'écran sans jamais
+   * montrer une interface claire sur un site sombre.
+   */
+  heroTour: ['membre-espace', 'pilotage', 'gestion'],
   groups: [
     {
       key: 'screens.member',

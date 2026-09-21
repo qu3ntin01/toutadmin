@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': 'Start free',
   'hero.ctaSecondary': 'See the features',
   'hero.note': 'No credit card. Your data stays yours — and can stay on your own servers.',
+  'hero.screens': 'The product screens',
   'hero.badge1': 'SaaS, ready in five minutes',
   'hero.badge2': 'or hosted by you',
   'hero.badge3': 'GDPR by design',

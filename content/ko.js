@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': '무료로 시작',
   'hero.ctaSecondary': '기능 보기',
   'hero.note': '카드 등록 없이. 데이터는 여러분의 것으로 남고, 여러분 서버에 둘 수도 있습니다.',
+  'hero.screens': '제품 화면',
   'hero.badge1': 'SaaS는 5분이면 준비',
   'hero.badge2': '또는 자체 서버 운영',
   'hero.badge3': '설계 단계부터 GDPR',

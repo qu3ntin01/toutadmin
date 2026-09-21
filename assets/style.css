@@ -394,6 +394,163 @@ ul { margin: 0; padding: 0; list-style: none; }
 .float-v.ok { color: var(--good); }
 @keyframes bob { 50% { transform: translateY(-9px); } }
 
+/* ===================================================== la fenêtre du héros
+
+   Ce qui se passe, dans l'ordre, quand la page d'accueil s'ouvre :
+
+   1. La fenêtre est posée dans l'espace — inclinée, reculée, un peu tournée —
+      et se redresse en un peu plus d'une seconde. C'est le seul mouvement
+      ample de la page : il dit « voici l'objet » et ne se répète jamais.
+   2. Un reflet balaie le verre une fois, à la fin du redressement.
+   3. Les deux cartes chiffrées montent derrière elle, en décalé.
+   4. Puis la fenêtre change d'écran toute seule, toutes les cinq secondes.
+
+   Tout tient en `transform` et `opacity` : ce sont les deux seules propriétés
+   que la carte graphique sait animer sans repasser par la mise en page, et
+   c'est ce qui tient les soixante images par seconde sur une machine modeste.
+
+   L'assouplissement est une sortie franche — vif au départ, long à l'arrivée.
+   C'est ce qui donne l'impression d'un objet qui a du poids plutôt que d'une
+   image qui apparaît.
+
+   Rien de tout cela ne s'exécute pour qui a demandé moins d'animations : voir
+   le bloc `prefers-reduced-motion` en fin de feuille, qui coupe la mise en
+   perspective, le reflet, la rotation automatique — et laisse les pastilles,
+   parce qu'un réglage d'accessibilité ne doit pas retirer une fonction. */
+
+:root {
+  --ease-sortie: cubic-bezier(.16, 1, .3, 1);
+  --ease-douce: cubic-bezier(.33, 1, .68, 1);
+}
+
+.hero-shot { position: relative; perspective: 1800px; perspective-origin: 60% 30%; }
+
+/* L'ombre portée au sol. Elle n'est pas dans la boîte de la fenêtre : posée
+   derrière, elle peut déborder et rester floue quand la fenêtre s'incline. */
+.hero-window::before {
+  content: ""; position: absolute; z-index: -1;
+  inset-inline: 6%; inset-block-end: -26px; block-size: 46px;
+  background: radial-gradient(50% 50% at 50% 50%, rgb(15 23 42 / .30), transparent 72%);
+  filter: blur(14px); opacity: 0; transition: opacity .9s var(--ease-douce) .35s;
+}
+.hero-shot.is-posee .hero-window::before { opacity: 1; }
+
+.hero-window {
+  position: relative;
+  transform-style: preserve-3d;
+  /* L'état de départ : en l'air, de trois quarts. */
+  transform:
+    translate3d(0, 34px, 0)
+    rotateX(var(--rx, 13deg)) rotateY(var(--ry, -17deg)) rotateZ(1.4deg)
+    scale(.93);
+  opacity: 0;
+  transition: transform 1.15s var(--ease-sortie), opacity .8s var(--ease-douce);
+  will-change: transform;
+}
+/* Posée : à plat, de face. Les deux variables restent en place — c'est par
+   elles que le pointeur fera ensuite jouer la fenêtre de quelques degrés. */
+.hero-shot.is-posee .hero-window {
+  transform: translate3d(0, 0, 0) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotateZ(0);
+  opacity: 1;
+}
+/* Pendant que le pointeur la mène, la transition est courte : au-delà, la
+   fenêtre traîne derrière le curseur et le suivi paraît mou. */
+.hero-shot.is-menee .hero-window { transition: transform .32s var(--ease-douce); }
+
+.hero-frame { overflow: hidden; }
+
+/* Les écrans empilés.
+
+   Le cadre tient sa hauteur d'un rapport, pas de son contenu : les trois
+   captures n'ont pas la même — seize-dixièmes pour l'espace du salarié, pris
+   au cadre fenêtre, presque carré pour le tableau de bord, qui suit une page
+   longue. Sans rapport fixe, la fenêtre changerait de taille à chaque écran
+   et pousserait tout le reste de la page. Les trois sont donc posées les unes
+   sur les autres dans une boîte de la taille d'un écran d'ordinateur, et
+   montrent leur haut — c'est ce que montrerait une vraie fenêtre. */
+.hero-screens { position: relative; aspect-ratio: 8 / 5; }
+.hero-screen {
+  position: absolute; inset: 0;
+  transition: opacity .62s var(--ease-douce), transform .62s var(--ease-douce);
+}
+.hero-screen:not(.is-on) { opacity: 0; transform: scale(1.025); pointer-events: none; }
+.hero-screen.is-on { opacity: 1; transform: none; }
+.hero-screen img {
+  inline-size: 100%; block-size: 100%; display: block;
+  object-fit: cover; object-position: top left;
+}
+
+/* Le reflet. Une bande claire, en biais, qui traverse le verre une fois.
+   `mix-blend-mode` la fait mordre sur l'image sans la laver. */
+.hero-sheen {
+  position: absolute; inset: 0; pointer-events: none; opacity: 0;
+  background: linear-gradient(104deg,
+    transparent 38%, rgb(255 255 255 / .46) 50%, transparent 62%);
+  mix-blend-mode: overlay;
+}
+.hero-shot.is-luisante .hero-sheen { animation: luire 1.05s var(--ease-douce) forwards; }
+@keyframes luire {
+  from { opacity: 0; transform: translateX(-62%); }
+  22% { opacity: 1; }
+  to { opacity: 0; transform: translateX(62%); }
+}
+
+/* Les pastilles. De vrais boutons : on peut choisir son écran, et la
+   tabulation les atteint. */
+.hero-dots { display: flex; justify-content: center; gap: 9px; margin-block-start: 26px; }
+.hero-dot {
+  inline-size: 30px; block-size: 5px; border-radius: 3px; border: 0; padding: 0;
+  background: var(--line-2); cursor: pointer;
+  transition: background .25s var(--ease-douce), transform .25s var(--ease-douce);
+}
+.hero-dot:hover { transform: scaleY(1.6); }
+.hero-dot.is-on { background: var(--brand); inline-size: 46px; }
+.hero-dot:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 3px; }
+
+/* Les deux cartes chiffrées entrent après la fenêtre, pas avec elle : une
+   chose à la fois se lit, trois ensemble se subissent. */
+.hero-shot .float {
+  opacity: 0; transform: translateY(16px) scale(.94);
+  transition: opacity .55s var(--ease-douce), transform .7s var(--ease-sortie);
+}
+.hero-shot.is-posee .float { opacity: 1; transform: none; }
+.hero-shot.is-posee .float-1 { transition-delay: .50s; }
+.hero-shot.is-posee .float-2 { transition-delay: .64s; }
+/* Le flottement ne reprend qu'une fois l'entrée finie, sinon les deux
+   mouvements se disputent la même propriété. */
+.hero-shot.is-installee .float { animation: bob 7s ease-in-out infinite; transition: none; }
+.hero-shot.is-installee .float-2 { animation-delay: -3.5s; }
+
+/* Au-delà de la largeur du texte, la fenêtre sort du cadre.
+
+   Le bloc de contenu s'arrête à douze cents points ; l'écran, lui, va
+   souvent bien au-delà. Une fenêtre qui s'arrête pile où s'arrête le
+   paragraphe d'à côté a l'air d'une image posée dans une grille. La même,
+   poussée jusqu'au bord, a l'air d'une application ouverte — on ne voit pas
+   où elle finit, donc on la croit plus grande qu'elle n'est.
+
+   La marge est logique, pas latérale : en arabe, la fenêtre déborde à
+   gauche, comme le reste de la page. Et `.hero` coupe ce qui dépasse, sinon
+   une barre de défilement horizontale apparaîtrait sur les écrans étroits. */
+@media (min-width: 1140px) {
+  .hero-shot {
+    margin-inline-end: clamp(-150px, calc((100vw - var(--maxw)) / -2 - 6px), 0px);
+  }
+  /* La carte de droite débordait avec la fenêtre : elle passait sous le bord
+     de l'écran et son chiffre se coupait en deux. Puisque la fenêtre va
+     désormais jusqu'au bord, la carte se pose dessus plutôt qu'à côté. */
+  .hero-shot .float-2 { inset-inline-end: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-window { transform: none; opacity: 1; transition: none; }
+  .hero-window::before { opacity: 1; transition: none; }
+  .hero-sheen { display: none; }
+  .hero-screen { transition: none; }
+  .hero-shot .float { opacity: 1; transform: none; transition: none; animation: none; }
+  .hero-shot.is-installee .float { animation: none; }
+}
+
 /* --------------------------------------------------------------- marquee */
 .marquee { overflow: hidden; padding-block: 18px; border-block: 1px solid var(--line); background: var(--bg-2);
   mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
@@ -639,7 +796,7 @@ td.c { text-align: center; }
 
 /* ------------------------------------------------------------ responsive */
 @media (min-width: 900px) {
-  .hero-in { grid-template-columns: 1.02fr .98fr; align-items: center; gap: 52px; }
+  .hero-in { grid-template-columns: 1fr 1.14fr; align-items: center; gap: 46px; }
   .pane.is-active { grid-template-columns: .84fr 1.16fr; align-items: center; }
   .dom-body { grid-template-columns: 1.05fr .95fr; gap: 42px; }
   .dom.rev .dom-body > .dom-shot { order: -1; }
@@ -819,13 +976,11 @@ a.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-m); border-
   .picker-pop.cols { grid-template-columns: 1fr; max-block-size: 70vh; overflow-y: auto; }
 }
 
-/* La capture du héros est recadrée plutôt que réduite : à taille réelle, on
-   lit l'interface ; réduite à la hauteur du bloc, elle devient illisible. */
-.hero-shot .shot-frame { max-block-size: 540px; }
-.hero-shot .shot-frame img {
-  max-block-size: 492px; object-fit: cover; object-position: top left;
-  mask-image: linear-gradient(#000 76%, transparent);
-}
+/* La capture du héros n'est plus recadrée : depuis qu'elle est prise au
+   cadre fenêtre — seize-dixièmes, la taille d'un écran —, elle tient entière
+   dans le bloc. Elle était auparavant une page longue rognée à cinq cent
+   quarante points, dont la barre latérale s'arrêtait au milieu et dont le bas
+   était estompé pour cacher la coupe. */
 
 /* Une capture par thème : la page sombre ne montre pas une interface claire. */
 .only-dark { display: none; }

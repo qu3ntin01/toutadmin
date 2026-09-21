@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': 'Dùng thử miễn phí',
   'hero.ctaSecondary': 'Xem các tính năng',
   'hero.note': 'Không cần thẻ ngân hàng. Dữ liệu vẫn là của bạn — và có thể ở lại chỗ bạn.',
+  'hero.screens': 'Các màn hình của sản phẩm',
   'hero.badge1': 'SaaS sẵn sàng trong năm phút',
   'hero.badge2': 'hoặc tự lưu trữ tại chỗ',
   'hero.badge3': 'Tuân thủ GDPR ngay từ thiết kế',

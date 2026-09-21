@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — CMS điều hành toàn bộ doanh nghiệp" />
 <meta property="og:description" content="Nhân sự, quản trị nhân lực, tài chính, vận hành, quản trị doanh nghiệp, tuân thủ, hành chính. 44 không gian trò chuyện với nhau, một cơ sở dữ liệu duy nhất, không ứng dụng nào phải ghép nối. Bằng mười sáu ngôn ngữ, và 15 € mỗi tháng để quản lý tất cả." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>Tuân thủ GDPR ngay từ thiết kế</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>Không gian của nhân viên</span></div>
-            <img src="../medias/membre-espace-vi.png?v=8927f9a959" alt="Không gian của nhân viên" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>Không gian của nhân viên</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Không gian của nhân viên">
+              <img src="../medias/membre-espace-vi.png?v=8927f9a959" alt="Không gian của nhân viên" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="Bảng điều hành" aria-hidden="true">
+              <img src="../medias/pilotage-vi.png?v=ff3d184e64" alt="Bảng điều hành" loading="lazy" decoding="async" width="2160" height="2218" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="Quản trị hành chính và tài chính" aria-hidden="true">
+              <img src="../medias/gestion-vi.png?v=842de87ebd" alt="Quản trị hành chính và tài chính" loading="lazy" decoding="async" width="2160" height="1802" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="Các màn hình của sản phẩm">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="Không gian của nhân viên" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="Bảng điều hành"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="Quản trị hành chính và tài chính"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">không gian nghiệp vụ</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Bảng điều hành</span></div>
-            <img src="../medias/pilotage-vi.png?v=ff3d184e64" alt="Bảng điều hành" width="1440" height="900" />
+            <img src="../medias/pilotage-vi.png?v=ff3d184e64" alt="Bảng điều hành" width="2160" height="2218" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Không gian của nhân viên</span></div>
-            <img src="../medias/membre-espace-vi.png?v=8927f9a959" alt="Không gian của nhân viên" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-vi.png?v=8927f9a959" alt="Không gian của nhân viên" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Quản trị nhân lực</span></div>
-            <img src="../medias/rh-vi.png?v=40f96ad923" alt="Quản trị nhân lực" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-vi.png?v=40f96ad923" alt="Quản trị nhân lực" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Quản trị hành chính và tài chính</span></div>
-            <img src="../medias/gestion-vi.png?v=842de87ebd" alt="Quản trị hành chính và tài chính" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-vi.png?v=842de87ebd" alt="Quản trị hành chính và tài chính" loading="lazy" decoding="async" width="2160" height="1802" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Dự án, mốc và hiệu quả</span></div>
-            <img src="../medias/projets-vi.png?v=4d405813e4" alt="Dự án, mốc và hiệu quả" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-vi.png?v=4d405813e4" alt="Dự án, mốc và hiệu quả" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Pháp lý doanh nghiệp và tuân thủ</span></div>
-            <img src="../medias/juridique-vi.png?v=2be346ff04" alt="Pháp lý doanh nghiệp và tuân thủ" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-vi.png?v=2be346ff04" alt="Pháp lý doanh nghiệp và tuân thủ" loading="lazy" decoding="async" width="2160" height="2390" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

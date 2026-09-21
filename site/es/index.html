@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — El CMS que administra toda la empresa" />
 <meta property="og:description" content="Personal, recursos humanos, finanzas, operaciones, gobernanza, cumplimiento, servicios generales. 44 espacios que se hablan, una sola base, ninguna aplicación que pegar. En dieciséis idiomas, y 15 € al mes para gestionarlo todo." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>RGPD por diseño</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>Espacio del empleado</span></div>
-            <img src="../medias/membre-espace-es.png?v=2f979ca9d9" alt="Espacio del empleado" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>Espacio del empleado</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Espacio del empleado">
+              <img src="../medias/membre-espace-es.png?v=2f979ca9d9" alt="Espacio del empleado" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="Panel de dirección" aria-hidden="true">
+              <img src="../medias/pilotage-es.png?v=c63773f5de" alt="Panel de dirección" loading="lazy" decoding="async" width="2160" height="2218" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="Gestión administrativa y financiera" aria-hidden="true">
+              <img src="../medias/gestion-es.png?v=0d44aabec6" alt="Gestión administrativa y financiera" loading="lazy" decoding="async" width="2160" height="1730" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="Las pantallas del producto">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="Espacio del empleado" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="Panel de dirección"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="Gestión administrativa y financiera"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">espacios de trabajo</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Panel de dirección</span></div>
-            <img src="../medias/pilotage-es.png?v=c63773f5de" alt="Panel de dirección" width="1440" height="900" />
+            <img src="../medias/pilotage-es.png?v=c63773f5de" alt="Panel de dirección" width="2160" height="2218" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Espacio del empleado</span></div>
-            <img src="../medias/membre-espace-es.png?v=2f979ca9d9" alt="Espacio del empleado" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-es.png?v=2f979ca9d9" alt="Espacio del empleado" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Recursos humanos</span></div>
-            <img src="../medias/rh-es.png?v=55ec293428" alt="Recursos humanos" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-es.png?v=55ec293428" alt="Recursos humanos" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Gestión administrativa y financiera</span></div>
-            <img src="../medias/gestion-es.png?v=0d44aabec6" alt="Gestión administrativa y financiera" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-es.png?v=0d44aabec6" alt="Gestión administrativa y financiera" loading="lazy" decoding="async" width="2160" height="1730" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Proyectos, hitos y rentabilidad</span></div>
-            <img src="../medias/projets-es.png?v=6238ea9610" alt="Proyectos, hitos y rentabilidad" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-es.png?v=6238ea9610" alt="Proyectos, hitos y rentabilidad" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Vida jurídica y cumplimiento</span></div>
-            <img src="../medias/juridique-es.png?v=70037a6c44" alt="Vida jurídica y cumplimiento" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-es.png?v=70037a6c44" alt="Vida jurídica y cumplimiento" loading="lazy" decoding="async" width="2160" height="2390" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': 'Gratis proberen',
   'hero.ctaSecondary': 'Bekijk de functies',
   'hero.note': 'Zonder bankkaart. Uw gegevens blijven van u — en mogen bij u blijven.',
+  'hero.screens': 'De schermen van het product',
   'hero.badge1': 'SaaS, klaar in vijf minuten',
   'hero.badge2': 'of door uzelf gehost',
   'hero.badge3': 'AVG vanaf de basis',

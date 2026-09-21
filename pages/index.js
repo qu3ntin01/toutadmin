@@ -1,4 +1,4 @@
-const { frame, band, head } = require('./_shared');
+const { frame, band, head, heroWindow } = require('./_shared');
 const { plans, planCard } = require('./_plans');
 
 module.exports = function index(ctx) {
@@ -93,8 +93,8 @@ module.exports = function index(ctx) {
             <span class="chip"><span class="dot"></span>${esc(t('hero.badge3'))}</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          ${frame(ctx, media.hero, null, false)}
+        <div class="hero-shot reveal" data-parallax data-hero>
+          ${heroWindow(ctx)}
           <div class="float float-1">
             <div class="float-k">${esc(t('stats.spaces'))}</div>
             <div class="float-v">${n.espaces}</div>

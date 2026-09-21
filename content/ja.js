@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': '無料で試す',
   'hero.ctaSecondary': '機能を見る',
   'hero.note': 'クレジットカード不要。データはあなたのもの——お手元に置いたままにもできます。',
+  'hero.screens': '製品の画面',
   'hero.badge1': 'SaaS なら五分で利用開始',
   'hero.badge2': '自社サーバーでの運用も可',
   'hero.badge3': '設計段階から GDPR 準拠',

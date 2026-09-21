@@ -121,6 +121,28 @@ const DENSITE = 2;
 const HAUTEUR_MAX = 1400;
 
 /*
+ * Le cadre « fenêtre », pour les captures qu'on regarde plutôt qu'on ne lit.
+ *
+ * Le défaut ci-dessus suit la page : la photo descend aussi bas que le
+ * contenu, jusqu'à mille quatre cents points. C'est le bon choix pour la
+ * galerie et pour la visionneuse, où l'on vient lire un écran en entier.
+ *
+ * C'est le mauvais choix pour le héros de la page d'accueil. Une page de
+ * tableau de bord fait deux mille huit cents pixels de haut : mise en avant,
+ * elle donne une image debout dont la barre latérale s'arrête au milieu et
+ * dont le bas n'est que du vide. Ce n'est pas un produit qu'on montre, c'est
+ * un bout de page.
+ *
+ * Une capture au cadre fixe est prise à la taille de la fenêtre, sans
+ * descendre : seize-dixièmes, le rapport d'un écran d'ordinateur, et ce que
+ * verrait quelqu'un qui ouvre l'application. La barre latérale y va d'un
+ * bord à l'autre, parce que c'est ce qu'elle fait dans une vraie fenêtre.
+ */
+const CADRE_FENETRE = { largeur: 1440, hauteur: 900 };
+const CADRE_DEFAUT = { largeur: LARGEUR, hauteur: null };
+const cadreDe = (cible) => cible.cadre || CADRE_DEFAUT;
+
+/*
  * Où va chaque capture.
  *
  * « role » dit avec quel compte : l'administration voit les écrans de
@@ -130,7 +152,8 @@ const HAUTEUR_MAX = 1400;
  */
 const CIBLES = {
   // ── L'espace du membre ───────────────────────────────────────────────
-  'membre-espace': { chemin: '/mon-espace', role: 'membre' },
+  // Le héros de la page d'accueil : au cadre fenêtre (voir CADRE_FENETRE).
+  'membre-espace': { chemin: '/mon-espace', role: 'membre', cadre: CADRE_FENETRE },
   'membre-equipe': { chemin: '/mon-equipe', role: 'membre' },
   'membre-demandes': { chemin: '/demandes', role: 'membre' },
   'membre-agenda': { chemin: '/agenda', role: 'membre' },
@@ -396,13 +419,21 @@ async function photographier(contexte, nom, cible) {
       throw new Error(`l’ancre « ${cible.ancre} » est absente de la page`);
     }
 
+    const cadre = cadreDe(cible);
     const reste = hauteur - depart;
-    const brut = await page.screenshot({
-      fullPage: true,
-      ...(reste > HAUTEUR_MAX || depart > 0
-        ? { clip: { x: 0, y: depart, width: LARGEUR, height: Math.min(reste, HAUTEUR_MAX) } }
-        : {}),
-    });
+    /*
+     * Au cadre fixe, on photographie la fenêtre et rien d'autre : pas de
+     * `fullPage`, pas de découpe à calculer. C'est exactement l'image qu'a
+     * sous les yeux quelqu'un qui vient d'ouvrir l'application.
+     */
+    const brut = cadre.hauteur
+      ? await page.screenshot({ fullPage: false })
+      : await page.screenshot({
+        fullPage: true,
+        ...(reste > HAUTEUR_MAX || depart > 0
+          ? { clip: { x: 0, y: depart, width: cadre.largeur, height: Math.min(reste, HAUTEUR_MAX) } }
+          : {}),
+      });
 
     /*
      * Le navigateur rend un PNG en couleurs vraies ; le site en sert des
@@ -414,9 +445,11 @@ async function photographier(contexte, nom, cible) {
     const image = palettiser(brut);
     fs.writeFileSync(fichier, image);
 
-    const coupee = cible.ancre
-      ? ` (cadrée sur ${cible.ancre}, à ${depart} de ${hauteur})`
-      : (hauteur > HAUTEUR_MAX ? ` (coupée à ${HAUTEUR_MAX} de ${hauteur})` : '');
+    const coupee = cadre.hauteur
+      ? ` (fenêtre ${cadre.largeur}×${cadre.hauteur} de ${hauteur})`
+      : cible.ancre
+        ? ` (cadrée sur ${cible.ancre}, à ${depart} de ${hauteur})`
+        : (hauteur > HAUTEUR_MAX ? ` (coupée à ${HAUTEUR_MAX} de ${hauteur})` : '');
     console.log(`  ✓ ${nom.padEnd(26)} ${cible.chemin.padEnd(24)} `
       + `${Math.round(brut.length / 1024)} → ${Math.round(image.length / 1024)} Ko${coupee}`);
     return true;
@@ -490,12 +523,15 @@ async function photographier(contexte, nom, cible) {
    */
   const langues = new Map();
 
-  const contexteDe = async (role, theme, instance) => {
-    const cle = `${role}/${theme || 'light'}/${instance || 'demo'}`;
+  const contexteDe = async (role, theme, instance, cadre) => {
+    const c = cadre || CADRE_DEFAUT;
+    // La largeur décide de la mise en page : deux cadres ne peuvent pas
+    // partager un contexte, ils ne rendent pas la même page.
+    const cle = `${role}/${theme || 'light'}/${instance || 'demo'}/${c.largeur}x${c.hauteur || 'suit'}`;
     if (contextes.has(cle)) return contextes.get(cle);
 
     const contexte = await nav.newContext({
-      viewport: { width: LARGEUR, height: 760 },
+      viewport: { width: c.largeur, height: c.hauteur || 760 },
       deviceScaleFactor: DENSITE,
       // Le thème est posé avant le premier rendu : la page le lit sur <html>
       // en tête de document, et l'appliquer après coup se verrait. Le réglage
@@ -553,7 +589,7 @@ async function photographier(contexte, nom, cible) {
 
   try {
     for (const { nom, cible, langue } of aFaire) {
-      const contexte = await contexteDe(cible.role, cible.theme, cible.instance);
+      const contexte = await contexteDe(cible.role, cible.theme, cible.instance, cadreDe(cible));
       try {
         await enLangue(contexte, cible.role, langue, cible.instance);
       } catch (erreur) {

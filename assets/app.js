@@ -325,6 +325,175 @@
     }, { passive: true });
   }
 
+
+  /* ------------------------------------------------ la fenêtre du héros
+
+     Quatre choses, dans cet ordre :
+
+       1. la fenêtre se redresse à l'arrivée, une fois pour toutes ;
+       2. le pointeur la fait jouer de quelques degrés ;
+       3. un reflet la traverse, une fois ;
+       4. elle change d'écran toute seule.
+
+     Aucune de ces quatre n'est nécessaire à la page : sans script, le
+     premier écran est déjà visible, ses pastilles sont déjà là. Ce qui suit
+     n'ajoute que le mouvement.
+
+     La rotation automatique s'arrête dès qu'elle n'a plus de raison d'être :
+     hors de l'écran, sous le pointeur, dans un onglet caché, ou dès que le
+     visiteur a choisi lui-même un écran — à partir de là, c'est lui qui
+     décide, et reprendre la main sur son choix serait grossier. */
+  var heros = document.querySelector('[data-hero]');
+  if (heros) {
+    var fenetre = heros.querySelector('.hero-window');
+    var ecrans = heros.querySelectorAll('.hero-screen');
+    var points = heros.querySelectorAll('.hero-dot');
+    var etiquette = heros.querySelector('[data-hero-label]');
+    var courant = 0;
+    var choisi = false;
+    var minuteur = null;
+
+    var montrer = function (i) {
+      if (i === courant || i < 0 || i >= ecrans.length) return;
+      ecrans[courant].classList.remove('is-on');
+      ecrans[courant].setAttribute('aria-hidden', 'true');
+      ecrans[i].classList.add('is-on');
+      ecrans[i].removeAttribute('aria-hidden');
+      if (points[courant]) {
+        points[courant].classList.remove('is-on');
+        points[courant].removeAttribute('aria-current');
+      }
+      if (points[i]) {
+        points[i].classList.add('is-on');
+        points[i].setAttribute('aria-current', 'true');
+      }
+      // La barre de titre suit l'écran : c'est ce qui fait croire à une
+      // application qui change de page plutôt qu'à des images qui défilent.
+      if (etiquette) etiquette.textContent = ecrans[i].getAttribute('data-label') || '';
+      courant = i;
+    };
+
+    for (var d = 0; d < points.length; d += 1) {
+      (function (i) {
+        points[i].addEventListener('click', function () {
+          choisi = true;
+          arreter();
+          montrer(i);
+        });
+      }(d));
+    }
+
+    var arreter = function () {
+      if (minuteur) { clearInterval(minuteur); minuteur = null; }
+    };
+    var tourner = function () {
+      if (still || choisi || minuteur || ecrans.length < 2) return;
+      minuteur = setInterval(function () {
+        if (document.hidden) return;
+        montrer((courant + 1) % ecrans.length);
+      }, 5000);
+    };
+
+    /* Le redressement. Il part au premier rendu qui suit l'arrivée de la
+       page, jamais avant : posé tout de suite, le navigateur passe de l'état
+       initial à l'état final dans la même image et il n'y a pas de
+       mouvement. */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        heros.classList.add('is-posee');
+      });
+    });
+    // Le reflet part quand la fenêtre est à plat, pas pendant qu'elle bouge.
+    var installee = function () {
+      heros.classList.add('is-installee');
+      if (!still) heros.classList.add('is-luisante');
+    };
+    if (still) {
+      installee();
+    } else if (fenetre) {
+      var pose = false;
+      fenetre.addEventListener('transitionend', function (e) {
+        if (pose || e.propertyName !== 'transform') return;
+        pose = true;
+        installee();
+      });
+      // Filet : si la transition ne rend pas la main — onglet passé au
+      // second plan pendant l'animation, par exemple —, on n'attend pas.
+      setTimeout(function () { if (!pose) { pose = true; installee(); } }, 1800);
+    }
+
+    /* Le jeu du pointeur. Deux variables sur l'élément, rien d'autre : le
+       navigateur recompose, il ne recalcule pas la page. La souris seule y a
+       droit — sur un écran tactile, il n'y a pas de survol, et « pointer:
+       fine » évite d'écouter pour rien. */
+    var fine = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+    if (fenetre && !still && fine) {
+      var vise = { x: 0, y: 0 };
+      var pose2 = { x: 0, y: 0 };
+      var anime = false;
+      var suivre = function () {
+        anime = false;
+        // Une approche par dixièmes : la fenêtre rejoint le pointeur sans le
+        // coller, ce qui donne la masse.
+        pose2.x += (vise.x - pose2.x) * 0.12;
+        pose2.y += (vise.y - pose2.y) * 0.12;
+        heros.style.setProperty('--ry', pose2.x.toFixed(2) + 'deg');
+        heros.style.setProperty('--rx', pose2.y.toFixed(2) + 'deg');
+        if (Math.abs(vise.x - pose2.x) > 0.02 || Math.abs(vise.y - pose2.y) > 0.02) {
+          anime = true;
+          requestAnimationFrame(suivre);
+        }
+      };
+      var relancer = function () {
+        if (anime) return;
+        anime = true;
+        requestAnimationFrame(suivre);
+      };
+      heros.addEventListener('pointermove', function (e) {
+        if (e.pointerType !== 'mouse') return;
+        var r = heros.getBoundingClientRect();
+        // De -1 à 1 depuis le centre, puis au plus cinq degrés : au-delà, la
+        // capture devient illisible et l'effet se voit plus que l'écran.
+        vise.x = ((e.clientX - r.left) / r.width - 0.5) * 2 * 5;
+        vise.y = ((e.clientY - r.top) / r.height - 0.5) * -2 * 3.2;
+        heros.classList.add('is-menee');
+        relancer();
+      });
+      heros.addEventListener('pointerleave', function () {
+        vise.x = 0; vise.y = 0;
+        relancer();
+        // La transition longue revient pour le retour à plat : c'est le seul
+        // moment où l'on veut que la fenêtre prenne son temps.
+        setTimeout(function () { heros.classList.remove('is-menee'); }, 340);
+      });
+    }
+
+    // Sous le pointeur, on regarde : la fenêtre ne change pas d'écran au
+    // milieu d'une lecture.
+    heros.addEventListener('pointerenter', arreter);
+    heros.addEventListener('pointerleave', function () { if (!choisi) tourner(); });
+    heros.addEventListener('focusin', arreter);
+
+    /* Le défilement ne part qu'une fois la page arrivée et la fenêtre en
+       vue : les deux écrans suivants sont des images différées, et les
+       chercher pendant le chargement retarderait le premier — celui que le
+       navigateur mesure. */
+    var lancer = function () {
+      if ('IntersectionObserver' in window) {
+        var vu = new IntersectionObserver(function (entrees) {
+          entrees.forEach(function (entree) {
+            if (entree.isIntersecting) tourner(); else arreter();
+          });
+        }, { threshold: 0.35 });
+        vu.observe(heros);
+      } else {
+        tourner();
+      }
+    };
+    if (document.readyState === 'complete') setTimeout(lancer, 1200);
+    else window.addEventListener('load', function () { setTimeout(lancer, 1200); });
+  }
+
   /* ------------------------------------------------- parallaxe discrète */
   var floatShot = document.querySelector('[data-parallax]');
   if (floatShot && !still) {

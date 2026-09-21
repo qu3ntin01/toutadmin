@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — The CMS that runs the whole company" />
 <meta property="og:description" content="Staff, human resources, finance, operations, governance, compliance, facilities. 44 spaces that talk to each other, a single database, no applications to glue together. In sixteen languages, and €15 a month to run it all." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>GDPR by design</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>Employee workspace</span></div>
-            <img src="../medias/membre-espace-en.png?v=8abffa268b" alt="Employee workspace" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>Employee workspace</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Employee workspace">
+              <img src="../medias/membre-espace-en.png?v=8abffa268b" alt="Employee workspace" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="Management dashboard" aria-hidden="true">
+              <img src="../medias/pilotage-en.png?v=fa6a1b992b" alt="Management dashboard" loading="lazy" decoding="async" width="2160" height="2218" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="Finance and administration" aria-hidden="true">
+              <img src="../medias/gestion-en.png?v=98e5f6b473" alt="Finance and administration" loading="lazy" decoding="async" width="2160" height="1730" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="The product screens">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="Employee workspace" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="Management dashboard"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="Finance and administration"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">workspaces</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Management dashboard</span></div>
-            <img src="../medias/pilotage-en.png?v=fa6a1b992b" alt="Management dashboard" width="1440" height="900" />
+            <img src="../medias/pilotage-en.png?v=fa6a1b992b" alt="Management dashboard" width="2160" height="2218" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Employee workspace</span></div>
-            <img src="../medias/membre-espace-en.png?v=8abffa268b" alt="Employee workspace" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-en.png?v=8abffa268b" alt="Employee workspace" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Human resources</span></div>
-            <img src="../medias/rh-en.png?v=5ff2f1ed2d" alt="Human resources" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-en.png?v=5ff2f1ed2d" alt="Human resources" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Finance and administration</span></div>
-            <img src="../medias/gestion-en.png?v=98e5f6b473" alt="Finance and administration" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-en.png?v=98e5f6b473" alt="Finance and administration" loading="lazy" decoding="async" width="2160" height="1730" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Projects, milestones and profitability</span></div>
-            <img src="../medias/projets-en.png?v=90cf6d9c91" alt="Projects, milestones and profitability" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-en.png?v=90cf6d9c91" alt="Projects, milestones and profitability" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Corporate and compliance</span></div>
-            <img src="../medias/juridique-en.png?v=ec5da72b79" alt="Corporate and compliance" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-en.png?v=ec5da72b79" alt="Corporate and compliance" loading="lazy" decoding="async" width="2160" height="2390" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

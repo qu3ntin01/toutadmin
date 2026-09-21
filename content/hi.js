@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': 'नि:शुल्क आज़माएँ',
   'hero.ctaSecondary': 'विशेषताएँ देखें',
   'hero.note': 'बिना कार्ड के। आपका डेटा आपका रहता है — और आपके यहाँ ही रह सकता है।',
+  'hero.screens': 'उत्पाद की स्क्रीनें',
   'hero.badge1': 'SaaS पाँच मिनट में तैयार',
   'hero.badge2': 'या आपके सर्वर पर',
   'hero.badge3': 'शुरू से ही GDPR',

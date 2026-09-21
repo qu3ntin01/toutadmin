@@ -167,6 +167,30 @@ d'une refonte complète des captures, cent quarante-six des cent cinquante
 étaient à jour en ligne et quatre ne l'étaient pas — le héros, l'écran de
 pilotage, et leurs deux jumelles sombres.
 
+## La fenêtre du héros
+
+La page d'accueil ne montre plus une capture, mais une fenêtre qui fait défiler
+trois écrans : l'espace d'un salarié, un tableau de bord de direction, la
+gestion administrative. Les trois sont déclarés dans `medias.js`, champ
+`heroTour`, et doivent tous figurer dans `pairs` — sans quoi un site en thème
+sombre montrerait une interface claire.
+
+La construction refuse de finir si un écran annoncé n'a pas sa capture, si les
+pastilles ne correspondent plus aux écrans, ou si le premier écran passe en
+chargement différé : c'est la plus grande image de la page, donc celle que le
+navigateur mesure pour noter la vitesse d'affichage.
+
+Le héros est pris au **cadre fenêtre** : `captures.js` le photographie à la
+taille d'un écran d'ordinateur, seize-dixièmes, sans descendre le long de la
+page. C'est `CADRE_FENETRE` dans ce fichier, et c'est ce qui distingue une
+capture qu'on regarde d'une capture qu'on lit. Les autres suivent la page,
+comme avant.
+
+Le mouvement — redressement à l'arrivée, jeu au pointeur, reflet, défilé — est
+entièrement en `transform` et `opacity`, et s'efface pour qui a demandé moins
+d'animations. Les pastilles, elles, restent : un réglage d'accessibilité ne
+doit pas retirer une fonction.
+
 **Pour savoir ce que le serveur sert vraiment**, sans ouvrir une page ni vider
 un cache : `https://votre-domaine/version.txt`. Le fichier relève le barème
 affiché et les décomptes. Il ne porte pas de date — il ne change que lorsque

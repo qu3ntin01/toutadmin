@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — Il CMS che amministra tutta l'azienda" />
 <meta property="og:description" content="Personale, risorse umane, finanza, operazioni, governance, conformità, servizi generali. 44 spazi che si parlano, una sola base, nessuna applicazione da incollare. In sedici lingue, e 15 € al mese per gestire tutto." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>GDPR per costruzione</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>Spazio del dipendente</span></div>
-            <img src="../medias/membre-espace-it.png?v=9cbd3e94da" alt="Spazio del dipendente" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>Spazio del dipendente</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Spazio del dipendente">
+              <img src="../medias/membre-espace-it.png?v=9cbd3e94da" alt="Spazio del dipendente" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="Cruscotto di direzione" aria-hidden="true">
+              <img src="../medias/pilotage-it.png?v=69d429ceac" alt="Cruscotto di direzione" loading="lazy" decoding="async" width="2160" height="2180" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="Amministrazione e finanza" aria-hidden="true">
+              <img src="../medias/gestion-it.png?v=1908c55e6a" alt="Amministrazione e finanza" loading="lazy" decoding="async" width="2160" height="1730" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="Le schermate del prodotto">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="Spazio del dipendente" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="Cruscotto di direzione"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="Amministrazione e finanza"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">spazi di lavoro</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Cruscotto di direzione</span></div>
-            <img src="../medias/pilotage-it.png?v=69d429ceac" alt="Cruscotto di direzione" width="1440" height="900" />
+            <img src="../medias/pilotage-it.png?v=69d429ceac" alt="Cruscotto di direzione" width="2160" height="2180" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Spazio del dipendente</span></div>
-            <img src="../medias/membre-espace-it.png?v=9cbd3e94da" alt="Spazio del dipendente" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-it.png?v=9cbd3e94da" alt="Spazio del dipendente" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Risorse umane</span></div>
-            <img src="../medias/rh-it.png?v=47924fd894" alt="Risorse umane" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-it.png?v=47924fd894" alt="Risorse umane" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Amministrazione e finanza</span></div>
-            <img src="../medias/gestion-it.png?v=1908c55e6a" alt="Amministrazione e finanza" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-it.png?v=1908c55e6a" alt="Amministrazione e finanza" loading="lazy" decoding="async" width="2160" height="1730" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Progetti, traguardi e redditività</span></div>
-            <img src="../medias/projets-it.png?v=35db407d56" alt="Progetti, traguardi e redditività" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-it.png?v=35db407d56" alt="Progetti, traguardi e redditività" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Vita societaria e conformità</span></div>
-            <img src="../medias/juridique-it.png?v=7859efba28" alt="Vita societaria e conformità" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-it.png?v=7859efba28" alt="Vita societaria e conformità" loading="lazy" decoding="async" width="2160" height="2390" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

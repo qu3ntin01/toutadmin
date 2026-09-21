@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': 'Ücretsiz deneyin',
   'hero.ctaSecondary': 'Özellikleri görün',
   'hero.note': 'Kredi kartı yok. Verileriniz sizin kalır — ve sizde de kalabilir.',
+  'hero.screens': 'Ürün ekranları',
   'hero.badge1': 'SaaS beş dakikada hazır',
   'hero.badge2': 'ya da kendi sunucunuzda',
   'hero.badge3': 'Tasarımdan gelen KVKK/GDPR uyumu',

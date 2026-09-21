@@ -152,6 +152,38 @@ const MEDIA_FILES = new Set(fs.readdirSync(path.join(ROOT, 'medias')));
  * problème, et le fait sans toucher à la durée du cache : une image dont
  * l'adresse ne change jamais peut, elle, être gardée un mois sans risque.
  */
+/*
+ * Les dimensions de chaque capture, lues dans le fichier.
+ *
+ * Toutes les balises déclaraient « width="1440" height="900" ». Aucune des
+ * cent cinquante captures n'a ce rapport : elles vont de 0,77 à 1,60, parce
+ * qu'elles suivent la hauteur de la page photographiée. Le navigateur réserve
+ * donc une boîte en seize-dixièmes, pose l'image, découvre qu'elle est plus
+ * haute, et pousse tout ce qui suit — la page saute sous le curseur pendant
+ * le chargement. Deux attributs justes suppriment le saut, et il n'y a rien
+ * à choisir : le fichier connaît sa taille.
+ *
+ * L'en-tête PNG la donne à poste fixe : huit octets de signature, puis le
+ * bloc IHDR dont la largeur et la hauteur occupent les octets 16 à 23.
+ */
+const DIMENSIONS_MEDIA = new Map();
+const tailleDuPng = (chemin) => {
+  const tete = Buffer.alloc(24);
+  const fd = fs.openSync(chemin, 'r');
+  try {
+    fs.readSync(fd, tete, 0, 24, 0);
+  } finally {
+    fs.closeSync(fd);
+  }
+  if (tete.toString('binary', 1, 4) !== 'PNG') return null;
+  return { l: tete.readUInt32BE(16), h: tete.readUInt32BE(20) };
+};
+for (const fichier of MEDIA_FILES) {
+  if (!fichier.endsWith('.png')) continue;
+  const t = tailleDuPng(path.join(ROOT, 'medias', fichier));
+  if (t) DIMENSIONS_MEDIA.set(fichier, t);
+}
+
 const EMPREINTES_MEDIA = new Map();
 for (const fichier of MEDIA_FILES) {
   EMPREINTES_MEDIA.set(fichier, crypto.createHash('sha1')
@@ -471,6 +503,7 @@ for (const locale of LOCALES) {
       hrefIn: (code, name) => (code === 'fr' ? `${base}${name}.html` : `${base}${code === locale.code ? '' : (locale.code === 'fr' ? `${code}/` : `../${code}/`)}${name}.html`),
       asset: (file) => `${base}assets/${file}`,
       shot: (file) => adresseMedia(base, file),
+      taille: (file) => DIMENSIONS_MEDIA.get(file) || null,
       // Les écrans du héros et du carrousel existent dans chaque langue : montrer
       // une interface française à un visiteur japonais annulerait la promesse.
       shotFile: (name) => (MEDIA_FILES.has(`${name}-${locale.code}.png`) ? `${name}-${locale.code}.png` : `${name}.png`),
@@ -565,6 +598,31 @@ fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nAllow: /\n');
       + (manquantes.length ? `\n  jamais liée(s) : ${manquantes.join(', ')}` : '')
       + (doublees.length ? `\n  liée(s) en double : ${doublees.join(', ')}` : ''));
   }
+}
+
+/*
+ * La fenêtre du héros montre bien tous les écrans annoncés.
+ *
+ * Trois choses peuvent se défaire sans bruit et ne se voient qu'à l'œil, une
+ * fois en ligne : un écran de `heroTour` qui n'a pas de capture et disparaît
+ * de la pile ; le premier écran passé en chargement différé, qui est la plus
+ * grande image de la page et donc celle que le navigateur mesure ; et des
+ * pastilles qui ne correspondent plus aux écrans, donc qui mènent ailleurs
+ * que là où elles disent.
+ */
+{
+  const page = fs.readFileSync(path.join(OUT, 'index.html'), 'utf8');
+  // « hero-screens » est le conteneur : sans la frontière, il compte pour un écran.
+  const ecrans = (page.match(/class="hero-screen[" ]/g) || []).length;
+  const pastilles = (page.match(/class="hero-dot[" ]/g) || []).length;
+  const attendus = MEDIA.heroTour.length;
+  const premier = page.slice(page.indexOf('class="hero-screen is-on"'));
+  const differe = premier.slice(0, premier.indexOf('</div>')).includes('loading="lazy"');
+  const soucis = [];
+  if (ecrans !== attendus) soucis.push(`${ecrans} écran(s) dans la fenêtre pour ${attendus} annoncé(s) dans heroTour`);
+  if (pastilles !== attendus) soucis.push(`${pastilles} pastille(s) pour ${attendus} écran(s)`);
+  if (differe) soucis.push('le premier écran est en chargement différé — c\'est la plus grande image de la page');
+  if (soucis.length) throw new Error(`Fenêtre du héros :\n  ${soucis.join('\n  ')}`);
 }
 
 /* Un relevé du barème, en texte brut, à la racine du site.

@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — 会社全体を運営する CMS" />
 <meta property="og:description" content="人員、人事、財務、業務、ガバナンス、コンプライアンス、総務。互いに連携する44の領域、ひとつのデータベース、つなぎ合わせるアプリは不要です。十六言語対応、すべてを月額 15 € で。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>設計段階から GDPR 準拠</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>従業員のスペース</span></div>
-            <img src="../medias/membre-espace-ja.png?v=5c109ab2ca" alt="従業員のスペース" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>従業員のスペース</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="従業員のスペース">
+              <img src="../medias/membre-espace-ja.png?v=5c109ab2ca" alt="従業員のスペース" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="経営ダッシュボード" aria-hidden="true">
+              <img src="../medias/pilotage-ja.png?v=fb63e0a5d4" alt="経営ダッシュボード" loading="lazy" decoding="async" width="2160" height="2218" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="総務・財務管理" aria-hidden="true">
+              <img src="../medias/gestion-ja.png?v=7bf521ff96" alt="総務・財務管理" loading="lazy" decoding="async" width="2160" height="1708" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="製品の画面">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="従業員のスペース" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="経営ダッシュボード"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="総務・財務管理"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">の業務スペース</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>経営ダッシュボード</span></div>
-            <img src="../medias/pilotage-ja.png?v=fb63e0a5d4" alt="経営ダッシュボード" width="1440" height="900" />
+            <img src="../medias/pilotage-ja.png?v=fb63e0a5d4" alt="経営ダッシュボード" width="2160" height="2218" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>従業員のスペース</span></div>
-            <img src="../medias/membre-espace-ja.png?v=5c109ab2ca" alt="従業員のスペース" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-ja.png?v=5c109ab2ca" alt="従業員のスペース" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>人事</span></div>
-            <img src="../medias/rh-ja.png?v=6532e36913" alt="人事" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-ja.png?v=6532e36913" alt="人事" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>総務・財務管理</span></div>
-            <img src="../medias/gestion-ja.png?v=7bf521ff96" alt="総務・財務管理" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-ja.png?v=7bf521ff96" alt="総務・財務管理" loading="lazy" decoding="async" width="2160" height="1708" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>プロジェクト、マイルストーン、採算</span></div>
-            <img src="../medias/projets-ja.png?v=f775482d6b" alt="プロジェクト、マイルストーン、採算" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-ja.png?v=f775482d6b" alt="プロジェクト、マイルストーン、採算" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>会社法務とコンプライアンス</span></div>
-            <img src="../medias/juridique-ja.png?v=150b1a1a77" alt="会社法務とコンプライアンス" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-ja.png?v=150b1a1a77" alt="会社法務とコンプライアンス" loading="lazy" decoding="async" width="2160" height="2432" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

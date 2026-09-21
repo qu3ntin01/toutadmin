@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': 'Wypróbuj za darmo',
   'hero.ctaSecondary': 'Zobacz funkcje',
   'hero.note': 'Bez karty płatniczej. Dane pozostają Twoje — i mogą zostać u Ciebie.',
+  'hero.screens': 'Ekrany produktu',
   'hero.badge1': 'SaaS gotowy w pięć minut',
   'hero.badge2': 'albo hostowany u Ciebie',
   'hero.badge3': 'RODO od podstaw',

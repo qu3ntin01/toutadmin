@@ -24,6 +24,7 @@ module.exports = {
   'hero.ctaPrimary': '免费试用',
   'hero.ctaSecondary': '查看功能',
   'hero.note': '无需银行卡。数据仍然属于您，也可以留在您自己那里。',
+  'hero.screens': '产品界面',
   'hero.badge1': 'SaaS 五分钟就绪',
   'hero.badge2': '或由您自行托管',
   'hero.badge3': '从设计起即合规',

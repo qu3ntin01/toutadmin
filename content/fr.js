@@ -29,6 +29,7 @@ module.exports = {
   'hero.ctaPrimary': 'Essayer gratuitement',
   'hero.ctaSecondary': 'Voir les fonctionnalités',
   'hero.note': 'Sans carte bancaire. Vos données restent les vôtres, et peuvent rester chez vous.',
+  'hero.screens': 'Les écrans du produit',
   'hero.badge1': 'SaaS prêt en cinq minutes',
   'hero.badge2': 'ou hébergé chez vous',
   'hero.badge3': 'RGPD par construction',

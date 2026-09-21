@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — 회사 전체를 운영하는 CMS" />
 <meta property="og:description" content="인사, 인적자원, 재무, 운영, 거버넌스, 준법, 총무. 서로 대화하는 44 개 공간, 하나의 데이터베이스, 이어 붙일 애플리케이션 없음. 16개 언어로, 모든 것을 월 15 €에." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>설계 단계부터 GDPR</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>직원 공간</span></div>
-            <img src="../medias/membre-espace-ko.png?v=4f098c52c7" alt="직원 공간" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>직원 공간</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="직원 공간">
+              <img src="../medias/membre-espace-ko.png?v=4f098c52c7" alt="직원 공간" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="경영 대시보드" aria-hidden="true">
+              <img src="../medias/pilotage-ko.png?v=55bd9a4077" alt="경영 대시보드" loading="lazy" decoding="async" width="2160" height="2218" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="총무와 재무 관리" aria-hidden="true">
+              <img src="../medias/gestion-ko.png?v=4f437a9c97" alt="총무와 재무 관리" loading="lazy" decoding="async" width="2160" height="1708" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="제품 화면">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="직원 공간" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="경영 대시보드"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="총무와 재무 관리"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">개 업무 공간</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>경영 대시보드</span></div>
-            <img src="../medias/pilotage-ko.png?v=55bd9a4077" alt="경영 대시보드" width="1440" height="900" />
+            <img src="../medias/pilotage-ko.png?v=55bd9a4077" alt="경영 대시보드" width="2160" height="2218" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>직원 공간</span></div>
-            <img src="../medias/membre-espace-ko.png?v=4f098c52c7" alt="직원 공간" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-ko.png?v=4f098c52c7" alt="직원 공간" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>인사</span></div>
-            <img src="../medias/rh-ko.png?v=a045746cae" alt="인사" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-ko.png?v=a045746cae" alt="인사" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>총무와 재무 관리</span></div>
-            <img src="../medias/gestion-ko.png?v=4f437a9c97" alt="총무와 재무 관리" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-ko.png?v=4f437a9c97" alt="총무와 재무 관리" loading="lazy" decoding="async" width="2160" height="1708" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>프로젝트, 마일스톤, 수익성</span></div>
-            <img src="../medias/projets-ko.png?v=eb4e9e0d2f" alt="프로젝트, 마일스톤, 수익성" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-ko.png?v=eb4e9e0d2f" alt="프로젝트, 마일스톤, 수익성" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>회사 법무와 컴플라이언스</span></div>
-            <img src="../medias/juridique-ko.png?v=b73d756ef6" alt="회사 법무와 컴플라이언스" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-ko.png?v=b73d756ef6" alt="회사 법무와 컴플라이언스" loading="lazy" decoding="async" width="2160" height="2432" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>

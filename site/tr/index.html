@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — Tüm şirketi yöneten CMS" />
 <meta property="og:description" content="Personel, insan kaynakları, finans, operasyon, yönetişim, uyum, idari işler. Birbiriyle konuşan 44 alan, tek bir veritabanı, birbirine yapıştırılacak uygulama yok. On altı dilde ve her şeyi yönetmek için ayda 15 €." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<link rel="stylesheet" href="../assets/style.css?v=345cb0ac61" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -202,11 +202,32 @@
             <span class="chip"><span class="dot"></span>Tasarımdan gelen KVKK/GDPR uyumu</span>
           </div>
         </div>
-        <div class="hero-shot reveal" data-parallax>
-          <div class="shot-frame">
-            <div class="shot-bar"><i></i><i></i><i></i><span>Çalışan alanı</span></div>
-            <img src="../medias/membre-espace-tr.png?v=1b725af56c" alt="Çalışan alanı" width="1440" height="900" />
+        <div class="hero-shot reveal" data-parallax data-hero>
+          <div class="hero-window">
+        <div class="shot-frame hero-frame">
+          <div class="shot-bar">
+            <i></i><i></i><i></i>
+            <span data-hero-label>Çalışan alanı</span>
           </div>
+          <div class="hero-screens">
+            <div class="hero-screen is-on" data-screen="membre-espace" data-label="Çalışan alanı">
+              <img src="../medias/membre-espace-tr.png?v=1b725af56c" alt="Çalışan alanı" width="2160" height="2800" />
+            </div>
+            <div class="hero-screen" data-screen="pilotage" data-label="Yönetim panosu" aria-hidden="true">
+              <img src="../medias/pilotage-tr.png?v=2d6ccb930e" alt="Yönetim panosu" loading="lazy" decoding="async" width="2160" height="2180" />
+            </div>
+            <div class="hero-screen" data-screen="gestion" data-label="İdari ve mali yönetim" aria-hidden="true">
+              <img src="../medias/gestion-tr.png?v=33efbe3c37" alt="İdari ve mali yönetim" loading="lazy" decoding="async" width="2160" height="1730" />
+            </div>
+          </div>
+          <span class="hero-sheen" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="hero-dots" role="tablist" aria-label="Ürün ekranları">
+          <button class="hero-dot is-on" type="button" data-go="0" aria-label="Çalışan alanı" aria-current="true"></button>
+          <button class="hero-dot" type="button" data-go="1" aria-label="Yönetim panosu"></button>
+          <button class="hero-dot" type="button" data-go="2" aria-label="İdari ve mali yönetim"></button>
+      </div>
           <div class="float float-1">
             <div class="float-k">çalışma alanı</div>
             <div class="float-v">44</div>
@@ -330,7 +351,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Yönetim panosu</span></div>
-            <img src="../medias/pilotage-tr.png?v=2d6ccb930e" alt="Yönetim panosu" width="1440" height="900" />
+            <img src="../medias/pilotage-tr.png?v=2d6ccb930e" alt="Yönetim panosu" width="2160" height="2180" />
           </div>
             </div>
             <div class="pane" data-pane="membre-espace" role="tabpanel">
@@ -341,7 +362,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Çalışan alanı</span></div>
-            <img src="../medias/membre-espace-tr.png?v=1b725af56c" alt="Çalışan alanı" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/membre-espace-tr.png?v=1b725af56c" alt="Çalışan alanı" loading="lazy" decoding="async" width="2160" height="2800" />
           </div>
             </div>
             <div class="pane" data-pane="rh" role="tabpanel">
@@ -352,7 +373,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>İnsan kaynakları</span></div>
-            <img src="../medias/rh-tr.png?v=548ab16c53" alt="İnsan kaynakları" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/rh-tr.png?v=548ab16c53" alt="İnsan kaynakları" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="gestion" role="tabpanel">
@@ -363,7 +384,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>İdari ve mali yönetim</span></div>
-            <img src="../medias/gestion-tr.png?v=33efbe3c37" alt="İdari ve mali yönetim" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/gestion-tr.png?v=33efbe3c37" alt="İdari ve mali yönetim" loading="lazy" decoding="async" width="2160" height="1730" />
           </div>
             </div>
             <div class="pane" data-pane="projets" role="tabpanel">
@@ -374,7 +395,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Projeler, kilometre taşları ve kârlılık</span></div>
-            <img src="../medias/projets-tr.png?v=153fde1482" alt="Projeler, kilometre taşları ve kârlılık" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/projets-tr.png?v=153fde1482" alt="Projeler, kilometre taşları ve kârlılık" loading="lazy" decoding="async" width="2160" height="1520" />
           </div>
             </div>
             <div class="pane" data-pane="juridique" role="tabpanel">
@@ -385,7 +406,7 @@
               </div>
               <div class="shot-frame">
             <div class="shot-bar"><i></i><i></i><i></i><span>Şirket hukuku ve uyum</span></div>
-            <img src="../medias/juridique-tr.png?v=8714b4ef6f" alt="Şirket hukuku ve uyum" loading="lazy" decoding="async" width="1440" height="900" />
+            <img src="../medias/juridique-tr.png?v=8714b4ef6f" alt="Şirket hukuku ve uyum" loading="lazy" decoding="async" width="2160" height="2356" />
           </div>
             </div>
           </div>
@@ -665,6 +686,6 @@
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=96e0e9ff20" defer></script>
+<script src="../assets/app.js?v=f4695f660c" defer></script>
 </body>
 </html>
