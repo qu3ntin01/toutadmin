@@ -17,6 +17,22 @@
 <meta property="og:description" content="Personel, insan kaynakları, finans, operasyon, yönetişim, uyum, idari işler. Birbiriyle konuşan 44 alan, tek bir veritabanı, birbirine yapıştırılacak uygulama yok. On altı dilde ve her şeyi yönetmek için ayda 15 €." />
 <meta property="og:type" content="website" />
 <link rel="stylesheet" href="../assets/style.css?v=b759f10766" />
+<!--
+  La politique de contenu, posée dans la page.
+
+  Ce site est statique : il n'y a pas de serveur d'application pour poser un
+  en-tête, et l'hébergement qui le sert n'est pas toujours le nôtre. La balise
+  fait le même travail, en moins de choses — pas de « frame-ancestors », que
+  les navigateurs n'acceptent qu'en en-tête. Là où l'on maîtrise le serveur,
+  l'en-tête reste préférable ; ici, c'est mieux que rien, et « rien » était
+  l'état précédent.
+
+  Rien d'extérieur n'est chargé : ni police, ni mesure d'audience, ni script
+  d'un tiers. La règle le dit au navigateur plutôt que de compter sur la bonne
+  foi du code — et si quelqu'un en ajoutait un demain sans y penser, la page
+  refuserait de le charger au lieu de l'accepter en silence.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'" />
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
 <link rel="alternate" hreflang="fr" href="../index.html" />
   <link rel="alternate" hreflang="en" href="../en/index.html" />
