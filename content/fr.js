@@ -239,13 +239,11 @@ module.exports = {
 
   /* ------------------------------------------------------------------ pied */
   'foot.product': 'Produit',
+  'foot.yourSpace': 'Votre espace',
   'foot.company': 'À propos',
   'foot.resources': 'Ressources',
-  'foot.legal': 'Mentions',
-  'foot.docs': 'Documentation',
-  'foot.status': 'Ce qui est couvert',
   'foot.rights': 'Tous droits réservés.',
-  'foot.madeWith': 'Node 22 · Express · SQLite ou MySQL. Aucune dépendance inutile.',
+  'foot.madeWith': 'Deux éditions : Node 22 · Express, ou PHP 8.1 sans Composer. SQLite ou MySQL, et aucune dépendance inutile.',
   'foot.langTitle': 'Ce site existe en seize langues',
 
   /* ---------------------------------------------------- liste des domaines */

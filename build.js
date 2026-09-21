@@ -374,6 +374,18 @@ function drawerHtml(t, ctx) {
   </aside>`;
 }
 
+/*
+ * Le pied de page.
+ *
+ * Il avait vieilli sans qu'on le relise : « Installation » n'y était pas du
+ * tout — seule page du site à manquer —, « Contact » y était deux fois,
+ * l'espace client nulle part alors que c'est là qu'un client déjà chez nous
+ * va chercher ses factures, et le bas répétait en étiquette nue le titre de
+ * la liste des langues qui le surplombe.
+ *
+ * Quatre colonnes, et chaque page exactement une fois : ce que c'est, où
+ * l'apprendre, et par où l'on entre quand on est déjà client.
+ */
 function footHtml(t, ctx) {
   const langs = LOCALES.map((l) =>
     `<a lang="${l.code}" hreflang="${l.code}" href="${ctx.hrefIn(l.code, ctx.page)}"><span class="flag">${l.flag}</span> ${esc(dictionaries[l.code]['locale.name'])}</a>`).join('\n          ');
@@ -391,20 +403,21 @@ function footHtml(t, ctx) {
             <li><a href="${ctx.href('fonctionnalites')}">${esc(t('nav.features'))}</a></li>
             <li><a href="${ctx.href('fonctionnalites')}#ecrans">${esc(t('nav.screens'))}</a></li>
             <li><a href="${ctx.href('securite')}">${esc(t('nav.security'))}</a></li>
+            <li><a href="${ctx.href('tarifs')}">${esc(t('nav.pricing'))}</a></li>
           </ul>
         </div>
         <div>
           <h4>${esc(t('foot.resources'))}</h4>
           <ul>
-            <li><a href="${ctx.href('tarifs')}">${esc(t('nav.pricing'))}</a></li>
-            <li><a href="${STORE_URL}" rel="noopener">${esc(t('nav.store'))}</a></li>
+            <li><a href="${ctx.href('installation')}">${esc(t('nav.install'))}</a></li>
             <li><a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a></li>
-            <li><a href="${ctx.href('contact')}">${esc(t('nav.contact'))}</a></li>
+            <li><a href="${STORE_URL}" rel="noopener">${esc(t('nav.store'))}</a></li>
           </ul>
         </div>
         <div>
-          <h4>${esc(t('foot.company'))}</h4>
+          <h4>${esc(t('foot.yourSpace'))}</h4>
           <ul>
+            <li><a href="${CLIENT_URL}" rel="noopener">${esc(t('nav.client'))}</a></li>
             <li><a href="${ctx.href('contact')}">${esc(t('contact.write'))}</a></li>
           </ul>
         </div>
@@ -417,7 +430,6 @@ function footHtml(t, ctx) {
       </div>
       <div class="foot-bottom">
         <span>© ${new Date().getFullYear()} ${esc(t('site.name'))}. ${esc(t('foot.rights'))}</span>
-        <span>${esc(t('foot.langTitle'))}</span>
       </div>
     </div>
   </footer>`;
@@ -522,6 +534,38 @@ for (const dir of ['assets', 'medias']) {
 }
 
 fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nAllow: /\n');
+
+/*
+ * Le pied de page mène à chaque page du site, une fois et une seule.
+ *
+ * Il a dérivé sans bruit : « Installation » n'y a jamais figuré, « Contact »
+ * y figurait deux fois, et rien ne l'a signalé pendant des mois parce que
+ * rien ne le regardait. Le pied de page est la seule liste du site qui se
+ * veut exhaustive — la barre du haut, elle, choisit délibérément quatre
+ * liens sur six. Une liste qui se veut exhaustive doit être vérifiée, sinon
+ * elle ne l'est que le jour où on l'écrit.
+ *
+ * L'accueil est la seule exception : on y va par la marque, en tête du pied.
+ */
+{
+  const pied = fs.readFileSync(path.join(OUT, 'index.html'), 'utf8');
+  const bas = pied.slice(pied.indexOf('<footer class="foot">'), pied.indexOf('</footer>'));
+  const manquantes = [];
+  const doublees = [];
+  for (const page of PAGES) {
+    if (page === 'index') continue;
+    // « fonctionnalites.html » et « fonctionnalites.html#ecrans » sont le même
+    // lien de navigation : l'ancre ne compte pas pour une seconde entrée.
+    const fois = (bas.match(new RegExp(`href="${page}\\.html(?:#[a-z-]+)?"`, 'g')) || []).length;
+    if (fois === 0) manquantes.push(page);
+    if (fois > 2) doublees.push(`${page} (${fois} fois)`);
+  }
+  if (manquantes.length || doublees.length) {
+    throw new Error('Pied de page :'
+      + (manquantes.length ? `\n  jamais liée(s) : ${manquantes.join(', ')}` : '')
+      + (doublees.length ? `\n  liée(s) en double : ${doublees.join(', ')}` : ''));
+  }
+}
 
 /* Un relevé du barème, en texte brut, à la racine du site.
    Le site se déploie par « git pull » : quand une page semble périmée, la
