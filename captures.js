@@ -139,6 +139,8 @@ const CIBLES = {
   'membre-connaissances': { chemin: '/base-de-connaissances', role: 'membre' },
   'membre-coffre-fort': { chemin: '/coffre-fort', role: 'membre' },
   'membre-profil': { chemin: '/mon-profil', role: 'membre' },
+  // Au pied du profil : sans l'ancre, la coupe du haut ne l'atteint jamais.
+  'membre-appareils': { chemin: '/mon-profil', role: 'membre', ancre: '#appareils' },
   'membre-juridique-membre': { chemin: '/juridique', role: 'membre' },
   'membre-cse': { chemin: '/cse', role: 'membre' },
   annuaire: { chemin: '/annuaire', role: 'membre' },
@@ -372,10 +374,33 @@ async function photographier(contexte, nom, cible) {
     await reposer(page);
 
     const hauteur = await page.evaluate(() => document.documentElement.scrollHeight);
+
+    /*
+     * Une ancre, quand ce qu'on veut montrer n'est pas en haut de la page.
+     *
+     * La coupe à 1400 points garde le haut, ce qui est le bon défaut : c'est
+     * là que se trouve l'essentiel d'un tableau de bord. Mais une carte placée
+     * en bas d'un écran long — « Mes appareils », au pied du profil — n'entre
+     * jamais dans le cadre, et la capture montre alors tout sauf le sujet.
+     * L'ancre cadre à partir de l'élément nommé.
+     */
+    const depart = cible.ancre
+      ? await page.evaluate((sel) => {
+          const noeud = document.querySelector(sel);
+          if (!noeud) return null;
+          const haut = noeud.getBoundingClientRect().top + window.scrollY;
+          return Math.max(0, Math.round(haut) - 24);
+        }, cible.ancre)
+      : 0;
+    if (cible.ancre && depart === null) {
+      throw new Error(`l’ancre « ${cible.ancre} » est absente de la page`);
+    }
+
+    const reste = hauteur - depart;
     const brut = await page.screenshot({
       fullPage: true,
-      ...(hauteur > HAUTEUR_MAX
-        ? { clip: { x: 0, y: 0, width: LARGEUR, height: HAUTEUR_MAX } }
+      ...(reste > HAUTEUR_MAX || depart > 0
+        ? { clip: { x: 0, y: depart, width: LARGEUR, height: Math.min(reste, HAUTEUR_MAX) } }
         : {}),
     });
 
@@ -389,7 +414,9 @@ async function photographier(contexte, nom, cible) {
     const image = palettiser(brut);
     fs.writeFileSync(fichier, image);
 
-    const coupee = hauteur > HAUTEUR_MAX ? ` (coupée à ${HAUTEUR_MAX} de ${hauteur})` : '';
+    const coupee = cible.ancre
+      ? ` (cadrée sur ${cible.ancre}, à ${depart} de ${hauteur})`
+      : (hauteur > HAUTEUR_MAX ? ` (coupée à ${HAUTEUR_MAX} de ${hauteur})` : '');
     console.log(`  ✓ ${nom.padEnd(26)} ${cible.chemin.padEnd(24)} `
       + `${Math.round(brut.length / 1024)} → ${Math.round(image.length / 1024)} Ko${coupee}`);
     return true;

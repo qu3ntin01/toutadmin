@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': '지식베이스',
   'shot.membre-coffre-fort': '전자 금고',
   'shot.membre-profil': '프로필과 계정 보안',
+  'shot.membre-appareils': '내 기기: 계정이 열려 있는 곳',
   'shot.membre-juridique-membre': '내 신고 내역',
   'shot.annuaire': '사내 주소록',
   'shot.organigramme': '조직도',

@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'Bilgi tabanı',
   'shot.membre-coffre-fort': 'Dijital kasa',
   'shot.membre-profil': 'Profil ve hesap güvenliği',
+  'shot.membre-appareils': 'Cihazlarım: hesap nerede açık',
   'shot.membre-juridique-membre': 'Bildirimlerim',
   'shot.annuaire': 'Şirket rehberi',
   'shot.organigramme': 'Organizasyon şeması',

@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'قاعدة المعرفة',
   'shot.membre-coffre-fort': 'الخزنة الرقمية',
   'shot.membre-profil': 'الملف الشخصي وأمان الحساب',
+  'shot.membre-appareils': 'أجهزتي: أين الحساب مفتوح',
   'shot.membre-juridique-membre': 'تصريحاتي',
   'shot.annuaire': 'دليل الشركة',
   'shot.organigramme': 'الهيكل التنظيمي',

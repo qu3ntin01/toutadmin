@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': '知识库',
   'shot.membre-coffre-fort': '数字保险库',
   'shot.membre-profil': '个人资料与账户安全',
+  'shot.membre-appareils': '我的设备：账号在哪里登录着',
   'shot.membre-juridique-membre': '我的申报',
   'shot.annuaire': '公司通讯录',
   'shot.organigramme': '组织结构图',

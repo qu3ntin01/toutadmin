@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'Knowledge base',
   'shot.membre-coffre-fort': 'Digital vault',
   'shot.membre-profil': 'Profile and account security',
+  'shot.membre-appareils': 'My devices: where the account is open',
   'shot.membre-juridique-membre': 'My declarations',
   'shot.annuaire': 'Company directory',
   'shot.organigramme': 'Org chart',

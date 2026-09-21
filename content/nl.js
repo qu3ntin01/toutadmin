@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'Kennisbank',
   'shot.membre-coffre-fort': 'Digitale kluis',
   'shot.membre-profil': 'Profiel en accountbeveiliging',
+  'shot.membre-appareils': 'Mijn apparaten: waar de rekening open staat',
   'shot.membre-juridique-membre': 'Mijn verklaringen',
   'shot.annuaire': 'Bedrijfsadresboek',
   'shot.organigramme': 'Organigram',

@@ -10,7 +10,7 @@ module.exports = {
     {
       key: 'screens.member',
       shots: ['membre-espace', 'membre-equipe', 'membre-demandes', 'membre-agenda', 'membre-salles',
-        'membre-messagerie', 'membre-connaissances', 'membre-coffre-fort', 'membre-profil',
+        'membre-messagerie', 'membre-connaissances', 'membre-coffre-fort', 'membre-profil', 'membre-appareils',
         'membre-juridique-membre', 'membre-cse', 'annuaire', 'organigramme', 'notifications',
         'recherche', 'connexion'],
     },

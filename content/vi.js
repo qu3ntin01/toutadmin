@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'Kho tri thức',
   'shot.membre-coffre-fort': 'Két số',
   'shot.membre-profil': 'Hồ sơ và bảo mật tài khoản',
+  'shot.membre-appareils': 'Thiết bị của tôi: tài khoản đang mở ở đâu',
   'shot.membre-juridique-membre': 'Kê khai của tôi',
   'shot.annuaire': 'Danh bạ công ty',
   'shot.organigramme': 'Sơ đồ tổ chức',

@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'ज्ञान-कोश',
   'shot.membre-coffre-fort': 'डिजिटल तिजोरी',
   'shot.membre-profil': 'प्रोफ़ाइल और खाता सुरक्षा',
+  'shot.membre-appareils': 'मेरे उपकरण: खाता कहाँ खुला है',
   'shot.membre-juridique-membre': 'मेरी घोषणाएँ',
   'shot.annuaire': 'कंपनी निर्देशिका',
   'shot.organigramme': 'संगठन-चार्ट',

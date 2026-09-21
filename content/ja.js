@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'ナレッジベース',
   'shot.membre-coffre-fort': '電子金庫',
   'shot.membre-profil': 'プロフィールとアカウント保護',
+  'shot.membre-appareils': '使用中の端末：アカウントが開かれている場所',
   'shot.membre-juridique-membre': '自分の申告',
   'shot.annuaire': '社内名簿',
   'shot.organigramme': '組織図',

@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'Base de conocimiento',
   'shot.membre-coffre-fort': 'Caja fuerte digital',
   'shot.membre-profil': 'Perfil y seguridad de la cuenta',
+  'shot.membre-appareils': 'Mis dispositivos: dónde está abierta la cuenta',
   'shot.membre-juridique-membre': 'Mis declaraciones',
   'shot.annuaire': 'Directorio de la empresa',
   'shot.organigramme': 'Organigrama',

@@ -371,6 +371,7 @@ module.exports = {
   'shot.membre-connaissances': 'База знаний',
   'shot.membre-coffre-fort': 'Цифровое хранилище',
   'shot.membre-profil': 'Профиль и безопасность учётной записи',
+  'shot.membre-appareils': 'Мои устройства: где открыта учётная запись',
   'shot.membre-juridique-membre': 'Мои декларации',
   'shot.annuaire': 'Справочник компании',
   'shot.organigramme': 'Оргструктура',
