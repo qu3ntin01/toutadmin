@@ -45,9 +45,10 @@ module.exports = {
     },
     {
       key: 'screens.admin',
-      shots: ['pilotage', 'admin', 'rh', 'parcours', 'gestion', 'direction', 'projets', 'support', 'planning',
-        'qualite', 'sante-securite', 'informatique', 'developpement', 'evenements', 'juridique',
-        'alertes', 'securite', 'rgpd', 'parapheur', 'accueil', 'import', 'integrations', 'sauvegardes'],
+      shots: ['pilotage', 'admin', 'rh', 'parcours', 'gestion', 'direction', 'projets', 'support',
+        'support-groupes', 'planning', 'qualite', 'sante-securite', 'informatique', 'developpement',
+        'evenements', 'juridique', 'alertes', 'securite', 'rgpd', 'parapheur', 'accueil', 'import',
+        'integrations', 'assistance-ia', 'sauvegardes'],
     },
     {
       /*

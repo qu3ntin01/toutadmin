@@ -182,6 +182,15 @@ const CIBLES = {
   direction: { chemin: '/direction', role: 'admin' },
   projets: { chemin: '/projets', role: 'admin' },
   support: { chemin: '/support', role: 'admin' },
+  /*
+   * L'écran qui dit qui a accès à quoi.
+   *
+   * C'est la question qu'une administration pose vraiment — « si cette
+   * personne part demain, qui lit ces demandes ? » — et la carte des accès y
+   * répond d'un coup d'œil. Elle est le premier onglet de la page, donc rien
+   * à désigner : ce qu'on photographie est ce qui s'ouvre.
+   */
+  'support-groupes': { chemin: '/support/groupes', role: 'admin' },
   planning: { chemin: '/planning', role: 'admin' },
   qualite: { chemin: '/qualite', role: 'admin' },
   'sante-securite': { chemin: '/sante-securite', role: 'admin' },
@@ -224,6 +233,21 @@ const CIBLES = {
    * de vente montrant une erreur et un écran vide.
    */
   licence: { chemin: '/licence', role: 'admin' },
+  /*
+   * Les réglages de l'assistance, sur leur onglet.
+   *
+   * « onglet » clique le bouton plutôt que de passer par le fragment de
+   * l'adresse ; sans lui on photographierait le premier onglet des
+   * « Interfaces » une seconde fois.
+   *
+   * L'onglet « Assistance éditeur » de la licence n'est pas ici, et pour la
+   * même raison que « /applications » plus bas : sur l'instance de
+   * démonstration, qui n'est reliée à aucun éditeur, il n'affiche que son
+   * refus — « ni adresse ni clé ». Une galerie de vente qui montre un écran
+   * vide dessert le produit. Le jour où la démonstration sera reliée à un
+   * éditeur, il reprendra sa place ici et dans « medias.js ».
+   */
+  'assistance-ia': { chemin: '/integrations', role: 'admin', onglet: 'assistance' },
   'mises-a-jour': { chemin: '/mises-a-jour', role: 'admin' },
   journaux: { chemin: '/journaux', role: 'admin' },
 
@@ -394,6 +418,26 @@ async function photographier(contexte, nom, cible) {
     if (cible.role !== 'visiteur' && page.url().includes('/connexion')) {
       throw new Error('renvoyé à la connexion — la session n’a pas tenu');
     }
+
+    /*
+     * Un onglet s'ouvre d'un clic, et non par le fragment de l'adresse.
+     *
+     * Les deux marchent — « /integrations#assistance » ouvre bien l'onglet —
+     * mais le fragment fait aussi ce qu'un fragment fait : le navigateur
+     * défile jusqu'à l'élément nommé. La photo commence alors au milieu de
+     * la carte, titre coupé, et la barre latérale flotte au tiers de la
+     * page. Le clic ouvre l'onglet sans bouger le défilement, et l'on
+     * remonte en haut pour être sûr.
+     */
+    if (cible.onglet) {
+      const bouton = page.locator(`.tab-btn[data-tab="${cible.onglet}"]`);
+      if (await bouton.count() === 0) {
+        throw new Error(`l’onglet « ${cible.onglet} » est absent de la page`);
+      }
+      await bouton.first().click();
+      await page.evaluate(() => window.scrollTo(0, 0));
+    }
+
     await reposer(page);
 
     const hauteur = await page.evaluate(() => document.documentElement.scrollHeight);
