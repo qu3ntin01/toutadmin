@@ -124,6 +124,31 @@ for (const locale of LOCALES) {
   }
 }
 
+/*
+ * La typographie française, avant d'écrire quoi que ce soit.
+ *
+ * Le français met une espace devant «  ; : ? ! » et à l'intérieur des
+ * guillemets, et une espace ordinaire à cet endroit est un endroit où la ligne
+ * peut se couper. Elle se coupe : un « ». » se retrouve seul en début de
+ * ligne, et la faute est d'autant plus visible qu'elle tombe sur la page qui
+ * vend le produit. La vérification est ici, et non dans un test séparé, parce
+ * qu'un site publié avec cette faute n'a pas à attendre qu'on le reconstruise
+ * pour qu'on s'en aperçoive.
+ *
+ * Les quinze autres langues ne sont pas concernées : l'allemand, l'anglais,
+ * l'arabe et le japonais collent leur ponctuation.
+ */
+{
+  const manques = require(path.join(ROOT, 'typographie.js')).verifier(ROOT);
+  if (manques.length) {
+    console.error(`\nTypographie française : ${manques.length} ligne(s) sans espace insécable — rien n'a été construit.`);
+    for (const m of manques.slice(0, 6)) console.error(`  ${m.ligne}  ${m.texte.slice(0, 100)}`);
+    if (manques.length > 6) console.error(`  … et ${manques.length - 6} autre(s).`);
+    console.error('Posez-les : node typographie.js --corriger');
+    process.exit(1);
+  }
+}
+
 /* ------------------------------------------------------------- médias */
 
 const MEDIA = require(path.join(ROOT, 'medias.js'));
