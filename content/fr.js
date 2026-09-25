@@ -377,12 +377,15 @@ module.exports = {
   ],
 
   'dom.support.title': 'Support et connaissances',
-  'dom.support.lede': "Les demandes internes et clientes dans un même circuit, et les réponses qui restent.",
+  'dom.support.lede': 'Les demandes internes et clientes dans un même circuit, et vous décidez qui répond.',
   'dom.support.items': [
     'Tickets internes et clients, priorité, origine, assignation',
     'Délai de première réponse déduit de la priorité, recalculé depuis l’ouverture',
     'Notes internes invisibles du demandeur, et qui ne comptent pas comme réponse',
-    'Cloisonnement par catégorie : une demande RH ne sort pas des RH',
+    'Groupes de support composés par l’administration : qui traite quoi, et des files transférables',
+    'Une carte des accès qui répond à « si cette personne part demain, qui lit ces demandes ? »',
+    'Cloisonnement par catégorie : la gestion n’ouvre jamais les demandes RH',
+    'Écrire à l’éditeur depuis votre propre CMS, sans second compte à tenir',
     'Base de connaissances par catégorie, recherche plein texte, portée réglable',
     'Indicateurs : tickets ouverts, en retard, délai moyen',
   ],
