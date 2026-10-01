@@ -267,6 +267,9 @@ module.exports = {
     'Mises à jour signées Ed25519 : vérifiées avant d’être appliquées, et retour à la version précédente en un geste',
     'Assistance par modèle de langage, éteinte à la livraison : aucune fonction n’envoie quoi que ce soit tant qu’elle n’est pas cochée',
     'Le modèle propose, il n’écrit jamais : chaque ligne passe par quelqu’un avant d’entrer en base, et le journal garde la trace des envois sans en recopier le contenu',
+    'Champs personnalisés sur huit fiches, sans toucher au schéma de la base : vos valeurs vivent dans leur propre table',
+    'Corbeille sur sept objets : une suppression emporte la fiche, ses pièces liées et ses champs — la remise en place rend le tout',
+    '« Se connecter en tant que », audité : voir l’écran d’un salarié pour le dépanner, sans accéder à ses secrets, et le journal nomme les deux',
   ],
 
   'dom.espace.title': 'Espace du salarié',
