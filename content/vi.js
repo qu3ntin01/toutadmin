@@ -203,6 +203,8 @@ module.exports = {
     'Trường riêng trên tám loại phiếu, không chạm vào cấu trúc cơ sở dữ liệu: giá trị sống trong bảng riêng',
     'Thùng rác cho bảy đối tượng: xoá mang theo phiếu, các mục gắn với nó và các trường — phục hồi trả lại tất cả',
     '«Đăng nhập với danh nghĩa» có ghi sổ: xem màn hình của nhân viên để giúp, không với tới điều riêng của họ, và sổ ghi nêu cả hai',
+    'Nhiều công ty trên một phiên bản: mỗi công ty chỉ thấy dữ liệu của mình, và mỗi người giữ một tài khoản duy nhất cho cả tập đoàn',
+    'Việc phân tách được kiểm tra ngay tại cửa cơ sở dữ liệu: một truy vấn quên nêu công ty sẽ bị từ chối, không được âm thầm sửa lại',
   ],
   'dom.espace.title': 'Không gian của nhân viên',
   'dom.espace.lede': 'Trang mà ai cũng mở vào buổi sáng: những gì liên quan đến mình, và không gì khác.',

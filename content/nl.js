@@ -203,6 +203,8 @@ module.exports = {
     'Eigen velden op acht records, zonder het databaseschema aan te raken: uw waarden leven in hun eigen tabel',
     'Prullenbak voor zeven objecten: verwijderen neemt het record, de gekoppelde onderdelen en de velden mee — terugzetten brengt alles terug',
     '„Aanmelden als” met logboek: het scherm van een medewerker zien om te helpen, zonder bij zijn geheimen te komen, en het logboek noemt beiden',
+    'Meerdere vennootschappen op één instantie: elke ziet alleen haar eigen gegevens, en een persoon houdt één account voor de hele groep',
+    'Scheiding gecontroleerd aan de deur van de gegevensbank: een vraag die de vennootschap vergeet wordt geweigerd, niet stil hersteld',
   ],
   'dom.espace.title': 'Werkruimte van de medewerker',
   'dom.espace.lede': 'De pagina die iedereen \'s ochtends opent: wat hem aangaat, en niets anders.',

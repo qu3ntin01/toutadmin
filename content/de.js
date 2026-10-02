@@ -203,6 +203,8 @@ module.exports = {
     'Eigene Felder auf acht Datensätzen, ohne das Datenbankschema anzutasten: Ihre Werte leben in ihrer eigenen Tabelle',
     'Papierkorb für sieben Objekte: ein Löschen nimmt den Datensatz, seine verknüpften Einträge und seine Felder mit — die Wiederherstellung bringt alles zurück',
     'Protokolliertes „Anmelden als“: den Bildschirm eines Mitarbeiters sehen, um zu helfen, ohne an seine Geheimnisse zu kommen, und das Protokoll nennt beide',
+    'Mehrere Gesellschaften auf einer Instanz: jede sieht nur ihre eigenen Daten, und eine Person behält ein einziges Konto für die ganze Gruppe',
+    'Trennung an der Tür der Datenbank geprüft: eine Abfrage, die die Gesellschaft vergisst, wird abgewiesen und nicht stillschweigend ausgebessert',
   ],
   'dom.espace.title': 'Mitarbeiterbereich',
   'dom.espace.lede': 'Die Seite, die jeder morgens öffnet: was ihn betrifft, und sonst nichts.',

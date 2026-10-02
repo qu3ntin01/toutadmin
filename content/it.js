@@ -203,6 +203,8 @@ module.exports = {
     'Campi personalizzati su otto schede, senza toccare lo schema della base: i vostri valori vivono in una tabella propria',
     'Cestino su sette oggetti: un\'eliminazione porta via la scheda, i suoi elementi collegati e i suoi campi — il ripristino restituisce tutto',
     '«Accedere come», tracciato: vedere lo schermo di un dipendente per aiutarlo, senza arrivare ai suoi segreti, e il registro nomina entrambi',
+    'Più società su una sola istanza: ciascuna vede soltanto i propri dati, e una persona conserva un unico conto per tutto il gruppo',
+    'Separazione verificata alla porta della base dati: una richiesta che dimentica la società viene rifiutata, non corretta in silenzio',
   ],
   'dom.espace.title': 'Spazio del dipendente',
   'dom.espace.lede': 'La pagina che tutti aprono la mattina: ciò che li riguarda, e nient\'altro.',

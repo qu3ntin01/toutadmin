@@ -270,6 +270,8 @@ module.exports = {
     'Champs personnalisés sur huit fiches, sans toucher au schéma de la base : vos valeurs vivent dans leur propre table',
     'Corbeille sur sept objets : une suppression emporte la fiche, ses pièces liées et ses champs — la remise en place rend le tout',
     '« Se connecter en tant que », audité : voir l’écran d’un salarié pour le dépanner, sans accéder à ses secrets, et le journal nomme les deux',
+    'Plusieurs sociétés sur une instance : chacune ne voit que ses données, et une personne garde un seul compte pour tout le groupe',
+    'Cloisonnement vérifié à la porte de la base : une requête qui oublie la société est refusée, pas corrigée en silence',
   ],
 
   'dom.espace.title': 'Espace du salarié',

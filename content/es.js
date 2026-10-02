@@ -203,6 +203,8 @@ module.exports = {
     'Campos personalizados en ocho fichas, sin tocar el esquema de la base: sus valores viven en su propia tabla',
     'Papelera en siete objetos: una eliminación se lleva la ficha, sus elementos vinculados y sus campos — la restauración lo devuelve todo',
     '«Conectarse como», auditado: ver la pantalla de un empleado para ayudarle, sin acceder a sus secretos, y el registro nombra a los dos',
+    'Varias sociedades en una instancia: cada una solo ve sus propios datos, y una persona conserva una sola cuenta para todo el grupo',
+    'Separación verificada en la puerta de la base: una consulta que olvida la sociedad se rechaza, no se corrige en silencio',
   ],
   'dom.espace.title': 'Espacio del empleado',
   'dom.espace.lede': 'La página que todos abren por la mañana: lo que les concierne, y nada más.',

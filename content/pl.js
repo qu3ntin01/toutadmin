@@ -203,6 +203,8 @@ module.exports = {
     'Pola własne na ośmiu kartach, bez ruszania schematu bazy: wartości żyją we własnej tabeli',
     'Kosz dla siedmiu obiektów: usunięcie zabiera kartę, powiązane elementy i pola — przywrócenie oddaje całość',
     '„Zaloguj się jako” z zapisem w dzienniku: zobaczyć ekran pracownika, by mu pomóc, bez dostępu do jego sekretów, a dziennik nazywa oba',
+    'Wiele spółek na jednej instancji: każda widzi tylko własne dane, a jedna osoba ma jedno konto dla całej grupy',
+    'Rozdzielenie sprawdzane u wejścia do bazy: zapytanie, które pomija spółkę, zostaje odrzucone, a nie po cichu naprawione',
   ],
   'dom.espace.title': 'Przestrzeń pracownika',
   'dom.espace.lede': 'Strona, którą każdy otwiera rano: to, co jego dotyczy, i nic więcej.',

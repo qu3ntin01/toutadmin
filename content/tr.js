@@ -203,6 +203,8 @@ module.exports = {
     'Sekiz kayıtta kendi alanlar, veritabanı şemasına dokunmadan: değerleriniz kendi tablosunda yaşar',
     'Yedi nesne için geri dönüşüm kutusu: silme kaydı, bağlı ögelerini ve alanlarını alıp gider — geri alma hepsini döndürür',
     'Günlüğe geçen „şu kişi olarak giriş”: yardım etmek için bir çalışanın ekranını görmek, sırlarına erişmeden, ve günlük ikisini de adlandırır',
+    'Tek kurulumda birden fazla şirket: her biri yalnızca kendi verilerini görür, kişi ise bütün grup için tek bir hesap taşır',
+    'Bölümleme veritabanının kapısında denetlenir: şirketi atlayan bir sorgu sessizce düzeltilmez, geri çevrilir',
   ],
   'dom.espace.title': 'Çalışan alanı',
   'dom.espace.lede': 'Herkesin sabah açtığı sayfa: kendisini ilgilendiren şeyler, başka bir şey değil.',

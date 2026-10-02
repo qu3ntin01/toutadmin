@@ -8,5 +8,5 @@ Barème
 Pages     : 96 (6 × 16 langues)
 Clés      : 446 par langue
 Captures  : 152 fichiers
-Annoncé   : 44 espaces · 16 langues · 2128 tests · 7 modules · 3542 libellés (relevé 2026-09-25)
+Annoncé   : 47 espaces · 16 langues · 2460 tests · 7 modules · 3660 libellés (relevé 2026-10-02)
 Ressources: style 7c01bdf8ce · thème 4869e2e78f · script 71283d87ad

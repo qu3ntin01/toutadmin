@@ -203,6 +203,8 @@ module.exports = {
     'Custom fields on eight records, without touching the database schema: your values live in their own table',
     'Recycle bin on seven objects: deleting takes the record, its linked items and its fields — restoring brings it all back',
     'Audited “sign in as”: see an employee\'s screen to help them, without reaching their secrets, and the log names both',
+    'Several companies on one instance: each one sees only its own data, and a person keeps a single account for the whole group',
+    'Partitioning checked at the door of the database: a query that forgets the company is refused, not silently patched',
   ],
   'dom.espace.title': 'The employee\'s workspace',
   'dom.espace.lede': 'The page everyone opens in the morning: what concerns them, and nothing else.',
