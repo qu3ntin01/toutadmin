@@ -1,0 +1,15 @@
+{
+  "_lire": "Les mentions légales du site, que la loi française impose (LCEN, article 6 III). Tant qu'un champ obligatoire est vide, la page n'est pas construite et la construction dit lequel manque : mieux pas de page qu'une page qui invente une adresse ou un numéro.",
+  "_obligatoires": ["raisonSociale", "forme", "siege", "siren", "directeur", "courriel", "hebergeur", "hebergeurAdresse"],
+  "raisonSociale": "",
+  "forme": "",
+  "capital": "",
+  "siren": "",
+  "tva": "",
+  "siege": "",
+  "directeur": "",
+  "courriel": "",
+  "hebergeur": "",
+  "hebergeurAdresse": "",
+  "hebergeurTelephone": ""
+}

@@ -35,6 +35,26 @@ let LOCALES = [
 
 const PAGES = ['index', 'fonctionnalites', 'securite', 'installation', 'tarifs', 'contact'];
 
+/*
+ * Les mentions légales, et pourquoi elles ne sont pas une page comme les autres.
+ *
+ * La loi française les impose à tout site professionnel (LCEN, article 6 III) :
+ * qui édite, où il siège, qui dirige la publication, qui héberge. Ces
+ * informations ne peuvent pas être inventées ici, et une page qui annoncerait un
+ * SIREN approximatif serait pire que pas de page du tout — l'absence est une
+ * omission, une adresse fausse est une fausse déclaration.
+ *
+ * La page est donc construite depuis « editeur.json », et seulement s'il est
+ * rempli. Sinon elle est absente, le lien du pied de page avec elle, et la
+ * construction dit à chaque passage quels champs manquent. C'est le seul rappel
+ * qui tienne : un commentaire dans un fichier se lit une fois.
+ */
+const EDITEUR = JSON.parse(fs.readFileSync(path.join(ROOT, 'editeur.json'), 'utf8'));
+const MENTIONS_MANQUANTES = EDITEUR._obligatoires
+  .filter((champ) => !String(EDITEUR[champ] || '').trim());
+const MENTIONS = MENTIONS_MANQUANTES.length === 0;
+if (MENTIONS) PAGES.push('mentions');
+
 // Les écrans ont rejoint la page Fonctionnalités : décrire une fonction et
 // montrer l'écran qui la porte, c'est la même chose. L'ancienne adresse reste
 // servie, en redirection — des liens et des index pointent encore dessus.
@@ -476,6 +496,7 @@ function footHtml(t, ctx) {
           <ul>
             <li><a href="${CLIENT_URL}" rel="noopener">${esc(t('nav.client'))}</a></li>
             <li><a href="${ctx.href('contact')}">${esc(t('contact.write'))}</a></li>
+            ${MENTIONS ? `<li><a href="${ctx.href('mentions')}">${esc(t('nav.legal'))}</a></li>` : ''}
           </ul>
         </div>
       </div>
@@ -524,6 +545,7 @@ for (const locale of LOCALES) {
       icon,
       media: MEDIA,
       chiffres: CHIFFRES,
+      editeur: EDITEUR,
       href: (name) => `${base}${name}.html`,
       hrefIn: (code, name) => (code === 'fr' ? `${base}${name}.html` : `${base}${code === locale.code ? '' : (locale.code === 'fr' ? `${code}/` : `../${code}/`)}${name}.html`),
       asset: (file) => `${base}assets/${file}`,
@@ -688,3 +710,14 @@ const medias = fs.readdirSync(path.join(ROOT, 'medias')).length;
 console.log(`${written} pages écrites dans site/ (${PAGES.length} pages × ${LOCALES.length} langues)`);
 console.log(`  captures  : ${medias} fichiers`);
 console.log(`  clés      : ${refKeys.length} par langue`);
+
+/*
+ * Le rappel, à chaque construction et jusqu'à ce qu'il n'ait plus lieu d'être.
+ * La loi n'attend pas qu'on s'en souvienne.
+ */
+if (MENTIONS) {
+  console.log('  mentions  : page construite depuis editeur.json');
+} else {
+  console.log(`  mentions  : ABSENTES — la loi les impose (LCEN art. 6 III).`);
+  console.log(`              Remplissez editeur.json : ${MENTIONS_MANQUANTES.join(', ')}`);
+}

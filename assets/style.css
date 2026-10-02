@@ -1207,3 +1207,16 @@ pre code {
   .steps > li::before { inset-inline-start: 20px; }
 }
 
+
+/* ------------------------------------------------------------ mentions légales
+   Du texte de loi se lit en colonne étroite : une ligne de cent caractères se
+   relit mal, et c'est une page qu'on relit. */
+.wrap-narrow { max-inline-size: 760px; }
+.legal { margin: 0 0 28px; }
+.legal-row { display: grid; grid-template-columns: 14rem 1fr; gap: 4px 16px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.legal-row dt { margin: 0; color: var(--ink-3); }
+.legal-row dd { margin: 0; }
+
+@media (max-width: 640px) {
+  .legal-row { grid-template-columns: 1fr; }
+}
