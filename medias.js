@@ -21,19 +21,21 @@ module.exports = {
   /*
    * Où se trouve, dans chaque écran, l'entrée de menu qui l'a ouvert.
    *
-   * Les trois captures ont le même rail bleu à gauche, et dans chacune
+   * Les trois captures ont le même rail à gauche, et dans chacune
    * l'entrée active est déjà surlignée — « Mon espace », « Pilotage »,
    * « Gestion ». Le curseur de démonstration va s'y poser avant que l'écran
    * ne change : ce qu'on voit alors n'est pas un diaporama, c'est quelqu'un
    * qui se sert du logiciel, et le surlignage qui suit est celui du produit,
    * pas un décor ajouté.
    *
-   * En pourcentage de la fenêtre, parce que celle-ci se redimensionne.
+   * En pourcentage de la fenêtre, parce que celle-ci se redimensionne —
+   * mesurés sur les captures au cadre fenêtre, palette lavande. En arabe, le
+   * rail est à droite : le script retourne l'abscisse.
    */
   heroCible: {
-    'membre-espace': [11, 8],
-    pilotage: [11, 25],
-    gestion: [11, 37],
+    'membre-espace': [8, 12],
+    pilotage: [8, 19],
+    gestion: [8, 28],
   },
   groups: [
     {

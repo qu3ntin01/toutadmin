@@ -527,7 +527,9 @@
       derniere = c;
       var b = zone.getBoundingClientRect();
       ecranBoite = b;
-      heros.style.setProperty('--cx', Math.round(b.width * c.x / 100) + 'px');
+      // En arabe, l'écran photographié est retourné : le rail est à droite.
+      var x = document.documentElement.dir === 'rtl' ? 100 - c.x : c.x;
+      heros.style.setProperty('--cx', Math.round(b.width * x / 100) + 'px');
       heros.style.setProperty('--cy', Math.round(b.height * c.y / 100) + 'px');
       return true;
     };

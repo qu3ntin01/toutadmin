@@ -575,7 +575,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .hero-dot:hover { transform: scaleY(1.5); }
 .hero-dot.is-on { background: var(--grad-hot); inline-size: 52px; }
 .hero-cursor {
-  position: absolute; z-index: 5; inset-block-start: 0; inset-inline-start: 0; inline-size: 26px; block-size: 26px;
+  position: absolute; z-index: 5; inset-block-start: 0; left: 0; inline-size: 26px; block-size: 26px;
   pointer-events: none; opacity: 0; transform: translate3d(var(--cx, 60px), var(--cy, 200px), 90px);
   transition: transform .82s var(--ease-sortie), opacity .4s var(--ease-douce); filter: drop-shadow(0 3px 7px rgb(15 23 42 / .45));
 }
@@ -583,7 +583,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 .hero-shot.is-guidee .hero-cursor { opacity: 1; }
 .hero-shot.is-appuyee .hero-cursor { transform: translate3d(var(--cx), var(--cy), 90px) scale(.82); transition: transform .12s ease-out; }
 .hero-tap {
-  position: absolute; z-index: 4; inset-block-start: 0; inset-inline-start: 0; inline-size: 14px; block-size: 14px; border-radius: 50%;
+  position: absolute; z-index: 4; inset-block-start: 0; left: 0; inline-size: 14px; block-size: 14px; border-radius: 50%;
   pointer-events: none; margin: -7px 0 0 -7px; opacity: 0; background: rgb(255 255 255 / .55); box-shadow: 0 0 0 2px rgb(255 255 255 / .75);
   transform: translate3d(var(--cx, 60px), var(--cy, 200px), 88px) scale(.2);
 }
@@ -599,6 +599,11 @@ ul { margin: 0; padding: 0; list-style: none; }
   transition: opacity .9s var(--ease-douce);
 }
 .hero.est-eclairee .hero-glow { opacity: 1; }
+
+/* Le curseur et son onde sont posés depuis le bord gauche, dans les deux sens
+   d'écriture : leur position vient du script, en pixels depuis ce bord, et
+   c'est lui qui retourne l'abscisse en arabe. Ancrés au début de ligne, ils
+   partaient hors de la fenêtre dès que la page était retournée. */
 
 /* ------------------------------------------------------------ les cadres */
 .shot-frame {
