@@ -495,7 +495,8 @@
           <article class="card reveal">
             <h3>Редакция Node</h3>
             <p>Три команды на сервере, которым вы управляете. Последняя создаёт установочный жетон и запускает экземпляр.</p>
-            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+            <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 cd toutadmin && npm ci --omit=dev
 INSTALL_TOKEN=$(openssl rand -hex 16) \
 NODE_ENV=production node src/server.js</code></pre>
@@ -503,7 +504,9 @@ NODE_ENV=production node src/server.js</code></pre>
           <article class="card reveal">
             <h3>Редакция PHP</h3>
             <p>Никакой командной строки: папку выложить, файл скопировать, право записи открыть.</p>
-            <pre><code># 1. déposer le dossier (racine web → public/)
+            <pre><code># 1. le code, ou l'archive (racine → public/)
+git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 # 2. cp config.sample.php config.php
 # 3. chmod 770 data/
 # 4. ouvrir https://votre-domaine/install</code></pre>
@@ -575,7 +578,8 @@ NODE_ENV=production node src/server.js</code></pre>
             <li class="reveal">
               <h3>Получить и установить</h3>
               <p>npm ci, а не npm install: он ставит ровно то, что описано в файле блокировки. На сервере уехавшая версия — это сбой, который никто не понимает.</p>
-              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+              <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
 cd /var/www/toutadmin
 npm ci --omit=dev</code></pre>
             </li>
@@ -611,7 +615,9 @@ journalctl -u toutadmin -f</code></pre>
             <li class="reveal">
               <h3>Выложить файлы</h3>
               <p>Здесь и ошибаются. Если сервер отдаёт всю папку, базу сможет скачать кто угодно — вместе с учётными записями, хешами паролей и сейфом.</p>
-              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+              <pre><code>git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
+# ou l'archive ; la racine web pointe sur public/, pas sur le dossier</code></pre>
             </li>
             <li class="reveal">
               <h3>Записать конфигурацию</h3>

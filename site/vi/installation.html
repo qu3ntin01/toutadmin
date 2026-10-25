@@ -495,7 +495,8 @@
           <article class="card reveal">
             <h3>Bản Node</h3>
             <p>Ba lệnh trên máy chủ do bạn quản trị. Lệnh cuối sinh ra một thẻ cài đặt và khởi động bản chạy.</p>
-            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+            <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 cd toutadmin && npm ci --omit=dev
 INSTALL_TOKEN=$(openssl rand -hex 16) \
 NODE_ENV=production node src/server.js</code></pre>
@@ -503,7 +504,9 @@ NODE_ENV=production node src/server.js</code></pre>
           <article class="card reveal">
             <h3>Bản PHP</h3>
             <p>Không cần dòng lệnh nào: một thư mục để tải lên, một tệp để chép, một quyền ghi để mở.</p>
-            <pre><code># 1. déposer le dossier (racine web → public/)
+            <pre><code># 1. le code, ou l'archive (racine → public/)
+git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 # 2. cp config.sample.php config.php
 # 3. chmod 770 data/
 # 4. ouvrir https://votre-domaine/install</code></pre>
@@ -575,7 +578,8 @@ NODE_ENV=production node src/server.js</code></pre>
             <li class="reveal">
               <h3>Lấy về và cài</h3>
               <p>Dùng npm ci thay cho npm install: nó cài đúng những gì tệp khoá mô tả. Trên máy chủ, một phiên bản trượt đi là sự cố không ai hiểu nổi.</p>
-              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+              <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
 cd /var/www/toutadmin
 npm ci --omit=dev</code></pre>
             </li>
@@ -611,7 +615,9 @@ journalctl -u toutadmin -f</code></pre>
             <li class="reveal">
               <h3>Tải tệp lên</h3>
               <p>Đây là bước hay sai. Nếu máy chủ phục vụ cả thư mục, cơ sở dữ liệu trở thành thứ ai cũng tải được: tài khoản, bản băm mật khẩu và két sắt, tất cả.</p>
-              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+              <pre><code>git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
+# ou l'archive ; la racine web pointe sur public/, pas sur le dossier</code></pre>
             </li>
             <li class="reveal">
               <h3>Viết cấu hình</h3>

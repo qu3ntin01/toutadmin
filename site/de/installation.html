@@ -495,7 +495,8 @@
           <article class="card reveal">
             <h3>Node-Edition</h3>
             <p>Drei Befehle auf einem Server, den Sie verwalten. Der letzte erzeugt ein Installationstoken und startet die Instanz.</p>
-            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+            <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 cd toutadmin && npm ci --omit=dev
 INSTALL_TOKEN=$(openssl rand -hex 16) \
 NODE_ENV=production node src/server.js</code></pre>
@@ -503,7 +504,9 @@ NODE_ENV=production node src/server.js</code></pre>
           <article class="card reveal">
             <h3>PHP-Edition</h3>
             <p>Gar keine Kommandozeile: ein Ordner zum Ablegen, eine Datei zum Kopieren, ein Schreibrecht zum Öffnen.</p>
-            <pre><code># 1. déposer le dossier (racine web → public/)
+            <pre><code># 1. le code, ou l'archive (racine → public/)
+git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 # 2. cp config.sample.php config.php
 # 3. chmod 770 data/
 # 4. ouvrir https://votre-domaine/install</code></pre>
@@ -575,7 +578,8 @@ NODE_ENV=production node src/server.js</code></pre>
             <li class="reveal">
               <h3>Holen und installieren</h3>
               <p>npm ci statt npm install: es installiert genau das, was die Sperrdatei beschreibt. Auf einem Server ist eine verrutschte Version eine Störung, die niemand versteht.</p>
-              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+              <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
 cd /var/www/toutadmin
 npm ci --omit=dev</code></pre>
             </li>
@@ -611,7 +615,9 @@ journalctl -u toutadmin -f</code></pre>
             <li class="reveal">
               <h3>Die Dateien hochladen</h3>
               <p>Hier wird der Fehler gemacht. Bedient der Server den gesamten Ordner, wird die Datenbank für jeden herunterladbar: Konten, Passwort-Hashes und Tresor inklusive.</p>
-              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+              <pre><code>git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
+# ou l'archive ; la racine web pointe sur public/, pas sur le dossier</code></pre>
             </li>
             <li class="reveal">
               <h3>Die Konfiguration schreiben</h3>

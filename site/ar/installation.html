@@ -495,7 +495,8 @@
           <article class="card reveal">
             <h3>إصدار Node</h3>
             <p>ثلاثة أوامر على خادم تُديره أنت. والأخير يولِّد رمز تثبيت ويشغِّل النسخة.</p>
-            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+            <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 cd toutadmin && npm ci --omit=dev
 INSTALL_TOKEN=$(openssl rand -hex 16) \
 NODE_ENV=production node src/server.js</code></pre>
@@ -503,7 +504,9 @@ NODE_ENV=production node src/server.js</code></pre>
           <article class="card reveal">
             <h3>إصدار PHP</h3>
             <p>ولا سطر أوامر واحد: مجلد يُودَع، وملف يُنسَخ، وحق كتابة يُفتَح.</p>
-            <pre><code># 1. déposer le dossier (racine web → public/)
+            <pre><code># 1. le code, ou l'archive (racine → public/)
+git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 # 2. cp config.sample.php config.php
 # 3. chmod 770 data/
 # 4. ouvrir https://votre-domaine/install</code></pre>
@@ -575,7 +578,8 @@ NODE_ENV=production node src/server.js</code></pre>
             <li class="reveal">
               <h3>الجلب والتثبيت</h3>
               <p>‏npm ci بدل npm install: يثبّت تمامًا ما يصفه ملف القفل. على خادم، نسخة تنزلق هي عطل لا يفهمه أحد.</p>
-              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+              <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
 cd /var/www/toutadmin
 npm ci --omit=dev</code></pre>
             </li>
@@ -611,7 +615,9 @@ journalctl -u toutadmin -f</code></pre>
             <li class="reveal">
               <h3>رفع الملفات</h3>
               <p>هنا يقع الخطأ. إن قدّم الخادم المجلد كله، صارت قاعدة البيانات قابلة للتنزيل من أي أحد: الحسابات وبصمات كلمات المرور والخزنة معها.</p>
-              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+              <pre><code>git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
+# ou l'archive ; la racine web pointe sur public/, pas sur le dossier</code></pre>
             </li>
             <li class="reveal">
               <h3>كتابة الإعداد</h3>

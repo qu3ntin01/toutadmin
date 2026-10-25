@@ -495,7 +495,8 @@
           <article class="card reveal">
             <h3>Node sürümü</h3>
             <p>Yönettiğiniz bir sunucuda üç komut. Sonuncusu bir kurulum jetonu üretir ve örneği başlatır.</p>
-            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+            <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 cd toutadmin && npm ci --omit=dev
 INSTALL_TOKEN=$(openssl rand -hex 16) \
 NODE_ENV=production node src/server.js</code></pre>
@@ -503,7 +504,9 @@ NODE_ENV=production node src/server.js</code></pre>
           <article class="card reveal">
             <h3>PHP sürümü</h3>
             <p>Hiç komut satırı yok: bırakılacak bir klasör, kopyalanacak bir dosya, açılacak bir yazma hakkı.</p>
-            <pre><code># 1. déposer le dossier (racine web → public/)
+            <pre><code># 1. le code, ou l'archive (racine → public/)
+git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 # 2. cp config.sample.php config.php
 # 3. chmod 770 data/
 # 4. ouvrir https://votre-domaine/install</code></pre>
@@ -575,7 +578,8 @@ NODE_ENV=production node src/server.js</code></pre>
             <li class="reveal">
               <h3>Almak ve kurmak</h3>
               <p>npm install yerine npm ci: kilit dosyasının anlattığını birebir kurar. Bir sunucuda kayan bir sürüm, kimsenin anlayamadığı bir arızadır.</p>
-              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+              <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
 cd /var/www/toutadmin
 npm ci --omit=dev</code></pre>
             </li>
@@ -611,7 +615,9 @@ journalctl -u toutadmin -f</code></pre>
             <li class="reveal">
               <h3>Dosyaları yüklemek</h3>
               <p>Yanlış yapılan adım budur. Sunucu klasörün tamamını sunarsa, veritabanı herkesçe indirilebilir hale gelir: hesaplar, parola özetleri ve kasa dahil.</p>
-              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+              <pre><code>git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
+# ou l'archive ; la racine web pointe sur public/, pas sur le dossier</code></pre>
             </li>
             <li class="reveal">
               <h3>Yapılandırmayı yazmak</h3>

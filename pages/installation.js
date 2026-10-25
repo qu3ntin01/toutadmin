@@ -30,30 +30,36 @@ const DOWNLOAD_URL = 'https://dl.toutadmin.com/';
    est la meilleure information dont nous disposons. */
 const lienTelechargement = (ctx) => `${DOWNLOAD_URL}?lang=${ctx.locale.code}`;
 
+/* Le dépôt public, celui que la compilation remplit : une branche par
+   édition. Jamais le dépôt de travail — il porte les outils de l'éditeur et
+   n'est pas fait pour être cloné chez un client. */
+const DEPOT = 'https://repo.qu3ntin.com/toutadmin/toutadmin.git';
+
 /* Les blocs de commandes ne sont pas traduits : ce sont les mêmes lignes dans
    les seize langues, et traduire une commande la rendrait fausse. Seule la
    prose qui les entoure passe par le dictionnaire. */
 // Les lignes restent courtes : une commande qu'il faut faire défiler
 // horizontalement pour la lire entière est une commande qu'on recopie mal.
-const QUICK_NODE = 'git clone &lt;votre-dépôt&gt; toutadmin\n'
+const QUICK_NODE = `git clone -b node \\\n  ${DEPOT}\n`
   + 'cd toutadmin && npm ci --omit=dev\n'
   + 'INSTALL_TOKEN=$(openssl rand -hex 16) \\\n'
   + 'NODE_ENV=production node src/server.js';
 
-const QUICK_PHP = '# 1. déposer le dossier (racine web → public/)\n'
+const QUICK_PHP = '# 1. le code, ou l\'archive (racine → public/)\n'
+  + `git clone -b php \\\n  ${DEPOT}\n`
   + '# 2. cp config.sample.php config.php\n'
   + '# 3. chmod 770 data/\n'
   + '# 4. ouvrir https://votre-domaine/install';
 
 const NODE_STEPS = [
-  'git clone &lt;votre-dépôt&gt; /var/www/toutadmin\ncd /var/www/toutadmin\nnpm ci --omit=dev',
+  `git clone -b node \\\n  ${DEPOT} /var/www/toutadmin\ncd /var/www/toutadmin\nnpm ci --omit=dev`,
   'cp .env.example .env\n# PORT, NODE_ENV=production, INSTALL_TOKEN…',
   'sudo systemctl enable --now toutadmin\njournalctl -u toutadmin -f',
   'sudo certbot --nginx -d intranet.exemple.fr',
 ];
 
 const PHP_STEPS = [
-  '# déposer le dossier ; la racine web pointe sur public/, pas sur le dossier',
+  `git clone -b php \\\n  ${DEPOT} /var/www/toutadmin\n# ou l'archive ; la racine web pointe sur public/, pas sur le dossier`,
   'cp config.sample.php config.php\nphp -r "echo bin2hex(random_bytes(32));"   # session_secret',
   'chmod 770 data/     # le dossier, pas seulement la base',
   '* * * * * /usr/bin/php /var/www/toutadmin/tools/cron.php',

@@ -495,7 +495,8 @@
           <article class="card reveal">
             <h3>Node 판</h3>
             <p>직접 관리하는 서버에서 명령 셋. 마지막 명령이 설치 토큰을 만들고 인스턴스를 띄웁니다.</p>
-            <pre><code>git clone &lt;votre-dépôt&gt; toutadmin
+            <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 cd toutadmin && npm ci --omit=dev
 INSTALL_TOKEN=$(openssl rand -hex 16) \
 NODE_ENV=production node src/server.js</code></pre>
@@ -503,7 +504,9 @@ NODE_ENV=production node src/server.js</code></pre>
           <article class="card reveal">
             <h3>PHP 판</h3>
             <p>명령줄은 전혀 없습니다. 올려 둘 폴더 하나, 복사할 파일 하나, 열어 줄 쓰기 권한 하나.</p>
-            <pre><code># 1. déposer le dossier (racine web → public/)
+            <pre><code># 1. le code, ou l'archive (racine → public/)
+git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git
 # 2. cp config.sample.php config.php
 # 3. chmod 770 data/
 # 4. ouvrir https://votre-domaine/install</code></pre>
@@ -575,7 +578,8 @@ NODE_ENV=production node src/server.js</code></pre>
             <li class="reveal">
               <h3>내려받아 설치하기</h3>
               <p>npm install이 아니라 npm ci를 쓰십시오. 잠금 파일이 적은 그대로 설치합니다. 서버에서 슬쩍 어긋난 버전은 아무도 이유를 모르는 장애가 됩니다.</p>
-              <pre><code>git clone &lt;votre-dépôt&gt; /var/www/toutadmin
+              <pre><code>git clone -b node \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
 cd /var/www/toutadmin
 npm ci --omit=dev</code></pre>
             </li>
@@ -611,7 +615,9 @@ journalctl -u toutadmin -f</code></pre>
             <li class="reveal">
               <h3>파일 올리기</h3>
               <p>여기서 틀립니다. 서버가 폴더 전체를 내주면 데이터베이스를 누구나 내려받을 수 있게 됩니다. 계정도, 비밀번호 요약값도, 금고도 함께입니다.</p>
-              <pre><code># déposer le dossier ; la racine web pointe sur public/, pas sur le dossier</code></pre>
+              <pre><code>git clone -b php \
+  https://repo.qu3ntin.com/toutadmin/toutadmin.git /var/www/toutadmin
+# ou l'archive ; la racine web pointe sur public/, pas sur le dossier</code></pre>
             </li>
             <li class="reveal">
               <h3>설정 적기</h3>
