@@ -3,6 +3,25 @@
 const DOMAINS = ['socle', 'espace', 'rh', 'talent', 'sst', 'finance', 'compta', 'achats',
   'projets', 'support', 'ops', 'direction', 'it', 'conformite'];
 
+/* L'icône de chaque domaine : la même dans le menu, sur l'accueil et dans le
+   tiroir, pour qu'un domaine se reconnaisse d'un endroit à l'autre. */
+const DOM_ICONS = {
+  socle: 'layers', espace: 'user', rh: 'users', talent: 'spark', sst: 'heart', finance: 'wallet',
+  compta: 'calc', achats: 'cart', projets: 'kanban', support: 'headset', ops: 'calendar',
+  direction: 'compass', it: 'cpu', conformite: 'scale',
+};
+
+/* Les quatorze domaines en quatre colonnes, pour le menu des fonctionnalités :
+   les personnes, l'argent, l'activité, et ce qui pilote le tout. L'ordre de
+   la page Fonctionnalités reste celui de DOMAINS ; celui-ci ne vaut que pour
+   le menu, où l'on cherche par famille plutôt que dans l'ordre de lecture. */
+const MEGA_COLS = [
+  ['people', ['espace', 'rh', 'talent', 'sst']],
+  ['money', ['finance', 'compta', 'achats']],
+  ['activity', ['projets', 'support', 'ops']],
+  ['steer', ['direction', 'conformite', 'it', 'socle']],
+];
+
 function frame(ctx, name, label, lazy = true) {
   const { esc, t, media } = ctx;
   const alt = esc(t(`shot.${name}`));
@@ -146,4 +165,4 @@ function pageHero(ctx, eyebrow, title, lede) {
     </section>`;
 }
 
-module.exports = { DOMAINS, frame, band, head, pageHero, heroWindow };
+module.exports = { DOMAINS, DOM_ICONS, MEGA_COLS, frame, band, head, pageHero, heroWindow };

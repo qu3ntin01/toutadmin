@@ -75,7 +75,7 @@ CMS=http://127.0.0.1:8500 CMS_NEUF=http://127.0.0.1:8501 \
 ADMIN_MDP=… MEMBRE_MDP=… node captures.js [nom-de-capture …]
 ```
 
-Sans argument il refait les cent cinquante et une ; avec des noms il ne refait
+Sans argument il refait les cent cinquante-deux ; avec des noms il ne refait
 que ceux-là. Chaque image sort du navigateur en couleurs vraies et passe par
 `images.js`, qui la réduit à deux cent cinquante-six couleurs : le poids tombe
 d'un facteur quatre pour un écart qu'on ne voit pas. Les pages plus hautes que
@@ -167,9 +167,54 @@ d'une refonte complète des captures, cent quarante-six des cent cinquante
 étaient à jour en ligne et quatre ne l'étaient pas — le héros, l'écran de
 pilotage, et leurs deux jumelles sombres.
 
-## La fenêtre du héros
+## L'allure
 
-La page d'accueil ne montre plus une capture, mais une fenêtre qui fait défiler
+La vitrine porte **la palette que le produit livre par défaut**, « Indigo et
+lavande » : fond lavande dégradé, surfaces de verre translucides et arrondies,
+indigo et violet pour l'action, titres gras et serrés. Un visiteur qui passe du
+site à l'application ne change pas de monde — et les captures, refaites avec
+cette palette, se fondent dans la page au lieu de s'y poser comme des corps
+étrangers.
+
+- **Le fond vit** : quatre nappes de couleur dérivent lentement derrière toute
+  la page (`.ambiance`, posée dans `layout.html`), avec une trame de points qui
+  s'estompe vers le bas. Ce sont des dégradés, pas des filtres : la carte
+  graphique les déplace sans rien recalculer.
+- **La barre** est une carte de verre qui flotte au-dessus de la page. Quatre
+  menus s'y déroulent, dans le même esprit que le site de ToutWAF : le premier
+  range les quatorze domaines en quatre colonnes (`MEGA_COLS` dans
+  `pages/_shared.js`), chacun avec son icône (`DOM_ICONS`) et une ligne qui dit
+  ce qu'il contient (`mega.d.*`) ; les trois autres mènent aux **sections** des
+  pages — l'édition PHP, la licence, le tarif de lancement — et non aux seules
+  pages. Une pastille rassemble la langue et le thème. Les menus s'ouvrent au
+  survol sans script ; le script ajoute le clic, le clavier et `aria-expanded`.
+  Sous 1 100 points, ils cèdent la place au tiroir, qui reste le plan complet.
+- **La largeur de la barre est vérifiée**, pas supposée : en russe, les cinq
+  entrées tiennent cent pixels de plus qu'en français. Les seuils (`.nav-client`
+  sous 1 380 points, la pastille réduite sous 1 500) ont été posés en mesurant
+  les seize langues à huit largeurs, de 1 101 à 1 920 points.
+
+### L'animation de l'accueil
+
+À droite du titre, huit espaces de l'entreprise reliés à un cœur : des données
+circulent dans les deux sens le long des liens, et de temps en temps un espace
+s'allume et dit ce qui vient de s'y passer — un congé approuvé, une facture
+payée. C'est la promesse du produit, une seule base, rendue visible.
+
+- **Rien n'y est inventé en chiffres** : les trois nombres du bas sont ceux de
+  `chiffres.json`. Les événements sont des choses que le produit fait, pas des
+  statistiques d'usage.
+- Le dessin est en SVG, les trajets en SMIL (`animateMotion`), le reste en CSS :
+  aucune bibliothèque, rien que la politique de contenu refuse.
+- Chaque bulle se pose du côté de son espace qui regarde le centre (champ
+  `data-side`, choisi dans `NOEUDS`, `pages/index.js`) : posée au-dessus
+  partout, celle d'un espace du bas recouvrait le libellé de son voisin.
+- Hors de l'écran, tout s'arrête ; pour qui a demandé moins d'animation, le
+  script fige le dessin et aucune bulle n'apparaît.
+
+## La fenêtre du produit
+
+Sous le héros, la vitrine du produit est une fenêtre qui fait défiler
 trois écrans : l'espace d'un salarié, un tableau de bord de direction, la
 gestion administrative. Les trois sont déclarés dans `medias.js`, champ
 `heroTour`, et doivent tous figurer dans `pairs` — sans quoi un site en thème
@@ -180,11 +225,11 @@ pastilles ne correspondent plus aux écrans, ou si le premier écran passe en
 chargement différé : c'est la plus grande image de la page, donc celle que le
 navigateur mesure pour noter la vitesse d'affichage.
 
-Le héros est pris au **cadre fenêtre** : `captures.js` le photographie à la
-taille d'un écran d'ordinateur, seize-dixièmes, sans descendre le long de la
-page. C'est `CADRE_FENETRE` dans ce fichier, et c'est ce qui distingue une
-capture qu'on regarde d'une capture qu'on lit. Les autres suivent la page,
-comme avant.
+Ces trois écrans et ceux de la visite guidée sont pris au **cadre fenêtre** :
+`captures.js` les photographie à la taille d'un écran d'ordinateur,
+seize-dixièmes, sans descendre le long de la page. C'est `CADRE_FENETRE` dans
+ce fichier, et c'est ce qui distingue une capture qu'on regarde d'une capture
+qu'on lit. Les autres suivent la page, comme avant.
 
 ### Le curseur pilote la démonstration
 
@@ -192,7 +237,7 @@ La fenêtre ne fait pas défiler des images : elle mime quelqu'un qui se sert du
 logiciel. Un curseur se porte sur l'entrée de menu du prochain écran, appuie,
 et c'est l'appui qui fait changer la page — la cause avant l'effet.
 
-Le surlignage bleu qu'on voit ensuite dans le rail **est celui du produit** :
+Le surlignage violet qu'on voit ensuite dans le rail **est celui du produit** :
 chaque capture a été prise sur la page en question, donc son entrée de menu y
 est déjà active. Rien n'est simulé ; le curseur se pose au bon endroit et la
 capture fait le reste. Les positions sont dans `medias.js`, champ `heroCible`,

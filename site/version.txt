@@ -6,7 +6,7 @@ Barème
   lancement : 10 €/mois pendant 12 mois, pour les 100 premiers clients
 
 Pages     : 96 (6 × 16 langues)
-Clés      : 468 par langue
+Clés      : 527 par langue
 Captures  : 152 fichiers
-Annoncé   : 47 espaces · 16 langues · 2460 tests · 7 modules · 3660 libellés (relevé 2026-10-02)
-Ressources: style ead07f1122 · thème 4869e2e78f · script 71283d87ad
+Annoncé   : 47 espaces · 16 langues · 2548 tests · 7 modules · 3698 libellés (relevé 2026-10-25)
+Ressources: style b97d8074bb · thème 4869e2e78f · script e63f559213

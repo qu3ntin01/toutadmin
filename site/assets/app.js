@@ -169,6 +169,9 @@
   }
 
   document.addEventListener('click', function (e) {
+    // Un clic dans le panneau ouvert (un thème, par exemple) le laisse ouvert :
+    // on voit le changement sans avoir à rouvrir le panneau.
+    if (e.target.closest && e.target.closest('.picker-pop')) return;
     var btn = e.target.closest && e.target.closest('.picker-btn');
     var pickers = document.querySelectorAll('.picker');
     for (var i = 0; i < pickers.length; i += 1) {
@@ -182,6 +185,101 @@
     for (var i = 0; i < open.length; i += 1) open[i].classList.remove('is-open');
     closeBox();
   });
+
+  /* ------------------------------------------------------- menus de la barre
+     Ils s'ouvrent au survol par la feuille de style ; ici, le clic, le clavier
+     et l'état annoncé aux lecteurs d'écran. Un seul menu ouvert à la fois. */
+  var menus = document.querySelectorAll('[data-mm]');
+  function fermerMenus(sauf) {
+    for (var m = 0; m < menus.length; m += 1) {
+      if (menus[m] === sauf) continue;
+      menus[m].classList.remove('is-open');
+      var b = menus[m].querySelector('.mm-btn');
+      if (b) b.setAttribute('aria-expanded', 'false');
+    }
+  }
+  if (menus.length) {
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('.mm-btn');
+      if (btn) {
+        var menu = btn.closest('[data-mm]');
+        var ouvrir = !menu.classList.contains('is-open');
+        fermerMenus(menu);
+        menu.classList.toggle('is-open', ouvrir);
+        btn.setAttribute('aria-expanded', String(ouvrir));
+        return;
+      }
+      if (!e.target.closest || !e.target.closest('.mm-panel')) fermerMenus(null);
+      else if (e.target.closest('a')) fermerMenus(null);
+    });
+    for (var mi = 0; mi < menus.length; mi += 1) {
+      menus[mi].addEventListener('mouseenter', function () { fermerMenus(this); });
+    }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') fermerMenus(null); });
+  }
+
+  /* ------------------------------------------------ l'animation de l'accueil
+     Les trajets tournent seuls (SMIL, dans le dessin). Ici : les bulles qui
+     disent ce qui vient de se passer dans un espace, une à la fois, et
+     l'arrêt complet hors de l'écran ou pour qui a demandé moins d'animation. */
+  var cx = document.querySelector('.cx');
+  if (cx) {
+    var dessin = cx.querySelector('.cx-svg');
+    var calme = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var figer = function () { if (dessin && dessin.pauseAnimations) dessin.pauseAnimations(); };
+    var relancer = function () { if (dessin && dessin.unpauseAnimations) dessin.unpauseAnimations(); };
+    if (calme) {
+      figer();
+    } else {
+      var faits = Array.prototype.slice.call(cx.querySelectorAll('.cx-ev li'));
+      var couche = cx.querySelector('.cx-toasts');
+      var noeuds = cx.querySelectorAll('.cx-node');
+      var ordre = faits.map(function (_, i) { return i; });
+      for (var oi = ordre.length - 1; oi > 0; oi -= 1) {
+        var oj = Math.floor(Math.random() * (oi + 1));
+        var ot = ordre[oi]; ordre[oi] = ordre[oj]; ordre[oj] = ot;
+      }
+      var tour = 0;
+      var coche = '<span class="ok"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>';
+      var annoncer = function () {
+        if (document.hidden || !faits.length) return;
+        var fait = faits[ordre[tour % ordre.length]];
+        tour += 1;
+        var noeud = noeuds[Number(fait.getAttribute('data-node'))];
+        var cote = fait.getAttribute('data-side') || 'a';
+        var x = Number(fait.getAttribute('data-x'));
+        var y = Number(fait.getAttribute('data-y'));
+        var bulle = document.createElement('div');
+        bulle.className = 'cx-toast';
+        bulle.setAttribute('data-side', cote);
+        bulle.innerHTML = coche;
+        bulle.appendChild(document.createTextNode(fait.textContent));
+        bulle.style.left = x + '%';
+        bulle.style.top = y + '%';
+        couche.appendChild(bulle);
+        if (noeud) noeud.classList.add('is-hot');
+        requestAnimationFrame(function () { requestAnimationFrame(function () { bulle.classList.add('is-on'); }); });
+        setTimeout(function () { bulle.classList.add('is-off'); if (noeud) noeud.classList.remove('is-hot'); }, 2300);
+        setTimeout(function () { if (bulle.parentNode) bulle.parentNode.removeChild(bulle); }, 2800);
+      };
+      var cadence = null;
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              relancer();
+              if (!cadence) { setTimeout(annoncer, 700); cadence = setInterval(annoncer, 2600); }
+            } else {
+              figer();
+              clearInterval(cadence); cadence = null;
+            }
+          });
+        }, { threshold: 0.15 }).observe(cx);
+      } else {
+        cadence = setInterval(annoncer, 2600);
+      }
+    }
+  }
 
   /* ------------------------------------------------------- révélations */
   var reveals = document.querySelectorAll('.reveal');

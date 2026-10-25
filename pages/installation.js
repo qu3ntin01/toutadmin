@@ -192,7 +192,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="voies">
       <div class="wrap">
         ${head(ctx, t('install.waysEyebrow'), t('install.waysTitle'), t('install.waysLede'))}
         <div class="grid g3 stagger">
@@ -218,7 +218,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="assistant">
       <div class="wrap">
         ${head(ctx, null, t('install.wizardTitle'), t('install.wizardLede'))}
         <div class="wizard">
@@ -239,7 +239,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="node">
       <div class="wrap">
         ${head(ctx, t('install.node.name'), t('install.nodeTitle'), null)}
         <ol class="steps stagger">
@@ -248,7 +248,7 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="php">
       <div class="wrap">
         ${head(ctx, t('install.php.name'), t('install.phpTitle'), null)}
         <ol class="steps stagger">
@@ -282,3 +282,6 @@ module.exports = function installation(ctx) {
 `,
   };
 };
+
+// La barre de navigation y renvoie aussi : une seule adresse, écrite ici.
+module.exports.lienTelechargement = lienTelechargement;

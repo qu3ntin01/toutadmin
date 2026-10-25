@@ -109,6 +109,29 @@ const ICONS = {
   building: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h2m4 0h-2M9 11h2m4 0h-2M9 15h6v6H9z"/>',
   life: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.6"/><path d="m5.6 5.6 3.8 3.8m5.2 5.2 3.8 3.8m0-12.8-3.8 3.8m-5.2 5.2-3.8 3.8"/>',
   box: '<path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/>',
+  // Les icônes des menus : une par domaine, une par entrée. Dessinées au même
+  // trait que le reste du jeu (24 points, contour, bouts ronds).
+  user: '<circle cx="12" cy="8" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/>',
+  heart: '<path d="M12 20s-7.5-4.6-7.5-10.4A4.1 4.1 0 0 1 12 7.4a4.1 4.1 0 0 1 7.5 2.2C19.5 15.4 12 20 12 20Z"/><path d="M8.5 12.5h2l1.2-2.2 1.6 4 1.1-1.8h1.6"/>',
+  wallet: '<rect x="3" y="6" width="18" height="14" rx="2.5"/><path d="M3 10.5h18M16 15h2"/><path d="M6 6V5a2 2 0 0 1 2-2h9"/>',
+  calc: '<rect x="5" y="3" width="14" height="18" rx="2.2"/><path d="M8.5 7h7M8.5 11.5h1.5m2.5 0H14m-5.5 3.5h1.5m2.5 0H14m-5.5 3h1.5m2.5 0H14"/>',
+  cart: '<path d="M3 4h2.2l2.3 10.8h10.3L20 8H6.4"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/>',
+  kanban: '<rect x="3" y="4" width="18" height="16" rx="2.2"/><path d="M9 4v16M15 4v16M5.7 8.5h1.2M11.4 8.5h1.2M17.1 8.5h1.2M11.4 12.5h1.2M5.7 12.5h1.2"/>',
+  headset: '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4.2" height="6" rx="1.6"/><rect x="16.8" y="14" width="4.2" height="6" rx="1.6"/><path d="M19 20a4 4 0 0 1-4 2h-2"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2.2"/><path d="M3 10h18M8 3v4M16 3v4M7.5 14h2m2.5 0h2m-6.5 3.5h2"/>',
+  compass: '<circle cx="12" cy="12" r="9"/><path d="m15.6 8.4-2.1 5.1-5.1 2.1 2.1-5.1 5.1-2.1Z"/>',
+  cpu: '<rect x="6" y="6" width="12" height="12" rx="2.2"/><rect x="9.6" y="9.6" width="4.8" height="4.8" rx="1"/><path d="M9.5 3v3m5-3v3M9.5 18v3m5-3v3M3 9.5h3m-3 5h3m12-5h3m-3 5h3"/>',
+  sliders: '<path d="M4 7h9m4 0h3M4 12h3m4 0h9M4 17h11m4 0h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/>',
+  download: '<path d="M12 4v11m-4.5-4.5L12 15l4.5-4.5M5 20h14"/>',
+  book: '<path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5v-15Z"/><path d="M5 19.5A1.5 1.5 0 0 0 6.5 21H19M9 7h6"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2.2"/><path d="m4 7 8 6 8-6"/>',
+  key: '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9m-3.5 3.5 2.5 2.5m-5-.5 2 2"/>',
+  tag: '<path d="M3 12V4h8l10 10-8 8-10-10Z"/><circle cx="7.5" cy="8" r="1.4"/>',
+  rocket: '<path d="M9 15 7 13c1-4.5 5-9.5 13-10 0 8-5 12-9.5 13Z"/><path d="M7 13c-2 .3-3.5 2-4 4 2-.3 3.2-.2 4 .5M11 17c-.3 2-2 3.5-4 4 .3-2 .2-3.2-.5-4"/><circle cx="15" cy="9" r="1.6"/>',
+  terminal: '<rect x="3" y="4" width="18" height="16" rx="2.2"/><path d="m7 9.5 3 2.5-3 2.5M12.5 15H17"/>',
+  server: '<rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01M11 7.5h6M11 16.5h6"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="2.2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+  account: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.6 18.4a6.2 6.2 0 0 1 10.8 0"/>',
 };
 const icon = (name, cls) => `<svg class="i${cls ? ' ' + cls : ''}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
 
@@ -285,28 +308,93 @@ const stamp = (file) => crypto.createHash('sha1')
 const VERSIONS = { css: stamp('style.css'), boot: stamp('theme-boot.js'), app: stamp('app.js') };
 const { DOMAINS } = require(path.join(ROOT, 'pages', '_shared.js'));
 
+/*
+ * La barre de navigation.
+ *
+ * Une barre de verre posée au-dessus de la page, et quatre menus qui se
+ * déroulent dessous — comme sur le site de ToutWAF, pour que les deux produits
+ * se reconnaissent l'un l'autre. Le premier est un plan : les quatorze domaines
+ * de la page Fonctionnalités, rangés en quatre colonnes, chacun avec son icône
+ * et ce qu'il contient. Les trois autres mènent aux sections des pages, pas
+ * seulement aux pages : on y cherche « l'édition PHP » ou « la licence », pas
+ * « Installation » ou « Tarifs ».
+ *
+ * Tout tient sans script : un menu s'ouvre au survol, et le bouton qui le porte
+ * est un vrai bouton, que le script fait ouvrir au clic et au clavier. Sur un
+ * écran étroit, les menus cèdent la place au tiroir, qui reste le plan complet.
+ */
 function navHtml(t, ctx) {
-  const links = [
-    ['fonctionnalites', t('nav.features')],
-    ['securite', t('nav.security')],
-    ['installation', t('nav.install')],
-    ['tarifs', t('nav.pricing')],
-    // « Contact » n'est plus dans la barre : ce n'est pas une étape du
-    // parcours mais une sortie de secours, et elle encombrait cinq liens là
-    // où quatre suffisent. Elle reste dans le tiroir, dans le pied de page,
-    // et au bout de chaque appel à l'action — c'est-à-dire partout où l'on
-    // se met à la chercher.
-  ].map(([page, label]) =>
-    `<a href="${ctx.href(page)}"${ctx.page === page ? ' class="is-active" aria-current="page"' : ''}>${esc(label)}</a>`).join('\n        ')
-    // La documentation est un site voisin, mais elle se cherche dans la même
-    // barre que le reste : l'en écarter obligeait à ouvrir le tiroir pour la
-    // trouver. La place vient de la langue et du thème, qui se replient.
-    + `\n        <a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a>`;
+  const { DOM_ICONS, MEGA_COLS } = require(path.join(ROOT, 'pages', '_shared.js'));
+  const { lienTelechargement } = require(path.join(ROOT, 'pages', 'installation.js'));
+  const NB_CAPTURES = MEDIA.groups.reduce((n, groupe) => n + groupe.shots.length, 0);
+  const cible = (page) => {
+    if (page.startsWith('http')) return page;
+    const hash = page.indexOf('#');
+    return hash === -1 ? ctx.href(page) : ctx.href(page.slice(0, hash)) + page.slice(hash);
+  };
+  const ext = (page) => (page.startsWith('http') ? ' rel="noopener"' : '');
+  const item = (page, ic, titre, desc) => `<a class="mm-item" href="${cible(page)}"${ext(page)}>
+                <span class="mm-ico">${icon(ic)}</span>
+                <span class="mm-txt"><strong>${esc(titre)}</strong><small>${esc(desc)}</small></span>
+              </a>`;
+  const menu = (id, label, corps, large, actif) => `<div class="mm${large ? ' mm-large' : ''}" data-mm>
+          <button class="mm-btn${actif ? ' is-active' : ''}" type="button" aria-expanded="false" aria-controls="mm-${id}">${esc(label)}${icon('chevron', 'mm-chev')}</button>
+          <div class="mm-panel" id="mm-${id}">
+            <div class="mm-card">
+              ${corps}
+            </div>
+          </div>
+        </div>`;
+
+  const colonnes = MEGA_COLS.map(([col, domaines]) => `<div class="mm-col">
+              <h4>${esc(t(`mega.col.${col}`))}</h4>
+              ${domaines.map((d) => item(`fonctionnalites#${d}`, DOM_ICONS[d], t(`dom.${d}.title`), t(`mega.d.${d}`))).join('\n              ')}
+            </div>`).join('\n            ');
+  const fonctions = menu('fonctions', t('nav.features'), `<div class="mm-cols">
+            ${colonnes}
+            </div>
+            <div class="mm-foot">
+              <a class="mm-foot-main" href="${ctx.href('fonctionnalites')}">${icon('arrow')}${esc(t('features.seeAll'))}</a>
+              <a href="${ctx.href('fonctionnalites')}#ecrans">${esc(t('nav.screens'))}</a>
+              <a href="${ctx.href('tarifs')}#compris">${esc(t('mega.compare'))}</a>
+              <a href="${DOC_URL}" rel="noopener">${esc(t('nav.docs'))}</a>
+              <a class="mm-cta" href="${ctx.href('tarifs')}">${icon('check')}${esc(t('hero.ctaPrimary'))}</a>
+            </div>`, true, ctx.page === 'fonctionnalites');
+
+  const liste = (entrees) => `<div class="mm-list">
+              ${entrees.map((e) => item(...e)).join('\n              ')}
+            </div>`;
+  const installation = menu('installation', t('nav.install'), liste([
+    ['installation#voies', 'terminal', t('install.waysTitle'), t('mega.inst.ways')],
+    ['installation#node', 'server', t('install.node.name'), t('mega.inst.node')],
+    ['installation#php', 'code', t('install.php.name'), t('mega.inst.php')],
+    ['installation#assistant', 'spark', t('install.wizardTitle'), t('mega.inst.wizard')],
+    [lienTelechargement(ctx), 'download', t('install.dlCta'), t('mega.inst.dl')],
+  ]), false, ctx.page === 'installation');
+  const tarifs = menu('tarifs', t('nav.pricing'), liste([
+    ['tarifs#formules', 'tag', t('mega.price.plans'), t('mega.price.plans.d')],
+    ['tarifs#lancement', 'rocket', t('pricing.launchTitle'), t('mega.price.launch.d')],
+    ['tarifs#assistance', 'headset', t('support.title'), t('mega.price.support.d')],
+    ['tarifs#licence', 'key', t('licence.title'), t('mega.price.licence.d')],
+    [STORE_URL, 'grid', t('nav.store'), t('mega.store.d')],
+  ]), false, ctx.page === 'tarifs');
+  const ressources = menu('ressources', t('nav.resources'), liste([
+    [DOC_URL, 'book', t('nav.docs'), t('mega.res.docs')],
+    ['securite', 'shield', t('nav.security'), t('mega.res.security')],
+    ['fonctionnalites#ecrans', 'image', t('nav.screens'), t('mega.res.screens', { count: NB_CAPTURES })],
+    ['contact', 'mail', t('nav.contact'), t('mega.res.contact')],
+    [CLIENT_URL, 'account', t('nav.client'), t('mega.res.client')],
+  ]), false, ['securite', 'contact'].includes(ctx.page));
 
   const langs = LOCALES.map((l) => {
     const active = l.code === ctx.locale.code;
-    return `<a lang="${l.code}" hreflang="${l.code}" href="${ctx.hrefIn(l.code, ctx.page)}"${active ? ' class="is-active"' : ''}><span class="flag">${l.flag}</span>${esc(dictionaries[l.code]['locale.name'])}</a>`;
-  }).join('\n            ');
+    return `<a lang="${l.code}" hreflang="${l.code}" href="${ctx.hrefIn(l.code, ctx.page)}"${active ? ' class="is-active" aria-current="true"' : ''}><span class="flag">${l.flag}</span>${esc(dictionaries[l.code]['locale.name'])}</a>`;
+  }).join('\n              ');
+  const faces = [['light', 'sun'], ['dark', 'moon'], ['system', 'monitor']]
+    .map(([value, ic]) => `<span class="face" data-face="${value}">${icon(ic)}</span>`).join('');
+  const themes = [['light', 'sun', t('nav.themeLight')], ['dark', 'moon', t('nav.themeDark')], ['system', 'monitor', t('nav.themeSystem')]]
+    .map(([value, ic, label]) => `<button class="prefs-theme" type="button" data-theme-choice="${value}">${icon(ic)}<span>${esc(label)}</span></button>`)
+    .join('\n              ');
 
   // Le nom porte deux tons : la marque se reconnaît à cela autant qu'au
   // sigle. Si une langue écrit le nom autrement, il sort d'un seul ton
@@ -317,50 +405,39 @@ function navHtml(t, ctx) {
     : esc(name);
 
   return `  <header class="nav">
-    <div class="wrap nav-in">
+    <div class="nav-shell">
+    <div class="nav-in">
       <button class="icon-btn nav-toggle" type="button" aria-label="${esc(t('nav.menu'))}" aria-controls="plan-du-site" aria-expanded="false">${icon('menu')}</button>
       <a class="brand" href="${ctx.href('index')}">
         <span class="brand-mark">TA</span><span class="brand-name">${wordmark}</span>
       </a>
       <nav class="nav-links" aria-label="${esc(t('nav.product'))}">
-        ${links}
+        ${fonctions}
+        <a class="nav-link${ctx.page === 'securite' ? ' is-active' : ''}" href="${ctx.href('securite')}"${ctx.page === 'securite' ? ' aria-current="page"' : ''}>${esc(t('nav.security'))}</a>
+        ${installation}
+        ${tarifs}
+        ${ressources}
       </nav>
       <div class="nav-right">
-        <div class="picker">
-          <button class="picker-btn lang-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.language'))}"><span class="flag">${ctx.locale.flag}</span><span class="lang-tip" aria-hidden="true"><span class="lang-tip-card">${esc(dictionaries[ctx.locale.code]['locale.name'])}</span></span></button>
-          <div class="picker-pop cols" role="menu" aria-label="${esc(t('nav.language'))}">
-            ${langs}
+        <div class="picker prefs">
+          <button class="picker-btn prefs-btn" type="button" aria-haspopup="true" aria-label="${esc(t('nav.settings'))}">${icon('sliders')}<span class="prefs-sum"><span>${ctx.locale.code.toUpperCase()}</span><span class="prefs-sep" aria-hidden="true">·</span><span class="prefs-face" aria-hidden="true">${faces}</span></span></button>
+          <div class="picker-pop prefs-pop" role="group" aria-label="${esc(t('nav.settings'))}">
+            <h4>${esc(t('nav.language'))}</h4>
+            <div class="prefs-langs">
+              ${langs}
+            </div>
+            <h4>${esc(t('nav.theme'))}</h4>
+            <div class="prefs-themes">
+              ${themes}
+            </div>
           </div>
         </div>
-        ${themerHtml(t)}
-        <a class="btn btn-sm btn-pill" href="${CLIENT_URL}" rel="noopener">${esc(t('nav.client'))}</a>
+        <a class="btn btn-sm btn-glass nav-client" href="${CLIENT_URL}" rel="noopener">${icon('user')}${esc(t('nav.client'))}</a>
+        <a class="btn btn-sm nav-try" href="${ctx.href('tarifs')}">${esc(t('nav.try'))}</a>
       </div>
     </div>
+    </div>
   </header>`;
-}
-
-/**
- * Le thème dans la barre : la touche du thème en cours, et les trois choix
- * qui se posent dessous au survol ou dès qu'on entre au clavier.
- *
- * Pourquoi un panneau plutôt que les trois touches dépliées sur place : la
- * barre porte six liens, et en russe ils tiennent cent pixels de plus qu'en
- * français. Un dépliage qui pousse ses voisins rognait le dernier lien —
- * « Документация » devenait « Документа ». Un panneau ne coûte rien à la
- * barre : elle garde la même largeur, ouverte ou fermée.
- */
-function themerHtml(t) {
-  const faces = [['light', 'sun'], ['dark', 'moon'], ['system', 'monitor']]
-    .map(([value, ic]) => `<span class="face" data-face="${value}">${icon(ic)}</span>`).join('');
-
-  return `<div class="themer">
-          <span class="themer-face" aria-hidden="true">${faces}</span>
-          <div class="themer-pop">
-            <span class="themer-card" role="group" aria-label="${esc(t('nav.theme'))}">
-              ${themeButtons(t)}
-            </span>
-          </div>
-        </div>`;
 }
 
 function themeButtons(t) {

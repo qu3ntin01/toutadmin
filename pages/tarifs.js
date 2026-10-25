@@ -84,7 +84,7 @@ module.exports = function pricing(ctx) {
     body: `
     ${pageHero(ctx, t('nav.pricing'), t('pricing.title'), t('pricing.lede'))}
 
-    <section class="section-tight">
+    <section class="section-tight" id="formules">
       <div class="wrap">
         <p class="center reveal"><span class="eyebrow">${icon('users')}${esc(t('pricing.flat'))}</span></p>
         <div class="plans stagger mt-l">
@@ -94,7 +94,7 @@ module.exports = function pricing(ctx) {
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="lancement">
       <div class="wrap">
         ${head(ctx, null, t('pricing.launchTitle'), t('pricing.launchLede'))}
 
@@ -119,7 +119,7 @@ module.exports = function pricing(ctx) {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="compris">
       <div class="wrap">
         ${head(ctx, null, t('pricing.tableTitle'), null)}
         <div class="table-wrap reveal">
@@ -142,7 +142,7 @@ module.exports = function pricing(ctx) {
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="assistance">
       <div class="wrap">
         ${head(ctx, null, t('support.title'), t('support.lede'))}
 
@@ -192,7 +192,7 @@ module.exports = function pricing(ctx) {
       </div>
     </section>
 
-    <section class="section">
+    <section class="section" id="licence">
       <div class="wrap">
         ${head(ctx, null, t('licence.title'), t('licence.lede'))}
 

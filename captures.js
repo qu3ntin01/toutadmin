@@ -61,7 +61,7 @@
          node captures.js [nom-de-capture …]
 
    Sans argument, il refait tout. Avec des noms, il ne refait que ceux-là :
-   une capture ratée se reprend seule, sans attendre les cent quarante-cinq
+   une capture ratée se reprend seule, sans attendre les cent cinquante et une
    autres.
 
    ── Ce qu'il laisse derrière lui ────────────────────────────────────────
@@ -174,13 +174,16 @@ const CIBLES = {
   connexion: { chemin: '/connexion', role: 'visiteur' },
 
   // ── L'administration ─────────────────────────────────────────────────
-  pilotage: { chemin: '/pilotage', role: 'admin' },
+  // Les écrans du héros et de la visite guidée sont au cadre fenêtre, comme
+  // l'espace du membre : ils se succèdent dans le même cadre, et un écran
+  // pris sur toute sa hauteur y paraissait tassé à côté d'un écran de bureau.
+  pilotage: { chemin: '/pilotage', role: 'admin', cadre: CADRE_FENETRE },
   admin: { chemin: '/admin', role: 'admin' },
-  rh: { chemin: '/rh', role: 'admin' },
+  rh: { chemin: '/rh', role: 'admin', cadre: CADRE_FENETRE },
   parcours: { chemin: '/parcours', role: 'admin' },
-  gestion: { chemin: '/gestion', role: 'admin' },
+  gestion: { chemin: '/gestion', role: 'admin', cadre: CADRE_FENETRE },
   direction: { chemin: '/direction', role: 'admin' },
-  projets: { chemin: '/projets', role: 'admin' },
+  projets: { chemin: '/projets', role: 'admin', cadre: CADRE_FENETRE },
   support: { chemin: '/support', role: 'admin' },
   /*
    * L'écran qui dit qui a accès à quoi.
@@ -197,7 +200,7 @@ const CIBLES = {
   informatique: { chemin: '/informatique', role: 'admin' },
   developpement: { chemin: '/developpement', role: 'admin' },
   evenements: { chemin: '/evenements', role: 'admin' },
-  juridique: { chemin: '/juridique', role: 'admin' },
+  juridique: { chemin: '/juridique', role: 'admin', cadre: CADRE_FENETRE },
   alertes: { chemin: '/alertes', role: 'admin' },
   securite: { chemin: '/securite', role: 'admin' },
   rgpd: { chemin: '/rgpd', role: 'admin' },
