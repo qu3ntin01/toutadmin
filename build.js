@@ -624,6 +624,10 @@ for (const locale of LOCALES) {
       chiffres: CHIFFRES,
       editeur: EDITEUR,
       href: (name) => `${base}${name}.html`,
+      // La commande vit dans l'espace client, sur son domaine : le site n'a pas
+      // de formulaire — il est statique, et une commande ouvre un compte. Le
+      // lien porte la langue, pour que le formulaire s'ouvre dans celle-ci.
+      commander: (suite = '') => `${CLIENT_URL}commander?langue=${locale.code}${suite ? `&${suite}` : ''}`,
       hrefIn: (code, name) => (code === 'fr' ? `${base}${name}.html` : `${base}${code === locale.code ? '' : (locale.code === 'fr' ? `${code}/` : `../${code}/`)}${name}.html`),
       asset: (file) => `${base}assets/${file}`,
       shot: (file) => adresseMedia(base, file),

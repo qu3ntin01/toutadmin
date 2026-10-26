@@ -1067,3 +1067,16 @@ pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
   a.card:hover, .card:hover { transform: none; }
   @view-transition { navigation: none; }
 }
+
+/* La commande, depuis les cartes de formule. L'annuel est dit sous le prix
+   mensuel, en petit : c'est le même prix, en une facture. Le devis est un
+   lien sous le bouton — un second bouton plein ferait hésiter entre deux
+   gestes qui n'ont pas le même poids. */
+.plan-yearly { margin-block-start: 4px; font-size: .84rem; color: var(--ink-3); }
+.plan-alt {
+  display: block; margin-block-start: 10px; text-align: center;
+  font-size: .88rem; font-weight: 650; color: var(--brand);
+}
+.plan-alt:hover { text-decoration: underline; }
+.opt-add { display: block; margin-block-start: 4px; font-size: .8rem; font-weight: 650; color: var(--brand); white-space: nowrap; }
+.opt-add:hover { text-decoration: underline; }

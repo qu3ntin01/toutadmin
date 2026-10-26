@@ -174,17 +174,19 @@ module.exports = function pricing(ctx) {
             </thead>
             <tbody>
               ${[
-                ['support.opt.setup', euro(ctx.locale.code, SETUP_FEE)],
-                ['support.opt.migration', t('support.quote')],
+                ['support.opt.setup', euro(ctx.locale.code, SETUP_FEE), 'installation'],
+                ['support.opt.migration', t('support.quote'), ''],
                 ['support.opt.priority', t('support.opt.priorityPrice', {
                   rate: euro(ctx.locale.code, HOURLY_RATE),
                   hours: String(HOURS_PACK),
                   pack: euro(ctx.locale.code, HOURS_PACK_FEE),
-                })],
-                ['support.opt.sla', t('support.quote')],
-              ].map(([cle, prix]) => `<tr>
+                }), 'heures'],
+                ['support.opt.sla', t('support.quote'), ''],
+              ].map(([cle, prix, prestation]) => `<tr>
                 <th scope="row">${esc(t(cle))}<span class="opt-what">${esc(t(`${cle}Body`))}</span></th>
-                <td class="c"><strong>${esc(prix)}</strong></td>
+                <td class="c"><strong>${esc(prix)}</strong>${prestation
+                  /* Ce qui a un prix fixe se commande ; le reste se chiffre sur devis. */
+                  ? `<a class="opt-add" href="${ctx.commander(`prestation=${prestation}`)}" rel="noopener">${esc(t('pricing.addToOrder'))}</a>` : ''}</td>
               </tr>`).join('\n              ')}
             </tbody>
           </table>

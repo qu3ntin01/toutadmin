@@ -75,9 +75,17 @@ function planCard(ctx, plan, list = '') {
               <span class="plan-amount">${esc(plan.amount)}</span>
               ${plan.per ? `<span class="plan-per">${esc(plan.per)}</span>` : ''}
             </div>
+            ${plan.n === 2 ? `<p class="plan-yearly">${esc(t('pricing.yearly', { montant: euro(ctx.locale.code, PRICE * 12) }))}</p>` : ''}
             <p>${plan.body}</p>
             ${list}
-            <a class="btn ${plan.featured ? '' : 'btn-ghost'} mt-l" href="${ctx.href('contact')}">${esc(t('pricing.cta'))}</a>
+            ${plan.n === 2
+              /* L'abonnement se commande seul, dans l'espace client : le bouton y
+                 mène, et le devis à côté, pour qui passe par un service achats. */
+              ? `<a class="btn mt-l" href="${ctx.commander()}" rel="noopener">${esc(t('pricing.ctaOrder'))}</a>
+            <a class="plan-alt" href="${ctx.commander('devis=1')}" rel="noopener">${esc(t('pricing.ctaQuote'))}</a>`
+              /* Le gratuit ne se commande pas : on l'installe, et l'installeur
+                 obtient la licence de lui-même. */
+              : `<a class="btn btn-ghost mt-l" href="${ctx.href('installation')}">${esc(t('pricing.cta'))}</a>`}
           </article>`;
 }
 
