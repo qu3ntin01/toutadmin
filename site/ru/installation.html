@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Установка — Toutadmin</title>
-<meta name="description" content="Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без обязательной базы данных, без сторонних служб — но сервер MySQL поддерживается, если он у вас есть. Рассчитывайте на час." />
+<meta name="description" content="Две редакции одного продукта: одна работает как служба на вашем сервере, другая размещается на виртуальном хостинге. Никакой обязательной базы данных, никаких сторонних служб — но сервер MySQL будет использован, если он у вас есть. Пять минут, чтобы открыть мастер и попробовать; час на полный ввод в эксплуатацию — служба, HTTPS и резервные копии." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,9 +14,9 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Установка — Toutadmin" />
-<meta property="og:description" content="Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без обязательной базы данных, без сторонних служб — но сервер MySQL поддерживается, если он у вас есть. Рассчитывайте на час." />
+<meta property="og:description" content="Две редакции одного продукта: одна работает как служба на вашем сервере, другая размещается на виртуальном хостинге. Никакой обязательной базы данных, никаких сторонних служб — но сервер MySQL будет использован, если он у вас есть. Пять минут, чтобы открыть мастер и попробовать; час на полный ввод в эксплуатацию — служба, HTTPS и резервные копии." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=d1fdadbe69" />
+<link rel="stylesheet" href="../assets/style.css?v=b464ff7b11" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -359,12 +359,12 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Установка</span>
         <h1 class="reveal">Установка Toutadmin</h1>
-        <p class="lede reveal">Две редакции одного продукта: одна работает службой на вашем сервере, другая просто кладётся на виртуальный хостинг. Без обязательной базы данных, без сторонних служб — но сервер MySQL поддерживается, если он у вас есть. Рассчитывайте на час.</p>
+        <p class="lede reveal">Две редакции одного продукта: одна работает как служба на вашем сервере, другая размещается на виртуальном хостинге. Никакой обязательной базы данных, никаких сторонних служб — но сервер MySQL будет использован, если он у вас есть. Пять минут, чтобы открыть мастер и попробовать; час на полный ввод в эксплуатацию — служба, HTTPS и резервные копии.</p>
         <div class="hero-cta reveal">
-          <a class="btn" href="../contact.html">Начать бесплатно в SaaS<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn" href="../contact.html">Запросить бесплатный экземпляр<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://dl.toutadmin.com/?lang=ru" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Скачать продукт</a>
         </div>
-        <p class="hero-note reveal">Размещено в Европе, ставить нечего: бесплатно до пяти сотрудников, и весь продукт с первого дня.</p>
+        <p class="hero-note reveal">Хостинг в Европе, ничего не нужно устанавливать: бесплатно до пяти сотрудников, весь продукт с первого дня. Мы открываем экземпляр вручную и пишем вам, как только он готов.</p>
       </div>
     </section>
 
@@ -450,7 +450,7 @@
         <div class="section-head center reveal">
           <span class="eyebrow">Три пути, один мастер</span>
           <h2>Поднять движок</h2>
-          <p class="lede">Docker, скрипт для Linux, скрипт для Windows. Все три останавливаются в одном месте: перед мастером, в браузере. Ни один не создаёт базу, учётную запись администратора или лицензию — это делает мастер, за восемь шагов, и потом закрывается сам.</p>
+          <p class="lede">Docker, скрипт для Linux, скрипт для Windows. Все три останавливаются в одном месте: перед мастером, в браузере. Ни один не создаёт базу, учётную запись администратора или лицензию — это делает мастер, за девять шагов, а затем закрывается.</p>
         </div>
         <div class="grid g3 stagger">
           <article class="card reveal">
@@ -477,7 +477,7 @@
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
-          <h3>Поставленная скриптом или образом, CMS больше не обновляет себя сама</h3>
+          <h3>Поставленный скриптом или образом, экземпляр больше не обновляется сам</h3>
           <p>И так задумано: файлы, переписанные внутри контейнера, исчезают при первой же его замене — обновление выглядело бы удачным, а потом откатилось бы само. Экран «Обновления» по-прежнему сообщает о версиях, но вместо кнопки даёт действие: сменить образ или запустить скрипт заново.</p>
           <p><a class="link-arrow" href="https://docs.toutadmin.com/ru/conteneur.html" rel="noopener">Поставить экземпляр в контейнере, шаг за шагом<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
@@ -487,7 +487,7 @@
     <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
-          <span class="eyebrow">За пять минут</span>
+          <span class="eyebrow">Чтобы попробовать: пять минут</span>
           <h2>Быстрая установка</h2>
           <p class="lede">Ровно столько, чтобы открыть помощник. Подробности идут сразу следом, шаг за шагом, с тем, что делает каждая команда и зачем.</p>
         </div>
@@ -535,18 +535,30 @@ git clone -b php \
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>База данных</strong><span class="muted">SQLite в файле, который ничего не требует, или MySQL / MariaDB, если он у вас есть. Мастер пробует соединение прежде, чем на него положиться.</span></span>
+              <span><strong>Обновления</strong><span class="muted">Мастер проверяет, нет ли чего-то новее, прежде чем что-либо устанавливать: начинать с устаревшей версии — плохое начало.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Организация</strong><span class="muted">Название предприятия и годовая норма отпуска. Два ответа, изменяемые потом.</span></span>
+              <span><strong>Лицензия</strong><span class="muted">Ключ активации, который мастер забирает из личного кабинета, или бесплатная лицензия в один щелчок. Можно продолжить и без неё и активировать позже.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Администратор</strong><span class="muted">Первая учётная запись. Не меньше двенадцати знаков: это единственная запись, которая может создавать другие.</span></span>
+              <span><strong>База данных</strong><span class="muted">SQLite в файле, который ничего не требует, или MySQL / MariaDB, если он у вас есть. Мастер пробует соединение прежде, чем на него положиться.</span></span>
             </li>
             <li class="reveal">
               <span class="num">6</span>
+              <span><strong>Организация</strong><span class="muted">Название предприятия и годовая норма отпуска. Два ответа, изменяемые потом.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">7</span>
+              <span><strong>Разделы</strong><span class="muted">Направления, которые вы устанавливаете. Неустановленный раздел ничего не показывает; его можно добавить позже одной галочкой, и его данные его дождутся.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">8</span>
+              <span><strong>Администратор</strong><span class="muted">Первая учётная запись. Не меньше двенадцати знаков: это единственная запись, которая может создавать другие.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">9</span>
               <span><strong>Установка</strong><span class="muted">Сводка, затем установка в четыре объявляемых на экране этапа. Мастер закрывается окончательно.</span></span>
             </li>
             </ol>
@@ -694,7 +706,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       <div class="foot-grid">
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
-          <p class="lede">CMS, которая ведёт всю компанию</p>
+          <p class="lede">Программа управления всей компанией</p>
           <p class="stat-n">Две редакции: Node 22 · Express или PHP 8.1 без Composer. SQLite или MySQL, и ни одной лишней зависимости.</p>
         </div>
         <div>
@@ -749,6 +761,6 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=217acfc82b" defer></script>
+<script src="../assets/app.js?v=ddc8f95ae8" defer></script>
 </body>
 </html>

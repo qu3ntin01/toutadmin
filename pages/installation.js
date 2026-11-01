@@ -125,10 +125,15 @@ module.exports = function installation(ctx) {
             <p>${esc(t(`install.check${n}b`))}</p>
           </article>`).join('\n          ');
 
-  // Les six étapes de l'assistant, dans l'ordre où il les présente.
-  const wizardSteps = [1, 2, 3, 4, 5, 6].map((n) => `<li class="reveal">
-              <span class="num">${n}</span>
-              <span><strong>${esc(t(`install.w${n}t`))}</strong><span class="muted">${esc(t(`install.w${n}b`))}</span></span>
+  // Les neuf étapes de l'assistant, dans l'ordre où il les présente — le même
+  // dans les deux éditions (« STEPS » côté Node, « Installation::ETAPES » côté
+  // PHP). La page en listait six et en annonçait huit : un client qui comptait
+  // en trouvait trois de plus à l'écran.
+  const etapes = [['w1t', 'w1b'], ['w2t', 'w2b'], ['wMajT', 'wMajB'], ['wLicT', 'wLicB'], ['w3t', 'w3b'],
+    ['w4t', 'w4b'], ['wSecT', 'wSecB'], ['w5t', 'w5b'], ['w6t', 'w6b']];
+  const wizardSteps = etapes.map(([titre, corps], i) => `<li class="reveal">
+              <span class="num">${i + 1}</span>
+              <span><strong>${esc(t(`install.${titre}`))}</strong><span class="muted">${esc(t(`install.${corps}`))}</span></span>
             </li>`).join('\n            ');
 
   return {

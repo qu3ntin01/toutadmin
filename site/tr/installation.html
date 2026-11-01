@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Kurulum — Toutadmin</title>
-<meta name="description" content="Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf servis yok — ama varsa bir MySQL sunucusu da sürülür. Bir saat ayırın." />
+<meta name="description" content="Aynı ürünün iki sürümü: biri sunucunuzda hizmet olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf hizmet yok — ama bir MySQL sunucunuz varsa kullanılır. Sihirbazı açıp denemek için beş dakika; hizmet, HTTPS ve yedeklerle eksiksiz devreye alma için bir saat." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,9 +14,9 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Kurulum — Toutadmin" />
-<meta property="og:description" content="Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf servis yok — ama varsa bir MySQL sunucusu da sürülür. Bir saat ayırın." />
+<meta property="og:description" content="Aynı ürünün iki sürümü: biri sunucunuzda hizmet olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf hizmet yok — ama bir MySQL sunucunuz varsa kullanılır. Sihirbazı açıp denemek için beş dakika; hizmet, HTTPS ve yedeklerle eksiksiz devreye alma için bir saat." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=d1fdadbe69" />
+<link rel="stylesheet" href="../assets/style.css?v=b464ff7b11" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -359,12 +359,12 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Kurulum</span>
         <h1 class="reveal">Toutadmin'i kurmak</h1>
-        <p class="lede reveal">Aynı ürünün iki sürümü: biri sunucunuzda bir servis olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf servis yok — ama varsa bir MySQL sunucusu da sürülür. Bir saat ayırın.</p>
+        <p class="lede reveal">Aynı ürünün iki sürümü: biri sunucunuzda hizmet olarak çalışır, diğeri paylaşımlı barındırmaya bırakılır. Zorunlu veritabanı yok, üçüncü taraf hizmet yok — ama bir MySQL sunucunuz varsa kullanılır. Sihirbazı açıp denemek için beş dakika; hizmet, HTTPS ve yedeklerle eksiksiz devreye alma için bir saat.</p>
         <div class="hero-cta reveal">
-          <a class="btn" href="../contact.html">SaaS'ta ücretsiz başlamak<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn" href="../contact.html">Ücretsiz kurulumumu iste<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://dl.toutadmin.com/?lang=tr" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Ürünü indirmek</a>
         </div>
-        <p class="hero-note reveal">Avrupa'da barındırılır, kurulacak bir şey yoktur: beş çalışana kadar ücretsiz, ve ilk günden itibaren ürünün tamamı.</p>
+        <p class="hero-note reveal">Avrupa'da barındırılır, kurulacak bir şey yok: beş çalışana kadar ücretsiz, ilk günden ürünün tamamı. Elle açıyoruz ve hazır olur olmaz size yazıyoruz.</p>
       </div>
     </section>
 
@@ -450,7 +450,7 @@
         <div class="section-head center reveal">
           <span class="eyebrow">Üç yol, tek sihirbaz</span>
           <h2>Motoru ayağa kaldırmak</h2>
-          <p class="lede">Docker, bir Linux betiği, bir Windows betiği. Üçü de aynı yerde durur: tarayıcıda, sihirbazın önünde. Hiçbiri veritabanını, yönetici hesabını ya da lisansı kurmaz — onu sihirbaz yapar, sekiz adımda, sonra da kendini kapatır.</p>
+          <p class="lede">Docker, bir Linux betiği, bir Windows betiği. Üçü de aynı yerde durur: tarayıcıda, sihirbazın önünde. Hiçbiri veritabanını, yönetim hesabını ya da lisansı kurmaz — bunu sihirbaz dokuz adımda yapar, sonra kapanır.</p>
         </div>
         <div class="grid g3 stagger">
           <article class="card reveal">
@@ -477,7 +477,7 @@
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
-          <h3>Bir betikle ya da imajla kurulduğunda CMS kendini artık güncellemez</h3>
+          <h3>Bir betikle ya da imajla kurulan kurulum artık kendini güncellemez</h3>
           <p>Bilerek öyle: bir konteynerin içinde yeniden yazılan dosyalar ilk değişimde kaybolur — güncelleme işe yaramış gibi görünür, sonra kendiliğinden geri alınır. « Güncellemeler » ekranı sürümleri bildirmeye devam eder, ama düğme yerine hareketi verir: imajı değiştirin ya da betiği yeniden çalıştırın.</p>
           <p><a class="link-arrow" href="https://docs.toutadmin.com/tr/conteneur.html" rel="noopener">Kurulumu konteynerde yapmak, adım adım<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
@@ -487,7 +487,7 @@
     <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
-          <span class="eyebrow">Beş dakikada</span>
+          <span class="eyebrow">Denemek için: beş dakika</span>
           <h2>Hızlı kurulum</h2>
           <p class="lede">Sihirbazı açmaya yetecek kadarı. Ayrıntı hemen ardından gelir: adım adım, her komutun ne yaptığı ve neden yaptığıyla.</p>
         </div>
@@ -535,18 +535,30 @@ git clone -b php \
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Veritabanı</strong><span class="muted">Hiçbir şey istemeyen bir dosyada SQLite, ya da varsa MySQL / MariaDB. Sihirbaz kendini bağlamadan önce bağlantıyı dener.</span></span>
+              <span><strong>Güncellemeler</strong><span class="muted">Sihirbaz bir şey kurmadan önce daha yenisi olmadığını denetler: eski bir sürümle başlamak kötü bir başlangıçtır.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Kuruluş</strong><span class="muted">Şirketin adı ve yıllık izin hakkı. İki yanıt, sonradan değiştirilebilir.</span></span>
+              <span><strong>Lisans</strong><span class="muted">Sihirbazın müşteri alanınızdan getirdiği etkinleştirme anahtarı ya da tek tıkla alınan ücretsiz lisans. Lisanssız devam edip sonra da etkinleştirebilirsiniz.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Yönetici</strong><span class="muted">İlk hesap. En az on iki karakter: başkalarını oluşturabilen tek hesap odur.</span></span>
+              <span><strong>Veritabanı</strong><span class="muted">Hiçbir şey istemeyen bir dosyada SQLite, ya da varsa MySQL / MariaDB. Sihirbaz kendini bağlamadan önce bağlantıyı dener.</span></span>
             </li>
             <li class="reveal">
               <span class="num">6</span>
+              <span><strong>Kuruluş</strong><span class="muted">Şirketin adı ve yıllık izin hakkı. İki yanıt, sonradan değiştirilebilir.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">7</span>
+              <span><strong>Bölümler</strong><span class="muted">Kurduğunuz iş alanları. Kurulmamış bir bölüm hiçbir şey göstermez; sonradan tek bir işaretle eklenir ve verileri onu bekler.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">8</span>
+              <span><strong>Yönetici</strong><span class="muted">İlk hesap. En az on iki karakter: başkalarını oluşturabilen tek hesap odur.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">9</span>
               <span><strong>Kurulum</strong><span class="muted">Özet, ardından ekranda duyurulan dört aşamada kurulum. Sihirbaz kendini bir daha açılmamak üzere kapatır.</span></span>
             </li>
             </ol>
@@ -694,7 +706,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       <div class="foot-grid">
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
-          <p class="lede">Tüm şirketi yöneten CMS</p>
+          <p class="lede">Tüm şirketin yönetim yazılımı</p>
           <p class="stat-n">İki sürüm: Node 22 · Express ya da Composer gerektirmeyen PHP 8.1. SQLite ya da MySQL, gereksiz hiçbir bağımlılık yok.</p>
         </div>
         <div>
@@ -749,6 +761,6 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=217acfc82b" defer></script>
+<script src="../assets/app.js?v=ddc8f95ae8" defer></script>
 </body>
 </html>

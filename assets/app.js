@@ -296,15 +296,24 @@
     for (var r2 = 0; r2 < reveals.length; r2 += 1) reveals[r2].classList.add('is-in');
   }
 
-  /* ---------------------------------------------------------- compteurs */
+  /* ---------------------------------------------------------- compteurs
+     La page porte la vraie valeur ; le script ne fait que la faire monter,
+     et seulement pour un compteur qu'on découvre en descendant. Un compteur
+     déjà à l'écran au chargement ne bouge pas : il partait de zéro, et qui
+     regardait la page — ou la capturait — dans la première seconde lisait
+     « 33 espaces, 11 langues » au lieu de 47 et 16. */
   var counters = document.querySelectorAll('[data-count]');
   var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (counters.length && 'IntersectionObserver' in window && !still) {
+    var vus = typeof WeakSet === 'function' ? new WeakSet() : null;
     var co = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
         var el = entry.target;
+        var premier = vus && !vus.has(el);
+        if (vus) vus.add(el);
+        if (!entry.isIntersecting) return;
         co.unobserve(el);
+        if (premier || !vus) return;
         var target = Number(el.getAttribute('data-count'));
         var suffix = el.getAttribute('data-suffix') || '';
         var t0 = null;

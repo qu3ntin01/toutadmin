@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Installation — Toutadmin</title>
-<meta name="description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Allow an hour." />
+<meta name="description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Five minutes to open the wizard and try it; an hour for a complete setup, with service, HTTPS and backups." />
 <meta name="color-scheme" content="light dark" />
 <!-- Les pages doivent être revalidées à chaque visite. L'hébergement ne pose
      aucune directive de cache sur le HTML : le navigateur applique alors sa
@@ -14,9 +14,9 @@
      peuvent rester en cache aussi longtemps que l'hébergeur le souhaite. -->
 <meta http-equiv="Cache-Control" content="no-cache" />
 <meta property="og:title" content="Installation — Toutadmin" />
-<meta property="og:description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Allow an hour." />
+<meta property="og:description" content="Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Five minutes to open the wizard and try it; an hour for a complete setup, with service, HTTPS and backups." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=d1fdadbe69" />
+<link rel="stylesheet" href="../assets/style.css?v=b464ff7b11" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -359,12 +359,12 @@
       <div class="wrap center">
         <span class="eyebrow reveal">Installation</span>
         <h1 class="reveal">Installing Toutadmin</h1>
-        <p class="lede reveal">Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Allow an hour.</p>
+        <p class="lede reveal">Two editions of the same product: one runs as a service on your server, the other drops onto shared hosting. No database required, no third-party service — but a MySQL server is driven if you have one. Five minutes to open the wizard and try it; an hour for a complete setup, with service, HTTPS and backups.</p>
         <div class="hero-cta reveal">
-          <a class="btn" href="../contact.html">Start free, hosted by us<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn" href="../contact.html">Request my free instance<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
           <a class="btn btn-ghost" href="https://dl.toutadmin.com/?lang=en" rel="noopener"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg>Download the product</a>
         </div>
-        <p class="hero-note reveal">Hosted in Europe, nothing to install: free up to five employees, and the whole product from day one.</p>
+        <p class="hero-note reveal">Hosted in Europe, nothing to install: free up to five employees, the whole product from day one. We open it by hand and write to you as soon as it is ready.</p>
       </div>
     </section>
 
@@ -450,7 +450,7 @@
         <div class="section-head center reveal">
           <span class="eyebrow">Three ways, one wizard</span>
           <h2>Getting the engine up</h2>
-          <p class="lede">Docker, a Linux script, a Windows script. All three stop at the same place: in front of the wizard, in the browser. None of them creates the database, the administrator account or the licence — the wizard does, in eight steps, then closes itself.</p>
+          <p class="lede">Docker, a Linux script, a Windows script. All three stop at the same place: in front of the wizard, in the browser. None of them creates the database, the administrator account or the licence — the wizard does, in nine steps, then closes itself.</p>
         </div>
         <div class="grid g3 stagger">
           <article class="card reveal">
@@ -477,7 +477,7 @@
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
-          <h3>Installed by a script or an image, the CMS no longer updates itself</h3>
+          <h3>Installed by a script or an image, the instance no longer updates itself</h3>
           <p>Deliberately so: files rewritten inside a container vanish the first time it is replaced — the update would look like it worked, then undo itself. The “Updates” screen still reports new versions, but gives the gesture instead of the button: change image, or run the script again.</p>
           <p><a class="link-arrow" href="https://docs.toutadmin.com/en/conteneur.html" rel="noopener">Setting the instance up in a container, step by step<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
         </div>
@@ -487,7 +487,7 @@
     <section class="section tinted">
       <div class="wrap">
         <div class="section-head center reveal">
-          <span class="eyebrow">In five minutes</span>
+          <span class="eyebrow">To try it: five minutes</span>
           <h2>The quick install</h2>
           <p class="lede">Enough to open the wizard. The detail follows right after, step by step, with what each command does and why.</p>
         </div>
@@ -535,18 +535,30 @@ git clone -b php \
             </li>
             <li class="reveal">
               <span class="num">3</span>
-              <span><strong>Database</strong><span class="muted">SQLite in a file, which asks for nothing, or MySQL / MariaDB if you have one. The wizard tries the connection before committing to it.</span></span>
+              <span><strong>Updates</strong><span class="muted">The wizard checks that nothing newer exists before installing anything: starting on an outdated version is a poor way to begin.</span></span>
             </li>
             <li class="reveal">
               <span class="num">4</span>
-              <span><strong>Organisation</strong><span class="muted">The company name and the annual leave quota. Two answers, editable afterwards.</span></span>
+              <span><strong>Licence</strong><span class="muted">The activation key, which the wizard fetches from your client area, or the free licence obtained in one click. You can also carry on without it and activate later.</span></span>
             </li>
             <li class="reveal">
               <span class="num">5</span>
-              <span><strong>Administrator</strong><span class="muted">The first account. Twelve characters minimum: it is the only account that can create others.</span></span>
+              <span><strong>Database</strong><span class="muted">SQLite in a file, which asks for nothing, or MySQL / MariaDB if you have one. The wizard tries the connection before committing to it.</span></span>
             </li>
             <li class="reveal">
               <span class="num">6</span>
+              <span><strong>Organisation</strong><span class="muted">The company name and the annual leave quota. Two answers, editable afterwards.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">7</span>
+              <span><strong>Sections</strong><span class="muted">The business areas you install. A section that is not installed shows nothing; it can be added later with one tick, and its data waits for it.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">8</span>
+              <span><strong>Administrator</strong><span class="muted">The first account. Twelve characters minimum: it is the only account that can create others.</span></span>
+            </li>
+            <li class="reveal">
+              <span class="num">9</span>
               <span><strong>Installation</strong><span class="muted">The summary, then the laying down in four stages announced on screen. The wizard closes for good.</span></span>
             </li>
             </ol>
@@ -694,7 +706,7 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       <div class="foot-grid">
         <div>
           <a class="brand" href="../index.html"><span class="brand-mark">TA</span>Toutadmin</a>
-          <p class="lede">The CMS that runs the whole company</p>
+          <p class="lede">The management software for the whole company</p>
           <p class="stat-n">Two editions: Node 22 · Express, or PHP 8.1 with no Composer. SQLite or MySQL, and no needless dependency.</p>
         </div>
         <div>
@@ -749,6 +761,6 @@ php -r "echo bin2hex(random_bytes(32));"   # session_secret</code></pre>
       </div>
     </div>
   </footer>
-<script src="../assets/app.js?v=217acfc82b" defer></script>
+<script src="../assets/app.js?v=ddc8f95ae8" defer></script>
 </body>
 </html>

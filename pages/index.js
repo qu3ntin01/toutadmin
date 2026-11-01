@@ -108,8 +108,8 @@ function constellation(ctx) {
         </ul>
       </div>
       <div class="cx-stats" aria-hidden="true">
-        <div><b data-count="${n.espaces}">${n.espaces}</b><span>${esc(t('stats.spaces'))}</span></div>
-        <div><b data-count="${n.langues}">${n.langues}</b><span>${esc(t('stats.languages'))}</span></div>
+        <div><b>${n.espaces}</b><span>${esc(t('stats.spaces'))}</span></div>
+        <div><b>${n.langues}</b><span>${esc(t('stats.languages'))}</span></div>
         <div><b>1</b><span>${esc(t('anim.base'))}</span></div>
       </div>
     </div>`;
@@ -135,10 +135,32 @@ module.exports = function index(ctx) {
     [n.libelles, 'stats.keys', 'stats.keysNote'],
     [n.services, 'stats.deps', 'stats.depsNote'],
   ].map(([value, key, note]) => `<div class="stat reveal">
-            <div class="stat-v" data-count="${value}">0</div>
+            <div class="stat-v" data-count="${value}">${value}</div>
             <div class="stat-k">${esc(t(key))}</div>
             <div class="stat-n">${esc(t(note))}</div>
           </div>`).join('\n          ');
+
+  /*
+   * Trois portes d'entrée, avant le catalogue des domaines.
+   *
+   * Les quarante-sept espaces prouvent que tout est couvert ; ils ne disent pas
+   * par où entrer. Le salarié, la personne qui gère et la direction n'ouvrent
+   * pas le logiciel pour la même chose : chacun trouve ici ce qu'il viendra y
+   * faire, et un lien vers le domaine qui le décrit en entier.
+   */
+  const portes = [
+    ['user', 'espace'],
+    ['wallet', 'rh'],
+    ['compass', 'direction'],
+  ].map(([dessin, domaine], i) => `<article class="card porte reveal">
+            <span class="ico">${icon(dessin)}</span>
+            <h3>${esc(t(`aud.${i + 1}.t`))}</h3>
+            <p>${esc(t(`aud.${i + 1}.b`))}</p>
+            <ul class="feat-list">
+              ${t(`aud.${i + 1}.items`).map((ligne) => `<li>${icon('check')}<span>${esc(ligne)}</span></li>`).join('\n              ')}
+            </ul>
+            <a class="link-arrow" href="${ctx.href('fonctionnalites')}#${domaine}">${esc(t(`aud.${i + 1}.cta`))}${icon('arrow')}</a>
+          </article>`).join('\n          ');
 
   const icons = ['layers', 'shield', 'clock', 'scale', 'globe', 'lock'];
   const pillars = [1, 2, 3, 4, 5, 6].map((n, i) => `<article class="card reveal">
@@ -207,6 +229,15 @@ module.exports = function index(ctx) {
         </div>
         <div class="hero-visual reveal">
           ${constellation(ctx)}
+        </div>
+      </div>
+    </section>
+
+    <section class="section aud" id="par-ou-commencer">
+      <div class="wrap">
+        ${head(ctx, t('aud.eyebrow'), t('aud.title'), t('aud.lede', { espaces: n.espaces }))}
+        <div class="grid g3 stagger">
+          ${portes}
         </div>
       </div>
     </section>

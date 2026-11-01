@@ -1080,3 +1080,10 @@ pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
 .plan-alt:hover { text-decoration: underline; }
 .opt-add { display: block; margin-block-start: 4px; font-size: .8rem; font-weight: 650; color: var(--brand); white-space: nowrap; }
 .opt-add:hover { text-decoration: underline; }
+
+/* Les trois portes d'entrée de l'accueil : une carte par rôle, le lien vers
+   le domaine en pied, aligné d'une carte à l'autre même quand les listes
+   n'ont pas la même hauteur. */
+.porte { display: flex; flex-direction: column; }
+.porte .feat-list { margin-block: 14px 20px; }
+.porte .link-arrow { margin-block-start: auto; }

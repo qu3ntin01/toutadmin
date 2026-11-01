@@ -6,7 +6,10 @@ module.exports = function pricing(ctx) {
   const { t, esc, icon } = ctx;
 
   const perks = {
-    1: ['pricing.f.allSpaces', 'pricing.f.languages', 'pricing.f.security', 'pricing.f.updates', 'pricing.f.saas'],
+    // L'hébergement chez soi est permis dans toutes les formules : c'est
+    // l'effectif qui décide de la formule, pas l'endroit où tourne l'instance.
+    // La carte gratuite le taisait, et laissait croire le contraire.
+    1: ['pricing.f.allSpaces', 'pricing.f.languages', 'pricing.f.security', 'pricing.f.saas', 'pricing.f.local'],
     2: ['pricing.f.allSpaces', 'pricing.f.local', 'pricing.f.backupOff', 'pricing.f.api', 'pricing.f.supportMail'],
   };
 
