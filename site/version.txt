@@ -2,11 +2,10 @@ Toutadmin — vitrine
 
 Barème
   gratuit jusqu'à 5 salariés
-  abonnement : 15 €/mois, quel que soit l'effectif
-  lancement : 10 €/mois pendant 12 mois, pour les 100 premiers clients
+  abonnement : 5 € par salarié et par mois au-delà de 5 (12 salariés : 35 €/mois)
 
 Pages     : 96 (6 × 16 langues)
-Clés      : 552 par langue
+Clés      : 549 par langue
 Captures  : 152 fichiers
 Annoncé   : 47 espaces · 16 langues · 2548 tests · 7 modules · 3698 libellés (relevé 2026-10-25)
 Ressources: style b464ff7b11 · thème 4869e2e78f · script ddc8f95ae8

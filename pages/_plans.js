@@ -2,26 +2,23 @@
    Un seul endroit : la page Tarifs et l'aperçu de l'accueil doivent annoncer
    le même prix, et deux listes séparées finissent toujours par diverger. */
 
-// Cinq nombres, et rien d'autre. Tout le reste — les cartes, la bande de
-// lancement, les exemples — se lit à partir d'ici : deux chiffres qui ne
-// concordent pas sur une page de tarifs, et c'est la confiance qui part.
+// Deux nombres, et rien d'autre. Tout le reste — les cartes, les exemples, la
+// bande de l'accueil — se lit à partir d'ici : deux chiffres qui ne concordent
+// pas sur une page de tarifs, et c'est la confiance qui part.
 //
-// Un forfait : quinze euros par mois, quel que soit l'effectif. C'était cinq
-// euros par salarié au-delà de cinq offerts — un prix qu'il fallait calculer
-// pour le connaître, et qui montait le jour où l'on embauchait. Une punition à
-// l'embauche, dans un logiciel qui sert justement à gérer du personnel.
+// Cinq euros par salarié et par mois, au-delà des cinq premiers, offerts à
+// tous : douze salariés, trente-cinq euros. On ne paie que ce qui dépasse, et
+// il n'y a ni palier ni prix de lancement — une règle qu'on refait de tête.
 //
-// Les cent premiers clients paient dix euros leur première année. Ce n'est pas
-// un rabais au volume déguisé : c'est une date d'entrée, la même pour tout le
-// monde, et elle expire.
+// Jusqu'à cinq salariés, c'est donc gratuit, sans limite de durée : c'est la
+// licence gratuite, et ce seuil-là est aussi un plafond technique qu'elle porte.
 //
-// Sous cinq salariés, c'est gratuit, sans limite de durée. Cette limite-là est
-// un plafond technique que la licence porte, pas un tarif.
-const PRICE = 15;
-const LAUNCH_PRICE = 10;
-const LAUNCH_CLIENTS = 100;
-const LAUNCH_MONTHS = 12;
+// Ce sont les nombres du panneau éditeur et de l'espace client, qui facturent.
+const PRICE_PER_EMPLOYEE = 5;
 const FREE_SEATS = 5;
+
+/** Ce que coûte un abonnement par mois, pour cet effectif. */
+const monthly = (effectif) => PRICE_PER_EMPLOYEE * Math.max(0, effectif - FREE_SEATS);
 
 /*
  * L'assistance, et ce qu'elle coûte.
@@ -56,7 +53,7 @@ function plans(ctx) {
   const { t, esc } = ctx;
   return [
     { n: 1, amount: t('pricing.free'), per: '', featured: false },
-    { n: 2, amount: euro(ctx.locale.code, PRICE), per: t('pricing.perMonthShort'), featured: true },
+    { n: 2, amount: euro(ctx.locale.code, PRICE_PER_EMPLOYEE), per: t('pricing.perSeatShort'), featured: true },
   ].map((plan) => ({
     ...plan,
     name: esc(t(`pricing.p${plan.n}.name`)),
@@ -75,7 +72,7 @@ function planCard(ctx, plan, list = '') {
               <span class="plan-amount">${esc(plan.amount)}</span>
               ${plan.per ? `<span class="plan-per">${esc(plan.per)}</span>` : ''}
             </div>
-            ${plan.n === 2 ? `<p class="plan-yearly">${esc(t('pricing.yearly', { montant: euro(ctx.locale.code, PRICE * 12) }))}</p>` : ''}
+            ${plan.n === 2 ? `<p class="plan-yearly">${esc(t('pricing.example', { n: 12, montant: euro(ctx.locale.code, monthly(12)) }))}</p>` : ''}
             <p>${plan.body}</p>
             ${list}
             ${plan.n === 2
@@ -90,6 +87,6 @@ function planCard(ctx, plan, list = '') {
 }
 
 module.exports = {
-  PRICE, LAUNCH_PRICE, LAUNCH_CLIENTS, LAUNCH_MONTHS, FREE_SEATS,
+  PRICE_PER_EMPLOYEE, FREE_SEATS, monthly,
   REPLY_DAYS, SETUP_FEE, HOURLY_RATE, HOURS_PACK, HOURS_PACK_FEE,
   euro, plans, planCard };

@@ -1,5 +1,5 @@
 const { band, pageHero, head } = require('./_shared');
-const { plans, planCard, euro, LAUNCH_PRICE, LAUNCH_CLIENTS, LAUNCH_MONTHS,
+const { plans, planCard, euro, monthly,
   REPLY_DAYS, SETUP_FEE, HOURLY_RATE, HOURS_PACK, HOURS_PACK_FEE } = require('./_plans');
 
 module.exports = function pricing(ctx) {
@@ -71,11 +71,19 @@ module.exports = function pricing(ctx) {
     `<tr><th scope="row">${esc(t(when))}</th><td>${esc(t(what))}</td></tr>`).join('\n              ');
 
   /*
-   * Le tarif de lancement a une section à lui, et trois nombres qui se lisent
-   * d'un coup : dix euros, cent clients, douze mois. Il est daté et il est
-   * compté — une promotion sans fin n'est pas une promotion, c'est le prix, et
-   * un client qui la découvre en la perdant la vit comme une hausse.
+   * Des exemples plutôt qu'une grille : trois effectifs, trois montants, tous
+   * tirés de « monthly ». Un prix par salarié se comprend mieux quand on voit ce
+   * qu'il donne pour une maison de sa taille — et le premier exemple est celui
+   * de la carte, pour que la page ne dise qu'une seule chose.
    */
+  const exemples = [12, 25, 50].map((effectif, i) => `<article class="plan${i === 0 ? ' is-featured' : ''} reveal">
+            <div class="plan-name">${esc(t('pricing.examples.n', { n: effectif }))}</div>
+            <div class="plan-price">
+              <span class="plan-amount">${esc(euro(ctx.locale.code, monthly(effectif)))}</span>
+              <span class="plan-per">${esc(t('pricing.perMonth'))}</span>
+            </div>
+          </article>`).join('\n          ');
+
   const faq = [1, 9, 6, 7, 4].map((n) => `<details class="reveal">
             <summary>${esc(t(`faq.q${n}`))}${icon('plus')}</summary>
             <div class="answer">${esc(t(`faq.a${n}`))}</div>
@@ -97,22 +105,12 @@ module.exports = function pricing(ctx) {
       </div>
     </section>
 
-    <section class="section tinted" id="lancement">
+    <section class="section tinted" id="exemples">
       <div class="wrap">
-        ${head(ctx, null, t('pricing.launchTitle'), t('pricing.launchLede'))}
+        ${head(ctx, null, t('pricing.examplesTitle'), t('pricing.examplesLede'))}
 
         <div class="plans plans-3 stagger mt-l">
-          ${[
-            [t('pricing.launch.priceName'), euro(ctx.locale.code, LAUNCH_PRICE), t('pricing.perMonth')],
-            [t('pricing.launch.seatsName'), String(LAUNCH_CLIENTS), t('pricing.launch.seatsUnit')],
-            [t('pricing.launch.termName'), String(LAUNCH_MONTHS), t('pricing.launch.termUnit')],
-          ].map(([nom, valeur, unite], i) => `<article class="plan${i === 0 ? ' is-featured' : ''} reveal">
-            <div class="plan-name">${esc(nom)}</div>
-            <div class="plan-price">
-              <span class="plan-amount">${esc(valeur)}</span>
-              <span class="plan-per">${esc(unite)}</span>
-            </div>
-          </article>`).join('\n          ')}
+          ${exemples}
         </div>
 
         <div class="note reveal mx-auto mt-l">

@@ -373,7 +373,7 @@ function navHtml(t, ctx) {
   ]), false, ctx.page === 'installation');
   const tarifs = menu('tarifs', t('nav.pricing'), liste([
     ['tarifs#formules', 'tag', t('mega.price.plans'), t('mega.price.plans.d')],
-    ['tarifs#lancement', 'rocket', t('pricing.launchTitle'), t('mega.price.launch.d')],
+    ['tarifs#exemples', 'users', t('pricing.examplesTitle'), t('mega.price.examples.d')],
     ['tarifs#assistance', 'headset', t('support.title'), t('mega.price.support.d')],
     ['tarifs#licence', 'key', t('licence.title'), t('mega.price.licence.d')],
     [STORE_URL, 'grid', t('nav.store'), t('mega.store.d')],
@@ -762,9 +762,8 @@ fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nAllow: /\n');
 const plans = require(path.join(ROOT, 'pages', '_plans.js'));
 const barème = [
   `gratuit jusqu'à ${plans.FREE_SEATS} salariés`,
-  `abonnement : ${plans.PRICE} €/mois, quel que soit l'effectif`,
-  `lancement : ${plans.LAUNCH_PRICE} €/mois pendant ${plans.LAUNCH_MONTHS} mois, `
-    + `pour les ${plans.LAUNCH_CLIENTS} premiers clients`,
+  `abonnement : ${plans.PRICE_PER_EMPLOYEE} € par salarié et par mois au-delà de ${plans.FREE_SEATS} `
+    + `(12 salariés : ${plans.monthly(12)} €/mois)`,
 ].join('\n  ');
 fs.writeFileSync(path.join(OUT, 'version.txt'),
   `Toutadmin — vitrine\n\nBarème\n  ${barème}\n\n`
