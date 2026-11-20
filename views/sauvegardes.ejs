@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Sauvegardes — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.backups'),
+        headerSubtitle: t('bak.subtitle'),
+        onglets: [
+          { tab: 'archives', label: t('bak.archives'), icon: 'inbox', badge: summary.count },
+          { tab: 'externalisation', label: t('bak.offsite'), icon: 'external', badge: destinations.filter((d) => d.enabled && d.status && d.status.ok === false).length },
+          { tab: 'restauration', label: t('bak.restore'), icon: 'back' },
+          { tab: 'export', label: t('bak.fullExport'), icon: 'external' },
+          { tab: 'reglages', label: t('common.settings'), icon: 'settings' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso).toLocaleString(locale) : '—'); %>
+        <% const size = (n) => (n < 1048576 ? Math.round(n / 1024) + ' Ko' : (n / 1048576).toFixed(1) + ' Mo'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.count %></span><span class="stat-label"><%= t('bak.kept') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= summary.latest ? moment(summary.latest.createdAt).split(' ')[1] || '—' : '—' %></span>
+              <span class="stat-label"><%= summary.latest ? 'Dernière : ' + moment(summary.latest.createdAt) : 'Aucune sauvegarde' %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= size(summary.bytes) %></span><span class="stat-label"><%= t('bak.totalSize') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value <%= summary.enabled ? '' : 'text-danger' %>"><%= summary.enabled ? t('bak.running') : t('bak.stopped') %></span>
+              <span class="stat-label"><%= t('bak.everyKept', { minutes: summary.intervalMinutes, count: summary.keep }) %></span>
+            </span>
+          </div>
+        </section>
+
+        <!-- ---------- Archives ---------- -->
+        <section class="tab-panel is-active" id="archives">
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.backupNow') %></h3></div>
+            <form method="POST" action="/sauvegardes" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('bak.reasonOptional') %></span><input type="text" name="label" maxlength="120" placeholder="<%= t('bak.reasonExample') %>" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('bak.createBackup') %></button></div>
+            </form>
+            <p class="hint">
+              <%= t('bak.archiveHelp') %>
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= archives.length %> archive(s)</h3></div>
+            <div class="banner is-warning">
+              <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+              <span>
+                <%= t('bak.sensitiveNotice') %>
+              </span>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('bak.archive') %></th><th><%= t('bak.createdOn') %></th><th><%= t('common.size') %></th><th></th></tr></thead>
+                <tbody>
+                  <% archives.forEach((a) => { %>
+                    <tr>
+                      <td class="cell-strong fingerprint"><%= a.fileName %></td>
+                      <td class="cell-sub nowrap"><%= moment(a.createdAt) %></td>
+                      <td class="cell-sub nowrap"><%= size(a.bytes) %></td>
+                      <td>
+                        <span class="row-actions">
+                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/telecharger"><%= t('common.download') %></a>
+                          <a class="btn btn-outline btn-sm" href="/sauvegardes/<%= a.fileName %>/verifier"><%= t('common.verify') %></a>
+                          <% if (destinations.some((d) => d.enabled)) { %>
+                            <form method="POST" action="/sauvegardes/<%= a.fileName %>/externaliser" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-outline btn-sm"><%= t('bak.sendOffsite') %></button>
+                            </form>
+                          <% } %>
+                          <form method="POST" action="/sauvegardes/<%= a.fileName %>/supprimer" class="inline-form" data-confirm="<%= t('bak.deleteBackup') %>">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                          </form>
+                        </span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (archives.length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('bak.noArchive') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+            <p class="hint"><%= t('bak.serverFolder') %> <code class="totp-secret"><%= directory %></code></p>
+          </div>
+        </section>
+
+        <!-- ---------- Externalisation ---------- -->
+        <section class="tab-panel" id="externalisation">
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.whyOffsite') %></h3></div>
+            <p class="hint">
+              <%= t('bak.whyOffsiteHelp') %>
+            </p>
+            <div class="banner is-warning">
+              <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+              <span>
+                <%= t('bak.destinationNotice') %>
+              </span>
+            </div>
+          </div>
+
+          <% destinations.forEach((d) => { %>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= d.label %></h3>
+                  <p class="card-sub"><%= d.hint %></p>
+                </div>
+                <span class="status <%= d.enabled ? 'status-on' : 'status-off' %>">
+                  <%= d.enabled ? 'Active' : 'Inactive' %>
+                </span>
+              </div>
+
+              <% if (d.status) { %>
+                <div class="flash flash-<%= d.status.ok ? 'success' : 'error' %>">
+                  <%= t('bak.lastAttempt') %> <%= moment(d.status.at) %> :
+                  <%= d.status.ok ? t('bak.attemptOk') : t('bak.attemptFailed') %><%= d.status.message ? ' — ' + d.status.message : '' %>
+                </div>
+              <% } %>
+
+              <form method="POST" action="/sauvegardes/destinations/<%= d.key %>" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <% d.fields.forEach((field) => { %>
+                  <% if (field.type === 'checkbox') { %>
+                    <label class="check-row span-2">
+                      <input type="checkbox" name="<%= field.name %>" value="1" <%= d.values[field.name] ? 'checked' : '' %> />
+                      <span><%= field.label %></span>
+                    </label>
+                  <% } else if (field.type === 'select') { %>
+                    <label class="span-2"><span><%= field.label %></span>
+                      <select name="<%= field.name %>">
+                        <% field.options.forEach((option) => { %>
+                          <option value="<%= option.value %>" <%= d.values[field.name] === option.value ? 'selected' : '' %>><%= option.label %></option>
+                        <% }) %>
+                      </select>
+                    </label>
+                  <% } else if (field.type === 'textarea') { %>
+                    <label class="span-2"><span><%= field.label %></span>
+                      <textarea name="<%= field.name %>" rows="4" placeholder="<%= d.values[field.name] || '-----BEGIN PRIVATE KEY-----…' %>"></textarea>
+                    </label>
+                  <% } else if (field.secret) { %>
+                    <label class="span-2"><span><%= field.label %></span>
+                      <input type="password" name="<%= field.name %>" autocomplete="new-password" placeholder="<%= d.values[field.name] || '' %>" />
+                    </label>
+                  <% } else { %>
+                    <label><span><%= field.label %></span>
+                      <input type="<%= field.type === 'number' ? 'number' : 'text' %>" name="<%= field.name %>"
+                             value="<%= d.values[field.name] %>" placeholder="<%= field.placeholder || '' %>" />
+                    </label>
+                  <% } %>
+                <% }) %>
+
+                <label class="check-row span-2">
+                  <input type="checkbox" name="enabled" value="1" <%= d.enabled ? 'checked' : '' %> />
+                  <span><%= t('bak.sendHere') %></span>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+              </form>
+
+              <p class="hint">
+                <%= t('bak.secretsHelp') %>
+              </p>
+
+              <% if (d.configured) { %>
+                <form method="POST" action="/sauvegardes/destinations/<%= d.key %>/tester">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-block"><%= t('bak.testConnection') %></button>
+                </form>
+              <% } %>
+            </div>
+          <% }) %>
+        </section>
+
+        <!-- ---------- Restauration ---------- -->
+        <section class="tab-panel" id="restauration">
+          <% if (restoreReport) { %>
+            <div class="card">
+              <div class="card-head"><h3><%= t('bak.lastRestore') %></h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub"><%= t('bak.archive') %></td><td class="cell-strong"><%= restoreReport.origin %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.backupDated') %></td><td><%= moment(restoreReport.createdAt) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.tablesRestored') %></td><td><%= restoreReport.tables %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.rowsRewritten') %></td><td><%= restoreReport.rows %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.filesRestored') %></td><td><%= restoreReport.files %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.previousSavedAs') %></td><td class="fingerprint"><%= restoreReport.safety %></td></tr>
+                  <% if (restoreReport.skipped && restoreReport.skipped.length) { %>
+                    <tr><td class="cell-sub"><%= t('bak.tablesEmptied') %></td><td class="cell-sub"><%= restoreReport.skipped.join(', ') %></td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.whatRestoreDoes') %></h3></div>
+            <p class="hint">
+              <%= t('bak.restoreHelp') %>
+            </p>
+            <p class="hint">
+              <%- t('bak.twoExceptions', {
+                    sessions: `<strong>${t('bak.openSessions')}</strong>`,
+                    state: `<strong>${t('bak.stateSavedFirst')}</strong>`,
+                  }) %>
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.restoreFromServer') %></h3></div>
+            <% if (archives.length === 0) { %>
+              <p class="cell-sub"><%= t('bak.noArchiveAvailable') %></p>
+            <% } else { %>
+              <ul class="org-list">
+                <% archives.forEach((a) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong fingerprint"><%= a.fileName %></span>
+                      <br /><span class="cell-sub"><%= moment(a.createdAt) %> · <%= size(a.bytes) %></span>
+                    </span>
+                    <form method="POST" action="/sauvegardes/<%= a.fileName %>/restaurer" class="inline-form"
+                          data-confirm="<%= t('bak.confirmRestore') %>">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <input type="text" name="confirmation" class="input-sm confirm-name" placeholder="<%= t('bak.exactName') %>" required autocomplete="off" />
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('bak.restore') %></button>
+                    </form>
+                  </li>
+                <% }) %>
+              </ul>
+              <p class="hint"><%= t('bak.exactNameHelp') %></p>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.restoreFromUpload') %></h3></div>
+            <form method="POST" action="/sauvegardes/televerser" enctype="multipart/form-data" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('bak.archiveFile') %></span><input type="file" name="archive" accept=".gz,.tgz" required /></label>
+              <label class="span-2"><span><%= t('bak.typeRestore') %></span><input type="text" name="confirmation" required autocomplete="off" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-danger btn-block"><%= t('bak.uploadAndRestore') %></button></div>
+            </form>
+            <p class="hint">
+              <%= t('bak.uploadLimit', { max: Math.round(maxUploadBytes / 1048576) }) %>
+            </p>
+          </div>
+        </section>
+
+        <!-- ---------- Réglages ---------- -->
+        <!-- ---------- Export intégral ---------- -->
+        <section class="tab-panel" id="export">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('bak.takeEverything') %></h3>
+              <span class="card-sub"><%= exportPreview.tableCount %> tables · <%= exportPreview.rows.toLocaleString(locale) %> lignes</span>
+            </div>
+            <p class="cell-sub">
+              <%= t('bak.reversibility') %>
+            </p>
+            <form method="POST" action="/sauvegardes/export">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-primary btn-block"><%= t('bak.buildExport') %></button>
+            </form>
+            <p class="hint">
+              <%= t('bak.exportNotice') %>
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.exportContains') %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('bak.attachments') %></th><th><%= t('common.count') %></th></tr></thead>
+                <tbody>
+                  <tr><td class="cell-sub"><%= t('bak.profilePhotos') %></td><td><%= exportPreview.files.uploads %></td></tr>
+                  <tr><td class="cell-sub"><%= t('bak.cvsReceived') %></td><td><%= exportPreview.files.cv %></td></tr>
+                  <tr><td class="cell-sub"><%= t('nav.vault') %></td><td><%= exportPreview.files.coffre %></td></tr>
+                  <tr><td class="cell-sub"><%= t('nav.signing') %></td><td><%= exportPreview.files.parapheur %></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="section-label"><%= t('bak.largestTables') %></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('bak.table') %></th><th><%= t('common.lines') %></th></tr></thead>
+                <tbody>
+                  <% exportPreview.tables.slice(0, 12).forEach((entry) => { %>
+                    <tr><td class="mono cell-strong"><%= entry.table %></td><td><%= entry.lignes %></td></tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.exportExcludes') %></h3></div>
+            <ul class="check-list">
+              <li class="check-item"><%= t('bak.excludeHashes') %></li>
+              <li class="check-item"><%= t('bak.excludeTokens') %></li>
+              <li class="check-item"><%= t('bak.excludeSessions') %></li>
+              <li class="check-item"><%= t('bak.excludeSecrets') %></li>
+            </ul>
+            <p class="hint">
+              <%= t('bak.excludeHelp') %>
+            </p>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="reglages">
+          <div class="card">
+            <div class="card-head"><h3><%= t('bak.automatic') %></h3></div>
+            <form method="POST" action="/sauvegardes/reglages" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="check-row span-2">
+                <input type="checkbox" name="enabled" value="1" <%= summary.enabled ? 'checked' : '' %> />
+                <span><%= t('bak.backUpAutomatically') %></span>
+              </label>
+              <label><span><%= t('bak.intervalMinutes') %></span>
+                <input type="number" name="interval_minutes" min="15" max="1440" value="<%= summary.intervalMinutes %>" required />
+              </label>
+              <label><span><%= t('bak.kept') %></span>
+                <input type="number" name="keep" min="2" max="500" value="<%= summary.keep %>" required />
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint">
+              <%= t('bak.sweepHelp') %>
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

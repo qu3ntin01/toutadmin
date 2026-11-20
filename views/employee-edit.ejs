@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Modifier ' + employee.first_name + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/admin-sidebar', { asLinks: true, active: 'personnel' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: employee.first_name + ' ' + employee.last_name,
+        headerSubtitle: employee.email + ' · ' + (employee.contract_type || 'contrat non renseigné'),
+        backHref: '/admin#personnel'
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('emp.profile') %></h3></div>
+          <form method="POST" action="/admin/employes/<%= employee.id %>/modifier" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label>
+              <span><%= t('common.grade') %></span>
+              <select name="grade" required>
+                <% grades.forEach((g) => { %>
+                  <option value="<%= g %>" <%= employee.grade === g ? 'selected' : '' %>><%= g %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label>
+              <span><%= t('common.department') %></span>
+              <select name="department_id">
+                <option value="">— <%= t('common.none') %> —</option>
+                <% departments.forEach((d) => { %>
+                  <option value="<%= d.id %>" <%= employee.department_id === d.id ? 'selected' : '' %>><%= d.name %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label>
+              <span><%= t('common.team') %></span>
+              <select name="team_id">
+                <option value="">— <%= t('common.none') %> —</option>
+                <% teams.forEach((tm) => { %>
+                  <option value="<%= tm.id %>" <%= employee.team_id === tm.id ? 'selected' : '' %>><%= tm.name %><%= tm.department_name ? ' · ' + tm.department_name : '' %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label>
+              <span><%= t('admin.contractType') %></span>
+              <select name="contract_type" required>
+                <% contractTypes.forEach((c) => { %>
+                  <option value="<%= c %>" <%= employee.contract_type === c ? 'selected' : '' %>><%= c %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label>
+              <span><%= t('admin.contractEnd') %></span>
+              <input type="date" name="contract_end_date" value="<%= employee.contract_end_date || '' %>" />
+            </label>
+            <label class="span-2">
+              <span><%= t('emp.dailyRate') %></span>
+              <input type="number" name="daily_rate" min="0" step="0.01" value="<%= employee.daily_rate ?? '' %>" placeholder="Ex : 450" />
+            </label>
+            <%# Les champs que l'entreprise a ajoutés à cette fiche. Ils vivent
+                dans le même formulaire que le reste : un second formulaire
+                obligerait à enregistrer deux fois, et l'on en oublierait un. %>
+            <div class="span-2">
+              <%- include('partials/champs-perso', { champs: champsPerso }) %>
+            </div>
+            <div class="span-2 form-actions">
+              <button type="submit" class="btn btn-primary"><%= t('common.save') %></button>
+              <a href="/admin#personnel" class="btn btn-quiet"><%= t('common.cancel') %></a>
+              <% if (employee.contract_type === 'Freelance') { %>
+                <a href="/rh/temps/<%= employee.id %>" class="btn"><%= t('emp.viewTimesheet') %></a>
+              <% } %>
+            </div>
+          </form>
+          <p class="hint">
+            <%= t('emp.contractNote') %>
+          </p>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3><%= t('emp.mailbox') %></h3>
+              <p class="card-sub"><%= t('emp.mailboxAdminNote') %></p>
+            </div>
+          </div>
+          <form method="POST" action="/admin/employes/<%= employee.id %>/messagerie" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label class="span-2">
+              <span><%= t('messages.mailbox') %></span>
+              <input type="email" name="mail_address" value="<%= employee.mail_address %>" placeholder="prenom.nom@entreprise.com" />
+            </label>
+            <label>
+              <span><%= t('emp.imapServer') %></span>
+              <input type="text" name="mail_imap_host" value="<%= employee.mail_imap_host %>" placeholder="imap.entreprise.com" />
+            </label>
+            <label>
+              <span><%= t('emp.imapPort') %></span>
+              <input type="number" name="mail_imap_port" min="1" max="65535" value="<%= employee.mail_imap_port ?? '' %>" placeholder="993" />
+            </label>
+            <label>
+              <span><%= t('emp.smtpServer') %></span>
+              <input type="text" name="mail_smtp_host" value="<%= employee.mail_smtp_host %>" placeholder="smtp.entreprise.com" />
+            </label>
+            <label>
+              <span><%= t('emp.smtpPort') %></span>
+              <input type="number" name="mail_smtp_port" min="1" max="65535" value="<%= employee.mail_smtp_port ?? '' %>" placeholder="587" />
+            </label>
+            <label>
+              <span><%= t('emp.mailPassword') %></span>
+              <input type="password" name="mail_password" value="" autocomplete="new-password"
+                     placeholder="<%= mailbox.password || t('emp.mailPasswordEmpty') %>" />
+            </label>
+            <label class="check">
+              <input type="checkbox" name="mail_imap_secure" value="1" <%= mailbox.secure ? 'checked' : '' %> />
+              <span><%= t('emp.mailSecure') %></span>
+            </label>
+            <label class="check span-2">
+              <input type="checkbox" name="mail_sync_enabled" value="1" <%= mailbox.enabled ? 'checked' : '' %> />
+              <span><%= t('emp.mailSync') %></span>
+            </label>
+            <div class="span-2 form-actions">
+              <button type="submit" class="btn btn-primary"><%= t('emp.saveMailbox') %></button>
+            </div>
+          </form>
+
+          <div class="sync-state">
+            <p>
+              <strong><%= t('emp.mailLastSync') %> :</strong>
+              <% if (mailbox.syncedAt) { %>
+                <%= new Date(mailbox.syncedAt).toLocaleString(locale) %>
+              <% } else { %>
+                <%= t('emp.mailNeverSynced') %>
+              <% } %>
+              <% if (!mailbox.enabled) { %>
+                · <span class="tag"><%= t('emp.mailSyncOff') %></span>
+              <% } %>
+            </p>
+            <% if (mailbox.report) { %>
+              <p class="hint"><%= mailbox.report %></p>
+            <% } %>
+          </div>
+
+          <div class="form-actions">
+            <form method="POST" action="/admin/employes/<%= employee.id %>/messagerie/essai">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn"><%= t('emp.mailTest') %></button>
+            </form>
+            <form method="POST" action="/admin/employes/<%= employee.id %>/messagerie/relever">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn"><%= t('emp.mailFetchNow') %></button>
+            </form>
+          </div>
+
+          <p class="hint">
+            <%= t('emp.mailboxReadOnly') %>
+          </p>
+          <p class="hint">
+            <%= t('emp.mailPrivacyNote') %>
+          </p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

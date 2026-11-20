@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Parcours et compétences — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.careerPaths'),
+        headerSubtitle: t('par.headerSub'),
+        onglets: [
+          { tab: 'parcours', label: t('par.tabArrivals'), icon: 'users' },
+          { tab: 'modeles', label: t('par.tabTemplates'), icon: 'settings' },
+          { tab: 'competences', label: t('par.tabSkills'), icon: 'check' },
+          { tab: 'echeances', label: t('sst.deadlines'), icon: 'clock', badge: expiring.length + missing.length }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const fullName = (r) => [r.first_name, r.last_name].filter(Boolean).join(' '); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= checklistList.filter((c) => !c.completed_at).length %></span><span class="stat-label"><%= t('par.ongoing') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= late.length %></span><span class="stat-label"><%= t('par.latePoints') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= expiring.length %></span><span class="stat-label"><%= t('par.toRenew') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= missing.length %></span><span class="stat-label"><%= t('par.missingMandatory') %></span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Parcours ---------- -->
+        <section class="tab-panel is-active" id="parcours">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('par.start') %></h3></div>
+              <form method="POST" action="/parcours/listes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.template') %></span>
+                  <select name="template_id" required>
+                    <option value="">—</option>
+                    <% templateList.forEach((tpl) => { %>
+                      <option value="<%= tpl.id %>"><%= tpl.kind %> — <%= tpl.name %> (<%= tpl.items.length %> point(s))</option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('sst.personConcerned') %></span>
+                  <select name="user_id" required>
+                    <option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %> — <%= u.email %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('par.pivotDateLong') %></span>
+                  <input type="date" name="reference_date" value="<%= today %>" required />
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('par.launch') %></button></div>
+              </form>
+              <p class="hint"><%= t('par.offsetNote') %></p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('par.latePoints') %></h3></div>
+              <ul class="org-list">
+                <% late.slice(0, 12).forEach((item) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= item.label %></span>
+                      <br /><span class="cell-sub"><%= fullName(item) %> · <%= item.owner_role %> · <%= t('par.dueOn') %> <%= day(item.due_date) %></span>
+                    </span>
+                    <form method="POST" action="/parcours/listes/points/<%= item.id %>/basculer" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-outline btn-sm"><%= t('par.done') %></button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (late.length === 0) { %><li class="cell-sub"><%= t('par.nothingLate') %></li><% } %>
+              </ul>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('par.journeyCount', { count: checklistList.length }) %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.person') %></th><th><%= t('common.type') %></th><th><%= t('par.pivotDate') %></th><th><%= t('par.progress') %></th><th></th></tr></thead>
+                <tbody>
+                  <% checklistList.forEach((c) => { %>
+                    <tr>
+                      <td><a class="cell-strong" href="/parcours/listes/<%= c.id %>"><%= fullName(c) %></a><br /><span class="cell-sub"><%= c.template_name || '—' %></span></td>
+                      <td><span class="tag <%= c.kind === 'Départ' ? 'tag-danger' : 'tag-accent' %>"><%= c.kind %></span></td>
+                      <td class="cell-sub nowrap"><%= day(c.reference_date) %></td>
+                      <td>
+                        <span class="meter"><span class="meter-fill" data-ratio="<%= c.total ? Math.round(c.done * 100 / c.total) : 0 %>"></span></span>
+                        <span class="cell-sub"><%= c.done %>/<%= c.total %><%= c.completed_at ? ` — ${t('par.finished')}` : '' %></span>
+                      </td>
+                      <td>
+                        <form method="POST" action="/parcours/listes/<%= c.id %>/supprimer" class="inline-form" data-confirm="<%= t('par.confirmDeleteJourney') %>">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (checklistList.length === 0) { %><tr><td colspan="5" class="cell-sub"><%= t('par.noJourney') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Modèles ---------- -->
+        <section class="tab-panel" id="modeles">
+          <div class="card">
+            <div class="card-head"><h3><%= t('par.createTemplate') %></h3></div>
+            <form method="POST" action="/parcours/modeles" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="120" placeholder="<%= t('par.templatePlaceholder') %>" /></label>
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button></div>
+            </form>
+          </div>
+
+          <% templateList.forEach((tpl) => { %>
+            <div class="card">
+              <div class="card-head">
+                <h3><%= tpl.name %> <span class="tag"><%= tpl.kind %></span></h3>
+                <form method="POST" action="/parcours/modeles/<%= tpl.id %>/supprimer" class="inline-form" data-confirm="<%= t('par.confirmDeleteTemplate') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                </form>
+              </div>
+              <ul class="org-list">
+                <% tpl.items.forEach((item) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= item.label %></span>
+                      <br /><span class="cell-sub"><%= item.owner_role %> · J<%= item.offset_days >= 0 ? '+' + item.offset_days : item.offset_days %></span>
+                    </span>
+                    <form method="POST" action="/parcours/modeles/points/<%= item.id %>/supprimer" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (tpl.items.length === 0) { %><li class="cell-sub"><%= t('par.noItem') %></li><% } %>
+              </ul>
+
+              <form method="POST" action="/parcours/modeles/<%= tpl.id %>/points" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('par.itemToDo') %></span><input type="text" name="label" required maxlength="200" placeholder="<%= t('par.itemPlaceholder') %>" /></label>
+                <label><span><%= t('common.owner') %></span>
+                  <select name="owner_role"><% ownerRoles.forEach((r) => { %><option value="<%= r %>"><%= r %></option><% }) %></select>
+                </label>
+                <label><span><%= t('par.offsetLabel') %></span><input type="number" name="offset_days" value="0" min="-365" max="365" required /></label>
+                <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('par.addItem') %></button></div>
+              </form>
+            </div>
+          <% }) %>
+          <% if (templateList.length === 0) { %>
+            <div class="card"><p class="cell-sub"><%= t('par.noTemplate') %></p></div>
+          <% } %>
+        </section>
+
+        <!-- ---------- Compétences ---------- -->
+        <section class="tab-panel" id="competences">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('par.declareSkill') %></h3></div>
+              <form method="POST" action="/parcours/competences" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="name" required maxlength="120" placeholder="<%= t('par.skillPlaceholder') %>" /></label>
+                <label><span><%= t('common.category') %></span><input type="text" name="category" value="Générale" maxlength="60" /></label>
+                <label><span><%= t('sst.validityMonths') %></span><input type="number" name="validity_months" min="1" max="600" placeholder="36" /></label>
+                <label class="check-row span-2">
+                  <input type="checkbox" name="mandatory" value="1" />
+                  <span><%= t('par.mandatoryForAll') %></span>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.add') %></button></div>
+              </form>
+              <p class="hint"><%= t('par.noValidityNote') %></p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('par.assign') %></h3></div>
+              <form method="POST" action="/parcours/competences/attribuer" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.person') %></span>
+                  <select name="user_id" required><option value="">—</option>
+                    <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= fullName(u) %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('par.skill') %></span>
+                  <select name="skill_id" required><option value="">—</option>
+                    <% skillList.forEach((s) => { %><option value="<%= s.id %>"><%= s.name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span><%= t('par.level') %></span>
+                  <select name="level"><% levels.forEach((l) => { %><option value="<%= l %>" <%= l === 2 ? 'selected' : '' %>><%= l %></option><% }) %></select>
+                </label>
+                <label><span><%= t('par.obtainedOn') %></span><input type="date" name="obtained_on" value="<%= today %>" /></label>
+                <label class="span-2"><span><%= t('par.certificateRef') %></span><input type="text" name="reference" maxlength="120" /></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('par.assign') %></button></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('par.matrix') %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th><%= t('common.person') %></th>
+                    <% skillList.forEach((s) => { %><th class="matrix-head"><%= s.name %></th><% }) %>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% matrix.forEach((person) => { %>
+                    <tr>
+                      <td class="cell-strong nowrap"><%= fullName(person) %></td>
+                      <% skillList.forEach((s) => { %>
+                        <% const held = person.held[s.id]; %>
+                        <td class="matrix-cell">
+                          <% if (!held) { %>
+                            <span class="cell-sub">—</span>
+                          <% } else { %>
+                            <span class="tag <%= held.expires_on && held.expires_on < today ? 'tag-danger' : 'tag-success' %>">
+                              N<%= held.level %><%= held.expires_on ? ' · ' + day(held.expires_on) : '' %>
+                            </span>
+                            <form method="POST" action="/parcours/competences/<%= s.id %>/retirer/<%= person.id %>" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn-link"><%= t('par.remove') %></button>
+                            </form>
+                          <% } %>
+                        </td>
+                      <% }) %>
+                    </tr>
+                  <% }) %>
+                  <% if (matrix.length === 0 || skillList.length === 0) { %>
+                    <tr><td colspan="<%= skillList.length + 1 %>" class="cell-sub"><%= t('par.declareSkillsFirst') %></td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('par.declaredSkills') %></h3></div>
+            <ul class="org-list">
+              <% skillList.forEach((s) => { %>
+                <li class="org-item">
+                  <span>
+                    <span class="cell-strong"><%= s.name %></span>
+                    <% if (s.mandatory) { %><span class="tag tag-danger"><%= t('par.mandatoryTag') %></span><% } %>
+                    <br /><span class="cell-sub"><%= s.category %> · <%= s.validity_months ? t('par.validMonths', { count: s.validity_months }) : t('par.noExpiry') %> · <%= t('par.holderCount', { count: s.holders }) %></span>
+                  </span>
+                  <form method="POST" action="/parcours/competences/<%= s.id %>/supprimer" class="inline-form" data-confirm="<%= t('par.confirmDeleteSkill') %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                  </form>
+                </li>
+              <% }) %>
+              <% if (skillList.length === 0) { %><li class="cell-sub"><%= t('par.noSkill') %></li><% } %>
+            </ul>
+          </div>
+        </section>
+
+        <!-- ---------- Échéances ---------- -->
+        <section class="tab-panel" id="echeances">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('par.expiringTitle') %></h3></div>
+              <ul class="org-list">
+                <% expiring.forEach((e) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= fullName(e) %></span>
+                      <br /><span class="cell-sub"><%= e.name %> — <%= e.expires_on < today ? t('par.expiredOn') : t('par.expiresOn') %> <%= day(e.expires_on) %></span>
+                    </span>
+                    <span class="tag <%= e.expires_on < today ? 'tag-danger' : '' %>"><%= e.expires_on < today ? t('par.expiredTag') : t('par.toRenewTag') %></span>
+                  </li>
+                <% }) %>
+                <% if (expiring.length === 0) { %><li class="cell-sub"><%= t('par.nothingToRenew') %></li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('par.missingMandatory') %></h3></div>
+              <p class="hint"><%= t('par.missingNote') %></p>
+              <ul class="org-list">
+                <% missing.forEach((m) => { %>
+                  <li class="org-item">
+                    <span class="cell-strong"><%= fullName(m) %></span>
+                    <span class="cell-sub"><%= m.name %><%= m.expires_on ? ` ${t('par.expiredParen', { date: day(m.expires_on) })}` : '' %></span>
+                  </li>
+                <% }) %>
+                <% if (missing.length === 0) { %><li class="cell-sub"><%= t('par.everyoneUpToDate') %></li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/meter.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

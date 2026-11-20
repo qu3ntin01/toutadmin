@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Pièces reçues — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.intake'),
+        headerSubtitle: t('pcs.headerSub'),
+        onglets: [
+          { tab: 'a-traiter', label: t('status.toProcess'), icon: 'inbox', badge: stats.waiting },
+          { tab: 'traitees', label: t('pcs.tabHandled'), icon: 'check' },
+          { tab: 'capture', label: t('pcs.tabMailbox'), icon: 'external' },
+          { tab: 'analyse', label: t('pcs.tabAssisted'), icon: 'network' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const moment = (iso) => (iso ? new Date(String(iso).replace(' ', 'T') + (String(iso).includes('Z') ? '' : 'Z')).toLocaleString(locale) : '—'); %>
+        <% const money = (n, code) => (n === null || n === undefined ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ' + (code || '')); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.waiting %></span><span class="stat-label"><%= t('pcs.toHandle') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.lowConfidence %></span><span class="stat-label"><%= t('pcs.unsureReads') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.unreadable %></span><span class="stat-label"><%= t('pcs.noReadableText') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.invoiced %></span><span class="stat-label"><%= t('pcs.becameInvoices') %></span></span>
+          </div>
+        </section>
+
+        <% const pieceList = (rows, empty) => { %>
+          <% if (!rows.length) { %>
+            <p class="empty-state"><%= empty %></p>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('pcs.received') %></th><th><%= t('pcs.piece') %></th><th><%= t('common.issuer') %></th><th class="num"><%= t('erp.amount') %></th><th><%= t('pcs.reading') %></th><th><%= t('common.state') %></th></tr></thead>
+                <tbody>
+                  <% rows.forEach((d) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap">
+                        <%= day(d.received_at) %><br />
+                        <span class="cell-sub"><%= d.source %></span>
+                      </td>
+                      <td>
+                        <div class="cell-strong"><a href="/pieces/<%= d.id %>"><%= d.fields.reference || d.original_name || t('pcs.pieceNumber', { id: d.id }) %></a></div>
+                        <div class="cell-sub"><%= d.original_name %></div>
+                        <% if (d.mail_from) { %><div class="cell-sub"><%= t('pcs.from') %> <%= d.mail_from %></div><% } %>
+                      </td>
+                      <td class="cell-sub">
+                        <%= d.partner_name || d.fields.supplierName || '—' %>
+                        <% if (d.partner_name) { %><br /><span class="tag tag-success"><%= t('pcs.knownPartner') %></span><% } %>
+                      </td>
+                      <td class="num"><%= money(d.fields.amountTtc, d.fields.currency) %></td>
+                      <td>
+                        <span class="meter"><span class="meter-fill <%= d.confidence < 40 ? 'is-over' : (d.confidence < 70 ? 'is-warn' : '') %>" data-ratio="<%= d.confidence %>"></span></span>
+                        <span class="cell-sub"><%= d.confidence %> %<%= d.text_length ? '' : ' · sans texte' %></span>
+                      </td>
+                      <td>
+                        <span class="tag <%= d.status === 'Facturée' ? 'tag-success' : (d.status === 'Écartée' ? 'tag-danger' : 'tag-warning') %>"><%= st(d.status) %></span>
+                        <% if (d.invoice_reference) { %><br /><span class="cell-sub mono"><%= d.invoice_reference %></span><% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        <% }; %>
+
+        <!-- ---------- À traiter ---------- -->
+        <section class="tab-panel is-active" id="a-traiter">
+          <div class="card">
+            <div class="card-head"><h3><%= t('pcs.uploadInvoice') %></h3></div>
+            <form method="POST" action="/pieces/deposer" enctype="multipart/form-data" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('pcs.fileLabel', { max: Math.round(maxBytes / 1048576) }) %></span>
+                <input type="file" name="document" accept=".pdf,.docx,.txt,application/pdf,text/plain" required />
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('pcs.uploadAndAnalyse') %></button></div>
+            </form>
+            <p class="hint">
+              <%= t('pcs.uploadNote') %>
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('pcs.toHandleCount', { count: waiting.length }) %></h3></div>
+            <% pieceList(waiting, t('pcs.nothingWaiting')) %>
+          </div>
+        </section>
+
+        <!-- ---------- Traitées ---------- -->
+        <section class="tab-panel" id="traitees">
+          <div class="card">
+            <div class="card-head"><h3><%= t('pcs.handledTitle') %></h3></div>
+            <% pieceList(handled, t('pcs.noHandled')) %>
+          </div>
+        </section>
+
+        <!-- ---------- Capture ---------- -->
+        <section class="tab-panel" id="capture">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('pcs.fetchMailbox') %></h3>
+              <span class="tag <%= mail.enabled ? 'tag-success' : '' %>"><%= mail.enabled ? t('pcs.mailActive') : t('pcs.mailInactive') %></span>
+            </div>
+            <% if (mailStatus) { %>
+              <div class="flash flash-<%= mailStatus.ok ? 'success' : 'error' %>">
+                <%= t('pcs.lastFetch') %> <%= moment(mailStatus.at) %> : <%= mailStatus.message %>
+              </div>
+            <% } %>
+
+            <% if (admin) { %>
+              <form method="POST" action="/pieces/capture/reglages" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span><%= t('pcs.imapServer') %></span><input type="text" name="host" maxlength="200" value="<%= mail.host %>" placeholder="imap.exemple.fr" required /></label>
+                <label><span><%= t('pcs.port') %></span><input type="number" name="port" min="1" max="65535" value="<%= mail.port %>" required /></label>
+                <label><span><%= t('common.identifier') %></span><input type="text" name="user" maxlength="200" value="<%= mail.user %>" placeholder="factures@exemple.fr" required /></label>
+                <label><span><%= t('auth.password') %></span><input type="password" name="password" placeholder="<%= mail.password || '' %>" autocomplete="new-password" /></label>
+                <label><span><%= t('pcs.folderFetched') %></span><input type="text" name="folder" maxlength="120" value="<%= mail.folder %>" /></label>
+                <label><span><%= t('pcs.afterHandling') %></span>
+                  <select name="action">
+                    <% mailActions.forEach((a) => { %><option value="<%= a.key %>" <%= a.key === mail.action ? 'selected' : '' %>><%= a.label %></option><% }) %>
+                  </select>
+                </label>
+                <label><span><%= t('pcs.filingFolder') %></span><input type="text" name="move_folder" maxlength="120" value="<%= mail.moveFolder %>" /></label>
+                <label><span><%= t('pcs.fetchWindowDays') %></span><input type="number" name="since_days" min="1" max="365" value="<%= mail.sinceDays %>" /></label>
+                <label><span><%= t('pcs.messagesPerFetch') %></span><input type="number" name="batch" min="1" max="100" value="<%= mail.batch %>" /></label>
+                <label class="check-row"><input type="checkbox" name="secure" value="1" <%= mail.secure ? 'checked' : '' %> /><span><%= t('pcs.imaps') %></span></label>
+                <label class="check-row"><input type="checkbox" name="allow_self_signed" value="1" <%= mail.allowSelfSigned ? 'checked' : '' %> /><span><%= t('pcs.selfSigned') %></span></label>
+                <label class="check-row"><input type="checkbox" name="enabled" value="1" <%= mail.enabled ? 'checked' : '' %> /><span><%= t('pcs.autoFetch') %></span></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+              </form>
+            <% } else { %>
+              <p class="hint"><%= t('pcs.mailAdminNote') %></p>
+            <% } %>
+
+            <div class="row-actions">
+              <% if (mailReady) { %>
+                <form method="POST" action="/pieces/capture/tester" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('pcs.testConnection') %></button>
+                </form>
+                <form method="POST" action="/pieces/capture/relever" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('pcs.fetchNow') %></button>
+                </form>
+              <% } %>
+            </div>
+
+            <p class="hint">
+              <%- t('pcs.mailScopeNote', { unread: `<strong>${t('messages.unread')}</strong>` }) %>
+            </p>
+            <p class="hint">
+              <%= t('pcs.passwordNote') %>
+            </p>
+          </div>
+        </section>
+
+        <!-- ---------- Analyse assistée ---------- -->
+        <%# Le réglage vit désormais dans « Interfaces » : il sert quatre espaces,
+            et décider de ce qui sort de l'entreprise n'est pas un geste comptable.
+            Cet onglet garde l'état sous les yeux de qui traite les pièces, et rien
+            de plus — la porte se règle là où sont les autres portes. %>
+        <section class="tab-panel" id="analyse">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('pcs.aiTitle') %></h3>
+              <span class="tag <%= aiConfig.enabled ? 'tag-success' : '' %>"><%= aiConfig.enabled ? t('ia.set.on') : t('ia.set.off') %></span>
+            </div>
+
+            <p class="cell-sub"><%= t('pcs.aiNote') %></p>
+
+            <% if (aiStatus) { %>
+              <div class="flash flash-<%= aiStatus.ok ? 'success' : 'error' %>">
+                <%= t('bak.lastAttempt') %> <%= moment(aiStatus.at) %> : <%= aiStatus.message %>
+              </div>
+            <% } %>
+
+            <p class="hint"><%= t('pcs.modelDecidesNothing') %></p>
+
+            <% if (admin) { %>
+              <div class="row-actions">
+                <a class="btn btn-outline btn-sm" href="/integrations#assistance"><%= t('ia.set.goSettings') %></a>
+              </div>
+              <p class="hint"><%= t('ia.set.movedHere') %></p>
+            <% } else { %>
+              <p class="hint"><%= t('pcs.settingAdminOnly') %></p>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/meter.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

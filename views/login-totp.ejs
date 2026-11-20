@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Vérification — ' + t('app.name') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark"><%= brandInitials %></span>
+      <span class="brand-text">
+        <span class="brand-name"><%= companyName %></span>
+        <span class="brand-panel"><%= t('app.portal') %></span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1><%= t('tot.title') %></h1>
+      <p class="auth-sub"><%= t('tot.enterCode') %></p>
+
+      <% if (flash) { %>
+        <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <% if (typeof webauthnOptions !== 'undefined' && webauthnOptions) { %>
+        <script type="application/json" id="webauthn-connexion"><%- JSON.stringify(webauthnOptions).replace(/</g, '\\u003c') %></script>
+        <form method="POST" action="/connexion/cle" class="auth-form" data-webauthn="get" data-webauthn-options="webauthn-connexion">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <input type="hidden" name="credential_id" />
+          <input type="hidden" name="client_data" />
+          <input type="hidden" name="authenticator_data" />
+          <input type="hidden" name="signature" />
+          <p class="flash flash-error" data-webauthn-error hidden><%= t('wan.unsupported') %></p>
+          <button type="submit" class="btn btn-primary btn-block"><%= t('wan.useKey') %></button>
+        </form>
+      <% } %>
+
+      <% if (typeof totpActif === 'undefined' || totpActif) { %>
+        <form method="POST" action="/connexion/code" class="auth-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <label>
+            <span><%= t('prf.sixDigitCode') %></span>
+            <input type="text" name="code" inputmode="numeric" autocomplete="one-time-code"
+                   pattern="[0-9A-Za-z-]{6,11}" maxlength="11" required autofocus />
+          </label>
+          <button type="submit" class="btn btn-primary btn-block"><%= t('tot.validate') %></button>
+        </form>
+      <% } %>
+
+      <p class="auth-note">
+        <%= t('tot.lostPhone') %>
+      </p>
+
+      <div class="auth-foot">
+        <a href="/connexion"><%= t('va.backToLogin') %></a>
+      </div>
+    </div>
+  </main>
+  <script src="<%= asset('/js/webauthn.js') %>"></script>
+</body>
+</html>

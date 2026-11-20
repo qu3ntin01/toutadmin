@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Erreur — ' + t('app.name') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark"><%= brandInitials %></span>
+      <span class="brand-text">
+        <span class="brand-name"><%= companyName %></span>
+        <span class="brand-panel"><%= t('app.portal') %></span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="error-page">
+    <h1><%= t('err.notAccessible') %></h1>
+    <p class="muted"><%= message %></p>
+    <a href="/" class="btn btn-primary"><%= t('err.backHome') %></a>
+  </main>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

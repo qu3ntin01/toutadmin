@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t('nav.logs') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.logs'),
+        headerSubtitle: t('log.headerSub'),
+        onglets: [
+          { tab: 'journal', label: t('log.tabJournal'), icon: 'ballot' },
+          { tab: 'cibles', label: t('log.tabTargets'), icon: 'link', badge: summary.failing || 0 },
+          { tab: 'conservation', label: t('log.tabRetention'), icon: 'clock' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <%
+          const when = (v) => (v ? new Date(String(v).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—');
+          const levelLabel = (key) => t('log.level.' + key);
+          const channelLabel = (key) => t('log.channel.' + key);
+          const query = (extra = {}) => {
+            const base = {
+              niveau: filters.maxLevel === '' ? '' : filters.maxLevel,
+              canal: filters.channel, evenement: filters.event,
+              recherche: filters.search, du: filters.from, au: filters.to, ...extra,
+            };
+            return Object.entries(base).filter(([, v]) => v !== '' && v != null)
+              .map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+          };
+        %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.total %></span><span class="stat-label"><%= t('log.total') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.window %></span><span class="stat-label"><%= t('log.window', { days: stats.days }) %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.serious %></span><span class="stat-label"><%= t('log.serious') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'link', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.enabled %>/<%= summary.targets %></span><span class="stat-label"><%= t('log.targetsOn') %></span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Le journal ---------- -->
+        <section class="tab-panel is-active" id="journal">
+          <div class="card">
+            <div class="card-head"><h3><%= t('log.tabJournal') %></h3></div>
+            <form method="GET" action="/journaux" class="form-grid">
+              <label>
+                <span><%= t('log.minLevel') %></span>
+                <select name="niveau">
+                  <option value=""><%= t('log.allLevels') %></option>
+                  <% levels.forEach((l) => { %>
+                    <option value="<%= l.value %>" <%= String(filters.maxLevel) === String(l.value) ? 'selected' : '' %>><%= levelLabel(l.key) %></option>
+                  <% }) %>
+                </select>
+              </label>
+              <label>
+                <span><%= t('log.channel') %></span>
+                <select name="canal">
+                  <option value=""><%= t('log.allChannels') %></option>
+                  <% channels.forEach((c) => { %>
+                    <option value="<%= c %>" <%= filters.channel === c ? 'selected' : '' %>><%= channelLabel(c) %></option>
+                  <% }) %>
+                </select>
+              </label>
+              <label>
+                <span><%= t('log.event') %></span>
+                <input type="text" name="evenement" list="evenements-connus" value="<%= filters.event %>" placeholder="connexion." />
+                <datalist id="evenements-connus">
+                  <% knownEvents.forEach((e) => { %><option value="<%= e %>"></option><% }) %>
+                </datalist>
+              </label>
+              <label>
+                <span><%= t('log.search') %></span>
+                <input type="search" name="recherche" value="<%= filters.search %>" placeholder="<%= t('log.searchHint') %>" />
+              </label>
+              <label>
+                <span><%= t('leave.from') %></span>
+                <input type="date" name="du" value="<%= filters.from %>" />
+              </label>
+              <label>
+                <span><%= t('leave.to') %></span>
+                <input type="date" name="au" value="<%= filters.to %>" />
+              </label>
+              <div class="span-2 row-actions">
+                <button type="submit" class="btn btn-primary btn-sm"><%= t('common.filter') %></button>
+                <a class="btn btn-outline btn-sm" href="/journaux"><%= t('common.viewAll') %></a>
+                <a class="btn btn-outline btn-sm" href="/journaux/journal.csv?<%= query() %>"><%= t('sec.exportCsv') %></a>
+              </div>
+            </form>
+          </div>
+
+          <% if (stats.byLevel.length) { %>
+            <div class="card">
+              <div class="card-head"><h3><%= t('log.spread', { days: stats.days }) %></h3></div>
+              <div class="chips">
+                <% stats.byLevel.forEach((band) => { %>
+                  <a class="chip chip-<%= band.key %>" href="/journaux?niveau=<%= band.level %>">
+                    <%= levelLabel(band.key) %> · <%= band.n %>
+                  </a>
+                <% }) %>
+              </div>
+              <div class="chips">
+                <% stats.byChannel.forEach((band) => { %>
+                  <a class="chip" href="/journaux?canal=<%= band.channel %>"><%= channelLabel(band.channel) %> · <%= band.n %></a>
+                <% }) %>
+              </div>
+            </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('log.entriesPage', { count: journal.total, page: journal.page, pages: journal.pages }) %></h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th><%= t('common.date') %></th>
+                    <th><%= t('log.level') %></th>
+                    <th><%= t('log.channel') %></th>
+                    <th><%= t('log.event') %></th>
+                    <th><%= t('log.message') %></th>
+                    <th><%= t('sec.author') %></th>
+                    <th>IP</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% journal.rows.forEach((row) => { %>
+                    <tr class="<%= opened && opened.id === row.id ? 'is-open' : '' %>">
+                      <td class="cell-sub nowrap"><%= when(row.occurred_at) %></td>
+                      <td><span class="tag tag-<%= row.levelKey %>"><%= levelLabel(row.levelKey) %></span></td>
+                      <td class="cell-sub"><%= channelLabel(row.channel) %></td>
+                      <td><code class="audit-action"><%= row.event || '—' %></code></td>
+                      <td>
+                        <a href="/journaux?<%= query({ ligne: row.id }) %>#ligne"><%= row.message || '—' %></a>
+                      </td>
+                      <td class="cell-sub"><%= row.actor_label %></td>
+                      <td class="cell-sub"><%= row.ip || '—' %></td>
+                    </tr>
+                  <% }) %>
+                  <% if (journal.rows.length === 0) { %>
+                    <tr><td colspan="7" class="cell-sub"><%= t('log.noEntry') %></td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+            <% if (journal.pages > 1) { %>
+              <div class="row-actions">
+                <% if (journal.page > 1) { %>
+                  <a class="btn btn-outline btn-sm" href="/journaux?<%= query({ page: journal.page - 1 }) %>"><%= t('sec.previous') %></a>
+                <% } %>
+                <% if (journal.page < journal.pages) { %>
+                  <a class="btn btn-outline btn-sm" href="/journaux?<%= query({ page: journal.page + 1 }) %>"><%= t('sec.next') %></a>
+                <% } %>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (opened) { %>
+            <div class="card" id="ligne">
+              <div class="card-head">
+                <h3><%= opened.event || t('log.entry') %></h3>
+                <span class="tag tag-<%= opened.levelKey %>"><%= levelLabel(opened.levelKey) %></span>
+              </div>
+              <dl class="detail-list">
+                <div><dt><%= t('common.date') %></dt><dd><%= when(opened.occurred_at) %></dd></div>
+                <div><dt><%= t('log.channel') %></dt><dd><%= channelLabel(opened.channel) %></dd></div>
+                <div><dt><%= t('log.message') %></dt><dd><%= opened.message || '—' %></dd></div>
+                <div><dt><%= t('sec.author') %></dt><dd><%= opened.actor_label %></dd></div>
+                <div><dt>IP</dt><dd><%= opened.ip || '—' %></dd></div>
+                <div><dt><%= t('log.entryNumber') %></dt><dd>#<%= opened.id %></dd></div>
+              </dl>
+              <% if (opened.context) { %>
+                <pre class="code-block"><%= JSON.stringify(opened.parsedContext, null, 2) %></pre>
+              <% } %>
+            </div>
+          <% } %>
+        </section>
+
+        <!-- ---------- Les cibles d'export ---------- -->
+        <section class="tab-panel" id="cibles">
+          <div class="card">
+            <div class="card-head"><h3><%= t('log.exportTitle') %></h3></div>
+            <p class="hint"><%= t('log.exportLede') %></p>
+            <p class="hint"><%= t('log.wazuhHint') %></p>
+            <% if (summary.pending) { %>
+              <p class="hint"><%= t('log.pendingLines', { count: summary.pending }) %></p>
+            <% } %>
+          </div>
+
+          <% targets.forEach((target) => { %>
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= target.label %></h3>
+                  <p class="card-sub">
+                    <%= t('log.kind.' + target.kind) %> ·
+                    <%= target.transport === 'fichier' ? target.path : target.host + ':' + target.port %> ·
+                    <%= t('log.transport.' + target.transport) %> · <%= t('log.format.' + target.format) %>
+                  </p>
+                </div>
+                <span class="tag <%= target.enabled ? 'tag-on' : 'tag-off' %>">
+                  <%= target.enabled ? t('log.on') : t('log.off') %>
+                </span>
+              </div>
+
+              <dl class="detail-list">
+                <div><dt><%= t('log.status') %></dt><dd><%= st(target.status) || '—' %></dd></div>
+                <div><dt><%= t('log.sent') %></dt><dd><%= target.sent %></dd></div>
+                <div><dt><%= t('log.failures') %></dt><dd><%= target.failures %></dd></div>
+                <div><dt><%= t('log.cursor') %></dt><dd>#<%= target.cursor %></dd></div>
+                <div><dt><%= t('log.lastAt') %></dt><dd><%= when(target.last_at) %></dd></div>
+                <div><dt><%= t('log.minLevel') %></dt><dd><%= levelLabel(levels[target.min_level].key) %></dd></div>
+              </dl>
+
+              <div class="row-actions">
+                <form method="POST" action="/journaux/cibles/<%= target.id %>/essai">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm"><%= t('log.test') %></button>
+                </form>
+                <form method="POST" action="/journaux/cibles/<%= target.id %>/envoyer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm"><%= t('log.sendNow') %></button>
+                </form>
+                <form method="POST" action="/journaux/cibles/<%= target.id %>/etat">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <input type="hidden" name="enabled" value="<%= target.enabled ? '0' : '1' %>" />
+                  <button type="submit" class="btn btn-sm"><%= target.enabled ? t('log.turnOff') : t('log.turnOn') %></button>
+                </form>
+                <form method="POST" action="/journaux/cibles/<%= target.id %>/rattraper" data-confirm="<%= t('log.skipConfirm') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm"><%= t('log.skipBacklog') %></button>
+                </form>
+                <form method="POST" action="/journaux/cibles/<%= target.id %>/supprimer" data-confirm="<%= t('log.deleteConfirm') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                </form>
+              </div>
+
+              <details>
+                <summary><%= t('log.editTarget') %></summary>
+                <%- include('partials/log-target-form', { target, action: '/journaux/cibles/' + target.id, levels, channels, transports, formats, kinds }) %>
+              </details>
+            </div>
+          <% }) %>
+
+          <% if (targets.length === 0) { %>
+            <div class="card"><div class="empty-state"><%= t('log.noTarget') %></div></div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('log.addTarget') %></h3></div>
+            <%- include('partials/log-target-form', { target: null, action: '/journaux/cibles', levels, channels, transports, formats, kinds }) %>
+          </div>
+        </section>
+
+        <!-- ---------- Conservation ---------- -->
+        <section class="tab-panel" id="conservation">
+          <div class="card">
+            <div class="card-head"><h3><%= t('log.tabRetention') %></h3></div>
+            <p class="hint"><%= t('log.retentionBody') %></p>
+            <dl class="detail-list">
+              <div><dt><%= t('log.level.debogage') %></dt><dd><%= t('log.days', { count: retention.debug }) %></dd></div>
+              <div><dt><%= t('log.level.information') %></dt><dd><%= t('log.days', { count: retention.info }) %></dd></div>
+              <div><dt><%= t('log.level.avertissement') %></dt><dd><%= t('log.days', { count: retention.warning }) %></dd></div>
+              <div><dt><%= t('log.level.erreur') %></dt><dd><%= t('log.days', { count: retention.critical }) %></dd></div>
+              <div><dt><%= t('log.oldest') %></dt><dd><%= when(stats.oldest) %></dd></div>
+            </dl>
+            <p class="hint"><%= t('log.purgeHint') %></p>
+            <div class="row-actions">
+              <form method="POST" action="/journaux/purger">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-sm"><%= t('log.purge') %></button>
+              </form>
+              <form method="POST" action="/journaux/vider" data-confirm="<%= t('log.clearConfirm') %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-sm btn-danger"><%= t('log.clear') %></button>
+              </form>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="<%= asset('/js/admin.js') %>" defer></script>
+  <script src="<%= asset('/js/confirm.js') %>" defer></script>
+</body>
+</html>

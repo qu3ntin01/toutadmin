@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('../partials/head', { title: t('store.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('../partials/sidebar', {
+      panelLabel: t('store.title'),
+      navItems: rayons.map((r) => ({ tab: 'rayon-' + r.cle, label: r.titre, icon: 'grid' })),
+      footLinks: [
+        { href: '/mises-a-jour', label: t('nav.updates'), icon: 'download' },
+        { href: '/admin', label: t('nav.adminConsole'), icon: 'back' }
+      ]
+    }) %>
+
+    <%# Allumer une application ouvre une fenêtre : elle remontre la réserve
+        de la fiche juste avant, parce que c'est la partie qu'on est tenté de
+        ne pas lire. Les formulaires restent dessous. %>
+    <div class="app-main" id="applications" data-csrf="<%= csrfToken %>">
+      <%- include('../partials/app-header', {
+        headerTitle: t('store.title'),
+        headerSubtitle: t('store.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% if (!ok) { %>
+          <%#
+            L'éditeur n'a pas répondu. La raison est nommée : « pas réglé » se
+            corrige dans les réglages, « clé refusée » chez l'éditeur,
+            « injoignable » se réessaie. Les trois rendues comme une seule
+            panne laisseraient l'administrateur sans rien à faire.
+          %>
+          <div class="flash flash-error"><%= t('store.error.' + reason) %></div>
+          <p>
+            <a class="btn btn-sm" href="/applications?actualiser=1"><%= t('store.refresh') %></a>
+            <a class="btn btn-sm btn-outline" href="/mises-a-jour"><%= t('store.goSettings') %></a>
+          </p>
+        <% } else { %>
+
+          <div class="stats-grid">
+            <% [
+              ['total', compte.total],
+              ['ouvertes', compte.ouvertes],
+              ['allumees', compte.allumees],
+              ['eteintes', compte.eteintes],
+              ['aAcheter', compte.aAcheter],
+              ['annoncees', compte.annoncees]
+            ].forEach(([cle, valeur]) => { %>
+              <div class="stat-card">
+                <span class="stat-value"><%= valeur %></span>
+                <span class="stat-label"><%= t('store.count.' + cle) %></span>
+              </div>
+            <% }) %>
+          </div>
+
+          <p class="muted store-note">
+            <%= t('store.honestNote') %>
+            <a href="/applications?actualiser=1"><%= t('store.refresh') %></a>
+          </p>
+
+          <%# Le client vient d'acheter dans son espace client. Sans ce bouton
+              il reviendrait ici, ne verrait rien de changé — le catalogue a une
+              minute de répit — et ouvrirait une demande d'assistance. %>
+          <div class="row-actions store-recuperer">
+            <form method="POST" action="/applications/recuperer" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-sm btn-primary" data-fenetre="recuperer"><%= t('store.fetch') %></button>
+            </form>
+            <span class="muted"><%= t('store.fetchNote') %></span>
+          </div>
+
+          <% rayons.forEach((rayon, index) => { %>
+            <section class="tab-panel<%= index === 0 ? ' is-active' : '' %>" id="rayon-<%= rayon.cle %>">
+              <div class="card">
+                <div class="card-head">
+                  <div>
+                    <h3><%= rayon.titre %></h3>
+                    <p class="card-sub"><%= t('store.inShelf', { n: rayon.fiches.length }) %></p>
+                  </div>
+                </div>
+
+                <div class="store-grid">
+                  <% rayon.fiches.forEach((app) => { %>
+                    <%
+                      /* L'état local décide de ce qu'on propose, et il n'y a
+                         que quatre cas. « annoncee » et « a-venir » n'offrent
+                         rien : un bouton qui n'installe rien vaut mieux absent. */
+                      const badge = {
+                        ouverte: 'tag-accent', allumee: 'tag-success',
+                        eteinte: '', 'a-acheter': 'tag-accent',
+                        annoncee: 'tag-warning', 'a-venir': 'tag-warning',
+                      }[app.etat] ?? '';
+                    %>
+                    <article class="store-card">
+                      <div class="store-head">
+                        <span class="store-icon"><%- include('../partials/icon', { name: app.icone, iconSize: 18 }) %></span>
+                        <div class="store-name">
+                          <span class="store-title"><%= app.nom %></span>
+                          <span class="cell-sub">
+                            <% if (app.tarif === 'option') { %>
+                              <%= t('store.pricePerMonth', { prix: app.prix }) %>
+                            <% } else { %>
+                              <%= t('store.included') %>
+                            <% } %>
+                          </span>
+                        </div>
+                        <span class="tag <%= badge %>"><%= t('store.state.' + app.etat) %></span>
+                      </div>
+
+                      <p class="store-summary"><%= app.resume %></p>
+                      <% if (app.description) { %>
+                        <details class="disclosure">
+                          <summary><%= t('store.moreDetail') %></summary>
+                          <p><%= app.description %></p>
+                        </details>
+                      <% } %>
+
+                      <%# La réserve a une place fixe, jamais un repli : c'est
+                          la partie qu'on est tenté de ne pas lire, et c'est
+                          elle qui évite d'allumer par erreur. %>
+                      <div class="banner is-warning store-caveat">
+                        <%- include('../partials/icon', { name: 'shield', iconSize: 16 }) %>
+                        <span><%= app.reserve %></span>
+                      </div>
+
+                      <div class="row-actions store-actions">
+                        <% if (app.etat === 'eteinte') { %>
+                          <form method="POST" action="/applications/<%= encodeURIComponent(app.cle) %>/allumer" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm btn-primary"
+                                    data-fenetre="allumer"
+                                    data-cle="<%= app.cle %>"
+                                    data-nom="<%= app.nom %>"
+                                    data-resume="<%= app.resume %>"
+                                    data-reserve="<%= app.reserve %>"><%= t('store.turnOn') %></button>
+                          </form>
+                        <% } else if (app.etat === 'a-acheter') { %>
+                          <%# L'achat se fait dans l'espace client, qui facture.
+                              Cet écran n'a ni panier ni champ de carte, et
+                              n'en aura pas : une seule caisse dans la maison. %>
+                          <a class="btn btn-sm btn-primary"
+                             href="<%= espaceClient %>/applications?app=<%= encodeURIComponent(app.cle) %>"
+                             target="_blank" rel="noopener"><%= t('store.buy') %></a>
+                        <% } else if ((app.etat === 'ouverte' || app.etat === 'allumee') && app.href) { %>
+                          <a href="<%= app.href %>" class="btn btn-outline btn-sm"><%= t('common.open') %></a>
+                        <% } else { %>
+                          <span class="muted"><%= t('store.nothingToDo') %></span>
+                        <% } %>
+                      </div>
+                    </article>
+                  <% }) %>
+                </div>
+              </div>
+            </section>
+          <% }) %>
+        <% } %>
+      </main>
+    </div>
+  </div>
+  <script type="application/json" id="boutique-libelles"><%- JSON.stringify({
+    titreAllumer: t('store.window.turnOnTitle'),
+    titreRecuperer: t('store.window.fetchTitle'),
+    enRecuperation: t('store.window.fetching'),
+    allumer: t('store.turnOn'),
+    ouvrir: t('common.open'),
+    rester: t('store.window.stay'),
+    annuler: t('common.cancel'),
+    fermer: t('common.close'),
+    echec: t('store.window.failed'),
+    illisible: t('updates.window.unreadable')
+  }) %></script>
+  <script src="<%= asset('/js/admin.js') %>" defer></script>
+  <script src="<%= asset('/js/confirm.js') %>" defer></script>
+  <script src="<%= asset('/js/fenetre.js') %>" defer></script>
+  <script src="<%= asset('/js/boutique.js') %>" defer></script>
+</body>
+</html>

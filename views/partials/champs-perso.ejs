@@ -1,0 +1,57 @@
+<%
+/* Les champs personnalisés d'un enregistrement, dans un formulaire.
+
+   Attend : champs (le rendu de customFields.valeurs()), et rien d'autre. Le
+   partiel ne va pas chercher les valeurs lui-même : c'est l'écran qui a eu le
+   droit de charger l'enregistrement, et lui seul doit décider de ce qu'il
+   affiche. Un partiel qui irait lire en base contournerait ce droit sans que
+   personne ne s'en aperçoive.
+
+   Les champs portent le nom « perso_<id> », que customFields.enregistrer()
+   sait relire — et non « champ_<id> », que les demandes internes emploient
+   déjà pour les leurs. Un écran qui appelle ce partiel n'a donc qu'une ligne à ajouter
+   à son enregistrement. */
+const champsARendre = typeof champs !== 'undefined' && champs ? champs : [];
+%>
+<% if (champsARendre.length) { %>
+  <div class="champs-perso">
+    <% champsARendre.forEach((c) => { %>
+      <% const nom = 'perso_' + c.id; %>
+      <% if (c.type === 'booleen') { %>
+        <label class="check">
+          <input type="checkbox" name="<%= nom %>" value="1"<%= c.valeur === '1' ? ' checked' : '' %>>
+          <span>
+            <%= c.libelle %>
+            <% if (c.aide) { %><span class="cell-sub"><%= c.aide %></span><% } %>
+          </span>
+        </label>
+      <% } else { %>
+        <label>
+          <span><%= c.libelle %><% if (c.obligatoire) { %> *<% } %></span>
+          <% if (c.type === 'texte_long') { %>
+            <textarea name="<%= nom %>" rows="4"<%= c.obligatoire ? ' required' : '' %>><%= c.valeur %></textarea>
+          <% } else if (c.type === 'liste') { %>
+            <select name="<%= nom %>"<%= c.obligatoire ? ' required' : '' %>>
+              <option value=""><%= t('champs.pick') %></option>
+              <% c.choixListe.forEach((choix) => { %>
+                <option value="<%= choix %>"<%= c.valeur === choix ? ' selected' : '' %>><%= choix %></option>
+              <% }) %>
+            </select>
+          <% } else { %>
+            <%# Le type de l'élément suit celui du champ : un clavier de
+                téléphone propose des chiffres pour un nombre, et un
+                sélecteur de date pour une date. C'est la seule part du
+                rendu qui change, le contrôle restant côté serveur. %>
+            <input
+              type="<%= c.type === 'date' ? 'date' : (c.type === 'nombre' || c.type === 'montant' ? 'text' : (c.type === 'lien' ? 'url' : 'text')) %>"
+              name="<%= nom %>"
+              value="<%= c.valeur %>"
+              <%= c.type === 'montant' || c.type === 'nombre' ? ' inputmode="decimal"' : '' %>
+              <%= c.obligatoire ? ' required' : '' %>>
+          <% } %>
+          <% if (c.aide) { %><span class="hint"><%= c.aide %></span><% } %>
+        </label>
+      <% } %>
+    <% }) %>
+  </div>
+<% } %>

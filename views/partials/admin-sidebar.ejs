@@ -1,0 +1,29 @@
+<%
+/* Le rail de la console d'administration : le rail des services, avec ses
+   onglets rendus comme tels.
+
+   Sur /admin, les services marqués « onglet » pilotent les panneaux de la page ;
+   sur les pages d'édition, ils y ramènent par un lien. C'est la seule différence,
+   et « asLinks » la dit.
+
+   Attend : asLinks? (booléen), active? (nom d'onglet) */
+const adminAsLinks = typeof asLinks !== 'undefined' && asLinks;
+/* Sur la console sans ancre, c'est « personnel » qui s'ouvre — le gabarit pose
+   déjà « is-active » sur ce panneau. Le rail doit dire la même chose, sinon on
+   voit un panneau ouvert sans rubrique allumée en face. */
+const adminActive = typeof active !== 'undefined' ? active : (adminAsLinks ? null : 'personnel');
+%>
+<%- include('services-sidebar', {
+  panelLabel: t('common.adminRole'),
+  onglet: adminActive,
+  ongletsCliquables: !adminAsLinks,
+  /* Le pied ne garde que ce qui n'est pas un service de la console : le passage
+     vers un autre espace. Un administrateur n'a pas d'espace membre —
+     /mon-espace le renverrait ici.
+     Ce rail sert aussi aux écrans de section, ouverts à tout membre : le lien
+     vers l'espace RH ne s'y montre qu'à qui peut l'ouvrir, sinon il mène tout
+     droit à un refus. */
+  footLinks: (typeof currentUser !== 'undefined' && currentUser && currentUser.role === 'admin') || (typeof isHr !== 'undefined' && isHr)
+    ? [{ href: '/rh', label: t('nav.openHrSpace'), icon: 'external' }]
+    : []
+}) %>

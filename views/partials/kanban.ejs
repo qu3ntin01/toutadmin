@@ -1,0 +1,61 @@
+<%
+/*
+ * Le tableau kanban d'une liste.
+ *
+ * Attendu de l'appelant : « tableau » (ce que « kanban.tableau() » rend) et
+ * « colonnes » (les valeurs déclarées). Les classes sont celles du tableau des
+ * tâches d'un projet : une seule mise en forme pour les deux, même si les deux
+ * cartes ne portent pas les mêmes actions.
+ */
+%>
+<div class="board">
+  <% tableau.colonnes.forEach((colonne) => { %>
+    <div class="board-column">
+      <h4 class="board-title">
+        <%= st(colonne.valeur) %> <span class="tag"><%= colonne.cartes.length %></span>
+      </h4>
+      <% colonne.cartes.forEach((carte) => { %>
+        <article class="board-card">
+          <a class="cell-strong" href="<%= carte.lien %>"><%= carte.titre %></a>
+          <p class="cell-sub">
+            <%= carte.reference %><%= carte.lignes.length ? ' · ' + carte.lignes.join(' · ') : '' %>
+          </p>
+          <% if (carte.etiquette) { %><span class="tag tag-danger"><%= carte.etiquette %></span><% } %>
+          <% if (carte.alerte) { %><span class="tag tag-off"><%= t(carte.alerte) %></span><% } %>
+          <div class="row-actions">
+            <%# Un champ de choix et un bouton, et non un glisser-déposer : une vue
+                qui ne marche pas sans script n'est pas une vue, c'est une option. %>
+            <form method="POST" action="/kanban/deplacer" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="objet" value="<%= tableau.objet %>" />
+              <input type="hidden" name="id" value="<%= carte.id %>" />
+              <select name="colonne" class="input-sm" aria-label="<%= t('kanban.moveTo') %>">
+                <% colonnes.forEach((valeur) => { %>
+                  <option value="<%= valeur %>" <%= valeur === colonne.valeur ? 'selected' : '' %>><%= st(valeur) %></option>
+                <% }) %>
+              </select>
+              <button type="submit" class="btn btn-sm"><%= t('kanban.move') %></button>
+            </form>
+          </div>
+        </article>
+      <% }) %>
+      <% if (colonne.cartes.length === 0) { %>
+        <p class="cell-sub"><%= t('kanban.emptyColumn') %></p>
+      <% } %>
+    </div>
+  <% }) %>
+</div>
+
+<% if (tableau.horsColonnes.length) { %>
+  <%# Une ligne dont le statut n'est plus déclaré n'est pas perdue : elle est
+      montrée à part plutôt que de disparaître sans un mot. %>
+  <div class="board-outside">
+    <h4 class="board-title"><%= t('kanban.outside') %> <span class="tag"><%= tableau.horsColonnes.length %></span></h4>
+    <% tableau.horsColonnes.forEach((carte) => { %>
+      <article class="board-card">
+        <a class="cell-strong" href="<%= carte.lien %>"><%= carte.titre %></a>
+        <p class="cell-sub"><%= carte.reference %></p>
+      </article>
+    <% }) %>
+  </div>
+<% } %>

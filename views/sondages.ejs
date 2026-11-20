@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Sondages — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: null }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.surveys'),
+        headerSubtitle: t('srv.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('srv.toFill', { count: invitations.length }) %></h3></div>
+          <% if (!invitations.length) { %>
+            <p class="empty-state"><%= t('srv.nothingToFill') %></p>
+          <% } else { %>
+            <ul class="meeting-list">
+              <% invitations.forEach((s) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><%= s.title %></span>
+                    <span class="tag tag-warning"><%= s.question_count %> question(s)</span>
+                  </div>
+                  <% if (s.intro) { %><p class="cell-sub"><%= s.intro %></p><% } %>
+                  <p class="cell-sub">
+                    <%= s.kind %><% if (s.closes_on) { %> · <%= t('srv.until', { date: new Date(s.closes_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) }) %><% } %>
+                  </p>
+                  <div class="row-actions"><a href="/sondages/<%= s.id %>" class="btn btn-primary btn-sm"><%= t('common.reply') %></a></div>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+          <p class="hint">
+            <%= t('srv.anonymityNote', { threshold: anonymityThreshold }) %>
+          </p>
+        </div>
+
+        <% if (answered.length) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= t('srv.alreadyAnswered') %></h3></div>
+            <ul class="person-list">
+              <% answered.forEach((s) => { %>
+                <li class="person-row">
+                  <span class="person-body">
+                    <span class="person-name"><%= s.title %></span>
+                    <span class="person-role"><%= s.kind %> · <%= st(s.status) %></span>
+                  </span>
+                  <span class="tag tag-success"><%= t('srv.thanks') %></span>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

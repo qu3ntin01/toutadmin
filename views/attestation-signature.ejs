@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Attestation de signature — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('sig.attestation'),
+        headerSubtitle: request.title,
+        backHref: '/parapheur/' + request.id,
+        backLabel: t('common.document'),
+        onglets: [{ href: '/parapheur/' + request.id, label: t('att.backToDocument'), icon: 'back', active: true }]
+      }) %>
+
+      <main class="page">
+        <% const moment = (iso) => (iso ? new Date(iso).toLocaleString(locale) : '—'); %>
+
+        <div class="card">
+          <div class="card-head">
+            <h3><%= companyName %></h3>
+            <span class="tag <%= verification.ok ? 'tag-success' : 'tag-danger' %>"><%= verification.ok ? 'Intégrité vérifiée' : 'Intégrité en défaut' %></span>
+          </div>
+
+          <table>
+            <tbody>
+              <tr><td class="cell-sub"><%= t('common.document') %></td><td class="cell-strong"><%= request.title %></td></tr>
+              <tr><td class="cell-sub"><%= t('common.nature') %></td><td><%= request.kind %></td></tr>
+              <tr><td class="cell-sub"><%= t('nav.support') %></td><td><%= request.file_name ? `${request.original_name} (${request.mime_type})` : 'Texte saisi dans le parapheur' %></td></tr>
+              <tr><td class="cell-sub"><%= t('att.fingerprint') %></td><td class="mono"><%= request.sha256 %></td></tr>
+              <tr><td class="cell-sub"><%= t('att.putToSignOn') %></td><td><%= moment(request.created_at) %></td></tr>
+              <tr><td class="cell-sub"><%= t('common.state') %></td><td><%= st(request.status) %><%= request.completed_at ? ` le ${moment(request.completed_at)}` : '' %></td></tr>
+              <tr><td class="cell-sub"><%= t('att.issuedOn') %></td><td><%= moment(generatedAt) %></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('att.signatures') %></h3></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th><%= t('common.rank') %></th><th><%= t('common.signatory') %></th><th><%= t('nav.quality') %></th><th><%= t('common.state') %></th><th><%= t('common.timestamp') %></th><th><%= t('common.address') %></th><th><%= t('common.seal') %></th></tr></thead>
+              <tbody>
+                <% request.signers.forEach((s) => { %>
+                  <% const check = verification.seals.find((v) => v.signer.id === s.id); %>
+                  <tr>
+                    <td class="cell-sub"><%= s.position %></td>
+                    <td class="cell-strong"><%= s.first_name %> <%= s.last_name %><br /><span class="cell-sub"><%= s.email %></span></td>
+                    <td class="cell-sub"><%= s.role_label || '—' %></td>
+                    <td><span class="tag <%= s.status === 'Signé' ? 'tag-success' : (s.status === 'Refusé' ? 'tag-danger' : 'tag-warning') %>"><%= st(s.status) %></span></td>
+                    <td class="cell-sub nowrap"><%= moment(s.signed_at) %></td>
+                    <td class="cell-sub"><%= s.ip || '—' %></td>
+                    <td class="cell-sub mono">
+                      <%= s.seal ? s.seal : '—' %>
+                      <% if (check) { %><br /><span class="tag <%= check.valid ? 'tag-success' : 'tag-danger' %>"><%= check.valid ? 'sceau vérifié' : 'sceau invalide' %></span><% } %>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('att.scope') %></h3></div>
+          <p class="cell-sub">
+            <%= t('att.sealNote') %>
+          </p>
+          <p class="cell-sub">
+            <%- t('att.simpleNote', {
+                  simple: `<strong>${t('sig.simple')}</strong>`,
+                  qualified: `<em>${t('sig.qualified')}</em>`,
+                }) %>
+          </p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: article.title + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: article.title,
+        headerSubtitle: article.category + ' · ' + article.visibility + ' · ' + article.views + ' lecture(s)',
+        onglets: [{ tab: 'lecture', label: t('stk.item'), icon: 'inbox' }, { tab: 'edition', label: t('common.edit'), icon: 'settings' }]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <section class="tab-panel is-active" id="lecture">
+          <div class="card">
+            <% if (!article.published) { %><div class="flash flash-error"><%= t('art.draftNote') %></div><% } %>
+            <p class="article-body"><%= article.body || 'Cet article est vide.' %></p>
+          </div>
+        </section>
+
+        <% if (canWrite) { %>
+          <section class="tab-panel" id="edition">
+            <div class="card">
+              <div class="card-head"><h3><%= t('common.edit') %></h3></div>
+              <form method="POST" action="/base-de-connaissances/<%= article.id %>/modifier" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('team.newsTitle') %></span><input type="text" name="title" required maxlength="200" value="<%= article.title %>" /></label>
+                <label><span><%= t('common.category') %></span><input type="text" name="category" value="<%= article.category %>" maxlength="60" /></label>
+                <label><span><%= t('common.scope') %></span>
+                  <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>" <%= article.visibility === v ? 'selected' : '' %>><%= v %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span><%= t('art.scope') %></span>
+                  <select name="scope_id">
+                    <option value="">—</option>
+                    <optgroup label="Services">
+                      <% departments.forEach((d) => { %><option value="<%= d.id %>" <%= article.scope_id === d.id && article.visibility === 'Service' ? 'selected' : '' %>><%= d.name %></option><% }) %>
+                    </optgroup>
+                    <optgroup label="Équipes">
+                      <% teams.forEach((tm) => { %><option value="<%= tm.id %>" <%= article.scope_id === tm.id && article.visibility === 'Équipe' ? 'selected' : '' %>><%= tm.name %></option><% }) %>
+                    </optgroup>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="16"><%= article.body %></textarea></label>
+                <label class="check-row span-2">
+                  <input type="checkbox" name="published" value="1" <%= article.published ? 'checked' : '' %> />
+                  <span><%= t('cse.published') %></span>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+              </form>
+
+              <form method="POST" action="/base-de-connaissances/<%= article.id %>/supprimer" data-confirm="<%= t('art.confirmDelete') %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-danger btn-block"><%= t('common.delete') %></button>
+              </form>
+            </div>
+          </section>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'CRM — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: 'CRM commercial',
+        headerSubtitle: t('crm.headerSub'),
+        onglets: [
+          { tab: 'pipeline', label: t('crm.tabPipeline'), icon: 'network' },
+          { tab: 'devis', label: t('crm.tabQuotes'), icon: 'card' },
+          { tab: 'commandes', label: t('ven.tabOrders'), icon: 'inbox' },
+          { tab: 'catalogue', label: t('ven.tabCatalog'), icon: 'briefcase' },
+          { tab: 'relances', label: t('crm.tabFollowUps'), icon: 'clock', badge: activities.filter((a) => a.overdue).length },
+          { tab: 'contacts', label: t('crm.tabContacts'), icon: 'users' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const money = (n) => Number(n || 0).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(pipeline.total) %></span><span class="stat-label"><%= t('crm.openPipeline') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(pipeline.weighted) %></span><span class="stat-label"><%= t('crm.weighted') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(pipeline.won) %></span><span class="stat-label"><%= t('crm.won') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= pipeline.winRate %> %</span><span class="stat-label"><%= t('crm.winRate') %></span></span>
+          </div>
+        </section>
+
+        <% if (clients.length === 0) { %>
+          <div class="banner is-warning">
+            <%- include('partials/icon', { name: 'briefcase', iconSize: 17 }) %>
+            <span><%- t('crm.noClientBanner', { link: `<a href="/gestion#tiers">${t('crm.management')}</a>` }) %></span>
+          </div>
+        <% } %>
+
+        <!-- ---------- Pipeline ---------- -->
+        <section class="tab-panel is-active" id="pipeline">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('crm.newOpportunity') %></h3></div>
+              <form method="POST" action="/crm/opportunites" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('common.client') %></span>
+                  <select name="partner_id" required>
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('common.title') %></span>
+                  <input type="text" name="title" maxlength="160" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('erp.amount') %></span>
+                    <input type="text" name="amount" inputmode="decimal" value="0" required />
+                  </label>
+                  <label>
+                    <span><%= t('crm.probability') %></span>
+                    <input type="number" name="probability" min="0" max="100" value="50" required />
+                  </label>
+                  <label>
+                    <span><%= t('crm.expectedClose') %></span>
+                    <input type="date" name="expected_close" />
+                  </label>
+                  <label>
+                    <span><%= t('common.owner') %></span>
+                    <select name="owner_id">
+                      <option value="">—</option>
+                      <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                    </select>
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+              </form>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="card-head"><h3><%= t('crm.byStage') %></h3></div>
+                <ul class="org-list">
+                  <% pipeline.byStage.forEach((s) => { %>
+                    <li class="org-item">
+                      <div class="org-head">
+                        <div>
+                          <span class="org-name"><%= s.stage %></span>
+                          <span class="cell-sub"><%= s.count %> affaire(s)</span>
+                        </div>
+                        <span class="cell-strong"><%= money(s.amount) %></span>
+                      </div>
+                      <div class="meter">
+                        <span class="meter-fill" data-ratio="<%= pipeline.total > 0 ? Math.round((s.amount / pipeline.total) * 100) : 0 %>"></span>
+                      </div>
+                    </li>
+                  <% }) %>
+                </ul>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><div><h3><%= t('crm.forecastTitle') %></h3><p class="card-sub"><%= t('crm.forecastNote') %></p></div></div>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('crm.forecastMonth') %></th><th class="num"><%= t('crm.forecastCount') %></th><th class="num"><%= t('erp.amount') %></th><th class="num"><%= t('crm.weighted') %></th></tr></thead>
+                    <tbody>
+                      <% const ligne = (libelle, tr, classe) => { %>
+                        <tr<%- classe ? ` class="${classe}"` : '' %>><td><%= libelle %></td><td class="num"><%= tr.count %></td><td class="num"><%= money(tr.amount) %></td><td class="num cell-strong"><%= money(tr.weighted) %></td></tr>
+                      <% } %>
+                      <% if (pipeline.forecast.late.count) ligne(t('crm.forecastLate'), pipeline.forecast.late, 'text-danger') %>
+                      <% pipeline.forecast.months.forEach((m) => { ligne(new Date(m.month + '-01T00:00:00Z').toLocaleDateString(locale, { month: 'long', year: 'numeric', timeZone: 'UTC' }), m) }) %>
+                      <% if (pipeline.forecast.later.count) ligne(t('crm.forecastLater'), pipeline.forecast.later) %>
+                      <% if (pipeline.forecast.undated.count) ligne(t('crm.forecastUndated'), pipeline.forecast.undated) %>
+                    </tbody>
+                  </table>
+                </div>
+                <% if (pipeline.lostByReason.length) { %>
+                  <h4 class="mt-m"><%= t('crm.lostTitle') %></h4>
+                  <ul class="tag-list">
+                    <% pipeline.lostByReason.forEach((r) => { %><li><span class="tag"><%= t('crm.lost.' + r.reason) %> · <%= r.count %></span></li><% }) %>
+                  </ul>
+                <% } %>
+              </div>
+
+              <div class="card">
+                <div class="card-head"><h3><%= t('crm.opportunities', { count: opportunities.length }) %></h3></div>
+                <% if (opportunities.length === 0) { %>
+                  <div class="empty-state"><%= t('crm.noOpportunity') %></div>
+                <% } else { %>
+                  <div class="table-wrap">
+                    <table>
+                      <thead><tr><th><%= t('crm.opportunity') %></th><th class="num"><%= t('erp.amount') %></th><th><%= t('common.step') %></th><th class="actions"></th></tr></thead>
+                      <tbody>
+                        <% opportunities.forEach((o) => { %>
+                          <tr>
+                            <td>
+                              <div class="cell-strong"><%= o.title %></div>
+                              <div class="cell-sub">
+                                <%= o.partner_name %><%= o.expected_close ? ' · ' + day(o.expected_close) : '' %>
+                                <%= o.owner_first_name ? ' · ' + o.owner_first_name + ' ' + o.owner_last_name : '' %>
+                              </div>
+                            </td>
+                            <td class="num cell-strong">
+                              <%= money(o.amount) %>
+                              <div class="cell-sub"><%= o.probability %> %</div>
+                            </td>
+                            <td>
+                              <span class="status <%= o.stage === 'Gagnée' ? 'status-on' : (o.stage === 'Perdue' ? 'status-danger' : 'status-warning') %>"><%= o.stage %></span>
+                              <% if (o.stage === 'Perdue' && o.lost_reason) { %><div class="cell-sub"><%= t('crm.lost.' + o.lost_reason) %></div><% } %>
+                            </td>
+                            <td class="actions">
+                              <form method="POST" action="/crm/opportunites/<%= o.id %>/etape" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <select name="stage" class="input-sm">
+                                  <% stages.forEach((value) => { %>
+                                    <option value="<%= value %>" <%= o.stage === value ? 'selected' : '' %>><%= st(value) %></option>
+                                  <% }) %>
+                                </select>
+                                <select name="lost_reason" class="input-sm" aria-label="<%= t('crm.lostReason') %>">
+                                  <option value="">— <%= t('crm.lostReason') %> —</option>
+                                  <% lostReasons.forEach((r) => { %>
+                                    <option value="<%= r %>" <%= o.lost_reason === r ? 'selected' : '' %>><%= t('crm.lost.' + r) %></option>
+                                  <% }) %>
+                                </select>
+                                <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                              </form>
+                              <form method="POST" action="/crm/opportunites/<%= o.id %>/supprimer" class="inline-form" data-confirm="<%= t('crm.confirmDeleteOpportunity') %>">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                              </form>
+                            </td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Devis ---------- -->
+        <section class="tab-panel" id="devis">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('crm.newQuote') %></h3></div>
+              <form method="POST" action="/crm/devis" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('common.client') %></span>
+                  <select name="partner_id" required>
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('crm.opportunity') %> <span class="cell-sub">(<%= t('common.optional') %>)</span></span>
+                  <select name="opportunity_id">
+                    <option value="">—</option>
+                    <% opportunities.forEach((o) => { %><option value="<%= o.id %>"><%= o.title %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('common.title') %></span>
+                  <input type="text" name="label" maxlength="160" required />
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.reference') %></span>
+                    <input type="text" name="reference" maxlength="60" />
+                  </label>
+                  <label>
+                    <span><%= t('ges.issue') %></span>
+                    <input type="date" name="issue_date" value="<%= today %>" required />
+                  </label>
+                  <label>
+                    <span><%= t('crm.validUntil') %></span>
+                    <input type="date" name="valid_until" />
+                  </label>
+                  <label>
+                    <span><%= t('ges.amountExclVat') %></span>
+                    <input type="text" name="amount_ht" inputmode="decimal" value="0" required />
+                  </label>
+                  <label>
+                    <span>TVA (%)</span>
+                    <input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required />
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('crm.quotes', { count: quotes.length }) %></h3></div>
+              <% if (quotes.length === 0) { %>
+                <div class="empty-state"><%= t('crm.noQuote') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('crm.tabQuotes') %></th><th class="num">TTC</th><th><%= t('common.status') %></th><th class="actions"><%= t('common.actions') %></th></tr></thead>
+                    <tbody>
+                      <% quotes.forEach((q) => { %>
+                        <tr>
+                          <td>
+                            <div class="cell-strong"><%= q.reference || '(sans réf.)' %> — <%= q.label %></div>
+                            <div class="cell-sub">
+                              <%= q.partner_name %> · <%= day(q.issue_date) %>
+                              <%= q.valid_until ? ' → ' + day(q.valid_until) : '' %>
+                            </div>
+                          </td>
+                          <td class="num cell-strong"><%= money(q.amount_ttc) %></td>
+                          <td>
+                            <span class="status <%= q.status === 'Accepté' ? 'status-on' : (q.status === 'Refusé' ? 'status-danger' : (q.expired ? 'status-danger' : 'status-warning')) %>">
+                              <%= q.expired ? t('crm.quoteExpired') : st(q.status) %>
+                            </span>
+                            <% if (q.invoice_id) { %><div class="cell-sub"><%= t('crm.invoiced') %></div><% } %>
+                          </td>
+                          <td class="actions">
+                            <% if (!q.invoice_id) { %>
+                              <form method="POST" action="/crm/devis/<%= q.id %>/statut" class="inline-form">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <select name="status" class="input-sm">
+                                  <% quoteStatuses.forEach((value) => { %>
+                                    <option value="<%= value %>" <%= q.status === value ? 'selected' : '' %>><%= st(value) %></option>
+                                  <% }) %>
+                                </select>
+                                <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                              </form>
+                              <% if (q.status === 'Accepté') { %>
+                                <form method="POST" action="/crm/devis/<%= q.id %>/commander" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <button type="submit" class="btn btn-sm"><%= t('ven.toOrder') %></button>
+                                </form>
+                                <form method="POST" action="/crm/devis/<%= q.id %>/facturer" class="inline-form">
+                                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                  <button type="submit" class="btn btn-primary btn-sm"><%= t('crm.invoice') %></button>
+                                </form>
+                              <% } %>
+                            <% } %>
+                            <form method="POST" action="/crm/devis/<%= q.id %>/supprimer" class="inline-form" data-confirm="<%= t('crm.confirmDeleteQuote') %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+                <p class="hint"><%= t('crm.quoteOnceNote') %></p>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Relances ---------- -->
+        <section class="tab-panel" id="relances">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('crm.planFollowUp') %></h3></div>
+              <form method="POST" action="/crm/relances" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('common.client') %></span>
+                  <select name="partner_id">
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('crm.opportunity') %></span>
+                  <select name="opportunity_id">
+                    <option value="">—</option>
+                    <% opportunities.forEach((o) => { %><option value="<%= o.id %>"><%= o.title %></option><% }) %>
+                  </select>
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.type') %></span>
+                    <select name="kind">
+                      <% activityKinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %>
+                    </select>
+                  </label>
+                  <label>
+                    <span><%= t('erp.dueDate') %></span>
+                    <input type="date" name="due_on" value="<%= today %>" required />
+                  </label>
+                </div>
+                <label>
+                  <span><%= t('common.note') %></span>
+                  <textarea name="note" rows="3" maxlength="1000"></textarea>
+                </label>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+                <p class="hint"><%= t('crm.followUpTarget') %></p>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('crm.followUps', { count: activities.filter((a) => !a.done_at).length }) %></h3></div>
+              <% if (activities.length === 0) { %>
+                <div class="empty-state"><%= t('crm.noFollowUp') %></div>
+              <% } else { %>
+                <ul class="person-list">
+                  <% activities.forEach((a) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name">
+                          <%= a.kind %><%= a.partner_name ? ' · ' + a.partner_name : '' %><%= a.opportunity_title ? ' · ' + a.opportunity_title : '' %>
+                        </span>
+                        <span class="cell-sub <%= a.overdue ? 'text-danger' : '' %>">
+                          <%= day(a.due_on) %><%= a.done_at ? ' · faite' : (a.overdue ? ' · en retard' : '') %>
+                        </span>
+                        <% if (a.note) { %><span class="benefit-text"><%= a.note %></span><% } %>
+                      </span>
+                      <span class="row-actions">
+                        <% if (!a.done_at) { %>
+                          <form method="POST" action="/crm/relances/<%= a.id %>/faite">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('crm.markDone') %></button>
+                          </form>
+                        <% } %>
+                        <form method="POST" action="/crm/relances/<%= a.id %>/supprimer" data-confirm="<%= t('crm.confirmDeleteFollowUp') %>">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                        </form>
+                      </span>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Contacts ---------- -->
+        <section class="tab-panel" id="contacts">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('crm.newContact') %></h3></div>
+              <form method="POST" action="/crm/contacts" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('common.client') %></span>
+                  <select name="partner_id" required>
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <div class="form-grid">
+                  <label>
+                    <span><%= t('common.firstName') %></span>
+                    <input type="text" name="first_name" maxlength="100" required />
+                  </label>
+                  <label>
+                    <span><%= t('common.name') %></span>
+                    <input type="text" name="last_name" maxlength="100" required />
+                  </label>
+                  <label>
+                    <span><%= t('common.role') %></span>
+                    <input type="text" name="role" maxlength="100" />
+                  </label>
+                  <label>
+                    <span><%= t('common.email') %></span>
+                    <input type="email" name="email" maxlength="254" />
+                  </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.create') %></button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('crm.contacts', { count: contacts.length }) %></h3></div>
+              <% if (contacts.length === 0) { %>
+                <div class="empty-state"><%= t('crm.noContact') %></div>
+              <% } else { %>
+                <ul class="person-list">
+                  <% contacts.forEach((c) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name"><%= c.first_name %> <%= c.last_name %></span>
+                        <span class="cell-sub"><%= [c.partner_name, c.role, c.email].filter(Boolean).join(' · ') %></span>
+                      </span>
+                      <form method="POST" action="/crm/contacts/<%= c.id %>/supprimer" data-confirm="<%= t('crm.confirmDeleteContact') %>">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                      </form>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            </div>
+          </div>
+        </section>
+        <!-- ---------- Commandes ---------- -->
+        <section class="tab-panel" id="commandes">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><div><h3><%= t('ven.newOrder') %></h3><p class="card-sub"><%= t('ven.newOrderNote') %></p></div></div>
+              <form method="POST" action="/crm/commandes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('ven.customer') %></span>
+                  <select name="partner_id" required>
+                    <option value="">—</option>
+                    <% clients.forEach((c) => { %><option value="<%= c.id %>"><%= c.name %></option><% }) %>
+                  </select>
+                </label>
+                <label><span><%= t('common.date') %></span><input type="date" name="order_date" value="<%= today %>" required /></label>
+                <label class="span-2"><span><%= t('common.notes') %></span><input type="text" name="notes" maxlength="1000" /></label>
+                <div class="form-actions span-2"><button type="submit" class="btn btn-primary btn-sm"><%= t('ven.createOrder') %></button></div>
+              </form>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3><%= t('ven.orders') %> <span class="muted">(<%= commandes.length %>)</span></h3></div>
+              <% if (commandes.length === 0) { %>
+                <div class="empty-state"><%= t('ven.noOrder') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('common.reference') %></th><th><%= t('ven.customer') %></th><th class="num"><%= t('ven.totalHt') %></th><th><%= t('common.status') %></th></tr></thead>
+                    <tbody>
+                      <% commandes.forEach((c) => { %>
+                        <tr>
+                          <td><a href="/crm/commandes/<%= c.id %>" class="cell-strong"><%= c.reference %></a><div class="cell-sub"><%= day(c.order_date) %></div></td>
+                          <td><%= c.partner_name %></td>
+                          <td class="num"><%= money(c.totalHt) %></td>
+                          <td><span class="status <%= ['Facturée', 'Livrée'].includes(c.etat) ? 'status-on' : (c.etat === 'Annulée' ? 'status-off' : 'status-warning') %>"><%= t('ven.state.' + ({ 'Brouillon': 'draft', 'Confirmée': 'confirmed', 'Partiellement livrée': 'partial', 'Livrée': 'delivered', 'Facturée': 'invoiced', 'Annulée': 'cancelled' })[c.etat]) %></span></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Catalogue ---------- -->
+        <section class="tab-panel" id="catalogue">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><div><h3><%= t('ven.newProduct') %></h3><p class="card-sub"><%= t('ven.newProductNote') %></p></div></div>
+              <form method="POST" action="/crm/produits" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span><%= t('common.reference') %></span><input type="text" name="reference" required maxlength="40" pattern="[A-Za-z0-9._\-]{1,40}" /></label>
+                <label><span><%= t('common.type') %></span>
+                  <select name="kind"><% productKinds.forEach((k) => { %><option value="<%= k %>"><%= t('ven.kind.' + (k === 'Bien' ? 'goods' : 'service')) %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span><%= t('common.name') %></span><input type="text" name="name" required maxlength="160" /></label>
+                <label><span><%= t('ven.priceHt') %></span><input type="text" name="price_ht" inputmode="decimal" required placeholder="Ex : 120,00" /></label>
+                <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" value="20" required /></label>
+                <label><span><%= t('ven.unit') %></span>
+                  <select name="unit"><% productUnits.forEach((u) => { %><option value="<%= u %>"><%= u %></option><% }) %></select>
+                </label>
+                <label><span><%= t('ven.stockItem') %></span>
+                  <select name="item_id">
+                    <option value="">—</option>
+                    <% articles.forEach((a) => { %><option value="<%= a.id %>"><%= a.reference ? a.reference + ' — ' : '' %><%= a.label %></option><% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('common.description') %></span><input type="text" name="description" maxlength="1000" /></label>
+                <div class="form-actions span-2"><button type="submit" class="btn btn-primary btn-sm"><%= t('ven.addProduct') %></button></div>
+              </form>
+            </div>
+            <div class="card">
+              <div class="card-head"><h3><%= t('ven.catalog') %> <span class="muted">(<%= produits.length %>)</span></h3></div>
+              <% if (produits.length === 0) { %>
+                <div class="empty-state"><%= t('ven.noProduct') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('common.reference') %></th><th><%= t('common.name') %></th><th class="num"><%= t('ven.priceHt') %></th><th class="actions"></th></tr></thead>
+                    <tbody>
+                      <% produits.forEach((p) => { %>
+                        <tr<%- p.active ? '' : ' class="muted"' %>>
+                          <td class="mono"><%= p.reference %></td>
+                          <td><span class="cell-strong"><%= p.name %></span>
+                            <div class="cell-sub"><%= t('ven.kind.' + (p.kind === 'Bien' ? 'goods' : 'service')) %> · <%= p.unit %><%= p.item_label ? ' · ' + t('ven.stockItem') + ' : ' + p.item_label : '' %><%= p.active ? '' : ' · ' + t('ven.inactive') %></div></td>
+                          <td class="num"><%= money(p.price_ht) %><div class="cell-sub">TVA <%= p.vat_rate %> %</div></td>
+                          <td class="actions">
+                            <form method="POST" action="/crm/produits/<%= p.id %>/basculer" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-sm"><%= p.active ? t('ven.withdraw') : t('ven.restore') %></button>
+                            </form>
+                            <form method="POST" action="/crm/produits/<%= p.id %>/supprimer" class="inline-form" data-confirm="<%= t('ven.confirmDeleteProduct') %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.delete') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/meter.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

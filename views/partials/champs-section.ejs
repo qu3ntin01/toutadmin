@@ -1,0 +1,63 @@
+<%
+/* Les champs d'une section, rendus à partir de leur seule description.
+
+   Une section déclare ses réglages dans src/sections-reglages.js ; ce gabarit
+   ne connaît aucune section en particulier, et ajouter un champ ne demande donc
+   pas de toucher ici. Un formulaire écrit à la main par section aurait fini par
+   diverger de ce que le serveur accepte — et un champ affiché que le serveur
+   refuse est le pire des deux mondes.
+
+   Attend : groupe (la section), champs (la liste rendue par champsDe). */
+
+/* Le nom des mois vient du navigateur, pas du dictionnaire : Intl les connaît
+   dans les seize langues, et les y recopier aurait été cent quatre-vingt-douze
+   chaînes à traduire pour ce que la plateforme sait déjà faire. */
+const nomDuMois = (n) => new Date(Date.UTC(2000, n - 1, 1)).toLocaleDateString(locale, { month: 'long' });
+const cleDu = (champ) => 'sec.' + groupe.cle + '.' + champ.cle;
+/* Un nombre à deux chiffres n'a pas besoin de toute la largeur, et un champ
+   large au-dessus d'une valeur courte fait croire qu'on attend une phrase.
+   Seuls le texte libre et les cases à cocher — dont la légende est longue —
+   prennent les deux colonnes. */
+const largeur = (champ) => (champ.type === 'texte' || champ.type === 'bool' ? 'span-2' : '');
+%>
+<% champs.forEach((champ) => { %>
+  <% const id = 'champ-' + groupe.cle + '-' + champ.cle; %>
+  <% if (champ.type === 'bool') { %>
+    <div class="<%= largeur(champ) %>">
+      <label class="check" for="<%= id %>">
+        <input type="checkbox" id="<%= id %>" name="<%= champ.cle %>" value="1" <%= champ.valeur === '1' ? 'checked' : '' %> />
+        <span><%= t(cleDu(champ)) %></span>
+      </label>
+      <span class="hint"><%= t(cleDu(champ) + '.hint') %></span>
+    </div>
+  <% } else { %>
+    <label class="<%= largeur(champ) %>">
+      <span><%= t(cleDu(champ)) %></span>
+      <% if (champ.type === 'nombre') { %>
+        <input type="number" id="<%= id %>" name="<%= champ.cle %>" value="<%= champ.valeur %>"
+               min="<%= champ.min %>" max="<%= champ.max %>" step="1" required />
+      <% } else if (champ.type === 'mois') { %>
+        <select id="<%= id %>" name="<%= champ.cle %>">
+          <% for (let m = 1; m <= 12; m += 1) { %>
+            <option value="<%= m %>" <%= String(m) === champ.valeur ? 'selected' : '' %>><%= nomDuMois(m) %></option>
+          <% } %>
+        </select>
+      <% } else if (champ.type === 'choix') { %>
+        <select id="<%= id %>" name="<%= champ.cle %>">
+          <% (champ.options || []).forEach((option) => { %>
+            <%# Un libellé porté par l'option s'affiche tel quel — un code de
+                devise ou le nom d'une palette ne se traduisent pas. Sans
+                libellé, c'est au dictionnaire de le dire. %>
+            <option value="<%= option.valeur %>" <%= option.valeur === champ.valeur ? 'selected' : '' %>>
+              <%= option.libelle || t(cleDu(champ) + '.' + option.valeur) %>
+            </option>
+          <% }) %>
+        </select>
+      <% } else { %>
+        <input type="text" id="<%= id %>" name="<%= champ.cle %>" value="<%= champ.valeur %>"
+               maxlength="<%= champ.max || 200 %>" required />
+      <% } %>
+      <span class="hint"><%= t(cleDu(champ) + '.hint') %></span>
+    </label>
+  <% } %>
+<% }) %>

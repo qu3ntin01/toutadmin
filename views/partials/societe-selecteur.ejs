@@ -1,0 +1,28 @@
+<%
+/* Le sélecteur de société, dans l'en-tête de chaque écran.
+
+   Il ne s'affiche que s'il y a un choix à faire : une personne rattachée à une
+   seule société n'a rien à choisir, et un sélecteur à une entrée ne ferait que
+   poser la question de ce qu'il y a derrière.
+
+   Il dit aussi où l'on est, et c'est son premier rôle : saisir une facture dans
+   la mauvaise entité d'un groupe ne se répare pas en la déplaçant.
+
+   Attend : societe et societesOuvertes (posés par l'intergiciel du périmètre). */
+const ici = typeof societe !== 'undefined' ? societe : null;
+const ouvertes = typeof societesOuvertes !== 'undefined' && societesOuvertes ? societesOuvertes : [];
+%>
+<% if (ici && ouvertes.length > 1) { %>
+  <form method="POST" action="/societes/choisir" class="societe-selecteur">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <label>
+      <span class="sr-only"><%= t('societes.switch') %></span>
+      <select name="societe_id" onchange="this.form.submit()" aria-label="<%= t('societes.switch') %>">
+        <% ouvertes.forEach((c) => { %>
+          <option value="<%= c.id %>" <%= c.id === ici.id ? 'selected' : '' %>><%= c.name %></option>
+        <% }) %>
+      </select>
+    </label>
+    <noscript><button type="submit" class="btn btn-sm"><%= t('societes.switch') %></button></noscript>
+  </form>
+<% } %>

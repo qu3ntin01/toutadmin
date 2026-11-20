@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: meeting.title + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: meeting.title,
+        headerSubtitle: meeting.kind + ' · ' + new Date(meeting.held_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) + (meeting.location ? ' · ' + meeting.location : ''),
+        backHref: '/direction#reunions',
+        backLabel: t('nav.governance'),
+        onglets: [
+          { tab: 'ordre-du-jour', label: t('cse.agenda'), icon: 'inbox' },
+          { tab: 'participants', label: t('common.participants'), icon: 'users', badge: attendeeList.length },
+          { tab: 'compte-rendu', label: t('reu.minutes'), icon: 'ballot' },
+          { tab: 'decisions', label: t('gov.decisions'), icon: 'check', badge: decisionList.length },
+          { tab: 'actions', label: t('common.actions'), icon: 'clock', badge: actionList.filter((a) => a.status !== 'Faite').length }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const who = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || '—'; %>
+
+        <!-- ---------- Ordre du jour ---------- -->
+        <section class="tab-panel is-active" id="ordre-du-jour">
+          <div class="card">
+            <div class="card-head"><h3><%= t('reu.convocation') %></h3><span class="tag <%= meeting.status === 'Tenue' ? 'tag-success' : (meeting.status === 'Annulée' ? 'tag-danger' : 'tag-warning') %>"><%= st(meeting.status) %></span></div>
+            <form method="POST" action="/direction/reunions/<%= meeting.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" value="<%= meeting.title %>" /></label>
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% meetingKinds.forEach((k) => { %><option value="<%= k %>" <%= k === meeting.kind ? 'selected' : '' %>><%= k %></option><% }) %></select>
+              </label>
+              <label><span><%= t('common.date') %></span><input type="date" name="held_on" value="<%= meeting.held_on %>" required /></label>
+              <label><span><%= t('common.start') %></span><input type="time" name="starts_at" value="<%= meeting.starts_at %>" /></label>
+              <label><span><%= t('common.end') %></span><input type="time" name="ends_at" value="<%= meeting.ends_at %>" /></label>
+              <label><span><%= t('common.place') %></span><input type="text" name="location" maxlength="160" value="<%= meeting.location %>" /></label>
+              <label><span><%= t('gov.chair') %></span>
+                <select name="chair_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>" <%= e.id === meeting.chair_id ? 'selected' : '' %>><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('common.state') %></span>
+                <select name="status"><% meetingStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === meeting.status ? 'selected' : '' %>><%= s %></option><% }) %></select>
+              </label>
+              <label class="span-2"><span><%= t('cse.agenda') %></span><textarea name="agenda" rows="6"><%= meeting.agenda %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- Participants ---------- -->
+        <section class="tab-panel" id="participants">
+          <div class="card">
+            <div class="card-head"><h3><%= t('reu.invite') %></h3></div>
+            <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('reu.people') %></span>
+                <select name="user_ids" multiple size="8">
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %><%= e.grade ? ` — ${e.grade}` : '' %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('reu.invite') %></button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= attendeeList.length %> participant(s)</h3></div>
+            <% if (!attendeeList.length) { %>
+              <p class="empty-state"><%= t('reu.nobodyInvited') %></p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('common.person') %></th><th><%= t('common.role') %></th><th><%= t('reu.attendance') %></th><th></th></tr></thead>
+                  <tbody>
+                    <% attendeeList.forEach((a) => { %>
+                      <tr>
+                        <td class="cell-strong"><%= who(a) %></td>
+                        <td class="cell-sub"><%= a.grade || '—' %></td>
+                        <td>
+                          <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants/<%= a.user_id %>/presence" class="inline-field">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <select name="attendance" class="input-sm">
+                              <% attendances.forEach((att) => { %><option value="<%= att %>" <%= att === a.attendance ? 'selected' : '' %>><%= att %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('reu.note') %></button>
+                          </form>
+                        </td>
+                        <td>
+                          <form method="POST" action="/direction/reunions/<%= meeting.id %>/participants/<%= a.user_id %>/retirer" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-link btn-sm"><%= t('common.remove') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Compte rendu ---------- -->
+        <section class="tab-panel" id="compte-rendu">
+          <div class="card">
+            <div class="card-head"><h3><%= t('reu.minutes') %></h3></div>
+            <form method="POST" action="/direction/reunions/<%= meeting.id %>/compte-rendu" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('reu.record') %></span><textarea name="minutes" rows="14" placeholder="<%= t('reu.minutesPlaceholder') %>"><%= meeting.minutes %></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('reu.saveAndHeld') %></button></div>
+            </form>
+
+            <% if (releveOffert && meeting.minutes) { %>
+              <div class="row-actions">
+                <form method="POST" action="/direction/reunions/<%= meeting.id %>/relever" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('ia.pickOut') %></button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+
+          <% if (releveIa) { %>
+            <div class="card assist-card">
+              <div class="card-head">
+                <h3><%= t('ia.pickedOut') %></h3>
+                <span class="tag"><%= t('ia.proposal') %></span>
+              </div>
+              <p class="cell-sub"><%= t('ia.pickedOutNote') %></p>
+
+              <form method="POST" action="/direction/reunions/<%= meeting.id %>/relever/inscrire">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+                <% if (releveIa.decisions.length) { %>
+                  <h4><%= t('reu.decisionTaken') %></h4>
+                  <div class="pick-list">
+                    <% releveIa.decisions.forEach((d, i) => { %>
+                      <div class="pick">
+                        <span class="pick-head">
+                          <input type="checkbox" name="garder_decision_<%= i %>" value="1" checked />
+                          <input type="text" name="decision_libelle_<%= i %>" maxlength="200" value="<%= d.libelle %>" />
+                        </span>
+                      </div>
+                    <% }) %>
+                  </div>
+                <% } %>
+
+                <% if (releveIa.actions.length) { %>
+                  <h4><%= t('gov.entrustAction') %></h4>
+                  <div class="pick-list">
+                    <% releveIa.actions.forEach((a, i) => { %>
+                      <div class="pick">
+                        <span class="pick-head">
+                          <input type="checkbox" name="garder_action_<%= i %>" value="1" checked />
+                          <input type="text" name="action_libelle_<%= i %>" maxlength="300" value="<%= a.libelle %>" />
+                        </span>
+                        <span class="pick-what">
+                          <select name="action_porteur_<%= i %>">
+                            <option value=""><%= t('ia.noOwner') %></option>
+                            <% employees.forEach((e) => { %>
+                              <option value="<%= e.id %>" <%= e.id === a.porteurId ? 'selected' : '' %>><%= e.first_name %> <%= e.last_name %></option>
+                            <% }) %>
+                          </select>
+                          <input type="date" name="action_echeance_<%= i %>" value="<%= a.echeance || '' %>" />
+                        </span>
+                      </div>
+                    <% }) %>
+                  </div>
+                <% } %>
+
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary"><%= t('ia.writeToRegister') %></button>
+                </div>
+              </form>
+            </div>
+          <% } %>
+        </section>
+
+        <!-- ---------- Décisions ---------- -->
+        <section class="tab-panel" id="decisions">
+          <div class="card">
+            <div class="card-head"><h3><%= t('reu.decisionTaken') %></h3></div>
+            <form method="POST" action="/direction/decisions" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
+              <label class="span-2"><span><%= t('gov.decision') %></span><input type="text" name="title" required maxlength="200" /></label>
+              <label><span><%= t('gov.takenOn') %></span><input type="date" name="decided_on" value="<%= meeting.held_on %>" required /></label>
+              <label><span><%= t('common.scope') %></span>
+                <select name="scope"><% decisionScopes.forEach((s) => { %><option value="<%= s %>"><%= s %></option><% }) %></select>
+              </label>
+              <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="3"></textarea></label>
+              <label class="span-2"><span><%= t('common.reason') %></span><textarea name="rationale" rows="2"></textarea></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.registerRisk') %></button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('reu.decisionCount', { count: decisionList.length }) %></h3></div>
+            <% if (!decisionList.length) { %>
+              <p class="empty-state"><%= t('reu.noDecision') %></p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% decisionList.forEach((d) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= d.title %></span>
+                      <span class="tag <%= d.status === 'En vigueur' ? 'tag-success' : 'tag-warning' %>"><%= st(d.status) %></span>
+                    </div>
+                    <p class="cell-sub"><%= day(d.decided_on) %> · <%= d.scope %></p>
+                    <% if (d.body) { %><p class="cell-sub"><%= d.body %></p><% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Actions ---------- -->
+        <section class="tab-panel" id="actions">
+          <div class="card">
+            <div class="card-head"><h3><%= t('gov.entrustAction') %></h3></div>
+            <form method="POST" action="/direction/actions" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
+              <label class="span-2"><span><%= t('common.action') %></span><input type="text" name="label" required maxlength="300" /></label>
+              <label><span><%= t('gov.entrustedTo') %></span>
+                <select name="assignee_id">
+                  <option value="">—</option>
+                  <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('gov.forDate') %></span><input type="date" name="due_date" /></label>
+              <label class="span-2"><span><%= t('gov.sourceDecision') %></span>
+                <select name="decision_id">
+                  <option value="">—</option>
+                  <% decisionList.forEach((d) => { %><option value="<%= d.id %>"><%= d.title %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('gov.entrust') %></button></div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= actionList.length %> action(s)</h3></div>
+            <% if (!actionList.length) { %>
+              <p class="empty-state"><%= t('reu.noAction') %></p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('erp.dueDate') %></th><th><%= t('common.action') %></th><th><%= t('gov.holder') %></th><th><%= t('common.state') %></th></tr></thead>
+                  <tbody>
+                    <% actionList.forEach((a) => { %>
+                      <tr>
+                        <td class="cell-sub nowrap"><% if (a.due_date && a.due_date < today && a.status !== 'Faite') { %><span class="tag tag-danger"><%= day(a.due_date) %></span><% } else { %><%= day(a.due_date) %><% } %></td>
+                        <td class="cell-strong"><%= a.label %></td>
+                        <td class="cell-sub"><%= who(a) %></td>
+                        <td>
+                          <form method="POST" action="/direction/actions/<%= a.id %>/statut" class="inline-field">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <input type="hidden" name="back" value="reunion" />
+                            <input type="hidden" name="meeting_id" value="<%= meeting.id %>" />
+                            <select name="status" class="input-sm">
+                              <% actionStatuses.forEach((s) => { %><option value="<%= s %>" <%= s === a.status ? 'selected' : '' %>><%= s %></option><% }) %>
+                            </select>
+                            <button type="submit" class="btn btn-outline btn-sm"><%= t('common.update') %></button>
+                          </form>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

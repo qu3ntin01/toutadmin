@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Parapheur — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.signing'),
+        headerSubtitle: t('sig.headerSub'),
+        onglets: [
+          { tab: 'a-signer', label: t('sig.tabToSign'), icon: 'check', badge: pending.length },
+          { tab: 'mes-documents', label: t('sig.tabMyDocuments'), icon: 'inbox', badge: mine.length }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso.slice(0, 10) + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const stateTag = (s) => (s === 'Signé' ? 'tag-success' : (s === 'Refusé' || s === 'Annulé' ? 'tag-danger' : 'tag-warning')); %>
+
+        <% const documentList = (rows, empty) => { %>
+          <% if (!rows.length) { %>
+            <p class="empty-state"><%= empty %></p>
+          <% } else { %>
+            <ul class="meeting-list">
+              <% rows.forEach((r) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><a href="/parapheur/<%= r.id %>"><%= r.title %></a></span>
+                    <span class="tag <%= stateTag(r.status) %>"><%= st(r.status) %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= r.kind %> · <%= t('sig.openedOn', { date: day(r.created_at) }) %>
+                    <%= r.deadline ? ` · ${t('sig.forDate', { date: day(r.deadline) })}` : '' %>
+                    <%= r.overdue ? ` · ${t('sig.overdue')}` : '' %>
+                    · <%= t('sig.signatureCount', { signed: r.signedCount, total: r.total }) %>
+                    <% if (r.next) { %> · <%= t('sig.turnOf', { name: `${r.next.first_name} ${r.next.last_name}` }) %><% } %>
+                  </p>
+                  <span class="meter"><span class="meter-fill" data-ratio="<%= r.progress %>"></span></span>
+                  <p class="cell-sub mono"><%= t('sig.fingerprint', { hash: r.sha256.slice(0, 32) + '…' }) %></p>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        <% }; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= pending.length %></span><span class="stat-label"><%= t('sig.awaitingYou') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.running %></span><span class="stat-label"><%= t('sig.inProgress') %><%= stats.overdue ? ` · ${t('pil.lateCount', { count: stats.overdue })}` : '' %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.signed %></span><span class="stat-label"><%= t('sig.signedDocuments') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ticket', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= stats.refused %></span><span class="stat-label"><%= t('sig.refusals') %></span></span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="a-signer">
+          <div class="card">
+            <div class="card-head"><h3><%= t('sig.awaitingYou') %></h3></div>
+            <% documentList(pending, "Rien à signer pour le moment.") %>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="mes-documents">
+          <div class="card">
+            <div class="card-head"><h3><%= t('sig.whereYouAppear') %></h3></div>
+            <% documentList(mine, "Aucun document ne vous a été soumis.") %>
+          </div>
+        </section>
+
+        <% if (opener) { %>
+          <section class="tab-panel" id="nouveau">
+            <div class="card">
+              <div class="card-head"><h3><%= t('sig.putDocument') %></h3></div>
+              <form method="POST" action="/parapheur" enctype="multipart/form-data" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.title') %></span><input type="text" name="title" required maxlength="200" placeholder="<%= t('sig.docPlaceholder') %>" /></label>
+                <label><span><%= t('common.nature') %></span>
+                  <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+                </label>
+                <label><span><%= t('sig.signBefore') %></span><input type="date" name="deadline" /></label>
+                <label class="span-2"><span><%= t('sig.fileLabel') %></span><input type="file" name="document" accept=".pdf,.docx,application/pdf" /></label>
+                <label class="span-2"><span><%= t('sig.orText') %></span><textarea name="body" rows="6" placeholder="<%= t('sig.textPlaceholder') %>"></textarea></label>
+
+                <div class="span-2">
+                  <p class="section-label"><%= t('sig.signersInOrder') %></p>
+                  <% [1, 2, 3, 4, 5].forEach((rank) => { %>
+                    <div class="signer-row">
+                      <span class="signer-rank"><%= rank %></span>
+                      <select name="signer_ids">
+                        <option value="">—</option>
+                        <% employees.forEach((e) => { %><option value="<%= e.id %>"><%= e.first_name %> <%= e.last_name %><%= e.grade ? ` — ${e.grade}` : '' %></option><% }) %>
+                      </select>
+                      <input type="text" name="signer_roles" maxlength="80" placeholder="<%= t('sig.capacityPlaceholder') %>" />
+                    </div>
+                  <% }) %>
+                </div>
+
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('sig.openFlow') %></button></div>
+              </form>
+              <p class="hint">
+                <%= t('sig.frozenNote') %>
+              </p>
+              <p class="hint">
+                <%- t('sig.simpleNote', {
+                      simple: `<strong>${t('sig.simple')}</strong>`,
+                      qualified: `<em>${t('sig.qualified')}</em>`,
+                    }) %>
+              </p>
+            </div>
+          </section>
+
+          <section class="tab-panel" id="documents">
+            <div class="card">
+              <div class="card-head"><h3><%= all.length %> document(s)</h3></div>
+              <% documentList(all, 'Aucun document au parapheur.') %>
+            </div>
+          </section>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/meter.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

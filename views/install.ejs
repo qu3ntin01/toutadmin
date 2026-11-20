@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t('install.title') }) %>
+</head>
+<body class="install-scene">
+
+<%#
+  Une fenêtre posée au-dessus de la page, et non une page de plus : on n'est
+  pas encore dans le produit, on est en train de l'installer. Le fond reste
+  visible, assombri — la fenêtre a quelque chose derrière elle, ce qui suffit
+  à la faire flotter.
+%>
+<%
+  const total = steps.length;
+  // L'avancement : les étapes franchies, pas celle qu'on regarde. Sur le
+  // dernier écran, la barre repart de là et va jusqu'au bout, palier par
+  // palier — elle ne recommence pas à zéro, l'installation non plus.
+  const progress = Math.round((stepIndex / total) * 100);
+  const icons = {
+    langue: 'network', prerequis: 'shield', 'mises-a-jour': 'tool',
+    licence: 'ticket', base: 'database',
+    entreprise: 'briefcase', sections: 'grid', administrateur: 'user', installation: 'rocket',
+  };
+  // Les clés sont écrites en toutes lettres plutôt que composées : le
+  // vérificateur de dictionnaire lit le code, et une clé bâtie par
+  // concaténation lui échappe — donc une traduction manquante aussi.
+  const names = {
+    langue: 'install.steps.langue', prerequis: 'install.steps.prerequis',
+    'mises-a-jour': 'install.maj.title',
+    licence: 'licence.install.title',
+    base: 'install.steps.base', entreprise: 'install.steps.entreprise',
+    sections: 'install.steps.sections',
+    administrateur: 'install.steps.administrateur', installation: 'install.steps.installation',
+  };
+  const hints = {
+    langue: 'install.hint.langue', prerequis: 'install.hint.prerequis',
+    'mises-a-jour': 'install.hint.maj',
+    licence: 'install.hint.licence',
+    base: 'install.hint.base', entreprise: 'install.hint.entreprise',
+    sections: 'install.hint.sections',
+    administrateur: 'install.hint.administrateur', installation: 'install.hint.installation',
+  };
+  const titles = {
+    langue: 'install.language.title', prerequis: 'install.checks.title',
+    'mises-a-jour': 'install.maj.title',
+    licence: 'licence.install.title',
+    base: 'install.db.title', entreprise: 'install.company.title',
+    sections: 'install.sections.title',
+    administrateur: 'install.admin.title', installation: 'install.done.title',
+  };
+  const subs = {
+    langue: 'install.language.help', prerequis: 'install.checks.help',
+    'mises-a-jour': 'install.maj.lede',
+    licence: 'licence.install.lede',
+    base: 'install.db.help', entreprise: 'install.company.help',
+    sections: 'install.sections.help',
+    administrateur: 'install.admin.help', installation: 'install.done.help',
+  };
+  const stageLabels = {
+    controle: 'install.run.control', schema: 'install.run.schema',
+    instance: 'install.run.instance', configuration: 'install.run.config',
+  };
+%>
+
+  <div class="install-window" role="dialog" aria-labelledby="install-heading">
+
+    <div class="install-progress" role="progressbar" aria-valuemin="0" aria-valuemax="100"
+         aria-valuenow="<%= progress %>" aria-label="<%= t('install.progress') %>">
+      <%# La largeur vient d'une classe, jamais d'un attribut « style » : la
+          politique de contenu de l'autre édition n'autorise aucun style en
+          ligne, et les deux assistants rendent le même HTML. %>
+      <span class="install-progress-fill" data-progress data-at="<%= stepIndex %>"></span>
+    </div>
+
+    <aside class="install-aside">
+      <div class="install-brand">
+        <span class="brand-mark">SM</span>
+        <span class="brand-text">
+          <span class="brand-name"><%= t('app.name') %></span>
+          <span class="brand-panel"><%= t('install.title') %> · v<%= version %></span>
+        </span>
+      </div>
+
+      <ol class="install-steps">
+        <% steps.forEach((s, index) => { %>
+          <li class="install-step <%= index < stepIndex ? 'is-done' : (index === stepIndex ? 'is-current' : 'is-todo') %>">
+            <span class="step-badge" aria-hidden="true">
+              <% if (index < stepIndex) { %>
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7" /></svg>
+              <% } else { %>
+                <%- include('partials/icon', { name: icons[s], iconSize: 15 }) %>
+              <% } %>
+            </span>
+            <span class="step-text">
+              <span class="step-name"><%= t(names[s]) %></span>
+              <span class="step-hint"><%= t(hints[s]) %></span>
+            </span>
+          </li>
+        <% }) %>
+      </ol>
+
+      <p class="install-aside-foot"><%= t('install.onceOnly') %></p>
+    </aside>
+
+    <section class="install-stage">
+      <header class="stage-head">
+        <p class="stage-count"><%= t('install.stepOf', { n: stepIndex + 1, total }) %></p>
+        <h1 id="install-heading"><%= t(titles[step]) %></h1>
+        <p class="stage-sub"><%= t(subs[step]) %></p>
+      </header>
+
+      <% if (flash) { %>
+        <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <% if (step === 'installation') { %>
+        <%#
+          La pose. Quatre paliers, et quatre appels au serveur : la barre
+          avance quand un palier revient, jamais avant.
+        %>
+        <div class="install-run" data-run
+             data-from="<%= progress %>"
+             data-labels="<%= JSON.stringify({
+               done: t('install.run.done'),
+               failed: t('install.run.failed'),
+               redirect: t('install.run.redirect'),
+               httpError: t('install.run.httpError'),
+               networkError: t('install.run.networkError'),
+             }) %>">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+          <dl class="recap" data-recap>
+            <div class="recap-row">
+              <dt><%= t('install.steps.langue') %></dt>
+              <dd><% const chosen = locales.find((l) => l.code === (draft.locale || locale)); %><%= chosen.flag %> <%= chosen.label %></dd>
+            </div>
+            <div class="recap-row">
+              <dt><%= t('install.steps.base') %></dt>
+              <dd><%= draft.engine === 'mysql' ? `MySQL · ${draft.dbName} @ ${draft.dbHost}` : `SQLite · ${databaseFile}` %></dd>
+            </div>
+            <div class="recap-row">
+              <dt><%= t('install.steps.entreprise') %></dt>
+              <dd><%= draft.companyName %> — <%= draft.leaveDays ?? 25 %> <%= t('install.company.leave').toLowerCase() %></dd>
+            </div>
+            <div class="recap-row">
+              <dt><%= t('install.steps.administrateur') %></dt>
+              <dd><%= draft.adminFirstName %> <%= draft.adminLastName %> — <%= draft.adminEmail %></dd>
+            </div>
+          </dl>
+
+          <ol class="run-steps" data-steps>
+            <% stages.forEach((stage) => { %>
+              <li class="run-step" data-step="<%= stage %>">
+                <span class="run-dot" aria-hidden="true"></span>
+                <span class="run-label"><%= t(stageLabels[stage]) %></span>
+                <span class="run-said" data-said></span>
+              </li>
+            <% }) %>
+          </ol>
+
+          <p class="run-error" data-error hidden></p>
+
+          <div class="install-actions">
+            <a class="btn btn-ghost" href="/install/administrateur" data-back><%= t('install.back') %></a>
+            <button type="button" class="btn btn-primary" data-launch><%= t('install.launch') %></button>
+          </div>
+        </div>
+        <p class="install-note"><%= t('install.done.lockNote') %></p>
+
+      <% } else { %>
+        <form method="POST" action="/install/<%= step %>" class="install-form">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+          <% if (step === 'langue') { %>
+            <div class="choice-grid">
+              <% locales.forEach((l) => { %>
+                <label class="choice<%= l.code === (draft.locale || locale) ? ' is-picked' : '' %>" lang="<%= l.code %>">
+                  <input type="radio" name="locale" value="<%= l.code %>"<%= l.code === (draft.locale || locale) ? ' checked' : '' %> />
+                  <span class="choice-flag" aria-hidden="true"><%= l.flag %></span>
+                  <span class="choice-label"><%= l.label %></span>
+                </label>
+              <% }) %>
+            </div>
+
+          <% } else if (step === 'prerequis') { %>
+            <ul class="check-list">
+              <% checks.forEach((check) => { %>
+                <li class="check-item">
+                  <%# Trois états : satisfait, recommandation non appliquée, prérequis manquant. %>
+                  <span class="check-mark is-<%= check.state %>" aria-hidden="true"><%= { ok: '✓', warn: '!', fail: '✕' }[check.state] %></span>
+                  <span class="check-body">
+                    <span class="check-label">
+                      <%= check.label %><% if (!check.blocking) { %><span class="check-tag"><%= t('install.checks.optional') %></span><% } %>
+                    </span>
+                    <span class="check-detail"><%= check.detail %></span>
+                  </span>
+                </li>
+              <% }) %>
+            </ul>
+            <% if (tokenRequired) { %>
+              <label class="install-field">
+                <span><%= t('install.checks.token') %></span>
+                <input type="password" name="install_token" required autocomplete="off" autofocus />
+                <span class="field-hint"><%= t('install.tokenHelp') %></span>
+              </label>
+            <% } %>
+
+          <% } else if (step === 'mises-a-jour') { %>
+            <%#
+              Installer une version dépassée est une mauvaise façon de commencer :
+              on pose un CMS dont on sait déjà qu'il lui manque des correctifs.
+              Autant le faire avant qu'il n'y ait des données dedans.
+
+              Une version en retard bloque. Un éditeur injoignable, non : un client
+              derrière un pare-feu d'entreprise doit pouvoir installer son CMS, et
+              transformer une panne de réseau en produit inutilisable serait une
+              faute bien plus grave que de laisser poser une version d'un mois.
+            %>
+            <%# Pas de champ d'adresse. L'éditeur d'un CMS ne change pas d'une
+                installation à l'autre : le demander revenait à poser une
+                question dont le client n'a pas la réponse, et dont une mauvaise
+                réponse se solde par « injoignable » sans qu'il sache pourquoi.
+                L'adresse est dans le code ; l'écran ne dit plus que ce qui
+                intéresse celui qui installe — êtes-vous à jour, et sinon. %>
+            <div class="licence-check" data-maj-check data-labels="<%= JSON.stringify({
+                  checking: t('install.maj.checking'),
+                  uptodate: t('install.maj.uptodate'),
+                  behind: t('install.maj.behind'),
+                  unreachable: t('install.maj.unreachable'),
+                  unreachableDetail: t('install.maj.unreachableDetail'),
+                  posing: t('install.maj.posing'),
+                  posed: t('install.maj.posed'),
+                  failed: t('install.maj.failed'),
+                  needKey: t('install.maj.needKey'),
+                }) %>">
+              <p class="licence-check-say" data-maj-say role="status" aria-live="polite"></p>
+            </div>
+
+            <%# Le champ ne sert qu'à télécharger, et n'apparaît donc qu'au
+                moment où l'on sait qu'il va servir. La clé est ensuite reportée
+                à l'étape « Licence », qui n'a pas à la redemander. %>
+            <label class="install-field" data-maj-cle hidden>
+              <span><%= t('licence.install.key') %></span>
+              <input name="licence_cle" value="<%= draft.licenceKey || '' %>" autocomplete="off" />
+              <span class="field-hint"><%= t('install.maj.needKeyHint') %></span>
+            </label>
+
+          <% } else if (step === 'licence') { %>
+            <%# La clé se saisit ici, mais rien n'est activé : l'activation attend
+                le dernier palier, quand la base existe pour porter l'empreinte.
+                Valider maintenant lierait la licence à une instance qui n'existe
+                pas encore, et une installation abandonnée en consommerait une. %>
+            <label class="install-field">
+              <span><%= t('licence.install.key') %></span>
+              <input name="licence_cle" value="<%= draft.licenceKey || '' %>" autocomplete="off" autofocus />
+              <span class="field-hint"><%= t('licence.install.keyHint') %></span>
+            </label>
+
+            <%#
+              Trois chemins pour remplir le champ ci-dessus, et aucun bouton
+              « Activer » : la clé est éprouvée dès qu'elle est là, qu'elle
+              soit collée à la main ou rapportée par la fenêtre. Un bouton de
+              plus n'aurait rien appris à personne.
+
+              Les deux premiers ouvrent une fenêtre sur l'espace client. Le mot
+              de passe du client s'y tape sur l'hébergement de l'espace, sous
+              son certificat — jamais dans ce CMS-ci, qui vient d'être déballé,
+              souvent sur un hébergement qu'on découvre et parfois encore en
+              clair. La clé revient par « postMessage », et le script vérifie
+              l'origine du message avant de la poser dans le champ.
+
+              Le troisième part sur le site, dans un onglet : on va y lire, pas
+              y faire — et une lecture ne doit pas coûter l'assistant en cours.
+
+              Adresse vide, lien absent : « MANAGER_URL » ou « SITE_URL » posée
+              et vide dit « instance fermée », et une instance fermée n'offre
+              pas de porte vers dehors.
+            %>
+            <% if (managerUrl || siteUrl) { %>
+              <ul class="licence-liens" data-licence-liens
+                data-manager="<%= managerUrl %>"
+                data-edition="node"
+                data-labels="<%= JSON.stringify({
+                  opening: t('licence.install.linkOpening'),
+                  blocked: t('licence.install.linkBlocked'),
+                  received: t('licence.install.linkReceived'),
+                }) %>">
+                <%#
+                  « rel="opener" », qui a l'air d'une redite et n'en est pas
+                  une : depuis Chrome 88, « target="_blank" » sous-entend
+                  « noopener », et la prise est coupée sans qu'on l'ait
+                  demandé. Or c'est justement par « window.opener » que la clé
+                  revient — sans lui, l'onglet de repli s'ouvre bien, le client
+                  choisit bien sa licence, et rien ne rentre. « opener » le
+                  rétablit explicitement.
+
+                  La page ouverte est la nôtre, sur une origine que le script
+                  vérifie avant d'écouter quoi que ce soit : ce n'est pas un
+                  site tiers à qui l'on prête une prise.
+
+                  L'adresse portée par le lien est nue. Le script y ajoute
+                  l'origine de retour et l'édition au chargement : elles ne se
+                  connaissent qu'ici, dans le navigateur. Sans script, le lien
+                  mène quand même à l'espace client, où la clé se copie à la
+                  main — un chemin plus long, mais un chemin.
+                %>
+                <% if (managerUrl) { %>
+                  <li>
+                    <a href="<%= managerUrl %>/installeur" target="_blank" rel="opener" data-licence-fenetre="/installeur">
+                      <span class="licence-lien-titre"><%= t('licence.install.linkMine') %></span>
+                      <span class="licence-lien-quoi"><%= t('licence.install.linkMineWhat') %></span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="<%= managerUrl %>/installeur/gratuite" target="_blank" rel="opener" data-licence-fenetre="/installeur/gratuite">
+                      <span class="licence-lien-titre"><%= t('licence.install.linkFree') %></span>
+                      <span class="licence-lien-quoi"><%= t('licence.install.linkFreeWhat') %></span>
+                    </a>
+                  </li>
+                <% } %>
+                <% if (siteUrl) { %>
+                  <li>
+                    <a href="<%= siteUrl %>/tarifs.html" target="_blank" rel="noopener noreferrer">
+                      <span class="licence-lien-titre"><%= t('licence.install.linkOffers') %></span>
+                      <span class="licence-lien-quoi"><%= t('licence.install.linkOffersWhat') %></span>
+                    </a>
+                  </li>
+                <% } %>
+              </ul>
+            <% } %>
+
+            <%# L'adresse de l'éditeur ne se saisit pas non plus ici : c'est le
+                même éditeur pour toutes les instances, et elle est dans le code. %>
+            <label class="install-field">
+              <span><%= t('licence.publicAddress') %></span>
+              <input name="licence_adresse" value="<%= draft.licenceAdresse || '' %>" placeholder="https://portail.entreprise.fr" />
+              <span class="field-hint"><%= t('licence.publicAddressHint') %></span>
+            </label>
+
+            <details class="install-details">
+              <summary><%= t('licence.install.offlineSwitch') %></summary>
+              <label class="install-field">
+                <span><%= t('licence.offlineToken') %></span>
+                <textarea name="licence_jeton" rows="5" placeholder="eyJ2IjoxLCJpZCI6…"><%= draft.licenceJeton || '' %></textarea>
+                <span class="field-hint"><%= t('licence.offlineTokenHint') %></span>
+              </label>
+            </details>
+
+            <%# La vérification, avant d'aller plus loin. Elle n'engage rien :
+                la route d'essai du panneau ne lie aucune licence, et l'instance
+                n'existe pas encore. On peut donc presser le bouton autant de
+                fois qu'on veut. Tant qu'elle n'a pas dit oui, « Suivant » reste
+                gris — c'est ici qu'on veut découvrir qu'une clé est refusée, et
+                non une fois les données dedans. %>
+            <%#
+              Le compte rendu de l'activation. Le bouton, lui, est en bas avec
+              « Suivant » : c'est là qu'on regarde quand on veut avancer, et
+              c'est là qu'il faut comprendre pourquoi on ne peut pas encore.
+
+              La balise d'échappement d'EJS échappe déjà les guillemets pour un
+              attribut ; le faire une seconde fois à la main rendait ce JSON
+              illisible, et plus aucun message ne s'affichait.
+            %>
+            <div class="licence-check<%= draft.licenceVerifiee ? ' is-ok' : '' %>" data-licence-check data-labels="<%= JSON.stringify({
+                  checking: t('licence.install.verifying'),
+                  valid: t('licence.install.valid'),
+                  invalid: t('licence.install.invalid'),
+                  bound: t('licence.install.bound'),
+                  members: t('licence.install.validMembers'),
+                  unreachable: t('licence.install.unreachable'),
+                  unreachableDetail: t('licence.install.unreachableDetail'),
+                }) %>">
+              <p class="licence-check-say" data-licence-say role="status" aria-live="polite"><%
+                if (draft.licenceVerifiee) { %><%= t('licence.install.valid') %> <%=
+                  t('licence.install.validMembers', { membres: draft.licenceMembres || 0 }) %><% }
+              %></p>
+            </div>
+
+            <%# Continuer sans licence reste possible : une instance non activée
+                n'est pas bloquée, elle est seulement non activée, et son écran
+                « Licence » la rattrapera. Ce chemin-là ne demande aucune
+                vérification — il n'y a rien à vérifier. %>
+            <button type="submit" name="passer" value="1" class="btn btn-quiet install-skip" data-licence-skip>
+              <%= t('licence.install.skip') %>
+            </button>
+            <span class="field-hint"><%= t('licence.install.skipHint') %></span>
+
+          <% } else if (step === 'base') { %>
+            <% const moteur = draft.engine || 'sqlite'; %>
+            <div class="engine-grid">
+              <label class="engine<%= moteur === 'sqlite' ? ' is-picked' : '' %>">
+                <input type="radio" name="db_driver" value="sqlite"<%= moteur === 'sqlite' ? ' checked' : '' %> data-engine />
+                <span class="engine-head">
+                  <span class="engine-name">SQLite</span>
+                  <span class="engine-tag"><%= t('install.db.recommended') %></span>
+                </span>
+                <span class="engine-sub"><%= t('install.db.sqliteHelp') %></span>
+              </label>
+
+              <label class="engine<%= moteur === 'mysql' ? ' is-picked' : '' %>">
+                <input type="radio" name="db_driver" value="mysql"<%= moteur === 'mysql' ? ' checked' : '' %> data-engine />
+                <span class="engine-head">
+                  <span class="engine-name">MySQL / MariaDB</span>
+                </span>
+                <span class="engine-sub"><%= t('install.db.mysqlHelp') %></span>
+              </label>
+            </div>
+
+            <fieldset class="mysql-fields"<%= moteur === 'mysql' ? '' : ' hidden' %> data-mysql>
+              <legend class="sr-only"><%= t('install.db.connection') %></legend>
+              <div class="form-grid">
+                <label>
+                  <span><%= t('install.db.host') %></span>
+                  <input type="text" name="db_host" value="<%= draft.dbHost || '127.0.0.1' %>" autocomplete="off" />
+                  <span class="field-hint"><%= t('install.db.hostHelp') %></span>
+                </label>
+                <label>
+                  <span><%= t('install.db.port') %></span>
+                  <input type="number" name="db_port" value="<%= draft.dbPort || 3306 %>" min="1" max="65535" />
+                </label>
+                <label>
+                  <span><%= t('install.db.name') %></span>
+                  <input type="text" name="db_name" value="<%= draft.dbName || '' %>" autocomplete="off" />
+                  <span class="field-hint"><%= t('install.db.nameHelp') %></span>
+                </label>
+                <label>
+                  <span><%= t('install.db.user') %></span>
+                  <input type="text" name="db_user" value="<%= draft.dbUser || '' %>" autocomplete="off" />
+                </label>
+                <label class="span-2">
+                  <span><%= t('install.db.password') %></span>
+                  <input type="password" name="db_password" autocomplete="off" />
+                  <span class="field-hint"><%= t('install.db.passwordHelpNode') %></span>
+                </label>
+              </div>
+            </fieldset>
+
+          <% } else if (step === 'entreprise') { %>
+            <div class="form-grid">
+              <label class="span-2">
+                <span><%= t('install.company.name') %></span>
+                <input type="text" name="company_name" required maxlength="120"
+                       value="<%= draft.companyName || '' %>" placeholder="<%= t('ins.companyPlaceholder') %>" autofocus />
+                <span class="field-hint"><%= t('install.company.help') %></span>
+              </label>
+              <label>
+                <span><%= t('install.company.leave') %></span>
+                <input type="number" name="annual_leave_days" min="0" max="365" step="0.5"
+                       value="<%= draft.leaveDays ?? 25 %>" required />
+                <span class="field-hint"><%= t('install.company.leaveHelp') %></span>
+              </label>
+            </div>
+
+          <% } else if (step === 'sections') { %>
+            <%# Une case par section, et sous chacune ce qu'elle contient : on
+                ne choisit pas un mot, on choisit des services. « Réglages » est
+                cochée et verrouillée — c'est elle qui permet de reposer les
+                autres, et une instance sans elle serait fermée à clé de
+                l'intérieur. %>
+            <p class="field-hint"><%= t('install.sections.lede') %></p>
+            <ul class="pick-list">
+              <% sectionsOffertes.forEach((section) => { %>
+                <li class="pick <%= section.obligatoire ? 'is-locked' : '' %>">
+                  <label class="pick-head" for="sec-<%= section.cle %>">
+                    <input type="checkbox" id="sec-<%= section.cle %>" name="sections" value="<%= section.cle %>"
+                           <%= section.retenue || section.obligatoire ? 'checked' : '' %>
+                           <%= section.obligatoire ? 'disabled' : '' %> />
+                    <span class="pick-name"><%= t(section.titre) %></span>
+                    <% if (section.obligatoire) { %>
+                      <span class="pick-tag"><%= t('install.sections.required') %></span>
+                    <% } %>
+                  </label>
+                  <p class="pick-what"><%= section.services.map((service) => t(service.titre)).join(' · ') %></p>
+                </li>
+              <% }) %>
+            </ul>
+            <p class="field-hint"><%= t('install.sections.later') %></p>
+
+          <% } else { %>
+            <div class="form-grid">
+              <label>
+                <span><%= t('install.admin.firstName') %></span>
+                <input type="text" name="first_name" required value="<%= draft.adminFirstName || '' %>" autofocus autocomplete="given-name" />
+              </label>
+              <label>
+                <span><%= t('install.admin.lastName') %></span>
+                <input type="text" name="last_name" required value="<%= draft.adminLastName || '' %>" autocomplete="family-name" />
+              </label>
+              <label class="span-2">
+                <span><%= t('auth.email') %></span>
+                <input type="email" name="email" required value="<%= draft.adminEmail || '' %>" autocomplete="username" />
+              </label>
+              <label>
+                <span><%= t('auth.password') %></span>
+                <input type="password" name="password" required minlength="12" autocomplete="new-password" placeholder="••••••••••••" />
+              </label>
+              <label>
+                <span><%= t('profile.confirmPassword') %></span>
+                <input type="password" name="confirm_password" required minlength="12" autocomplete="new-password" placeholder="••••••••••••" />
+              </label>
+              <p class="field-hint span-2"><%= t('profile.passwordHelp') %></p>
+            </div>
+          <% } %>
+
+          <div class="install-actions">
+            <% if (stepIndex > 0) { %>
+              <a class="btn btn-ghost" href="/install/<%= steps[stepIndex - 1] %>"><%= t('install.back') %></a>
+            <% } else { %>
+              <span></span>
+            <% } %>
+            <%# À l'étape « Licence », « Suivant » naît désactivé et n'est rendu
+                qu'une fois la licence acceptée. Un retour en arrière retrouve
+                cet état-là plutôt que de refaire le tour. %>
+            <% if (step === 'mises-a-jour') { %>
+              <span class="install-activate">
+                <progress class="licence-check-bar" data-maj-bar max="100" value="0" hidden></progress>
+                <button type="button" class="btn" data-maj-poser hidden>
+                  <%= t('install.maj.update') %>
+                </button>
+              </span>
+            <% } %>
+            <%# Plus de bouton « Activer » : la clé est éprouvée dès qu'elle est
+                posée dans le champ, collée à la main ou rapportée par la
+                fenêtre de l'espace client. Il reste la barre, qui dit qu'on
+                attend le panneau. %>
+            <% if (step === 'licence') { %>
+              <span class="install-activate">
+                <progress class="licence-check-bar" data-licence-bar max="100" value="0" hidden></progress>
+              </span>
+            <% } %>
+            <button type="submit" class="btn btn-primary" data-install-next
+              <%= (step === 'licence' && !draft.licenceVerifiee)
+                  || step === 'mises-a-jour' ? 'disabled' : '' %>>
+              <%= t('install.next') %>
+            </button>
+          </div>
+        </form>
+      <% } %>
+    </section>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/installation.js') %>"></script>
+</body>
+</html>

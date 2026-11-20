@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Coffre-fort — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <% if (restricted) { %>
+      <%- include('partials/sidebar', {
+        panelLabel: t('nav.vault'),
+        navItems: [{ tab: 'documents', label: t('sig.tabMyDocuments'), icon: 'shield' }],
+        footLinks: []
+      }) %>
+    <% } else { %>
+      <%- include('partials/member-sidebar', { active: 'coffre' }) %>
+    <% } %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.vault'),
+        headerSubtitle: t('cf.headerSub', { years: retentionYears })
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const size = (n) => (n < 1024 * 1024 ? Math.round(n / 1024) + ' Ko' : (n / 1048576).toFixed(1) + ' Mo'); %>
+
+        <% if (restricted) { %>
+          <div class="flash flash-success">
+            <%= t('cf.consulting', { name: `${holder.first_name} ${holder.last_name}` }) %>
+          </div>
+        <% } %>
+
+        <section class="tab-panel is-active" id="documents">
+          <div class="card">
+            <div class="card-head"><h3><%= t('cf.documentCount', { count: documents.length }) %></h3></div>
+            <% if (documents.length === 0) { %>
+              <p class="cell-sub">
+                <%= t('cf.noDocument') %>
+              </p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th><%= t('cf.depositedOn') %></th><th><%= t('cfg.keptUntil') %></th><th><%= t('common.size') %></th><th></th></tr></thead>
+                  <tbody>
+                    <% documents.forEach((d) => { %>
+                      <tr>
+                        <td>
+                          <span class="cell-strong"><%= d.title %></span>
+                          <br /><span class="cell-sub fingerprint" title="<%= t('cf.fingerprintTitle') %>">
+                            empreinte <%= d.sha256.slice(0, 16) %>…
+                          </span>
+                        </td>
+                        <td><span class="tag <%= d.category === 'Bulletin de paie' ? 'tag-accent' : '' %>"><%= d.category %></span></td>
+                        <td class="cell-sub nowrap"><%= d.period || '—' %></td>
+                        <td class="cell-sub nowrap"><%= moment(d.deposited_at) %></td>
+                        <td class="cell-sub nowrap"><%= day(d.retention_until) %></td>
+                        <td class="cell-sub nowrap"><%= size(d.byte_size) %></td>
+                        <td><a class="btn btn-primary btn-sm" href="/coffre-fort/documents/<%= d.id %>"><%= t('common.download') %></a></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hint">
+                <%= t('cf.recomputeNote') %>
+              </p>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('cf.payHistory', { count: payslips.length }) %></h3></div>
+            <p class="hint">
+              <%= t('cf.payHistoryNote') %>
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.period') %></th><th><%= t('payslip.gross') %></th><th><%= t('payslip.net') %></th><th><%= t('common.status') %></th><th><%= t('common.document') %></th></tr></thead>
+                <tbody>
+                  <% payslips.forEach((p) => { %>
+                    <% const doc = documents.find((d) => d.payslip_id === p.id) %>
+                    <tr>
+                      <td class="cell-strong nowrap"><%= p.period %></td>
+                      <td><%= money(p.gross_amount) %></td>
+                      <td class="cell-strong"><%= money(p.net_amount) %></td>
+                      <td><span class="tag <%= p.status === 'Payée' ? 'tag-success' : '' %>"><%= st(p.status) %></span></td>
+                      <td>
+                        <% if (doc) { %>
+                          <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= doc.id %>"><%= t('common.download') %></a>
+                        <% } else { %>
+                          <span class="cell-sub"><%= t('cf.notDeposited') %></span>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (payslips.length === 0) { %><tr><td colspan="5" class="cell-sub"><%= t('hr.noPayslipRecorded') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <% if (restricted) { %>
+            <div class="card">
+              <form method="POST" action="/deconnexion">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-outline btn-block"><%= t('cf.closeAccess') %></button>
+              </form>
+            </div>
+          <% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Base de connaissances — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('sup.tabKb'),
+        headerSubtitle: t('kb.headerSub'),
+        onglets: [{ tab: 'articles', label: t('stk.tabItems'), icon: 'inbox' }, { tab: 'rediger', label: t('kb.tabWrite'), icon: 'plus' }]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <section class="tab-panel is-active" id="articles">
+          <div class="card">
+            <div class="card-head"><h3><%= t('kb.search') %></h3></div>
+            <form method="GET" action="/base-de-connaissances" class="form-grid">
+              <label><span><%= t('kb.keywords') %></span><input type="search" name="q" value="<%= query %>" placeholder="<%= t('kb.keywordsPlaceholder') %>" /></label>
+              <label><span><%= t('common.category') %></span>
+                <select name="categorie"><option value=""><%= t('hr.filterAll') %></option>
+                  <% categoryList.forEach((c) => { %><option value="<%= c %>" <%= category === c ? 'selected' : '' %>><%= c %></option><% }) %>
+                </select>
+              </label>
+              <div class="span-2 row-actions">
+                <button type="submit" class="btn btn-primary btn-sm"><%= t('kb.search') %></button>
+                <a class="btn btn-outline btn-sm" href="/base-de-connaissances"><%= t('common.viewAll') %></a>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= articleList.length %> article(s)</h3></div>
+            <ul class="org-list">
+              <% articleList.forEach((a) => { %>
+                <li class="org-item">
+                  <span>
+                    <a class="cell-strong" href="/base-de-connaissances/<%= a.id %>"><%= a.title %></a>
+                    <span class="tag"><%= a.category %></span>
+                    <% if (a.visibility !== 'Entreprise') { %><span class="tag tag-accent"><%= a.visibility %></span><% } %>
+                    <br />
+                    <span class="cell-sub">
+                      <%= a.first_name ? a.first_name + ' ' + a.last_name + ' · ' : '' %>
+                      <%= a.views %> lecture(s)
+                    </span>
+                  </span>
+                  <a class="btn btn-outline btn-sm" href="/base-de-connaissances/<%= a.id %>"><%= t('kb.read') %></a>
+                </li>
+              <% }) %>
+              <% if (articleList.length === 0) { %><li class="cell-sub"><%= t('kb.noMatch') %></li><% } %>
+            </ul>
+          </div>
+        </section>
+
+        <% if (canWrite) { %>
+          <section class="tab-panel" id="rediger">
+            <div class="card">
+              <div class="card-head"><h3><%= t('kb.writeArticle') %></h3></div>
+              <form method="POST" action="/base-de-connaissances" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('team.newsTitle') %></span><input type="text" name="title" required maxlength="200" /></label>
+                <label><span><%= t('common.category') %></span><input type="text" name="category" list="kb-categories" value="Général" maxlength="60" />
+                  <datalist id="kb-categories"><% categoryList.forEach((c) => { %><option value="<%= c %>"></option><% }) %></datalist>
+                </label>
+                <label><span><%= t('common.scope') %></span>
+                  <select name="visibility"><% visibilities.forEach((v) => { %><option value="<%= v %>"><%= v %></option><% }) %></select>
+                </label>
+                <label class="span-2"><span><%= t('kb.scopeIfLimited') %></span>
+                  <select name="scope_id">
+                    <option value="">—</option>
+                    <optgroup label="Services">
+                      <% departments.forEach((d) => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %>
+                    </optgroup>
+                    <optgroup label="Équipes">
+                      <% teams.forEach((tm) => { %><option value="<%= tm.id %>"><%= tm.name %></option><% }) %>
+                    </optgroup>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('common.content') %></span><textarea name="body" rows="12" placeholder="<%= t('kb.bodyPlaceholder') %>"></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.publish') %></button></div>
+              </form>
+              <p class="hint"><%= t('kb.adminScopeNote') %></p>
+            </div>
+          </section>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

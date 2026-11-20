@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t(groupe.titre) + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/admin-sidebar', { asLinks: true }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t(groupe.titre),
+        headerSubtitle: t('sections.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <%# Les tuiles portent l'icône du rail : celle qu'on vient de voir en
+            arrivant ici est celle qu'on retrouvera en repartant. %>
+        <div class="card">
+          <div class="card-head"><h2><%= t('sections.whatFor') %></h2></div>
+          <div class="tiles">
+            <% services.forEach((service) => { %>
+              <a class="tile" href="<%= service.href %>">
+                <span class="tile-icon"><%- include('partials/icon', { name: service.icone, iconSize: 20 }) %></span>
+                <span class="tile-text">
+                  <span class="tile-name"><%= t(service.titre) %></span>
+                  <span class="tile-what"><%= t(service.quoi) %></span>
+                </span>
+              </a>
+            <% }) %>
+          </div>
+        </div>
+
+        <%# Les réglages de la section, là où l'on est déjà : les chercher dans
+            un onglet de la console, c'est sortir du métier pour y revenir. %>
+        <% if (peutRegler && champs.length > 0) { %>
+          <div class="card">
+            <div class="card-head">
+              <h2><%= t('sec.settings.title') %></h2>
+              <a class="btn btn-sm" href="/section/<%= groupe.cle %>/reglages"><%= t('sec.settings.open') %></a>
+            </div>
+            <dl class="recap">
+              <% champs.forEach((champ) => { %>
+                <div class="recap-row">
+                  <dt><%= t('sec.' + groupe.cle + '.' + champ.cle) %></dt>
+                  <dd>
+                    <% if (champ.type === 'bool') { %>
+                      <%= champ.valeur === '1' ? t('common.yes') : t('common.no') %>
+                    <% } else if (champ.type === 'mois') { %>
+                      <%= new Date(Date.UTC(2000, Number(champ.valeur) - 1, 1)).toLocaleDateString(locale, { month: 'long' }) %>
+                    <% } else if (champ.type === 'choix') { %>
+                      <% const choisi = (champ.options || []).find((o) => o.valeur === champ.valeur); %>
+                      <%= choisi ? (choisi.libelle || t('sec.' + groupe.cle + '.' + champ.cle + '.' + choisi.valeur)) : champ.valeur %>
+                    <% } else { %>
+                      <%= champ.valeur %>
+                    <% } %>
+                  </dd>
+                </div>
+              <% }) %>
+            </dl>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

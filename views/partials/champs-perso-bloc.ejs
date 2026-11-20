@@ -1,0 +1,27 @@
+<%
+/* Les champs personnalisés dans leur propre formulaire.
+
+   Attend : champs (le rendu de customFields.valeurs()) et action (l'adresse où
+   poster). Sert aux écrans qui n'ont pas de formulaire d'édition où glisser les
+   champs — un ticket, une fiche tiers : là, un formulaire à part est la seule
+   manière de les rendre modifiables, et il n'enregistre que les champs, donc le
+   « tout ou rien » ne concerne qu'eux.
+
+   Un écran qui a déjà son formulaire d'édition emploie « champs-perso » et non
+   ce bloc : un second formulaire l'obligerait à enregistrer deux fois, et l'on
+   en oublierait un.
+
+   Rien ne s'affiche quand aucun champ n'est posé : un bloc vide ferait croire
+   qu'il manque quelque chose. */
+const champsDuBloc = typeof champs !== 'undefined' && champs ? champs : [];
+%>
+<% if (champsDuBloc.length) { %>
+  <form method="POST" action="<%= action %>" class="form-grid">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <div class="span-2">
+      <h4 class="section-label"><%= t('champs.title') %></h4>
+      <%- include('champs-perso', { champs: champsDuBloc }) %>
+    </div>
+    <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.save') %></button></div>
+  </form>
+<% } %>

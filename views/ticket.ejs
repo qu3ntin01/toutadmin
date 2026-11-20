@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: ticket.reference + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: ticket.subject,
+        headerSubtitle: ticket.reference + ' · ' + ticket.category + ' · ' + ticket.status,
+        onglets: [
+          { tab: 'echange', label: t('tkt.tabExchange'), icon: 'inbox' },
+          { tab: 'fiche', label: t('common.form'), icon: 'settings' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + (iso.endsWith('Z') ? '' : 'Z')).toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <% if (overdue) { %>
+          <div class="flash flash-error"><%= t('tkt.overdueBanner', { date: moment(ticket.due_at) }) %></div>
+        <% } %>
+
+        <section class="tab-panel is-active" id="echange">
+          <div class="card">
+            <div class="card-head"><h3><%= t('tkt.initialRequest') %></h3></div>
+            <p class="cell-sub">
+              <%= ticket.requester_first_name ? ticket.requester_first_name + ' ' + ticket.requester_last_name : 'Demandeur inconnu' %>
+              · <%= moment(ticket.created_at) %>
+            </p>
+            <p class="ticket-body"><%= ticket.body || '—' %></p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= messageList.length %> message(s)</h3></div>
+            <ul class="thread">
+              <% messageList.forEach((m) => { %>
+                <li class="thread-item <%= m.internal ? 'is-internal' : '' %>">
+                  <p class="cell-sub">
+                    <span class="cell-strong"><%= m.first_name ? m.first_name + ' ' + m.last_name : 'Système' %></span>
+                    · <%= moment(m.created_at) %>
+                    <% if (m.internal) { %><span class="tag tag-danger">note interne</span><% } %>
+                  </p>
+                  <p class="ticket-body"><%= m.body %></p>
+                </li>
+              <% }) %>
+              <% if (messageList.length === 0) { %><li class="cell-sub"><%= t('tkt.noReply') %></li><% } %>
+            </ul>
+
+            <% if (resumeOffert || brouillonOffert) { %>
+              <div class="row-actions">
+                <% if (resumeOffert) { %>
+                  <form method="POST" action="/support/tickets/<%= ticket.id %>/resumer" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-outline btn-sm"><%= t('ia.summarise') %></button>
+                  </form>
+                <% } %>
+                <% if (brouillonOffert) { %>
+                  <form method="POST" action="/support/tickets/<%= ticket.id %>/brouillon" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-outline btn-sm"><%= t('ia.draft') %></button>
+                  </form>
+                <% } %>
+              </div>
+            <% } %>
+
+            <% if (resumeIa) { %>
+              <div class="card assist-card">
+                <div class="card-head">
+                  <h4><%= t('ia.summaryTitle') %></h4>
+                  <span class="tag"><%= t('ia.proposal') %></span>
+                </div>
+                <ul class="assist-points">
+                  <% resumeIa.points.forEach((point) => { %><li><%= point %></li><% }) %>
+                </ul>
+                <% if (resumeIa.attente) { %>
+                  <p class="cell-sub"><strong><%= t('ia.waitingOn') %></strong> <%= resumeIa.attente %></p>
+                <% } %>
+                <% if (resumeIa.manquant.length) { %>
+                  <p class="cell-sub"><strong><%= t('ia.missing') %></strong> <%= resumeIa.manquant.join(' · ') %></p>
+                <% } %>
+              </div>
+            <% } %>
+
+            <form method="POST" action="/support/tickets/<%= ticket.id %>/repondre" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('common.reply') %></span><textarea name="body" rows="<%= brouillonIa ? 10 : 4 %>" required><%= brouillonIa %></textarea></label>
+              <% if (isAgent) { %>
+                <label class="check-row span-2">
+                  <input type="checkbox" name="internal" value="1" />
+                  <span><%= t('tkt.internalNote') %></span>
+                </label>
+              <% } %>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.send') %></button></div>
+            </form>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="fiche">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('common.form') %></h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub"><%= t('common.reference') %></td><td class="cell-strong"><%= ticket.reference %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.origin') %></td><td><%= ticket.origin %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.client') %></td><td><%= ticket.partner_name || '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('tkt.openedOn') %></td><td><%= moment(ticket.created_at) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('tkt.responseDeadline') %></td><td><%= moment(ticket.due_at) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('tkt.firstReply') %></td><td><%= moment(ticket.first_reply_at) %></td></tr>
+                  <tr><td class="cell-sub"><%= t('gov.closedOn') %></td><td><%= moment(ticket.closed_at) %></td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <% if (isAgent) { %>
+              <div class="card">
+                <div class="card-head"><h3><%= t('gov.treatment') %></h3></div>
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/statut" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span><%= t('common.status') %></span>
+                    <select name="status"><% statuses.forEach((s) => { %><option value="<%= s %>" <%= ticket.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('tkt.saveStatus') %></button></div>
+                </form>
+
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/priorite" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span><%= t('common.priority') %></span>
+                    <select name="priority"><% priorities.forEach((p) => { %><option value="<%= p %>" <%= ticket.priority === p ? 'selected' : '' %>><%= p %></option><% }) %></select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('tkt.changePriority') %></button></div>
+                </form>
+                <p class="hint"><%= t('tkt.priorityNote') %></p>
+
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/affecter" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span><%= t('sup.handledBy') %></span>
+                    <select name="assignee_id"><option value="">—</option>
+                      <% people.forEach((u) => { %><option value="<%= u.id %>" <%= ticket.assignee_id === u.id ? 'selected' : '' %>><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                    </select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.assign') %></button></div>
+                </form>
+
+                <%# Transférer plutôt que réécrire : une demande mal orientée
+                    change de file, et ce dont elle parle reste vrai. %>
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/groupe" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2"><span><%= t('sup.grp.queue') %></span>
+                    <select name="group_id">
+                      <option value=""><%= t('sup.grp.noQueue') %></option>
+                      <% groups.forEach((g) => { %><option value="<%= g.id %>" <%= ticket.group_id === g.id ? 'selected' : '' %>><%= g.name %></option><% }) %>
+                    </select>
+                  </label>
+                  <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('sup.grp.transfer') %></button></div>
+                </form>
+
+                <%- include('partials/champs-perso-bloc', {
+                      champs: champsPerso,
+                      action: `/support/tickets/${ticket.id}/champs`,
+                    }) %>
+
+                <form method="POST" action="/support/tickets/<%= ticket.id %>/supprimer" data-confirm="<%= t('tkt.confirmDelete') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-block"><%= t('tkt.deleteTicket') %></button>
+                </form>
+              </div>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

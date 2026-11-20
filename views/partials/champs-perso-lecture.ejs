@@ -1,0 +1,32 @@
+<%
+/* Les champs personnalisés d'un enregistrement, en lecture seule.
+
+   Attend : champs (le rendu de customFields.valeurs()).
+
+   Sert là où les valeurs se consultent sans se reprendre : une demande interne
+   déposée ne se modifie pas, elle se décide ou se retire. Afficher des champs
+   de saisie à qui ne peut pas enregistrer ferait croire le contraire.
+
+   Les champs vides ne s'affichent pas : une liste de tirets n'apprend rien, et
+   fait passer pour un oubli ce qui n'était pas demandé. */
+const champsLus = (typeof champs !== 'undefined' && champs ? champs : []).filter((c) => c.valeur !== '');
+%>
+<% if (champsLus.length) { %>
+  <h4 class="section-label"><%= t('champs.title') %></h4>
+  <ul class="org-list">
+    <% champsLus.forEach((c) => { %>
+      <li class="org-item">
+        <span><%= c.libelle %></span>
+        <span class="cell-strong">
+          <% if (c.type === 'booleen') { %>
+            <%= c.valeur === '1' ? t('common.yes') : t('common.no') %>
+          <% } else if (c.type === 'lien') { %>
+            <a href="<%= c.valeur %>" rel="noopener noreferrer" target="_blank"><%= c.valeur %></a>
+          <% } else { %>
+            <%= c.valeur %>
+          <% } %>
+        </span>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>

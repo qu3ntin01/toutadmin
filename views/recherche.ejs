@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Recherche — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'recherche' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.search'),
+        headerSubtitle: t('rch.headerSub')
+      }) %>
+
+      <main class="page">
+        <div class="card">
+          <form method="GET" action="/recherche" class="form-grid">
+            <label class="span-2">
+              <span><%= t('rch.what') %></span>
+              <input type="search" name="q" value="<%= query %>" placeholder="<%= t('rch.placeholder') %>" autofocus minlength="2" required />
+            </label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('kb.search') %></button></div>
+          </form>
+          <p class="hint">
+            <%= t('rch.scopeNote') %>
+          </p>
+        </div>
+
+        <% if (query) { %>
+          <% groups.forEach((group) => { %>
+            <div class="card">
+              <div class="card-head"><h3><%= group.source %></h3></div>
+              <ul class="org-list">
+                <% group.rows.forEach((row) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= row.label %></span>
+                      <br /><span class="cell-sub"><%= row.detail || '—' %></span>
+                    </span>
+                    <a class="btn btn-outline btn-sm" href="<%= row.link %>"><%= t('common.open') %></a>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          <% }) %>
+          <% if (groups.length === 0) { %>
+            <div class="card"><p class="cell-sub"><%= t('rch.noMatch', { query }) %></p></div>
+          <% } %>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+# Ce qui n'a rien à faire dans l'image.
+#
+# node_modules est reconstruit à l'étape de construction : celui de la machine
+# qui bâtit peut venir d'un autre système d'exploitation, et better-sqlite3 est
+# compilé — un binaire de macOS dans une image Linux ne se charge pas.
+node_modules
+
+# Des données d'exécution dans une image seraient, au mieux, celles de
+# quelqu'un d'autre.
+data
+.env
+*.log
+
+.git
+.gitignore
+.claude
+tests
+Dockerfile
+.dockerignore
+docker-compose.yml
