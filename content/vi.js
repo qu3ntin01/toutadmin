@@ -323,6 +323,8 @@ module.exports = {
     'Hoá đơn điện tử: kiểm tra EN 16931, XML CII và Factur-X (PDF/A-3)',
     'Dòng tiền: tài khoản, biến động, đối chiếu, dự báo mười hai tuần',
     'Tài sản cố định: khấu hao đường thẳng và giảm dần, giá trị còn lại',
+    "Tệp FEC đúng chuẩn, bút toán đã xác nhận và khóa, đối trừ, số dư đầu kỳ",
+    "Sao kê CFONB, CAMT.053 và OFX; chuyển khoản và ghi nợ trực tiếp SEPA trong một tệp cho ngân hàng",
   ],
   'dom.achats.title': 'Mua hàng, kho và thu hồi công nợ',
   'dom.achats.lede': 'Cái gì được đặt, cái gì đến, cái gì được xuất hoá đơn — và người ta nợ ta những gì.',

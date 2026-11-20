@@ -323,6 +323,8 @@ module.exports = {
     'E-Rechnung: Prüfung nach EN 16931, CII-XML und Factur-X (PDF/A-3)',
     'Liquidität: Konten, Bewegungen, Abstimmung, Vorschau über zwölf Wochen',
     'Anlagevermögen: lineare und degressive Abschreibung, Restbuchwert',
+    "Konforme FEC-Datei, festgeschriebene und gesperrte Buchungen, Ausgleich, Eröffnungsbilanz",
+    "Kontoauszüge in CFONB, CAMT.053 und OFX; SEPA-Überweisungen und -Lastschriften in einer Datei für die Bank",
   ],
   'dom.achats.title': 'Einkauf, Lager und Forderungen',
   'dom.achats.lede': 'Was bestellt wird, was ankommt, was berechnet wird — und was man uns schuldet.',

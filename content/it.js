@@ -323,6 +323,8 @@ module.exports = {
     'Fatturazione elettronica: controllo EN 16931, XML CII e Factur-X (PDF/A-3)',
     'Tesoreria: conti, movimenti, riconciliazione, previsione a dodici settimane',
     'Cespiti: ammortamento lineare e decrescente, valore netto contabile',
+    "FEC conforme, scritture convalidate e bloccate, abbinamento, riapertura dei conti",
+    "Estratti conto CFONB, CAMT.053 e OFX; bonifici e addebiti SEPA in un file per la banca",
   ],
   'dom.achats.title': 'Acquisti, magazzino e recupero crediti',
   'dom.achats.lede': 'Ciò che si ordina, ciò che arriva, ciò che viene fatturato — e ciò che ci devono.',

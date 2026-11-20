@@ -323,6 +323,8 @@ module.exports = {
     'E-facturatie: controle EN 16931, CII-XML en Factur-X (PDF/A-3)',
     'Treasury: rekeningen, bewegingen, aansluiting, prognose op twaalf weken',
     'Vaste activa: lineaire en degressieve afschrijving, netto boekwaarde',
+    "Conforme FEC, gevalideerde en vergrendelde boekingen, afletteren, openingsbalans",
+    "Afschriften in CFONB, CAMT.053 en OFX; SEPA-overboekingen en -incasso's in één bestand voor de bank",
   ],
   'dom.achats.title': 'Aankoop, voorraad en invordering',
   'dom.achats.lede': 'Wat besteld wordt, wat toekomt, wat gefactureerd wordt — en wat men ons verschuldigd is.',

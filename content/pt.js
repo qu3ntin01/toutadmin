@@ -323,6 +323,8 @@ module.exports = {
     'Faturação eletrónica: verificação EN 16931, XML CII e Factur-X (PDF/A-3)',
     'Tesouraria: contas, movimentos, reconciliação, previsão a doze semanas',
     'Imobilizado: amortização linear e degressiva, valor líquido contabilístico',
+    "FEC conforme, lançamentos validados e bloqueados, conciliação, abertura do exercício",
+    "Extratos CFONB, CAMT.053 e OFX; transferências e débitos diretos SEPA num ficheiro para o banco",
   ],
   'dom.achats.title': 'Compras, armazém e cobranças',
   'dom.achats.lede': 'O que se encomenda, o que chega, o que é faturado — e o que nos devem.',

@@ -394,6 +394,8 @@ module.exports = {
     'Facturation électronique : contrôle EN 16931, XML CII et Factur-X (PDF/A-3)',
     'Trésorerie : comptes, mouvements, rapprochement, prévisionnel à douze semaines',
     'Immobilisations : amortissement linéaire et dégressif, valeur nette comptable',
+    "FEC conforme (art. A47 A-1 du LPF), écritures validées et verrouillées, lettrage, à-nouveaux",
+    "Relevés bancaires CFONB, CAMT.053 et OFX ; virements et prélèvements SEPA en un fichier pour la banque",
   ],
 
   'dom.achats.title': 'Achats, stock et recouvrement',

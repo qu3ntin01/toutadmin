@@ -323,6 +323,8 @@ module.exports = {
     'E-invoicing: EN 16931 checks, CII XML and Factur-X (PDF/A-3)',
     'Treasury: accounts, movements, reconciliation, twelve-week forecast',
     'Fixed assets: straight-line and declining depreciation, net book value',
+    "Compliant FEC export, validated and locked entries, account matching, opening balances",
+    "CFONB, CAMT.053 and OFX bank statements; SEPA transfers and direct debits in one file for the bank",
   ],
   'dom.achats.title': 'Purchasing, stock and collections',
   'dom.achats.lede': 'What you order, what you receive, what you are invoiced — and what you are owed.',

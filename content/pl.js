@@ -323,6 +323,8 @@ module.exports = {
     'E-faktury: kontrola EN 16931, XML CII i Factur-X (PDF/A-3)',
     'Finanse: rachunki, operacje, uzgodnienia, prognoza na dwanaście tygodni',
     'Środki trwałe: amortyzacja liniowa i degresywna, wartość netto',
+    "Zgodny plik FEC, zatwierdzone i zablokowane zapisy, kojarzenie rozrachunków, bilans otwarcia",
+    "Wyciągi CFONB, CAMT.053 i OFX; przelewy i polecenia zapłaty SEPA w jednym pliku dla banku",
   ],
   'dom.achats.title': 'Zakupy, magazyn i windykacja',
   'dom.achats.lede': 'Co zamówiono, co przyszło, co zafakturowano — i co nam się należy.',

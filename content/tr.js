@@ -323,6 +323,8 @@ module.exports = {
     'E-fatura: EN 16931 denetimi, CII XML ve Factur-X (PDF/A-3)',
     'Nakit: hesaplar, hareketler, mutabakat, on iki haftalık öngörü',
     'Duran varlıklar: doğrusal ve azalan amortisman, net defter değeri',
+    "Uyumlu FEC, onaylanmış ve kilitli kayıtlar, cari eşleştirme, açılış kaydı",
+    "CFONB, CAMT.053 ve OFX ekstreleri; SEPA havale ve otomatik ödemeleri banka için tek dosyada",
   ],
   'dom.achats.title': 'Satın alma, stok ve tahsilat',
   'dom.achats.lede': 'Sipariş edilen, gelen, faturalanan — ve bize borçlu olunan.',
