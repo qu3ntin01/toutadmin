@@ -16,7 +16,7 @@
 <meta property="og:title" content="Toutadmin — 회사 전체를 관리하는 업무 소프트웨어" />
 <meta property="og:description" content="인사, 인적자원, 재무, 운영, 거버넌스, 준법, 총무. 서로 대화하는 47 개 공간, 하나의 데이터베이스, 이어 붙일 애플리케이션 없음. 16개 언어로, 직원 5명까지 무료, 이후 1인당 월 5 €." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b464ff7b11" />
+<link rel="stylesheet" href="../assets/style.css?v=287519af46" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -53,7 +53,6 @@
 <script src="../assets/theme-boot.js?v=4869e2e78f"></script>
 </head>
 <body>
-<div class="ambiance" aria-hidden="true"><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="orb o4"></span><span class="trame"></span></div>
 <a class="skip" href="#contenu">제품</a>
   <header class="nav">
     <div class="nav-shell">
@@ -379,9 +378,9 @@
         <svg class="cx-svg" viewBox="0 0 600 440" focusable="false">
           <defs>
             <linearGradient id="cx-core" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#6366f1" /><stop offset=".55" stop-color="#8b5cf6" /><stop offset="1" stop-color="#d946ef" />
+              <stop offset="0" stop-color="#0b7f63" /><stop offset=".55" stop-color="#0e9fb0" /><stop offset="1" stop-color="#075aff" />
             </linearGradient>
-            <radialGradient id="cx-glow"><stop offset="0" stop-color="#a78bfa" stop-opacity=".55" /><stop offset="1" stop-color="#a78bfa" stop-opacity="0" /></radialGradient>
+            <radialGradient id="cx-glow"><stop offset="0" stop-color="#34d399" stop-opacity=".55" /><stop offset="1" stop-color="#34d399" stop-opacity="0" /></radialGradient>
             <filter id="cx-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" /></filter>
           </defs>
           <circle class="cx-aura" cx="300" cy="212" r="150" fill="url(#cx-glow)" />
@@ -619,7 +618,7 @@
             <div class="stat-n">아랍어 포함, 화면 전체가 좌우 반전</div>
           </div>
           <div class="stat reveal">
-            <div class="stat-v" data-count="2617">2617</div>
+            <div class="stat-v" data-count="2657">2657</div>
             <div class="stat-k">개 통합 테스트</div>
             <div class="stat-n">릴리스마다 실행</div>
           </div>
@@ -629,7 +628,7 @@
             <div class="stat-n">회계, 급여, 자금, CRM…</div>
           </div>
           <div class="stat reveal">
-            <div class="stat-v" data-count="3802">3802</div>
+            <div class="stat-v" data-count="3906">3906</div>
             <div class="stat-k">개 번역된 문구</div>
             <div class="stat-n">확인 대화상자까지</div>
           </div>
@@ -880,7 +879,7 @@
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
             <h3>강화된 인증</h3>
-            <p>해시 저장 비밀번호(bcrypt), 복잡도 정책, 반복 실패 시 잠금, 복구 코드가 있는 TOTP 2단계 인증, 세션은 하나씩 또는 한꺼번에 해제할 수 있습니다.</p>
+            <p>해시된 비밀번호(bcrypt), 복잡도 정책, 반복 실패 후 잠금, 복구 코드가 있는 TOTP 또는 보안 키(WebAuthn)를 통한 2단계 인증, 계정을 만들지 않는 OpenID Connect·SAML 통합 로그인, 하나씩 또는 한꺼번에 해지할 수 있는 세션.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
@@ -1022,6 +1021,15 @@
           </ul>
         </div>
       </div>
+      <section class="foot-family" aria-labelledby="foot-family-t">
+        <h4 id="foot-family-t">패밀리의 다른 소프트웨어</h4>
+        <ul class="foot-family-list">
+          <li><a href="https://toutwaf.com" rel="noopener"><strong>ToutWAF</strong><small>방화벽과 WAF</small></a></li>
+          <li><a href="https://toutpanel.com" rel="noopener"><strong>ToutPanel</strong><small>호스팅 패널</small></a></li>
+          <li><a href="https://toutpvr.com" rel="noopener"><strong>ToutPVR</strong><small>영상 감시</small></a></li>
+          <li><a href="https://toutheberg.com" rel="noopener"><strong>ToutHeberg</strong><small>프랑스 내 호스팅</small></a></li>
+        </ul>
+      </section>
       <div>
         <h4 class="sr">이 사이트는 열여섯 개 언어로 제공됩니다</h4>
         <div class="foot-langs">
@@ -1045,6 +1053,7 @@
       </div>
       <div class="foot-bottom">
         <span>© 2026 Toutadmin. 모든 권리 보유.</span>
+        <span class="foot-credit">소프트웨어 개발: <a href="https://qu3ntin.com" rel="noopener">qu3ntin.com</a>, <a href="https://quentin-creations.fr" rel="noopener">quentin-creations.fr</a> — 프랑스 호스팅: <a href="https://toutheberg.com" rel="noopener">toutheberg.com</a>.</span>
       </div>
     </div>
   </footer>

@@ -134,7 +134,7 @@ module.exports = {
   'security.title': 'La sécurité n’est pas une option payante',
   'security.lede': "Tout ce qui suit est dans le produit, quelle que soit la formule — y compris la gratuite.",
   'security.1.title': 'Authentification durcie',
-  'security.1.body': "Mots de passe hachés (bcrypt), politique de complexité, verrouillage après échecs répétés, double authentification TOTP avec codes de secours, sessions révocables une par une ou toutes d'un coup.",
+  'security.1.body': 'Mots de passe hachés (bcrypt), politique de complexité, verrouillage après échecs répétés, double authentification TOTP avec codes de secours ou clés de sécurité (WebAuthn), connexion unique OpenID Connect et SAML sans création de compte, sessions révocables une par une ou toutes d\'un coup.',
   'security.2.title': 'Journal d’audit scellé',
   'security.2.body': "Chaque entrée porte l'empreinte de la précédente. Modifier une ligne ou en retirer une du milieu casse la chaîne à cet endroit, et la vérification dit lequel. Ce qu'il ne fait pas : empêcher la réécriture par qui tient le serveur — il la rend visible.",
   'security.3.title': 'Données personnelles',
@@ -282,6 +282,12 @@ module.exports = {
   'foot.rights': 'Tous droits réservés.',
   'foot.madeWith': 'Deux éditions : Node 22 · Express, ou PHP 8.1 sans Composer. SQLite ou MySQL, et aucune dépendance inutile.',
   'foot.langTitle': 'Ce site existe en seize langues',
+  'foot.credit': 'Logiciel développé par {a} et {b}, hébergé en France par {c}.',
+  'foot.family': 'Les autres logiciels de la famille',
+  'foot.fam.waf': 'Pare-feu et WAF',
+  'foot.fam.panel': 'Panel d’hébergement',
+  'foot.fam.pvr': 'Vidéosurveillance',
+  'foot.fam.host': 'Hébergement en France',
 
   /* ---------------------------------------------------- liste des domaines */
   'dom.socle.title': 'Socle et organisation',

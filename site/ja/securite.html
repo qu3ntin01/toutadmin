@@ -16,7 +16,7 @@
 <meta property="og:title" content="セキュリティ — Toutadmin" />
 <meta property="og:description" content="以下はすべて製品に含まれます。無料プランを含め、どのプランでも同じです。" />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b464ff7b11" />
+<link rel="stylesheet" href="../assets/style.css?v=287519af46" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -53,7 +53,6 @@
 <script src="../assets/theme-boot.js?v=4869e2e78f"></script>
 </head>
 <body>
-<div class="ambiance" aria-hidden="true"><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="orb o4"></span><span class="trame"></span></div>
 <a class="skip" href="#contenu">製品</a>
   <header class="nav">
     <div class="nav-shell">
@@ -369,7 +368,7 @@
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
             <h3>堅牢な認証</h3>
-            <p>ハッシュ化したパスワード（bcrypt）、複雑さのポリシー、連続失敗後のロック、復旧コード付き TOTP 二要素認証、セッションは個別にも一括にも失効できます。</p>
+            <p>ハッシュ化したパスワード（bcrypt）、複雑さのポリシー、連続失敗後のロック、復旧コード付き TOTP またはセキュリティキー（WebAuthn）による二要素認証、アカウントを作らない OpenID Connect と SAML のシングルサインオン、セッションは個別にも一括にも失効できます。</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
@@ -484,6 +483,15 @@
           </ul>
         </div>
       </div>
+      <section class="foot-family" aria-labelledby="foot-family-t">
+        <h4 id="foot-family-t">ファミリーのほかのソフトウェア</h4>
+        <ul class="foot-family-list">
+          <li><a href="https://toutwaf.com" rel="noopener"><strong>ToutWAF</strong><small>ファイアウォールと WAF</small></a></li>
+          <li><a href="https://toutpanel.com" rel="noopener"><strong>ToutPanel</strong><small>ホスティングパネル</small></a></li>
+          <li><a href="https://toutpvr.com" rel="noopener"><strong>ToutPVR</strong><small>映像監視</small></a></li>
+          <li><a href="https://toutheberg.com" rel="noopener"><strong>ToutHeberg</strong><small>フランス国内のホスティング</small></a></li>
+        </ul>
+      </section>
       <div>
         <h4 class="sr">このサイトは十六言語で提供しています</h4>
         <div class="foot-langs">
@@ -507,6 +515,7 @@
       </div>
       <div class="foot-bottom">
         <span>© 2026 Toutadmin. 無断転載を禁じます。</span>
+        <span class="foot-credit">ソフトウェアの開発：<a href="https://qu3ntin.com" rel="noopener">qu3ntin.com</a>・<a href="https://quentin-creations.fr" rel="noopener">quentin-creations.fr</a>、フランスでのホスティング：<a href="https://toutheberg.com" rel="noopener">toutheberg.com</a>。</span>
       </div>
     </div>
   </footer>

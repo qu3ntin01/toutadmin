@@ -577,6 +577,15 @@ function footHtml(t, ctx) {
           </ul>
         </div>
       </div>
+      <section class="foot-family" aria-labelledby="foot-family-t">
+        <h4 id="foot-family-t">${esc(t('foot.family'))}</h4>
+        <ul class="foot-family-list">
+          <li><a href="https://toutwaf.com" rel="noopener"><strong>ToutWAF</strong><small>${esc(t('foot.fam.waf'))}</small></a></li>
+          <li><a href="https://toutpanel.com" rel="noopener"><strong>ToutPanel</strong><small>${esc(t('foot.fam.panel'))}</small></a></li>
+          <li><a href="https://toutpvr.com" rel="noopener"><strong>ToutPVR</strong><small>${esc(t('foot.fam.pvr'))}</small></a></li>
+          <li><a href="https://toutheberg.com" rel="noopener"><strong>ToutHeberg</strong><small>${esc(t('foot.fam.host'))}</small></a></li>
+        </ul>
+      </section>
       <div>
         <h4 class="sr">${esc(t('foot.langTitle'))}</h4>
         <div class="foot-langs">
@@ -585,6 +594,10 @@ function footHtml(t, ctx) {
       </div>
       <div class="foot-bottom">
         <span>© ${new Date().getFullYear()} ${esc(t('site.name'))}. ${esc(t('foot.rights'))}</span>
+        <span class="foot-credit">${esc(t('foot.credit', { a: '\u0001A\u0001', b: '\u0001B\u0001', c: '\u0001C\u0001' }))
+    .replace('\u0001A\u0001', '<a href="https://qu3ntin.com" rel="noopener">qu3ntin.com</a>')
+    .replace('\u0001B\u0001', '<a href="https://quentin-creations.fr" rel="noopener">quentin-creations.fr</a>')
+    .replace('\u0001C\u0001', '<a href="https://toutheberg.com" rel="noopener">toutheberg.com</a>')}</span>
       </div>
     </div>
   </footer>`;

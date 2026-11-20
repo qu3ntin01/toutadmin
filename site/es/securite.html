@@ -16,7 +16,7 @@
 <meta property="og:title" content="Seguridad — Toutadmin" />
 <meta property="og:description" content="Todo lo que sigue está en el producto, sea cual sea el plan, incluido el gratuito." />
 <meta property="og:type" content="website" />
-<link rel="stylesheet" href="../assets/style.css?v=b464ff7b11" />
+<link rel="stylesheet" href="../assets/style.css?v=287519af46" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -53,7 +53,6 @@
 <script src="../assets/theme-boot.js?v=4869e2e78f"></script>
 </head>
 <body>
-<div class="ambiance" aria-hidden="true"><span class="orb o1"></span><span class="orb o2"></span><span class="orb o3"></span><span class="orb o4"></span><span class="trame"></span></div>
 <a class="skip" href="#contenu">Producto</a>
   <header class="nav">
     <div class="nav-shell">
@@ -369,7 +368,7 @@
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></span>
             <h3>Autenticación reforzada</h3>
-            <p>Contraseñas cifradas (bcrypt), política de complejidad, bloqueo tras varios fallos, doble factor TOTP con códigos de recuperación, sesiones revocables una a una o todas de golpe.</p>
+            <p>Contraseñas con hash (bcrypt), política de complejidad, bloqueo tras fallos repetidos, doble autenticación con TOTP y códigos de recuperación o llaves de seguridad (WebAuthn), inicio de sesión único con OpenID Connect y SAML sin crear cuentas, sesiones revocables una a una o todas a la vez.</p>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l7 3v6c0 4.4-3 8-7 9-4-1-7-4.6-7-9V6l7-3Z"/></svg></span>
@@ -484,6 +483,15 @@
           </ul>
         </div>
       </div>
+      <section class="foot-family" aria-labelledby="foot-family-t">
+        <h4 id="foot-family-t">El resto de la familia</h4>
+        <ul class="foot-family-list">
+          <li><a href="https://toutwaf.com" rel="noopener"><strong>ToutWAF</strong><small>Cortafuegos y WAF</small></a></li>
+          <li><a href="https://toutpanel.com" rel="noopener"><strong>ToutPanel</strong><small>Panel de alojamiento</small></a></li>
+          <li><a href="https://toutpvr.com" rel="noopener"><strong>ToutPVR</strong><small>Videovigilancia</small></a></li>
+          <li><a href="https://toutheberg.com" rel="noopener"><strong>ToutHeberg</strong><small>Alojamiento en Francia</small></a></li>
+        </ul>
+      </section>
       <div>
         <h4 class="sr">Este sitio existe en dieciséis idiomas</h4>
         <div class="foot-langs">
@@ -507,6 +515,7 @@
       </div>
       <div class="foot-bottom">
         <span>© 2026 Toutadmin. Todos los derechos reservados.</span>
+        <span class="foot-credit">Software desarrollado por <a href="https://qu3ntin.com" rel="noopener">qu3ntin.com</a> y <a href="https://quentin-creations.fr" rel="noopener">quentin-creations.fr</a>, alojado en Francia por <a href="https://toutheberg.com" rel="noopener">toutheberg.com</a>.</span>
       </div>
     </div>
   </footer>

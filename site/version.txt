@@ -5,7 +5,7 @@ Barème
   abonnement : 5 € par salarié et par mois au-delà de 5 (12 salariés : 35 €/mois)
 
 Pages     : 96 (6 × 16 langues)
-Clés      : 549 par langue
+Clés      : 555 par langue
 Captures  : 152 fichiers
-Annoncé   : 47 espaces · 16 langues · 2617 tests · 7 modules · 3802 libellés (relevé 2026-11-20)
-Ressources: style b464ff7b11 · thème 4869e2e78f · script ddc8f95ae8
+Annoncé   : 47 espaces · 16 langues · 2657 tests · 7 modules · 3906 libellés (relevé 2026-11-20)
+Ressources: style 287519af46 · thème 4869e2e78f · script ddc8f95ae8
