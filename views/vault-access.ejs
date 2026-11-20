@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Accès au coffre-fort — ' + t('app.name') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark"><%= brandInitials %></span>
+      <span class="brand-text">
+        <span class="brand-name"><%= companyName %></span>
+        <span class="brand-panel"><%= t('nav.vault') %></span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1><%= t('va.title') %></h1>
+      <p class="auth-sub">
+        <%= t('va.intro') %>
+      </p>
+
+      <% if (flash) { %>
+        <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <form method="POST" action="/coffre-fort/acces" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label>
+          <span><%= t('va.formerAddress') %></span>
+          <input type="email" name="email" required autofocus autocomplete="username" placeholder="<%= t('common.emailPlaceholder') %>" />
+        </label>
+        <label>
+          <span><%= t('va.accessCode') %></span>
+          <input type="text" name="code" required autocomplete="one-time-code" placeholder="ABCDE-FGHIJ-KLMNO" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-block"><%= t('va.openVault') %></button>
+      </form>
+
+      <p class="auth-note">
+        <%= t('va.passwordNote') %>
+      </p>
+
+      <div class="auth-foot">
+        <a href="/connexion"><%= t('va.backToLogin') %></a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

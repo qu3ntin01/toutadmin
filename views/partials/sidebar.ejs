@@ -1,0 +1,101 @@
+<%
+/* Navigation latérale, unique pour tous les espaces (admin, RH, manager, membre).
+
+   Attend : panelLabel, navItems, footLinks?, groupes?
+   Un élément de navItems est soit un onglet de la page courante ({ tab }),
+   soit un lien vers une autre page ({ href, active? }).
+
+   « groupes » range les entrées par métier, chacun repliable — c'est ce que la
+   console d'administration emploie : trente-six services à la file débordaient
+   sous le bord de l'écran, et les trouver demandait de savoir déjà qu'ils
+   existaient. Les espaces qui n'ont qu'une poignée d'entrées s'en passent et
+   donnent « navItems » à plat, comme avant. */
+const groupesDuRail = typeof groupes !== 'undefined' && groupes ? groupes : null;
+%>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-mark"><%= brandInitials %></span>
+    <span class="brand-text">
+      <span class="brand-name"><%= companyName %></span>
+      <span class="brand-panel"><%= panelLabel %></span>
+    </span>
+    <%# Replier le rail rend une centaine de pixels à la page. Le choix
+        appartient à chaque personne et tient dans son navigateur : ce n'est
+        pas un réglage de l'instance. %>
+    <button type="button" class="rail-toggle" data-rail-toggle
+            aria-expanded="true"
+            aria-controls="tabs"
+            title="<%= t('nav.collapse') %>"
+            data-label-collapse="<%= t('nav.collapse') %>"
+            data-label-expand="<%= t('nav.expand') %>">
+      <span class="sr-only"><%= t('nav.collapse') %></span>
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor"
+           stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3.5" y="4.5" width="17" height="15" rx="2" /><path d="M10 4.5v15" />
+      </svg>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav" id="tabs" aria-label="<%= t('nav.sections') %>">
+    <% if (groupesDuRail) { %>
+      <% groupesDuRail.forEach((groupe) => { %>
+        <div class="side-group" data-groupe="<%= groupe.cle %>">
+          <%# Un bouton, pas un titre : il ouvre et referme le groupe, et le dit
+              au lecteur d'écran par « aria-expanded ». Sans script il ne fait
+              rien — et le rail reste ouvert, entier, tel que le serveur l'a
+              rendu : on perd le pli, jamais la navigation. %>
+          <button type="button" class="side-group-tete" data-groupe-bascule="<%= groupe.cle %>"
+                  aria-expanded="true" aria-controls="groupe-<%= groupe.cle %>">
+            <span class="side-group-nom"><%= groupe.titre %></span>
+            <svg class="side-group-chevron" viewBox="0 0 24 24" width="13" height="13" fill="none"
+                 stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+          </button>
+          <div class="side-group-liste" id="groupe-<%= groupe.cle %>">
+            <% groupe.entrees.forEach((item) => { %>
+              <% if (item.href) { %>
+                <a href="<%= item.href %>" class="side-link<%= item.active ? ' is-active' : '' %>" title="<%= item.label %>"<%= item.active ? ' aria-current="page"' : '' %>>
+                  <%- include('icon', { name: item.icon, iconSize: 17 }) %>
+                  <span class="side-link-label"><%= item.label %></span>
+                  <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+                </a>
+              <% } else { %>
+                <button type="button" class="side-link tab-btn<%= item.active ? ' is-active' : '' %>" data-tab="<%= item.tab %>" title="<%= item.label %>">
+                  <%- include('icon', { name: item.icon, iconSize: 17 }) %>
+                  <span class="side-link-label"><%= item.label %></span>
+                  <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+                </button>
+              <% } %>
+            <% }) %>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+    <% navItems.forEach((item, index) => { %>
+      <% if (item.href) { %>
+        <a href="<%= item.href %>" class="side-link<%= item.active ? ' is-active' : '' %>" title="<%= item.label %>"<%= item.active ? ' aria-current="page"' : '' %>>
+          <%- include('icon', { name: item.icon, iconSize: 17 }) %>
+          <span class="side-link-label"><%= item.label %></span>
+          <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+        </a>
+      <% } else { %>
+        <button type="button" class="side-link tab-btn<%= index === 0 ? ' is-active' : '' %>" data-tab="<%= item.tab %>" title="<%= item.label %>">
+          <%- include('icon', { name: item.icon, iconSize: 17 }) %>
+          <span class="side-link-label"><%= item.label %></span>
+          <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+        </button>
+      <% } %>
+    <% }) %>
+    <% } %>
+  </nav>
+
+  <div class="sidebar-foot">
+    <% (typeof footLinks !== 'undefined' && footLinks ? footLinks : []).forEach((link) => { %>
+      <a href="<%= link.href %>" class="side-link side-link-quiet">
+        <%- include('icon', { name: link.icon || 'external', iconSize: 17 }) %>
+        <span class="side-link-label"><%= link.label %></span>
+      </a>
+    <% }) %>
+    <%- include('theme-toggle') %>
+  </div>
+</aside>

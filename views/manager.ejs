@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t('team.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'equipe' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('team.title'),
+        headerSubtitle: t('team.subtitle')
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 17 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= stats.teamSize %></span>
+              <span class="stat-label"><%= t('team.members') %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 17 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= stats.pending %></span>
+              <span class="stat-label"><%= t('hr.pendingRequests') %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= stats.upcoming %></span>
+              <span class="stat-label"><%= t('team.onLeave') %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 17 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value"><%= stats.leaveTotal.toFixed(1) %> j</span>
+              <span class="stat-label"><%= t('hr.totalLeave') %></span>
+            </span>
+          </div>
+        </section>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('team.members') %></h3></div>
+          <% if (team.length === 0) { %>
+            <div class="empty-state"><%= t('team.empty') %></div>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th><%= t('common.member') %></th>
+                    <th><%= t('org.assignment') %></th>
+                    <th><%= t('common.grade') %></th>
+                    <th><%= t('common.contract') %></th>
+                    <th class="num"><%= t('leave.balance') %></th>
+                    <th><%= t('common.status') %></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% team.forEach((m) => { %>
+                    <tr>
+                      <td>
+                        <div class="cell-strong"><%= m.first_name %> <%= m.last_name %></div>
+                        <div class="cell-sub"><%= m.mail_address || m.email %></div>
+                      </td>
+                      <td class="cell-sub"><%= [m.team_name, m.department_name].filter(Boolean).join(' · ') || '—' %></td>
+                      <td><span class="tag tag-accent"><%= m.grade %></span></td>
+                      <td><span class="tag"><%= m.contract_type || '—' %></span></td>
+                      <td class="num cell-strong"><%= m.leave_balance.toFixed(1) %> j</td>
+                      <td>
+                        <span class="status <%= m.active ? 'status-on' : 'status-off' %>">
+                          <%= m.active ? t('common.active') : t('common.inactive') %>
+                        </span>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="grid-2">
+          <div class="card" id="actualites">
+            <div class="card-head"><h3><%= t('team.publishNews') %></h3></div>
+            <form method="POST" action="/mon-equipe/actualites" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2">
+                <span><%= t('team.newsTitle') %></span>
+                <input type="text" name="title" required maxlength="150" />
+              </label>
+              <label class="span-2">
+                <span><%= t('team.newsBody') %></span>
+                <textarea name="body" rows="5" maxlength="2000"></textarea>
+              </label>
+              <label class="span-2">
+                <span><%= t('common.recipients') %></span>
+                <select name="target" required>
+                  <% managedScopes.forEach((sc) => { %>
+                    <option value="<%= sc.scope %>:<%= sc.id %>">
+                      <%= sc.scope === 'team' ? t('common.team') : t('common.department') %> · <%= sc.name %>
+                    </option>
+                  <% }) %>
+                </select>
+              </label>
+              <div class="span-2">
+                <button type="submit" class="btn btn-primary btn-block"><%= t('team.publish') %></button>
+              </div>
+            </form>
+            <p class="hint"><%= t('mgr.scopeNote') %></p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('team.requests') %></h3></div>
+            <% if (requests.length === 0) { %>
+              <div class="empty-state"><%= t('team.noRequests') %></div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th><%= t('common.member') %></th><th><%= t('common.type') %></th><th><%= t('common.period') %></th><th><%= t('common.status') %></th></tr>
+                  </thead>
+                  <tbody>
+                    <% requests.slice(0, 12).forEach((r) => {
+                      const statusClass = r.status === 'Approuvée' ? 'status-on'
+                        : r.status === 'En attente' ? 'status-warning'
+                        : r.status === 'Refusée' ? 'status-danger' : 'status-off';
+                    %>
+                      <tr>
+                        <td class="cell-strong"><%= r.first_name %> <%= r.last_name %></td>
+                        <td><span class="tag"><%= r.type %></span></td>
+                        <td class="cell-sub">
+                          <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale) %> →
+                          <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString(locale) %>
+                        </td>
+                        <td><span class="status <%= statusClass %>"><%= st(r.status) %></span></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+            <p class="hint"><%= t('mgr.leaveNote') %></p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('team.publishedNews') %></h3></div>
+          <% if (teamNews.length === 0) { %>
+            <div class="empty-state"><%= t('home.noNews') %></div>
+          <% } else { %>
+            <% teamNews.forEach((n) => { %>
+              <div class="news-item">
+                <div class="news-head">
+                  <span class="news-title"><%= n.title %></span>
+                  <span class="tag"><%= n.scope_name || t('home.teamNews') %></span>
+                  <span class="news-meta"><%= new Date(n.created_at).toLocaleDateString(locale) %></span>
+                  <form method="POST" action="/mon-equipe/actualites/<%= n.id %>/supprimer" data-confirm="<%= t('common.delete') %> ?">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                  </form>
+                </div>
+                <% if (n.body) { %><p class="news-body"><%= n.body %></p><% } %>
+              </div>
+            <% }) %>
+          <% } %>
+        </div>
+
+        <!-- ---------- Points individuels ---------- -->
+        <div class="card" id="points">
+          <div class="card-head">
+            <div>
+              <h3><%= t('oto.title') %></h3>
+              <p class="card-sub"><%= t('oto.subtitle', { planned: pointStats.planned, overdue: pointStats.overdue, never: pointStats.neverMet }) %></p>
+            </div>
+          </div>
+          <p class="hint"><%= t('oto.privacyHint') %></p>
+
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th><%= t('common.member') %></th><th><%= t('oto.lastHeld') %></th><th><%= t('oto.nextOn') %></th></tr></thead>
+              <tbody>
+                <% cadence.forEach((row) => { %>
+                  <tr>
+                    <td class="cell-strong"><%= row.first_name %> <%= row.last_name %></td>
+                    <td class="<%= row.last_held ? 'cell-sub' : 'text-danger' %> nowrap">
+                      <%= row.last_held ? new Date(row.last_held + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : t('oto.neverMet') %>
+                    </td>
+                    <td class="cell-sub nowrap">
+                      <%= row.next_on ? new Date(row.next_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—' %>
+                    </td>
+                  </tr>
+                <% }) %>
+                <% if (cadence.length === 0) { %><tr><td colspan="3" class="cell-sub"><%= t('team.empty') %></td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+
+          <form method="POST" action="/mon-equipe/points" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label><span><%= t('common.member') %></span>
+              <select name="employee_id" required>
+                <option value="" disabled selected><%= t('common.choose') %></option>
+                <% team.forEach((m) => { %><option value="<%= m.id %>"><%= m.first_name %> <%= m.last_name %></option><% }) %>
+              </select>
+            </label>
+            <label><span><%= t('oto.scheduledOn') %></span><input type="date" name="scheduled_on" required /></label>
+            <label class="span-2"><span><%= t('oto.topics') %></span><textarea name="topics" rows="2" maxlength="2000"></textarea></label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('oto.plan') %></button></div>
+          </form>
+        </div>
+
+        <% points.forEach((point) => { %>
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= point.first_name %> <%= point.last_name %></h3>
+                <p class="card-sub">
+                  <span class="tag <%= point.status === 'Tenu' ? 'tag-success' : (point.status === 'Annulé' ? '' : 'tag-warning') %>"><%= st(point.status) %></span>
+                  <%= new Date(point.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %>
+                  <% if (point.status === 'Planifié' && point.scheduled_on < today) { %> · <span class="text-danger"><%= t('oto.late') %></span><% } %>
+                </p>
+              </div>
+              <form method="POST" action="/mon-equipe/points/<%= point.id %>/supprimer" data-confirm="<%= t('oto.confirmDelete') %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+              </form>
+            </div>
+            <form method="POST" action="/mon-equipe/points/<%= point.id %>/modifier" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('oto.scheduledOn') %></span><input type="date" name="scheduled_on" value="<%= point.scheduled_on %>" required /></label>
+              <label><span><%= t('oto.heldOn') %></span><input type="date" name="held_on" value="<%= point.held_on || '' %>" /></label>
+              <label><span><%= t('common.status') %></span>
+                <select name="status"><% pointStatuses.forEach((s) => { %><option value="<%= s %>" <%= point.status === s ? 'selected' : '' %>><%= st(s) %></option><% }) %></select>
+              </label>
+              <label><span><%= t('oto.nextOn') %></span><input type="date" name="next_on" value="<%= point.next_on || '' %>" /></label>
+              <label class="span-2"><span><%= t('oto.topics') %></span><textarea name="topics" rows="2" maxlength="2000"><%= point.topics %></textarea></label>
+              <label class="span-2"><span><%= t('oto.sharedNote') %></span><textarea name="shared_note" rows="3" maxlength="4000"><%= point.shared_note %></textarea></label>
+              <label class="span-2"><span><%= t('oto.privateNote') %></span><textarea name="private_note" rows="3" maxlength="4000"><%= point.private_note %></textarea></label>
+              <label><span><%= t('oto.mood') %></span>
+                <select name="mood">
+                  <option value=""><%= t('oto.moodUnset') %></option>
+                  <% [1, 2, 3, 4, 5].forEach((level) => { %>
+                    <option value="<%= level %>" <%= point.mood === level ? 'selected' : '' %>><%= t('oto.moodLevel', { level: level }) %></option>
+                  <% }) %>
+                </select>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+        <% }) %>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

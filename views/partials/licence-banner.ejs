@@ -1,0 +1,55 @@
+<%
+/* Le bandeau de licence, posé sous l'en-tête de chaque écran.
+
+   Il ne s'affiche que quand il a quelque chose à dire : une instance dont la
+   licence est en cours ne voit rien du tout. Le ton monte d'un cran à chaque
+   palier, et chaque palier dit ce qu'il faut faire — un bandeau qui alarme sans
+   indiquer la sortie ne sert qu'à inquiéter.
+
+   Attend : licence (posé par l'intergiciel sur toutes les requêtes). */
+const etat = typeof licence !== 'undefined' && licence ? licence : null;
+%>
+<% if (etat && etat.phase !== 'valide') { %>
+  <% if (etat.phase === 'sursis') { %>
+    <%
+      /* Le sursis : la licence couvre encore, mais la vérification échoue.
+         Quarante-huit heures, et on le dit en heures — « il reste 2 jours »
+         sur un compte à rebours de deux jours se lit comme « on a le temps »,
+         alors qu'il faut appeler aujourd'hui. */
+    %>
+    <div class="flash flash-warning licence-banner" role="alert">
+      <span>
+        <strong><%= t('licence.sursisTitle') %></strong>
+        <%= t('licence.sursisBody', { heures: etat.heuresDeSursis }) %>
+      </span>
+      <% if (currentUser && currentUser.role === 'admin') { %>
+        <a href="/licence" class="btn btn-sm"><%= t('licence.open') %></a>
+      <% } %>
+    </div>
+  <% } else if (etat.phase === 'grace') { %>
+    <div class="flash flash-warning licence-banner" role="status">
+      <span>
+        <strong><%= t('licence.graceTitle') %></strong>
+        <%= t('licence.graceBody', { jours: etat.joursDeGrace }) %>
+      </span>
+      <% if (currentUser && currentUser.role === 'admin') { %>
+        <a href="/licence" class="btn btn-sm"><%= t('licence.open') %></a>
+      <% } %>
+    </div>
+  <% } else { %>
+    <%
+      /* « absente » et « restreint » disent la même chose à l'utilisateur —
+         l'instance n'écrit plus — mais pas pour la même raison, et l'écran de
+         licence saura la nommer précisément. */
+    %>
+    <div class="flash flash-error licence-banner" role="alert">
+      <span>
+        <strong><%= t('licence.readOnlyTitle') %></strong>
+        <%= t('licence.readOnlyBody') %>
+      </span>
+      <% if (currentUser && currentUser.role === 'admin') { %>
+        <a href="/licence" class="btn btn-sm"><%= t('licence.open') %></a>
+      <% } %>
+    </div>
+  <% } %>
+<% } %>

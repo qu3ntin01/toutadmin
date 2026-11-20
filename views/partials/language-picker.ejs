@@ -1,0 +1,15 @@
+<%
+/* Sélecteur de langue à drapeaux. Attend : returnTo, compact? */
+const isCompact = typeof compact !== 'undefined' && compact;
+%>
+<form method="POST" action="/langue" class="<%= isCompact ? 'lang-inline' : 'lang-grid' %>">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+  <input type="hidden" name="retour" value="<%= returnTo %>" />
+  <% locales.forEach((l) => { %>
+    <button type="submit" name="locale" value="<%= l.code %>"
+            class="lang-option<%= l.code === locale ? ' is-active' : '' %>"
+            title="<%= l.label %>" lang="<%= l.code %>">
+      <span class="lang-flag"><%= l.flag %></span><% if (!isCompact) { %><span><%= l.label %></span><% } %>
+    </button>
+  <% }) %>
+</form>

@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t('profile.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'profil' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('profile.title'),
+        headerSubtitle: t('profile.subtitle')
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <div class="grid-2">
+          <div class="stack">
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.photo') %></h3></div>
+              <div class="manager-card">
+                <%- include('partials/avatar', { person: profile, size: 'lg' }) %>
+                <div>
+                  <div class="manager-name"><%= profile.first_name %> <%= profile.last_name %></div>
+                  <div class="manager-role"><%= profile.grade %><%= department ? ' · ' + department.name : '' %></div>
+                </div>
+              </div>
+
+              <form method="POST" action="/mon-profil/photo" enctype="multipart/form-data" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label>
+                  <span><%= t('profile.photo') %></span>
+                  <input type="file" name="avatar" accept="image/jpeg,image/png,image/webp" required />
+                </label>
+                <div class="form-actions">
+                  <button type="submit" class="btn btn-primary"><%= t('profile.upload') %></button>
+                </div>
+              </form>
+
+              <% if (profile.avatar_file) { %>
+                <form method="POST" action="/mon-profil/photo/supprimer" class="form-actions" data-confirm="<%= t('profile.removePhoto') %> ?">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-danger"><%= t('profile.removePhoto') %></button>
+                </form>
+              <% } %>
+              <p class="hint"><%= t('profile.photoHelp') %></p>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.details') %></h3></div>
+              <table>
+                <tbody>
+                  <tr><td class="cell-sub"><%= t('common.email') %></td><td class="cell-strong"><%= profile.email %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.grade') %></td><td><%= profile.grade %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.department') %></td><td><%= department ? department.name : '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.team') %></td><td><%= team ? team.name : '—' %></td></tr>
+                  <tr><td class="cell-sub"><%= t('common.contract') %></td><td><%= profile.contract_type || '—' %></td></tr>
+                  <tr>
+                    <td class="cell-sub"><%= t('common.managers') %></td>
+                    <td><%= managers.length ? managers.map((m) => m.first_name + ' ' + m.last_name).join(', ') : t('home.noManager') %></td>
+                  </tr>
+                </tbody>
+              </table>
+              <p class="hint"><%= t('profile.managedByAdmin') %></p>
+            </div>
+          </div>
+
+          <div class="stack">
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.about') %></h3></div>
+              <form method="POST" action="/mon-profil/informations" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('profile.about') %></span>
+                  <textarea name="bio" rows="4" placeholder="<%= t('profile.aboutPlaceholder') %>"><%= profile.bio %></textarea>
+                </label>
+                <label class="span-2">
+                  <span><%= t('common.phone') %></span>
+                  <input type="text" name="phone" value="<%= profile.phone %>" placeholder="+33 6 12 34 56 78" />
+                </label>
+                <label class="span-2">
+                  <span><%= t('common.language') %></span>
+                  <select name="locale">
+                    <% locales.forEach((l) => { %>
+                      <option value="<%= l.code %>" <%= l.code === locale ? 'selected' : '' %>><%= l.flag %> <%= l.label %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('profile.password') %></h3></div>
+              <form method="POST" action="/mon-profil/mot-de-passe" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('profile.currentPassword') %></span>
+                  <input type="password" name="current_password" required autocomplete="current-password" />
+                </label>
+                <label>
+                  <span><%= t('profile.newPassword') %></span>
+                  <input type="password" name="new_password" required minlength="12" autocomplete="new-password" />
+                </label>
+                <label>
+                  <span><%= t('profile.confirmPassword') %></span>
+                  <input type="password" name="confirm_password" required minlength="12" autocomplete="new-password" />
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('profile.password') %></button>
+                </div>
+              </form>
+              <p class="hint"><%= t('profile.passwordHelp') %></p>
+            </div>
+
+            <div class="card" id="securite">
+              <div class="card-head">
+                <h3><%= t('prf.twoFactor') %></h3>
+                <% if (twoFactorState.enabled) { %>
+                  <span class="tag tag-success"><%= t('pcs.mailActive') %></span>
+                <% } else if (twoFactorRequired) { %>
+                  <span class="tag tag-danger"><%= t('prf.required') %></span>
+                <% } %>
+              </div>
+
+              <% if (recoveryCodes) { %>
+                <div class="flash flash-success">
+                  <%= t('prf.backupCodes') %>
+                </div>
+                <ul class="code-list">
+                  <% recoveryCodes.forEach((code) => { %><li><%= code %></li><% }) %>
+                </ul>
+              <% } %>
+
+              <% if (twoFactorState.enabled) { %>
+                <p class="cell-sub">
+                  <%= t('prf.codeAsked') %>
+                  <%= t('prf.remainingCodes', { count: twoFactorState.remainingCodes }) %>
+                </p>
+                <form method="POST" action="/mon-profil/2fa/codes" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('prf.regenerate') %></button>
+                </form>
+                <% if (!twoFactorRequired) { %>
+                  <form method="POST" action="/mon-profil/2fa/desactiver" class="form-grid" data-confirm="<%= t('prf.confirmDisable2fa') %>">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label class="span-2">
+                      <span><%= t('prf.passwordToConfirm') %></span>
+                      <input type="password" name="current_password" required autocomplete="current-password" />
+                    </label>
+                    <div class="span-2">
+                      <button type="submit" class="btn btn-danger btn-sm"><%= t('common.disable') %></button>
+                    </div>
+                  </form>
+                <% } %>
+
+              <% } else if (twoFactorState.pending) { %>
+                <p class="cell-sub"><%= t('prf.scanQr') %></p>
+                <% if (twoFactorQr) { %>
+                  <img class="totp-qr" src="<%= twoFactorQr %>" alt="<%= t('prf.qrAlt') %>" width="220" height="220" />
+                <% } %>
+                <p class="cell-sub"><%- t('prf.manualEntry', { secret: `<code class="totp-secret">${twoFactorSecret}</code>` }) %></p>
+                <form method="POST" action="/mon-profil/2fa/activer" class="form-grid">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <label class="span-2">
+                    <span><%= t('prf.sixDigitCode') %></span>
+                    <input type="text" name="code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required />
+                  </label>
+                  <div class="span-2">
+                    <button type="submit" class="btn btn-primary btn-block"><%= t('common.enable') %></button>
+                  </div>
+                </form>
+
+              <% } else { %>
+                <p class="cell-sub">
+                  <%= t('prf.stolenPassword') %>
+                  <% if (twoFactorRequired) { %>
+                    <strong><%= t('prf.roleRequires') %></strong>
+                  <% } %>
+                </p>
+                <form method="POST" action="/mon-profil/2fa/preparer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('prf.enable') %></button>
+                </form>
+              <% } %>
+            </div>
+
+            <div class="card" id="cles">
+              <div class="card-head"><h3><%= t('wan.title') %></h3></div>
+              <p class="cell-sub"><%= t('wan.note') %></p>
+              <% if (webauthnCles.length) { %>
+                <ul class="org-list">
+                  <% webauthnCles.forEach((c) => { %>
+                    <li class="org-item">
+                      <div class="org-head">
+                        <div>
+                          <span class="org-name"><%= c.name %></span>
+                          <span class="cell-sub"><%= t('wan.addedOn', { date: String(c.created_at).slice(0, 10) }) %><%= c.last_used_at ? ' · ' + t('wan.usedOn', { date: String(c.last_used_at).slice(0, 10) }) : '' %></span>
+                        </div>
+                      </div>
+                      <form method="POST" action="/mon-profil/cles/<%= c.id %>/supprimer" class="inline-form" data-confirm="<%= t('wan.confirmRemove') %>">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <input type="password" name="current_password" required autocomplete="current-password" placeholder="<%= t('prf.passwordToConfirm') %>" aria-label="<%= t('prf.passwordToConfirm') %>" class="input-sm" />
+                        <button type="submit" class="btn btn-danger btn-sm"><%= t('wan.remove') %></button>
+                      </form>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+              <script type="application/json" id="webauthn-creation"><%- JSON.stringify(webauthnOptions).replace(/</g, '\\u003c') %></script>
+              <form method="POST" action="/mon-profil/cles" class="form-grid" data-webauthn="create" data-webauthn-options="webauthn-creation">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="client_data" />
+                <input type="hidden" name="attestation" />
+                <label class="span-2"><span><%= t('wan.name') %></span><input type="text" name="name" maxlength="60" placeholder="<%= t('wan.namePlaceholder') %>" /></label>
+                <p class="flash flash-error span-2" data-webauthn-error hidden><%= t('wan.unsupported') %></p>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-sm"><%= t('wan.add') %></button></div>
+              </form>
+            </div>
+
+            <div class="card" id="appareils">
+              <div class="card-head"><h3><%= t('devices.title') %></h3></div>
+              <p class="cell-sub"><%= t('devices.note') %></p>
+
+              <%
+                /*
+                 * « Il y a … » plutôt qu'une date : devant cette liste, on ne
+                 * cherche pas quand on s'est connecté, on cherche si quelque
+                 * chose y est actif alors que ça ne devrait pas. « Il y a deux
+                 * minutes » répond à ça ; « 21/09/2026 11:45 », non.
+                 */
+                const depuis = (ms) => {
+                  if (!ms) return t('devices.unknownTime');
+                  const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+                  if (s < 60) return t('devices.now');
+                  const m = Math.round(s / 60);
+                  if (m < 60) return t('devices.minutes', { n: m });
+                  const h = Math.round(m / 60);
+                  if (h < 24) return t('devices.hours', { n: h });
+                  return t('devices.days', { n: Math.round(h / 24) });
+                };
+              %>
+
+              <ul class="device-list">
+                <% devices.forEach((d) => { %>
+                  <li class="device<%= d.current ? ' is-current' : '' %>">
+                    <div class="device-what">
+                      <strong><%= d.label || t('devices.unknownDevice') %></strong>
+                      <% if (d.current) { %><span class="tag tag-success"><%= t('devices.thisOne') %></span><% } %>
+                      <span class="cell-sub">
+                        <%= d.ip || t('devices.unknownIp') %> ·
+                        <%= t('devices.seen', { quand: depuis(d.lastSeenAt) }) %>
+                      </span>
+                    </div>
+                    <form method="POST" action="/mon-profil/appareils/<%= encodeURIComponent(d.sid) %>/fermer"
+                          <% if (d.current) { %>data-confirm="<%= t('devices.confirmSelf') %>"<% } %>>
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-sm btn-outline"><%= t('devices.close') %></button>
+                    </form>
+                  </li>
+                <% }); %>
+              </ul>
+
+              <p class="cell-sub"><%= t('prf.sessionNote') %></p>
+              <form method="POST" action="/sessions/fermer" data-confirm="<%= t('prf.confirmCloseAll') %>">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-outline btn-block"><%= t('prf.closeAll') %></button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+  <script src="<%= asset('/js/webauthn.js') %>"></script>
+</body>
+</html>

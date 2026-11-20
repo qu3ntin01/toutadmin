@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Import de données — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.dataImport'),
+        headerSubtitle: t('imp.headerSub'),
+        onglets: [
+          { href: '/admin', label: t('nav.adminConsole'), icon: 'settings' },
+          { href: '/gestion', label: t('status.stageManagement'), icon: 'briefcase' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <% if (result) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= t('imp.importedRows', { count: result.imported }) %></h3><span class="card-sub"><%= result.entity.label %></span></div>
+            <% if (result.credentials.length) { %>
+              <p class="hint">
+                <%= t('imp.temporaryPasswords') %>
+              </p>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('common.identifier') %></th><th><%= t('common.temporaryPassword') %></th></tr></thead>
+                  <tbody>
+                    <% result.credentials.forEach((c) => { %>
+                      <tr><td class="cell-strong"><%= c.email %></td><td class="mono"><%= c.password %></td></tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+            <div class="row-actions"><a href="/import" class="btn btn-outline btn-sm"><%= t('imp.newImport') %></a></div>
+          </div>
+        <% } %>
+
+        <% if (preview) { %>
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('imp.previewOf', { label: preview.entity.label }) %></h3>
+              <span class="card-sub"><%= t('imp.rowsAndDelimiter', { count: preview.rows.length, delimiter: preview.delimiter === '\t' ? t('imp.tab') : preview.delimiter }) %></span>
+            </div>
+
+            <% if (preview.errors.length) { %>
+              <div class="flash flash-error">
+                <%= t('imp.errorRows', { count: preview.errors.length }) %>
+              </div>
+            <% } %>
+
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('imp.line') %></th><th><%= t('common.content') %></th><th><%= t('imp.verdict') %></th></tr></thead>
+                <tbody>
+                  <% preview.rows.forEach((row) => { %>
+                    <tr>
+                      <td class="cell-sub mono"><%= row.line %></td>
+                      <td class="cell-strong"><%= row.summary || '—' %></td>
+                      <td>
+                        <% if (row.ok) { %>
+                          <span class="tag tag-success"><%= t('imp.ready') %></span>
+                        <% } else { %>
+                          <span class="tag tag-danger"><%= t('status.refused') %></span>
+                          <div class="cell-sub"><%= row.message %></div>
+                        <% } %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+
+            <% if (!preview.errors.length) { %>
+              <form method="POST" action="/import/importer" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="entity" value="<%= preview.entity.key %>" />
+                <textarea name="content" hidden><%= content %></textarea>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('imp.importRows', { count: preview.valid }) %></button>
+                </div>
+              </form>
+              <p class="hint"><%= t('imp.recheckNote') %></p>
+            <% } %>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('imp.uploadFile') %></h3></div>
+          <form method="POST" action="/import/apercu" enctype="multipart/form-data" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label class="span-2"><span><%= t('imp.dataType') %></span>
+              <select name="entity" required>
+                <% entities.forEach((e) => { %>
+                  <option value="<%= e.key %>" <%= e.key === selected ? 'selected' : '' %>><%= e.label %></option>
+                <% }) %>
+              </select>
+            </label>
+            <label class="span-2"><span><%= t('imp.csvFile', { max: Math.round(maxBytes / 1048576) }) %></span>
+              <input type="file" name="fichier" accept=".csv,text/csv,text/plain" />
+            </label>
+            <label class="span-2"><span><%= t('imp.orPaste') %></span>
+              <textarea name="content" rows="6" placeholder="prenom;nom;email;grade;type_contrat"><%= content %></textarea>
+            </label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('imp.checkFile') %></button></div>
+          </form>
+          <p class="hint">
+            <%= t('imp.formatNote') %>
+          </p>
+        </div>
+
+        <% entities.forEach((e) => { %>
+          <div class="card" id="<%= e.key %>">
+            <div class="card-head"><h3><%= e.label %></h3><a href="/import/<%= e.key %>/modele.csv" class="btn btn-outline btn-sm"><%= t('imp.downloadTemplate') %></a></div>
+            <p class="cell-sub"><%= e.hint %></p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('imp.column') %></th><th><%= t('imp.expectedContent') %></th><th><%= t('common.mandatory') %></th></tr></thead>
+                <tbody>
+                  <% e.columns.forEach((c) => { %>
+                    <tr>
+                      <td class="mono cell-strong"><%= c.name %></td>
+                      <td class="cell-sub"><%= c.label %></td>
+                      <td><%= c.required ? 'Oui' : '—' %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% }) %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

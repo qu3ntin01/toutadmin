@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Support — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.support'),
+        headerSubtitle: t('sup.headerSub'),
+        onglets: [
+          { tab: 'tickets', label: isAgent ? 'File des tickets' : 'Mes tickets', icon: 'lifebuoy' },
+          { tab: 'nouveau', label: t('sup.tabOpen'), icon: 'plus' },
+          { tab: 'a-moi', label: t('sup.tabAssigned'), icon: 'check', badge: assigned.length }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + (iso.endsWith('Z') ? '' : 'Z')).toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const priorityTag = (p) => ['Haute','Critique'].includes(p) ? 'tag-danger' : ''; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'lifebuoy', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.open %></span><span class="stat-label"><%= t('pil.openTickets') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.overdue %></span><span class="stat-label"><%= t('sup.overdue') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'user', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.unassigned %></span><span class="stat-label"><%= t('sup.noAssignee') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.closedThisMonth %></span><span class="stat-label"><%= t('sup.closedThisMonth') %></span></span>
+          </div>
+        </section>
+
+        <!-- ---------- File ---------- -->
+        <section class="tab-panel is-active" id="tickets">
+          <div class="card">
+            <div class="card-head"><h3><%= tickets.length %> ticket(s)</h3></div>
+            <form method="GET" action="/support" class="form-grid">
+              <label><span><%= t('common.status') %></span>
+                <select name="statut"><option value=""><%= t('sup.all') %></option>
+                  <% statuses.forEach((s) => { %><option value="<%= s %>" <%= filters.status === s ? 'selected' : '' %>><%= s %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('common.category') %></span>
+                <select name="categorie"><option value=""><%= t('hr.filterAll') %></option>
+                  <% categories.forEach((c) => { %><option value="<%= c %>" <%= filters.category === c ? 'selected' : '' %>><%= c %></option><% }) %>
+                </select>
+              </label>
+              <% if (isAgent && groups.length) { %>
+                <label><span><%= t('sup.grp.filterGroup') %></span>
+                  <select name="groupe"><option value=""><%= t('sup.grp.allGroups') %></option>
+                    <% groups.forEach((g) => { %><option value="<%= g.id %>" <%= filters.groupId === g.id ? 'selected' : '' %>><%= g.name %></option><% }) %>
+                  </select>
+                </label>
+              <% } %>
+              <label class="check-row span-2">
+                <input type="checkbox" name="tous" value="1" <%= filters.openOnly ? '' : 'checked' %> />
+                <span><%= t('sup.includeClosed') %></span>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('common.filter') %></button></div>
+            </form>
+
+            <%# Composer les groupes est une décision d'instance : le lien ne
+                s'affiche que pour qui peut l'ouvrir, plutôt que de mener à un
+                refus. %>
+            <% if (canManageGroups) { %>
+              <div class="row-actions">
+                <a class="btn btn-sm btn-outline" href="/support/groupes"><%= t('sup.grp.manage') %></a>
+              </div>
+            <% } %>
+            <% if (myGroups.length) { %>
+              <p class="hint">
+                <%= t('sup.grp.members') %> :
+                <% myGroups.forEach((g) => { %><span class="tag"><%= g.name %></span><% }) %>
+              </p>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <% if (isAgent) { %>
+              <%# Deux vues de la même liste, et le même filtrage : le lien garde la
+                  requête en cours pour que basculer ne perde pas le filtre posé. %>
+              <div class="filters">
+                <a class="tag <%= vue === 'liste' ? 'tag-accent' : '' %>"
+                   href="<%= lienVue('liste') %>"><%= t('kanban.viewList') %></a>
+                <a class="tag <%= vue === 'kanban' ? 'tag-accent' : '' %>"
+                   href="<%= lienVue('kanban') %>"><%= t('kanban.viewBoard') %></a>
+              </div>
+            <% } %>
+            <% if (vue === 'kanban') { %>
+              <%- include('partials/kanban', { tableau, colonnes: kanbanColonnes }) %>
+            <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <% if (isAgent) { %>
+                    <th class="masse-check">
+                      <input type="checkbox" data-masse-all="masse-ticket" hidden
+                             aria-label="<%= t('masse.checkAll') %>" />
+                    </th>
+                  <% } %>
+                  <th><%= t('gov.reference') %></th><th><%= t('common.subject') %></th><th><%= t('common.requester') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th><th><%= t('sup.handledBy') %></th><th><%= t('sup.deadline') %></th>
+                </tr></thead>
+                <tbody>
+                  <% tickets.forEach((tk) => { %>
+                    <tr>
+                      <% if (isAgent) { %>
+                        <td class="masse-check">
+                          <input type="checkbox" name="ids" value="<%= tk.id %>" form="masse-ticket"
+                                 aria-label="<%= tk.reference %>" />
+                        </td>
+                      <% } %>
+                      <td class="cell-sub nowrap"><a href="/support/tickets/<%= tk.id %>"><%= tk.reference %></a></td>
+                      <td>
+                        <a class="cell-strong" href="/support/tickets/<%= tk.id %>"><%= tk.subject %></a>
+                        <br /><span class="cell-sub"><%= tk.category %><%= tk.partner_name ? ' · ' + tk.partner_name : '' %> · <%= tk.message_count %> message(s)</span>
+                      </td>
+                      <td class="cell-sub"><%= tk.requester_first_name ? tk.requester_first_name + ' ' + tk.requester_last_name : '—' %></td>
+                      <td><span class="tag <%= priorityTag(tk.priority) %>"><%= tk.priority %></span></td>
+                      <td><span class="tag <%= tk.status === 'Ouvert' ? 'tag-accent' : '' %>"><%= st(tk.status) %></span></td>
+                      <td class="cell-sub"><%= tk.assignee_first_name ? tk.assignee_first_name + ' ' + tk.assignee_last_name : '—' %></td>
+                      <td class="<%= tk.overdue ? 'text-danger' : 'cell-sub' %> nowrap">
+                        <%= tk.first_reply_at ? 'répondu' : moment(tk.due_at) %>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (tickets.length === 0) { %><tr><td colspan="<%= isAgent ? 8 : 7 %>" class="cell-sub"><%= t('sup.noTicket') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+            <% } %>
+            <% if (isAgent && vue === 'liste' && tickets.length) { %>
+              <%- include('partials/actions-masse', {
+                objet: 'ticket',
+                actions: [
+                  { cle: 'statut', champ: 'statut', options: statuses.map((v) => ({ valeur: v, libelle: st(v) })) },
+                  { cle: 'priorite', champ: 'priorite', options: priorities.map((v) => ({ valeur: v, libelle: st(v) })) },
+                  { cle: 'affecter', champ: 'utilisateur', options: [{ valeur: 0, libelle: t('masse.nobody') }]
+                    .concat(people.map((p) => ({ valeur: p.id, libelle: p.last_name + ' ' + p.first_name }))) },
+                ],
+              }) %>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Nouveau ---------- -->
+        <section class="tab-panel" id="nouveau">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('sup.tabOpen') %></h3></div>
+              <form method="POST" action="/support/tickets" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.subject') %></span><input type="text" name="subject" required maxlength="200" /></label>
+                <label><span><%= t('common.category') %></span>
+                  <select name="category" required><% categories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
+                </label>
+                <label><span><%= t('common.priority') %></span>
+                  <select name="priority" required><% priorities.forEach((p) => { %><option value="<%= p %>" <%= p === 'Normale' ? 'selected' : '' %>><%= p %></option><% }) %></select>
+                </label>
+                <% if (isAgent) { %>
+                  <label><span><%= t('common.origin') %></span>
+                    <select name="origin"><% origins.forEach((o) => { %><option value="<%= o %>"><%= o %></option><% }) %></select>
+                  </label>
+                  <label><span><%= t('sup.clientConcerned') %></span>
+                    <select name="partner_id"><option value="">—</option>
+                      <% partners.forEach((p) => { %><option value="<%= p.id %>"><%= p.name %></option><% }) %>
+                    </select>
+                  </label>
+                <% } %>
+                <label class="span-2"><span><%= t('common.description') %></span><textarea name="body" rows="5" placeholder="<%= t('sup.ticketPlaceholder') %>"></textarea></label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.open') %></button></div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('sup.responseTimes') %></h3></div>
+              <p class="hint"><%= t('sup.priorityNote') %></p>
+              <ul class="org-list">
+                <% priorities.forEach((p) => { %>
+                  <li class="org-item">
+                    <span class="cell-strong"><%= p %></span>
+                    <span class="cell-sub"><%= responseHours[p] %> h</span>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Affectés ---------- -->
+        <section class="tab-panel" id="a-moi">
+          <div class="card">
+            <div class="card-head"><h3><%= isAgent ? assigned.length + ' ticket(s) à traiter' : 'Mes demandes' %></h3></div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('gov.reference') %></th><th><%= t('common.subject') %></th><th><%= t('common.priority') %></th><th><%= t('common.status') %></th></tr></thead>
+                <tbody>
+                  <% (isAgent ? assigned : mine).forEach((tk) => { %>
+                    <tr>
+                      <td class="cell-sub"><a href="/support/tickets/<%= tk.id %>"><%= tk.reference %></a></td>
+                      <td class="cell-strong"><%= tk.subject %></td>
+                      <td><span class="tag <%= priorityTag(tk.priority) %>"><%= tk.priority %></span></td>
+                      <td><span class="tag"><%= st(tk.status) %></span></td>
+                    </tr>
+                  <% }) %>
+                  <% if ((isAgent ? assigned : mine).length === 0) { %><tr><td colspan="4" class="cell-sub"><%= t('sup.nothingYet') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+  <script src="<%= asset('/js/masse.js') %>" defer></script>
+</body>
+</html>

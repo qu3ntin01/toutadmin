@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Interfaces — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.integrations'),
+        headerSubtitle: t('api.headerSub'),
+        onglets: [
+          { tab: 'jetons', label: t('api.tabTokens'), icon: 'link', badge: tokenList.filter((t2) => !t2.revoked && !t2.expired).length },
+          { tab: 'webhooks', label: t('api.tabWebhooks'), icon: 'external', badge: stats.active },
+          { tab: 'livraisons', label: t('api.tabDeliveries'), icon: 'inbox', badge: stats.waiting },
+          { tab: 'documentation', label: t('api.tabDocs'), icon: 'inbox' },
+          { tab: 'paiement', label: t('strp.tab'), icon: 'card' },
+          { tab: 'assistance', label: t('ia.set.tab'), icon: 'network' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + (iso.includes('Z') ? '' : 'Z')).toLocaleString(locale) : '—'); %>
+
+        <% if (created) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= created.kind === 'token' ? 'Votre jeton' : 'Secret de signature' %> — <%= created.label %></h3></div>
+            <p class="mono cred-box"><%= created.value %></p>
+            <p class="hint">
+              <%= created.kind === 'token'
+                ? `Il n'est conservé que sous forme d'empreinte : cette page est le seul endroit où il s'affiche en clair. Valable jusqu'au ${created.expiresAt}.`
+                : "Il sert au destinataire à vérifier la signature de chaque envoi. Il est chiffré en base et ne sera plus affiché." %>
+            </p>
+          </div>
+        <% } %>
+
+        <!-- ---------- Jetons ---------- -->
+        <section class="tab-panel is-active" id="jetons">
+          <div class="card">
+            <div class="card-head"><h3><%= t('api.newToken') %></h3></div>
+            <form method="POST" action="/integrations/jetons" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="<%= t('api.tokenPlaceholder') %>" /></label>
+              <label><span><%= t('api.lifetimeDays') %></span><input type="number" name="days" min="1" max="3650" value="<%= defaultDays %>" required /></label>
+              <div class="span-2">
+                <p class="section-label"><%= t('api.scopes') %></p>
+                <% scopes.forEach((s) => { %>
+                  <label class="check-row">
+                    <input type="checkbox" name="scopes" value="<%= s.key %>" />
+                    <span><strong><%= s.label %></strong> — <%= s.hint %></span>
+                  </label>
+                <% }) %>
+              </div>
+              <%# Les portées d'écriture vivent dans leur propre bloc, à part et
+                  sous un avertissement : une case qu'on coche par inadvertance
+                  parce qu'elle est voisine d'une autre n'est pas un choix. %>
+              <details class="span-2 danger-zone">
+                <summary><%= t('api.writeScopes') %></summary>
+                <p class="hint"><%= t('api.writeWarning') %></p>
+                <% writeScopes.forEach((s) => { %>
+                  <label class="check-row">
+                    <input type="checkbox" name="scopes" value="<%= s.key %>" />
+                    <span><strong><%= s.label %></strong> — <%= s.hint %></span>
+                  </label>
+                <% }) %>
+              </details>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('api.createToken') %></button></div>
+            </form>
+            <p class="hint">
+              <%= t('api.tokenNotice') %>
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= tokenList.length %> jeton(s)</h3></div>
+            <% if (!tokenList.length) { %>
+              <p class="empty-state"><%= t('api.noToken') %></p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('api.token') %></th><th><%= t('api.scopes') %></th><th><%= t('api.expires') %></th><th><%= t('api.lastCall') %></th><th><%= t('api.calls') %></th><th><%= t('common.state') %></th><th></th></tr></thead>
+                  <tbody>
+                    <% tokenList.forEach((tk) => { %>
+                      <tr>
+                        <td><div class="cell-strong"><%= tk.label %></div><div class="cell-sub mono"><%= tk.prefix %>…</div></td>
+                        <td class="cell-sub">
+                          <%= tk.scopeList.join(', ') %>
+                          <% if (tk.scopeList.some((s) => s.endsWith(writeSuffix))) { %>
+                            <span class="tag tag-warning"><%= t('api.writes') %></span>
+                          <% } %>
+                        </td>
+                        <td class="cell-sub nowrap"><%= tk.expires_at || '—' %></td>
+                        <td class="cell-sub nowrap"><%= moment(tk.last_used_at) %><% if (tk.last_ip) { %><br /><span class="cell-sub"><%= tk.last_ip %></span><% } %></td>
+                        <td><%= tk.calls %></td>
+                        <td>
+                          <span class="tag <%= tk.revoked ? 'tag-danger' : (tk.expired ? 'tag-warning' : 'tag-success') %>">
+                            <%= tk.revoked ? 'Révoqué' : (tk.expired ? 'Expiré' : 'Actif') %>
+                          </span>
+                        </td>
+                        <td>
+                          <div class="row-actions">
+                            <% if (!tk.revoked) { %>
+                              <form method="POST" action="/integrations/jetons/<%= tk.id %>/revoquer" class="inline-form" data-confirm="<%= t('api.confirmRevoke') %>">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-outline btn-sm"><%= t('api.revoke') %></button>
+                              </form>
+                            <% } else { %>
+                              <form method="POST" action="/integrations/jetons/<%= tk.id %>/supprimer" class="inline-form" data-confirm="<%= t('api.confirmDeleteToken') %>">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
+                              </form>
+                            <% } %>
+                          </div>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Webhooks ---------- -->
+        <section class="tab-panel" id="webhooks">
+          <div class="card">
+            <div class="card-head"><h3><%= t('api.declareWebhook') %></h3></div>
+            <form method="POST" action="/integrations/webhooks" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('common.title') %></span><input type="text" name="label" required maxlength="120" placeholder="<%= t('api.webhookPlaceholder') %>" /></label>
+              <label><span><%= t('api.urlHttps') %></span><input type="url" name="url" required maxlength="500" placeholder="https://exemple.fr/hooks/toutadmin" /></label>
+              <div class="span-2">
+                <p class="section-label"><%= t('api.eventsWatched') %></p>
+                <% events.forEach((e) => { %>
+                  <label class="check-row"><input type="checkbox" name="events" value="<%= e.key %>" /><span><%= e.label %> <span class="mono cell-sub"><%= e.key %></span></span></label>
+                <% }) %>
+              </div>
+              <label class="span-2 check-row">
+                <input type="checkbox" name="allow_private" value="1" />
+                <span><%= t('api.allowPrivate') %></span>
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.declare') %></button></div>
+            </form>
+            <p class="hint">
+              <%- t('api.signatureNote', { header: '<span class="mono">x-toutadmin-signature</span>' }) %>
+            </p>
+            <p class="hint">
+              <%= t('api.retryNote', { attempts: maxAttempts, limit: failureLimit }) %>
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= webhookList.length %> webhook(s)</h3></div>
+            <% if (!webhookList.length) { %>
+              <p class="empty-state"><%= t('api.noWebhook') %></p>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% webhookList.forEach((w) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= w.label %></span>
+                      <span class="tag <%= w.active ? 'tag-success' : 'tag-danger' %>"><%= w.active ? t('common.active') : t('api.suspended') %></span>
+                    </div>
+                    <p class="cell-sub mono"><%= w.url %></p>
+                    <p class="cell-sub">
+                      <%= w.eventList.join(', ') %>
+                      <% if (w.last_attempt_at) { %> · <%= t('api.lastSend') %> <%= moment(w.last_attempt_at) %> : <%= w.last_status %><% } %>
+                      <% if (w.failures) { %> · <span class="text-danger"><%= t('api.consecutiveFailures', { count: w.failures }) %></span><% } %>
+                      <% if (w.allow_private) { %> · <%= t('api.privateAllowed') %><% } %>
+                    </p>
+                    <div class="row-actions">
+                      <form method="POST" action="/integrations/webhooks/<%= w.id %>/tester" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-outline btn-sm"><%= t('api.testSend') %></button>
+                      </form>
+                      <form method="POST" action="/integrations/webhooks/<%= w.id %>/etat" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <input type="hidden" name="active" value="<%= w.active ? '0' : '1' %>" />
+                        <button type="submit" class="btn btn-outline btn-sm"><%= w.active ? t('api.suspend') : t('api.reactivate') %></button>
+                      </form>
+                      <form method="POST" action="/integrations/webhooks/<%= w.id %>/supprimer" class="inline-form" data-confirm="<%= t('api.confirmDeleteWebhook') %>">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-link btn-sm"><%= t('common.delete') %></button>
+                      </form>
+                    </div>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Livraisons ---------- -->
+        <section class="tab-panel" id="livraisons">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('api.deliveryLog') %></h3>
+              <span class="card-sub"><%= t('api.deliveryStats', { waiting: stats.waiting, abandoned: stats.abandoned }) %></span>
+            </div>
+            <% if (!deliveries.length) { %>
+              <p class="empty-state"><%= t('api.noDelivery') %></p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('api.event') %></th><th><%= t('api.webhook') %></th><th><%= t('common.state') %></th><th><%= t('api.attempts') %></th><th><%= t('api.createdAt') %></th><th><%= t('api.deliveredAt') %></th><th><%= t('api.lastError') %></th></tr></thead>
+                  <tbody>
+                    <% deliveries.forEach((d) => { %>
+                      <tr>
+                        <td class="cell-strong mono"><%= d.event %></td>
+                        <td class="cell-sub"><%= d.label %></td>
+                        <td>
+                          <span class="tag <%= d.status === 'Livré' ? 'tag-success' : (d.status === 'En attente' ? 'tag-warning' : 'tag-danger') %>"><%= st(d.status) %></span>
+                        </td>
+                        <td><%= d.attempts %></td>
+                        <td class="cell-sub nowrap"><%= moment(d.created_at) %></td>
+                        <td class="cell-sub nowrap"><%= moment(d.delivered_at) %></td>
+                        <td class="cell-sub"><%= d.last_error || '—' %></td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              <p class="hint"><%= t('api.purgeNotice') %></p>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Documentation ---------- -->
+        <section class="tab-panel" id="documentation">
+          <div class="card">
+            <div class="card-head"><h3><%= t('api.queryApi') %></h3></div>
+            <p class="cell-sub"><%= t('api.authHeaderNote') %></p>
+            <p class="mono cred-box">curl -H "Authorization: Bearer sm_…" https://votre-instance/api/v1/collaborateurs</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('api.route') %></th><th><%= t('api.scopeRequired') %></th><th><%= t('common.content') %></th></tr></thead>
+                <tbody>
+                  <tr><td class="mono">/api/v1</td><td class="cell-sub">—</td><td class="cell-sub"><%= t('api.rootDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/collaborateurs</td><td class="cell-sub">annuaire</td><td class="cell-sub"><%= t('api.staffDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/services</td><td class="cell-sub">annuaire</td><td class="cell-sub"><%= t('api.servicesDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/equipes</td><td class="cell-sub">annuaire</td><td class="cell-sub"><%= t('api.teamsDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/absences</td><td class="cell-sub">rh</td><td class="cell-sub"><%= t('api.absencesDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/tiers</td><td class="cell-sub">gestion</td><td class="cell-sub"><%= t('erp.partnersSub') %></td></tr>
+                  <tr><td class="mono">/api/v1/factures</td><td class="cell-sub">gestion</td><td class="cell-sub"><%= t('api.invoicesDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/abonnements</td><td class="cell-sub">gestion</td><td class="cell-sub"><%= t('api.subscriptionsDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/projets</td><td class="cell-sub">projets</td><td class="cell-sub"><%= t('api.projectsDesc') %></td></tr>
+                  <tr><td class="mono">/api/v1/indicateurs</td><td class="cell-sub">pilotage</td><td class="cell-sub"><%= t('api.indicatorsDesc') %></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="hint">
+              <%- t('api.paginationNote', {
+                    limit: '<span class="mono">?limite=</span>',
+                    since: '<span class="mono">?depuis=</span>',
+                  }) %>
+            </p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('api.verifySignature') %></h3></div>
+            <p class="mono cred-box"><%= t('api.signatureFormula') %></p>
+            <p class="hint">
+              <%= t('api.constantTimeNote') %>
+            </p>
+          </div>
+        </section>
+
+        <!-- ---------- Assistance par modèle ---------- -->
+        <section class="tab-panel" id="paiement">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('strp.title') %></h3>
+              <span class="tag <%= stripeConfig.enabled ? 'tag-success' : '' %>"><%= stripeConfig.enabled ? t('ia.set.on') : t('ia.set.off') %></span>
+            </div>
+            <p class="cell-sub"><%= t('strp.note') %></p>
+            <dl class="summary-list">
+              <div><dt><%= t('strp.webhookUrl') %></dt><dd class="mono"><%= stripeWebhook %></dd></div>
+            </dl>
+            <p class="hint"><%= t('strp.events') %></p>
+            <form method="POST" action="/integrations/paiement" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="check-row span-2"><input type="checkbox" name="enabled" value="1" <%= stripeConfig.enabled ? 'checked' : '' %> /> <span><%= t('strp.enable') %></span></label>
+              <label><span><%= t('strp.secretKey') %></span><input type="password" name="secret_key" autocomplete="new-password" placeholder="<%= stripeConfig.hasSecretKey ? t('strp.kept') : 'sk_live_…' %>" /></label>
+              <label><span><%= t('strp.webhookSecret') %></span><input type="password" name="webhook_secret" autocomplete="new-password" placeholder="<%= stripeConfig.hasWebhookSecret ? t('strp.kept') : 'whsec_…' %>" /></label>
+              <button type="submit" class="btn btn-primary"><%= t('common.save') %></button>
+            </form>
+            <p class="hint"><%= t('strp.cardNote') %></p>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="assistance">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('ia.set.title') %></h3>
+              <span class="tag <%= aiConfig.enabled ? 'tag-success' : '' %>"><%= aiConfig.enabled ? t('ia.set.on') : t('ia.set.off') %></span>
+            </div>
+
+            <p class="cell-sub"><%= t('ia.set.note') %></p>
+            <div class="flash flash-error"><%= t('ia.set.warning') %></div>
+
+            <% if (aiStatus) { %>
+              <div class="flash flash-<%= aiStatus.ok ? 'success' : 'error' %>">
+                <%= t('bak.lastAttempt') %> <%= moment(aiStatus.at) %> : <%= aiStatus.message %>
+              </div>
+            <% } %>
+
+            <form method="POST" action="/integrations/assistance/reglages" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('ia.set.service') %></span>
+                <select name="provider">
+                  <% aiProviders.forEach((p) => { %><option value="<%= p.key %>" <%= p.key === aiConfig.provider ? 'selected' : '' %>><%= p.label %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('ia.set.model') %></span><input type="text" name="model" maxlength="120" value="<%= aiConfig.model %>" /></label>
+              <label class="span-2"><span><%= t('pcs.apiAddress') %></span><input type="url" name="base_url" maxlength="300" value="<%= aiConfig.baseUrl %>" placeholder="https://api.mistral.ai/v1" /></label>
+              <label><span><%= t('pcs.apiKey') %></span><input type="password" name="key" placeholder="<%= aiConfig.key || '' %>" autocomplete="new-password" /></label>
+              <label><span><%= t('pcs.analysisDepth') %></span>
+                <select name="effort">
+                  <% aiEfforts.forEach((e) => { %><option value="<%= e %>" <%= e === aiConfig.effort ? 'selected' : '' %>><%= e %></option><% }) %>
+                </select>
+              </label>
+              <label class="span-2 check-row"><input type="checkbox" name="enabled" value="1" <%= aiConfig.enabled ? 'checked' : '' %> /><span><%= t('ia.set.allow') %></span></label>
+
+              <div class="span-2">
+                <h4><%= t('ia.functionsTitle') %></h4>
+                <p class="hint"><%= t('ia.functionsNote') %></p>
+                <div class="pick-list">
+                  <% aiFonctions.forEach((f) => { %>
+                    <label class="pick">
+                      <span class="pick-head">
+                        <input type="checkbox" name="fonctions" value="<%= f.cle %>" <%= f.active ? 'checked' : '' %> />
+                        <span class="pick-name"><%= t(`ia.fn.${f.cle}`) %></span>
+                      </span>
+                      <span class="pick-what"><%= t(`ia.fn.${f.cle}.what`) %></span>
+                      <span class="pick-what"><strong><%= t('ia.whatLeaves') %></strong> <%= t(`ia.fn.${f.cle}.sends`) %></span>
+                    </label>
+                  <% }) %>
+                </div>
+              </div>
+
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+
+            <% aiProviders.forEach((p) => { %>
+              <p class="hint"><strong><%= p.label %></strong> — <%= p.hint %></p>
+            <% }) %>
+
+            <% if (aiReady) { %>
+              <div class="row-actions">
+                <form method="POST" action="/integrations/assistance/tester" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-sm"><%= t('pcs.trySample') %></button>
+                </form>
+              </div>
+            <% } %>
+
+            <p class="hint"><%= t('ia.set.proposes') %></p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

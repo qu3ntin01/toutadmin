@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Facturation électronique — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('einv.panel'),
+        headerSubtitle: t('einv.headerSub'),
+        onglets: [
+          { tab: 'factures', label: t('erp.invoices'), icon: 'card', badge: invoices.length - readyCount },
+          { tab: 'emetteur', label: t('common.issuer'), icon: 'settings' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const money = (n) => Number(n || 0).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <div class="banner is-warning">
+          <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+          <span>
+            <%= t('einv.payloadNote') %>
+          </span>
+        </div>
+
+        <% if (issuerGaps.length) { %>
+          <div class="banner is-danger">
+            <%- include('partials/icon', { name: 'shield', iconSize: 17 }) %>
+            <span>
+              <%= t('einv.issuerGaps', { gaps: issuerGaps.join(', ') }) %>
+            </span>
+          </div>
+        <% } %>
+
+        <!-- ---------- Factures ---------- -->
+        <section class="tab-panel is-active" id="factures">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('einv.customerInvoices') %> <span class="muted">(<%= readyCount %>/<%= invoices.length %> conformes)</span></h3>
+                <p class="card-sub"><%= t('einv.gapsListed') %></p>
+              </div>
+            </div>
+
+            <% if (invoices.length === 0) { %>
+              <div class="empty-state"><%= t('einv.noInvoice') %></div>
+            <% } else { %>
+              <ul class="meeting-list">
+                <% invoices.forEach((i) => { %>
+                  <li class="meeting-item">
+                    <div class="meeting-head">
+                      <span class="meeting-title"><%= i.reference || '(sans numéro)' %> — <%= i.label %></span>
+                      <span class="status <%= i.conformity.ok ? 'status-on' : 'status-danger' %>">
+                        <%= i.conformity.ok ? 'Conforme' : i.conformity.gaps.length + ' manque(s)' %>
+                      </span>
+                    </div>
+                    <p class="cell-sub">
+                      <%= i.partner_name || 'Client non renseigné' %> · <%= day(i.issue_date) %> · <%= money(i.amount_ttc) %> TTC
+                    </p>
+
+                    <% if (!i.conformity.ok) { %>
+                      <ul class="check-list">
+                        <% i.conformity.gaps.forEach((gap) => { %>
+                          <li class="check-item">
+                            <span class="check-mark is-fail">✕</span>
+                            <span class="check-body"><span class="check-label"><%= gap %></span></span>
+                          </li>
+                        <% }) %>
+                      </ul>
+                    <% } else { %>
+                      <div class="row-actions">
+                        <a href="/facturation-electronique/factures/<%= i.id %>.pdf" class="btn btn-primary btn-sm">
+                          <%= t('einv.downloadFacturx') %>
+                        </a>
+                        <a href="/facturation-electronique/factures/<%= i.id %>.xml" class="btn btn-sm">
+                          <%= t('einv.downloadXml') %>
+                        </a>
+                      </div>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Émetteur ---------- -->
+        <section class="tab-panel" id="emetteur">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= t('einv.issuerIdentity') %></h3>
+                  <p class="card-sub"><%= t('einv.mentionsNote') %></p>
+                </div>
+              </div>
+              <form method="POST" action="/facturation-electronique/emetteur" class="stack">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <% issuerFields.forEach((field) => { %>
+                  <label>
+                    <span>
+                      <%= field.label %>
+                      <% if (field.hint) { %><span class="cell-sub">(<%= field.hint %>)</span><% } %>
+                    </span>
+                    <input type="text" name="<%= field.key %>" value="<%= issuer[field.key] %>" maxlength="200"
+                           class="<%= field.required && !issuer[field.key] ? 'is-missing' : '' %>" />
+                  </label>
+                <% }) %>
+                <button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('einv.exportContent') %></h3></div>
+              <ul class="check-list">
+                <% [
+                  ['Profil EN 16931', 'Le XML déclare la spécification urn:cen.eu:en16931:2017.'],
+                  ['Format CII', 'CrossIndustryInvoice UN/CEFACT, celui attendu par Factur-X.'],
+                  ['Identification des parties', 'SIREN et TVA de l\'émetteur, identifiant et adresse du client.'],
+                  ['Montants', 'HT, TVA par taux, TTC et net à payer.'],
+                  ['Échéance', 'Date de paiement attendue.']
+                ].forEach(([label, detail]) => { %>
+                  <li class="check-item">
+                    <span class="check-mark is-ok">✓</span>
+                    <span class="check-body">
+                      <span class="check-label"><%= label %></span>
+                      <span class="check-detail"><%= detail %></span>
+                    </span>
+                  </li>
+                <% }) %>
+                <li class="check-item">
+                  <span class="check-mark is-warn">!</span>
+                  <span class="check-body">
+                    <span class="check-label"><%= t('einv.pdfa3') %></span>
+                    <span class="check-detail"><%= t('einv.pdfa3Note') %></span>
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

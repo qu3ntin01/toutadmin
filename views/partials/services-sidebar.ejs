@@ -1,0 +1,72 @@
+<%
+/* Le rail des services, le même sur tous les écrans d'administration.
+
+   Il se bâtit sur le catalogue (src/sections.js) et non sur une liste tenue
+   dans chaque gabarit : cinquante listes à la main avaient fini par diverger,
+   et un service qui figure dans l'une et pas dans l'autre est un service qu'on
+   ne retrouve qu'en tapant son adresse.
+
+   Ce qu'il ne montre pas : ce que ce compte ne pourrait pas ouvrir. Un
+   raccourci vers un écran interdit est une porte peinte sur un mur — elle donne
+   sur un refus. Un groupe dont rien n'est visible disparaît entièrement plutôt
+   que de s'ouvrir sur le vide.
+
+   Attend : onglet? (nom de l'onglet de console à allumer),
+            ongletsCliquables? (vrai sur la console, où ils pilotent la page) */
+const quiSuisJe = typeof droits !== 'undefined' && droits ? droits : { role: null };
+const ongletActif = typeof onglet !== 'undefined' ? onglet : null;
+const ongletsBoutons = typeof ongletsCliquables !== 'undefined' && ongletsCliquables;
+const iciMeme = typeof cheminActuel !== 'undefined' ? cheminActuel : null;
+
+const compteurs = {
+  rh: typeof pendingRequestCount !== 'undefined' ? pendingRequestCount : 0,
+};
+
+/* Les services marqués « onglet » ouvrent un panneau de la console. Sur la
+   console, ce sont des boutons ; partout ailleurs, des liens qui y ramènent. */
+function entreeService(service) {
+  const commun = {
+    label: t(service.titre),
+    icon: service.icone,
+    badge: compteurs[service.cle] || 0,
+  };
+  if (service.onglet && ongletsBoutons) {
+    return Object.assign(commun, { tab: service.onglet, active: service.onglet === ongletActif });
+  }
+  const chemin = service.href.split('#')[0];
+  return Object.assign(commun, {
+    href: service.href,
+    active: service.onglet ? service.onglet === ongletActif : iciMeme === chemin,
+  });
+}
+
+/* Chaque groupe s'ouvre sur sa vue d'ensemble : les tuiles y disent ce que
+   chaque service sert à faire, ce qu'une liste de noms ne dit pas. Elle porte
+   la grille plutôt que l'icône du groupe, laquelle est souvent déjà celle d'un
+   des services en dessous — deux lignes voisines au même dessin ne se
+   distinguent plus. */
+function vueDEnsemble(groupe) {
+  const href = '/section/' + groupe.cle;
+  return { href, label: t('nav.overview'), icon: 'grid', badge: 0, active: iciMeme === href };
+}
+
+const groupesDuRail = sections.GROUPES.map((groupe) => {
+  const visibles = sections.servicesDe(groupe.cle, quiSuisJe);
+  return {
+    cle: groupe.cle,
+    titre: t(groupe.titre),
+    entrees: visibles.length ? [vueDEnsemble(groupe)].concat(visibles.map(entreeService)) : [],
+  };
+}).filter((groupe) => groupe.entrees.length);
+%>
+<%- include('sidebar', {
+  /* Le rail ne porte plus le nom de l'écran — il est le même partout. Il dit
+     donc à quel titre on est entré, comme le bandeau du haut. */
+  panelLabel: typeof panelLabel !== 'undefined' && panelLabel
+    ? panelLabel
+    : (currentUser.role === 'admin' ? t('common.adminRole') : currentUser.grade),
+  groupes: groupesDuRail,
+  /* Chemin de repli du gabarit : une liste vide y vaut mieux qu'une absente. */
+  navItems: [],
+  footLinks: typeof footLinks !== 'undefined' && footLinks ? footLinks : []
+}) %>

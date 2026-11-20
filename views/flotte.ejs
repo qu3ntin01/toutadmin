@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Flotte — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.fleet'),
+        headerSubtitle: t('flo.headerSub'),
+        onglets: [
+          { tab: 'flotte', label: t('flo.tabVehicles'), icon: 'network' },
+          { tab: 'echeances', label: t('sst.deadlines'), icon: 'clock', badge: deadlines.length },
+          { tab: 'nouveau', label: t('common.add'), icon: 'plus' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const money = (n) => (n == null ? '—' : Number(n).toLocaleString(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' €'); %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'network', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.active %></span><span class="stat-label"><%= t('flo.inFleet') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.overdue %></span><span class="stat-label"><%= t('pil.overdueDeadlines') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'user', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.unassigned %></span><span class="stat-label"><%= t('flo.noDriver') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'card', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= money(summary.cost) %></span><span class="stat-label"><%= t('flo.cost12') %></span></span>
+          </div>
+        </section>
+
+        <section class="tab-panel is-active" id="flotte">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('flo.vehicleCount', { count: vehicleList.length }) %></h3>
+              <a class="btn btn-outline btn-sm" href="/flotte<%= showDisposed ? '' : '?cedes=1' %>">
+                <%= showDisposed ? t('flo.hideDisposed') : t('flo.showDisposed') %>
+              </a>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('flo.plate') %></th><th><%= t('flo.vehicle') %></th><th><%= t('flo.driver') %></th><th>Km</th><th><%= t('flo.inspection') %></th><th><%= t('flo.insurance') %></th><th><%= t('common.status') %></th><th></th></tr></thead>
+                <tbody>
+                  <% vehicleList.forEach((v) => { %>
+                    <tr>
+                      <td class="cell-strong nowrap"><a href="/flotte/<%= v.id %>"><%= v.registration %></a></td>
+                      <td><%= [v.brand, v.model].filter(Boolean).join(' ') || '—' %><br /><span class="cell-sub"><%= v.kind %></span></td>
+                      <td class="cell-sub"><%= v.first_name ? v.first_name + ' ' + v.last_name : '—' %></td>
+                      <td class="cell-sub nowrap"><%= v.mileage.toLocaleString(locale) %></td>
+                      <td class="<%= v.inspection_due && v.inspection_due < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(v.inspection_due) %></td>
+                      <td class="<%= v.insurance_due && v.insurance_due < today ? 'text-danger' : 'cell-sub' %> nowrap"><%= day(v.insurance_due) %></td>
+                      <td><span class="tag <%= v.status === 'En service' ? 'tag-success' : (v.status === 'Cédé' ? '' : 'tag-warning') %>"><%= st(v.status) %></span></td>
+                      <td><a class="btn btn-outline btn-sm" href="/flotte/<%= v.id %>"><%= t('common.open') %></a></td>
+                    </tr>
+                  <% }) %>
+                  <% if (vehicleList.length === 0) { %><tr><td colspan="8" class="cell-sub"><%= t('flo.noVehicle') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="echeances">
+          <div class="card">
+            <div class="card-head"><h3><%= t('flo.deadlines60', { count: deadlines.length }) %></h3></div>
+            <ul class="org-list">
+              <% deadlines.forEach((d) => { %>
+                <li class="org-item">
+                  <span>
+                    <a class="cell-strong" href="/flotte/<%= d.vehicle.id %>"><%= d.vehicle.registration %></a>
+                    <span class="tag <%= d.overdue ? 'tag-danger' : 'tag-warning' %>"><%= d.label %></span>
+                    <br /><span class="cell-sub"><%= [d.vehicle.brand, d.vehicle.model].filter(Boolean).join(' ') %> · <%= d.overdue ? 'dépassée depuis le ' : 'à faire avant le ' %><%= day(d.due) %></span>
+                  </span>
+                  <a class="btn btn-outline btn-sm" href="/flotte/<%= d.vehicle.id %>"><%= t('flo.handle') %></a>
+                </li>
+              <% }) %>
+              <% if (deadlines.length === 0) { %><li class="cell-sub"><%= t('flo.nothing60') %></li><% } %>
+            </ul>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="nouveau">
+          <div class="card">
+            <div class="card-head"><h3><%= t('flo.addVehicle') %></h3></div>
+            <form method="POST" action="/flotte" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('flo.plate') %></span><input type="text" name="registration" required maxlength="20" placeholder="AB-123-CD" /></label>
+              <label><span><%= t('common.type') %></span>
+                <select name="kind"><% kinds.forEach((k) => { %><option value="<%= k %>"><%= k %></option><% }) %></select>
+              </label>
+              <label><span><%= t('common.brand') %></span><input type="text" name="brand" maxlength="60" /></label>
+              <label><span><%= t('common.template') %></span><input type="text" name="model" maxlength="60" /></label>
+              <label><span><%= t('flo.inService') %></span><input type="date" name="acquired_on" /></label>
+              <label><span><%= t('common.mileage') %></span><input type="number" name="mileage" min="0" max="5000000" value="0" /></label>
+              <label class="span-2"><span><%= t('flo.assignedDriver') %></span>
+                <select name="assigned_to"><option value="">—</option>
+                  <% employees.forEach((u) => { %><option value="<%= u.id %>"><%= u.first_name %> <%= u.last_name %></option><% }) %>
+                </select>
+              </label>
+              <label><span><%= t('flo.inspectionDue') %></span><input type="date" name="inspection_due" /></label>
+              <label><span><%= t('flo.insuranceDue') %></span><input type="date" name="insurance_due" /></label>
+              <label class="span-2"><span><%= t('flo.nextService') %></span><input type="date" name="service_due" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

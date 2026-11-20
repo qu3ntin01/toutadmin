@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t('sup.grp.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('sup.grp.title'),
+        headerSubtitle: t('sup.grp.sub'),
+        onglets: [
+          { tab: 'acces', label: t('sup.grp.tabAccess'), icon: 'shield' },
+          { tab: 'groupes', label: t('sup.grp.tabGroups'), icon: 'users', badge: groups.length },
+          { tab: 'nouveau', label: t('sup.grp.tabNew'), icon: 'plus' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <!-- ---------- Qui a accès à quoi ---------- -->
+        <%#
+          L'écran commence par la carte, et non par les groupes : la question
+          d'une administration n'est pas « quels groupes existent » mais « qui
+          lit les demandes informatiques ». Les groupes sont le moyen ; ceci est
+          la réponse.
+        %>
+        <section class="tab-panel is-active" id="acces">
+          <div class="card">
+            <div class="card-head"><h2><%= t('sup.grp.mapTitle') %></h2></div>
+            <p class="hint"><%= t('sup.grp.mapNote') %></p>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th><%= t('common.category') %></th>
+                    <th><%= t('sup.grp.byRole') %></th>
+                    <th><%= t('sup.grp.byGroup') %></th>
+                    <th><%= t('sup.grp.named') %></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% access.forEach((ligne) => { %>
+                    <tr>
+                      <td>
+                        <strong><%= ligne.category %></strong>
+                        <% if (ligne.restricted) { %>
+                          <span class="tag tag-danger"><%= t('sup.grp.sensitive') %></span>
+                        <% } %>
+                      </td>
+                      <td class="cell-sub">
+                        <% if (ligne.roles.length === 0) { %>—<% } else { %>
+                          <%= ligne.roles.map((r) => t(`sup.grp.role.${r}`)).join(', ') %>
+                        <% } %>
+                      </td>
+                      <td class="cell-sub">
+                        <% if (ligne.groups.length === 0) { %>
+                          <%= t('sup.grp.noGroup') %>
+                        <% } else { %>
+                          <% ligne.groups.forEach((g) => { %>
+                            <span class="tag"><%= g.name %></span>
+                          <% }) %>
+                        <% } %>
+                      </td>
+                      <td class="cell-sub"><%= ligne.named %></td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+
+            <p class="hint"><%= t('sup.grp.mapAdd') %></p>
+          </div>
+        </section>
+
+        <!-- ---------- Les groupes ---------- -->
+        <section class="tab-panel" id="groupes">
+          <% if (groups.length === 0) { %>
+            <div class="card"><p class="hint"><%= t('sup.grp.none') %></p></div>
+          <% } %>
+
+          <% groups.forEach((groupe) => { %>
+            <div class="card">
+              <div class="card-head">
+                <h3><%= groupe.name %></h3>
+                <span class="tag"><%= t('sup.grp.memberCount', { n: groupe.members.length }) %></span>
+              </div>
+
+              <% if (groupe.description) { %><p class="cell-sub"><%= groupe.description %></p><% } %>
+
+              <form method="POST" action="/support/groupes/<%= groupe.id %>/modifier" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label><span><%= t('common.name') %></span>
+                  <input type="text" name="name" maxlength="120" required value="<%= groupe.name %>" />
+                </label>
+                <label><span><%= t('common.description') %></span>
+                  <input type="text" name="description" maxlength="500" value="<%= groupe.description %>" />
+                </label>
+                <div class="span-2 form-actions">
+                  <button type="submit" class="btn btn-sm"><%= t('common.save') %></button>
+                </div>
+              </form>
+
+              <h4><%= t('sup.grp.handles') %></h4>
+              <form method="POST" action="/support/groupes/<%= groupe.id %>/categories">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <% categories.forEach((categorie) => { %>
+                  <label class="check-row">
+                    <input type="checkbox" name="categories" value="<%= categorie %>"
+                           <%= groupe.categories.includes(categorie) ? 'checked' : '' %> />
+                    <span>
+                      <%= categorie %>
+                      <% if (categorie === restricted) { %>
+                        — <strong><%= t('sup.grp.sensitiveWarn') %></strong>
+                      <% } %>
+                    </span>
+                  </label>
+                <% }) %>
+                <div class="row-actions">
+                  <button type="submit" class="btn btn-sm btn-primary"><%= t('sup.grp.saveHandles') %></button>
+                </div>
+              </form>
+
+              <h4><%= t('sup.grp.members') %></h4>
+              <% if (groupe.members.length === 0) { %>
+                <p class="hint"><%= t('sup.grp.noMember') %></p>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <tbody>
+                      <% groupe.members.forEach((membre) => { %>
+                        <tr>
+                          <td><%= membre.first_name %> <%= membre.last_name %></td>
+                          <td class="cell-sub"><%= membre.email %></td>
+                          <td class="row-actions">
+                            <form method="POST" action="/support/groupes/<%= groupe.id %>/membres/retirer" class="inline-form">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <input type="hidden" name="user_id" value="<%= membre.id %>" />
+                              <button type="submit" class="btn btn-sm btn-outline"><%= t('common.remove') %></button>
+                            </form>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+
+              <form method="POST" action="/support/groupes/<%= groupe.id %>/membres" class="inline-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <select name="user_id" required>
+                  <option value=""><%= t('sup.grp.pickPerson') %></option>
+                  <% people.forEach((personne) => { %>
+                    <option value="<%= personne.id %>"><%= personne.last_name %> <%= personne.first_name %></option>
+                  <% }) %>
+                </select>
+                <button type="submit" class="btn btn-sm"><%= t('sup.grp.addPerson') %></button>
+              </form>
+
+              <details class="danger-zone">
+                <summary><%= t('sup.grp.deleteTitle') %></summary>
+                <p class="hint"><%= t('sup.grp.deleteNote') %></p>
+                <form method="POST" action="/support/groupes/<%= groupe.id %>/supprimer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-sm btn-danger" data-confirm="<%= t('sup.grp.deleteConfirm') %>"><%= t('common.delete') %></button>
+                </form>
+              </details>
+            </div>
+          <% }) %>
+        </section>
+
+        <!-- ---------- Un nouveau groupe ---------- -->
+        <section class="tab-panel" id="nouveau">
+          <div class="card">
+            <div class="card-head"><h2><%= t('sup.grp.newTitle') %></h2></div>
+            <p class="hint"><%= t('sup.grp.newNote') %></p>
+
+            <form method="POST" action="/support/groupes" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label><span><%= t('common.name') %></span>
+                <input type="text" name="name" maxlength="120" required placeholder="<%= t('sup.grp.namePlaceholder') %>" />
+              </label>
+              <label><span><%= t('common.description') %></span>
+                <input type="text" name="description" maxlength="500" />
+              </label>
+              <div class="span-2">
+                <p class="section-label"><%= t('sup.grp.handles') %></p>
+                <% categories.forEach((categorie) => { %>
+                  <label class="check-row">
+                    <input type="checkbox" name="categories" value="<%= categorie %>" />
+                    <span>
+                      <%= categorie %>
+                      <% if (categorie === restricted) { %>
+                        — <strong><%= t('sup.grp.sensitiveWarn') %></strong>
+                      <% } %>
+                    </span>
+                  </label>
+                <% }) %>
+              </div>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('sup.grp.create') %></button></div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

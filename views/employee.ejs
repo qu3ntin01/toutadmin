@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t('nav.mySpace') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/member-sidebar', { active: 'espace' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('home.greeting', { name: currentUser.firstName }),
+        headerSubtitle: t('home.subtitle')
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% if (employee.contract_end_date) {
+          const todayStr = new Date().toISOString().slice(0, 10);
+          const daysLeft = Math.ceil((new Date(employee.contract_end_date + 'T00:00:00Z') - new Date(todayStr + 'T00:00:00Z')) / 86400000);
+          const bannerClass = daysLeft < 0 ? 'is-danger' : (daysLeft <= 30 ? 'is-warning' : '');
+          const endDate = new Date(employee.contract_end_date + 'T00:00:00Z').toLocaleDateString(locale);
+        %>
+          <div class="banner <%= bannerClass %>">
+            <%- include('partials/icon', { name: 'calendar', iconSize: 17 }) %>
+            <span>
+              <%= t('common.contract') %> <%= employee.contract_type %> —
+              <% if (daysLeft < 0) { %><%= endDate %><% } else { %><%= endDate %> (<%= daysLeft %> j)<% } %>
+            </span>
+          </div>
+        <% } %>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= managers.length > 1 ? t('common.managers') : t('home.yourManager') %></h3>
+                <% const attachment = [team && team.name, department && department.name].filter(Boolean).join(' · '); %>
+                <% if (attachment) { %><p class="card-sub"><%= attachment %></p><% } %>
+              </div>
+            </div>
+            <% if (managers.length === 0) { %>
+              <div class="empty-state"><%= t('home.noManager') %></div>
+            <% } else { %>
+              <% managers.forEach((manager) => { %>
+                <div class="manager-card">
+                  <%- include('partials/avatar', { person: manager }) %>
+                  <div>
+                    <div class="manager-name"><%= manager.first_name %> <%= manager.last_name %></div>
+                    <div class="manager-role"><%= manager.grade %> · <%= manager.scope === 'team' ? t('common.team') : t('common.department') %></div>
+                    <div class="person-line"><%= manager.email %></div>
+                  </div>
+                </div>
+              <% }) %>
+              <div class="form-actions">
+                <a href="/messagerie" class="btn btn-sm"><%= t('messages.compose') %></a>
+              </div>
+            <% } %>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('home.news') %></h3>
+            </div>
+            <% if (news.length === 0) { %>
+              <div class="empty-state"><%= t('home.noNews') %></div>
+            <% } else { %>
+              <% news.forEach((n) => { %>
+                <div class="news-item">
+                  <div class="news-head">
+                    <span class="news-title"><%= n.title %></span>
+                    <span class="tag <%= n.scope === 'company' ? 'tag-accent' : '' %>">
+                      <%= n.scope === 'company' ? t('home.companyNews') : t('home.teamNews') %>
+                    </span>
+                    <span class="news-meta">
+                      <%= n.first_name ? n.first_name + ' ' + n.last_name + ' · ' : '' %><%= new Date(n.created_at).toLocaleDateString(locale) %>
+                    </span>
+                  </div>
+                  <% if (n.body) { %><p class="news-body"><%= n.body %></p><% } %>
+                </div>
+              <% }) %>
+            <% } %>
+          </div>
+        </div>
+
+        <% if (isFreelance) { %>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= t('timer.title') %></h3>
+                  <p class="card-sub"><%= t('timer.subtitle') %></p>
+                </div>
+                <span class="status <%= openEntry ? 'status-on' : 'status-off' %>">
+                  <%= openEntry ? t('status.running') : t('status.stopped') %>
+                </span>
+              </div>
+
+              <div class="timer-display" id="live-timer" data-start="<%= openEntry ? openEntry.clock_in : '' %>">00:00:00</div>
+
+              <% if (openEntry) { %>
+                <form method="POST" action="/mon-espace/pointage/terminer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-block"><%= t('timer.stop') %></button>
+                </form>
+              <% } else { %>
+                <form method="POST" action="/mon-espace/pointage/commencer">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('timer.start') %></button>
+                </form>
+              <% } %>
+
+              <div class="timer-stats">
+                <div>
+                  <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
+                  <span class="stat-label"><%= t('timer.thisMonth') %></span>
+                </div>
+                <div>
+                  <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
+                  <span class="stat-label"><%= t('timer.monthEstimate') %></span>
+                </div>
+                <div>
+                  <span class="stat-value"><%= statsData.hourlyRate.toFixed(2) %> €</span>
+                  <span class="stat-label"><%= t('timer.hourlyRate') %></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('timer.history') %></h3></div>
+              <% if (entries.length === 0) { %>
+                <div class="empty-state"><%= t('messages.empty') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th><%= t('common.date') %></th><th><%= t('timer.start_label') %></th>
+                        <th><%= t('timer.end_label') %></th><th><%= t('timer.duration') %></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% entries.forEach((e) => {
+                        const start = new Date(e.clock_in);
+                        const end = e.clock_out ? new Date(e.clock_out) : null;
+                        const hours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
+                        const timeOpts = { hour: '2-digit', minute: '2-digit' };
+                      %>
+                        <tr>
+                          <td class="cell-strong"><%= start.toLocaleDateString(locale) %></td>
+                          <td class="cell-sub"><%= start.toLocaleTimeString(locale, timeOpts) %></td>
+                          <td class="cell-sub"><%= end ? end.toLocaleTimeString(locale, timeOpts) : '—' %></td>
+                          <td>
+                            <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
+                            <% } else { %><span class="status status-on"><%= t('status.running') %></span><% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% } %>
+
+        <% if (hrEligible) { %>
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head">
+                <div>
+                  <h3><%= t('leave.newRequest') %></h3>
+                  <p class="card-sub"><%= t('leave.available', { days: employee.leave_balance.toFixed(1) }) %></p>
+                </div>
+              </div>
+              <form method="POST" action="/mon-espace/demandes" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('common.type') %></span>
+                  <select name="type" required>
+                    <option value="" disabled selected>—</option>
+                    <% requestTypes.forEach((rt) => { %><option value="<%= rt %>"><%= rt %></option><% }) %>
+                  </select>
+                </label>
+                <label>
+                  <span><%= t('leave.from') %></span>
+                  <input type="date" name="start_date" required />
+                </label>
+                <label>
+                  <span><%= t('leave.to') %></span>
+                  <input type="date" name="end_date" required />
+                </label>
+                <label class="span-2">
+                  <span><%= t('common.reason') %></span>
+                  <input type="text" name="reason" />
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary btn-block"><%= t('leave.send') %></button>
+                </div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('leave.myRequests') %> <span class="muted">(<%= myRequests.length %>)</span></h3></div>
+              <% if (myRequests.length === 0) { %>
+                <div class="empty-state"><%= t('leave.noRequests') %></div>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th><%= t('common.type') %></th><th><%= t('common.period') %></th>
+                        <th class="num"><%= t('common.days') %></th><th><%= t('common.status') %></th><th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% myRequests.forEach((r) => {
+                        const statusClass = r.status === 'Approuvée' ? 'status-on'
+                          : r.status === 'En attente' ? 'status-warning'
+                          : r.status === 'Refusée' ? 'status-danger' : 'status-off';
+                      %>
+                        <tr>
+                          <td><span class="tag"><%= r.type %></span></td>
+                          <td class="cell-sub">
+                            <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale) %> →
+                            <%= new Date(r.end_date + 'T00:00:00Z').toLocaleDateString(locale) %>
+                          </td>
+                          <td class="num"><%= r.days %></td>
+                          <td>
+                            <span class="status <%= statusClass %>"><%= st(r.status) %></span>
+                            <% if (r.review_note) { %><div class="cell-sub">« <%= r.review_note %> »</div><% } %>
+                          </td>
+                          <td class="actions">
+                            <% if (r.status === 'En attente') { %>
+                              <form method="POST" action="/mon-espace/demandes/<%= r.id %>/annuler">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <button type="submit" class="btn btn-sm btn-danger"><%= t('common.cancel') %></button>
+                              </form>
+                            <% } %>
+                          </td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('payslip.mine') %> <span class="muted">(<%= myPayslips.length %>)</span></h3></div>
+            <% if (myPayslips.length === 0) { %>
+              <div class="empty-state"><%= t('payslip.none') %></div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th><%= t('common.period') %></th><th class="num"><%= t('payslip.gross') %></th>
+                      <th class="num"><%= t('payslip.net') %></th><th><%= t('common.status') %></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% myPayslips.forEach((p) => { %>
+                      <tr>
+                        <td class="cell-strong mono"><%= p.period %></td>
+                        <td class="num cell-sub"><%= p.gross_amount.toFixed(2) %> €</td>
+                        <td class="num cell-strong"><%= p.net_amount.toFixed(2) %> €</td>
+                        <td>
+                          <span class="status <%= p.status === 'Payée' ? 'status-on' : 'status-warning' %>">
+                            <%= p.status === 'Payée' ? t('status.paid') : t('status.due') %>
+                          </span>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3><%= t('tools.mine') %> <span class="muted">(<%= tools.length %>)</span></h3>
+              <p class="card-sub"><%= t('tools.subtitle') %></p>
+            </div>
+          </div>
+
+          <% if (tools.length === 0) { %>
+            <div class="empty-state"><%= t('tools.none') %></div>
+          <% } else { %>
+            <div class="tool-grid">
+              <% tools.forEach((tool) => { %>
+                <article class="tool-card">
+                  <div class="tool-card-top">
+                    <span class="tool-icon"><%- include('partials/icon', { name: 'tool', iconSize: 17 }) %></span>
+                    <% if (tool.category) { %><span class="tag"><%= tool.category %></span><% } %>
+                  </div>
+                  <div>
+                    <div class="tool-name"><%= tool.name %></div>
+                    <% if (tool.reference) { %>
+                      <div class="tool-ref"><%= t('tools.reference', { reference: tool.reference }) %></div>
+                    <% } %>
+                  </div>
+
+                  <% if (tool.username || tool.login_url) { %>
+                    <div class="cred-box">
+                      <% if (tool.username) { %>
+                        <div class="cred-row">
+                          <span class="k"><%= t('tools.credentials') %></span>
+                          <span class="v"><%= tool.username %></span>
+                        </div>
+                      <% } %>
+                      <% if (tool.login_url) { %>
+                        <div class="cred-row">
+                          <span class="k"><%= t('tools.access') %></span>
+                          <a href="<%= tool.login_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-outline">
+                            <%= t('common.open') %> <%- include('partials/icon', { name: 'external', iconSize: 13 }) %>
+                          </a>
+                        </div>
+                      <% } %>
+                    </div>
+                  <% } %>
+
+                  <% if (tool.note) { %><p class="tool-note"><%= tool.note %></p><% } %>
+                  <div class="tool-foot">
+                    <%= t('tools.assignedOn', { date: new Date(tool.assigned_at).toLocaleDateString(locale) }) %>
+                  </div>
+                </article>
+              <% }) %>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- ---------- Documents à lire ---------- -->
+        <% const toAck = myDocuments.filter((d) => d.requires_ack && !d.acked_at); %>
+        <div class="card" id="documents">
+          <div class="card-head">
+            <div>
+              <h3><%= t('erp.documents') %> <span class="muted">(<%= myDocuments.length %>)</span></h3>
+              <% if (toAck.length) { %><p class="card-sub"><%= t('esp.toAck', { count: toAck.length }) %></p><% } %>
+            </div>
+          </div>
+          <% if (myDocuments.length === 0) { %>
+            <div class="empty-state"><%= t('erp.noDocument') %></div>
+          <% } else { %>
+            <ul class="person-list">
+              <% myDocuments.forEach((d) => { %>
+                <li class="person-row">
+                  <span class="person-body">
+                    <span class="person-name"><%= d.title %></span>
+                    <span class="cell-sub">
+                      <%= d.category || '—' %> · <%= new Date(d.published_at + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %>
+                      <%= d.acked_at ? ' · ' + t('erp.acknowledged', { date: new Date(d.acked_at).toLocaleDateString(locale) }) : '' %>
+                    </span>
+                    <% if (d.description) { %><span class="benefit-text"><%= d.description %></span><% } %>
+                  </span>
+                  <span class="row-actions">
+                    <% if (d.url) { %>
+                      <a href="<%= d.url %>" class="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer"><%= t('common.open') %></a>
+                    <% } %>
+                    <% if (d.requires_ack && !d.acked_at) { %>
+                      <form method="POST" action="/mon-espace/documents/<%= d.id %>/accuser">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-primary btn-sm"><%= t('erp.acknowledge') %></button>
+                      </form>
+                    <% } %>
+                  </span>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+
+        <div class="grid-2">
+          <!-- ---------- Notes de frais ---------- -->
+          <div class="card" id="frais">
+            <div class="card-head"><h3><%= t('erp.newClaim') %></h3></div>
+            <form method="POST" action="/mon-espace/frais" class="stack">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <div class="form-grid">
+                <label>
+                  <span><%= t('common.date') %></span>
+                  <input type="date" name="spent_on" required />
+                </label>
+                <label>
+                  <span><%= t('erp.amount') %></span>
+                  <input type="text" name="amount" inputmode="decimal" placeholder="Ex : 42,50" />
+                </label>
+              </div>
+              <label>
+                <span><%= t('common.type') %></span>
+                <select name="category" required>
+                  <% expenseCategories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %>
+                </select>
+              </label>
+              <fieldset class="form-grid">
+                <legend><%= t('erp.mileageLegend') %></legend>
+                <label>
+                  <span><%= t('erp.mileageKm') %></span>
+                  <input type="text" name="distance_km" inputmode="decimal" placeholder="Ex : 48" />
+                </label>
+                <label>
+                  <span><%= t('erp.mileageHp') %></span>
+                  <select name="fiscal_hp">
+                    <% fiscalHps.forEach((cv) => { %><option value="<%= cv %>"><%= cv === 3 ? t('erp.mileageHpMin') : (cv === 7 ? t('erp.mileageHpMax') : cv + ' CV') %></option><% }) %>
+                  </select>
+                </label>
+                <label class="check span-2"><input type="checkbox" name="electric" /> <span><%= t('erp.mileageElectric') %></span></label>
+              </fieldset>
+              <label>
+                <span><%= t('common.reason') %></span>
+                <input type="text" name="description" maxlength="500" />
+              </label>
+              <button type="submit" class="btn btn-primary btn-block"><%= t('common.send') %></button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('erp.myClaims') %> <span class="muted">(<%= myClaims.length %>)</span></h3></div>
+            <% if (myClaims.length === 0) { %>
+              <div class="empty-state"><%= t('erp.noClaim') %></div>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('common.date') %></th><th><%= t('common.type') %></th><th class="num"><%= t('erp.amount') %></th><th><%= t('common.status') %></th><th class="actions"></th></tr></thead>
+                  <tbody>
+                    <% myClaims.forEach((c) => { %>
+                      <tr>
+                        <td><%= new Date(c.spent_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></td>
+                        <td>
+                          <span class="tag"><%= c.category %></span>
+                          <% if (c.distance_km) { %><div class="cell-sub"><%= c.distance_km.toLocaleString(locale) %> km · <%= c.fiscal_hp %> CV<%= c.electric ? ' · ' + t('erp.mileageElectricShort') : '' %></div><% } %>
+                          <% if (c.description) { %><div class="cell-sub"><%= c.description %></div><% } %>
+                        </td>
+                        <td class="num cell-strong"><%= c.amount.toFixed(2) %> €</td>
+                        <td>
+                          <span class="status <%= c.status === 'Remboursée' || c.status === 'Approuvée' ? 'status-on' : (c.status === 'Refusée' ? 'status-danger' : 'status-warning') %>"><%= st(c.status) %></span>
+                          <% if (c.review_note) { %><div class="cell-sub"><%= c.review_note %></div><% } %>
+                        </td>
+                        <td class="actions">
+                          <% if (c.status === 'En attente') { %>
+                            <form method="POST" action="/mon-espace/frais/<%= c.id %>/annuler" data-confirm="<%= t('esp.confirmDeleteExpense') %>">
+                              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                              <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
+                            </form>
+                          <% } else { %>
+                            <span class="cell-sub">—</span>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- ---------- Matériel confié ---------- -->
+          <div class="card" id="materiel">
+            <div class="card-head"><h3><%= t('erp.myAssets') %> <span class="muted">(<%= myAssets.length %>)</span></h3></div>
+            <% if (myAssets.length === 0) { %>
+              <div class="empty-state"><%= t('esp.noEquipment') %></div>
+            <% } else { %>
+              <ul class="person-list">
+                <% myAssets.forEach((a) => { %>
+                  <li class="person-row">
+                    <span class="person-body">
+                      <span class="person-name"><%= a.name %></span>
+                      <span class="cell-sub">
+                        <%= [a.category, a.serial_number].filter(Boolean).join(' · ') || '—' %>
+                        · <%= t('esp.entrustedOn', { date: new Date(a.assigned_at + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) }) %>
+                      </span>
+                    </span>
+                  </li>
+                <% }) %>
+              </ul>
+              <p class="hint"><%= t('esp.returnNote') %></p>
+            <% } %>
+          </div>
+
+          <!-- ---------- Formations ---------- -->
+          <div class="card" id="formations">
+            <div class="card-head"><h3><%= t('erp.myTrainings') %> <span class="muted">(<%= myTrainings.length %>)</span></h3></div>
+            <% if (myTrainings.length === 0 && openSessions.length === 0) { %>
+              <div class="empty-state"><%= t('erp.noTraining') %></div>
+            <% } else { %>
+              <% if (myTrainings.length) { %>
+                <ul class="person-list">
+                  <% myTrainings.forEach((r) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name"><%= r.title %></span>
+                        <span class="cell-sub">
+                          <%= new Date(r.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><%= r.location ? ' · ' + r.location : '' %>
+                        </span>
+                      </span>
+                      <span class="row-actions">
+                        <span class="status <%= r.status === 'Inscrite' ? 'status-on' : (r.status === 'Refusée' ? 'status-danger' : (r.status === 'Terminée' ? 'status-off' : 'status-warning')) %>"><%= st(r.status) %></span>
+                        <% if (r.status === 'Demandée') { %>
+                          <form method="POST" action="/mon-espace/formations/<%= r.id %>/annuler">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-danger btn-sm"><%= t('common.cancel') %></button>
+                          </form>
+                        <% } %>
+                      </span>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+
+              <% const available = openSessions.filter((s) => !myTrainings.some((r) => r.session_id === s.id)); %>
+              <% if (available.length) { %>
+                <h4 class="section-label"><%= t('hr.catalogue') %></h4>
+                <ul class="person-list">
+                  <% available.forEach((s) => { %>
+                    <li class="person-row">
+                      <span class="person-body">
+                        <span class="person-name"><%= s.title %></span>
+                        <span class="cell-sub">
+                          <%= new Date(s.start_date + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %><%= s.location ? ' · ' + s.location : '' %>
+                          · <%= s.taken %><%= s.seats ? '/' + s.seats : '' %> <%= t('erp.seats').toLowerCase() %>
+                        </span>
+                      </span>
+                      <form method="POST" action="/mon-espace/formations/<%= s.id %>/inscription">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-outline btn-sm"><%= t('erp.requestSeat') %></button>
+                      </form>
+                    </li>
+                  <% }) %>
+                </ul>
+              <% } %>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- ---------- Entretiens annuels ---------- -->
+        <% if (myReviews.length) { %>
+          <div class="card" id="entretiens">
+            <div class="card-head"><h3><%= t('erp.myReviews') %> <span class="muted">(<%= myReviews.length %>)</span></h3></div>
+            <ul class="meeting-list">
+              <% myReviews.forEach((r) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><%= r.period %></span>
+                    <span class="status <%= r.status === 'Réalisé' ? 'status-on' : (r.status === 'Annulé' ? 'status-danger' : 'status-warning') %>"><%= st(r.status) %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= r.scheduled_on ? new Date(r.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—' %>
+                    <%= r.reviewer_first_name ? ' · ' + r.reviewer_first_name + ' ' + r.reviewer_last_name : '' %>
+                    <%= r.rating ? ' · ' + r.rating + '/5' : '' %>
+                  </p>
+                  <% if (r.strengths) { %><p class="cell-sub"><strong><%= t('hr.strengthsLabel') %></strong> <%= r.strengths %></p><% } %>
+                  <% if (r.improvements) { %><p class="cell-sub"><strong><%= t('hr.improvementsLabel') %></strong> <%= r.improvements %></p><% } %>
+                  <% if (r.objectives) { %><p class="cell-sub"><strong><%= t('hr.objectivesLabel') %></strong> <%= r.objectives %></p><% } %>
+
+                  <form method="POST" action="/mon-espace/entretiens/<%= r.id %>/commentaire" class="stack">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                    <label>
+                      <span><%= t('esp.yourComment') %></span>
+                      <textarea name="employee_comment" rows="3" maxlength="2000"><%= r.employee_comment %></textarea>
+                    </label>
+                    <div class="row-actions">
+                      <button type="submit" class="btn btn-primary btn-sm"><%= t('common.save') %></button>
+                    </div>
+                  </form>
+                </li>
+              <% }) %>
+            </ul>
+          </div>
+        <% } %>
+
+        <!-- ---------- Points individuels avec le manager ---------- -->
+        <% if (myPoints.length) { %>
+          <div class="card" id="points">
+            <div class="card-head"><h3><%= t('oto.mine') %> <span class="muted">(<%= myPoints.length %>)</span></h3></div>
+            <ul class="meeting-list">
+              <% myPoints.forEach((point) => { %>
+                <li class="meeting-item">
+                  <div class="meeting-head">
+                    <span class="meeting-title"><%= new Date(point.scheduled_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) %></span>
+                    <span class="status <%= point.status === 'Tenu' ? 'status-on' : 'status-warning' %>"><%= st(point.status) %></span>
+                  </div>
+                  <p class="cell-sub">
+                    <%= point.manager_first_name ? point.manager_first_name + ' ' + point.manager_last_name : '—' %>
+                    <% if (point.next_on) { %> · <%= t('oto.nextOnValue', { date: new Date(point.next_on + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) }) %><% } %>
+                  </p>
+                  <% if (point.topics) { %><p class="cell-sub"><strong><%= t('oto.topics') %></strong> <%= point.topics %></p><% } %>
+                  <% if (point.shared_note) { %><p class="cell-sub"><strong><%= t('oto.sharedNote') %></strong> <%= point.shared_note %></p><% } %>
+                </li>
+              <% }) %>
+            </ul>
+            <p class="hint"><%= t('oto.mineHint') %></p>
+          </div>
+        <% } %>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/timer.js') %>"></script>
+</body>
+</html>

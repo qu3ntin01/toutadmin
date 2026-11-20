@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Coffre-fort — gestion — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.vault'),
+        headerSubtitle: t('cfg.headerSub'),
+        onglets: [
+          { tab: 'depot', label: t('cfg.tabDeposit'), icon: 'plus' },
+          { tab: 'documents', label: t('erp.documents'), icon: 'shield' },
+          { tab: 'acces', label: t('cfg.tabAccess'), icon: 'link', badge: summary.grants },
+          { tab: 'integrite', label: t('cfg.tabIntegrity'), icon: 'check', badge: integrity.broken.length }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const day = (iso) => (iso ? new Date(iso + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const fullName = (u) => [u.first_name, u.last_name].filter(Boolean).join(' '); %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.documents %></span><span class="stat-label"><%= t('cfg.documentsInVault') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.holders %></span><span class="stat-label"><%= t('cfg.holders') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'logout', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= summary.departed %></span><span class="stat-label"><%= t('cfg.ofWhichGone') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body">
+              <span class="stat-value <%= integrity.broken.length ? 'text-danger' : '' %>"><%= integrity.total - integrity.broken.length %>/<%= integrity.total %></span>
+              <span class="stat-label"><%= t('cfg.checkedFingerprints') %></span>
+            </span>
+          </div>
+        </section>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('cfg.chooseHolder') %></h3></div>
+          <form method="GET" action="/coffre-fort/gestion" class="form-grid">
+            <label class="span-2"><span><%= t('common.person') %></span>
+              <select name="personne" required>
+                <option value="">—</option>
+                <% people.forEach((u) => { %>
+                  <option value="<%= u.id %>" <%= target && target.id === u.id ? 'selected' : '' %>>
+                    <%= fullName(u) %> — <%= u.email %><%= u.active ? '' : ` (${t('cfg.gone')})` %> · <%= t('cfg.docCount', { count: u.documents }) %>
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+            <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('cfg.openVault') %></button></div>
+          </form>
+        </div>
+
+        <!-- ---------- Dépôt ---------- -->
+        <section class="tab-panel is-active" id="depot">
+          <div class="card">
+            <div class="card-head"><h3><%= t('cfg.depositDocument') %></h3></div>
+            <% if (!target) { %>
+              <p class="cell-sub"><%= t('cfg.chooseHolderFirst') %></p>
+            <% } else { %>
+              <form method="POST" action="/coffre-fort/gestion/depots" enctype="multipart/form-data" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="user_id" value="<%= target.id %>" />
+                <label class="span-2"><span><%= t('common.title') %></span>
+                  <input type="text" name="title" required maxlength="200" placeholder="<%= t('cfg.titlePlaceholder') %>" />
+                </label>
+                <label><span><%= t('common.category') %></span>
+                  <select name="category"><% categories.forEach((c) => { %><option value="<%= c %>"><%= c %></option><% }) %></select>
+                </label>
+                <label><span><%= t('cfg.period') %></span><input type="text" name="period" maxlength="7" placeholder="2026-01" /></label>
+                <label class="span-2"><span><%= t('cfg.linkToPayslip') %></span>
+                  <select name="payslip_id">
+                    <option value=""><%= t('cfg.noneOption') %></option>
+                    <% payslips.forEach((p) => { %>
+                      <option value="<%= p.id %>"><%= p.period %> · net <%= p.net_amount %> €</option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('common.file') %></span>
+                  <input type="file" name="document" accept=".pdf,.docx,.png,.jpg,.jpeg" required />
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('cfg.tabDeposit') %></button></div>
+              </form>
+              <p class="hint">
+                <%= t('cfg.depositNote', { years: retentionYears }) %>
+              </p>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Documents ---------- -->
+        <section class="tab-panel" id="documents">
+          <div class="card">
+            <div class="card-head">
+              <h3><%= target ? t('cfg.vaultOf', { name: fullName(target) }) : t('cfg.documents') %></h3>
+            </div>
+            <% if (!target) { %>
+              <p class="cell-sub"><%= t('cfg.chooseHolderToView') %></p>
+            <% } else { %>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th><%= t('common.document') %></th><th><%= t('common.category') %></th><th><%= t('common.period') %></th><th><%= t('cfg.depositedOn') %></th><th><%= t('cfg.keptUntil') %></th><th></th></tr></thead>
+                  <tbody>
+                    <% documents.forEach((d) => { %>
+                      <tr class="<%= d.removed_at ? 'is-muted' : '' %>">
+                        <td>
+                          <span class="cell-strong"><%= d.title %></span>
+                          <% if (d.removed_at) { %><span class="tag tag-danger"><%= t('cfg.withdrawnTag') %></span><% } %>
+                          <br /><span class="cell-sub fingerprint"><%= d.sha256.slice(0, 24) %>…</span>
+                          <% if (d.removed_at) { %>
+                            <br /><span class="cell-sub"><%= t('cfg.withdrawnOn') %> <%= moment(d.removed_at) %> — <%= d.removal_reason %></span>
+                          <% } %>
+                        </td>
+                        <td><span class="tag"><%= d.category %></span></td>
+                        <td class="cell-sub nowrap"><%= d.period || '—' %></td>
+                        <td class="cell-sub nowrap">
+                          <%= moment(d.deposited_at) %>
+                          <% if (d.deposited_first_name) { %><br /><%= d.deposited_first_name %> <%= d.deposited_last_name %><% } %>
+                        </td>
+                        <td class="cell-sub nowrap"><%= day(d.retention_until) %></td>
+                        <td>
+                          <% if (!d.removed_at) { %>
+                            <a class="btn btn-outline btn-sm" href="/coffre-fort/documents/<%= d.id %>"><%= t('common.open') %></a>
+                            <% if (currentUser.role === 'admin') { %>
+                              <form method="POST" action="/coffre-fort/gestion/documents/<%= d.id %>/retirer" class="inline-form"
+                                    data-confirm="<%= t('cfg.confirmWithdraw') %>">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                                <input type="text" name="reason" class="input-sm" placeholder="<%= t('cfg.withdrawReason') %>" required minlength="5" />
+                                <button type="submit" class="btn btn-danger btn-sm"><%= t('common.remove') %></button>
+                              </form>
+                            <% } %>
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                    <% if (documents.length === 0) { %><tr><td colspan="6" class="cell-sub"><%= t('cfg.emptyVault') %></td></tr><% } %>
+                  </tbody>
+                </table>
+              </div>
+              <% if (currentUser.role !== 'admin') { %>
+                <p class="hint"><%= t('cfg.withdrawalAdminOnly') %></p>
+              <% } %>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Accès après départ ---------- -->
+        <section class="tab-panel" id="acces">
+          <% if (issuedCode) { %>
+            <div class="card">
+              <div class="flash flash-success">
+                <%= t('cfg.codeFor', { email: issuedCode.email }) %>
+              </div>
+              <ul class="code-list"><li><%= issuedCode.code %></li></ul>
+              <p class="cell-sub">
+                <%- t('cfg.validUntilNote', {
+                      date: moment(issuedCode.expiresAt),
+                      url: '<code class="totp-secret">/coffre-fort/acces</code>',
+                    }) %>
+              </p>
+            </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head"><h3><%= t('cfg.accessCodes') %></h3></div>
+            <p class="hint">
+              <%= t('cfg.codesNote', { years: retentionYears }) %>
+            </p>
+
+            <% if (!target) { %>
+              <p class="cell-sub"><%= t('cfg.chooseHolderToIssue') %></p>
+            <% } else { %>
+              <form method="POST" action="/coffre-fort/gestion/acces/<%= target.id %>" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('cfg.validityDays') %></span>
+                  <input type="number" name="days" min="1" max="<%= maxGrantDays %>" value="<%= defaultGrantDays %>" required />
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('cfg.issueCodeFor', { name: fullName(target) }) %></button></div>
+              </form>
+              <p class="hint"><%= t('cfg.issueRevokes') %></p>
+
+              <ul class="org-list">
+                <% grants.forEach((g) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= t('cfg.codeOf', { date: moment(g.created_at) }) %></span>
+                      <% if (g.revoked_at) { %><span class="tag tag-danger"><%= t('cfg.revoked') %></span>
+                      <% } else if (new Date(g.expires_at) < new Date()) { %><span class="tag"><%= t('cfg.expired') %></span>
+                      <% } else { %><span class="tag tag-success"><%= t('cfg.activeCode') %></span><% } %>
+                      <br /><span class="cell-sub">
+                        <%= t('par.expiresOn') %> <%= moment(g.expires_at) %> · <%= t('cfg.useCount', { count: g.uses }) %>
+                        <%= g.last_used_at ? ` · ${t('cfg.lastUse', { date: moment(g.last_used_at) })}` : '' %>
+                      </span>
+                    </span>
+                  </li>
+                <% }) %>
+                <% if (grants.length === 0) { %><li class="cell-sub"><%= t('cfg.noCode') %></li><% } %>
+              </ul>
+
+              <% if (grants.some((g) => !g.revoked_at)) { %>
+                <form method="POST" action="/coffre-fort/gestion/acces/<%= target.id %>/revoquer" data-confirm="<%= t('cfg.confirmRevokeCodes') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-outline btn-block"><%= t('cfg.revokeActiveCodes') %></button>
+                </form>
+              <% } %>
+            <% } %>
+          </div>
+        </section>
+
+        <!-- ---------- Intégrité ---------- -->
+        <section class="tab-panel" id="integrite">
+          <div class="card">
+            <div class="card-head"><h3><%= t('cfg.integrityCheck') %></h3></div>
+            <p class="hint">
+              <%= t('cfg.integrityNote') %>
+            </p>
+            <% if (integrity.broken.length === 0) { %>
+              <p class="cell-strong"><%= t('cfg.checkedNoAnomaly', { count: integrity.total }) %></p>
+            <% } else { %>
+              <div class="flash flash-error"><%= t('cfg.anomalyCount', { count: integrity.broken.length }) %></div>
+              <ul class="org-list">
+                <% integrity.broken.forEach((d) => { %>
+                  <li class="org-item">
+                    <span><span class="cell-strong"><%= d.title %></span><br /><span class="cell-sub"><%= t('cfg.holderNumber', { id: d.user_id }) %> · <%= t('cfg.depositedLower') %> <%= moment(d.deposited_at) %></span></span>
+                    <span class="tag tag-danger"><%= t('cfg.toCheck') %></span>
+                  </li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Demande — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: request.form ? request.form.label : 'Demande',
+        headerSubtitle: request.requesterName,
+        backHref: '/demandes',
+        backLabel: t('nav.requests'),
+        onglets: [{ href: '/demandes', label: t('req.allRequests'), icon: 'inbox', active: true }]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+        <% const moment = (iso) => (iso ? new Date(iso.replace(' ', 'T') + (iso.includes('Z') ? '' : 'Z')).toLocaleString(locale) : '—'); %>
+
+        <div class="card">
+          <div class="card-head">
+            <h3><%= t('req.content') %></h3>
+            <span class="tag <%= request.status === 'Approuvée' ? 'tag-success' : (request.status === 'En cours' ? 'tag-warning' : 'tag-danger') %>"><%= st(request.status) %></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <tbody>
+                <% (request.form ? request.form.fieldList : []).forEach((field) => { %>
+                  <tr>
+                    <td class="cell-sub"><%= field.label %></td>
+                    <td class="cell-strong"><%= request.values[field.name] === '' || request.values[field.name] === undefined ? '—' : request.values[field.name] %></td>
+                  </tr>
+                <% }) %>
+                <tr><td class="cell-sub"><%= t('req.submitted') %></td><td><%= moment(request.created_at) %></td></tr>
+                <% if (request.closed_at) { %><tr><td class="cell-sub"><%= t('req.closed') %></td><td><%= moment(request.closed_at) %></td></tr><% } %>
+              </tbody>
+            </table>
+          </div>
+          <%- include('partials/champs-perso-lecture', { champs: champsPerso }) %>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('req.flow') %></h3></div>
+          <% if (!request.steps.length) { %>
+            <p class="empty-state"><%= t('req.noApprovalNeeded') %></p>
+          <% } else { %>
+            <ul class="timeline">
+              <% request.steps.forEach((step, index) => { %>
+                <% const decision = request.decisions.find((d) => d.position === step.position); %>
+                <li class="timeline-item">
+                  <div class="timeline-title">
+                    <%= t('common.step') %> <%= index + 1 %> — <%= step.label || step.approver %>
+                    <% if (step.threshold) { %><span class="cell-sub"> (<%= t('dmd.aboveThreshold', { threshold: step.threshold }) %>)</span><% } %>
+                  </div>
+                  <div class="timeline-body">
+                    <% if (decision) { %>
+                      <span class="tag <%= decision.decision === 'Approuvée' ? 'tag-success' : 'tag-danger' %>"><%= decision.decision %></span>
+                      <%= t('req.byOn', { name: `${decision.first_name} ${decision.last_name}`, date: moment(decision.decided_at) }) %>
+                      <% if (decision.note) { %><div class="cell-sub"><%= decision.note %></div><% } %>
+                    <% } else if (request.step && request.step.id === step.id) { %>
+                      <span class="tag tag-warning"><%= t('status.pending') %></span>
+                      <%= request.pendingApprovers.map((a) => `${a.first_name} ${a.last_name}`).join(', ') %>
+                    <% } else { %>
+                      <span class="cell-sub"><%= t('agenda.upcoming') %></span>
+                    <% } %>
+                  </div>
+                </li>
+              <% }) %>
+            </ul>
+          <% } %>
+        </div>
+
+        <% if (canDecide.ok) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= t('req.yourDecision') %></h3></div>
+            <form method="POST" action="/demandes/<%= request.id %>/decision" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="decision" value="Approuvée" />
+              <label class="span-2"><span><%= t('req.commentOptional') %></span><input type="text" name="note" maxlength="500" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('hr.approve') %></button></div>
+            </form>
+            <form method="POST" action="/demandes/<%= request.id %>/decision" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <input type="hidden" name="decision" value="Refusée" />
+              <label class="span-2"><span><%= t('common.refusalReason') %></span><input type="text" name="note" maxlength="500" required placeholder="<%= t('req.refusalPlaceholder') %>" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-outline btn-block"><%= t('hr.refuse') %></button></div>
+            </form>
+          </div>
+        <% } else if (request.status === 'En cours' && !isRequester) { %>
+          <div class="card"><p class="empty-state"><%= canDecide.message %></p></div>
+        <% } %>
+
+        <% if (isRequester && request.status === 'En cours' && !request.decisions.length) { %>
+          <div class="card">
+            <form method="POST" action="/demandes/<%= request.id %>/annuler" class="inline-form" data-confirm="<%= t('req.confirmWithdraw') %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-outline btn-sm"><%= t('req.withdraw') %></button>
+            </form>
+            <p class="hint"><%= t('req.withdrawNote') %></p>
+          </div>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

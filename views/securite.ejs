@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Sécurité — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('nav.security'),
+        headerSubtitle: t('sec.headerSub'),
+        onglets: [
+          { tab: 'journal', label: t('sec.tabAudit'), icon: 'inbox' },
+          { tab: 'scellement', label: t('sec.tabSeal'), icon: 'shield', badge: seal.ok ? 0 : 1 },
+          { tab: 'sessions', label: t('sec.tabSessions'), icon: 'clock' },
+          { tab: 'comptes', label: t('sec.tabWatch'), icon: 'shield' },
+          { tab: 'administrateurs', label: t('sec.tabAdmins'), icon: 'users' },
+          { tab: 'politique', label: t('sec.tabPolicy'), icon: 'settings' },
+          { tab: 'sso', label: t('sso.tab'), icon: 'network' }
+        ]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const when = (v) => (v ? new Date(String(v).replace(' ', 'T') + 'Z').toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const fullName = (r) => [r.first_name, r.last_name].filter(Boolean).join(' ') || r.email || '—'; %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'inbox', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= counters.entries %></span><span class="stat-label"><%= t('sec.logEntries') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'clock', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= sessions.length %></span><span class="stat-label"><%= t('sec.tabSessions') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'shield', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= counters.totpEnabled %>/<%= counters.accounts %></span><span class="stat-label"><%= t('sec.twoFactorAccounts') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= admins.length %></span><span class="stat-label"><%= t('sec.tabAdmins') %></span></span>
+          </div>
+        </section>
+
+        <!-- ---------- Journal ---------- -->
+        <section class="tab-panel is-active" id="journal">
+          <div class="card">
+            <div class="card-head"><h3><%= t('sec.tabAudit') %></h3></div>
+            <form method="GET" action="/securite" class="form-grid">
+              <label>
+                <span><%= t('common.action') %></span>
+                <input type="text" name="action" list="actions-connues" value="<%= filters.action %>" placeholder="connexion." />
+                <datalist id="actions-connues">
+                  <% knownActions.forEach((a) => { %><option value="<%= a %>"></option><% }) %>
+                </datalist>
+              </label>
+              <label>
+                <span><%= t('common.subject') %></span>
+                <input type="text" name="objet" value="<%= filters.entity %>" placeholder="users" />
+              </label>
+              <label>
+                <span><%= t('leave.from') %></span>
+                <input type="date" name="du" value="<%= filters.from %>" />
+              </label>
+              <label>
+                <span><%= t('leave.to') %></span>
+                <input type="date" name="au" value="<%= filters.to %>" />
+              </label>
+              <div class="span-2 row-actions">
+                <button type="submit" class="btn btn-primary btn-sm"><%= t('common.filter') %></button>
+                <a class="btn btn-outline btn-sm" href="/securite"><%= t('common.viewAll') %></a>
+                <a class="btn btn-outline btn-sm" href="/securite/journal.csv?action=<%= encodeURIComponent(filters.action) %>&objet=<%= encodeURIComponent(filters.entity) %>&du=<%= filters.from %>&au=<%= filters.to %>"><%= t('sec.exportCsv') %></a>
+              </div>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3><%= t('sec.entriesPage', { count: journal.total, page: journal.page, pages: journal.pages }) %></h3>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th><%= t('common.date') %></th><th><%= t('sec.author') %></th><th><%= t('common.action') %></th><th><%= t('common.subject') %></th><th><%= t('common.detail') %></th><th>IP</th></tr>
+                </thead>
+                <tbody>
+                  <% journal.rows.forEach((row) => { %>
+                    <tr>
+                      <td class="cell-sub nowrap"><%= when(row.occurred_at) %></td>
+                      <td><%= row.actor_label %></td>
+                      <td><code class="audit-action"><%= row.action %></code></td>
+                      <td class="cell-sub"><%= row.entity || '—' %><%= row.entity_id ? ' #' + row.entity_id : '' %></td>
+                      <td class="cell-sub audit-detail"><%= row.detail || '—' %></td>
+                      <td class="cell-sub"><%= row.ip || '—' %></td>
+                    </tr>
+                  <% }) %>
+                  <% if (journal.rows.length === 0) { %>
+                    <tr><td colspan="6" class="cell-sub"><%= t('sec.noEntry') %></td></tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+
+            <% if (journal.pages > 1) { %>
+              <div class="row-actions pager">
+                <% if (journal.page > 1) { %>
+                  <a class="btn btn-outline btn-sm" href="/securite?page=<%= journal.page - 1 %>&action=<%= encodeURIComponent(filters.action) %>&objet=<%= encodeURIComponent(filters.entity) %>&du=<%= filters.from %>&au=<%= filters.to %>"><%= t('sec.previous') %></a>
+                <% } %>
+                <% if (journal.page < journal.pages) { %>
+                  <a class="btn btn-outline btn-sm" href="/securite?page=<%= journal.page + 1 %>&action=<%= encodeURIComponent(filters.action) %>&objet=<%= encodeURIComponent(filters.entity) %>&du=<%= filters.from %>&au=<%= filters.to %>"><%= t('sec.next') %></a>
+                <% } %>
+              </div>
+            <% } %>
+
+            <form method="POST" action="/securite/journal/purger" data-confirm="<%= t('sec.confirmPurge') %>">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-outline btn-sm"><%= t('sec.purgeBeyond', { days: policy.audit_retention_days }) %></button>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- Sessions ---------- -->
+        <section class="tab-panel" id="scellement">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h3><%= t('sec.sealTitle') %></h3>
+                <p class="card-sub"><%= seal.ok ? t('sec.sealIntact', { count: seal.sealed }) : t('sec.sealBroken') %></p>
+              </div>
+              <span class="tag <%= seal.ok ? 'tag-success' : 'tag-danger' %>"><%= seal.ok ? t('sec.sealOk') : t('sec.sealKo') %></span>
+            </div>
+            <p class="hint"><%= t('sec.sealHow') %></p>
+
+            <ul class="org-list">
+              <li class="org-item"><span><%= t('sec.sealChecked') %></span><span class="cell-strong"><%= seal.checked %></span></li>
+              <li class="org-item"><span><%= t('sec.sealSealed') %></span><span class="cell-strong"><%= seal.sealed %></span></li>
+              <% if (seal.unsealed) { %>
+                <li class="org-item"><span><%= t('sec.sealLegacy') %></span><span class="cell-strong"><%= seal.unsealed %></span></li>
+              <% } %>
+            </ul>
+
+            <% if (!seal.ok && seal.broken) { %>
+              <div class="flash flash-error">
+                <%= seal.broken.reason === 'contenu'
+                  ? t('sec.sealAlteredAt', { id: seal.broken.row.id, action: seal.broken.row.action, date: seal.broken.row.occurred_at })
+                  : t('sec.sealMissingAt', { id: seal.broken.row.id, date: seal.broken.row.occurred_at }) %>
+              </div>
+            <% } %>
+
+            <p class="hint"><%= t('sec.sealLimit') %></p>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="sessions">
+          <div class="card">
+            <div class="card-head"><h3><%= t('sec.tabSessions') %></h3></div>
+            <p class="hint">
+              <%= t('sec.sessionNote') %>
+            </p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.account') %></th><th><%= t('sec.role') %></th><th><%= t('devices.title') %></th><th><%= t('api.expires') %></th><th></th></tr></thead>
+                <tbody>
+                  <% sessions.forEach((s) => { %>
+                    <tr>
+                      <td><span class="cell-strong"><%= fullName(s) %></span><br /><span class="cell-sub"><%= s.email %></span></td>
+                      <td><%= s.role === 'admin' ? 'Administration' : 'Membre' %></td>
+                      <%# L'appareil et l'adresse : sans eux, deux sessions d'une
+                          même personne sont deux lignes indiscernables, et
+                          personne ne peut voir que l'une n'est pas la sienne. %>
+                      <td>
+                        <%= s.device || t('devices.unknownDevice') %>
+                        <br /><span class="cell-sub"><%= s.ip || t('devices.unknownIp') %></span>
+                      </td>
+                      <td class="cell-sub nowrap"><%= new Date(s.expires_at).toLocaleString(locale) %></td>
+                      <td>
+                        <form method="POST" action="/securite/sessions/<%= s.user_id %>/fermer" class="inline-form" data-confirm="<%= t('sec.confirmCloseSessions') %>">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-danger btn-sm"><%= t('common.close') %></button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                  <% if (sessions.length === 0) { %><tr><td colspan="5" class="cell-sub"><%= t('sec.noSession') %></td></tr><% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Comptes à surveiller ---------- -->
+        <section class="tab-panel" id="comptes">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('sec.lockedAccounts') %></h3></div>
+              <ul class="org-list">
+                <% risky.locked.forEach((u) => { %>
+                  <li class="org-item">
+                    <span><span class="cell-strong"><%= fullName(u) %></span><br /><span class="cell-sub"><%= t('sec.until') %> <%= when(u.locked_until) %></span></span>
+                    <form method="POST" action="/securite/comptes/<%= u.id %>/deverrouiller" class="inline-form">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-outline btn-sm"><%= t('sec.unlock') %></button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (risky.locked.length === 0) { %><li class="cell-sub"><%= t('sec.none') %></li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('sec.temporaryPassword') %></h3></div>
+              <p class="hint"><%= t('sec.temporaryPasswordNote') %></p>
+              <ul class="org-list">
+                <% risky.temporary.forEach((u) => { %>
+                  <li class="org-item"><span class="cell-strong"><%= fullName(u) %></span><span class="cell-sub"><%= u.email %></span></li>
+                <% }) %>
+                <% if (risky.temporary.length === 0) { %><li class="cell-sub"><%= t('sec.none') %></li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('sec.adminsWithout2fa') %></h3></div>
+              <ul class="org-list">
+                <% risky.withoutTotp.forEach((u) => { %>
+                  <li class="org-item"><span class="cell-strong"><%= fullName(u) %></span><span class="cell-sub"><%= u.email %></span></li>
+                <% }) %>
+                <% if (risky.withoutTotp.length === 0) { %><li class="cell-sub"><%= t('sec.allAdminsProtected') %></li><% } %>
+              </ul>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= t('sec.dormant') %></h3></div>
+              <p class="hint"><%= t('sec.dormantNote') %></p>
+              <ul class="org-list">
+                <% risky.dormant.forEach((u) => { %>
+                  <li class="org-item">
+                    <span><span class="cell-strong"><%= fullName(u) %></span><br /><span class="cell-sub"><%= t('sec.lastLoginColon') %> <%= when(u.last_login_at) %></span></span>
+                    <form method="POST" action="/securite/2fa/<%= u.id %>/reinitialiser" class="inline-form" data-confirm="<%= t('sec.confirmReset2fa') %>">
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                      <button type="submit" class="btn btn-outline btn-sm"><%= t('sec.reset2fa') %></button>
+                    </form>
+                  </li>
+                <% }) %>
+                <% if (risky.dormant.length === 0) { %><li class="cell-sub"><%= t('sec.none') %></li><% } %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Administrateurs ---------- -->
+        <section class="tab-panel" id="administrateurs">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-head"><h3><%= t('sec.appointAdmin') %></h3></div>
+              <p class="hint">
+                <%= t('sec.singleAdminNote') %>
+              </p>
+              <form method="POST" action="/securite/administrateurs" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2">
+                  <span><%= t('common.member') %></span>
+                  <select name="user_id" required>
+                    <option value="">—</option>
+                    <% promotable.forEach((u) => { %>
+                      <option value="<%= u.id %>"><%= fullName(u) %> — <%= u.email %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('sec.appoint') %></button></div>
+              </form>
+            </div>
+
+            <div class="card">
+              <div class="card-head"><h3><%= admins.length %> administrateur(s)</h3></div>
+              <ul class="org-list">
+                <% admins.forEach((u) => { %>
+                  <li class="org-item">
+                    <span>
+                      <span class="cell-strong"><%= fullName(u) %></span>
+                      <% if (u.totp_enabled) { %><span class="tag tag-success">2FA</span><% } else { %><span class="tag tag-danger"><%= t('sec.without2fa') %></span><% } %>
+                      <br /><span class="cell-sub"><%= u.email %> · <%= t('sec.lastLogin') %> <%= when(u.last_login_at) %></span>
+                    </span>
+                    <% if (admins.length > 1 && u.id !== currentUser.id) { %>
+                      <form method="POST" action="/securite/administrateurs/<%= u.id %>/retirer" class="inline-form" data-confirm="<%= t('sec.confirmDemote') %>">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <button type="submit" class="btn btn-danger btn-sm"><%= t('sec.demote') %></button>
+                      </form>
+                    <% } %>
+                  </li>
+                <% }) %>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ---------- Politique ---------- -->
+        <section class="tab-panel" id="politique">
+          <div class="card">
+            <div class="card-head"><h3><%= t('sec.policyTitle') %></h3></div>
+            <form method="POST" action="/securite/politique" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="check-row span-2">
+                <input type="checkbox" name="require_2fa_admin" value="1" <%= policy.require_2fa_admin === '1' ? 'checked' : '' %> />
+                <span><%= t('sec.require2faAdmins') %></span>
+              </label>
+              <label class="check-row span-2">
+                <input type="checkbox" name="require_2fa_all" value="1" <%= policy.require_2fa_all === '1' ? 'checked' : '' %> />
+                <span><%= t('sec.require2faAll') %></span>
+              </label>
+              <label class="span-2">
+                <span><%= t('sec.auditRetention') %></span>
+                <input type="number" name="audit_retention_days" min="30" max="3650" value="<%= policy.audit_retention_days %>" required />
+              </label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint">
+              <%= t('sec.sessionEnvNote') %>
+            </p>
+          </div>
+        </section>
+        <section class="tab-panel" id="sso">
+          <div class="card">
+            <div class="card-head"><div><h3><%= t('sso.title') %></h3><p class="card-sub"><%= t('sso.note') %></p></div></div>
+            <dl class="summary-list">
+              <div><dt><%= t('sso.redirectUri') %></dt><dd class="mono"><%= ssoRetour %></dd></div>
+            </dl>
+            <form method="POST" action="/securite/sso" class="form-grid mt-m">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="check-row span-2"><input type="checkbox" name="enabled" value="1" <%= sso.enabled ? 'checked' : '' %> /> <span><%= t('sso.enable') %></span></label>
+              <label class="span-2"><span><%= t('sso.issuer') %></span><input type="url" name="issuer" value="<%= sso.issuer %>" placeholder="https://login.microsoftonline.com/…/v2.0" /></label>
+              <label><span><%= t('sso.clientId') %></span><input type="text" name="client_id" value="<%= sso.clientId %>" autocomplete="off" /></label>
+              <label><span><%= t('sso.clientSecret') %></span><input type="password" name="client_secret" autocomplete="new-password" placeholder="<%= sso.hasSecret ? t('sso.secretKept') : '' %>" /></label>
+              <label><span><%= t('sso.label') %></span><input type="text" name="label" value="<%= sso.label === 'SSO' ? '' : sso.label %>" maxlength="60" placeholder="Microsoft" /></label>
+              <label><span><%= t('sso.domains') %></span><input type="text" name="domains" value="<%= sso.domains.join(', ') %>" placeholder="entreprise.fr" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('sso.accountsNote') %></p>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div><h3><%= t('saml.title') %></h3><p class="card-sub"><%= t('saml.note') %></p></div></div>
+            <dl class="summary-list">
+              <div><dt><%= t('saml.spEntity') %></dt><dd class="mono"><%= samlSp.entity %></dd></div>
+              <div><dt><%= t('saml.acs') %></dt><dd class="mono"><%= samlSp.acs %></dd></div>
+            </dl>
+            <form method="POST" action="/securite/saml" class="form-grid mt-m">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="check-row span-2"><input type="checkbox" name="enabled" value="1" <%= samlConfig.enabled ? 'checked' : '' %> /> <span><%= t('saml.enable') %></span></label>
+              <label class="span-2"><span><%= t('saml.idpUrl') %></span><input type="url" name="idp_url" value="<%= samlConfig.idpUrl %>" placeholder="https://login.microsoftonline.com/…/saml2" /></label>
+              <label class="span-2"><span><%= t('saml.idpEntity') %></span><input type="text" name="idp_entity" value="<%= samlConfig.idpEntity %>" /></label>
+              <label class="span-2"><span><%= t('saml.idpCert') %></span><textarea name="idp_cert" rows="4" placeholder="<%= samlConfig.hasCert ? t('saml.certKept') : '-----BEGIN CERTIFICATE-----' %>"></textarea></label>
+              <label><span><%= t('sso.label') %></span><input type="text" name="label" value="<%= samlConfig.label === 'SAML' ? '' : samlConfig.label %>" maxlength="60" placeholder="Entra ID" /></label>
+              <label><span><%= t('sso.domains') %></span><input type="text" name="domains" value="<%= samlConfig.domains.join(', ') %>" placeholder="entreprise.fr" /></label>
+              <div class="span-2"><button type="submit" class="btn btn-primary btn-block"><%= t('common.save') %></button></div>
+            </form>
+            <p class="hint"><%= t('saml.signedNote') %></p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

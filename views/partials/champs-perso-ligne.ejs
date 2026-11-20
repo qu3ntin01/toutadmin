@@ -1,0 +1,26 @@
+<%
+/* Les champs personnalisés d'une ligne de tableau, sous la ligne.
+
+   Attend : champs (le rendu de customFields.valeurs() pour cet enregistrement),
+   action (l'adresse où poster) et colonnes (le nombre de colonnes du tableau).
+
+   Sert aux objets qui n'ont pas de fiche à eux — une facture, un équipement :
+   ils vivent dans une liste, et un dépli sous leur ligne est le seul endroit où
+   les reprendre sans quitter l'écran. Replié, il ne coûte rien à la lecture du
+   tableau ; une entreprise qui n'a posé aucun champ ne le voit même pas. */
+const champsDeLaLigne = typeof champs !== 'undefined' && champs ? champs : [];
+%>
+<% if (champsDeLaLigne.length) { %>
+  <tr class="row-detail">
+    <td colspan="<%= colonnes %>">
+      <details class="disclosure">
+        <summary><%= t('champs.title') %></summary>
+        <form method="POST" action="<%= action %>" class="form-grid">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+          <div class="span-2"><%- include('champs-perso', { champs: champsDeLaLigne }) %></div>
+          <div class="span-2"><button type="submit" class="btn btn-outline btn-sm"><%= t('common.save') %></button></div>
+        </form>
+      </details>
+    </td>
+  </tr>
+<% } %>

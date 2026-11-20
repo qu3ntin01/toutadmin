@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Modifier ' + tool.name + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/admin-sidebar', { asLinks: true, active: 'outils' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: tool.name,
+        headerSubtitle: t('tol.addedOn', { date: new Date(tool.created_at).toLocaleDateString(locale) }),
+        backHref: '/admin#outils'
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head"><h3><%= t('tol.card') %></h3></div>
+          <form method="POST" action="/admin/outils/<%= tool.id %>/modifier" class="form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <label class="span-2">
+              <span><%= t('admin.toolName') %></span>
+              <input type="text" name="name" value="<%= tool.name %>" required />
+            </label>
+            <label>
+              <span><%= t('common.category') %></span>
+              <input type="text" name="category" value="<%= tool.category %>" />
+            </label>
+            <label>
+              <span><%= t('common.reference') %></span>
+              <input type="text" name="reference" value="<%= tool.reference %>" />
+            </label>
+            <label class="span-2">
+              <span><%= t('admin.loginUrl') %></span>
+              <input type="url" name="login_url" value="<%= tool.login_url %>" placeholder="https://outil.entreprise.com" />
+            </label>
+            <label class="span-2">
+              <span><%= t('common.description') %></span>
+              <textarea name="description" rows="3"><%= tool.description %></textarea>
+            </label>
+            <div class="span-2 form-actions">
+              <button type="submit" class="btn btn-primary"><%= t('common.save') %></button>
+              <a href="/admin#outils" class="btn btn-quiet"><%= t('common.cancel') %></a>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

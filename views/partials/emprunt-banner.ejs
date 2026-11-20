@@ -1,0 +1,23 @@
+<%
+/* Le bandeau d'emprunt d'identité, posé sous l'en-tête de chaque écran.
+
+   Il ne doit jamais pouvoir passer inaperçu : un administrateur qui oublie
+   qu'il voit l'écran de quelqu'un d'autre finit par écrire en son nom sans le
+   savoir. Il dit donc trois choses à la fois — au nom de qui l'on agit, combien
+   de temps il reste, et comment revenir — et la sortie est à portée de clic.
+
+   Attend : emprunt (posé par l'intergiciel sur toutes les requêtes). */
+const enCours = typeof emprunt !== 'undefined' && emprunt ? emprunt : null;
+%>
+<% if (enCours) { %>
+  <div class="flash flash-warning emprunt-banner" role="alert">
+    <span>
+      <strong><%= t('emprunt.bannerTitle') %></strong>
+      <%= t('emprunt.bannerBody', { par: enCours.parLabel, minutes: enCours.minutesRestantes }) %>
+    </span>
+    <form method="POST" action="/emprunt/retour" class="inline-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button type="submit" class="btn btn-sm"><%= t('emprunt.back') %></button>
+    </form>
+  </div>
+<% } %>

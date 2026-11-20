@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('../partials/head', { title: t('updates.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('../partials/sidebar', {
+      panelLabel: t('updates.title'),
+      navItems: [
+        { tab: 'etat', label: t('updates.tabState'), icon: 'tool' },
+        { tab: 'reglages', label: t('updates.tabSettings'), icon: 'link' },
+        { tab: 'history', label: t('updates.tabHistory'), icon: 'clock' }
+      ],
+      footLinks: [{ href: '/securite', label: t('nav.security'), icon: 'shield' }, { href: '/admin', label: t('nav.adminConsole'), icon: 'back' }]
+    }) %>
+
+    <%# Les boutons de cet écran ouvrent une fenêtre plutôt que de faire partir
+        la page : poser une version prend du temps, et un onglet blanc pendant
+        ce temps-là ne dit rien de ce que l'instance est en train de faire.
+        Les formulaires restent sous les boutons — sans JavaScript, ils
+        partent comme avant. %>
+    <div class="app-main" id="mises-a-jour"
+         data-csrf="<%= csrfToken %>"
+         data-immuable="<%= immuable ? '1' : '0' %>"
+         data-etapes="<%= JSON.stringify(etapes) %>">
+      <%- include('../partials/app-header', {
+        headerTitle: t('updates.title'),
+        headerSubtitle: t('updates.headerSub')
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <% const when = (v) => (v ? new Date(String(v).replace(' ', 'T') + (String(v).endsWith('Z') ? '' : 'Z')).toLocaleString(locale, { timeZone: 'UTC' }) : '—'); %>
+
+        <section class="tab-panel is-active" id="etat">
+          <% if (restartPending) { %>
+            <div class="flash flash-error">
+              <%= t('updates.restartPending', { version: pendingVersion }) %>
+            </div>
+          <% } %>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label"><%= t('updates.installed') %></span>
+              <strong class="stat-value"><%= config.version %></strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label"><%= t('updates.channel') %></span>
+              <strong class="stat-value"><%= t('updates.channel.' + config.channel) %></strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label"><%= t('updates.mode') %></span>
+              <strong class="stat-value"><%= t('updates.mode.' + config.mode) %></strong>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label"><%= t('updates.lastCheck') %></span>
+              <strong class="stat-value"><%= when(lastCheck) %></strong>
+            </div>
+          </div>
+
+          <%
+            /* En tête, et non dans chaque branche : une instance neuve n'a pas
+               encore de réglages, et c'est justement là qu'on se demande
+               pourquoi l'écran ne propose rien. Dire à la fin, sous une
+               condition qu'on n'atteint pas, revient à ne rien dire. */
+          %>
+          <% if (immuable) { %>
+            <%- include('../partials/immuable') %>
+          <% } %>
+
+          <% if (!keySet || !config.url || !config.publicKey) { %>
+            <div class="card">
+              <h2><%= t('updates.notConfigured') %></h2>
+              <p class="hint"><%= t('updates.notConfiguredHelp') %></p>
+            </div>
+          <% } else if (available) { %>
+            <div class="card">
+              <h2><%= t('updates.availableTitle', { version: available.numero }) %></h2>
+              <p class="hint">
+                <%= t('updates.publishedOn', { date: when(available.publiee_le) }) %> ·
+                <%= (available.taille / (1024 * 1024)).toFixed(1) %> Mo ·
+                <%= t('updates.channel.' + (available.canal || config.channel)) %>
+              </p>
+              <% if (available.notes) { %>
+                <pre class="code-block"><%= available.notes %></pre>
+              <% } %>
+              <% if (!immuable) { %>
+                <p class="hint"><%= t('updates.beforeApply') %></p>
+                <form method="post" action="/mises-a-jour/appliquer" onsubmit="return confirm('<%= t('updates.confirmApply', { version: available.numero }) %>');">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button class="btn btn-primary" data-fenetre="poser"
+                          data-version="<%= available.numero %>"
+                          data-notes="<%= available.notes || '' %>"><%= t('updates.apply', { version: available.numero }) %></button>
+                </form>
+              <% } %>
+            </div>
+          <% } else { %>
+            <div class="card">
+              <h2><%= t('updates.upToDate') %></h2>
+              <% if (lastError) { %>
+                <p class="hint"><%= t('updates.error.' + lastError) %></p>
+              <% } %>
+            </div>
+          <% } %>
+
+          <form method="post" action="/mises-a-jour/verifier">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+            <button class="btn" data-fenetre="verifier"><%= t('updates.check') %></button>
+          </form>
+        </section>
+
+        <section class="tab-panel" id="reglages">
+          <form method="post" action="/mises-a-jour/reglages" class="card form-grid">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+            <label>
+              <span><%= t('updates.editorUrl') %></span>
+              <input type="url" name="url" value="<%= config.url %>" placeholder="https://licences.toutadmin.com" />
+              <small class="hint"><%= t('updates.editorUrlHelp') %></small>
+            </label>
+
+            <label>
+              <span><%= t('updates.instanceKey') %></span>
+              <input type="password" name="cle" autocomplete="off"
+                     placeholder="<%= keySet ? t('updates.keySet') : t('updates.keyUnset') %>" />
+              <small class="hint"><%= t('updates.instanceKeyHelp') %></small>
+            </label>
+
+            <label>
+              <span><%= t('updates.publicKey') %></span>
+              <textarea name="clePublique" rows="5" spellcheck="false"><%= config.publicKey %></textarea>
+              <small class="hint"><%= t('updates.publicKeyHelp') %></small>
+            </label>
+
+            <label>
+              <span><%= t('updates.instanceName') %></span>
+              <input name="nom" value="<%= config.name %>" maxlength="120" />
+              <small class="hint"><%= t('updates.instanceNameHelp') %></small>
+            </label>
+
+            <label>
+              <span><%= t('updates.channel') %></span>
+              <select name="canal">
+                <option value="stable" <%= config.channel === 'stable' ? 'selected' : '' %>><%= t('updates.channel.stable') %></option>
+                <option value="beta" <%= config.channel === 'beta' ? 'selected' : '' %>><%= t('updates.channel.beta') %></option>
+              </select>
+            </label>
+
+            <label>
+              <span><%= t('updates.mode') %></span>
+              <select name="mode">
+                <option value="avertir" <%= config.mode === 'avertir' ? 'selected' : '' %>><%= t('updates.mode.avertir') %></option>
+                <option value="auto" <%= config.mode === 'auto' ? 'selected' : '' %>><%= t('updates.mode.auto') %></option>
+              </select>
+              <small class="hint"><%= t('updates.modeHelp') %></small>
+            </label>
+
+            <div>
+              <button class="btn btn-primary"><%= t('common.save') %></button>
+            </div>
+          </form>
+        </section>
+
+        <section class="tab-panel" id="history">
+          <% if (!history.length) { %>
+            <p class="hint"><%= t('updates.noHistory') %></p>
+          <% } else { %>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th><%= t('updates.version') %></th>
+                  <th><%= t('updates.from') %></th>
+                  <th><%= t('updates.when') %></th>
+                  <th><%= t('updates.how') %></th>
+                  <th><%= t('updates.result') %></th>
+                  <th><%= t('updates.backup') %></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% history.forEach(function (h) { %>
+                <tr>
+                  <td><strong><%= h.version %></strong></td>
+                  <td><%= h.from_version || '—' %></td>
+                  <td><%= when(h.started_at) %></td>
+                  <td><%= t('updates.how.' + h.mode) %></td>
+                  <td>
+                    <span class="tag <%= h.status === 'reussie' ? 'tag-on' : (h.status === 'echouee' ? 'tag-off' : '') %>">
+                      <%= t('updates.status.' + h.status) %>
+                    </span>
+                    <% if (h.detail) { %><div class="cell-sub"><%= h.detail %></div><% } %>
+                  </td>
+                  <td><%= h.backup_file || '—' %></td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if (immuable) { %>
+            <%- include('../partials/immuable') %>
+          <% } else { %>
+            <form method="post" action="/mises-a-jour/retour" onsubmit="return confirm('<%= t('updates.confirmRollback') %>');">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button class="btn btn-danger" data-fenetre="retour" data-version="<%= config.currentVersion || '' %>"><%= t('updates.rollback') %></button>
+            </form>
+            <p class="hint"><%= t('updates.rollbackHelp') %></p>
+          <% } %>
+          <% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+  <%# Le script ne connaît aucun mot : ils viennent d'ici, dans la langue de
+      la page. Une fenêtre qui parlerait anglais sur une instance en polonais
+      serait pire que pas de fenêtre du tout. %>
+  <script type="application/json" id="maj-libelles"><%- JSON.stringify({
+    titrePose: t('updates.window.applyTitle'),
+    titreEnCours: t('updates.window.runningTitle'),
+    titreVerif: t('updates.window.checkTitle'),
+    titreRetour: t('updates.window.rollbackTitle'),
+    avantPose: t('updates.beforeApply'),
+    avantRetour: t('updates.confirmRollback'),
+    enVerif: t('updates.window.checking'),
+    redemarrage: t('updates.window.restart'),
+    echec: t('updates.window.failed'),
+    reponseIllisible: t('updates.window.unreadable'),
+    poser: t('updates.window.apply'),
+    revenir: t('updates.rollback'),
+    annuler: t('common.cancel'),
+    fermer: t('common.close'),
+    masquer: t('updates.window.hide'),
+    fermerEtRecharger: t('updates.window.reload'),
+    'etape.telechargement': t('updates.step.download'),
+    'etape.verification': t('updates.step.verify'),
+    'etape.lecture': t('updates.step.read'),
+    'etape.sauvegarde': t('updates.step.backup'),
+    'etape.pose': t('updates.step.write'),
+    'etape.redemarrage': t('updates.step.restart')
+  }) %></script>
+  <script src="<%= asset('/js/admin.js') %>" defer></script>
+  <script src="<%= asset('/js/confirm.js') %>" defer></script>
+  <script src="<%= asset('/js/fenetre.js') %>" defer></script>
+  <script src="<%= asset('/js/mises-a-jour.js') %>" defer></script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<%
+/*
+ * La barre des actions de masse.
+ *
+ * Un contrôle par action, et non un seul champ qui changerait de sens selon
+ * l'action choisie : la barre doit marcher sans script. Un champ partagé aurait
+ * demandé de le réécrire à chaque changement d'action, donc du script, donc une
+ * action de masse qu'on ne peut pas éprouver sans navigateur.
+ *
+ * Attendu de l'appelant : « objet », et « actions » — une liste de
+ * { cle, champ, options }, où « champ » nomme le paramètre et « options » les
+ * valeurs déjà traduites. Les cases à cocher, elles, vivent dans la liste et
+ * rejoignent ce formulaire par leur attribut « form ».
+ */
+const masseId = 'masse-' + objet;
+%>
+<form id="<%= masseId %>" method="post" action="/actions-masse" class="masse">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+  <input type="hidden" name="objet" value="<%= objet %>" />
+  <div class="masse-head">
+    <strong><%= t('masse.title') %></strong>
+    <span class="cell-sub" data-masse-count data-masse-label="<%= t('masse.selection') %>"><%= t('masse.hint') %></span>
+  </div>
+  <div class="masse-actions">
+    <% actions.forEach((acte) => { %>
+      <div class="masse-act">
+        <% if (acte.champ) { %>
+          <select name="valeur_<%= acte.champ %>" aria-label="<%= t('masse.action.' + acte.cle) %>">
+            <% acte.options.forEach((option) => { %>
+              <option value="<%= option.valeur %>"><%= option.libelle %></option>
+            <% }) %>
+          </select>
+        <% } %>
+        <button type="submit" name="action" value="<%= acte.cle %>" class="btn btn-sm btn-outline">
+          <%= t('masse.action.' + acte.cle) %>
+        </button>
+      </div>
+    <% }) %>
+  </div>
+</form>

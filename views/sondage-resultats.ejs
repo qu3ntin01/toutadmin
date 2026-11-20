@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Résultats — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: result.survey.title,
+        headerSubtitle: result.survey.kind + ' · ' + result.survey.status.toLowerCase(),
+        backHref: '/direction#sondages',
+        backLabel: t('nav.surveys'),
+        onglets: [{ href: '/direction#sondages', label: t('nav.surveys'), icon: 'megaphone', active: true }]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %><div class="flash flash-<%= flash.type %>"><%= flash.message %></div><% } %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'users', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= result.answered %></span><span class="stat-label"><%= t('srz.answeredOf', { invited: result.invited }) %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'check', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= result.rate %> %</span><span class="stat-label"><%= t('cse.turnout') %></span></span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-icon"><%- include('partials/icon', { name: 'ballot', iconSize: 18 }) %></span>
+            <span class="stat-body"><span class="stat-value"><%= result.questions.length %></span><span class="stat-label"><%= t('srz.questions') %></span></span>
+          </div>
+        </section>
+
+        <% if (result.withheld) { %>
+          <div class="card">
+            <div class="card-head"><h3><%= t('srz.notShown') %></h3></div>
+            <p class="empty-state">
+              <%= t('srz.thresholdNote', { count: result.answered, threshold: result.threshold }) %>
+            </p>
+          </div>
+        <% } else { %>
+          <% result.questions.forEach((q) => { %>
+            <div class="card">
+              <div class="card-head"><h3><%= q.label %></h3><span class="card-sub"><%= t('srz.answerCount', { count: q.count }) %></span></div>
+
+              <% if (q.type === 'echelle') { %>
+                <p class="stat-value"><%= q.average === null ? '—' : q.average %> <span class="cell-sub"><%= t('srz.outOfFive') %></span></p>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('common.note') %></th><th><%= t('common.answers') %></th><th><%= t('srz.share') %></th></tr></thead>
+                    <tbody>
+                      <% q.distribution.forEach((d) => { %>
+                        <tr>
+                          <td class="cell-strong"><%= d.value %></td>
+                          <td><%= d.count %></td>
+                          <td><span class="meter"><span class="meter-fill" data-ratio="<%= q.count ? Math.round(d.count * 100 / q.count) : 0 %>"></span></span></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } else if (q.type === 'texte') { %>
+                <% if (!q.verbatims.length) { %>
+                  <p class="empty-state"><%= t('srz.noFreeAnswer') %></p>
+                <% } else { %>
+                  <ul class="meeting-list">
+                    <% q.verbatims.forEach((v) => { %><li class="meeting-item"><p class="cell-sub"><%= v %></p></li><% }) %>
+                  </ul>
+                <% } %>
+              <% } else { %>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th><%= t('srz.answer') %></th><th><%= t('common.count') %></th><th><%= t('srz.share') %></th></tr></thead>
+                    <tbody>
+                      <% q.distribution.forEach((d) => { %>
+                        <tr>
+                          <td class="cell-strong"><%= d.value %></td>
+                          <td><%= d.count %></td>
+                          <td><span class="meter"><span class="meter-fill" data-ratio="<%= q.count ? Math.round(d.count * 100 / q.count) : 0 %>"></span></span></td>
+                        </tr>
+                      <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              <% } %>
+            </div>
+          <% }) %>
+        <% } %>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/meter.js') %>"></script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<%
+/* Bandeau blanc en haut de la colonne de contenu (titre + compte connecté).
+   Attend : headerTitle, headerSubtitle?, userRoleLabel?, backHref?, backLabel? */
+const roleLabel = typeof userRoleLabel !== 'undefined' && userRoleLabel
+  ? userRoleLabel
+  : (currentUser.role === 'admin' ? t('common.adminRole') : currentUser.grade);
+%>
+<div class="app-top">
+<header class="app-header">
+  <div class="app-header-title">
+    <h1><%= headerTitle %></h1>
+    <% if (typeof headerSubtitle !== 'undefined' && headerSubtitle) { %>
+      <p class="app-header-sub"><%= headerSubtitle %></p>
+    <% } %>
+  </div>
+
+  <div class="app-header-side">
+    <% if (typeof backHref !== 'undefined' && backHref) { %>
+      <a href="<%= backHref %>" class="btn btn-quiet">
+        <%- include('icon', { name: 'back', iconSize: 16 }) %>
+        <span class="btn-label"><%= typeof backLabel !== 'undefined' && backLabel ? backLabel : t('common.back') %></span>
+      </a>
+    <% } %>
+    <div class="user-chip">
+      <span class="user-avatar"><%= currentUser.firstName.charAt(0) %><%= currentUser.lastName.charAt(0) %></span>
+      <span class="user-meta">
+        <span class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></span>
+        <span class="user-role"><%= roleLabel %></span>
+      </span>
+    </div>
+    <form method="POST" action="/deconnexion">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+      <button type="submit" class="btn btn-quiet" title="<%= t('common.logout') %>">
+        <%- include('icon', { name: 'logout', iconSize: 16 }) %>
+        <span class="btn-label"><%= t('common.logout') %></span>
+      </button>
+    </form>
+  </div>
+</header>
+
+<%# Les onglets de l'écran, quand il en a. Ils tenaient dans le rail, mêlés aux
+    liens vers les autres services : on ne voyait pas où l'on changeait de page
+    et où l'on changeait d'onglet. Ils sont ici, sous le titre, là où l'on
+    regarde après l'avoir lu — et le rail ne porte plus que les services.
+
+    Le premier est allumé d'office quand aucun ne se déclare actif : le gabarit
+    pose « is-active » sur son premier panneau, le rail le disait déjà ainsi. %>
+<% const ongletsDeLEcran = typeof onglets !== 'undefined' && onglets ? onglets : []; %>
+<% if (ongletsDeLEcran.length) { %>
+  <nav class="page-tabs" aria-label="<%= t('nav.sections') %>">
+    <% ongletsDeLEcran.forEach((item, index) => { %>
+      <% const allume = item.active !== undefined ? item.active : index === 0; %>
+      <% if (item.href) { %>
+        <a href="<%= item.href %>" class="tab-btn<%= allume ? ' is-active' : '' %>"<%= allume ? ' aria-current="page"' : '' %>>
+          <%- include('icon', { name: item.icon, iconSize: 16 }) %>
+          <span><%= item.label %></span>
+          <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+        </a>
+      <% } else { %>
+        <button type="button" class="tab-btn<%= allume ? ' is-active' : '' %>" data-tab="<%= item.tab %>">
+          <%- include('icon', { name: item.icon, iconSize: 16 }) %>
+          <span><%= item.label %></span>
+          <% if (item.badge) { %><span class="nav-badge"><%= item.badge %></span><% } %>
+        </button>
+      <% } %>
+    <% }) %>
+  </nav>
+<% } %>
+</div>
+
+<%# Le bandeau de licence suit l'en-tête sur tous les écrans qui l'incluent :
+    posé ici une fois plutôt que dans soixante-douze gabarits, il ne peut pas
+    manquer sur celui qu'on aurait oublié. %>
+<%# Le périmètre, avant les bandeaux : savoir dans quelle société on se trouve
+    passe avant tout le reste, et une facture saisie dans la mauvaise entité d'un
+    groupe ne se répare pas en la déplaçant. %>
+<%- include('societe-selecteur') %>
+
+<%- include('licence-banner') %>
+
+<%# L'emprunt d'identité : au même endroit, et pour la même raison — un bandeau
+    qu'un seul gabarit oublierait serait un bandeau qui ne protège rien. %>
+<%- include('emprunt-banner') %>

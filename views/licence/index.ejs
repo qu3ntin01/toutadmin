@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('../partials/head', { title: t('licence.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('../partials/sidebar', {
+      panelLabel: t('licence.title'),
+      navItems: [
+        { tab: 'etat', label: t('licence.tabState'), icon: 'shield' },
+        { tab: 'horsligne', label: t('licence.tabOffline'), icon: 'link' },
+        { tab: 'assistance', label: t('licence.assist.tab'), icon: 'lifebuoy' }
+      ],
+      footLinks: [
+        { href: '/mises-a-jour', label: t('updates.title'), icon: 'tool' },
+        { href: '/admin', label: t('nav.adminConsole'), icon: 'back' }
+      ]
+    }) %>
+
+    <div class="app-main">
+      <%- include('../partials/app-header', {
+        headerTitle: t('licence.title'),
+        headerSubtitle: t('licence.headerSub')
+      }) %>
+
+      <main class="page">
+        <% const moment = (iso) => (iso ? new Date(String(iso).replace(' ', 'T') + (String(iso).includes('Z') ? '' : 'Z')).toLocaleString(locale) : '—'); %>
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <%
+          const jour = (v) => (v ? new Date(v).toLocaleDateString(locale, { timeZone: 'UTC' }) : '—');
+          const instant = (v) => (v ? new Date(v).toLocaleString(locale, { timeZone: 'UTC' }) : '—');
+          const l = etat.licence || null;
+        %>
+
+        <section class="tab-panel is-active" id="etat">
+          <% if (!etat.distribue) { %>
+            <%# Une instance dont le code ne porte pas la clé publique de l'éditeur
+                n'est pas une instance vendue : développement, démonstration, test. %>
+            <div class="flash flash-info"><%= t('licence.notDistributed') %></div>
+          <% } %>
+
+          <section class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-body">
+                <span class="stat-value"><%= t('licence.phase.' + etat.phase) %></span>
+                <span class="stat-label"><%= t('licence.stateLabel') %></span>
+              </span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-body">
+                <span class="stat-value"><%= l ? jour(etat.abonnement) : '—' %></span>
+                <span class="stat-label"><%= t('licence.until') %></span>
+              </span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-body">
+                <span class="stat-value">
+                  <%= effectif %><% if (etat.plafondMembres > 0) { %> / <%= etat.plafondMembres %><% } %>
+                </span>
+                <span class="stat-label"><%= etat.plafondMembres > 0 ? t('licence.members') : t('licence.membersNoCap') %></span>
+              </span>
+            </div>
+            <%# Ce que l'instance coûte par mois, pour que l'administrateur le
+                voie sans aller le chercher ailleurs. Rien n'est facturé ici. %>
+            <div class="stat-card">
+              <span class="stat-body">
+                <span class="stat-value"><%= prixMensuel === null ? '—' : prixMensuel + ' €' %></span>
+                <span class="stat-label"><%= t('licence.monthly') %></span>
+              </span>
+            </div>
+          </section>
+
+          <% if (dernierRefus) { %>
+            <%# Le motif vient du service de licences, nommé plutôt que masqué : sans
+                lui, l'administrateur ne saurait pas s'il doit payer, appeler, ou
+                faire délier une ancienne machine. %>
+            <div class="flash flash-error">
+              <strong><%= t('licence.refusedTitle') %></strong>
+              <%= t('licence.refus.' + dernierRefus) %>
+            </div>
+          <% } %>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2><%= t('licence.detailsTitle') %></h2>
+                <p class="card-sub"><%= t('licence.detailsSub') %></p>
+              </div>
+            </div>
+
+            <dl class="summary-list">
+              <div><dt><%= t('licence.client') %></dt><dd><%= l ? l.client : '—' %></dd></div>
+              <div><dt><%= t('licence.reference') %></dt><dd><code><%= l ? l.id : '—' %></code></dd></div>
+              <div><dt><%= t('licence.offer') %></dt><dd><%= l ? l.offre : '—' %></dd></div>
+              <div>
+                <dt><%= t('licence.howBilled') %></dt>
+                <dd><%= t('licence.howBilledBody', { offerts: gratuiteSieges, prix: prixSalarie }) %></dd>
+              </div>
+              <div><dt><%= t('licence.mode') %></dt>
+                <dd><%= l ? t('licence.mode.' + l.mode) : '—' %></dd></div>
+              <div><dt><%= t('licence.leaseUntil') %></dt><dd><%= jour(etat.expire) %></dd></div>
+              <div><dt><%= t('licence.lastCheck') %></dt><dd><%= instant(derniereVerif) %></dd></div>
+              <div>
+                <dt><%= t('licence.fingerprint') %></dt>
+                <dd>
+                  <%# Ce que le client communique à l'éditeur pour un jeton hors
+                      ligne, ou pour faire délier son ancien serveur. %>
+                  <code><%= empreinte %></code>
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2><%= t('licence.renewTitle') %></h2>
+                <p class="card-sub"><%= t('licence.renewSub') %></p>
+              </div>
+            </div>
+
+            <% if (!editeurConfigure) { %>
+              <p class="card-sub"><%= t('licence.noEditor') %></p>
+              <a href="/mises-a-jour" class="btn"><%= t('updates.title') %></a>
+            <% } else { %>
+              <form method="POST" action="/licence/verifier">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-primary"><%= t('licence.renewNow') %></button>
+              </form>
+            <% } %>
+
+            <form method="POST" action="/licence/adresse" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2">
+                <span><%= t('licence.publicAddress') %></span>
+                <input name="adresse" value="<%= adresse %>" placeholder="https://portail.entreprise.fr" />
+                <span class="hint"><%= t('licence.publicAddressHint') %></span>
+              </label>
+              <div class="span-2">
+                <button type="submit" class="btn"><%= t('common.save') %></button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <section class="tab-panel" id="horsligne">
+          <div class="card">
+            <div class="card-head">
+              <div>
+                <h2><%= t('licence.offlineTitle') %></h2>
+                <p class="card-sub"><%= t('licence.offlineSub') %></p>
+              </div>
+            </div>
+
+            <div class="flash flash-info">
+              <%= t('licence.offlineGive') %>
+              <code><%= empreinte %></code>
+            </div>
+
+            <form method="POST" action="/licence/poser" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2">
+                <span><%= t('licence.offlineToken') %></span>
+                <textarea name="jeton" rows="6" placeholder="eyJ2IjoxLCJpZCI6…"></textarea>
+                <span class="hint"><%= t('licence.offlineTokenHint') %></span>
+              </label>
+              <div class="span-2">
+                <button type="submit" class="btn btn-primary"><%= t('licence.offlineApply') %></button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- ---------- Écrire à l'éditeur ---------- -->
+        <%#
+          L'assistance de l'éditeur, depuis l'instance.
+          Rien ne part à l'affichage : le relevé est celui du dernier bouton
+          pressé, avec sa date. Cet écran est la sortie de secours quand la
+          licence coince, et un panneau injoignable ne doit pas le faire
+          attendre quinze secondes.
+        %>
+        <section class="tab-panel" id="assistance">
+          <div class="card">
+            <div class="card-head"><h2><%= t('licence.assist.title') %></h2></div>
+
+            <% if (!assistConfigure) { %>
+              <p class="hint"><%= t('licence.assist.notConfigured') %></p>
+            <% } else { %>
+              <p class="cell-sub"><%= t('licence.assist.note') %></p>
+
+              <form method="POST" action="/licence/assistance/ouvrir" class="form-grid">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <label class="span-2"><span><%= t('common.subject') %></span>
+                  <input type="text" name="sujet" maxlength="200" required
+                         placeholder="<%= t('licence.assist.subjectPlaceholder') %>" />
+                </label>
+                <label><span><%= t('licence.assist.kind') %></span>
+                  <select name="type">
+                    <% assistSujets.forEach((sujet) => { %>
+                      <option value="<%= sujet %>" <%= sujet === 'technique' ? 'selected' : '' %>><%= t(`licence.assist.kind.${sujet}`) %></option>
+                    <% }) %>
+                  </select>
+                </label>
+                <label class="span-2"><span><%= t('licence.assist.body') %></span>
+                  <textarea name="corps" rows="5" maxlength="5000" required></textarea>
+                </label>
+                <div class="span-2">
+                  <button type="submit" class="btn btn-primary"><%= t('licence.assist.send') %></button>
+                </div>
+              </form>
+
+              <p class="hint"><%= t('licence.assist.whatLeaves') %></p>
+            <% } %>
+          </div>
+
+          <% if (assistConfigure) { %>
+            <div class="card">
+              <div class="card-head">
+                <h3><%= t('licence.assist.mine') %></h3>
+                <% if (assistReleve && assistReleve.at) { %>
+                  <span class="cell-sub"><%= t('licence.assist.fetchedAt', { quand: moment(assistReleve.at) }) %></span>
+                <% } %>
+              </div>
+
+              <form method="POST" action="/licence/assistance/relever" class="inline-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-outline btn-sm"><%= t('licence.assist.fetch') %></button>
+              </form>
+
+              <% if (!assistReleve) { %>
+                <p class="hint"><%= t('licence.assist.neverFetched') %></p>
+              <% } else if (assistReleve.demandes.length === 0) { %>
+                <p class="hint"><%= t('licence.assist.none') %></p>
+              <% } else { %>
+                <% assistReleve.demandes.forEach((demande) => { %>
+                  <div class="card">
+                    <div class="card-head">
+                      <h4><%= demande.sujet %></h4>
+                      <span class="tag <%= demande.etat === 'ouverte' ? 'tag-danger' : (demande.etat === 'repondue' ? 'tag-success' : '') %>">
+                        <%= t(`licence.assist.state.${demande.etat}`) %>
+                      </span>
+                    </div>
+                    <p class="cell-sub">
+                      <%= demande.reference %> · <%= t(`licence.assist.kind.${demande.sujet_type}`) %>
+                    </p>
+
+                    <% (demande.messages || []).forEach((message) => { %>
+                      <div class="assist-card">
+                        <p class="cell-sub">
+                          <strong><%= message.auteur === 'editeur' ? t('licence.assist.fromEditor') : t('licence.assist.fromUs') %></strong>
+                          — <%= moment(message.ecrit_le) %>
+                        </p>
+                        <p><%= message.corps %></p>
+                      </div>
+                    <% }) %>
+
+                    <% if (demande.etat !== 'fermee') { %>
+                      <form method="POST" action="/licence/assistance/repondre" class="form-grid">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                        <input type="hidden" name="reference" value="<%= demande.reference %>" />
+                        <label class="span-2"><span><%= t('licence.assist.reply') %></span>
+                          <textarea name="corps" rows="3" maxlength="5000" required></textarea>
+                        </label>
+                        <div class="span-2">
+                          <button type="submit" class="btn btn-sm"><%= t('licence.assist.sendReply') %></button>
+                        </div>
+                      </form>
+                    <% } else { %>
+                      <p class="hint"><%= t('licence.assist.closedNote') %></p>
+                    <% } %>
+                  </div>
+                <% }) %>
+              <% } %>
+            </div>
+          <% } %>
+        </section>
+      </main>
+    </div>
+  </div>
+  <script src="<%= asset('/js/admin.js') %>" defer></script>
+</body>
+</html>

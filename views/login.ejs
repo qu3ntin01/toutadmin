@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: t('auth.title') + ' — ' + t('app.name') }) %>
+</head>
+<body class="auth-body">
+  <header class="auth-top">
+    <div class="auth-brand">
+      <span class="brand-mark"><%= brandInitials %></span>
+      <span class="brand-text">
+        <span class="brand-name"><%= companyName %></span>
+        <span class="brand-panel"><%= t('app.portal') %></span>
+      </span>
+    </div>
+    <%- include('partials/theme-toggle') %>
+  </header>
+
+  <main class="auth-main">
+    <div class="auth-card">
+      <h1><%= t('auth.title') %></h1>
+      <p class="auth-sub"><%= t('auth.subtitle') %></p>
+
+      <% if (flash) { %>
+        <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+      <% } %>
+
+      <form method="POST" action="/connexion" class="auth-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <label>
+          <span><%= t('auth.email') %></span>
+          <input type="email" name="email" placeholder="<%= t('common.emailPlaceholder') %>" required autofocus autocomplete="username" />
+        </label>
+        <label>
+          <span><%= t('auth.password') %></span>
+          <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+        </label>
+        <button type="submit" class="btn btn-primary btn-block"><%= t('auth.signIn') %></button>
+      </form>
+
+      <% if (typeof sso !== 'undefined' && sso) { %>
+        <a href="/connexion/sso" class="btn btn-outline btn-block mt-m"><%= t('sso.signInWith', { name: sso.label }) %></a>
+      <% } %>
+      <% if (typeof samlSso !== 'undefined' && samlSso) { %>
+        <a href="/connexion/saml" class="btn btn-outline btn-block mt-m"><%= t('sso.signInWith', { name: samlSso.label }) %></a>
+      <% } %>
+
+      <p class="auth-note">
+        <%= t('lgn.formerEmployee') %>
+        <a href="/coffre-fort/acces"><%= t('lgn.accessVault') %></a>.
+      </p>
+
+      <div class="auth-foot">
+        <p><%= t('auth.note') %></p>
+        <p class="cell-sub"><%= t('common.language') %></p>
+        <%- include('partials/language-picker', { returnTo: '/connexion' }) %>
+      </div>
+    </div>
+  </main>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+</body>
+</html>

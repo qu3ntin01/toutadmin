@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: 'Pointage ' + employee.first_name + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/rh-sidebar', { asLinks: true, active: 'remuneration' }) %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: employee.first_name + ' ' + employee.last_name,
+        headerSubtitle: t('tim.headerSub', { rate: employee.daily_rate ? employee.daily_rate.toFixed(2) + ' €' : t('tim.notSet') }),
+        backHref: '/rh#remuneration'
+      }) %>
+
+      <main class="page">
+
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+
+        <section class="stats-grid">
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.monthHours.toFixed(1) %> h</span>
+              <span class="stat-label"><%= t('tim.hoursThisMonth') %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.monthEstimate.toFixed(2) %> €</span>
+              <span class="stat-label"><%= t('tim.estimateThisMonth') %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.totalHours.toFixed(1) %> h</span>
+              <span class="stat-label"><%= t('tim.totalHours') %></span>
+            </span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-body">
+              <span class="stat-value"><%= statsData.totalEstimate.toFixed(2) %> €</span>
+              <span class="stat-label"><%= t('tim.totalEstimate') %></span>
+            </span>
+          </div>
+        </section>
+
+        <% if (openEntry) { %>
+          <div class="banner is-warning">
+            <%- include('partials/icon', { name: 'clock', iconSize: 17 }) %>
+            <span><%= t('tim.runningSince', { date: new Date(openEntry.clock_in).toLocaleString(locale) }) %></span>
+            <form method="POST" action="/rh/temps/<%= employee.id %>/cloturer">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <button type="submit" class="btn btn-sm"><%= t('tim.closeNow') %></button>
+            </form>
+          </div>
+        <% } %>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <h3><%= t('timer.history') %> <span class="muted">(<%= entries.length %>)</span></h3>
+              <p class="card-sub"><%= t('tim.rateNote') %></p>
+            </div>
+          </div>
+
+          <% if (entries.length === 0) { %>
+            <div class="empty-state"><%= t('tim.noEntry') %></div>
+          <% } else { %>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th><%= t('common.date') %></th><th><%= t('common.start') %></th><th><%= t('common.end') %></th><th><%= t('common.duration') %></th><th></th></tr></thead>
+                <tbody>
+                  <% entries.forEach((e) => {
+                    const start = new Date(e.clock_in);
+                    const end = e.clock_out ? new Date(e.clock_out) : null;
+                    const hours = end ? (end.getTime() - start.getTime()) / 3600000 : null;
+                    const timeOpts = { hour: '2-digit', minute: '2-digit' };
+                  %>
+                    <tr>
+                      <td class="cell-strong"><%= start.toLocaleDateString(locale) %></td>
+                      <td class="cell-sub"><%= start.toLocaleTimeString(locale, timeOpts) %></td>
+                      <td class="cell-sub"><%= end ? end.toLocaleTimeString(locale, timeOpts) : '—' %></td>
+                      <td>
+                        <% if (end) { %><span class="num cell-strong"><%= hours.toFixed(2) %> h</span>
+                        <% } else { %><span class="status status-on"><%= t('status.running') %></span><% } %>
+                      </td>
+                      <td class="actions">
+                        <form method="POST" action="/rh/temps/<%= employee.id %>/<%= e.id %>/supprimer" data-confirm="<%= t('tim.confirmDelete') %>">
+                          <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                          <button type="submit" class="btn btn-sm btn-danger"><%= t('common.delete') %></button>
+                        </form>
+                      </td>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          <% } %>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>

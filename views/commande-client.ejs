@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="<%= locale %>" dir="<%= localeDir %>" data-palette="<%= palette %>"<%- railAttrs %>>
+<head>
+  <%- include('partials/head', { title: commande.reference + ' — ' + t('app.name') }) %>
+</head>
+<body class="app-body">
+  <div class="app-shell">
+    <%- include('partials/services-sidebar') %>
+
+    <div class="app-main">
+      <%- include('partials/app-header', {
+        headerTitle: t('ven.order') + ' ' + commande.reference,
+        headerSubtitle: commande.partner_name,
+        backHref: '/crm#commandes',
+        backLabel: t('ven.orders'),
+        onglets: [{ href: '/crm#commandes', label: t('ven.orders'), icon: 'back', active: true }]
+      }) %>
+
+      <main class="page">
+        <% if (flash) { %>
+          <div class="flash flash-<%= flash.type %>"><%= flash.message %></div>
+        <% } %>
+        <% const money = (n) => Number(n || 0).toLocaleString(locale, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'; %>
+        <% const day = (iso) => (iso ? new Date(String(iso).slice(0, 10) + 'T00:00:00Z').toLocaleDateString(locale, { timeZone: 'UTC' }) : '—'); %>
+        <% const qte = (n) => Number(n || 0).toLocaleString(locale, { maximumFractionDigits: 3 }); %>
+        <% const brouillon = commande.status === 'Brouillon'; const confirmee = commande.status === 'Confirmée'; %>
+
+        <section class="stats-grid">
+          <div class="stat-card"><span class="stat-body"><span class="stat-value"><%= t('ven.state.' + ({ 'Brouillon': 'draft', 'Confirmée': 'confirmed', 'Partiellement livrée': 'partial', 'Livrée': 'delivered', 'Facturée': 'invoiced', 'Annulée': 'cancelled' })[commande.etat]) %></span><span class="stat-label"><%= t('common.status') %></span></span></div>
+          <div class="stat-card"><span class="stat-body"><span class="stat-value"><%= money(commande.totalHt) %></span><span class="stat-label"><%= t('ven.totalHt') %></span></span></div>
+          <div class="stat-card"><span class="stat-body"><span class="stat-value"><%= money(commande.totalTtc) %></span><span class="stat-label"><%= t('ven.totalTtc') %></span></span></div>
+          <div class="stat-card"><span class="stat-body"><span class="stat-value"><%= day(commande.order_date) %></span><span class="stat-label"><%= t('common.date') %></span></span></div>
+        </section>
+
+        <div class="card">
+          <div class="card-head">
+            <h3><%= t('ven.lines') %></h3>
+            <div class="inline-form">
+              <% if (brouillon) { %>
+                <form method="POST" action="/crm/commandes/<%= commande.id %>/confirmer" class="inline-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-primary btn-sm"<%= commande.lignes.length ? '' : ' disabled' %>><%= t('ven.confirm') %></button>
+                </form>
+              <% } %>
+              <% if (commande.status !== 'Annulée' && !commande.lignes.some((l) => l.delivered > 0 || l.invoiced > 0)) { %>
+                <form method="POST" action="/crm/commandes/<%= commande.id %>/annuler" class="inline-form" data-confirm="<%= t('ven.confirmCancel') %>">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <button type="submit" class="btn btn-danger btn-sm"><%= t('ven.cancel') %></button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+
+          <% if (commande.lignes.length === 0) { %>
+            <div class="empty-state"><%= t('ven.noLine') %></div>
+          <% } else { %>
+            <form method="POST" action="/crm/commandes/<%= commande.id %>/livrer" id="livrer"></form>
+            <div class="table-wrap">
+              <table>
+                <thead><tr>
+                  <th><%= t('common.label') %></th><th class="num"><%= t('ven.qty') %></th><th class="num"><%= t('ven.unitPrice') %></th>
+                  <th class="num"><%= t('ven.totalHt') %></th><th class="num"><%= t('ven.delivered') %></th><th class="num"><%= t('ven.invoiced') %></th>
+                  <% if (confirmee) { %><th class="num"><%= t('ven.toDeliver') %></th><% } %><% if (brouillon) { %><th></th><% } %>
+                </tr></thead>
+                <tbody>
+                  <% commande.lignes.forEach((l) => { %>
+                    <tr>
+                      <td><span class="cell-strong"><%= l.label %></span><% if (l.product_reference) { %><div class="cell-sub mono"><%= l.product_reference %></div><% } %></td>
+                      <td class="num"><%= qte(l.quantity) %> <span class="cell-sub"><%= l.unit %></span></td>
+                      <td class="num"><%= money(l.unit_price_ht) %><div class="cell-sub">TVA <%= l.vat_rate %> %</div></td>
+                      <td class="num cell-strong"><%= money(l.total) %></td>
+                      <td class="num"><%= qte(l.delivered) %></td>
+                      <td class="num"><%= qte(l.invoiced) %></td>
+                      <% if (confirmee) { %>
+                        <td class="num"><% if (l.remaining > 0) { %><input type="text" inputmode="decimal" name="q_<%= l.id %>" form="livrer" class="input-sm" size="6" placeholder="<%= qte(l.remaining) %>" aria-label="<%= t('ven.toDeliver') %> — <%= l.label %>" /><% } else { %>—<% } %></td>
+                      <% } %>
+                      <% if (brouillon) { %>
+                        <td class="actions">
+                          <form method="POST" action="/crm/commandes/lignes/<%= l.id %>/retirer" class="inline-form">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                            <button type="submit" class="btn btn-sm"><%= t('ven.removeLine') %></button>
+                          </form>
+                        </td>
+                      <% } %>
+                    </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+            <% if (confirmee && commande.lignes.some((l) => l.remaining > 0)) { %>
+              <div class="inline-form mt-m">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" form="livrer" />
+                <label class="inline-form"><span><%= t('ven.deliveredOn') %></span><input type="date" name="delivered_on" value="<%= today %>" max="<%= today %>" form="livrer" required /></label>
+                <button type="submit" class="btn btn-primary btn-sm" form="livrer"><%= t('ven.deliver') %></button>
+              </div>
+            <% } %>
+            <% if (confirmee && commande.lignes.some((l) => l.toInvoice > 0)) { %>
+              <form method="POST" action="/crm/commandes/<%= commande.id %>/facturer" class="inline-form mt-m">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit" class="btn btn-sm"><%= t('ven.invoiceDelivered') %></button>
+              </form>
+            <% } %>
+          <% } %>
+        </div>
+
+        <% if (brouillon) { %>
+          <div class="card">
+            <div class="card-head"><div><h3><%= t('ven.addLine') %></h3><p class="card-sub"><%= t('ven.addLineNote') %></p></div></div>
+            <form method="POST" action="/crm/commandes/<%= commande.id %>/lignes" class="form-grid">
+              <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+              <label class="span-2"><span><%= t('ven.product') %></span>
+                <select name="product_id">
+                  <option value="">— <%= t('ven.freeLine') %> —</option>
+                  <% produits.forEach((p) => { %><option value="<%= p.id %>"><%= p.reference %> — <%= p.name %> (<%= money(p.price_ht) %>)</option><% }) %>
+                </select>
+              </label>
+              <label class="span-2"><span><%= t('common.label') %></span><input type="text" name="label" maxlength="200" /></label>
+              <label><span><%= t('ven.qty') %></span><input type="text" name="quantity" inputmode="decimal" value="1" required /></label>
+              <label><span><%= t('ven.unitPrice') %></span><input type="text" name="unit_price_ht" inputmode="decimal" /></label>
+              <label><span>TVA (%)</span><input type="number" name="vat_rate" min="0" max="100" step="0.1" /></label>
+              <div class="form-actions span-2"><button type="submit" class="btn btn-primary btn-sm"><%= t('ven.addLine') %></button></div>
+            </form>
+          </div>
+        <% } %>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3><%= t('ven.deliveries') %></h3>
+            <% if (commande.livraisons.length === 0) { %>
+              <div class="empty-state"><%= t('ven.noDelivery') %></div>
+            <% } else { %>
+              <ul class="tag-list">
+                <% commande.livraisons.forEach((n) => { %><li><a class="tag" href="/crm/livraisons/<%= n.id %>"><%= n.reference %> · <%= day(n.delivered_on) %></a></li><% }) %>
+              </ul>
+            <% } %>
+          </div>
+          <div class="card">
+            <h3><%= t('ven.invoices') %></h3>
+            <% if (commande.factures.length === 0) { %>
+              <div class="empty-state"><%= t('ven.noInvoice') %></div>
+            <% } else { %>
+              <ul class="tag-list">
+                <% commande.factures.forEach((f) => { %><li><span class="tag"><%= f.reference %> · <%= money(f.amount_ht) %> HT · <%= st(f.status) %></span></li><% }) %>
+              </ul>
+            <% } %>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="<%= asset('/js/theme.js') %>"></script>
+  <script src="<%= asset('/js/admin.js') %>"></script>
+  <script src="<%= asset('/js/confirm.js') %>"></script>
+</body>
+</html>
