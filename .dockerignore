@@ -1,0 +1,15 @@
+# Ce qui n'a rien à faire dans l'image.
+#
+# data/ et config.php portent l'état et les secrets d'une instance : les
+# emporter reviendrait à livrer la base de quelqu'un d'autre.
+data
+config.php
+*.log
+
+.git
+.gitignore
+.claude
+tests
+Dockerfile
+.dockerignore
+docker-compose.yml

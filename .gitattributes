@@ -1,0 +1,7 @@
+# The ui-ux-pro-max skill records sha256 hashes of its data files in
+# data/catalog-summary.json, computed over the raw bytes. A CRLF checkout would
+# produce different hashes than an LF one and break `validate_data.py`, so pin
+# these to LF on every platform.
+.claude/skills/ui-ux-pro-max/data/*.csv         text eol=lf
+.claude/skills/ui-ux-pro-max/data/*.json        text eol=lf
+.claude/skills/ui-ux-pro-max/data/stacks/*.csv  text eol=lf

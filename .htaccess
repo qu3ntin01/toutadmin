@@ -1,0 +1,12 @@
+# Filet de sécurité pour les hébergements où la racine web ne peut pas être
+# déplacée vers public/ : tout est alors renvoyé dans public/, et le reste du
+# dossier (code, base, fichiers déposés) devient inaccessible.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule ^$ public/ [L]
+  RewriteCond %{REQUEST_URI} !^/public/
+  RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+Options -Indexes
