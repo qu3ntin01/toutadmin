@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="Cài đặt — Toutadmin" />
 <meta name="twitter:description" content="Hai phiên bản của cùng một sản phẩm: một chạy như dịch vụ trên máy chủ của bạn, một đặt lên hosting dùng chung. Không bắt buộc cơ sở dữ liệu, không dịch vụ bên thứ ba — nhưng nếu bạn có máy chủ MySQL thì sẽ dùng. Năm phút để mở trình hướng dẫn và dùng thử; một giờ để đưa vào vận hành đầy đủ, với dịch vụ, HTTPS và sao lưu." />
 <meta name="twitter:image" content="https://toutadmin.com/medias/pilotage-vi.png" />
-<link rel="stylesheet" href="../assets/style.css?v=989304a93e" />
+<link rel="stylesheet" href="../assets/style.css?v=eb6ed6002b" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -478,14 +478,15 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>Trong container</h3>
             <p>Mỗi ấn bản một image, dữ liệu nằm trong một volume. Bản cài vẫn là chính nó sau bất kỳ lần thay image nào, kể cả giấy phép.</p>
-            <pre><code>docker compose up -d
+            <pre class="wrap-code"><code>docker compose up -d
 # puis http://localhost:3000</code></pre>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Trên máy chủ Linux</h3>
             <p>apt, dnf hoặc apk. Tập lệnh dựng bộ máy, một người dùng hệ thống, một dịch vụ tự khởi động lại, và reverse proxy kèm chứng chỉ nếu bạn đưa cho nó một tên miền.</p>
-            <pre><code>sudo ./deploiement/install.sh \
+            <pre class="wrap-code"><code>curl -fsSL https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.sh \
+  | sudo bash -s -- \
   --domaine intranet.exemple.fr \
   --courriel vous@exemple.fr</code></pre>
           </article>
@@ -493,8 +494,9 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
             <h3>Trên Windows</h3>
             <p>Node được tải về dưới dạng kho nén chứ không phải trình cài đặt: phiên bản được ghim, và không cần trình biên dịch nào. Một tác vụ khởi động cùng máy.</p>
-            <pre><code># PowerShell, en administrateur
-.\deploiement\install.ps1</code></pre>
+            <pre class="wrap-code"><code># PowerShell, en administrateur
+powershell -NoProfile -ExecutionPolicy Bypass -Command \
+  "& ([scriptblock]::Create((irm https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.ps1))) -Port 3000"</code></pre>
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
@@ -505,7 +507,34 @@
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="systemes">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Hệ thống được hỗ trợ</span>
+          <h2>Mọi hệ thống còn trong thời hạn hỗ trợ</h2>
+          <p class="lede">Mỗi họ hệ thống một tập lệnh, một lệnh duy nhất. Nó nhận diện máy, cài những gì còn thiếu và dừng trước trình hướng dẫn.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux</h3>
+            <p class="muted">Debian 11, 12, 13 · Ubuntu 22.04, 24.04, 26.04 · AlmaLinux 8, 9, 10 · Rocky Linux 8, 9, 10 · Red Hat Enterprise Linux 8, 9, 10 · CentOS Stream 9, 10 · Oracle Linux 8, 9, 10 · Amazon Linux 2023 · Fedora · openSUSE Leap 15, 16 · SUSE Linux Enterprise 15, 16 · Arch Linux · Alpine Linux</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows</h3>
+            <p class="muted">Windows 10 (1607+) · Windows 11 · Windows Server 2016 · Windows Server 2019 · Windows Server 2022 · Windows Server 2025</p>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <p>x86_64 và arm64. Khi bản phân phối không có Node 22, tập lệnh lấy kho lưu trữ chính thức từ nodejs.org và kiểm tra tổng SHA-256 trước khi giải nén.</p>
+          <p>Windows 8.1 và Server 2012 R2 không được hỗ trợ: Node 22 không khởi động trên đó.</p>
+          <p>Cho nhánh phát triển: --dev trên Linux, -Dev trên Windows.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Để dùng thử: năm phút</span>

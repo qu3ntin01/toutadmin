@@ -73,12 +73,31 @@ const PHP_STEPS = [
 const VOIE_DOCKER = 'docker compose up -d\n'
   + '# puis http://localhost:3000';
 
-const VOIE_LINUX = 'sudo ./deploiement/install.sh \\\n'
+// Une ligne, sans rien à télécharger avant : le script va chercher le code dans
+// le dépôt public. La même adresse de dépôt que « DEPOT » plus haut, sans « .git ».
+const RAW = DEPOT.replace(/\.git$/, '') + '/-/raw/node/deploiement';
+const VOIE_LINUX = `curl -fsSL ${RAW}/install.sh \\\n`
+  + '  | sudo bash -s -- \\\n'
   + '  --domaine intranet.exemple.fr \\\n'
   + '  --courriel vous@exemple.fr';
 
 const VOIE_WINDOWS = '# PowerShell, en administrateur\n'
-  + '.\\deploiement\\install.ps1';
+  + 'powershell -NoProfile -ExecutionPolicy Bypass -Command \\\n'
+  + `  "& ([scriptblock]::Create((irm ${RAW}/install.ps1))) -Port 3000"`;
+
+// Les systèmes pris en charge : des noms propres, donc les mêmes dans les seize
+// langues. Une seule liste pour la page, pour que la page et le script ne
+// divergent pas — le banc « deploiement/essais/distributions.sh » joue chacun
+// de ces systèmes.
+const SYSTEMES_LINUX = [
+  'Debian 11, 12, 13', 'Ubuntu 22.04, 24.04, 26.04', 'AlmaLinux 8, 9, 10', 'Rocky Linux 8, 9, 10',
+  'Red Hat Enterprise Linux 8, 9, 10', 'CentOS Stream 9, 10', 'Oracle Linux 8, 9, 10',
+  'Amazon Linux 2023', 'Fedora', 'openSUSE Leap 15, 16', 'SUSE Linux Enterprise 15, 16', 'Arch Linux', 'Alpine Linux',
+];
+const SYSTEMES_WINDOWS = [
+  'Windows 10 (1607+)', 'Windows 11', 'Windows Server 2016', 'Windows Server 2019',
+  'Windows Server 2022', 'Windows Server 2025',
+];
 
 const WIZARD_URL = 'https://votre-domaine/install';
 
@@ -111,7 +130,7 @@ module.exports = function installation(ctx) {
             <span class="ico">${icon(ic)}</span>
             <h3>${esc(t(`install.way.${key}.name`))}</h3>
             <p>${esc(t(`install.way.${key}.for`))}</p>
-            <pre><code>${code}</code></pre>
+            <pre class="wrap-code"><code>${code}</code></pre>
           </article>`;
 
   const quickCard = (key, code) => `<article class="card reveal">
@@ -219,7 +238,30 @@ module.exports = function installation(ctx) {
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="systemes">
+      <div class="wrap">
+        ${head(ctx, t('install.sys.eyebrow'), t('install.sys.title'), t('install.sys.lede'))}
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico">${icon('code')}</span>
+            <h3>Linux</h3>
+            <p class="muted">${SYSTEMES_LINUX.map(esc).join(' · ')}</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico">${icon('layers')}</span>
+            <h3>Windows</h3>
+            <p class="muted">${SYSTEMES_WINDOWS.map(esc).join(' · ')}</p>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <p>${esc(t('install.sys.note'))}</p>
+          <p>${esc(t('install.sys.winnote'))}</p>
+          <p>${esc(t('install.sys.dev'))}</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         ${head(ctx, t('install.quickEyebrow'), t('install.quickTitle'), t('install.quickLede'))}
         <div class="grid g2 stagger">

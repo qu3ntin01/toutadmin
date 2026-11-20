@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="설치 — Toutadmin" />
 <meta name="twitter:description" content="같은 제품의 두 에디션: 하나는 서버에서 서비스로 실행되고, 다른 하나는 공유 호스팅에 올립니다. 필수 데이터베이스도, 외부 서비스도 없습니다 — MySQL 서버가 있으면 사용합니다. 마법사를 열어 써 보는 데 5분, 서비스·HTTPS·백업을 갖춘 완전한 운영 시작에 1시간입니다." />
 <meta name="twitter:image" content="https://toutadmin.com/medias/pilotage-ko.png" />
-<link rel="stylesheet" href="../assets/style.css?v=989304a93e" />
+<link rel="stylesheet" href="../assets/style.css?v=eb6ed6002b" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -478,14 +478,15 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>컨테이너에서</h3>
             <p>에디션마다 이미지 하나, 데이터에는 볼륨 하나. 이미지를 몇 번 바꾸어도 인스턴스는 그대로이며, 라이선스도 함께 남습니다.</p>
-            <pre><code>docker compose up -d
+            <pre class="wrap-code"><code>docker compose up -d
 # puis http://localhost:3000</code></pre>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>리눅스 서버에서</h3>
             <p>apt, dnf 또는 apk. 스크립트가 엔진과 시스템 사용자, 스스로 다시 뜨는 서비스를 세우고, 도메인을 주면 리버스 프록시와 인증서까지 갖춥니다.</p>
-            <pre><code>sudo ./deploiement/install.sh \
+            <pre class="wrap-code"><code>curl -fsSL https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.sh \
+  | sudo bash -s -- \
   --domaine intranet.exemple.fr \
   --courriel vous@exemple.fr</code></pre>
           </article>
@@ -493,8 +494,9 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
             <h3>윈도우에서</h3>
             <p>Node는 설치 관리자가 아니라 압축 파일로 내려받습니다. 버전이 고정되고 컴파일러가 필요 없습니다. 작업이 컴퓨터와 함께 시작됩니다.</p>
-            <pre><code># PowerShell, en administrateur
-.\deploiement\install.ps1</code></pre>
+            <pre class="wrap-code"><code># PowerShell, en administrateur
+powershell -NoProfile -ExecutionPolicy Bypass -Command \
+  "& ([scriptblock]::Create((irm https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.ps1))) -Port 3000"</code></pre>
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
@@ -505,7 +507,34 @@
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="systemes">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">지원 시스템</span>
+          <h2>지원 기간 내의 모든 시스템</h2>
+          <p class="lede">시스템 계열마다 스크립트 하나, 명령 하나. 머신을 인식하고 부족한 것을 설치한 뒤 마법사 앞에서 멈춥니다.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux</h3>
+            <p class="muted">Debian 11, 12, 13 · Ubuntu 22.04, 24.04, 26.04 · AlmaLinux 8, 9, 10 · Rocky Linux 8, 9, 10 · Red Hat Enterprise Linux 8, 9, 10 · CentOS Stream 9, 10 · Oracle Linux 8, 9, 10 · Amazon Linux 2023 · Fedora · openSUSE Leap 15, 16 · SUSE Linux Enterprise 15, 16 · Arch Linux · Alpine Linux</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows</h3>
+            <p class="muted">Windows 10 (1607+) · Windows 11 · Windows Server 2016 · Windows Server 2019 · Windows Server 2022 · Windows Server 2025</p>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <p>x86_64 및 arm64. 배포판이 Node 22를 제공하지 않으면 스크립트가 nodejs.org의 공식 아카이브를 받아 풀기 전에 SHA-256 합계를 확인합니다.</p>
+          <p>Windows 8.1과 Server 2012 R2는 지원되지 않습니다. Node 22가 시작되지 않습니다.</p>
+          <p>개발 브랜치는 Linux에서 --dev, Windows에서 -Dev.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">써 보려면 5분</span>

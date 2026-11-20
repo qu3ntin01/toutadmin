@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="Instalação — Toutadmin" />
 <meta name="twitter:description" content="Duas edições do mesmo produto: uma corre como serviço no seu servidor, a outra deposita-se num alojamento partilhado. Nenhuma base de dados exigida, nenhum serviço de terceiros — mas um servidor MySQL é usado se tiver um. Cinco minutos para abrir o assistente e experimentar; uma hora para uma entrada em serviço completa, com serviço, HTTPS e cópias de segurança." />
 <meta name="twitter:image" content="https://toutadmin.com/medias/pilotage-pt.png" />
-<link rel="stylesheet" href="../assets/style.css?v=989304a93e" />
+<link rel="stylesheet" href="../assets/style.css?v=eb6ed6002b" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -478,14 +478,15 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>Em contentor</h3>
             <p>Uma imagem por edição, um volume para os dados. A instância continua a mesma depois de qualquer substituição de imagem, licença incluída.</p>
-            <pre><code>docker compose up -d
+            <pre class="wrap-code"><code>docker compose up -d
 # puis http://localhost:3000</code></pre>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Num servidor Linux</h3>
             <p>apt, dnf ou apk. O script põe o motor, um utilizador de sistema, um serviço que reinicia sozinho, e o proxy inverso com o seu certificado se lhe der um domínio.</p>
-            <pre><code>sudo ./deploiement/install.sh \
+            <pre class="wrap-code"><code>curl -fsSL https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.sh \
+  | sudo bash -s -- \
   --domaine intranet.exemple.fr \
   --courriel vous@exemple.fr</code></pre>
           </article>
@@ -493,8 +494,9 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
             <h3>Em Windows</h3>
             <p>O Node é descarregado em arquivo, não em instalador: a versão fica fixada e não é preciso compilador nenhum. Uma tarefa arranca com a máquina.</p>
-            <pre><code># PowerShell, en administrateur
-.\deploiement\install.ps1</code></pre>
+            <pre class="wrap-code"><code># PowerShell, en administrateur
+powershell -NoProfile -ExecutionPolicy Bypass -Command \
+  "& ([scriptblock]::Create((irm https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.ps1))) -Port 3000"</code></pre>
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
@@ -505,7 +507,34 @@
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="systemes">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Sistemas suportados</span>
+          <h2>Todos os sistemas ainda em suporte</h2>
+          <p class="lede">Um script por família de sistemas, um só comando. Reconhece a máquina, instala o que falta e pára diante do assistente.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux</h3>
+            <p class="muted">Debian 11, 12, 13 · Ubuntu 22.04, 24.04, 26.04 · AlmaLinux 8, 9, 10 · Rocky Linux 8, 9, 10 · Red Hat Enterprise Linux 8, 9, 10 · CentOS Stream 9, 10 · Oracle Linux 8, 9, 10 · Amazon Linux 2023 · Fedora · openSUSE Leap 15, 16 · SUSE Linux Enterprise 15, 16 · Arch Linux · Alpine Linux</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows</h3>
+            <p class="muted">Windows 10 (1607+) · Windows 11 · Windows Server 2016 · Windows Server 2019 · Windows Server 2022 · Windows Server 2025</p>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <p>x86_64 e arm64. Quando a distribuição não oferece o Node 22, o script usa o arquivo oficial de nodejs.org e verifica a soma SHA-256 antes de o extrair.</p>
+          <p>O Windows 8.1 e o Server 2012 R2 não são suportados: o Node 22 não arranca neles.</p>
+          <p>Para o ramo de desenvolvimento: --dev no Linux, -Dev no Windows.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Para experimentar: cinco minutos</span>

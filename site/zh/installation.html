@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="安装 — Toutadmin" />
 <meta name="twitter:description" content="同一产品的两个版本：一个在你们的服务器上作为服务运行，另一个放在共享主机上。不要求数据库，不依赖第三方服务——但如果你们有 MySQL 服务器，也可以使用。打开向导试用只需五分钟；包含服务、HTTPS 和备份的完整投入使用约一小时。" />
 <meta name="twitter:image" content="https://toutadmin.com/medias/pilotage-zh.png" />
-<link rel="stylesheet" href="../assets/style.css?v=989304a93e" />
+<link rel="stylesheet" href="../assets/style.css?v=eb6ed6002b" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -478,14 +478,15 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>在容器中</h3>
             <p>每个版本一个镜像，数据放在一个卷里。无论更换多少次镜像，实例始终是同一个，许可证也是。</p>
-            <pre><code>docker compose up -d
+            <pre class="wrap-code"><code>docker compose up -d
 # puis http://localhost:3000</code></pre>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>在 Linux 服务器上</h3>
             <p>apt、dnf 或 apk。脚本安置引擎、一个系统用户、一个会自行重启的服务；给它一个域名，它连反向代理和证书一并备好。</p>
-            <pre><code>sudo ./deploiement/install.sh \
+            <pre class="wrap-code"><code>curl -fsSL https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.sh \
+  | sudo bash -s -- \
   --domaine intranet.exemple.fr \
   --courriel vous@exemple.fr</code></pre>
           </article>
@@ -493,8 +494,9 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
             <h3>在 Windows 上</h3>
             <p>Node 以压缩包而非安装程序下载：版本被固定，无需任何编译器。一个任务随机器一同启动。</p>
-            <pre><code># PowerShell, en administrateur
-.\deploiement\install.ps1</code></pre>
+            <pre class="wrap-code"><code># PowerShell, en administrateur
+powershell -NoProfile -ExecutionPolicy Bypass -Command \
+  "& ([scriptblock]::Create((irm https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.ps1))) -Port 3000"</code></pre>
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
@@ -505,7 +507,34 @@
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="systemes">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">支持的系统</span>
+          <h2>所有仍在支持期内的系统</h2>
+          <p class="lede">每个系统家族一个脚本，一条命令。它识别机器、安装缺少的组件，并在安装向导前停下。</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux</h3>
+            <p class="muted">Debian 11, 12, 13 · Ubuntu 22.04, 24.04, 26.04 · AlmaLinux 8, 9, 10 · Rocky Linux 8, 9, 10 · Red Hat Enterprise Linux 8, 9, 10 · CentOS Stream 9, 10 · Oracle Linux 8, 9, 10 · Amazon Linux 2023 · Fedora · openSUSE Leap 15, 16 · SUSE Linux Enterprise 15, 16 · Arch Linux · Alpine Linux</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows</h3>
+            <p class="muted">Windows 10 (1607+) · Windows 11 · Windows Server 2016 · Windows Server 2019 · Windows Server 2022 · Windows Server 2025</p>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <p>x86_64 和 arm64。若发行版不提供 Node 22，脚本会取用 nodejs.org 的官方压缩包，并在解压前校验其 SHA-256。</p>
+          <p>不支持 Windows 8.1 和 Server 2012 R2：Node 22 无法在其上启动。</p>
+          <p>开发分支：Linux 用 --dev，Windows 用 -Dev。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">试用：五分钟</span>

@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="Установка — Toutadmin" />
 <meta name="twitter:description" content="Две редакции одного продукта: одна работает как служба на вашем сервере, другая размещается на виртуальном хостинге. Никакой обязательной базы данных, никаких сторонних служб — но сервер MySQL будет использован, если он у вас есть. Пять минут, чтобы открыть мастер и попробовать; час на полный ввод в эксплуатацию — служба, HTTPS и резервные копии." />
 <meta name="twitter:image" content="https://toutadmin.com/medias/pilotage-ru.png" />
-<link rel="stylesheet" href="../assets/style.css?v=989304a93e" />
+<link rel="stylesheet" href="../assets/style.css?v=eb6ed6002b" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -478,14 +478,15 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>В контейнере</h3>
             <p>По образу на издание, один том для данных. Экземпляр остаётся тем же после любой замены образа, вместе с лицензией.</p>
-            <pre><code>docker compose up -d
+            <pre class="wrap-code"><code>docker compose up -d
 # puis http://localhost:3000</code></pre>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>На сервере с Linux</h3>
             <p>apt, dnf или apk. Скрипт ставит движок, системного пользователя, службу, которая перезапускается сама, и обратный прокси с сертификатом, если дать ему домен.</p>
-            <pre><code>sudo ./deploiement/install.sh \
+            <pre class="wrap-code"><code>curl -fsSL https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.sh \
+  | sudo bash -s -- \
   --domaine intranet.exemple.fr \
   --courriel vous@exemple.fr</code></pre>
           </article>
@@ -493,8 +494,9 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
             <h3>На Windows</h3>
             <p>Node скачивается архивом, а не установщиком: версия зафиксирована, и компилятор не нужен. Задача запускается вместе с машиной.</p>
-            <pre><code># PowerShell, en administrateur
-.\deploiement\install.ps1</code></pre>
+            <pre class="wrap-code"><code># PowerShell, en administrateur
+powershell -NoProfile -ExecutionPolicy Bypass -Command \
+  "& ([scriptblock]::Create((irm https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.ps1))) -Port 3000"</code></pre>
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
@@ -505,7 +507,34 @@
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="systemes">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">Поддерживаемые системы</span>
+          <h2>Все системы, которые ещё поддерживаются</h2>
+          <p class="lede">Один скрипт на семейство систем, одна команда. Он распознаёт машину, доустанавливает недостающее и останавливается перед мастером.</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux</h3>
+            <p class="muted">Debian 11, 12, 13 · Ubuntu 22.04, 24.04, 26.04 · AlmaLinux 8, 9, 10 · Rocky Linux 8, 9, 10 · Red Hat Enterprise Linux 8, 9, 10 · CentOS Stream 9, 10 · Oracle Linux 8, 9, 10 · Amazon Linux 2023 · Fedora · openSUSE Leap 15, 16 · SUSE Linux Enterprise 15, 16 · Arch Linux · Alpine Linux</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows</h3>
+            <p class="muted">Windows 10 (1607+) · Windows 11 · Windows Server 2016 · Windows Server 2019 · Windows Server 2022 · Windows Server 2025</p>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <p>x86_64 и arm64. Если дистрибутив не поставляет Node 22, скрипт берёт официальный архив с nodejs.org и проверяет его сумму SHA-256 перед распаковкой.</p>
+          <p>Windows 8.1 и Server 2012 R2 не поддерживаются: Node 22 на них не запускается.</p>
+          <p>Для ветки разработки: --dev в Linux, -Dev в Windows.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">Чтобы попробовать: пять минут</span>

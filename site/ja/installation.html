@@ -33,7 +33,7 @@
 <meta name="twitter:title" content="導入 — Toutadmin" />
 <meta name="twitter:description" content="同じ製品の二つのエディション：一つはサーバー上でサービスとして動き、もう一つは共有ホスティングに置きます。データベースは必須ではなく、外部サービスも不要——MySQL サーバーがあれば利用します。ウィザードを開いて試すまで五分。サービス、HTTPS、バックアップを含む本格的な稼働開始まで一時間です。" />
 <meta name="twitter:image" content="https://toutadmin.com/medias/pilotage-ja.png" />
-<link rel="stylesheet" href="../assets/style.css?v=989304a93e" />
+<link rel="stylesheet" href="../assets/style.css?v=eb6ed6002b" />
 <!--
   La politique de contenu, posée dans la page.
 
@@ -478,14 +478,15 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8.5 12 4l9 4.5v7L12 20l-9-4.5v-7Z"/><path d="M3 8.5 12 13l9-4.5M12 13v7"/></svg></span>
             <h3>コンテナで</h3>
             <p>版ごとにイメージひとつ、データにはボリュームひとつ。イメージを何度入れ替えてもインスタンスは同じまま、ライセンスも含めて。</p>
-            <pre><code>docker compose up -d
+            <pre class="wrap-code"><code>docker compose up -d
 # puis http://localhost:3000</code></pre>
           </article>
           <article class="card reveal">
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
             <h3>Linux サーバーで</h3>
             <p>apt、dnf、apk。スクリプトはエンジン、システム利用者、自力で再起動するサービスを据え、ドメインを渡せばリバースプロキシと証明書まで用意します。</p>
-            <pre><code>sudo ./deploiement/install.sh \
+            <pre class="wrap-code"><code>curl -fsSL https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.sh \
+  | sudo bash -s -- \
   --domaine intranet.exemple.fr \
   --courriel vous@exemple.fr</code></pre>
           </article>
@@ -493,8 +494,9 @@
             <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
             <h3>Windows で</h3>
             <p>Node はインストーラーではなく書庫として取得します。版は固定され、コンパイラは要りません。タスクが機械とともに起動します。</p>
-            <pre><code># PowerShell, en administrateur
-.\deploiement\install.ps1</code></pre>
+            <pre class="wrap-code"><code># PowerShell, en administrateur
+powershell -NoProfile -ExecutionPolicy Bypass -Command \
+  "& ([scriptblock]::Create((irm https://repo.qu3ntin.com/toutadmin/toutadmin/-/raw/node/deploiement/install.ps1))) -Port 3000"</code></pre>
           </article>
         </div>
         <div class="note reveal mt-l mx-auto">
@@ -505,7 +507,34 @@
       </div>
     </section>
 
-    <section class="section tinted">
+    <section class="section tinted" id="systemes">
+      <div class="wrap">
+        <div class="section-head center reveal">
+          <span class="eyebrow">対応システム</span>
+          <h2>サポート期間内のすべてのシステム</h2>
+          <p class="lede">システムの系統ごとに 1 つのスクリプト、コマンドは 1 つ。マシンを認識し、足りないものを導入し、セットアップウィザードの手前で止まります。</p>
+        </div>
+        <div class="grid g2 stagger">
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 8-5 4 5 4m8-8 5 4-5 4M14 4l-4 16"/></svg></span>
+            <h3>Linux</h3>
+            <p class="muted">Debian 11, 12, 13 · Ubuntu 22.04, 24.04, 26.04 · AlmaLinux 8, 9, 10 · Rocky Linux 8, 9, 10 · Red Hat Enterprise Linux 8, 9, 10 · CentOS Stream 9, 10 · Oracle Linux 8, 9, 10 · Amazon Linux 2023 · Fedora · openSUSE Leap 15, 16 · SUSE Linux Enterprise 15, 16 · Arch Linux · Alpine Linux</p>
+          </article>
+          <article class="card reveal">
+            <span class="ico"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5M3 17l9 5 9-5"/></svg></span>
+            <h3>Windows</h3>
+            <p class="muted">Windows 10 (1607+) · Windows 11 · Windows Server 2016 · Windows Server 2019 · Windows Server 2022 · Windows Server 2025</p>
+          </article>
+        </div>
+        <div class="note reveal mt-l mx-auto">
+          <p>x86_64 と arm64。ディストリビューションが Node 22 を提供しない場合、スクリプトは nodejs.org の公式アーカイブを取得し、展開前に SHA-256 を検証します。</p>
+          <p>Windows 8.1 と Server 2012 R2 は非対応です。Node 22 が起動しません。</p>
+          <p>開発ブランチは Linux なら --dev、Windows なら -Dev。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
       <div class="wrap">
         <div class="section-head center reveal">
           <span class="eyebrow">お試しなら五分</span>

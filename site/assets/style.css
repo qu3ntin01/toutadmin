@@ -1107,3 +1107,10 @@ pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
 .foot-bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
 .foot-credit a { color: var(--brand); font-weight: 650; }
 .foot-credit a:hover { text-decoration: underline; }
+
+
+/* Une commande dont la ligne est plus large que sa carte — l'adresse du dépôt —
+   passe à la ligne plutôt que de défiler : à l'écran elle se coupe où elle
+   veut, mais ce qu'on copie reste la ligne d'origine, sans retour inséré. */
+pre.wrap-code { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+pre.wrap-code code { white-space: inherit; }
