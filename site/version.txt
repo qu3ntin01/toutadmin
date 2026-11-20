@@ -8,4 +8,4 @@ Pages     : 96 (6 × 16 langues)
 Clés      : 555 par langue
 Captures  : 152 fichiers
 Annoncé   : 47 espaces · 16 langues · 2657 tests · 7 modules · 3906 libellés (relevé 2026-11-20)
-Ressources: style 287519af46 · thème 4869e2e78f · script ddc8f95ae8
+Ressources: style 989304a93e · thème 4869e2e78f · script ddc8f95ae8

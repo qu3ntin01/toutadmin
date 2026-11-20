@@ -77,9 +77,9 @@ function constellation(ctx) {
         <svg class="cx-svg" viewBox="0 0 ${L} ${H}" focusable="false">
           <defs>
             <linearGradient id="cx-core" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#0b7f63" /><stop offset=".55" stop-color="#0e9fb0" /><stop offset="1" stop-color="#075aff" />
+              <stop offset="0" stop-color="#00b8d4" /><stop offset=".55" stop-color="#5a5bd8" /><stop offset="1" stop-color="#9366ff" />
             </linearGradient>
-            <radialGradient id="cx-glow"><stop offset="0" stop-color="#34d399" stop-opacity=".55" /><stop offset="1" stop-color="#34d399" stop-opacity="0" /></radialGradient>
+            <radialGradient id="cx-glow"><stop offset="0" stop-color="#00d8ee" stop-opacity=".55" /><stop offset="1" stop-color="#00d8ee" stop-opacity="0" /></radialGradient>
             <filter id="cx-blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2" /></filter>
           </defs>
           <circle class="cx-aura" cx="${CX}" cy="${CY}" r="150" fill="url(#cx-glow)" />

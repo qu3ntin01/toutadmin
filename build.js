@@ -667,7 +667,7 @@ function ldJson(ctx) {
     '@type': 'Organization',
     name: t('site.name'),
     url: `${SITE_URL}/`,
-    logo: `${SITE_URL}/assets/favicon.svg`,
+    logo: `${SITE_URL}/assets/logo.svg`,
   };
   const site = {
     '@type': 'WebSite',
