@@ -37,6 +37,8 @@ chiffres.js     compte les chiffres de la page d'accueil dans les deux éditions
 chiffres.json   ← leur relevé, versionné ; c'est lui que la construction lit
 assets/         feuille de style, script, thème, favicon
 site/           ← sortie générée, versionnée, prête à héberger
+                  (page par page) + sitemap.xml, robots.txt, _headers,
+                  .htaccess, version.txt à sa racine
 ```
 
 **`site/` est versionné.** Le serveur de production n'exécute rien : il fait un
@@ -166,6 +168,42 @@ héros de la page d'accueil compris. Ce n'est pas une hypothèse : au lendemain
 d'une refonte complète des captures, cent quarante-six des cent cinquante
 étaient à jour en ligne et quatre ne l'étaient pas — le héros, l'écran de
 pilotage, et leurs deux jumelles sombres.
+
+## SEO et sécurité
+
+**L'adresse du site est écrite une fois**, dans `build.js` (`SITE_URL`) : c'est
+elle qui fabrique l'adresse canonique, les balises Open Graph et le plan du
+site. Si le site est un jour servi ailleurs qu'à `https://toutadmin.com`, c'est
+cette seule ligne qu'on change.
+
+Chaque page porte :
+
+- une adresse canonique absolue et `hreflang` vers ses quinze autres langues,
+  plus un repère `x-default` vers le français ;
+- Open Graph et Twitter Card, avec une capture d'écran réelle (celle du
+  pilotage, proche du format paysage qu'un réseau social recadre — jamais une
+  image fabriquée pour l'occasion) ;
+- des données structurées (schema.org, JSON-LD) : l'organisation et le site
+  partout, le logiciel et son vrai prix sur l'accueil seulement. Rien n'y
+  figure qu'on ne lise déjà ailleurs sur le site — pas d'avis ni de note, qui
+  se fabriqueraient plutôt qu'elles ne se liraient.
+
+`sitemap.xml` reprend les mêmes variantes de langue (recommandation Google,
+en plus de la balise de chaque page, pas à sa place) et un `lastmod` à la date
+de construction. `robots.txt` pointe dessus.
+
+**La politique de contenu (CSP) est écrite une fois** (`CSP_BASE`, dans
+`build.js`) et sert trois fois : la balise de chaque page, `_headers`
+(Netlify, Cloudflare Pages) et `.htaccess` (Apache — OVH, Infomaniak, la
+plupart des mutualisés). Les deux fichiers portent aussi ce qu'une balise ne
+peut pas poser : HSTS, `X-Frame-Options`, `Permissions-Policy`, et `.htaccess`
+en plus force HTTPS dès la première visite, interdit la liste de répertoire
+et refuse de servir un fichier caché. Un hébergement qui ne lit ni l'un ni
+l'autre garde la balise, qui reste la majorité de la protection.
+
+**`/.well-known/security.txt`** suit la règle des mentions légales : construit
+depuis `editeur.json`, et seulement s'il est rempli — une adresse de contact
+inventée serait pire qu'absente.
 
 ## L'allure
 

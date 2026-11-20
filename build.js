@@ -76,6 +76,49 @@ const CLIENT_URL = 'https://manager.toutadmin.com/';
 // ligne à changer le jour où l'adresse bouge.
 const STORE_URL = 'https://appstore.toutadmin.com/';
 
+// L'adresse de ce site-ci, sans barre finale : elle sert à fabriquer des
+// adresses absolues — canonique, Open Graph, plan du site — que les robots et
+// les réseaux sociaux ne devinent pas depuis une adresse relative. Même les
+// autres sous-domaines de l'éditeur (dl., docs., manager., appstore.) vivent
+// sous celui-ci : c'est lui qui est enregistré ailleurs comme site de
+// référence, donc lui que porte l'adresse canonique.
+const SITE_URL = 'https://toutadmin.com';
+
+// La forme que chaque langue prend dans « og:locale » : Facebook et consorts
+// attendent du BCP 47 à leur façon (xx_XX), pas le code à deux lettres que le
+// reste du site utilise.
+const OG_LOCALE = {
+  fr: 'fr_FR', en: 'en_US', es: 'es_ES', de: 'de_DE', it: 'it_IT', pt: 'pt_PT',
+  nl: 'nl_NL', pl: 'pl_PL', ru: 'ru_RU', tr: 'tr_TR', ar: 'ar_AR', hi: 'hi_IN',
+  zh: 'zh_CN', ja: 'ja_JP', ko: 'ko_KR', vi: 'vi_VN',
+};
+
+/*
+ * La politique de contenu, en un seul endroit.
+ *
+ * Elle sert trois fois : dans la balise de chaque page (ce qu'un hébergement
+ * qui ne pose pas d'en-tête sert quand même), dans `_headers` (Netlify,
+ * Cloudflare Pages) et dans `.htaccess` (Apache — OVH, Infomaniak, la plupart
+ * des hébergements mutualisés). Une seule chaîne de base, pour que les trois
+ * ne divergent jamais : la balise ne peut pas porter « frame-ancestors » — les
+ * navigateurs l'ignorent hors en-tête —, donc les fichiers d'en-têtes
+ * l'ajoutent, avec le reste de ce qu'une balise ne peut pas poser.
+ */
+const CSP_BASE = "default-src 'none'; script-src 'self'; style-src 'self'; "
+  + "img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; "
+  + "form-action 'none'; object-src 'none'; upgrade-insecure-requests";
+const CSP_META = CSP_BASE;
+const CSP_HEADER = `${CSP_BASE}; frame-ancestors 'none'`;
+
+// Fermées pour la même raison que dans le produit : une page de vitrine n'a
+// besoin ni de la caméra, ni du micro, ni de la position, ni de rien de tout
+// cela — et une régie publicitaire chargée plus tard par erreur ne les aurait
+// pas non plus.
+const PERMISSIONS_POLICY = 'accelerometer=(), autoplay=(), camera=(), display-capture=(), '
+  + 'encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), '
+  + 'microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), '
+  + 'screen-wake-lock=(), sync-xhr=(), usb=(), xr-spatial-tracking=()';
+
 /* --------------------------------------------------------------- outillage */
 
 const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -603,6 +646,59 @@ function footHtml(t, ctx) {
   </footer>`;
 }
 
+/*
+ * Les données structurées (schema.org), en JSON-LD.
+ *
+ * Toujours l'organisation et le site — ce qui alimente un bandeau de
+ * connaissance et le nom affiché dans les résultats — et, sur l'accueil
+ * seulement, le logiciel lui-même avec son prix réel : celui que la page
+ * Tarifs annonce, pas un chiffre arrondi pour l'occasion. Rien n'y figure
+ * qu'on ne puisse déjà lire ailleurs sur le site : pas d'avis ni de note,
+ * qui se fabriqueraient plutôt qu'elles ne se liraient.
+ */
+function ldJson(ctx) {
+  const { t, locale, page } = ctx;
+  const plans = require(path.join(ROOT, 'pages', '_plans.js'));
+  // Une adresse absolue depuis la racine du site, pas relative à la page
+  // courante : « ctx.hrefIn » rend des chemins relatifs (« ../tarifs.html »),
+  // qui n'ont pas de sens une fois sortis de la page et collés à SITE_URL.
+  const url = (name) => `${SITE_URL}/${locale.code === 'fr' ? '' : `${locale.code}/`}${name}.html`;
+  const org = {
+    '@type': 'Organization',
+    name: t('site.name'),
+    url: `${SITE_URL}/`,
+    logo: `${SITE_URL}/assets/favicon.svg`,
+  };
+  const site = {
+    '@type': 'WebSite',
+    name: t('site.name'),
+    url: `${SITE_URL}/`,
+    inLanguage: locale.code,
+  };
+  const graph = [org, site];
+  if (page === 'index') {
+    graph.push({
+      '@type': 'SoftwareApplication',
+      name: t('site.name'),
+      applicationCategory: 'BusinessApplication',
+      operatingSystem: 'Linux, Windows',
+      url: `${SITE_URL}/`,
+      description: t('site.tagline'),
+      offers: {
+        '@type': 'Offer',
+        price: String(plans.PRICE_PER_EMPLOYEE),
+        priceCurrency: 'EUR',
+        url: url('tarifs'),
+        description: t('hero.note'),
+      },
+    });
+  }
+  // « </ » coupé en deux : une traduction qui contiendrait un jour cette suite
+  // de caractères ne doit pas pouvoir refermer la balise plus tôt que prévu.
+  const json = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/<\//g, '<\\/');
+  return `<script type="application/ld+json">${json}</script>`;
+}
+
 /* ------------------------------------------------------------- exécution */
 
 const renderers = {};
@@ -659,7 +755,17 @@ for (const locale of LOCALES) {
 
     const view = renderers[page](ctx);
     const alternates = LOCALES.map((l) =>
-      `<link rel="alternate" hreflang="${l.code}" href="${ctx.hrefIn(l.code, page)}" />`).join('\n  ');
+      `<link rel="alternate" hreflang="${l.code}" href="${ctx.hrefIn(l.code, page)}" />`).join('\n  ')
+      // Le français fait référence : une recherche sans langue détectable reçoit
+      // celle-là plutôt qu'un choix arbitraire parmi quinze.
+      + `\n  <link rel="alternate" hreflang="x-default" href="${ctx.hrefIn('fr', page)}" />`;
+    const canonical = `${SITE_URL}/${locale.code === 'fr' ? '' : `${locale.code}/`}${page}.html`;
+    // Une capture au format proche du paysage qu'un réseau social recadre
+    // (« accueil.png » est un portrait tout en hauteur, bien plus mauvais une
+    // fois réduit en vignette) ; celle du pilotage, qui parle d'elle-même et
+    // existe traduite dans chaque langue.
+    const ogImageFile = ctx.shotFile('pilotage');
+    const ogImageDim = DIMENSIONS_MEDIA.get(ogImageFile) || DIMENSIONS_MEDIA.get('pilotage.png');
 
     const html = layout
       .split('{{LANG}}').join(locale.code)
@@ -671,6 +777,14 @@ for (const locale of LOCALES) {
       .split('{{V_BOOT}}').join(VERSIONS.boot)
       .split('{{V_APP}}').join(VERSIONS.app)
       .split('{{ALTERNATES}}').join(alternates)
+      .split('{{CANONICAL}}').join(esc(canonical))
+      .split('{{SITE_NAME}}').join(esc(t('site.name')))
+      .split('{{OG_LOCALE}}').join(OG_LOCALE[locale.code])
+      .split('{{OG_IMAGE_W}}').join(ogImageDim ? String(ogImageDim.l) : '1200')
+      .split('{{OG_IMAGE_H}}').join(ogImageDim ? String(ogImageDim.h) : '630')
+      .split('{{OG_IMAGE}}').join(esc(`${SITE_URL}/medias/${ogImageFile}`))
+      .split('{{CSP}}').join(CSP_META)
+      .split('{{JSONLD}}').join(ldJson(ctx))
       .split('{{NAV}}').join(navHtml(t, ctx) + '\n' + drawerHtml(t, ctx))
       .split('{{CONTENT}}').join(view.body)
       .split('{{FOOT}}').join(footHtml(t, ctx))
@@ -688,12 +802,15 @@ for (const locale of LOCALES) {
   const dirOut = locale.code === 'fr' ? OUT : path.join(OUT, locale.code);
   const t = (key) => dictionaries[locale.code][key];
   for (const [from, to] of Object.entries(MERGED)) {
+    // Une adresse absolue : un canonique relatif se romprait au premier robot
+    // qui le lit hors contexte, et « noindex » n'empêche pas qu'on le lise.
+    const absolu = `${SITE_URL}/${locale.code === 'fr' ? '' : `${locale.code}/`}${to}`;
     fs.writeFileSync(path.join(dirOut, `${from}.html`),
       `<!doctype html>\n<html lang="${locale.code}" dir="${locale.dir}">\n<head>\n`
       + '<meta charset="utf-8" />\n'
       + `<meta http-equiv="refresh" content="0; url=${to}" />\n`
-      + `<link rel="canonical" href="${to}" />\n`
-      + '<meta name="robots" content="noindex" />\n'
+      + `<link rel="canonical" href="${absolu}" />\n`
+      + '<meta name="robots" content="noindex, follow" />\n'
       + `<title>${esc(t('nav.screens'))} — ${esc(t('site.name'))}</title>\n`
       + `</head>\n<body>\n<p><a href="${to}">${esc(t('nav.features'))}</a></p>\n</body>\n</html>\n`);
   }
@@ -707,7 +824,84 @@ for (const dir of ['assets', 'medias']) {
   }
 }
 
-fs.writeFileSync(path.join(OUT, 'robots.txt'), 'User-agent: *\nAllow: /\n');
+fs.writeFileSync(path.join(OUT, 'robots.txt'),
+  `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
+
+/*
+ * Les en-têtes de sécurité, pour l'hébergement qui les lit.
+ *
+ * Un site statique n'a pas de serveur applicatif pour les poser lui-même : ces
+ * deux fichiers le font à sa place, chacun dans le format d'une famille
+ * d'hébergeurs — `_headers` pour Netlify et Cloudflare Pages, `.htaccess` pour
+ * Apache (OVH, Infomaniak, la plupart des hébergements mutualisés et des VPS
+ * qui en installent un). Un hébergement qui ne lit ni l'un ni l'autre laisse
+ * le site tel qu'avant : la balise CSP de chaque page continue de s'appliquer,
+ * ce qui reste la majorité de la protection.
+ */
+const HEADERS_COMMUNS = [
+  // HTTPS pour un an, sous-domaines compris, et candidat à la liste de
+  // préchargement des navigateurs : la première visite elle-même ne peut
+  // plus se faire en clair, pas seulement les suivantes.
+  'Strict-Transport-Security: max-age=63072000; includeSubDomains; preload',
+  'X-Content-Type-Options: nosniff',
+  // Une ceinture par-dessus « frame-ancestors » : certains agrégateurs ne
+  // lisent que l'ancien en-tête.
+  'X-Frame-Options: DENY',
+  'Referrer-Policy: strict-origin-when-cross-origin',
+  `Permissions-Policy: ${PERMISSIONS_POLICY}`,
+  'Cross-Origin-Opener-Policy: same-origin',
+  'Cross-Origin-Resource-Policy: same-origin',
+  `Content-Security-Policy: ${CSP_HEADER}`,
+];
+fs.writeFileSync(path.join(OUT, '_headers'),
+  `/*\n${HEADERS_COMMUNS.map((l) => `  ${l}`).join('\n')}\n\n`
+  + `/*.html\n  Cache-Control: no-cache\n\n`
+  + `/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n\n`
+  + `/medias/*\n  Cache-Control: public, max-age=31536000, immutable\n`);
+fs.writeFileSync(path.join(OUT, '.htaccess'),
+  '<IfModule mod_headers.c>\n'
+  + HEADERS_COMMUNS.map((l) => {
+    const i = l.indexOf(': ');
+    return `  Header always set "${l.slice(0, i)}" "${l.slice(i + 2)}"`;
+  }).join('\n')
+  + '\n</IfModule>\n\n'
+  + '# HTTPS exigé, même sur la première visite.\n'
+  + '<IfModule mod_rewrite.c>\n'
+  + '  RewriteEngine On\n'
+  + '  RewriteCond %{HTTPS} off\n'
+  + '  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]\n'
+  + '</IfModule>\n\n'
+  + '# Pas de liste de répertoire, pas de fichier caché servi.\n'
+  + 'Options -Indexes\n'
+  + '<FilesMatch "^\\.">\n'
+  + '  Require all denied\n'
+  + '</FilesMatch>\n\n'
+  + '<IfModule mod_expires.c>\n'
+  + '  ExpiresActive On\n'
+  + '  ExpiresByType text/html "access plus 0 seconds"\n'
+  + '  ExpiresByType text/css "access plus 1 year"\n'
+  + '  ExpiresByType application/javascript "access plus 1 year"\n'
+  + '  ExpiresByType image/png "access plus 1 year"\n'
+  + '  ExpiresByType image/svg+xml "access plus 1 year"\n'
+  + '</IfModule>\n');
+
+/*
+ * L'avis de sécurité (RFC 9116), à l'adresse que les chercheurs regardent en
+ * premier : /.well-known/security.txt. Il ne peut porter qu'une adresse
+ * réellement surveillée — jamais une adresse inventée pour la forme — donc il
+ * suit la même règle que la page des mentions légales : construit depuis
+ * « editeur.json », et seulement s'il est rempli.
+ */
+if (MENTIONS) {
+  const expire = new Date();
+  expire.setFullYear(expire.getFullYear() + 1);
+  fs.mkdirSync(path.join(OUT, '.well-known'), { recursive: true });
+  fs.writeFileSync(path.join(OUT, '.well-known', 'security.txt'),
+    `Contact: mailto:${EDITEUR.courriel}\n`
+    + `Expires: ${expire.toISOString().replace(/\.\d+Z$/, 'Z')}\n`
+    + `Preferred-Languages: ${LOCALES.map((l) => l.code).join(', ')}\n`
+    + `Canonical: ${SITE_URL}/.well-known/security.txt\n`);
+}
 
 /*
  * Le pied de page mène à chaque page du site, une fois et une seule.
@@ -790,14 +984,26 @@ fs.writeFileSync(path.join(OUT, 'version.txt'),
   + `${CHIFFRES.tests} tests · ${CHIFFRES.modules} modules · ${CHIFFRES.libelles} libellés`
   + ` (relevé ${CHIFFRES.releve})\n`
   + `Ressources: style ${VERSIONS.css} · thème ${VERSIONS.boot} · script ${VERSIONS.app}\n`);
+// La date de construction, pas une par page : rien ici ne se date à la ligne
+// près, et un « lastmod » inventé lourdement faux vaudrait pire qu'absent.
+const AUJOURD_HUI = new Date().toISOString().slice(0, 10);
+const chemin = (code, page) => `${SITE_URL}/${code === 'fr' ? '' : `${code}/`}${page}.html`;
 const urls = [];
 for (const locale of LOCALES) {
   for (const page of PAGES) {
-    urls.push(`  <url><loc>https://toutadmin.example/${locale.code === 'fr' ? '' : locale.code + '/'}${page}.html</loc></url>`);
+    // Les variantes de langue d'une même page, redites ici en plus de la
+    // balise « hreflang » de chaque page : Google les lit indépendamment l'une
+    // de l'autre, et les deux concordantes valent mieux qu'une seule.
+    const alternates = LOCALES.map((l) =>
+      `      <xhtml:link rel="alternate" hreflang="${l.code}" href="${chemin(l.code, page)}" />`).join('\n')
+      + `\n      <xhtml:link rel="alternate" hreflang="x-default" href="${chemin('fr', page)}" />`;
+    urls.push(`  <url>\n    <loc>${chemin(locale.code, page)}</loc>\n    <lastmod>${AUJOURD_HUI}</lastmod>\n${alternates}\n  </url>`);
   }
 }
 fs.writeFileSync(path.join(OUT, 'sitemap.xml'),
-  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>\n`);
+  '<?xml version="1.0" encoding="UTF-8"?>\n'
+  + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n'
+  + `${urls.join('\n')}\n</urlset>\n`);
 
 const medias = fs.readdirSync(path.join(ROOT, 'medias')).length;
 console.log(`${written} pages écrites dans site/ (${PAGES.length} pages × ${LOCALES.length} langues)`);
@@ -810,7 +1016,10 @@ console.log(`  clés      : ${refKeys.length} par langue`);
  */
 if (MENTIONS) {
   console.log('  mentions  : page construite depuis editeur.json');
+  console.log('  security.txt : construit depuis editeur.json (courriel)');
 } else {
   console.log(`  mentions  : ABSENTES — la loi les impose (LCEN art. 6 III).`);
   console.log(`              Remplissez editeur.json : ${MENTIONS_MANQUANTES.join(', ')}`);
+  console.log('  security.txt : ABSENT — même raison, même fichier à remplir.');
 }
+console.log(`  en-têtes  : _headers, .htaccess, sitemap.xml et robots.txt écrits pour ${SITE_URL}`);
