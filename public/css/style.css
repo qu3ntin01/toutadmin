@@ -1,0 +1,3781 @@
+/* =========================================================================
+   Toutadmin — jetons de thème
+   =========================================================================
+
+   Deux axes, indépendants l'un de l'autre :
+
+     • la PALETTE, posée par l'administration sur <html data-palette>, vaut pour
+       toute l'instance. Quatre valeurs : lavande (défaut), institutionnel,
+       moderne, vif. La palette par défaut n'a pas d'attribut à elle : elle est
+       le bloc « :root », et c'est ce qui la rend servie avant tout réglage.
+     • le MODE clair ou sombre, posé sur <html data-theme>, appartient à chaque
+       personne. Le script de thème résout « système » en une valeur concrète
+       avant le premier rendu, ce qui évite de dupliquer les palettes dans une
+       media query.
+
+   Chaque bloc de palette redéfinit l'INTÉGRALITÉ des jetons de couleur : sans
+   cela, le bloc sombre par défaut (:root[data-theme="dark"], spécificité 0,2,0)
+   l'emporterait sur une palette claire de même poids. Les blocs sombres de
+   palette portent deux attributs (0,3,0) et tranchent donc toujours.
+   ========================================================================= */
+
+/* ---------- Palette « Indigo et lavande » : le défaut ---------- */
+/* Un rail clair plutôt que sombre, posé comme une carte flottante ; un fond de
+   page en lavande très pâle, dégradé, qui fait lever les surfaces blanches ;
+   l'indigo et le violet pour tout ce qui agit. C'est la première palette dont
+   la marque est claire, et c'est elle qui a demandé que les surimpressions du
+   rail deviennent des jetons. */
+
+:root,
+[data-palette-preview="lavande"] {
+  /* Marque : le rail lui-même, presque blanc, à peine lavande du haut vers le
+     bas. Son encre est donc sombre — l'inverse des trois autres palettes. */
+  --brand-deep: #fbfaff;
+  --brand-deep-2: #efedfb;
+  --brand-ink: #2a2748;
+
+  /* Surfaces : la carte est blanche, le fond est teinté. L'écart entre les deux
+     vaut 1,12:1 — assez pour que la carte se détache sans qu'on ait besoin d'un
+     trait appuyé, l'ombre violacée faisant le reste. */
+  --bg: #ecedfb;
+  --bg-gradient: linear-gradient(158deg, #e8eafc 0%, #f2f0fd 52%, #edeffc 100%);
+  --surface: #ffffff;
+  --surface-rgb: 255 255 255;
+  --surface-2: #f8f8fe;
+  --surface-hover: #f3f2fe;
+  --border: #e5e4f4;
+  --border-strong: #cbc9e0;
+
+  --text: #1b1936;
+  --text-secondary: #565378;
+  /* Assez sombre pour être lu : sous 4,5:1, un texte d'aide n'aide personne.
+     Mesuré sur la surface la plus claire où il apparaît. */
+  --text-tertiary: #6c6990;
+  /* Sur un rail clair, le texte estompé est sombre et non blanc. */
+  --text-on-brand: #4a4769;
+
+  --accent: #5b4ae8;
+  --accent-hover: #4a3ad4;
+  --accent-fill: var(--accent);
+  --accent-fill-hover: var(--accent-hover);
+  --accent-soft: #eeecfe;
+  --accent-ring: rgba(91, 74, 232, 0.26);
+  --accent-contrast: #ffffff;
+
+  --success: #0b7a4b;
+  /* blanc sur vert profond : 5,04:1 */
+  --success-contrast: #ffffff;
+  --success-bg: #e6f7ef;
+  --success-border: #b1e3cd;
+  --warning: #8a5a05;
+  --warning-bg: #fdf3e2;
+  --warning-border: #f0d4a6;
+  --danger: #c81e4a;
+  /* blanc sur rouge profond : 5,41:1 */
+  --danger-contrast: #ffffff;
+  --danger-bg: #fdecf1;
+  --danger-border: #f5c3d1;
+
+  /* Le rail clair : la surimpression n'est plus du blanc dilué mais de l'indigo
+     dilué, et la rubrique en service porte un vrai dégradé plutôt qu'un voile. */
+  --brand-wash: rgba(91, 74, 232, 0.08);
+  --brand-wash-strong: #6d5ef0;
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(42, 39, 72, 0.10);
+  --brand-quiet: #6b6889;
+  --brand-glow: rgba(139, 92, 246, 0.10);
+  --brand-sheen: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --brand-pill: #6d5ef0;
+  --brand-pill-ink: #ffffff;
+
+  /* Une encre d'ombre violacée plutôt que neutre : c'est elle qui donne aux
+     cartes blanches leur halo lavande au lieu d'un gris de photocopie. */
+  --shadow-ink: 49 46 129;
+
+  /* Des angles nettement plus ronds, et des cartes qui respirent : c'est la
+     signature de cette palette autant que ses couleurs. */
+  --radius: 12px;
+  --radius-lg: 20px;
+  --sidebar-width: 248px;
+
+  /* L'écriture suit la palette. Pas de fichier de police : le produit n'en
+     télécharge aucun et sa politique de sécurité n'autorise que ses propres
+     ressources. On demande donc au système sa famille d'interface — Segoe UI
+     Variable sur Windows, SF sur macOS, Inter ou Noto sur la plupart des
+     Linux —, toutes géométriques et de même famille que celle du modèle. */
+  --font-sans: system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI',
+    Inter, 'Noto Sans', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Les titres parlent plus fort que dans les trois autres palettes : plus
+     gros, plus gras, plus serrés. C'est la moitié de l'identité — une page de
+     tableau de bord se reconnaît à ses chiffres avant ses couleurs. */
+  --title-weight: 700;
+  --title-tracking: -0.022em;
+  --h1-size: 1.65rem;
+}
+
+:root[data-theme="dark"] {
+  /* Indigo et lavande, en sombre : des neutres teintés d'indigo, un rail qui
+     redevient sombre — une surface presque blanche n'existe pas ici — et le
+     même dégradé pour la rubrique en service.
+
+     Ce bloc redéfinit l'intégralité des jetons : voir l'avertissement en tête
+     de fichier. Chaque rapport annoncé ici a été mesuré, pas estimé. */
+
+  --brand-deep: #17152a;
+  --brand-deep-2: #110f20;
+  --brand-ink: #ece9fb;
+
+  /* Quatre plans, du plus bas au plus haut. Le pas de luminance entre le fond
+     et la carte vaut 1,12:1 — le même qu'en clair, car le rapport de contraste
+     se tasse près du noir et n'ira pas plus loin sans délaver la carte. C'est
+     donc le contour qui porte l'élévation, et non l'ombre. */
+  --bg: #090812;
+  --bg-gradient: radial-gradient(900px 520px at 14% -10%, rgba(99, 102, 241, 0.14), transparent 62%);
+  --surface: #171625;
+  --surface-rgb: 23 22 37;
+  --surface-2: #1e1c30;
+  --surface-hover: #26243a;
+
+  /* Un trait qu'on voit : 1,42:1 sur la carte, 1,63:1 sur le fond.
+     En clair il vaut 1,36:1 et l'ombre fait le reste ; ici il travaille seul. */
+  --border: #302e46;
+  --border-strong: #474463;
+
+  /* Textes, mesurés sur la surface la plus claire où ils apparaissent — le
+     survol, #26243a. Le tertiaire y tient 4,53:1 : sous 4,5:1, un texte d'aide
+     n'aide personne, en sombre comme en clair. */
+  --text: #f1effa;
+  --text-secondary: #aba8c6;
+  --text-tertiary: #8c89a9;
+  --text-on-brand: rgba(255, 255, 255, 0.80);
+
+  /* L'accent a deux métiers, et sur fond sombre un seul ton ne peut pas les
+     faire tous les deux : un indigo assez clair pour se lire sur la carte est
+     trop clair pour porter du blanc. On sépare donc le ton du texte
+     (7,12:1 sur la carte) du fond des boutons pleins, qui reste celui du thème
+     clair et porte du blanc à 5,02:1. */
+  --accent: #a89bff;
+  --accent-hover: #c2b9ff;
+  --accent-fill: #5b4ae8;
+  --accent-fill-hover: #4a3ad4;
+  --accent-soft: rgba(168, 155, 255, 0.12);
+  --accent-ring: rgba(168, 155, 255, 0.32);
+  --accent-contrast: #ffffff;
+
+  /* Les trois états. Sur leur propre fond translucide, chacun tient au moins
+     4,98:1 ; en aplat, c'est une encre sombre qui les surmonte. */
+  --success: #4ade80;
+  --success-contrast: #052e16;
+  --success-bg: rgba(74, 222, 128, 0.15);
+  --success-border: rgba(74, 222, 128, 0.32);
+  --warning: #fbbf24;
+  --warning-contrast: #2a1a00;
+  --warning-bg: rgba(251, 191, 36, 0.15);
+  --warning-border: rgba(251, 191, 36, 0.32);
+  --danger: #fb7185;
+  --danger-contrast: #2b0510;
+  --danger-bg: rgba(251, 113, 133, 0.15);
+  --danger-border: rgba(251, 113, 133, 0.32);
+
+  /* Le rail redevient sombre, donc la surimpression redevient du blanc dilué —
+     sauf la rubrique en service, qui garde son dégradé : c'est elle qu'on
+     cherche des yeux, dans un mode comme dans l'autre. */
+  --brand-wash: rgba(255, 255, 255, 0.07);
+  --brand-wash-strong: #5b4ae8;
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(255, 255, 255, 0.14);
+  --brand-quiet: rgba(255, 255, 255, 0.74);
+  --brand-glow: rgba(139, 92, 246, 0.18);
+  --brand-sheen: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --brand-pill: #6d5ef0;
+  --brand-pill-ink: #ffffff;
+
+  /* Une ombre noire sur un fond presque noir ne change rien : mesuré, le fond
+     assombri de 22 % ne s'écarte du fond que de 1,01:1. On la garde pour le
+     peu qu'elle donne sous les fenêtres flottantes, et on compte sur le trait. */
+  --shadow-ink: 0 0 0;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --title-weight: 700;
+  --title-tracking: -0.022em;
+  --h1-size: 1.65rem;
+}
+
+:root[data-palette="institutionnel"],
+[data-palette-preview="institutionnel"] {
+  /* Marque : bleu profond mais lumineux, constant dans les deux thèmes */
+  --brand-deep: #0b46d1;
+  --brand-deep-2: #0a2f8f;
+  --brand-ink: #ffffff;
+
+  /* Surfaces */
+  --bg: #eef1f6;
+  --surface: #ffffff;
+  --surface-rgb: 255 255 255;
+  --surface-2: #f7f9fc;
+  --surface-hover: #f2f6fd;
+  --border: #d5dce6;
+  --border-strong: #b9c4d4;
+
+  /* Texte */
+  --text: #10193a;
+  --text-secondary: #55618a;
+  /* Assez sombre pour être lu : sous 4,5:1, un texte d'aide n'aide personne.
+     Mesuré sur la surface la plus claire où il apparaît. */
+  --text-tertiary: #68738c;
+  --text-on-brand: rgba(255, 255, 255, 0.78);
+
+  /* Accent interactif */
+  --accent: #0a66ff;
+  --accent-hover: #0b52cc;
+  /* En clair, le ton de l'accent porte déjà du blanc : le fond des boutons
+     pleins est le même. En sombre, il ne peut pas l'être — voir le bloc
+     correspondant. */
+  --accent-fill: var(--accent);
+  --accent-fill-hover: var(--accent-hover);
+  --accent-soft: #e8f0ff;
+  --accent-ring: rgba(10, 102, 255, 0.24);
+  --accent-contrast: #ffffff;
+
+  /* États */
+  --success: #0a7d32;
+  /* blanc sur vert profond : 5,26:1 */
+  --success-contrast: #ffffff;
+  --success-bg: #e7f4ec;
+  --success-border: #b6ddc4;
+  --warning: #96560a;
+  --warning-bg: #fdf2e3;
+  --warning-border: #efd3a8;
+  --danger: #c8102e;
+  /* blanc sur rouge profond : 5,88:1 */
+  --danger-contrast: #ffffff;
+  --danger-bg: #fdecef;
+  --danger-border: #f2c2ca;
+
+  /* La teinte de l’ombre appartient à la palette ; sa géométrie, non :
+     elle est bâtie une seule fois, plus bas, à partir de cette encre. */
+  --shadow-ink: 16 25 58;
+
+  --radius: 9px;
+  --radius-lg: 16px;
+  /* L'écriture appartient à la palette : celle-ci garde la pile du système,
+     telle qu'elle était avant qu'une palette vienne en proposer une autre. */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Le poids et le serrage des titres : une palette peut vouloir une voix plus
+     haute sans qu'on aille retoucher chaque règle. */
+  --title-weight: 600;
+  --title-tracking: -0.01em;
+  --h1-size: 1.4rem;
+
+  /* Le rail : ce qui se pose PAR-DESSUS la couleur de marque. C'était écrit en
+     blanc translucide dans les règles, ce qui interdisait toute palette dont le
+     rail ne serait pas sombre. */
+  --brand-wash: rgba(255, 255, 255, 0.09);
+  --brand-wash-strong: rgba(255, 255, 255, 0.14);
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(255, 255, 255, 0.18);
+  --brand-quiet: rgba(255, 255, 255, 0.74);
+  --brand-glow: rgba(255, 255, 255, 0.14);
+  --brand-sheen: none;
+  --brand-pill: #ffffff;
+  --brand-pill-ink: var(--brand-deep);
+
+  /* La nappe du fond, quand la palette en veut une. */
+  --bg-gradient: none;
+
+}
+
+:root[data-palette="institutionnel"][data-theme="dark"] {
+  /* Institutionnel, en sombre : des neutres à peine froids, jamais marine.
+
+     Ce bloc redéfinit l'intégralité des jetons : voir l'avertissement en tête
+     de fichier. Chaque rapport annoncé ici a été mesuré, pas estimé. */
+
+  --brand-deep: #123a86;
+  --brand-deep-2: #0b2456;
+  --brand-ink: #ffffff;
+
+  /* Quatre plans, du plus bas au plus haut. Le pas de luminance entre le fond
+     et la carte vaut 1,13:1 — le même qu'en clair, car le rapport de
+     contraste se tasse près du noir et n'ira pas plus loin sans délaver la
+     carte. C'est donc le contour qui porte l'élévation, et non l'ombre. */
+  --bg: #090b0f;
+  --surface: #171a22;
+  --surface-rgb: 23 26 34;
+  --surface-2: #1e222b;
+  --surface-hover: #262a34;
+
+  /* Un trait qu'on voit : 1,43:1 sur la carte, 1,62:1 sur le fond.
+     En clair il vaut 1,38:1 et l'ombre fait le reste ; ici il travaille seul. */
+  --border: #31363f;
+  --border-strong: #474d5a;
+
+  /* Textes, mesurés sur la surface la plus claire où ils apparaissent — le
+     survol, #262a34. Le tertiaire y tient 4,55:1 : sous 4,5:1, un texte
+     d'aide n'aide personne, en sombre comme en clair. */
+  --text: #f0f1f5;
+  --text-secondary: #a9afbe;
+  --text-tertiary: #8a91a2;
+  --text-on-brand: rgba(255, 255, 255, 0.80);
+
+  /* L'accent a deux métiers, et sur fond sombre un seul ton ne peut pas les
+     faire tous les deux : un bleu assez clair pour se lire sur la carte est
+     trop clair pour porter du blanc. On sépare donc le ton du texte
+     (6,58:1 sur la carte) du fond des boutons pleins, qui reste celui
+     du thème clair et porte du blanc à 4,82:1.
+
+     Le fond « doux » reste à 10 % là où le clair se permet un aplat franc :
+     au-delà, l'étiquette d'accent s'éclaircit assez pour que son propre texte
+     repasse sous 4,5:1. Mesuré à l'écran, pas au tableau. */
+  --accent: #6f9dff;
+  --accent-hover: #8fb2ff;
+  --accent-fill: #0a66ff;
+  --accent-fill-hover: #0b52cc;
+  --accent-soft: rgba(111, 157, 255, 0.1);
+  --accent-ring: rgba(111, 157, 255, 0.32);
+  --accent-contrast: #ffffff;
+
+  /* Les trois états. Sur leur propre fond translucide, chacun tient au moins
+     4,86:1 ; en aplat, c'est une encre sombre qui les surmonte. */
+  --success: #4ade80;
+  --success-contrast: #052e16;
+  --success-bg: rgba(74, 222, 128, 0.14);
+  --success-border: rgba(74, 222, 128, 0.32);
+  --warning: #fbbf24;
+  --warning-contrast: #2a1a00;
+  --warning-bg: rgba(251, 191, 36, 0.14);
+  --warning-border: rgba(251, 191, 36, 0.32);
+  --danger: #fb7185;
+  --danger-contrast: #2b0510;
+  --danger-bg: rgba(251, 113, 133, 0.14);
+  --danger-border: rgba(251, 113, 133, 0.32);
+
+  /* Une ombre noire sur un fond presque noir ne change rien : mesuré, le fond
+     assombri de 22 % ne s'écarte du fond que de 1,01:1. On la garde pour le
+     peu qu'elle donne sous les fenêtres flottantes, et on compte sur le trait. */
+  --shadow-ink: 0 0 0;
+
+  /* Le rail : ce qui se pose PAR-DESSUS la couleur de marque. C'était écrit en
+     blanc translucide dans les règles, ce qui interdisait toute palette dont le
+     rail ne serait pas sombre. */
+  --brand-wash: rgba(255, 255, 255, 0.09);
+  --brand-wash-strong: rgba(255, 255, 255, 0.14);
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(255, 255, 255, 0.18);
+  --brand-quiet: rgba(255, 255, 255, 0.74);
+  --brand-glow: rgba(255, 255, 255, 0.14);
+  --brand-sheen: none;
+  --brand-pill: #ffffff;
+  --brand-pill-ink: var(--brand-deep);
+
+  /* La nappe du fond, quand la palette en veut une. */
+  --bg-gradient: none;
+
+
+  /* La voix des titres, reprise telle quelle : le bloc sombre du défaut la pose
+     aussi, et à spécificité égale c'est le dernier écrit qui l'emporte. */
+  --title-weight: 600;
+  --title-tracking: -0.01em;
+  --h1-size: 1.4rem;
+  /* Les angles, repris du bloc clair : il n'est plus « :root », donc il ne les
+     transmet plus à ce bloc-ci. */
+  --radius: 9px;
+  --radius-lg: 16px;
+}
+
+
+/* ---------- Palette « Moderne » : ardoise et indigo ---------- */
+/* Neutres presque sans teinte, un indigo violacé pour l'action, des angles
+   nettement plus doux : le vocabulaire des interfaces contemporaines. */
+
+:root[data-palette="moderne"],
+[data-palette-preview="moderne"] {
+  --brand-deep: #242640;
+  --brand-deep-2: #15162a;
+  --brand-ink: #ffffff;
+
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --surface-rgb: 255 255 255;
+  --surface-2: #fafafd;
+  --surface-hover: #f2f1fd;
+  --border: #e4e5f0;
+  --border-strong: #ccced2;
+
+  --text: #16172a;
+  --text-secondary: #545675;
+  /* Assez sombre pour être lu : sous 4,5:1, un texte d'aide n'aide personne.
+     Mesuré sur la surface la plus claire où il apparaît. */
+  --text-tertiary: #6c6f89;
+  --text-on-brand: rgba(255, 255, 255, 0.76);
+
+  --accent: #5546d6;
+  --accent-hover: #4638bd;
+  --accent-fill: var(--accent);
+  --accent-fill-hover: var(--accent-hover);
+  --accent-soft: #eeecfe;
+  --accent-ring: rgba(85, 70, 214, 0.24);
+  --accent-contrast: #ffffff;
+
+  --success: #0b7150;
+  /* blanc sur vert profond : 6,01:1 */
+  --success-contrast: #ffffff;
+  --success-bg: #e7f6f0;
+  --success-border: #b2e0ce;
+  --warning: #8d5a06;
+  --warning-bg: #fdf3e4;
+  --warning-border: #edd3a6;
+  --danger: #c62648;
+  /* blanc sur rouge profond : 5,57:1 */
+  --danger-contrast: #ffffff;
+  --danger-bg: #fdecf0;
+  --danger-border: #f4c1cd;
+
+  /* Ombres plus larges et plus douces : la profondeur remplace les traits. */
+  /* La teinte de l’ombre appartient à la palette ; sa géométrie, non :
+     elle est bâtie une seule fois, plus bas, à partir de cette encre. */
+  --shadow-ink: 22 23 42;
+
+  --radius: 10px;
+  --radius-lg: 18px;
+
+  /* Le rail : ce qui se pose PAR-DESSUS la couleur de marque. C'était écrit en
+     blanc translucide dans les règles, ce qui interdisait toute palette dont le
+     rail ne serait pas sombre. */
+  --brand-wash: rgba(255, 255, 255, 0.09);
+  --brand-wash-strong: rgba(255, 255, 255, 0.14);
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(255, 255, 255, 0.18);
+  --brand-quiet: rgba(255, 255, 255, 0.74);
+  --brand-glow: rgba(255, 255, 255, 0.14);
+  --brand-sheen: none;
+  --brand-pill: #ffffff;
+  --brand-pill-ink: var(--brand-deep);
+
+  /* La nappe du fond, quand la palette en veut une. */
+  --bg-gradient: none;
+
+
+  /* L'écriture d'origine : cette palette ne la change pas. */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Le poids et le serrage des titres : une palette peut vouloir une voix plus
+     haute sans qu'on aille retoucher chaque règle. */
+  --title-weight: 600;
+  --title-tracking: -0.01em;
+  --h1-size: 1.4rem;
+}
+
+:root[data-palette="moderne"][data-theme="dark"] {
+  /* Moderne, en sombre : des neutres sans teinte, un indigo qui reste vif.
+
+     Ce bloc redéfinit l'intégralité des jetons : voir l'avertissement en tête
+     de fichier. Chaque rapport annoncé ici a été mesuré, pas estimé. */
+
+  --brand-deep: #2b2d4d;
+  --brand-deep-2: #1a1b2e;
+  --brand-ink: #ffffff;
+
+  /* Quatre plans, du plus bas au plus haut. Le pas de luminance entre le fond
+     et la carte vaut 1,11:1 — le même qu'en clair, car le rapport de
+     contraste se tasse près du noir et n'ira pas plus loin sans délaver la
+     carte. C'est donc le contour qui porte l'élévation, et non l'ombre. */
+  --bg: #0a0a0d;
+  --surface: #17171c;
+  --surface-rgb: 23 23 28;
+  --surface-2: #1d1d24;
+  --surface-hover: #26262f;
+
+  /* Un trait qu'on voit : 1,39:1 sur la carte, 1,54:1 sur le fond.
+     En clair il vaut 1,38:1 et l'ombre fait le reste ; ici il travaille seul. */
+  --border: #31313b;
+  --border-strong: #484855;
+
+  /* Textes, mesurés sur la surface la plus claire où ils apparaissent — le
+     survol, #26262f. Le tertiaire y tient 4,72:1 : sous 4,5:1, un texte
+     d'aide n'aide personne, en sombre comme en clair. */
+  --text: #f0f0f4;
+  --text-secondary: #a9a9ba;
+  --text-tertiary: #8f8fa1;
+  --text-on-brand: rgba(255, 255, 255, 0.78);
+
+  /* L'accent a deux métiers, et sur fond sombre un seul ton ne peut pas les
+     faire tous les deux : un bleu assez clair pour se lire sur la carte est
+     trop clair pour porter du blanc. On sépare donc le ton du texte
+     (7,01:1 sur la carte) du fond des boutons pleins, qui reste celui
+     du thème clair et porte du blanc à 6,49:1.
+
+     Le fond « doux » reste à 10 % là où le clair se permet un aplat franc :
+     au-delà, l'étiquette d'accent s'éclaircit assez pour que son propre texte
+     repasse sous 4,5:1. Mesuré à l'écran, pas au tableau. */
+  --accent: #a394ff;
+  --accent-hover: #bcb1ff;
+  --accent-fill: #5546d6;
+  --accent-fill-hover: #4638bd;
+  --accent-soft: rgba(163, 148, 255, 0.1);
+  --accent-ring: rgba(163, 148, 255, 0.32);
+  --accent-contrast: #ffffff;
+
+  /* Les trois états. Sur leur propre fond translucide, chacun tient au moins
+     4,99:1 ; en aplat, c'est une encre sombre qui les surmonte. */
+  --success: #4ade80;
+  --success-contrast: #052e16;
+  --success-bg: rgba(74, 222, 128, 0.14);
+  --success-border: rgba(74, 222, 128, 0.32);
+  --warning: #fbbf24;
+  --warning-contrast: #2a1a00;
+  --warning-bg: rgba(251, 191, 36, 0.14);
+  --warning-border: rgba(251, 191, 36, 0.32);
+  --danger: #fb7185;
+  --danger-contrast: #2b0510;
+  --danger-bg: rgba(251, 113, 133, 0.14);
+  --danger-border: rgba(251, 113, 133, 0.32);
+
+  /* Une ombre noire sur un fond presque noir ne change rien : mesuré, le fond
+     assombri de 22 % ne s'écarte du fond que de 1,01:1. On la garde pour le
+     peu qu'elle donne sous les fenêtres flottantes, et on compte sur le trait. */
+  --shadow-ink: 0 0 0;
+  --radius: 10px;
+  --radius-lg: 18px;
+
+  /* Le rail : ce qui se pose PAR-DESSUS la couleur de marque. C'était écrit en
+     blanc translucide dans les règles, ce qui interdisait toute palette dont le
+     rail ne serait pas sombre. */
+  --brand-wash: rgba(255, 255, 255, 0.09);
+  --brand-wash-strong: rgba(255, 255, 255, 0.14);
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(255, 255, 255, 0.18);
+  --brand-quiet: rgba(255, 255, 255, 0.74);
+  --brand-glow: rgba(255, 255, 255, 0.14);
+  --brand-sheen: none;
+  --brand-pill: #ffffff;
+  --brand-pill-ink: var(--brand-deep);
+
+  /* La nappe du fond, quand la palette en veut une. */
+  --bg-gradient: none;
+
+
+  /* La voix des titres, reprise telle quelle : le bloc sombre du défaut la pose
+     aussi, et à spécificité égale c'est le dernier écrit qui l'emporte. */
+  --title-weight: 600;
+  --title-tracking: -0.01em;
+  --h1-size: 1.4rem;
+}
+
+/* ---------- Palette « Vif » : magenta et violet ---------- */
+/* Couleurs franches, navigation en dégradé violet-magenta, fonds légèrement
+   teintés. Le contraste du texte reste celui d'une application de travail. */
+
+:root[data-palette="vif"],
+[data-palette-preview="vif"] {
+  --brand-deep: #7c12c8;
+  --brand-deep-2: #bd0f72;
+  --brand-ink: #ffffff;
+
+  --bg: #fbf6fc;
+  --surface: #ffffff;
+  --surface-rgb: 255 255 255;
+  --surface-2: #fdf8fe;
+  --surface-hover: #fbedf7;
+  --border: #ecdcef;
+  --border-strong: #d6bcdc;
+
+  --text: #21102a;
+  --text-secondary: #6a4675;
+  /* Assez sombre pour être lu : sous 4,5:1, un texte d'aide n'aide personne.
+     Mesuré sur la surface la plus claire où il apparaît. */
+  --text-tertiary: #86668f;
+  --text-on-brand: rgba(255, 255, 255, 0.82);
+
+  --accent: #cc1268;
+  --accent-hover: #a80d55;
+  --accent-fill: var(--accent);
+  --accent-fill-hover: var(--accent-hover);
+  --accent-soft: #ffe8f2;
+  --accent-ring: rgba(204, 18, 104, 0.26);
+  --accent-contrast: #ffffff;
+
+  --success: #067a52;
+  /* blanc sur vert profond : 5,37:1 */
+  --success-contrast: #ffffff;
+  --success-bg: #e1f8ee;
+  --success-border: #9fe4c6;
+  --warning: #a8560b;
+  --warning-bg: #fff0e0;
+  --warning-border: #ffcd9c;
+  --danger: #d2153b;
+  /* blanc sur rouge profond : 5,37:1 */
+  --danger-contrast: #ffffff;
+  --danger-bg: #ffe9ed;
+  --danger-border: #ffbcc7;
+
+  /* La teinte de l’ombre appartient à la palette ; sa géométrie, non :
+     elle est bâtie une seule fois, plus bas, à partir de cette encre. */
+  --shadow-ink: 76 12 62;
+
+  --radius: 9px;
+  --radius-lg: 16px;
+
+  /* Le rail : ce qui se pose PAR-DESSUS la couleur de marque. C'était écrit en
+     blanc translucide dans les règles, ce qui interdisait toute palette dont le
+     rail ne serait pas sombre. */
+  --brand-wash: rgba(255, 255, 255, 0.09);
+  --brand-wash-strong: rgba(255, 255, 255, 0.14);
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(255, 255, 255, 0.18);
+  --brand-quiet: rgba(255, 255, 255, 0.74);
+  --brand-glow: rgba(255, 255, 255, 0.14);
+  --brand-sheen: none;
+  --brand-pill: #ffffff;
+  --brand-pill-ink: var(--brand-deep);
+
+  /* La nappe du fond, quand la palette en veut une. */
+  --bg-gradient: none;
+
+
+  /* L'écriture d'origine : cette palette ne la change pas. */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Le poids et le serrage des titres : une palette peut vouloir une voix plus
+     haute sans qu'on aille retoucher chaque règle. */
+  --title-weight: 600;
+  --title-tracking: -0.01em;
+  --h1-size: 1.4rem;
+}
+
+:root[data-palette="vif"][data-theme="dark"] {
+  /* Vif, en sombre : des neutres teintés de prune, un magenta franc.
+
+     Ce bloc redéfinit l'intégralité des jetons : voir l'avertissement en tête
+     de fichier. Chaque rapport annoncé ici a été mesuré, pas estimé. */
+
+  --brand-deep: #7c12c8;
+  --brand-deep-2: #a1085f;
+  --brand-ink: #ffffff;
+
+  /* Quatre plans, du plus bas au plus haut. Le pas de luminance entre le fond
+     et la carte vaut 1,10:1 — le même qu'en clair, car le rapport de
+     contraste se tasse près du noir et n'ira pas plus loin sans délaver la
+     carte. C'est donc le contour qui porte l'élévation, et non l'ombre. */
+  --bg: #0d080f;
+  --surface: #1c141f;
+  --surface-rgb: 28 20 31;
+  --surface-2: #241b28;
+  --surface-hover: #2d2232;
+
+  /* Un trait qu'on voit : 1,40:1 sur la carte, 1,54:1 sur le fond.
+     En clair il vaut 1,38:1 et l'ombre fait le reste ; ici il travaille seul. */
+  --border: #3b2d40;
+  --border-strong: #54425b;
+
+  /* Textes, mesurés sur la surface la plus claire où ils apparaissent — le
+     survol, #2d2232. Le tertiaire y tient 4,78:1 : sous 4,5:1, un texte
+     d'aide n'aide personne, en sombre comme en clair. */
+  --text: #f6eff7;
+  --text-secondary: #c0a8c6;
+  --text-tertiary: #a288a9;
+  --text-on-brand: rgba(255, 255, 255, 0.84);
+
+  /* L'accent a deux métiers, et sur fond sombre un seul ton ne peut pas les
+     faire tous les deux : un bleu assez clair pour se lire sur la carte est
+     trop clair pour porter du blanc. On sépare donc le ton du texte
+     (7,44:1 sur la carte) du fond des boutons pleins, qui reste celui
+     du thème clair et porte du blanc à 5,45:1.
+
+     Le fond « doux » reste à 10 % là où le clair se permet un aplat franc :
+     au-delà, l'étiquette d'accent s'éclaircit assez pour que son propre texte
+     repasse sous 4,5:1. Mesuré à l'écran, pas au tableau. */
+  --accent: #ff7ab5;
+  --accent-hover: #ff9cc8;
+  --accent-fill: #cc1268;
+  --accent-fill-hover: #a80d55;
+  --accent-soft: rgba(255, 122, 181, 0.1);
+  --accent-ring: rgba(255, 122, 181, 0.32);
+  --accent-contrast: #ffffff;
+
+  /* Les trois états. Sur leur propre fond translucide, chacun tient au moins
+     4,98:1 ; en aplat, c'est une encre sombre qui les surmonte. */
+  --success: #4ade80;
+  --success-contrast: #052e16;
+  --success-bg: rgba(74, 222, 128, 0.15);
+  --success-border: rgba(74, 222, 128, 0.32);
+  --warning: #fbbf24;
+  --warning-contrast: #2a1a00;
+  --warning-bg: rgba(251, 191, 36, 0.15);
+  --warning-border: rgba(251, 191, 36, 0.32);
+  --danger: #fb7185;
+  --danger-contrast: #2b0510;
+  --danger-bg: rgba(251, 113, 133, 0.15);
+  --danger-border: rgba(251, 113, 133, 0.32);
+
+  /* Une ombre noire sur un fond presque noir ne change rien : mesuré, le fond
+     assombri de 22 % ne s'écarte du fond que de 1,01:1. On la garde pour le
+     peu qu'elle donne sous les fenêtres flottantes, et on compte sur le trait. */
+  --shadow-ink: 0 0 0;
+  --radius: 9px;
+  --radius-lg: 16px;
+
+  /* Le rail : ce qui se pose PAR-DESSUS la couleur de marque. C'était écrit en
+     blanc translucide dans les règles, ce qui interdisait toute palette dont le
+     rail ne serait pas sombre. */
+  --brand-wash: rgba(255, 255, 255, 0.09);
+  --brand-wash-strong: rgba(255, 255, 255, 0.14);
+  --brand-ink-strong: #ffffff;
+  --brand-line: rgba(255, 255, 255, 0.18);
+  --brand-quiet: rgba(255, 255, 255, 0.74);
+  --brand-glow: rgba(255, 255, 255, 0.14);
+  --brand-sheen: none;
+  --brand-pill: #ffffff;
+  --brand-pill-ink: var(--brand-deep);
+
+  /* La nappe du fond, quand la palette en veut une. */
+  --bg-gradient: none;
+
+
+  /* La voix des titres, reprise telle quelle : le bloc sombre du défaut la pose
+     aussi, et à spécificité égale c'est le dernier écrit qui l'emporte. */
+  --title-weight: 600;
+  --title-tracking: -0.01em;
+  --h1-size: 1.4rem;
+}
+
+/* ---------- Base ---------- */
+
+* { box-sizing: border-box; }
+
+/* =========================================================================
+   Élévation
+   =========================================================================
+
+   Une ombre plate d'une seule couche ne ressemble à rien de réel : la lumière
+   du monde produit à la fois un contact serré sous l'objet et une diffusion
+   large autour. D'où deux couches par niveau, l'une courte et dense, l'autre
+   longue et ténue — c'est ce qui fait qu'une surface a l'air posée au-dessus
+   d'une autre plutôt que dessinée dessus.
+
+   Chaque palette fournit son encre (--shadow-ink) ; la géométrie est commune,
+   sans quoi le thème sombre hériterait d'ombres calculées pour du papier.
+   ========================================================================= */
+
+:root {
+  /* Ce que le navigateur dessine lui-même et que la feuille ne touche pas :
+     la liste dépliée d'un menu, le calendrier d'un champ de date, la barre de
+     défilement, le jaune du remplissage automatique. Sans cette ligne, tout
+     cela reste blanc au milieu d'une page noire. */
+  color-scheme: light;
+
+  --shadow-xs:
+    0 1px 2px rgb(var(--shadow-ink) / 0.06);
+  --shadow-sm:
+    0 1px 2px rgb(var(--shadow-ink) / 0.06),
+    0 4px 12px rgb(var(--shadow-ink) / 0.06);
+  --shadow-md:
+    0 2px 4px rgb(var(--shadow-ink) / 0.06),
+    0 12px 28px rgb(var(--shadow-ink) / 0.10);
+  --shadow-lg:
+    0 4px 8px rgb(var(--shadow-ink) / 0.07),
+    0 24px 48px rgb(var(--shadow-ink) / 0.14);
+  /* Le niveau des choses qui flottent vraiment : fenêtres, menus, panneaux. */
+  --shadow-float:
+    0 8px 16px rgb(var(--shadow-ink) / 0.10),
+    0 32px 72px rgb(var(--shadow-ink) / 0.22);
+
+  /* Le liseré clair au sommet d'une surface : une arête qui accroche la
+     lumière, ce que fait tout objet réel et aucun rectangle plat. */
+  --edge-light: inset 0 1px 0 rgb(255 255 255 / 0.6);
+
+  /* Le trait qui tient l'arête d'une carte. Sur blanc, une encre d'ombre très
+     diluée suffit et se fond dans l'ombre portée ; sur noir, il faut un vrai
+     trait clair, puisque l'ombre ne porte plus. */
+  --card-border: rgb(var(--shadow-ink) / 0.06);
+
+  --radius-sm: 6px;
+  --radius-pill: 999px;
+
+  /* Verre : le fond d'une barre ou d'une fenêtre qui laisse deviner ce qu'il
+     y a dessous, sans jamais laisser le texte se battre avec. */
+  --glass: rgb(var(--surface-rgb) / 0.78);
+  --glass-blur: saturate(180%) blur(20px);
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Sur fond sombre, une ombre ne se voit plus — mesuré : un noir à 22 % posé
+     sur le fond ne s'en écarte que de 1,01:1. Ce sont donc l'arête claire et
+     le contour qui séparent les plans, et l'arête monte en conséquence. */
+  --edge-light: inset 0 1px 0 rgb(255 255 255 / 0.10);
+  --card-border: var(--border);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  /* Un aplat uniforme ne donne rien à survoler : la nappe très douce sous les
+     surfaces est ce qui les fait paraître posées au-dessus de quelque chose. */
+  background:
+    var(--bg-gradient),
+    radial-gradient(1200px 600px at 12% -8%, rgb(var(--shadow-ink) / 0.05), transparent 60%),
+    var(--bg);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+body { min-height: 100vh; }
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: var(--title-weight);
+  letter-spacing: var(--title-tracking);
+  color: var(--text);
+}
+h1 { font-size: var(--h1-size); }
+h2 { font-size: 1.2rem; }
+h3 { font-size: 1rem; }
+p { line-height: 1.55; margin: 0; }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.muted { color: var(--text-secondary); }
+.small { font-size: 0.82rem; }
+/* Une empreinte SHA-256 est une chaîne de 64 caractères sans espace : sans
+   coupure autorisée, elle pousse sa carte au-delà de l'écran sur mobile. */
+.mono { font-family: var(--font-mono); font-size: 0.85em; overflow-wrap: anywhere; }
+.text-warning { color: var(--warning); }
+.text-danger { color: var(--danger); }
+
+/* ---------- Marque ---------- */
+
+.brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  background: var(--brand-deep);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+  flex-shrink: 0;
+}
+
+.brand-text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.brand-name { font-weight: 600; font-size: 0.92rem; }
+.brand-panel { font-size: 0.72rem; color: var(--text-tertiary); }
+
+/* ---------- Structure : navigation latérale + contenu ---------- */
+
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  min-height: 100vh;
+  /* La gouttière autour du rail : sans elle, la barre est une bande collée au
+     bord de l'écran ; avec elle, c'est un objet posé sur la page. */
+  gap: 14px;
+  padding: 14px;
+  padding-inline-end: 0;
+}
+
+.sidebar {
+  background: linear-gradient(168deg, var(--brand-deep) 0%, var(--brand-deep-2) 100%);
+  color: var(--brand-ink);
+  display: flex;
+  flex-direction: column;
+  padding: 18px 12px;
+  position: sticky;
+  top: 14px;
+  height: calc(100vh - 28px);
+  padding-bottom: 14px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  /* Vingt-cinq entrées ne tiennent pas sur l'écran d'un portable : le rail
+     défile. Il ne le faisait pas auparavant — les dernières rubriques étaient
+     simplement hors d'atteinte, coupées par le bas de la fenêtre. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--brand-line) transparent;
+}
+
+/* La marque reste en tête pendant que les rubriques défilent sous elle. */
+.sidebar-brand {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, var(--brand-deep) 72%, transparent 100%);
+}
+
+/* Une lueur au sommet du rail : la marque prend la lumière, comme une arête. */
+.sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 160px;
+  background: radial-gradient(120% 100% at 50% 0%, var(--brand-glow), transparent 70%);
+  pointer-events: none;
+}
+.sidebar > * { position: relative; }
+
+.sidebar .brand-mark { background: var(--brand-wash-strong); color: var(--brand-ink-strong); }
+.sidebar .brand-name { color: var(--brand-ink); }
+.sidebar .brand-panel { color: var(--brand-quiet); }
+
+.sidebar-brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 20px; }
+.sidebar-foot { flex-shrink: 0; }
+
+.sidebar-nav { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; }
+
+.side-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: none;
+  border-inline-start: 3px solid transparent;
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: transparent;
+  color: var(--text-on-brand);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.side-link:hover { background: var(--brand-wash); color: var(--brand-ink); text-decoration: none; }
+/* La rubrique en service : un aplat partout, et un dégradé là où la palette en
+   pose un. « background-image » après « background » : la couleur reste celle
+   que le contraste a mesurée, le dégradé n'est qu'un vernis par-dessus. */
+.side-link.is-active {
+  background: var(--brand-wash-strong);
+  background-image: var(--brand-sheen);
+  color: var(--brand-ink-strong);
+  border-inline-start-color: var(--brand-wash-strong);
+  font-weight: 600;
+}
+.side-link svg { flex-shrink: 0; }
+.side-link-label { flex: 1; }
+
+.side-link-quiet { font-size: 0.83rem; color: var(--brand-quiet); }
+
+.nav-badge {
+  min-width: 19px;
+  height: 19px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: var(--brand-pill);
+  color: var(--brand-pill-ink);
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 14px;
+  margin-top: 14px;
+  border-top: 1px solid var(--brand-line);
+}
+
+.app-main { display: flex; flex-direction: column; min-width: 0; }
+
+/* ---------- Bandeau de contenu ---------- */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 24px;
+  /* Du verre plutôt qu'un bandeau opaque : le contenu passe dessous et se
+     devine, ce qui dit à l'œil lequel des deux plans est au-dessus. */
+  background: var(--glass);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid rgb(var(--shadow-ink) / 0.07);
+}
+
+/* Le bandeau et les onglets de l'écran collent ensemble en haut de la colonne.
+   Ensemble, et non chacun de son côté : la hauteur du bandeau change avec la
+   largeur de l'écran — soixante-dix pixels sur un portable, cent douze sur un
+   téléphone, où le compte connecté passe à la ligne. Une barre d'onglets calée
+   sur une hauteur devinée se serait glissée dessous. */
+.app-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Sans le repli, le verre laisse lire le texte au travers : on rend le fond
+   opaque là où le navigateur ne sait pas flouter. */
+@supports not (backdrop-filter: blur(1px)) {
+  .app-header { background: var(--surface); }
+}
+
+.app-header-title h1 { font-size: 1.15rem; letter-spacing: -0.015em; }
+.app-header-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 1px; }
+.app-header-side, .app-header-right { display: flex; align-items: center; gap: 12px; }
+
+.user-chip { display: flex; align-items: center; gap: 9px; padding-inline-end: 12px; border-inline-end: 1px solid var(--border); }
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-fill);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.user-meta { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
+.user-name { font-size: 0.83rem; font-weight: 600; }
+.user-role { font-size: 0.72rem; color: var(--text-tertiary); }
+
+.page { padding: 24px 24px 72px; max-width: 1320px; width: 100%; }
+
+.page-intro { margin-bottom: 18px; }
+.page-intro h2 { margin-bottom: 3px; }
+.page-intro p { font-size: 0.87rem; color: var(--text-secondary); }
+
+/* ---------- Sélecteur de thème ---------- */
+
+.theme-toggle {
+  display: inline-flex;
+  gap: 1px;
+  padding: 2px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.theme-opt, .theme-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 24px;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.theme-opt:hover, .theme-btn:hover { color: var(--text); }
+.theme-opt.is-active, .theme-btn.is-active { background: var(--accent-fill); color: #fff; }
+
+/* Dans le rail, le sélecteur occupe toute la largeur disponible et se lit
+   comme ce qu'il est : trois choix entre lesquels on tranche. Tassé dans un
+   coin, il ressemblait à un défaut d'affichage plutôt qu'à un réglage. */
+.sidebar .theme-toggle {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  align-self: stretch;
+  padding: 3px;
+  border-color: var(--brand-line);
+  background: var(--brand-wash);
+}
+.sidebar .theme-opt, .sidebar .theme-btn { width: auto; height: 28px; border-radius: var(--radius-sm); color: var(--brand-quiet); }
+.sidebar .theme-opt:hover, .sidebar .theme-btn:hover { background: var(--brand-wash); color: var(--brand-ink); }
+.sidebar .theme-opt.is-active, .sidebar .theme-btn.is-active { background: var(--brand-pill); color: var(--brand-pill-ink); }
+
+/* ---------- Cartes ---------- */
+
+.card {
+  background: var(--surface);
+  /* En clair, une carte se détache par son ombre et le liseré ne fait que
+     tenir l'arête. En sombre, l'ombre ne porte plus et le liseré devient le
+     seul séparateur : le jeton change de valeur avec le thème. */
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm), var(--edge-light);
+  padding: 20px 22px;
+  /* Sans cela, un tableau large impose sa largeur à la carte (min-width auto
+     des éléments de grille) au lieu de défiler dans .table-wrap. */
+  min-width: 0;
+}
+.card + .card { margin-top: 14px; }
+/* Rythme vertical constant entre les blocs d'une page, quel que soit leur type. */
+.page > .card,
+.page > .grid-2,
+.page > .stack,
+.page > .tool-grid,
+.page > .people-grid,
+.page > .people,
+.page > .mail-layout { margin-bottom: 14px; }
+.page > *:last-child { margin-bottom: 0; }
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.card h3 { font-size: 1rem; letter-spacing: -0.01em; }
+.card-sub { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
+.hint { margin-top: 12px; font-size: 0.78rem; color: var(--text-tertiary); line-height: 1.5; }
+
+.grid-2 { display: grid; grid-template-columns: 360px 1fr; gap: 14px; align-items: start; }
+.stack { display: grid; gap: 14px; }
+
+/* ---------- Indicateurs ---------- */
+
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid rgb(var(--shadow-ink) / 0.06);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm), var(--edge-light);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  transition: transform 0.18s var(--ease-out), box-shadow 0.18s var(--ease-out);
+}
+/* Le liseré d'accent devient une lueur sous la pastille : la couleur sert à
+   désigner, plus à border. */
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md), var(--edge-light); }
+.stat-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  box-shadow: 0 0 0 1px rgb(var(--shadow-ink) / 0.04), 0 6px 14px var(--accent-ring);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.stat-body { display: flex; flex-direction: column; min-width: 0; }
+.stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.stat-label { font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px; }
+
+/* ---------- Onglets de page ---------- */
+
+/* Les onglets d'un écran vivaient dans le rail, mêlés aux liens vers les autres
+   services : on ne voyait pas où l'on changeait de page et où l'on changeait
+   d'onglet. Le rail ne porte plus que les services, les mêmes partout ; les
+   onglets tiennent désormais une barre sous l'en-tête, là où l'on regarde
+   quand on vient de lire le titre.
+
+   Ils gardent leurs classes « tab-btn » et leur « data-tab » : le script qui
+   les pilote (public/js/admin.js) n'a pas eu à changer d'une ligne. */
+.page-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 9px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  /* Elle suit l'en-tête sans se coller elle-même : « .app-top » les emporte
+     tous les deux, ce qui évite d'avoir à connaître la hauteur du bandeau. */
+  /* Une barre qui défile n'a pas besoin de le dire : la coupe des onglets sur
+     le bord s'en charge, et l'ascenseur volerait de la hauteur. */
+  scrollbar-width: none;
+}
+.page-tabs::-webkit-scrollbar { display: none; }
+
+.page-tabs .tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  padding: 7px 13px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: none;
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.83rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.13s var(--ease-out), color 0.13s var(--ease-out);
+}
+.page-tabs .tab-btn:hover { background: var(--surface-hover); color: var(--text); }
+.page-tabs .tab-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+/* L'onglet ouvert : rempli, pas seulement souligné. Un trait de deux pixels se
+   perd sur une barre qui défile, et disparaît pour qui distingue mal les
+   contrastes. */
+.page-tabs .tab-btn.is-active {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Le compteur d'un onglet garde la pastille du rail, en plus petit. */
+.page-tabs .nav-badge { margin-inline-start: 1px; }
+
+@media (max-width: 720px) {
+  .page-tabs { padding-inline: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-tabs .tab-btn { transition: none; }
+}
+
+/* ---------- Onglets (repli mobile de la navigation) ---------- */
+
+.tab-panel { display: none; }
+.tab-panel.is-active { display: block; }
+
+/* Un libellé réservé aux lecteurs d'écran. Sans cette règle, « sr-only » ne
+   masque rien : le mot s'affiche en double sous le sélecteur de langue, sur
+   la page de connexion comme à l'installation. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* L'attribut « hidden » ne vaut qu'un « display: none » d'origine, que la
+   moindre règle de composant écrase — un bouton masqué par hidden restait
+   visible parce que « .btn » lui impose un display. Ici, il tranche. */
+[hidden] { display: none !important; }
+
+/* ---------- Formulaires ---------- */
+
+label { display: flex; flex-direction: column; gap: 5px; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+
+input, select, textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 9px 12px;
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+input::placeholder, textarea::placeholder { color: var(--text-tertiary); }
+input:hover, select:hover, textarea:hover { border-color: var(--text-tertiary); }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring), 0 2px 8px var(--accent-ring);
+}
+textarea { resize: vertical; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid .span-2 { grid-column: 1 / -1; }
+.form-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- Boutons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 15px;
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: var(--shadow-xs), var(--edge-light);
+  transition:
+    background 0.14s var(--ease-out),
+    border-color 0.14s var(--ease-out),
+    color 0.14s var(--ease-out),
+    box-shadow 0.14s var(--ease-out),
+    transform 0.14s var(--ease-out);
+}
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-tertiary);
+  box-shadow: var(--shadow-sm), var(--edge-light);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+.btn:active { transform: translateY(0); box-shadow: var(--shadow-xs); }
+.btn:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--accent-ring); }
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--accent-fill) 0%, var(--accent-fill-hover) 100%);
+  border-color: var(--accent-fill-hover);
+  color: var(--accent-contrast);
+  box-shadow:
+    0 1px 2px rgb(var(--shadow-ink) / 0.14),
+    0 6px 16px var(--accent-ring),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+.btn-primary:hover {
+  background: linear-gradient(180deg, var(--accent-hover) 0%, var(--accent-hover) 100%);
+  border-color: var(--accent-hover);
+  color: var(--accent-contrast);
+  box-shadow:
+    0 2px 4px rgb(var(--shadow-ink) / 0.16),
+    0 10px 24px var(--accent-ring),
+    inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+
+.btn-outline { background: transparent; border-color: var(--accent); color: var(--accent); }
+.btn-outline:hover { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+.btn-quiet, .btn-ghost { background: transparent; border-color: transparent; color: var(--text-secondary); box-shadow: none; }
+.btn-quiet:hover, .btn-ghost:hover { background: var(--surface-hover); border-color: var(--border); color: var(--text); box-shadow: var(--shadow-xs); }
+
+.btn-danger { color: var(--danger); border-color: var(--danger-border); background: transparent; box-shadow: none; }
+.btn-danger:hover { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+
+.btn-sm { padding: 5px 11px; font-size: 0.77rem; border-radius: var(--radius-sm); }
+.btn-block { width: 100%; }
+
+/* ---------- Messages ---------- */
+
+.flash {
+  display: flex;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1px solid;
+  border-inline-start-width: 3px;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+.flash-success { background: var(--success-bg); border-color: var(--success-border); border-inline-start-color: var(--success); color: var(--success); }
+.flash-error { background: var(--danger-bg); border-color: var(--danger-border); border-inline-start-color: var(--danger); color: var(--danger); }
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-size: 0.85rem;
+  margin-bottom: 16px;
+}
+.banner svg { flex-shrink: 0; color: var(--accent); }
+.banner span { flex: 1; }
+.banner.is-warning { border-inline-start-color: var(--warning); background: var(--warning-bg); color: var(--warning); }
+.banner.is-warning svg { color: var(--warning); }
+.banner.is-danger { border-inline-start-color: var(--danger); background: var(--danger-bg); color: var(--danger); }
+.banner.is-danger svg { color: var(--danger); }
+
+/* ---------- Tableaux ---------- */
+
+/* Un tableau large a le droit de défiler, et il doit le dire : les deux ombres
+   posées sur les bords ne s'affichent que du côté où il reste quelque chose à
+   voir. C'est le vieux tour des fonds attachés au contenu — deux dégradés qui
+   suivent le défilement, deux qui restent collés aux bords et les recouvrent
+   quand on est en butée. Aucun script, et rien à recalculer au redimensionnement. */
+.table-wrap {
+  overflow-x: auto;
+  margin: 0 -22px -20px;
+  background:
+    linear-gradient(to right, var(--surface) 30%, rgb(var(--surface-rgb) / 0)) left center,
+    linear-gradient(to left, var(--surface) 30%, rgb(var(--surface-rgb) / 0)) right center,
+    linear-gradient(to right, rgb(var(--shadow-ink) / 0.10), rgb(var(--shadow-ink) / 0)) left center,
+    linear-gradient(to left, rgb(var(--shadow-ink) / 0.10), rgb(var(--shadow-ink) / 0)) right center;
+  background-repeat: no-repeat;
+  background-size: 34px 100%, 34px 100%, 12px 100%, 12px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
+/* Le retrait du bas ne vaut que si le tableau termine la carte. Sinon il fait
+   remonter ce qui suit par-dessus la dernière ligne. */
+.table-wrap:not(:last-child) { margin-bottom: 10px; }
+.table-wrap table { min-width: 100%; }
+
+/* Quand il termine la carte, le fond du cadre doit s'arrêter où la carte
+   s'arrondit : sinon les deux coins du bas sont remplis d'un carré clair qui
+   déborde — invisible en thème clair, franc en thème sombre. */
+.table-wrap:last-child {
+  border-end-start-radius: var(--radius-lg);
+  border-end-end-radius: var(--radius-lg);
+}
+
+/* Sous 720 px, un tableau à six colonnes ne rétrécit pas : il se casse. On lui
+   rend une largeur de travail et c'est le cadre qui défile — une ligne qu'on
+   fait glisser se lit, une ligne hachée ne se lit pas. */
+@media (max-width: 720px) {
+  .table-wrap table { min-width: 620px; }
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+thead th {
+  text-align: start;
+  padding: 10px 12px;
+  background: transparent;
+  border-top: none;
+  border-bottom: 1px solid rgb(var(--shadow-ink) / 0.08);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+thead th:first-child { padding-inline-start: 20px; }
+thead th:last-child { padding-inline-end: 20px; }
+
+td.no-wrap, th.no-wrap { white-space: nowrap; }
+
+tbody td {
+  padding: 13px 12px;
+  border-bottom: 1px solid rgb(var(--shadow-ink) / 0.05);
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+tbody td:first-child { padding-inline-start: 20px; }
+tbody td:last-child { padding-inline-end: 20px; }
+tbody tr { transition: background 0.12s var(--ease-out); }
+tbody tr:hover { background: var(--surface-hover); }
+tbody tr:last-child td { border-bottom: none; }
+
+.cell-strong { font-weight: 600; }
+.cell-sub { font-size: 0.76rem; color: var(--text-tertiary); }
+/* Dans une cellule, la précision passe à la ligne au lieu de suivre le texte
+   principal. Collée derrière lui, elle le poussait à se couper n'importe où. */
+td .cell-sub { display: block; }
+/* Une colonne de montants se lit par la droite : les unités sous les unités,
+   les dizaines sous les dizaines. Alignée à gauche, il faut relire chaque
+   nombre en entier pour le comparer au précédent.
+
+   Et elle ne se coupe jamais : « 11 520,00 € » passé à la ligne devient deux
+   nombres à l'œil, ce qui est pire que de faire défiler le tableau. */
+.num,
+th.num {
+  text-align: end;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+/* Le commentaire sous un montant — le cours du jour, la période — suit son
+   nombre plutôt que de repartir à gauche. */
+.num .cell-sub { text-align: end; }
+
+/* La colonne d'actions garde une largeur plancher : les boutons se répartissent
+   sur deux lignes au lieu de s'empiler un par ligne ou de sortir du cadre. */
+.actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+
+/* L'en-tête d'une colonne d'actions n'a rien à disposer : il ne porte qu'un
+   libellé, souvent aucun. En faire une boîte flexible le réduisait à zéro de
+   haut quand il était vide, et le filet du haut du tableau s'arrêtait net au
+   milieu de la largeur. */
+th.actions { display: table-cell; }
+
+/* La cellule d'actions reste une cellule.
+   En boîte flexible, elle sortait du modèle du tableau : sa largeur ne suivait
+   plus celle de sa colonne, et son filet du bas ne tombait pas à la même
+   hauteur que celui des autres cellules — le trait de séparation s'arrêtait
+   donc au milieu de la ligne, juste avant les boutons. Les boutons se rangent
+   par un alignement en ligne, ce qui ne demande rien au tableau. */
+td.actions {
+  display: table-cell;
+  min-width: 196px;
+  text-align: end;
+  white-space: nowrap;
+}
+td.actions > * {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  vertical-align: middle;
+}
+td.actions > * + * { margin-inline-start: 6px; }
+
+/* Quand la liste de statut a rejoint sa colonne, il ne reste ici qu'un bouton :
+   la largeur réservée aux deux creuserait un vide entre le statut et lui. */
+td.actions.est-allegee { min-width: 0; }
+/* Une liste déroulante et son bouton forment un geste : les séparer sur deux
+   lignes double la hauteur de chaque ligne du tableau pour rien. La colonne
+   prend la largeur qu'il lui faut ; si l'écran ne l'a pas, c'est le tableau
+   qui défile, ce qui se comprend mieux qu'une ligne haute de deux étages. */
+td.actions .inline-form { flex-wrap: nowrap; }
+
+/* Dans une ligne de tableau, cinq boutons bordés côte à côte font un mur : on
+   ne lit plus la ligne, on lit les boutons. Ils s'effacent donc jusqu'au
+   survol de leur ligne — sauf celui qui détruit, qui reste reconnaissable. */
+td.actions .btn {
+  padding: 5px 10px;
+  font-size: 0.78rem;
+  border-radius: var(--radius-sm);
+  border-color: transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  box-shadow: none;
+}
+tbody tr:hover td.actions .btn {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+td.actions .btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-tertiary);
+  color: var(--text);
+  box-shadow: var(--shadow-xs);
+}
+td.actions .btn-danger,
+tbody tr:hover td.actions .btn-danger { color: var(--danger); background: transparent; border-color: transparent; }
+td.actions .btn-danger:hover { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); }
+td.actions .btn-primary,
+tbody tr:hover td.actions .btn-primary { color: var(--accent-contrast); }
+
+/* Sans souris, rien ne se survole : le clavier et le tactile doivent voir les
+   mêmes actions que la souris. */
+td.actions:focus-within .btn { background: var(--surface); border-color: var(--border); color: var(--text); }
+@media (hover: none) {
+  td.actions .btn { background: var(--surface); border-color: var(--border); color: var(--text); }
+}
+
+/* ---------- Étiquettes et états ---------- */
+
+.tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px rgb(var(--shadow-ink) / 0.06);
+  font-size: 0.73rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.tag-accent { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+/* Variantes de statut : une criticité, un retard ou une note interne doivent se
+   voir sans lire l'étiquette. */
+.tag-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); font-weight: 600; }
+.tag-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); font-weight: 600; }
+.tag-danger { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); font-weight: 600; }
+
+/* Les pastilles du centre de journaux. Les variantes de couleur existaient
+   — .chip-alerte, .chip-critique… — mais pas la forme : les libellés et leurs
+   compteurs se lisaient en une seule phrase courante, séparés de points
+   médians. Une pastille est un lien, d'où l'état de survol. */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  font-size: 0.73rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+
+/* Niveaux du centre de journaux : les huit sévérités de la norme syslog. Trois
+   familles suffisent à l'œil — ce qui saigne, ce qui inquiète, ce qui passe —
+   et le libellé dit le reste. */
+.tag-urgence, .tag-alerte, .tag-critique, .tag-erreur,
+.chip-urgence, .chip-alerte, .chip-critique, .chip-erreur {
+  background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); font-weight: 600;
+}
+.tag-avertissement, .chip-avertissement {
+  background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); font-weight: 600;
+}
+.tag-remarquable, .chip-remarquable { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+.tag-debogage, .chip-debogage { color: var(--text-tertiary); }
+.tag-on { background: var(--success-bg); border-color: var(--success-border); color: var(--success); font-weight: 600; }
+.tag-off { color: var(--text-tertiary); }
+
+.status {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 9px;
+  border-radius: 3px;
+  border: 1px solid;
+  font-size: 0.73rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.status-on { color: var(--success); background: var(--success-bg); border-color: var(--success-border); }
+.status-off { color: var(--text-tertiary); background: var(--surface-2); border-color: var(--border); }
+.status-warning { color: var(--warning); background: var(--warning-bg); border-color: var(--warning-border); }
+.status-danger { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-border); }
+
+.filter-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.filter-pills a { text-decoration: none; }
+.filter-pills a:hover { text-decoration: none; border-color: var(--accent); color: var(--accent); }
+
+.empty-state {
+  padding: 30px 16px;
+  text-align: center;
+  color: var(--text-tertiary);
+  background: var(--surface-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  font-size: 0.86rem;
+}
+
+.inline-form { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
+.input-sm { width: 96px; padding: 5px 8px; font-size: 0.78rem; }
+
+/* ---------- Connexion ---------- */
+
+.auth-body { display: flex; flex-direction: column; min-height: 100vh; background: var(--bg); }
+
+.auth-top { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; }
+.auth-top .brand-mark { width: 30px; height: 30px; font-size: 0.72rem; }
+.auth-brand { display: flex; align-items: center; gap: 10px; }
+
+.auth-main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--brand-deep);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 32px 30px;
+}
+.auth-card h1 { font-size: 1.3rem; margin-bottom: 5px; }
+.auth-card .auth-sub { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 22px; }
+.auth-form { display: flex; flex-direction: column; gap: 14px; }
+.auth-foot { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); font-size: 0.76rem; color: var(--text-tertiary); line-height: 1.5; }
+
+.error-page { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 40px 20px; text-align: center; }
+
+/* ---------- Espace membre : outils ---------- */
+
+.tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 12px; }
+
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.tool-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.tool-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tool-name { font-size: 0.95rem; font-weight: 600; }
+.tool-ref { font-size: 0.76rem; color: var(--text-tertiary); }
+
+.cred-box { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); padding: 9px 11px; display: flex; flex-direction: column; gap: 7px; }
+.cred-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.79rem; }
+.cred-row .k { color: var(--text-tertiary); }
+.cred-row .v { font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; overflow-wrap: anywhere; }
+
+.tool-note { font-size: 0.79rem; color: var(--text-secondary); }
+.tool-foot { margin-top: auto; padding-top: 4px; font-size: 0.73rem; color: var(--text-tertiary); }
+
+/* ---------- Pointage ---------- */
+
+.timer-display {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 2.4rem;
+  font-weight: 700;
+  text-align: center;
+  padding: 14px 0 18px;
+  letter-spacing: 0.02em;
+}
+.timer-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+.timer-stats > div { display: flex; flex-direction: column; gap: 2px; }
+.timer-stats .stat-value { font-size: 1.05rem; }
+
+/* ---------- Assistant d'installation ---------- */
+
+/* La scène : la fenêtre a quelque chose derrière elle, et c'est ce quelque
+   chose qui la fait flotter. Deux halos aux couleurs de la palette, très
+   étalés, posés sur le fond — pas une image, rien à charger, et ils suivent le
+   thème sans qu'on s'en occupe. */
+.install-scene {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 20px;
+  /* Trois halos aux couleurs de la marque, très étalés : de quoi donner de la
+     profondeur sans rien charger, et qui suivent la palette et le thème sans
+     qu'on s'en occupe. Ils comptent, maintenant que la fenêtre est translucide
+     — c'est eux qu'on voit à travers elle. */
+  background:
+    radial-gradient(1200px 700px at 8% -12%, var(--accent-ring), transparent 62%),
+    radial-gradient(1000px 620px at 106% 108%, var(--accent-ring), transparent 64%),
+    radial-gradient(760px 520px at 78% 8%, rgb(var(--shadow-ink) / 0.08), transparent 66%),
+    var(--bg);
+}
+
+.install-window {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  display: grid;
+  grid-template-columns: 286px 1fr;
+  /* La fenêtre laisse passer un peu de ce qu'il y a derrière : assez pour
+     qu'elle flotte, pas assez pour qu'un texte se lise sur un halo. D'où 92 %
+     d'opacité et non 60 : le contraste des libellés se mesure sur la couleur
+     composée, et une carte trop transparente fait descendre le texte gris
+     sous le seuil de lisibilité. */
+  background: rgb(var(--surface-rgb) / 0.92);
+  border: 1px solid rgb(var(--surface-rgb) / 0.65);
+  border-radius: calc(var(--radius-lg) + 6px);
+  box-shadow: var(--shadow-float);
+  overflow: hidden;
+  animation: install-pose 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Le flou n'arrive que si le navigateur sait le faire — et là, la fenêtre peut
+   s'ouvrir un peu plus, puisque le fond derrière elle est adouci. Sans le flou,
+   la règle ci-dessus tient toute seule : rien ne dépend de cette amélioration. */
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .install-window {
+    background: rgb(var(--surface-rgb) / 0.86);
+    -webkit-backdrop-filter: blur(24px) saturate(1.18);
+    backdrop-filter: blur(24px) saturate(1.18);
+  }
+}
+
+@keyframes install-pose {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+/* La barre d'avancement coiffe la fenêtre entière, rail compris : elle parle
+   de l'installation, pas de la colonne de droite. */
+.install-progress {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  background: var(--border);
+  z-index: 2;
+}
+.install-progress-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--brand-deep), var(--accent));
+  transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.install-progress-fill[data-at="0"] { width: 0%; }
+.install-progress-fill[data-at="1"] { width: 17%; }
+.install-progress-fill[data-at="2"] { width: 33%; }
+.install-progress-fill[data-at="3"] { width: 50%; }
+.install-progress-fill[data-at="4"] { width: 67%; }
+.install-progress-fill[data-at="5"] { width: 83%; }
+.install-progress-fill[data-at="6"] { width: 100%; }
+
+/* Le rail bleu, le même que celui du produit : on installe le logiciel qu'on
+   voit déjà. */
+.install-aside {
+  padding: 26px 20px 22px;
+  background: linear-gradient(168deg, var(--brand-deep) 0%, var(--brand-deep-2) 100%);
+  color: var(--brand-ink);
+  display: flex;
+  flex-direction: column;
+}
+.install-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; }
+.install-brand .brand-mark {
+  width: 32px;
+  height: 32px;
+  font-size: 0.74rem;
+  background: var(--brand-wash-strong);
+  color: var(--brand-ink-strong);
+  box-shadow: inset 0 0 0 1px var(--brand-line);
+}
+.install-brand .brand-text { display: flex; flex-direction: column; line-height: 1.25; }
+.install-brand .brand-name { font-size: 0.92rem; font-weight: 600; }
+.install-brand .brand-panel { font-size: 0.7rem; opacity: 0.7; }
+
+.install-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+
+/* Le trait qui relie les étapes : il dit qu'elles se suivent, ce qu'une simple
+   liste de puces ne dit pas. */
+.install-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
+  transition: background 0.2s ease;
+}
+.install-step::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 23px;
+  top: 34px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--brand-line);
+}
+.install-step:last-child::before { display: none; }
+
+.step-badge {
+  position: relative;
+  z-index: 1;
+  width: 27px;
+  height: 27px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--brand-wash);
+  box-shadow: inset 0 0 0 1px var(--brand-line);
+  transition: background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+.step-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding-top: 3px; }
+.step-name { font-size: 0.83rem; font-weight: 500; }
+.step-hint { font-size: 0.7rem; opacity: 0.62; line-height: 1.35; }
+
+.install-step.is-todo { opacity: 0.55; }
+.install-step.is-done .step-badge { background: var(--brand-pill); color: var(--brand-pill-ink); box-shadow: none; }
+.install-step.is-current {
+  background: var(--brand-wash);
+  box-shadow: inset 0 0 0 1px var(--brand-line);
+}
+.install-step.is-current .step-badge {
+  background: var(--brand-pill);
+  color: var(--brand-pill-ink);
+  box-shadow: 0 0 0 4px var(--brand-wash-strong);
+}
+
+.install-aside-foot {
+  margin: auto 0 0;
+  padding-top: 18px;
+  font-size: 0.7rem;
+  line-height: 1.5;
+  opacity: 0.6;
+}
+
+/* ---------- La colonne de droite ---------- */
+
+.install-stage { padding: 34px 36px 30px; display: flex; flex-direction: column; }
+.stage-head { margin-bottom: 22px; }
+.stage-count {
+  margin: 0 0 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.install-stage h1 { font-size: 1.34rem; margin: 0 0 5px; }
+.stage-sub { font-size: 0.83rem; color: var(--text-secondary); margin: 0; line-height: 1.55; max-width: 54ch; }
+
+.install-form { display: flex; flex-direction: column; flex: 1; }
+.install-field { display: flex; flex-direction: column; gap: 5px; margin-top: 18px; }
+.field-hint { font-size: 0.74rem; font-weight: 400; color: var(--text-tertiary); line-height: 1.45; margin: 0; }
+
+/* La vérification de licence, à l'étape qui porte son nom. La barre est un
+   « progress » natif : sans valeur il s'anime de lui-même, ce qui montre qu'on
+   attend sans prétendre savoir où l'on en est. */
+.licence-check {
+  margin: 18px 0 6px;
+}
+
+/* Le compte rendu n'occupe la place d'un encadré que lorsqu'il a quelque chose
+   à dire : un cadre vide en attente d'un clic n'est qu'un trou dans l'écran. */
+.licence-check.is-ok,
+.licence-check.is-ko,
+.licence-check.is-warn {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+.licence-check-say {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+}
+
+/* Les trois chemins vers une licence, sous le champ de clé. Des liens, et non
+   des boutons : deux d'entre eux portent une vraie adresse et doivent pouvoir
+   s'ouvrir dans un onglet, se copier, se lire dans la barre d'état. Le script
+   ne fait qu'intercepter le clic pour ouvrir une fenêtre à la place. */
+.licence-liens {
+  list-style: none;
+  margin: 18px 0 6px;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.licence-liens a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.licence-liens a:hover,
+.licence-liens a:focus-visible {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
+.licence-lien-titre { font-size: 0.92rem; font-weight: 600; color: var(--text); }
+.licence-lien-quoi { font-size: 0.78rem; color: var(--text-tertiary); line-height: 1.45; }
+
+/* Le voile, pendant que la fenêtre de l'espace client est ouverte.
+   Il ne cache pas l'assistant, il le met en retrait : on doit continuer de
+   voir où l'on en était, et comprendre d'un coup d'œil que la suite se passe
+   ailleurs. D'où le fond translucide plutôt qu'opaque. */
+.install-voile {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: color-mix(in srgb, var(--surface) 62%, transparent);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+
+.install-voile p {
+  margin: 0;
+  padding: 14px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg, 0 18px 40px rgba(0, 0, 0, 0.18));
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* Pendant le voile, la page dessous ne défile plus : elle n'est plus le sujet. */
+body.a-voile { overflow: hidden; }
+
+/* Un bouton hors-jeu doit se voir hors-jeu. Sans cela, « Suivant » grisé tant
+   que la licence n'est pas acceptée ressemble à « Suivant » tout court, et
+   l'on clique sur un bouton qui ne peut rien faire. */
+.btn[disabled],
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* La barre d'attente, dans la barre d'actions : elle dit qu'on interroge le
+   panneau, à côté de « Suivant » qu'elle va rendre. */
+.install-activate {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  /* Propriété logique : en arabe la page se lit de droite à gauche, et un
+     « margin-left » ne se retourne pas — le bouton partirait du mauvais côté. */
+  margin-inline-start: auto;
+}
+
+.licence-check-bar {
+  width: 96px;
+  height: 6px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--border);
+  accent-color: var(--accent);
+}
+
+.licence-check.is-ok { border-color: var(--success-border); background: var(--success-bg); }
+.licence-check.is-ok .licence-check-say { color: var(--success); font-weight: 600; }
+.licence-check.is-ko { border-color: var(--danger-border); background: var(--danger-bg); }
+.licence-check.is-ko .licence-check-say { color: var(--danger); }
+
+/* Le panneau injoignable n'est pas un refus de licence : jaune, pas rouge.
+   La couleur porte déjà la moitié du message. */
+.licence-check.is-warn { border-color: var(--warning-border); background: var(--warning-bg); }
+.licence-check.is-warn .licence-check-say { color: var(--warning); }
+
+@media (max-width: 640px) {
+  .install-activate { margin-inline-start: 0; }
+}
+
+.install-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 24px;
+}
+.install-note { font-size: 0.76rem; color: var(--text-tertiary); margin: 16px 0 0; }
+.install-warn {
+  margin: 16px 0 0;
+  padding: 10px 13px;
+  border-radius: var(--radius);
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+/* ---------- Les choix : langue, moteur ---------- */
+
+/* Seize langues : une grille de vignettes se parcourt d'un regard, là où une
+   liste déroulante demande de l'ouvrir pour savoir ce qu'elle contient. */
+.choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(146px, 1fr));
+  gap: 8px;
+}
+.choice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  background: var(--surface);
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+.choice:hover { border-color: var(--accent); transform: translateY(-1px); }
+.choice input { position: absolute; opacity: 0; width: 0; height: 0; }
+.choice-flag { font-size: 1.05rem; line-height: 1; }
+.choice-label { font-size: 0.82rem; font-weight: 500; }
+.choice.is-picked {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+.choice:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.engine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.engine {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  background: var(--surface);
+  transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+}
+.engine:hover { border-color: var(--accent); transform: translateY(-1px); }
+.engine input { position: absolute; opacity: 0; width: 0; height: 0; }
+.engine-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.engine-name { font-size: 0.9rem; font-weight: 600; }
+.engine-tag {
+  padding: 1px 6px;
+  border-radius: 3px;
+  background: var(--success-bg);
+  color: var(--success);
+  font-size: 0.66rem;
+  font-weight: 600;
+}
+.engine-tag.is-off { background: var(--surface-hover); color: var(--text-tertiary); }
+.engine-sub { font-size: 0.76rem; color: var(--text-tertiary); line-height: 1.45; }
+.engine.is-picked { border-color: var(--accent); background: var(--accent-soft); box-shadow: inset 0 0 0 1px var(--accent); }
+.engine.is-off { opacity: 0.55; cursor: not-allowed; }
+.engine.is-off:hover { border-color: var(--border); transform: none; }
+.engine:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.mysql-fields { border: none; margin: 18px 0 0; padding: 0; }
+
+/* ---------- La pose ---------- */
+
+.install-run { display: flex; flex-direction: column; flex: 1; }
+
+.recap { margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.recap-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+}
+.recap-row:last-child { border-bottom: none; }
+.recap dt { margin: 0; font-size: 0.8rem; color: var(--text-secondary); }
+.recap dd { margin: 0; font-size: 0.84rem; font-weight: 600; text-align: end; overflow-wrap: anywhere; }
+
+.run-steps { list-style: none; margin: 20px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.run-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  opacity: 0.6;
+  transition: opacity 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+.run-label { font-size: 0.84rem; font-weight: 500; }
+.run-said { margin-inline-start: auto; font-size: 0.76rem; color: var(--text-tertiary); text-align: end; }
+
+/* Le curseur : un anneau qui tourne tant que le palier n'a pas répondu. Il
+   tourne parce que le serveur travaille, et il s'arrête parce qu'il a fini —
+   c'est toute la différence avec une animation posée là pour faire patienter. */
+.run-dot {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  position: relative;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+.run-step.is-running { opacity: 1; background: var(--accent-soft); border-color: var(--accent); }
+.run-step.is-running .run-dot {
+  border-color: var(--accent-soft);
+  border-top-color: var(--accent);
+  animation: run-spin 0.72s linear infinite;
+}
+@keyframes run-spin { to { transform: rotate(360deg); } }
+
+.run-step.is-done { opacity: 1; }
+.run-step.is-done .run-dot {
+  border-color: var(--success);
+  background: var(--success);
+  animation: run-pop 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.run-step.is-done .run-dot::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 4px;
+  inset-block-start: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid var(--success-contrast);
+  border-width: 0 2px 2px 0;
+  transform: rotate(42deg);
+}
+@keyframes run-pop { from { transform: scale(0.4); } to { transform: scale(1); } }
+
+.run-step.is-failed { opacity: 1; background: var(--danger-bg); border-color: var(--danger); }
+.run-step.is-failed .run-dot { border-color: var(--danger); background: var(--danger); }
+.run-step.is-failed .run-said { color: var(--danger); font-weight: 600; }
+
+.run-error {
+  margin: 16px 0 0;
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  background: var(--danger-bg);
+  color: var(--danger);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.run-error.is-good { background: var(--success-bg); color: var(--success); }
+
+.btn.is-working { pointer-events: none; opacity: 0.75; }
+
+@media (prefers-reduced-motion: reduce) {
+  .install-window { animation: none; }
+  .run-step.is-running .run-dot { animation: none; border-top-color: var(--accent); }
+  .run-step.is-done .run-dot { animation: none; }
+  .install-progress-fill { transition: none; }
+}
+.check-list { list-style: none; margin: 18px 0 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.check-item { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.check-item:last-child { border-bottom: none; }
+.check-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.check-mark.is-ok { background: var(--success-bg); color: var(--success); }
+.check-mark.is-fail { background: var(--danger-bg); color: var(--danger); }
+.check-mark.is-warn { background: var(--warning-bg); color: var(--warning); }
+.check-body { display: flex; flex-direction: column; min-width: 0; }
+.check-label { font-size: 0.85rem; font-weight: 500; }
+.check-tag {
+  margin-inline-start: 5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--surface-hover);
+  color: var(--text-tertiary);
+  font-size: 0.66rem;
+  font-weight: 500;
+  vertical-align: 1px;
+}
+.check-detail { font-size: 0.76rem; color: var(--text-tertiary); overflow-wrap: anywhere; }
+
+.summary-list, .detail-list { margin: 18px 0 0; display: flex; flex-direction: column; gap: 2px; }
+.summary-list > div, .detail-list > div { display: flex; justify-content: space-between; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.summary-list > div:last-child, .detail-list > div:last-child { border-bottom: none; }
+.summary-list dt, .detail-list dt { font-size: 0.8rem; color: var(--text-secondary); margin: 0; }
+.summary-list dd, .detail-list dd { font-size: 0.85rem; font-weight: 600; margin: 0; text-align: end; }
+
+/* ---------- Ce que le balisage demandait sans que rien ne réponde ---------- */
+
+
+/* Une colonne de cases à cocher. Sans elle, les .check héritaient de la
+   largeur pleine des champs de formulaire et l'étiquette passait dessous. */
+.checks { display: flex; flex-direction: column; gap: 6px; }
+
+/* La grille générique. .grid-2 existait seule ; trois et quatre colonnes
+   retombaient donc en pile, ce qui est exactement ce qu'on ne voulait pas. */
+.grid { display: grid; gap: 14px; align-items: start; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: start; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; align-items: start; }
+
+/* Une carte dans une carte : même dessin, un ton en dessous, pour qu'on voie
+   qu'elle appartient à celle qui la contient. */
+.sub-card {
+  padding: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.sub-card + .sub-card { margin-top: 10px; }
+.sub-card h3 { margin: 0 0 8px; font-size: 0.92rem; }
+
+/* Les trois chiffres de l'organigramme. Sans règle, le nombre et son libellé
+   se touchaient : « 4Salariés ». */
+.kpi-row { display: flex; flex-wrap: wrap; gap: 18px; margin-bottom: 14px; }
+.kpi { display: flex; flex-direction: column; min-width: 90px; }
+.kpi strong { font-size: 1.6rem; font-weight: 700; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.kpi span { font-size: 0.76rem; color: var(--text-secondary); margin-top: 2px; }
+
+/* Une barre de filtres qui va à la ligne — ce qu'.inline-form refuse de faire. */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 14px; }
+.toolbar input, .toolbar select { width: auto; min-width: 160px; }
+
+/* Un select posé dans une cellule de tableau : il ne doit pas s'étaler sur
+   toute la colonne comme un champ de formulaire. */
+.inline-select { width: auto; min-width: 130px; padding: 5px 8px; font-size: 0.78rem; }
+
+/* Du texte préformaté qu'on donne à lire : contexte JSON d'une entrée de
+   journal, corps d'un document mis à la signature, code rendu une fois. */
+.code-block, .code-display, .document-body {
+  margin: 10px 0 0;
+  padding: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.code-display { font-size: 0.9rem; font-weight: 600; letter-spacing: 0.04em; text-align: center; }
+
+/* Une liste d'étiquettes : des .tag posés côte à côte, sans puces. */
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+
+/* Les étapes d'un circuit d'approbation. */
+.steps { margin: 10px 0 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 4px; }
+.steps li { font-size: 0.84rem; }
+
+/* Le bandeau d'information : .flash-success et .flash-error existaient, le
+   ton neutre non — il restait donc muet là où il devait se faire remarquer. */
+.flash-info { background: var(--accent-soft); border-color: var(--accent); border-inline-start-color: var(--accent); color: var(--accent); }
+
+/* ---------- Avatars ---------- */
+
+.user-avatar img,
+.avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.82rem;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.avatar-lg { width: 84px; height: 84px; font-size: 1.5rem; }
+.avatar-sm { width: 30px; height: 30px; font-size: 0.7rem; }
+
+/* ---------- Sélecteur de langue ---------- */
+
+.lang-grid, .lang-picker { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.lang-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+.lang-option:hover { border-color: var(--accent); color: var(--accent); text-decoration: none; }
+.lang-option.is-active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.lang-flag { font-size: 1.05rem; line-height: 1; }
+
+.lang-inline { display: flex; align-items: center; gap: 4px; }
+.lang-inline .lang-option { padding: 4px 7px; }
+
+/* ---------- Actualités ---------- */
+
+.news-item { padding: 14px 0; border-bottom: 1px solid var(--border); }
+.news-item:first-child { padding-top: 0; }
+.news-item:last-child { border-bottom: none; padding-bottom: 0; }
+.news-head { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; flex-wrap: wrap; }
+.news-title { font-weight: 600; font-size: 0.92rem; }
+.news-meta { font-size: 0.74rem; color: var(--text-tertiary); }
+.news-body { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.55; white-space: pre-line; }
+
+/* ---------- Carte manager ---------- */
+
+.manager-card { display: flex; align-items: center; gap: 14px; }
+.manager-card .manager-name { font-weight: 600; font-size: 0.95rem; }
+.manager-card .manager-role { font-size: 0.79rem; color: var(--text-secondary); }
+
+/* ---------- Annuaire ---------- */
+
+.people-grid, .people { display: grid; grid-template-columns: repeat(auto-fill, minmax(268px, 1fr)); gap: 12px; }
+
+.person-card {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.person-card:hover { border-color: var(--accent); }
+.person-body { min-width: 0; }
+.person-name { font-weight: 600; font-size: 0.93rem; }
+.person-role { font-size: 0.79rem; color: var(--text-secondary); margin-bottom: 6px; }
+.person-line { font-size: 0.78rem; color: var(--text-tertiary); overflow-wrap: anywhere; }
+.person-bio { margin-top: 7px; font-size: 0.78rem; color: var(--text-secondary); line-height: 1.5; }
+
+.search-bar { display: flex; gap: 8px; max-width: 460px; }
+
+/* ---------- Messagerie ---------- */
+
+.mail-layout { display: grid; grid-template-columns: 340px 1fr; gap: 14px; align-items: start; }
+
+.mail-tabs { display: flex; gap: 2px; padding: 3px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }
+.mail-tab {
+  flex: 1;
+  text-align: center;
+  padding: 6px 10px;
+  border-radius: 3px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.mail-tab:hover { color: var(--text); text-decoration: none; }
+.mail-tab.is-active { background: var(--surface); color: var(--accent); box-shadow: var(--shadow-xs); }
+
+.mail-list { display: flex; flex-direction: column; margin: 12px -20px -18px; }
+.mail-row {
+  display: flex;
+  gap: 10px;
+  padding: 11px 20px;
+  border-top: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+}
+.mail-row:hover { background: var(--surface-hover); text-decoration: none; }
+.mail-row.is-unread { background: var(--accent-soft); }
+.mail-row.is-open { border-inline-start: 3px solid var(--accent); padding-inline-start: 17px; }
+/* Conteneur en colonne : sans cela les enfants restent inline et l'ellipsis ne s'applique pas. */
+.mail-row-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.mail-row-top { display: flex; justify-content: space-between; gap: 8px; }
+.mail-from { font-size: 0.84rem; font-weight: 600; }
+.mail-date { font-size: 0.72rem; color: var(--text-tertiary); white-space: nowrap; }
+.mail-subject { font-size: 0.82rem; margin-top: 1px; }
+.mail-preview { font-size: 0.76rem; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mail-reader-head { display: flex; justify-content: space-between; gap: 14px; align-items: flex-start; padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
+.mail-reader-body { font-size: 0.88rem; line-height: 1.65; white-space: pre-line; color: var(--text); }
+
+/* ---------- Agenda ---------- */
+
+.agenda-layout { display: grid; grid-template-columns: 1fr 340px; gap: 14px; align-items: start; margin-bottom: 14px; }
+
+.calendar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.calendar-month { text-transform: capitalize; }
+.calendar-nav { display: flex; align-items: center; gap: 4px; }
+
+.calendar-wrap { overflow-x: auto; }
+.calendar { width: 100%; min-width: 560px; border-collapse: collapse; table-layout: fixed; }
+.calendar th {
+  padding: 8px 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
+  text-align: start;
+}
+
+.cal-cell {
+  height: 96px;
+  vertical-align: top;
+  padding: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.cal-cell.is-weekend { background: var(--surface-2); }
+.cal-cell.is-outside { background: var(--surface-2); opacity: 0.55; }
+.cal-cell.is-today { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+
+.cal-day { display: block; font-size: 0.76rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 4px; }
+.cal-cell.is-today .cal-day { color: var(--accent); }
+
+.cal-event {
+  display: block;
+  padding: 2px 6px;
+  margin-bottom: 3px;
+  border-radius: 3px;
+  border-inline-start: 3px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--text);
+  font-size: 0.72rem;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cal-event-time { font-variant-numeric: tabular-nums; color: var(--text-secondary); margin-inline-end: 4px; }
+.cal-event.is-conge { border-inline-start-color: var(--success); background: var(--success-bg); }
+.cal-event.is-cse { border-inline-start-color: var(--warning); background: var(--warning-bg); }
+.cal-event.is-contrat { border-inline-start-color: var(--danger); background: var(--danger-bg); }
+/* Ce qui vient d'un collègue se distingue de ce qui vient de soi. */
+.cal-event.is-partage { border-inline-start-color: var(--text-tertiary); background: var(--surface-2); }
+.cal-event.is-absence { border-inline-start-color: var(--text-secondary); background: var(--surface-2); font-style: italic; }
+.cal-event.is-salle { border-inline-start-color: var(--brand-deep); background: var(--accent-soft); }
+.cal-event.is-formation { border-inline-start-color: var(--brand-deep-2); background: var(--accent-soft); }
+.cal-more { font-size: 0.7rem; color: var(--text-tertiary); }
+
+.calendar-legend { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 12px; font-size: 0.76rem; color: var(--text-secondary); }
+/* Chaque entrée reste solidaire de sa pastille quand la légende passe à la ligne. */
+.legend-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.legend-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.legend-dot.is-conge { background: var(--success); }
+.legend-dot.is-cse { background: var(--warning); }
+.legend-dot.is-contrat { background: var(--danger); }
+.legend-dot.is-partage { background: var(--text-tertiary); }
+.legend-dot.is-absence { background: var(--text-secondary); }
+
+.timeline { display: grid; gap: 10px; }
+.timeline-item { display: flex; align-items: flex-start; gap: 9px; }
+.timeline-item .legend-dot { margin-top: 5px; }
+.timeline-body { display: flex; flex-direction: column; min-width: 0; }
+.timeline-title { font-size: 0.86rem; font-weight: 600; }
+
+/* ---------- Organisation : services et équipes ---------- */
+
+.org-list { list-style: none; display: grid; gap: 10px; }
+.org-item { padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); display: grid; gap: 8px; }
+.org-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.org-name { display: block; font-size: 0.9rem; font-weight: 650; }
+.org-managers { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* Dans un tableau qui défile, un menu déroulant écrasé devient inutilisable. */
+.table-wrap td select { min-width: 132px; }
+
+/* ---------- Filtrage ATS ---------- */
+
+/* Le score se lit d'un coup d'œil, sans avoir à comparer des nombres. */
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.score-badge.is-ok { color: var(--success); background: var(--success-bg); border-color: var(--success-border); }
+.score-badge.is-low { color: var(--warning); background: var(--warning-bg); border-color: var(--warning-border); }
+.score-badge.is-none { color: var(--text-tertiary); background: var(--surface-2); border-color: var(--border); }
+
+/* Un champ étiqueté dans une barre d'actions horizontale. */
+.inline-field { display: inline-flex !important; align-items: center; gap: 6px; margin: 0; }
+.inline-field input { width: 5.5rem; }
+
+.candidate-row .row-actions { margin-top: 8px; }
+
+/* Le sélecteur de fichier natif est habillé aux couleurs du reste des champs :
+   sans cela il affiche un bouton système et un libellé non traduit. */
+.candidate-row input[type="file"] {
+  max-width: 230px;
+  padding: 4px 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.candidate-row input[type="file"]::file-selector-button {
+  margin-inline-end: 8px;
+  padding: 4px 10px;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.candidate-row input[type="file"]:hover::file-selector-button { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- Saisie d'écriture comptable ---------- */
+
+/* Compte, libellé, débit, crédit : une ligne de journal se lit en colonnes. */
+.entry-line { display: grid; grid-template-columns: 2fr 2fr 1fr 1fr; gap: 6px; margin-bottom: 6px; }
+.entry-line select, .entry-line input { min-width: 0; }
+
+/* ---------- Jauge de consommation ---------- */
+
+.meter { display: block; height: 8px; border-radius: 4px; background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
+.meter-fill { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 4px; }
+.meter-fill.is-warn { background: var(--warning); }
+.meter-fill.is-over { background: var(--danger); }
+
+/* ---------- CSE ---------- */
+
+.benefit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr)); gap: 12px; }
+
+.benefit-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  min-width: 0;
+}
+.benefit-card:hover { border-color: var(--accent); }
+.benefit-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.benefit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.benefit-title { font-size: 0.95rem; font-weight: 650; }
+.benefit-discount { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+.benefit-text { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.55; overflow-wrap: anywhere; }
+.benefit-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 8px; }
+
+.code-chip { display: inline-flex; align-items: center; gap: 6px; }
+.code-chip code {
+  padding: 3px 8px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 3px;
+  background: var(--surface-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.person-list, .meeting-list, .candidate-list, .timeline { list-style: none; }
+.person-list { display: grid; gap: 2px; }
+.person-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+.person-row:last-child { border-bottom: none; }
+.person-row .person-body { flex: 1; display: flex; flex-direction: column; gap: 1px; }
+
+.meeting-list { display: grid; gap: 12px; }
+.meeting-item { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2); display: grid; gap: 8px; }
+/* Sans cela, un tableau imbriqué élargit la carte au lieu de défiler dedans. */
+.meeting-item > * { min-width: 0; }
+.meeting-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.meeting-title { font-size: 0.92rem; font-weight: 650; }
+
+.minutes summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--accent); }
+.minutes p { margin-top: 8px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; }
+
+.election-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.election-title { font-size: 1rem; font-weight: 650; }
+
+.section-label { margin: 16px 0 8px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-tertiary); }
+
+.candidate-list { display: grid; gap: 8px; }
+.candidate-row { padding: 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface-2); }
+.candidate-row:hover { border-color: var(--accent); }
+.candidate-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+input:disabled, select:disabled, textarea:disabled { background: var(--surface-2); color: var(--text-tertiary); cursor: not-allowed; }
+
+/* label passe en colonne par défaut : une case à cocher, elle, se lit sur une ligne. */
+.check-row, .check { display: flex !important; flex-direction: row; align-items: flex-start; gap: 9px; }
+.check-row input, .check input { width: auto; margin-top: 3px; flex-shrink: 0; }
+
+.row-actions { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1080px) {
+  .agenda-layout { grid-template-columns: 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .mail-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 900px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar {
+    position: static;
+    height: auto;
+    min-width: 0;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+  }
+  .sidebar-brand { padding: 0; padding-inline: 4px 8px; }
+  .sidebar-brand .brand-text { display: none; }
+  /* La barre de navigation défile seule au lieu d'élargir toute la page. */
+  .sidebar-nav { flex-direction: row; gap: 4px; flex: 1; overflow-x: auto; }
+  .side-link { border-inline-start: none; border-bottom: 3px solid transparent; border-radius: var(--radius); padding: 8px 11px; white-space: nowrap; }
+  .side-link.is-active { border-inline-start-color: transparent; border-bottom-color: #fff; }
+  /* Le pied défile comme la navigation : à mesure que les espaces s'ajoutent,
+     il finirait sinon par pousser la page au-delà de l'écran. */
+  .sidebar-foot { flex-direction: row; align-items: center; margin: 0; padding: 0; padding-inline-start: 10px; border-top: none; border-inline-start: 1px solid var(--brand-line); min-width: 0; overflow-x: auto; }
+  .side-link-quiet .side-link-label { display: none; }
+}
+
+@media (max-width: 720px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-grid .span-2 { grid-column: auto; }
+  .page { padding: 16px 14px 48px; }
+  .app-header { padding: 10px 14px; flex-wrap: wrap; }
+  /* On dégraisse l'en-tête, pas les actions de la page : un bouton principal garde son libellé. */
+  .user-meta, .app-header .btn-label { display: none; }
+  .user-chip { padding-inline-end: 0; border-inline-end: none; }
+  .timer-stats { grid-template-columns: 1fr; }
+  .table-wrap { margin: 0 -20px -18px; }
+  .auth-card { padding: 26px 20px; }
+  /* Sur téléphone la fenêtre occupe l'écran : le rail passe au-dessus et se
+     réduit à la seule étape en cours — les cinq autres prendraient la moitié
+     de la hauteur pour ne rien dire de plus. */
+  .install-scene { padding: 0; align-items: stretch; }
+  .install-window { grid-template-columns: 1fr; border-radius: 0; border: none; min-height: 100dvh; }
+  .install-aside { padding: 20px 18px 16px; }
+  .install-brand { margin-bottom: 16px; }
+  .install-step { display: none; }
+  .install-step.is-current { display: flex; }
+  .install-step.is-current { background: transparent; box-shadow: none; padding-inline: 0; }
+  .install-step::before { display: none; }
+  .install-aside-foot { display: none; }
+  .install-stage { padding: 24px 18px 22px; }
+  .install-actions { flex-direction: column-reverse; align-items: stretch; }
+  .install-actions .btn { width: 100%; justify-content: center; }
+  .install-note { text-align: center; }
+  .choice-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+  .recap-row { flex-direction: column; gap: 2px; }
+  .recap dd { text-align: start; }
+  .people-grid, .people { grid-template-columns: 1fr; }
+  .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .entry-line { grid-template-columns: 1fr 1fr; }
+  /* Sur téléphone, la grille du mois tient en entier : chaque événement devient une
+     barre colorée, et la liste sous le calendrier en porte le détail. */
+  .calendar { min-width: 0; }
+  .calendar th { padding: 6px 2px; font-size: 0.62rem; }
+  .cal-cell { height: 56px; padding: 3px; }
+  .cal-day { font-size: 0.7rem; margin-bottom: 3px; }
+  .cal-event {
+    height: 5px;
+    padding: 0;
+    margin-bottom: 2px;
+    border-radius: 3px;
+    border-inline-start: none;
+    background: var(--accent);
+    text-indent: -999em;
+  }
+  .cal-event.is-conge { background: var(--success); }
+  .cal-event.is-cse { background: var(--warning); }
+  .cal-event.is-contrat { background: var(--danger); }
+  .cal-event.is-partage { background: var(--text-tertiary); }
+  .cal-event.is-absence { background: var(--text-secondary); }
+  .cal-event.is-salle { background: var(--brand-deep); }
+  .cal-event.is-formation { background: var(--brand-deep-2); }
+  .cal-event-time, .cal-more { display: none; }
+
+  /* Sur téléphone, la barre se réduit aux icônes : seule la section courante est nommée. */
+  .sidebar-nav .side-link-label { display: none; }
+  .sidebar-nav .side-link.is-active .side-link-label { display: inline; }
+}
+
+/* ---------- Première connexion ---------- */
+
+.auth-note { margin-top: 14px; font-size: 12px; line-height: 1.5; color: var(--text-tertiary); }
+.auth-section { margin: 22px 0 8px; font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); }
+.btn-link { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; cursor: pointer; }
+.btn-link:hover { text-decoration: underline; }
+
+/* ---------- Double authentification ---------- */
+
+.totp-qr { display: block; margin: 12px auto; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; padding: 8px; }
+.totp-secret { display: inline-block; padding: 3px 7px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; letter-spacing: 1px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; word-break: break-all; }
+.code-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 6px; margin: 10px 0; padding: 0; list-style: none; }
+.code-list li { padding: 6px 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; text-align: center; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; }
+
+/* ---------- Console de sécurité ---------- */
+
+/* L'en-tête est collant : une ancre doit s'arrêter en dessous, pas dessous lui. */
+.tab-panel[id], .card[id] { scroll-margin-top: 84px; }
+.audit-action { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; white-space: nowrap; }
+.audit-detail { max-width: 320px; overflow-wrap: anywhere; }
+.nowrap { white-space: nowrap; }
+.pager { margin-top: 10px; }
+
+/* ---------- Projets ---------- */
+
+/* Un tableau par statut : les colonnes défilent horizontalement plutôt que de
+   se tasser, pour rester lisibles quel que soit le nombre de tâches. */
+.board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(240px, 1fr); gap: 12px; overflow-x: auto; padding-bottom: 6px; }
+.board-column { min-width: 0; padding: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }
+.board-title { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-secondary); }
+.board-card { padding: 10px; margin-bottom: 8px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; }
+.board-card p { margin: 4px 0; }
+.board-card .row-actions { margin-top: 8px; gap: 4px; }
+.board-card select { max-width: 120px; }
+
+.project-row { align-items: flex-start; }
+.project-main { min-width: 0; flex: 1; }
+.project-main .meter { margin: 6px 0 2px; max-width: 420px; }
+/* .org-item est une grille : le bouton d'ouverture ne doit pas s'étirer sur toute la ligne. */
+.project-row { grid-template-columns: 1fr auto; align-items: start; }
+.project-row > .btn { justify-self: end; }
+.meter-fill.is-danger { background: var(--danger); }
+
+@media (max-width: 720px) {
+  .board { grid-auto-flow: row; grid-auto-columns: auto; }
+}
+
+/* ---------- Support ---------- */
+
+.ticket-body { white-space: pre-wrap; overflow-wrap: anywhere; margin: 8px 0 0; line-height: 1.55; }
+.thread { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 10px; }
+.thread-item { padding: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); }
+/* Une note interne doit se distinguer d'un coup d'œil de ce que lit le demandeur. */
+.thread-item.is-internal { background: var(--warning-bg); border-color: var(--warning-border); }
+
+.article-body { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.65; margin: 0; }
+
+/* ---------- Parcours et compétences ---------- */
+
+.org-item.is-done { opacity: .62; }
+.matrix-head { font-size: 11px; font-weight: 600; white-space: nowrap; }
+.matrix-cell { text-align: center; white-space: nowrap; }
+.matrix-cell .btn-link { display: block; margin: 2px auto 0; font-size: 11px; }
+
+tr.is-muted { opacity: .55; }
+tr.is-current { background: var(--accent-soft); }
+
+/* ---------- Coffre-fort ---------- */
+
+/* L'empreinte doit être lisible sans attirer l'œil : c'est une preuve, pas une donnée de travail. */
+.fingerprint { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: .02em; }
+
+/* ---------- Choix de la palette (console d'administration) ---------- */
+
+.palette-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+
+.palette-card {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+.palette-card.is-active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-ring); }
+.palette-name { font-weight: 650; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.palette-text { font-size: 0.78rem; line-height: 1.5; color: var(--text-secondary); }
+
+/* L'aperçu emprunte les jetons de la palette qu'il montre : il ne peut pas
+   mentir, puisqu'il n'a pas de couleurs à lui. Il montre toujours le mode
+   clair — le mode reste un réglage personnel. */
+.palette-preview {
+  display: flex;
+  height: 104px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.palette-nav {
+  flex: 0 0 34%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 8px;
+  background: linear-gradient(180deg, var(--brand-deep) 0%, var(--brand-deep-2) 100%);
+}
+.palette-mark { width: 18px; height: 18px; border-radius: 4px; background: var(--brand-ink); opacity: .92; }
+.palette-line { height: 6px; border-radius: 3px; background: var(--brand-ink); opacity: .42; }
+.palette-line.is-short { width: 62%; }
+.palette-line.is-dark { background: var(--text); opacity: .22; }
+.palette-body { flex: 1; padding: 10px; background: var(--bg); }
+.palette-card-sample {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  padding: 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.palette-button { margin-top: auto; height: 16px; width: 64%; border-radius: var(--radius); background: var(--accent-fill); }
+
+/* ---------- Sauvegardes ---------- */
+
+/* Le nom d'une archive fait une quarantaine de caractères : le champ de
+   confirmation doit pouvoir le contenir, sinon la consigne devient un piège. */
+.confirm-name { min-width: 260px; }
+@media (max-width: 720px) { .confirm-name { min-width: 0; width: 100%; } }
+
+/* ---------- Direction : matrice des risques ---------- */
+
+/* Les quatre niveaux reprennent les couleurs d'état déjà définies : la matrice
+   se relit d'un coup d'œil, et suit la palette de l'instance comme le reste. */
+/* Une matrice s'embrasse d'un regard : elle ne s'étale pas sur toute la
+   largeur comme un tableau de données, sinon les cases perdent leur forme. */
+.table-wrap .risk-matrix { width: auto; min-width: 0; }
+.risk-matrix th, .risk-matrix td { text-align: center; padding: 9px 12px; }
+.risk-matrix tbody th { width: 150px; text-align: end; }
+.risk-cell { font-weight: 650; min-width: 64px; }
+.risk-level-1 { background: var(--success-bg); color: var(--success); }
+.risk-level-2 { background: var(--accent-soft); color: var(--accent); }
+.risk-level-3 { background: var(--warning-bg); color: var(--warning); }
+.risk-level-4 { background: var(--danger-bg); color: var(--danger); }
+
+/* ---------- Planning ---------- */
+
+.planning-grid td { vertical-align: top; }
+.planning-cell { min-width: 118px; padding: 6px; }
+.shift {
+  display: block; margin-bottom: 4px; padding: 5px 7px; border-radius: var(--radius);
+  border: 1px solid var(--accent-ring); background: var(--accent-soft); color: var(--text-primary);
+  font-size: 0.76rem; line-height: 1.35;
+}
+.shift-oncall { background: var(--warning-bg); border-color: var(--warning-border); }
+.shift-remote { background: var(--success-bg); border-color: var(--success-border); }
+/* Un brouillon se voit : personne ne doit organiser sa semaine dessus. */
+.shift.is-draft { border-style: dashed; opacity: 0.75; }
+.shift-time { display: block; font-weight: 650; }
+.shift-label { display: block; color: var(--text-secondary); }
+.shift .inline-form { display: inline; }
+.shift .btn-link { padding: 0; font-size: 0.76rem; }
+
+/* ---------- Organigramme ---------- */
+
+.chart { display: grid; gap: 14px; }
+.chart-department { display: grid; gap: 10px; }
+.chart-managers {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.8rem; font-weight: 600; color: var(--accent);
+}
+.chart-managers.chart-empty { color: var(--text-tertiary); font-weight: 500; }
+.chart-branch-title {
+  font-size: 0.82rem; font-weight: 650; text-transform: uppercase;
+  letter-spacing: 0.03em; color: var(--text-tertiary);
+}
+/* Les équipes se rangent côte à côte tant que la place le permet, puis
+   s'empilent : un organigramme illisible n'organise rien. */
+.chart-teams { display: grid; grid-template-columns: repeat(auto-fill, minmax(252px, 1fr)); gap: 12px; }
+.chart-team, .chart-branch {
+  display: grid; gap: 8px; padding: 12px;
+  border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface-2);
+}
+.chart-people { list-style: none; display: grid; gap: 2px; }
+.chart-person { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+.chart-person.is-me { font-weight: 650; }
+.chart-person.chart-empty { color: var(--text-tertiary); font-size: 0.8rem; }
+.chart-avatar {
+  flex: none; width: 26px; height: 26px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--accent-soft); color: var(--accent);
+  font-size: 0.68rem; font-weight: 700;
+}
+.chart-person-body { display: flex; flex-direction: column; min-width: 0; }
+.chart-person-name { font-size: 0.84rem; }
+.chart-person-role { font-size: 0.76rem; color: var(--text-secondary); }
+
+/* ---------- Parapheur ---------- */
+
+/* Le rang du signataire est la donnée qui compte : le circuit est ordonné. */
+.signer-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.signer-row select { flex: 2; min-width: 0; }
+.signer-row input { flex: 1; min-width: 0; }
+.signer-rank {
+  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--surface-2); border: 1px solid var(--border);
+  font-size: 0.74rem; font-weight: 700; color: var(--text-secondary);
+}
+@media (max-width: 720px) {
+  .signer-row { flex-wrap: wrap; }
+  .signer-row select, .signer-row input { flex: 1 1 100%; }
+}
+
+/* =========================================================================
+   Fenêtres
+   =========================================================================
+
+   Avant celles-ci, chaque confirmation passait par window.confirm() : la boîte
+   grise du système, précédée de « demo.toutadmin.com indique… », sans rapport
+   avec le produit et impossible à traduire ou à styler. Cent vingt-sept
+   endroits l'utilisaient.
+
+   Une fenêtre à nous coûte trois choses qu'il faut assumer : le fond doit
+   s'assombrir pour dire que le reste est suspendu, le clavier ne doit pas
+   pouvoir sortir de la fenêtre, et l'échappement doit la fermer. Sans ces
+   trois-là, une jolie boîte est une régression.
+   ========================================================================= */
+
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  /* Le flou dit que ce qui est derrière n'est pas cliquable : l'œil renonce
+     à lire un texte flou bien avant que la main n'essaie de cliquer. */
+  background: rgb(var(--shadow-ink) / 0.42);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: dialog-fade 0.18s var(--ease-out) both;
+}
+
+.dialog {
+  width: 100%;
+  max-width: 460px;
+  background: var(--surface);
+  border: 1px solid rgb(var(--shadow-ink) / 0.08);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float), var(--edge-light);
+  padding: 26px 26px 20px;
+  animation: dialog-rise 0.22s var(--ease-out) both;
+}
+
+.dialog-title { font-size: 1.05rem; letter-spacing: -0.01em; margin: 0 0 8px; }
+.dialog-text { font-size: 0.88rem; line-height: 1.55; color: var(--text-secondary); margin: 0; }
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgb(var(--shadow-ink) / 0.07);
+}
+
+/* Une confirmation destructrice ne doit pas avoir le même bouton qu'un envoi
+   ordinaire : c'est la dernière occasion de comprendre ce qu'on fait. */
+.dialog-danger .dialog-title { color: var(--danger); }
+.btn-destroy {
+  background: linear-gradient(180deg, var(--danger) 0%, var(--danger) 100%);
+  border-color: var(--danger);
+  color: var(--danger-contrast);
+  box-shadow: 0 1px 2px rgb(var(--shadow-ink) / 0.14), 0 6px 16px rgb(var(--shadow-ink) / 0.12);
+}
+.btn-destroy:hover { background: var(--danger); border-color: var(--danger); color: var(--danger-contrast); }
+
+@keyframes dialog-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes dialog-rise {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Le mouvement sert à dire d'où vient la fenêtre. Quand il gêne, l'état final
+   suffit : on ne supprime pas la fenêtre, on supprime le trajet. */
+@media (prefers-reduced-motion: reduce) {
+  .dialog-backdrop, .dialog { animation-duration: 0.01ms; }
+  .card, .stat-card, .btn { transition-duration: 0.01ms; }
+}
+
+/* La page ne défile plus derrière la fenêtre : sinon la molette emporte le
+   fond et la fenêtre paraît flotter à la dérive. */
+body.dialog-open { overflow: hidden; }
+
+/* =========================================================================
+   LA FENÊTRE FLOTTANTE
+   Une confirmation tient en trois lignes ; poser une version, acheter une
+   application ou activer un module demandent de la place, une tête qui dit
+   où l'on est, et un corps qui change d'étape sans que la fenêtre se ferme
+   et se rouvre — un clignotement à chaque étape donne l'impression que le
+   produit a redémarré.
+   ========================================================================= */
+
+.fenetre { max-width: 560px; padding: 0; overflow: hidden; }
+.fenetre-large { max-width: 760px; }
+
+.fenetre-tete {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid rgb(var(--shadow-ink) / 0.07);
+}
+.fenetre-tete .dialog-title { margin: 0; }
+
+.fenetre-croix { flex: 0 0 auto; margin: -6px -6px 0 0; }
+.fenetre-croix svg { width: 18px; height: 18px; }
+
+/* Le corps défile, la tête et les actions restent : sur un écran bas, c'est
+   ce qui garde le bouton atteignable sans chercher. */
+.fenetre-corps {
+  padding: 20px 24px;
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+}
+.fenetre .dialog-actions { margin: 0; padding: 16px 24px 18px; }
+
+/* Pendant une opération, la fenêtre ne se ferme pas d'un clic à côté et ses
+   boutons sont éteints : une pose interrompue à mi-chemin est pire que lente. */
+.fenetre-occupee { cursor: progress; }
+
+/* --- Les étapes d'une pose --- */
+
+.fenetre-etapes { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.fenetre-etape {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: var(--radius);
+  font-size: 0.86rem;
+  color: var(--text-secondary);
+}
+.fenetre-etape .puce {
+  flex: 0 0 auto;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgb(var(--shadow-ink) / 0.18);
+  display: grid;
+  place-items: center;
+  font-size: 0.66rem;
+}
+.fenetre-etape.faite { color: var(--text-primary); }
+.fenetre-etape.faite .puce {
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--success-contrast, #fff);
+}
+.fenetre-etape.courante {
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-weight: 560;
+}
+/* Le point qui tourne dit que l'instance travaille encore. Il ne dit rien
+   de plus, et c'est exactement ce qu'on sait. */
+.fenetre-etape.courante .puce {
+  border-color: var(--accent);
+  border-inline-end-color: transparent;
+  animation: fenetre-tourne 0.75s linear infinite;
+}
+.fenetre-etape.ratee .puce { background: var(--danger); border-color: var(--danger); color: var(--danger-contrast); }
+.fenetre-etape.ratee { color: var(--danger); }
+
+@keyframes fenetre-tourne { to { transform: rotate(360deg); } }
+
+/* --- Ce que la fenêtre annonce à la fin --- */
+
+.fenetre-verdict {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 15px;
+  border-radius: var(--radius);
+  font-size: 0.87rem;
+  line-height: 1.5;
+}
+.fenetre-verdict.reussi { background: var(--success-bg); border: 1px solid var(--success-border); }
+.fenetre-verdict.rate { background: var(--danger-bg); border: 1px solid var(--danger-border); }
+.fenetre-verdict .detail { display: block; margin-top: 6px; font-size: 0.82rem; color: var(--text-secondary); word-break: break-word; }
+
+.fenetre-notes {
+  margin-top: 14px;
+  padding: 13px 15px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.fenetre-paire { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid rgb(var(--shadow-ink) / 0.06); font-size: 0.87rem; }
+.fenetre-paire:last-child { border-bottom: 0; }
+.fenetre-paire dt { color: var(--text-secondary); }
+.fenetre-paire dd { margin: 0; font-weight: 560; text-align: end; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fenetre-etape.courante .puce { animation-duration: 1.6s; }
+}
+
+@media (max-width: 720px) {
+  .fenetre-tete { padding: 18px 18px 14px; }
+  .fenetre-corps { padding: 16px 18px; max-height: 64vh; }
+  .fenetre .dialog-actions { padding: 14px 18px 16px; }
+}
+
+@media (max-width: 720px) {
+  .dialog { padding: 22px 20px 18px; }
+  .dialog-actions { flex-direction: column-reverse; }
+  .dialog-actions .btn { width: 100%; }
+}
+
+/* =========================================================================
+   Rail replié
+   =========================================================================
+
+   Deux cent quarante-huit pixels de navigation permanente, c'est confortable
+   sur un grand écran et coûteux sur un portable : sur un treize pouces, cela
+   fait un cinquième de la largeur, pris à un tableau qui en manque.
+
+   Replié, le rail ne garde que les icônes. Les libellés ne sont pas retirés du
+   document, seulement masqués à l'œil : un lecteur d'écran les lit toujours,
+   et l'infobulle les rend à la souris. Le choix tient dans le navigateur de
+   chaque personne — ce n'est pas un réglage de l'instance — et il est appliqué
+   avant le premier rendu, sinon le rail large apparaîtrait puis sauterait.
+   ========================================================================= */
+
+.rail-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 1px solid var(--brand-line);
+  border-radius: var(--radius-sm);
+  background: var(--brand-wash);
+  color: var(--text-on-brand);
+  cursor: pointer;
+  transition: background 0.14s var(--ease-out), color 0.14s var(--ease-out);
+}
+.rail-toggle:hover { background: var(--brand-wash-strong); color: var(--brand-ink-strong); }
+.rail-toggle:focus-visible { outline: 2px solid var(--brand-ink); outline-offset: 2px; }
+
+:root[data-rail="replie"] {
+  --sidebar-width: 66px;
+}
+
+[data-rail="replie"] .sidebar { padding-inline: 8px; }
+[data-rail="replie"] .sidebar-brand { justify-content: center; padding-inline: 0; }
+[data-rail="replie"] .sidebar-brand .brand-text { display: none; }
+
+/* Le bouton repasse sous la marque : côte à côte, il ne resterait pas
+   soixante-six pixels pour les deux. */
+[data-rail="replie"] .rail-toggle { position: absolute; inset-block-start: 62px; inset-inline: 8px; width: auto; margin: 0; }
+[data-rail="replie"] .sidebar-brand { padding-bottom: 56px; }
+
+[data-rail="replie"] .side-link { justify-content: center; padding-inline: 0; border-inline-start-width: 0; border-radius: var(--radius); }
+[data-rail="replie"] .side-link.is-active { border-inline-start-color: transparent; box-shadow: inset 0 0 0 1px var(--brand-line); }
+
+/* Masqué à l'œil, pas au lecteur d'écran : « display: none » retirerait le nom
+   du lien, et un rail d'icônes anonymes n'est utilisable par personne. */
+[data-rail="replie"] .side-link-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Le compteur ne peut plus s'aligner à droite d'un libellé absent : il devient
+   une pastille sur l'icône, qui dit « il y a quelque chose » sans le nombre. */
+[data-rail="replie"] .side-link { position: relative; }
+[data-rail="replie"] .nav-badge {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-end: 8px;
+  min-width: 8px;
+  height: 8px;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 0;
+  box-shadow: 0 0 0 2px var(--brand-deep);
+}
+
+[data-rail="replie"] .sidebar-foot { align-items: center; }
+/* Trois choix côte à côte ne tiennent pas dans soixante-six pixels : la
+   grille passe à une colonne, et le sélecteur s'empile sous les rubriques. */
+[data-rail="replie"] .sidebar-foot .theme-toggle { grid-template-columns: 1fr; align-self: center; }
+
+/* Sur téléphone le rail est déjà une barre horizontale : le repli n'a plus de
+   sens, et le bouton n'a rien à y faire. */
+@media (max-width: 900px) {
+  .rail-toggle { display: none; }
+  :root[data-rail="replie"] { --sidebar-width: auto; }
+  [data-rail="replie"] .side-link-label { position: static; width: auto; height: auto; margin: 0; clip-path: none; }
+  [data-rail="replie"] .sidebar-brand { padding-bottom: 0; }
+  [data-rail="replie"] .nav-badge { position: static; min-width: 19px; height: 19px; font-size: 0.7rem; border-radius: 10px; box-shadow: none; }
+}
+
+/* =========================================================================
+   Écrans denses
+   =========================================================================
+
+   Deux habitudes coûtaient beaucoup de place : le statut d'une ligne montré
+   deux fois — une pastille et une liste déroulante portant la même valeur —
+   et un formulaire de création déplié en permanence sur un tiers de l'écran,
+   y compris les neuf fois sur dix où l'on vient consulter.
+
+   Les règles ci-dessous n'ont d'effet qu'une fois le DOM transformé par
+   ecrans.js. Sans lui, elles ne s'appliquent à rien et les écrans restent ce
+   qu'ils étaient : c'est voulu.
+   ========================================================================= */
+
+/* La liste de statut prend la place de la pastille et lui emprunte sa
+   couleur : sans elle, on perdrait le seul repère qui se lit sans lire. */
+.status-select {
+  width: auto;
+  min-width: 0;
+  padding: 3px 26px 3px 9px;
+  border-radius: var(--radius-pill);
+  border: 1px solid;
+  background-color: var(--surface-2);
+  font-size: 0.73rem;
+  font-weight: 600;
+  line-height: 1.5;
+  cursor: pointer;
+  /* La flèche native se dessine ici, pour que le fond reste celui de l'état. */
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%),
+                    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 13px) 52%, calc(100% - 9px) 52%;
+  background-size: 4px 4px, 4px 4px;
+  background-repeat: no-repeat;
+}
+.status-select.is-sending { opacity: 0.6; cursor: progress; }
+.status-select.status-on { color: var(--success); background-color: var(--success-bg); border-color: var(--success-border); }
+.status-select.status-warning { color: var(--warning); background-color: var(--warning-bg); border-color: var(--warning-border); }
+.status-select.status-danger { color: var(--danger); background-color: var(--danger-bg); border-color: var(--danger-border); }
+.status-select.status-off { color: var(--text-tertiary); background-color: var(--surface-2); border-color: var(--border); }
+.status-form { display: inline-flex; }
+
+/* Le panneau de création, replié : la grille redevient une seule colonne et
+   rend sa moitié gauche aux données. */
+.create-toggle { margin-bottom: 14px; }
+.create-toggle::before { content: '+'; margin-inline-end: 7px; font-size: 1.05em; line-height: 0; }
+.create-toggle.is-open::before { content: '×'; }
+/* Trois chiffres qui se lisent ensemble.
+   Ils étaient rangés dans une table à deux colonnes : dans une carte large —
+   et elle le devient dès que le formulaire de création se replie — le libellé
+   reste à gauche, le nombre part à mille pixels de là, et l'œil doit traverser
+   l'écran pour les apparier. Côte à côte, chaque nombre reste sous son
+   libellé. */
+.figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 44px;
+  margin: 0;
+  padding: 2px 0;
+}
+.figures > div { display: flex; flex-direction: column; gap: 1px; min-width: 110px; }
+.figures dt { margin: 0; font-size: 0.78rem; color: var(--text-secondary); }
+.figures dd {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Le dépliant d'une ligne de tableau : il appartient à la ligne du dessus, pas
+   à une ligne à part. Sans filet au-dessus, les deux se lisent ensemble. */
+.ligne-depliante > td { border-top: none; padding-top: 0; }
+.ligne-depliante .minutes { margin: 0; }
+
+.grid-2-replie { grid-template-columns: 1fr; }
+.grid-2-replie > .card:first-child { display: none; }
+
+/* ---------- Les groupes du rail ---------- */
+
+.side-group { margin: 12px 0 2px; }
+.sidebar-nav > .side-group:first-child { margin-top: 0; }
+
+.side-group-tete {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin: 0 0 4px;
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  color: var(--brand-quiet);
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: start;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color 0.12s ease, background 0.12s ease;
+}
+.side-group-tete:hover { color: var(--brand-ink); background: var(--brand-wash); }
+.side-group-tete:focus-visible { outline: 2px solid var(--brand-ink); outline-offset: 2px; }
+.side-group-nom { flex: 1; }
+/* Le chevron pointe vers le bas quand le groupe est ouvert, vers la rubrique
+   quand il est fermé : la direction dit ce qui se passera au clic. */
+.side-group-chevron { flex-shrink: 0; transition: transform 0.16s var(--ease-out); }
+
+.side-group-liste { display: flex; flex-direction: column; gap: 1px; }
+
+/* Le pli, posé sur <html> avant le premier rendu. Une règle par groupe : les
+   nommer vaut mieux qu'un sélecteur qui devinerait. Le pli ne vaut que rail
+   déplié — replié, le rail n'a plus de titre à cliquer, et un groupe fermé y
+   cacherait des icônes sans rien pour les rouvrir. */
+:root:not([data-rail="replie"])[data-groupes-fermes~="pilotage"] [data-groupe="pilotage"] > .side-group-liste,
+:root:not([data-rail="replie"])[data-groupes-fermes~="personnel"] [data-groupe="personnel"] > .side-group-liste,
+:root:not([data-rail="replie"])[data-groupes-fermes~="gestion"] [data-groupe="gestion"] > .side-group-liste,
+:root:not([data-rail="replie"])[data-groupes-fermes~="relation"] [data-groupe="relation"] > .side-group-liste,
+:root:not([data-rail="replie"])[data-groupes-fermes~="technique"] [data-groupe="technique"] > .side-group-liste,
+:root:not([data-rail="replie"])[data-groupes-fermes~="conformite"] [data-groupe="conformite"] > .side-group-liste,
+:root:not([data-rail="replie"])[data-groupes-fermes~="reglages"] [data-groupe="reglages"] > .side-group-liste {
+  display: none;
+}
+[data-groupes-fermes~="pilotage"] [data-groupe="pilotage"] > .side-group-tete .side-group-chevron,
+[data-groupes-fermes~="personnel"] [data-groupe="personnel"] > .side-group-tete .side-group-chevron,
+[data-groupes-fermes~="gestion"] [data-groupe="gestion"] > .side-group-tete .side-group-chevron,
+[data-groupes-fermes~="relation"] [data-groupe="relation"] > .side-group-tete .side-group-chevron,
+[data-groupes-fermes~="technique"] [data-groupe="technique"] > .side-group-tete .side-group-chevron,
+[data-groupes-fermes~="conformite"] [data-groupe="conformite"] > .side-group-tete .side-group-chevron,
+[data-groupes-fermes~="reglages"] [data-groupe="reglages"] > .side-group-tete .side-group-chevron {
+  transform: rotate(-90deg);
+}
+
+/* ---------- Les tuiles des tableaux de bord de section ----------
+
+   Un panneau d'hébergeur pose ses fonctions à plat et on clique l'une d'elles :
+   on cherche « ce que je veux faire », pas « où c'est rangé ». La tuile porte
+   donc son icône — la même que dans le rail, pour qu'on la reconnaisse d'un
+   écran à l'autre —, son nom, et une ligne qui dit ce qu'elle sert à faire :
+   « Facturation » se devine, « Facturer, acheter, suivre la trésorerie » se
+   comprend.
+
+   Les colonnes se comptent toutes seules : quatre sur un écran large, une sur
+   un téléphone, sans point de rupture à maintenir. Et comme le compte se fait
+   sur la largeur disponible, replier le rail en ajoute une — la même règle sert
+   les deux cas, il n'y a rien à tenir à jour. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+  gap: 10px;
+}
+
+.tile {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: inherit;
+  text-decoration: none;
+  transition: border-color 0.14s var(--ease-out), background 0.14s var(--ease-out),
+              transform 0.14s var(--ease-out);
+}
+.tile:hover {
+  background: var(--surface-hover);
+  border-color: var(--accent);
+  transform: translateY(-1px);
+  /* Une tuile se survole comme une carte : le soulignement des liens de texte y
+     ferait deux traits sous deux lignes, et rien de plus lisible. */
+  text-decoration: none;
+}
+.tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Une tuile qui ne mène nulle part : l'assistant montre ce que la section
+   contient avant qu'elle soit configurée, et ces tuiles-là s'expliquent
+   plutôt qu'elles ne s'ouvrent. Sans le survol, elles ne promettent rien. */
+.tile.is-static { cursor: default; }
+.tile.is-static:hover {
+  background: var(--surface-2);
+  border-color: var(--border);
+  transform: none;
+}
+.tile.is-static:hover .tile-icon { background: var(--accent-soft); color: var(--accent); }
+
+/* La pastille d'icône : assez colorée pour situer la tuile d'un coup d'œil,
+   assez discrète pour ne pas transformer la grille en vitrine. */
+.tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.tile:hover .tile-icon { background: var(--accent-fill); color: var(--accent-contrast); }
+
+.tile-text { display: flex; flex-direction: column; min-width: 0; gap: 2px; }
+.tile-name { font-size: 0.87rem; font-weight: 600; }
+/* Une ligne d'explication, et une seule : au-delà, ce n'est plus un raccourci
+   mais un paragraphe. Elle se coupe proprement plutôt que de pousser la tuile. */
+.tile-what {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile, .tile:hover { transition: none; transform: none; }
+}
+
+/* ── La boutique d'applications ──────────────────────────────────────────
+   Une grille de fiches, pas un tableau : ce qu'on lit d'une application est
+   un nom, une phrase, et sa réserve. La réserve garde une place fixe en bas
+   de fiche — la mettre dans un repli serait la manière polie de ne pas la
+   dire, et c'est elle qui évite d'allumer par erreur. */
+.store-note { margin: 0 0 16px; font-size: 0.86rem; }
+
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 12px;
+}
+
+.store-card {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px 15px;
+}
+
+.store-head { display: flex; align-items: flex-start; gap: 10px; }
+
+.store-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 34px;
+  block-size: 34px;
+  flex: 0 0 auto;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.store-name { display: flex; flex-direction: column; gap: 1px; min-inline-size: 0; flex: 1 1 auto; }
+.store-title { font-weight: 640; }
+
+.store-summary { margin: 0; font-size: 0.88rem; line-height: 1.5; }
+
+.store-caveat { font-size: 0.82rem; line-height: 1.45; }
+
+.store-actions { margin-top: auto; padding-top: 4px; }
+
+@media (max-width: 640px) {
+  .store-grid { grid-template-columns: 1fr; }
+}
+
+/* ---------------------------------------------------------------- Mes appareils
+ *
+ * Une ligne par session ouverte : ce qu'on cherche ici est la ligne qui n'est
+ * pas la sienne, et le bouton qui la ferme. La courante est marquée d'un fond,
+ * pas seulement d'une étiquette : l'œil doit l'écarter d'un coup pour que les
+ * autres ressortent.
+ */
+.device-list { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+
+.device {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.device.is-current { background: var(--success-bg); border-color: var(--success-border); }
+
+.device-what { display: flex; flex-direction: column; gap: 2px; min-inline-size: 0; }
+.device-what strong { font-size: 0.9rem; }
+.device-what .tag { align-self: flex-start; margin-block-start: 2px; }
+.device-what .cell-sub { overflow-wrap: anywhere; }
+
+/* L'étape « Sections » de l'assistant : une case par métier, et sous chacune
+   ce qu'il contient. Sept lignes de cases seules auraient demandé de deviner
+   ce qu'on décoche ; la ligne de services en dessous est ce qui rend le choix
+   possible, elle n'est pas de l'ornement. */
+.pick-list {
+  list-style: none;
+  margin: 14px 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pick {
+  padding: 11px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+/* « label » passe en colonne par défaut, et « input » prend toute la largeur :
+   une case à cocher héritait donc d'une case étirée, centrée au-dessus de son
+   nom. On remet la ligne, et la case à sa taille. */
+.pick-head {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+}
+.pick-head input { width: auto; flex-shrink: 0; margin: 0; }
+.pick-name { font-size: 0.87rem; font-weight: 600; }
+.pick-what {
+  margin: 5px 0 0 26px;
+  font-size: 0.74rem;
+  color: var(--text-tertiary);
+  line-height: 1.45;
+}
+/* Une section obligatoire se montre cochée et sans prise : la cacher ferait
+   croire qu'on installe six métiers quand on en installe sept. */
+.pick.is-locked { opacity: 0.78; }
+.pick.is-locked .pick-head { cursor: default; }
+.pick-tag {
+  margin-inline-start: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+/* Le rail des sections gagne une ligne, et la fenêtre est haute : sur un
+   portable, la liste défile plutôt que de pousser le bouton hors de l'écran. */
+@media (max-height: 760px) {
+  .pick-list { max-height: 44vh; overflow-y: auto; }
+}
+
+/* ---------------------------------------------------------------------------
+   L'assistant d'une section : trois temps, montrés en tête.
+
+   Il vit dans la console, pas sur le fond sombre de l'installeur : il reprend
+   donc les jetons de surface, et non ceux du panneau d'installation. Les
+   pastilles sont numérotées plutôt qu'illustrées — trois icônes pour
+   « découvrir, régler, terminer » n'auraient rien dit de plus que 1, 2, 3.
+   --------------------------------------------------------------------------- */
+/* Les actions d'un assistant suivent un bloc, pas un paragraphe : sans cet
+   écart, le bouton colle aux tuiles qu'il valide. */
+.card > .tiles + .form-actions,
+.card > .recap + .form-actions { margin-top: 16px; }
+
+.wizard-steps {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wizard-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px 8px 9px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+}
+.wizard-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.wizard-step.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 600;
+}
+.wizard-step.is-active .wizard-num { background: var(--accent-fill); color: var(--accent-contrast); }
+.wizard-step.is-done .wizard-num { background: var(--success-bg); color: var(--success); }
+
+/* Sur un portable, trois pastilles côte à côte débordent : elles passent à la
+   ligne, et le numéro suffit alors à situer. */
+@media (max-width: 560px) {
+  .wizard-step { flex: 1 1 auto; justify-content: center; padding-inline: 10px; }
+  .wizard-name { display: none; }
+  .wizard-step.is-active .wizard-name { display: inline; }
+}
+
+/* Une proposition de l'assistance : posée sur l'écran, visiblement à part de ce
+   que le produit affirme. Le liseré la distingue d'une donnée de l'entreprise.
+   Propriétés logiques : l'arabe se lit dans l'autre sens. */
+.assist-card { border-inline-start: 3px solid var(--accent); background: var(--surface-2); }
+.assist-points { list-style: none; margin: 0 0 10px; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.assist-points li { padding-inline-start: 14px; position: relative; color: var(--text); }
+.assist-points li::before { content: '—'; position: absolute; inset-inline-start: 0; color: var(--text-muted); }
+
+/* ---------- Emprunt d'identité ---------- */
+
+/* Le bandeau ne doit jamais pouvoir passer inaperçu : il reste visible quand on
+   descend dans la page, et la sortie reste avec lui. Un administrateur qui
+   oublie qu'il regarde l'écran de quelqu'un d'autre finit par écrire en son nom
+   sans le savoir. */
+.emprunt-banner {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.emprunt-banner form { margin: 0; }
+
+/* ---------- Le périmètre : le sélecteur de société ---------- */
+
+/* Posé dans le flux, juste sous l'en-tête : il doit se lire avant le contenu,
+   parce qu'il dit de quelle entité le contenu parle. */
+.societe-selecteur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+
+.societe-selecteur select { max-width: 320px; }
+
+/* ------------------------------------------------------------- actions de masse
+   La barre vit sous la liste et non au-dessus : on coche en descendant, et
+   l'action se trouve là où le regard arrive. */
+.masse {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+.masse-head { display: flex; flex-direction: column; gap: 2px; }
+.masse-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.masse-act { display: flex; gap: 6px; align-items: center; }
+.masse-act select { min-width: 9rem; }
+.masse-check { width: 1px; white-space: nowrap; }
+
+@media (max-width: 720px) {
+  .masse { flex-direction: column; align-items: stretch; }
+  .masse-actions { flex-direction: column; align-items: stretch; }
+  .masse-act { justify-content: space-between; }
+}
+
+/* Les lignes dont le statut n'est plus une colonne déclarée : montrées à part
+   plutôt que disparues sans un mot. */
+.board-outside {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}

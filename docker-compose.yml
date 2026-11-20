@@ -1,0 +1,66 @@
+# =============================================================================
+# Toutadmin — édition PHP
+# =============================================================================
+#
+#     docker compose up -d      puis ouvrir http://localhost:8080
+#
+# L'assistant s'y déroule en huit étapes et se ferme de lui-même une fois le
+# compte d'administration créé. Rien à supprimer ensuite.
+#
+# Changer de version :
+#
+#     docker compose pull && docker compose up -d
+#
+# C'est le seul chemin : le code vit dans l'image, et l'écran « Mises à jour »
+# le dit en toutes lettres plutôt que d'offrir un bouton qui se déferait au
+# premier remplacement.
+# -----------------------------------------------------------------------------
+
+services:
+  cms:
+    image: toutadmin-php:1.0.0
+    # Pour bâtir l'image depuis les sources plutôt que de la tirer :
+    # build: .
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      # Tout ce que l'instance possède : config.php, la base SQLite, les
+      # photos de profil, le coffre-fort, les CV, le parapheur, les pièces
+      # reçues, les sauvegardes, et la clé qui l'identifie auprès du service
+      # de licences. Rien de tout cela n'est dans l'image.
+      - donnees:/donnees
+    environment:
+      TZ: Europe/Paris
+      # Sur un serveur exposé, l'assistant réclame ce jeton avant d'installer.
+      # INSTALL_TOKEN: un-jeton-long-et-aleatoire
+
+    # depends_on:
+    #   base:
+    #     condition: service_healthy
+
+  # ── MySQL, si vous le préférez à SQLite ────────────────────────────────────
+  #
+  # Le moteur se choisit à l'étape « Base de données » de l'assistant, qui
+  # essaie la connexion avant de s'y engager. Renseignez-y « base » comme
+  # serveur, et les identifiants ci-dessous.
+  #
+  # base:
+  #   image: mariadb:11
+  #   restart: unless-stopped
+  #   environment:
+  #     MARIADB_DATABASE: toutadmin
+  #     MARIADB_USER: toutadmin
+  #     MARIADB_PASSWORD: a-changer
+  #     MARIADB_RANDOM_ROOT_PASSWORD: "yes"
+  #   volumes:
+  #     - base:/var/lib/mysql
+  #   healthcheck:
+  #     test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 12
+
+volumes:
+  donnees:
+  # base:

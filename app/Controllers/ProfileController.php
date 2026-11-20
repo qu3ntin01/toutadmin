@@ -1,0 +1,361 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Controllers;
+
+use App\Core\Audit;
+use App\Core\Flash;
+use App\Core\I18n;
+use App\Core\QrCode;
+use App\Core\Request;
+use App\Core\Response;
+use App\Core\Security;
+use App\Core\Session;
+use App\Core\Settings;
+use App\Core\View;
+use App\Modules\Appareils;
+use App\Modules\Avatars;
+use App\Modules\TwoFactor;
+use App\Modules\Users;
+
+/**
+ * Mon profil.
+ *
+ * Ce qu'une personne modifie elle-même : son nom d'usage, son téléphone, sa
+ * présentation, sa langue, son mot de passe. **Pas** son adresse de courrier
+ * interne ni les réglages de serveur de messagerie — ceux-là appartiennent à
+ * l'administration, et le formulaire ne les propose donc pas du tout, plutôt
+ * que de les proposer et les refuser ensuite.
+ */
+final class ProfileController
+{
+    public static function show(Request $request): Response
+    {
+        $session = Session::get('user');
+        $user = Users::byId((int) $session['id']);
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        $state = TwoFactor::stateOf($user);
+        // Les codes de secours ne s'affichent qu'une fois, juste après leur
+        // création : ils sont retirés de la session avant même le rendu.
+        $codes = Session::get('recovery_codes');
+        Session::forget('recovery_codes');
+        // Le défi d'un nouvel enregistrement de clé, gardé par la session.
+        $enregistrement = \App\Modules\Webauthn::optionsEnregistrement(
+            $user, \App\Modules\Webauthn::site($request), (string) (Settings::get('company_name') ?: 'Toutadmin')
+        );
+        Session::set('webauthn_defi', $enregistrement['defi']);
+
+        return Response::html(View::page('profile/index', [
+            'title' => t('profile.title') . ' — ' . t('app.name'),
+            'panelLabel' => t('app.portal'),
+            'headerTitle' => t('profile.title'),
+            'headerSubtitle' => t('profile.subtitle'),
+            'member' => $user,
+            'twoFactorState' => $state,
+            'twoFactorRequired' => TwoFactor::requiredFor($user),
+            'twoFactorSecret' => $state['pending'] ? (string) $user['totp_secret'] : null,
+            // Le code QR porte le secret : il est dessiné dans la page, jamais
+            // écrit dans un fichier ni demandé à un service distant.
+            'twoFactorQr' => $state['pending']
+                ? QrCode::svg(TwoFactor::uri($user, Settings::get('company_name')), 220, t('prf.qrAlt'))
+                : null,
+            'recoveryCodes' => is_array($codes) ? $codes : null,
+            // Où ce compte est ouvert. La sienne est marquée : sans cela, la
+            // liste ne dit rien — c'est en reconnaissant la sienne qu'on
+            // remarque les autres.
+            'appareils' => Appareils::pour((int) $user['id'], Session::id()),
+            'webauthnCles' => \App\Modules\Webauthn::clesDe((int) $user['id']),
+            'webauthnOptions' => $enregistrement['options'],
+            'scripts' => ['/js/webauthn.js'],
+        ]));
+    }
+
+    private const MOTIFS_CLE = [
+        'expired' => 'Le délai est passé : recommencez.',
+        'challenge' => 'Cette demande ne vient pas de cette page : recommencez.',
+        'origin' => 'La clé a répondu pour une autre adresse que celle-ci.',
+        'rp' => 'La clé a répondu pour un autre site que celui-ci.',
+        'presence' => "La clé n'a pas constaté votre présence : touchez-la quand elle clignote.",
+        'algorithm' => "Cette clé utilise un algorithme que le produit n'accepte pas (ES256 ou RS256 attendu).",
+        'duplicate' => 'Cette clé est déjà enregistrée.',
+    ];
+
+    public static function addKey(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        $defi = Session::get('webauthn_defi');
+        Session::forget('webauthn_defi');
+        $verdict = \App\Modules\Webauthn::verifierEnregistrement(
+            $request->input('client_data'), $request->input('attestation'),
+            is_array($defi) ? $defi : null, \App\Modules\Webauthn::site($request)
+        );
+        $resultat = $verdict['ok'] ? \App\Modules\Webauthn::enregistrer((int) $user['id'], $request->input('name'), $verdict) : $verdict;
+        if (!$resultat['ok']) {
+            Flash::set('error', self::MOTIFS_CLE[$resultat['reason']] ?? "La clé n'a pas pu être enregistrée.");
+            return Response::redirect('/mon-profil#securite');
+        }
+        Audit::log('webauthn.cle_ajoutee', 'users', (int) $user['id'], ['cle' => $resultat['id']]);
+        Flash::set('success', 'Clé de sécurité enregistrée : elle sert désormais de second facteur.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    public static function removeKey(Request $request, array $params): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        if (!Security::verifyPassword((string) ($request->body['current_password'] ?? ''), (string) $user['password_hash'])) {
+            Flash::set('error', 'Mot de passe incorrect.');
+            return Response::redirect('/mon-profil#securite');
+        }
+        if (TwoFactor::requiredFor($user) && (int) ($user['totp_enabled'] ?? 0) !== 1
+            && count(\App\Modules\Webauthn::clesDe((int) $user['id'])) === 1) {
+            Flash::set('error', "La double authentification est exigée pour votre rôle : gardez cette clé, ou activez d'abord un code temporaire.");
+            return Response::redirect('/mon-profil#securite');
+        }
+        if (!\App\Modules\Webauthn::supprimer((int) $user['id'], (int) $params['id'])) {
+            Flash::set('error', 'Clé introuvable.');
+            return Response::redirect('/mon-profil#securite');
+        }
+        Audit::log('webauthn.cle_retiree', 'users', (int) $user['id']);
+        Flash::set('success', 'Clé de sécurité retirée.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    /**
+     * Fermer une session, et une seule.
+     *
+     * Le geste qui manquait. Devant un doute, le seul recours était « fermer
+     * toutes mes sessions », qui ferme aussi la sienne : on ne le fait pas par
+     * précaution, on le fait une fois certain — et on n'était jamais certain
+     * puisque rien ne se voyait.
+     *
+     * Le compte est dans la condition du DELETE, pas seulement vérifié avant :
+     * un identifiant de session relevé ailleurs ne ferme que ce qui appartient
+     * à qui le présente.
+     */
+    public static function closeDevice(Request $request, array $params): Response
+    {
+        $session = Session::get('user');
+        $user = Users::byId((int) $session['id']);
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        $sid = (string) ($params['sid'] ?? '');
+
+        if ($sid === Session::id()) {
+            // Fermer celle d'où l'on parle, c'est se déconnecter : on le fait
+            // proprement plutôt que de laisser un cookie pointer vers un vide.
+            // Le détail du journal n'est pas traduit : c'est une trace qu'on
+            // relit plus tard, peut-être dans une autre langue que celle où
+            // le geste a été fait.
+            Audit::log('session.fermee', 'users', (int) $user['id'], 'la sienne');
+            Session::destroy();
+            return Response::redirect('/connexion');
+        }
+
+        if (!Appareils::fermer((int) $user['id'], $sid)) {
+            Flash::set('error', t('devices.gone'));
+            return Response::redirect('/mon-profil');
+        }
+
+        Audit::log('session.fermee', 'users', (int) $user['id']);
+        Flash::set('success', t('devices.closed'));
+        return Response::redirect('/mon-profil');
+    }
+
+    public static function update(Request $request): Response
+    {
+        $session = Session::get('user');
+        $user = Users::byId((int) $session['id']);
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+
+        $locale = $request->input('locale', (string) $user['locale']);
+        Users::updateSelf((int) $user['id'], [
+            'first_name' => mb_substr($request->input('first_name'), 0, 80),
+            'last_name' => mb_substr($request->input('last_name'), 0, 80),
+            'phone' => mb_substr($request->input('phone'), 0, 40),
+            'bio' => mb_substr($request->input('bio'), 0, 2000),
+            'locale' => I18n::isSupported($locale) ? $locale : $user['locale'],
+        ]);
+
+        Session::set('locale', I18n::isSupported($locale) ? $locale : $user['locale']);
+        $fresh = Users::byId((int) $user['id']);
+        if ($fresh !== null) {
+            Session::set('user', Users::forSession($fresh));
+        }
+        Flash::set('success', t('common.save') . ' ✓');
+        return Response::redirect('/mon-profil');
+    }
+
+    /**
+     * Photo de profil. Le fichier est reçu en mémoire puis contrôlé : le type
+     * annoncé par le navigateur ne vaut rien tant que le contenu ne le confirme
+     * pas, et rien n'est écrit avant cette vérification.
+     */
+    public static function uploadPhoto(Request $request): Response
+    {
+        $user = Users::byId((int) Session::get('user')['id']);
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+
+        $file = $request->file('avatar');
+        if ($file === null) {
+            Flash::set('error', t('profile.photoHelp'));
+            return Response::redirect('/mon-profil');
+        }
+
+        $fileName = Avatars::save($file);
+        if ($fileName === null) {
+            Flash::set('error', "Ce fichier n'est pas une image : son contenu ne correspond pas au format annoncé.");
+            return Response::redirect('/mon-profil');
+        }
+
+        // La photo précédente est remplacée, pas accumulée.
+        Avatars::remove($user['avatar_file']);
+        Users::updateSelf((int) $user['id'], ['avatar_file' => $fileName]);
+
+        $fresh = Users::byId((int) $user['id']);
+        if ($fresh !== null) {
+            Session::set('user', Users::forSession($fresh));
+        }
+        Flash::set('success', t('profile.photo') . ' ✓');
+        return Response::redirect('/mon-profil');
+    }
+
+    public static function deletePhoto(Request $request): Response
+    {
+        $user = Users::byId((int) Session::get('user')['id']);
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+
+        if (($user['avatar_file'] ?? '') === '' || $user['avatar_file'] === null) {
+            Flash::set('error', 'Aucune photo de profil à retirer.');
+            return Response::redirect('/mon-profil');
+        }
+
+        Avatars::remove($user['avatar_file']);
+        \App\Core\Db::run('UPDATE users SET avatar_file = NULL WHERE id = ?', [(int) $user['id']]);
+
+        $fresh = Users::byId((int) $user['id']);
+        if ($fresh !== null) {
+            Session::set('user', Users::forSession($fresh));
+        }
+        Flash::set('success', t('profile.removePhoto') . ' ✓');
+        return Response::redirect('/mon-profil');
+    }
+
+    /**
+     * Le fichier d'une photo. Il ne sort pas du dossier public : cette route
+     * demande une session, et ne sert que des noms que nous avons écrits.
+     */
+    public static function photo(Request $request, array $params): Response
+    {
+        $name = (string) $params['name'];
+        $path = Avatars::pathOf($name);
+        if ($path === null || !is_file($path)) {
+            return Response::text('', 404);
+        }
+
+        return Response::text((string) file_get_contents($path))->withHeaders([
+            'Content-Type' => Avatars::mimeOf($name),
+            'Cache-Control' => 'private, max-age=604800',
+            'Content-Disposition' => 'inline',
+        ]);
+    }
+
+    // ---------- Double authentification ----------
+
+    private static function current(): ?array
+    {
+        $session = Session::get('user');
+        return is_array($session) ? Users::byId((int) $session['id']) : null;
+    }
+
+    public static function prepareTwoFactor(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        if ((int) $user['totp_enabled'] === 1) {
+            Flash::set('error', 'La double authentification est déjà active.');
+            return Response::redirect('/mon-profil');
+        }
+
+        TwoFactor::beginEnrolment((int) $user['id']);
+        Flash::set('success', 'Scannez le QR code, puis saisissez le code affiché pour confirmer.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    public static function enableTwoFactor(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+
+        $verdict = TwoFactor::confirmEnrolment((int) $user['id'], $request->input('code'));
+        if (!$verdict['ok']) {
+            Flash::set('error', $verdict['message']);
+            return Response::redirect('/mon-profil#securite');
+        }
+
+        Session::set('recovery_codes', $verdict['recoveryCodes']);
+        Audit::log('2fa.activee', 'users', (int) $user['id']);
+        Flash::set('success', 'Double authentification activée. Conservez les codes de secours ci-dessous.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    public static function disableTwoFactor(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+
+        // Le mot de passe est redemandé : retirer le second facteur depuis une
+        // session déjà ouverte serait sinon gratuit pour qui passe derrière un
+        // écran resté déverrouillé.
+        if (!Security::verifyPassword((string) ($request->body['current_password'] ?? ''), (string) $user['password_hash'])) {
+            Flash::set('error', 'Mot de passe incorrect.');
+            return Response::redirect('/mon-profil#securite');
+        }
+        if (TwoFactor::requiredFor($user)) {
+            Flash::set('error', "La double authentification est exigée par l'entreprise pour votre rôle.");
+            return Response::redirect('/mon-profil#securite');
+        }
+
+        TwoFactor::disable((int) $user['id']);
+        Audit::log('2fa.desactivee', 'users', (int) $user['id']);
+        Flash::set('success', 'Double authentification désactivée.');
+        return Response::redirect('/mon-profil#securite');
+    }
+
+    public static function newRecoveryCodes(Request $request): Response
+    {
+        $user = self::current();
+        if ($user === null) {
+            return Response::redirect('/connexion');
+        }
+        if ((int) $user['totp_enabled'] !== 1) {
+            return Response::redirect('/mon-profil#securite');
+        }
+
+        Session::set('recovery_codes', TwoFactor::regenerateRecoveryCodes((int) $user['id']));
+        Audit::log('2fa.codes_regeneres', 'users', (int) $user['id']);
+        Flash::set('success', 'Nouveaux codes de secours. Les précédents ne valent plus.');
+        return Response::redirect('/mon-profil#securite');
+    }
+}

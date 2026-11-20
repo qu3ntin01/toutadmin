@@ -1,0 +1,10 @@
+/config.php
+/data/
+# Le brouillon de l'assistant : il porte, le temps de l'installation, le mot
+# de passe de la base. /data/ le couvre déjà, mais data_dir peut être ailleurs.
+.installation.json
+/public/media/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+.DS_Store
