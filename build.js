@@ -689,13 +689,15 @@ function footHtml(t, ctx) {
  * est vide de sens et caché aux lecteurs d'écran.
  */
 function feteHtml() {
-  const ampoules = '<li></li>'.repeat(40);
+  const points = '<li></li>'.repeat(14);
   return `<div class="fete" aria-hidden="true">
-  <div class="fete-aurore"><i></i><i></i><i></i></div>
+  <div class="fete-aurore"><i></i><i></i><i></i><i></i></div>
+  <div class="fete-rideaux"></div>
   <div class="fete-etoiles"></div>
+  <div class="fete-grain"></div>
 </div>
 <canvas class="fete-neige" aria-hidden="true"></canvas>
-<ul class="guirlande" aria-hidden="true">${ampoules}</ul>`;
+<ul class="rideaux" aria-hidden="true">${points}</ul>`;
 }
 
 /*

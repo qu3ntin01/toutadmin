@@ -212,8 +212,8 @@ de la barre et dans le tiroir :
 
 - **le thème est clair par défaut** — « Système » reste un choix, mais ce n'est plus ce
   que reçoit quelqu'un qui n'a rien demandé ;
-- **le mouvement est coupé par défaut** (`data-motion` sur `<html>`). Il s'allume par un
-  choix, jamais de lui-même, et jamais pour qui a demandé moins d'animation à son
+- **le mouvement est allumé par défaut** (`data-motion` sur `<html>`). On le coupe d'un
+  clic, et il n'est jamais allumé pour qui a demandé moins d'animation à son
   système : le réglage est alors verrouillé, et le menu le dit. Changer le réglage
   recharge la page — il décide de ce qui se met en place au chargement ;
 - **la saison** (`data-season`) : du 28 novembre au 6 janvier, la page prend sa tenue
@@ -221,12 +221,13 @@ de la barre et dans le tiroir :
   avant l'heure, `?saison=off` la retire.
 
 La tenue de fêtes tient en deux fichiers : `assets/fete.css` — le décor immobile
-(palette de pin et de rubis en clair comme en sombre, guirlande sous la barre, bonnet
-sur la marque, boules au héros, congère sur le pied de page) et, sous `data-motion="on"`,
-le mouvement (aurore qui dérive, poussière d'or qui scintille, ampoules qui s'allument à
-tour de rôle, reflet sur les boutons, filet doré qui tourne autour de la formule mise en
-avant) — et `assets/fete.js`, la neige sur trois plans de profondeur et la poussière d'or
-qui suit le pointeur, sur un seul canevas que rien n'intercepte. Le dessin est tenu bas :
+(« nuit polaire » : palette d'aurore boréale cyan, violet, rose et vert d'eau, glace en
+clair et nuit en sombre ; verre dépoli, filets irisés, grain, rideaux de lumière sur les
+bords) et, sous `data-motion="on"`, le mouvement (quatre nappes d'aurore qui dérivent,
+rideaux qui ondulent, étoiles qui scintillent, titre qui coule, reflet sur les boutons,
+filet irisé qui tourne autour de la formule mise en avant) — et `assets/fete.js`, la
+neige sur trois plans de profondeur, le bokeh, les étoiles filantes et la poussière
+d'étoiles qui suit le pointeur, sur un seul canevas que rien n'intercepte. Le dessin est tenu bas :
 flocons précalculés, nombre suivant la surface de la fenêtre et qui baisse tout seul si
 les images tardent, boucle arrêtée quand l'onglet est caché. Rien d'extérieur n'est
 chargé : les dessins sont des SVG en `data:`, que la politique de contenu autorise.

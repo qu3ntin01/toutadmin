@@ -4,9 +4,9 @@
 
    • le thème : clair par défaut. « Système » reste un choix, mais ce n'est
      plus ce que reçoit quelqu'un qui n'a rien demandé ;
-   • le mouvement : coupé par défaut. Il s'allume par un choix, jamais de
-     lui-même, et jamais du tout pour qui a demandé moins d'animation à son
-     système — ce choix-là n'est pas à nous ;
+   • le mouvement : allumé par défaut, coupable d'un clic — et jamais allumé
+     pour qui a demandé moins d'animation à son système, ce choix-là n'est
+     pas à nous ;
    • la saison : du 28 novembre au 6 janvier, la page prend sa tenue de fêtes,
      sauf si le visiteur l'a refusée. « ?saison=noel » la montre en tout temps,
      pour la voir avant l'heure. */
@@ -32,7 +32,7 @@
 
   try {
     var calme = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var mouvement = lire('ta-motion', 'off') === 'on' && !calme;
+    var mouvement = lire('ta-motion', 'on') === 'on' && !calme;
     racine.setAttribute('data-motion', mouvement ? 'on' : 'off');
     if (calme) racine.setAttribute('data-motion-locked', '');
   } catch (e) {

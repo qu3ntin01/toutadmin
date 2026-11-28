@@ -52,7 +52,7 @@
       if (attribut === 'data-motion-choice' && root.hasAttribute('data-motion-locked')) boutons[i].disabled = true;
     }
   }
-  marquer('data-motion-choice', 'ta-motion', 'off');
+  marquer('data-motion-choice', 'ta-motion', 'on');
   marquer('data-season-choice', 'ta-season', 'auto');
   document.addEventListener('click', function (e) {
     var m = e.target.closest && e.target.closest('[data-motion-choice]');

@@ -1,4 +1,4 @@
-/* Vitrine Toutadmin — la neige et la poussière d'or.
+/* Vitrine Toutadmin — la neige, le bokeh et les étoiles filantes.
 
    Un seul canevas, posé devant la page et qui n'intercepte rien : de la neige
    sur trois plans de profondeur, et, pour qui a une souris, une traînée de
@@ -39,6 +39,9 @@
   var H = 0;
   var flocons = [];
   var poussiere = [];
+  var bokeh = [];
+  var filante = null;
+  var prochaine = 0;
   var sprites = null;
   var vent = 0;
   var pointeurX = 0.5;
@@ -118,7 +121,21 @@
     };
   }
 
+  function peuplerBokeh() {
+    bokeh.length = 0;
+    var n = Math.round(Math.min(Math.max(L / 110, 6), 16));
+    var teintes = ['0,214,235', '139,92,246', '255,105,185', '60,240,180'];
+    for (var i = 0; i < n; i += 1) {
+      bokeh.push({
+        x: Math.random() * L, y: Math.random() * H, r: alea(14, 46),
+        v: alea(3, 10), phase: Math.random() * 6.283, freq: alea(0.15, 0.4),
+        t: teintes[i % teintes.length], a: alea(0.05, 0.12)
+      });
+    }
+  }
+
   function peupler() {
+    peuplerBokeh();
     var cible = Math.round(Math.min(Math.max(L * H / 15000, 36), 150) * densite);
     flocons.length = 0;
     for (var i = 0; i < cible; i += 1) {
@@ -159,7 +176,7 @@
   function etoile(x, y, r, alpha, or) {
     // Quatre branches fines et un cœur : l'éclat, pas un rond.
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = or ? '#ffe9a8' : '#ffffff';
+    ctx.fillStyle = or ? '#8be9ff' : '#ffc2e3';
     ctx.beginPath();
     ctx.moveTo(x, y - r * 2.4);
     ctx.quadraticCurveTo(x + r * 0.28, y - r * 0.28, x + r * 2.4, y);
@@ -187,6 +204,49 @@
 
     ctx.clearRect(0, 0, L, H);
     var temps = t / 1000;
+
+    // Le bokeh : de grands disques flous qui montent lentement et respirent.
+    var sombreT = racine.getAttribute('data-theme') === 'dark';
+    for (var b = 0; b < bokeh.length; b += 1) {
+      var o = bokeh[b];
+      o.y -= o.v * dt;
+      if (o.y + o.r < 0) { o.y = H + o.r; o.x = Math.random() * L; }
+      var pulse = 0.55 + 0.45 * Math.sin(temps * o.freq * 6.283 + o.phase);
+      var gr = ctx.createRadialGradient(o.x, o.y, 0, o.x, o.y, o.r);
+      gr.addColorStop(0, 'rgba(' + o.t + ',' + (o.a * pulse * (sombreT ? 1.6 : 1)) + ')');
+      gr.addColorStop(0.7, 'rgba(' + o.t + ',' + (o.a * pulse * 0.5) + ')');
+      gr.addColorStop(1, 'rgba(' + o.t + ',0)');
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = gr;
+      ctx.beginPath();
+      ctx.arc(o.x, o.y, o.r, 0, 6.283);
+      ctx.fill();
+    }
+
+    // Une étoile filante, de loin en loin : une traînée qui traverse le haut.
+    if (!filante && temps > prochaine) {
+      filante = { x: Math.random() * L * 0.7 + L * 0.1, y: Math.random() * H * 0.3, vx: alea(520, 760), vy: alea(220, 340), vie: 0 };
+      prochaine = temps + alea(7, 16);
+    }
+    if (filante) {
+      filante.vie += dt;
+      filante.x += filante.vx * dt;
+      filante.y += filante.vy * dt;
+      var fa = Math.max(0, 1 - filante.vie / 0.9);
+      if (fa <= 0) { filante = null; } else {
+        var tr = ctx.createLinearGradient(filante.x, filante.y, filante.x - filante.vx * 0.16, filante.y - filante.vy * 0.16);
+        tr.addColorStop(0, sombreT ? 'rgba(255,255,255,' + fa + ')' : 'rgba(106,69,230,' + fa + ')');
+        tr.addColorStop(1, 'rgba(139,233,255,0)');
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = tr;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(filante.x, filante.y);
+        ctx.lineTo(filante.x - filante.vx * 0.16, filante.y - filante.vy * 0.16);
+        ctx.stroke();
+      }
+    }
     for (var i = 0; i < flocons.length; i += 1) {
       var f = flocons[i];
       f.y += f.v * dt;
