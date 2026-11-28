@@ -54,7 +54,12 @@
   refuserait de le charger au lieu de l'accepter en silence.
 -->
 <meta http-equiv="Content-Security-Policy" content="{{CSP}}" />
-<link rel="icon" href="{{BASE}}assets/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="{{BASE}}assets/favicon.svg?v={{V_ICON}}" type="image/svg+xml" />
+<link rel="icon" href="{{BASE}}assets/favicon.ico?v={{V_ICON}}" sizes="16x16 32x32 48x48" />
+<link rel="apple-touch-icon" href="{{BASE}}assets/apple-touch-icon.png?v={{V_ICON}}" />
+<link rel="manifest" href="{{BASE}}manifest.webmanifest" />
+<meta name="theme-color" content="#f4f6fc" media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content="#080d20" media="(prefers-color-scheme: dark)" />
 {{ALTERNATES}}
 {{JSONLD}}
 <script src="{{BASE}}assets/theme-boot.js?v={{V_BOOT}}"></script>

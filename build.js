@@ -106,7 +106,7 @@ const OG_LOCALE = {
  */
 const CSP_BASE = "default-src 'none'; script-src 'self'; style-src 'self'; "
   + "img-src 'self' data:; font-src 'self'; connect-src 'self'; base-uri 'none'; "
-  + "form-action 'none'; object-src 'none'; upgrade-insecure-requests";
+  + "form-action 'none'; object-src 'none'; manifest-src 'self'; upgrade-insecure-requests";
 const CSP_META = CSP_BASE;
 const CSP_HEADER = `${CSP_BASE}; frame-ancestors 'none'`;
 
@@ -350,7 +350,7 @@ const stamp = (file) => crypto.createHash('sha1')
   .digest('hex').slice(0, 10);
 const VERSIONS = {
   css: stamp('style.css'), boot: stamp('theme-boot.js'), app: stamp('app.js'),
-  feteCss: stamp('fete.css'), feteJs: stamp('fete.js'),
+  feteCss: stamp('fete.css'), feteJs: stamp('fete.js'), icon: stamp('favicon.svg'),
 };
 const { DOMAINS } = require(path.join(ROOT, 'pages', '_shared.js'));
 
@@ -719,7 +719,7 @@ function ldJson(ctx) {
     '@type': 'Organization',
     name: t('site.name'),
     url: `${SITE_URL}/`,
-    logo: `${SITE_URL}/assets/logo.svg`,
+    logo: `${SITE_URL}/assets/icon-512.png`,
   };
   const site = {
     '@type': 'WebSite',
@@ -828,6 +828,7 @@ for (const locale of LOCALES) {
       .split('{{V_CSS}}').join(VERSIONS.css)
       .split('{{V_BOOT}}').join(VERSIONS.boot)
       .split('{{V_APP}}').join(VERSIONS.app)
+      .split('{{V_ICON}}').join(VERSIONS.icon)
       .split('{{V_FETE_CSS}}').join(VERSIONS.feteCss)
       .split('{{V_FETE_JS}}').join(VERSIONS.feteJs)
       .split('{{FETE}}').join(feteHtml())
@@ -878,6 +879,20 @@ for (const dir of ['assets', 'medias']) {
     fs.copyFileSync(path.join(ROOT, dir, file), path.join(OUT, dir, file));
   }
 }
+
+// L'icône à la racine, là où les navigateurs et les robots la cherchent sans
+// qu'on le leur dise, et le manifeste qui la donne en 192 et 512 pour l'écran
+// d'accueil d'un téléphone.
+fs.copyFileSync(path.join(ROOT, 'assets', 'favicon.ico'), path.join(OUT, 'favicon.ico'));
+fs.writeFileSync(path.join(OUT, 'manifest.webmanifest'), JSON.stringify({
+  name: 'Toutadmin', short_name: 'Toutadmin', start_url: './index.html', display: 'standalone',
+  background_color: '#080d20', theme_color: '#080d20',
+  icons: [
+    { src: 'assets/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+    { src: 'assets/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+    { src: 'assets/favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+  ],
+}, null, 2) + '\n');
 
 fs.writeFileSync(path.join(OUT, 'robots.txt'),
   `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`);
