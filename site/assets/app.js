@@ -9,8 +9,8 @@
   var media = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
 
   function read() {
-    try { var v = localStorage.getItem(KEY); return v === 'dark' || v === 'light' || v === 'system' ? v : 'system'; }
-    catch (e) { return 'system'; }
+    try { var v = localStorage.getItem(KEY); return v === 'dark' || v === 'light' || v === 'system' ? v : 'light'; }
+    catch (e) { return 'light'; }
   }
   function apply(pref) {
     var dark = pref === 'dark' || (pref === 'system' && media && media.matches);
@@ -31,6 +31,41 @@
     try { localStorage.setItem(KEY, pref); } catch (err) { /* stockage bloqué : le choix vaut pour la page */ }
     apply(pref);
   });
+
+  /* ------------------------------------------- mouvement et saison
+     Deux réglages de même forme que le thème : un attribut sur <html>, posé
+     avant le premier rendu par theme-boot.js, et des boutons qui le changent.
+
+     Changer l'un ou l'autre recharge la page. Le mouvement n'est pas qu'une
+     règle de style : il décide si l'animation de l'accueil tourne, si les
+     compteurs montent, si la neige tombe — des mécanismes qui se mettent en
+     place au chargement. Les relancer à chaud pour un réglage qu'on change une
+     fois serait du code pour un geste rare ; la page revient là où on était. */
+  function reglage(cle, defaut) {
+    try { var v = localStorage.getItem(cle); return v === null ? defaut : v; } catch (e) { return defaut; }
+  }
+  function marquer(attribut, cle, defaut) {
+    var valeur = reglage(cle, defaut);
+    var boutons = document.querySelectorAll('[' + attribut + ']');
+    for (var i = 0; i < boutons.length; i += 1) {
+      boutons[i].classList.toggle('is-active', boutons[i].getAttribute(attribut) === valeur);
+      if (attribut === 'data-motion-choice' && root.hasAttribute('data-motion-locked')) boutons[i].disabled = true;
+    }
+  }
+  marquer('data-motion-choice', 'ta-motion', 'off');
+  marquer('data-season-choice', 'ta-season', 'auto');
+  document.addEventListener('click', function (e) {
+    var m = e.target.closest && e.target.closest('[data-motion-choice]');
+    var f = e.target.closest && e.target.closest('[data-season-choice]');
+    if (!m && !f || (m && m.disabled)) return;
+    try {
+      if (m) localStorage.setItem('ta-motion', m.getAttribute('data-motion-choice'));
+      if (f) localStorage.setItem('ta-season', f.getAttribute('data-season-choice'));
+    } catch (err) { /* stockage bloqué : le choix ne tient pas, la page ne change pas */ return; }
+    window.location.reload();
+  });
+  // Le mouvement tel que la page l'a reçu : tout ce qui bouge s'y conforme.
+  var mouvement = root.getAttribute('data-motion') === 'on';
 
   /* ------------------------------------------------ barre et menus pop */
   var nav = document.querySelector('.nav');
@@ -225,7 +260,7 @@
   var cx = document.querySelector('.cx');
   if (cx) {
     var dessin = cx.querySelector('.cx-svg');
-    var calme = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var calme = !mouvement || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     var figer = function () { if (dessin && dessin.pauseAnimations) dessin.pauseAnimations(); };
     var relancer = function () { if (dessin && dessin.unpauseAnimations) dessin.unpauseAnimations(); };
     if (calme) {
@@ -303,7 +338,7 @@
      regardait la page — ou la capturait — dans la première seconde lisait
      « 33 espaces, 11 langues » au lieu de 47 et 16. */
   var counters = document.querySelectorAll('[data-count]');
-  var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var still = !mouvement || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   if (counters.length && 'IntersectionObserver' in window && !still) {
     var vus = typeof WeakSet === 'function' ? new WeakSet() : null;
     var co = new IntersectionObserver(function (entries) {

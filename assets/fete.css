@@ -1,0 +1,346 @@
+/* =========================================================================
+   Toutadmin — la tenue de fêtes
+   =========================================================================
+
+   Du 1er décembre au 6 janvier, la page change de tenue : pin et rubis, un peu
+   d'or, de la neige. Tout est posé sur « html[data-season="noel"] » — l'attribut
+   que theme-boot.js met ou non —, et rien de ce fichier ne s'applique sans lui :
+   la tenue se retire en retirant l'attribut, sans toucher au reste.
+
+   Deux étages, qui ne se confondent pas :
+
+     • le DÉCOR, qui est de la couleur et du dessin : palette, guirlande, boules,
+       givre, dérive de neige au pied du pied de page. Il est immobile, et c'est
+       lui que reçoit celui qui n'a pas allumé le mouvement ;
+     • le MOUVEMENT, qui n'existe que sous « html[data-motion="on"] » : aurore
+       qui dérive, étoiles qui scintillent, ampoules qui s'allument à tour de
+       rôle, reflets qui glissent, bordure qui tourne, neige qui tombe (fete.js).
+       Il est coupé par défaut, et ne l'est jamais moins pour qui a demandé moins
+       d'animation à son système.
+
+   Même contrat que la feuille principale : propriétés logiques, aucun style en
+   ligne, aucune ressource extérieure — les dessins sont des SVG en « data: »,
+   que la politique de contenu autorise.
+   ========================================================================= */
+
+/* Le décor n'existe pas hors saison. */
+.fete, .guirlande, .foot-greet { display: none; }
+
+html[data-season="noel"] {
+  --fete-pin: #0f5a43;
+  --fete-rubis: #b3122f;
+  --fete-or: #c99a3e;
+  --fete-neige: #fffdf8;
+}
+
+/* ───────────────────────────── La palette, en clair : neige chaude, pin, rubis */
+html[data-season="noel"] {
+  --brand: #0f5a43;
+  --brand-2: #13734f;
+  --brand-3: #8a6410;
+  --brand-4: #b3122f;
+  --brand-deep: #0f2d24;
+  --ink: #16261f;
+  --ink-2: #3d4f46;
+  --ink-3: #5a6b62;
+  --line: #e6dccb;
+  --line-2: #d6c8ae;
+  --bg: #fbf6ee;
+  --bg-2: #f6efe2;
+  --bg-3: rgb(15 90 67 / .07);
+  --card: #fffdf8;
+  --card-solid: #fffdf8;
+  --card-2: #faf4e9;
+  --glass: rgb(255 253 248 / .8);
+  --glass-strong: rgb(255 252 245 / .97);
+  --glass-bd: #eadfca;
+  --on-brand: #ffffff;
+  --good: #0f6b4f;
+  --good-bg: #e0f1e8;
+  --grad: linear-gradient(135deg, #0f6b4f 0%, #b3122f 100%);
+  --grad-hot: linear-gradient(120deg, #0f5a43 0%, #8d1f2e 52%, #b3122f 100%);
+  --grad-text: linear-gradient(100deg, #0f5a43 0%, #a8182f 55%, #a87510 100%);
+  --grad-title: linear-gradient(100deg, var(--ink) 0%, var(--ink) 28%, #0f5a43 66%, #b3122f 100%);
+  --shadow-s: 0 1px 2px rgb(15 45 36 / .07), 0 4px 14px rgb(15 45 36 / .07);
+  --shadow-m: 0 2px 6px rgb(15 45 36 / .07), 0 18px 40px rgb(15 45 36 / .13);
+  --shadow-l: 0 10px 30px rgb(15 45 36 / .13), 0 40px 90px rgb(179 18 47 / .17);
+}
+html[data-season="noel"] body {
+  background:
+    radial-gradient(120% 60% at 50% -12%, #ffffff 0%, transparent 62%),
+    linear-gradient(180deg, #fbf6ee 0%, #f3ebdd 100%);
+  background-attachment: fixed;
+}
+
+/* ───────────────────── En sombre : nuit de pin, or chaud, rubis qui s'allume */
+html[data-season="noel"][data-theme="dark"] {
+  --brand: #f2c66d;
+  --brand-2: #ff7a8a;
+  --brand-3: #8fd6b0;
+  --brand-4: #ff9aa8;
+  --brand-deep: #f8f1e4;
+  --ink: #f8f1e4;
+  --ink-2: #cdd9cf;
+  --ink-3: #9db3a6;
+  --line: rgb(242 198 109 / .16);
+  --line-2: rgb(242 198 109 / .3);
+  --bg: #050e0c;
+  --bg-2: #0a1713;
+  --bg-3: rgb(242 198 109 / .08);
+  --card: rgb(13 32 27 / .72);
+  --card-solid: #0d201b;
+  --card-2: rgb(18 41 35 / .6);
+  --glass: rgb(9 24 20 / .68);
+  --glass-strong: rgb(8 21 17 / .97);
+  --glass-bd: rgb(242 198 109 / .2);
+  --on-brand: #ffffff;
+  --good: #7fe0ae;
+  --good-bg: rgb(127 224 174 / .12);
+  --grad: linear-gradient(135deg, #a8132f 0%, #cf3f3b 100%);
+  --grad-hot: linear-gradient(120deg, #a8132f 0%, #c4253c 58%, #cf3f3b 100%);
+  --grad-text: linear-gradient(100deg, #f7d98b 0%, #ffbfa6 52%, #ff93a3 100%);
+  --grad-title: linear-gradient(100deg, #ffffff 0%, #ffffff 26%, #f7d98b 66%, #ff93a3 100%);
+  --shadow-s: 0 1px 2px rgb(0 0 0 / .5), 0 0 0 1px rgb(242 198 109 / .05);
+  --shadow-m: 0 2px 6px rgb(0 0 0 / .45), 0 18px 40px rgb(0 8 5 / .6);
+  --shadow-l: 0 10px 30px rgb(0 0 0 / .5), 0 40px 90px rgb(0 8 5 / .7), 0 0 70px rgb(242 198 109 / .1);
+}
+html[data-season="noel"][data-theme="dark"] body {
+  background:
+    radial-gradient(90% 55% at 50% -18%, #14402f 0%, transparent 66%),
+    radial-gradient(60% 40% at 100% 30%, rgb(120 20 40 / .28) 0%, transparent 70%),
+    linear-gradient(180deg, #050e0c 0%, #071713 58%, #0a1118 100%);
+  background-attachment: fixed;
+}
+html[data-season="noel"] ::selection { background: rgb(179 18 47 / .22); }
+html[data-season="noel"][data-theme="dark"] ::selection { background: rgb(242 198 109 / .3); }
+
+/* ───────────────────────────────────────────────────── Le calque de décor
+   Fixe, derrière la page. L'aurore et les étoiles sont du dégradé — la carte
+   graphique les déplace sans rien recalculer ; la neige est un canevas que
+   fete.js remplit, devant la page, sans jamais intercepter un clic. */
+html[data-season="noel"] .fete { display: block; position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+.fete-aurore i { position: absolute; border-radius: 50%; will-change: transform; }
+.fete-aurore i:nth-child(1) {
+  inline-size: 78vmax; block-size: 46vmax; inset-block-start: -20vmax; inset-inline-start: -16vmax;
+  background: radial-gradient(closest-side, rgb(15 107 79 / .2), transparent 72%);
+}
+.fete-aurore i:nth-child(2) {
+  inline-size: 62vmax; block-size: 38vmax; inset-block-start: -12vmax; inset-inline-end: -18vmax;
+  background: radial-gradient(closest-side, rgb(179 18 47 / .13), transparent 72%);
+}
+.fete-aurore i:nth-child(3) {
+  inline-size: 70vmax; block-size: 34vmax; inset-block-end: -18vmax; inset-inline-start: 18vmax;
+  background: radial-gradient(closest-side, rgb(214 165 74 / .2), transparent 72%);
+}
+html[data-season="noel"][data-theme="dark"] .fete-aurore i:nth-child(1) { background: radial-gradient(closest-side, rgb(24 160 112 / .3), transparent 72%); }
+html[data-season="noel"][data-theme="dark"] .fete-aurore i:nth-child(2) { background: radial-gradient(closest-side, rgb(210 48 76 / .24), transparent 72%); }
+html[data-season="noel"][data-theme="dark"] .fete-aurore i:nth-child(3) { background: radial-gradient(closest-side, rgb(242 198 109 / .18), transparent 72%); }
+
+/* Poussière d'or : deux trames de points de tailles différentes, qui
+   scintillent en opposition — jamais toutes ensemble. Elle s'efface vers le bas
+   pour ne pas salir le pied de page. */
+.fete-etoiles::before, .fete-etoiles::after { content: ''; position: absolute; inset: 0; }
+.fete-etoiles::before {
+  background-image:
+    radial-gradient(1.6px 1.6px at 24px 36px, var(--etoile, #c99a3e), transparent),
+    radial-gradient(1.1px 1.1px at 96px 88px, var(--etoile, #c99a3e), transparent),
+    radial-gradient(1.8px 1.8px at 168px 28px, var(--etoile, #c99a3e), transparent),
+    radial-gradient(1.2px 1.2px at 208px 132px, var(--etoile, #c99a3e), transparent);
+  background-size: 240px 160px; opacity: .5;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 82%); -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 82%);
+}
+.fete-etoiles::after {
+  background-image:
+    radial-gradient(1.2px 1.2px at 60px 20px, var(--etoile, #c99a3e), transparent),
+    radial-gradient(1.7px 1.7px at 140px 104px, var(--etoile, #c99a3e), transparent),
+    radial-gradient(1px 1px at 12px 118px, var(--etoile, #c99a3e), transparent);
+  background-size: 190px 150px; background-position: 70px 40px; opacity: .35;
+  mask-image: linear-gradient(180deg, #000 0%, transparent 70%); -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 70%);
+}
+html[data-season="noel"][data-theme="dark"] .fete-etoiles { --etoile: #fff3d1; }
+.fete-neige { position: fixed; inset: 0; inline-size: 100%; block-size: 100%; z-index: 40; pointer-events: none; }
+.fete-neige:not(.is-on) { display: none; }
+
+/* ───────────────────────────────────────────── La guirlande sous la barre
+   Posée sur le haut de la page et non sur la barre collante : elle défile avec
+   le contenu et disparaît, au lieu de rester sur ce qu'on lit. Chaque maillon
+   porte son bout de fil et son ampoule ; quatre couleurs, qui se répètent. */
+html[data-season="noel"] .guirlande {
+  display: flex; position: absolute; inset-inline: 10px; inset-block-start: 68px; block-size: 54px; margin: 0; padding: 0;
+  list-style: none; z-index: 50; pointer-events: none;
+}
+.guirlande li { flex: 1; position: relative; min-inline-size: 0; --c: #ff3b5c; }
+.guirlande li:nth-child(4n + 2) { --c: #ffc83d; }
+.guirlande li:nth-child(4n + 3) { --c: #2fd391; }
+.guirlande li:nth-child(4n + 4) { --c: #4cc3ff; }
+.guirlande li::before {
+  content: ''; position: absolute; inset-inline: -1px; inset-block-start: 0; block-size: 20px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0 1.5Q50 22 100 1.5' fill='none' stroke='%232a3a33' stroke-width='1.5' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+}
+.guirlande li::after {
+  content: ''; position: absolute; inset-inline-start: 50%; inset-block-start: 10px; inline-size: 9px; block-size: 16px; margin-inline-start: -4.5px;
+  border-radius: 46% 46% 50% 50% / 30% 30% 70% 70%;
+  background:
+    linear-gradient(#2a3a33 0 3px, transparent 3px),
+    radial-gradient(circle at 36% 38%, #fff 0 9%, var(--c) 46%, color-mix(in srgb, var(--c) 60%, #000) 100%);
+  box-shadow: 0 0 9px 2px color-mix(in srgb, var(--c) 60%, transparent), 0 0 26px 6px color-mix(in srgb, var(--c) 24%, transparent);
+}
+@media (max-width: 700px) { .guirlande li:nth-child(n + 15) { display: none; } }
+
+/* ───────────────────────────────── Le bonnet, sur la marque ; les boules, au héros */
+html[data-season="noel"] .brand { position: relative; }
+html[data-season="noel"] .brand::before {
+  content: ''; position: absolute; inset-inline-start: 17px; inset-block-start: -11px; inline-size: 26px; block-size: 22px; z-index: 2; pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 22'%3E%3Cpath d='M3 18C4 8 11 1 20 3c-3 2-3 5-2 8l5 7z' fill='%23c4253c'/%3E%3Cpath d='M2 17.5q10 3.5 21 0l1 3q-11 4-23 0z' fill='%23fffdf8'/%3E%3Ccircle cx='21' cy='3.5' r='3' fill='%23fffdf8'/%3E%3C/svg%3E") center / contain no-repeat;
+  transform: rotate(14deg); filter: drop-shadow(0 2px 2px rgb(0 0 0 / .25));
+}
+html[data-season="noel"] .brand-mark { background-color: #0f2d24; box-shadow: inset 0 1px 0 rgb(255 255 255 / .14), 0 6px 16px rgb(179 18 47 / .3); }
+html[data-season="noel"][dir="rtl"] .brand::before { transform: scaleX(-1) rotate(14deg); }
+
+html[data-season="noel"] .hero-home::before,
+html[data-season="noel"] .hero-home::after {
+  content: ''; position: absolute; inset-block-start: 0; z-index: 1; pointer-events: none; transform-origin: 50% 0;
+  background-repeat: no-repeat;
+}
+/* Une boule rubis au bout d'un fil d'or, une boule dorée plus loin : un SVG
+   chacune — fil, culot, boule et reflet —, parce qu'un dégradé radial posé sur
+   une boîte carrée donne une boule carrée. La rubis pend entre les deux
+   colonnes du héros, la dorée au bord : ni l'une ni l'autre sur le texte. */
+html[data-season="noel"] .hero-home::before {
+  inset-inline-start: 50%; margin-inline-start: -25px; inline-size: 50px; block-size: 150px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 150'%3E%3Cdefs%3E%3CradialGradient id='b' cx='36%' cy='30%' r='72%'%3E%3Cstop offset='0' stop-color='%23ff8497'/%3E%3Cstop offset='.5' stop-color='%23c4253c'/%3E%3Cstop offset='1' stop-color='%235e0a1b'/%3E%3C/radialGradient%3E%3ClinearGradient id='k' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23e3c477'/%3E%3Cstop offset='1' stop-color='%23b8923f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M25 0V96' stroke='%23b8923f' stroke-width='1.4' fill='none'/%3E%3Crect x='19' y='94' width='12' height='9' rx='2' fill='url(%23k)'/%3E%3Ccircle cx='25' cy='126' r='23' fill='url(%23b)'/%3E%3Cellipse cx='17' cy='117' rx='5.5' ry='3.2' fill='%23fff' opacity='.75' transform='rotate(-35 17 117)'/%3E%3Ccircle cx='34' cy='136' r='9' fill='%23fff' opacity='.08'/%3E%3C/svg%3E"); background-size: 100% 100%;
+  filter: drop-shadow(0 8px 10px rgb(94 10 27 / .28));
+}
+html[data-season="noel"] .hero-home::after {
+  inset-inline-end: 3%; inline-size: 50px; block-size: 210px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 210'%3E%3Cdefs%3E%3CradialGradient id='b' cx='36%' cy='30%' r='72%'%3E%3Cstop offset='0' stop-color='%23fff3c0'/%3E%3Cstop offset='.5' stop-color='%23e2b64d'/%3E%3Cstop offset='1' stop-color='%238a6410'/%3E%3C/radialGradient%3E%3ClinearGradient id='k' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23e3c477'/%3E%3Cstop offset='1' stop-color='%23b8923f'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M25 0V164' stroke='%23b8923f' stroke-width='1.4' fill='none'/%3E%3Crect x='19' y='162' width='12' height='9' rx='2' fill='url(%23k)'/%3E%3Ccircle cx='25' cy='186' r='23' fill='url(%23b)'/%3E%3Cellipse cx='17' cy='177' rx='5.5' ry='3.2' fill='%23fff' opacity='.75' transform='rotate(-35 17 177)'/%3E%3Ccircle cx='34' cy='196' r='9' fill='%23fff' opacity='.08'/%3E%3C/svg%3E"); background-size: 100% 100%;
+  filter: drop-shadow(0 8px 10px rgb(138 100 16 / .3));
+}
+@media (max-width: 960px) { html[data-season="noel"] .hero-home::before, html[data-season="noel"] .hero-home::after { display: none; } }
+
+/* ──────────────────────────────────────────── Barre, cartes, panneaux, pied */
+html[data-season="noel"] .nav-shell::before {
+  background: linear-gradient(110deg, rgb(201 154 62 / .6), rgb(179 18 47 / .3) 42%, rgb(15 90 67 / .45));
+}
+html[data-season="noel"][data-theme="dark"] .nav-shell::before {
+  background: linear-gradient(110deg, rgb(242 198 109 / .6), rgb(210 48 76 / .35) 42%, rgb(143 214 176 / .4));
+}
+html[data-season="noel"] .nav-shell::after { background: linear-gradient(90deg, var(--fete-pin), var(--fete-rubis), var(--fete-or)); }
+html[data-season="noel"] .card, html[data-season="noel"] .plan {
+  border-color: color-mix(in srgb, var(--fete-or) 30%, var(--glass-bd));
+}
+html[data-season="noel"] .card:hover, html[data-season="noel"] .plan:hover {
+  border-color: color-mix(in srgb, var(--fete-or) 70%, transparent);
+  box-shadow: var(--shadow-m), 0 0 0 1px color-mix(in srgb, var(--fete-or) 40%, transparent), 0 16px 44px color-mix(in srgb, var(--fete-or) 22%, transparent);
+}
+html[data-season="noel"] .plan-badge { box-shadow: 0 8px 18px rgb(179 18 47 / .35); }
+
+/* La constellation de l'accueil prend la nuit de pin. */
+html[data-season="noel"] .cx {
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgb(20 120 84 / .5) 0%, transparent 60%),
+    radial-gradient(90% 70% at 100% 100%, rgb(179 18 47 / .32) 0%, transparent 60%),
+    linear-gradient(180deg, #0f2a22 0%, #06110e 100%);
+  border-color: rgb(242 198 109 / .3);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .1), 0 30px 80px rgb(15 45 36 / .4), 0 0 0 1px rgb(5 14 12 / .4);
+}
+html[data-season="noel"] #cx-core stop:nth-child(1) { stop-color: #e0453f; }
+html[data-season="noel"] #cx-core stop:nth-child(2) { stop-color: #b3122f; }
+html[data-season="noel"] #cx-core stop:nth-child(3) { stop-color: #7d0f25; }
+html[data-season="noel"] #cx-glow stop { stop-color: #ffcf6b; }
+html[data-season="noel"] .cx-link { stroke: rgb(242 198 109 / .38); }
+html[data-season="noel"] .cx-pulse { stroke: rgb(255 122 138 / .7); }
+html[data-season="noel"] .cx-ring-b { stroke: rgb(242 198 109 / .22); }
+html[data-season="noel"] .cx-stats b, html[data-season="noel"] .cx-eyebrow { color: #f7d98b; }
+
+/* La bande d'appel, sous les cartes : rubis, pin et or. */
+html[data-season="noel"] .band {
+  background: linear-gradient(125deg, #0b3d2e 0%, #146b4d 34%, #a8182f 72%, #7d0f25 100%);
+  box-shadow: 0 30px 80px rgb(125 15 37 / .35), inset 0 1px 0 rgb(255 255 255 / .25);
+}
+
+/* Le pied de page : une congère le coiffe. Des boules de neige de deux
+   tailles, qui se chevauchent — dessinées en dégradés, sans image. */
+html[data-season="noel"] .foot > .wrap { position: relative; }
+html[data-season="noel"] .foot > .wrap::before {
+  content: ''; position: absolute; inset-inline: 22px; inset-block-start: -11px; block-size: 22px; pointer-events: none;
+  background:
+    radial-gradient(circle at 14px 12px, var(--fete-neige) 0 11px, transparent 11.6px) 0 0 / 28px 22px repeat-x,
+    radial-gradient(circle at 34px 14px, var(--fete-neige) 0 8px, transparent 8.6px) 0 0 / 52px 22px repeat-x;
+  filter: drop-shadow(0 -1px 1px rgb(15 45 36 / .12));
+}
+html[data-season="noel"][data-theme="dark"] .foot > .wrap::before {
+  background:
+    radial-gradient(circle at 14px 12px, #e9f1ee 0 11px, transparent 11.6px) 0 0 / 28px 22px repeat-x,
+    radial-gradient(circle at 34px 14px, #e9f1ee 0 8px, transparent 8.6px) 0 0 / 52px 22px repeat-x;
+  filter: drop-shadow(0 -2px 6px rgb(0 0 0 / .4));
+}
+html[data-season="noel"] .foot-greet {
+  display: inline-block; font-weight: 700; letter-spacing: .02em;
+  background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+
+/* ═══════════════════════════════════════════════════════════════ MOUVEMENT
+   Rien de ce qui suit ne s'applique sans « data-motion="on" ». */
+
+html[data-season="noel"][data-motion="on"] .fete-aurore i:nth-child(1) { animation: aurore-a 26s ease-in-out infinite alternate; }
+html[data-season="noel"][data-motion="on"] .fete-aurore i:nth-child(2) { animation: aurore-b 31s ease-in-out infinite alternate; }
+html[data-season="noel"][data-motion="on"] .fete-aurore i:nth-child(3) { animation: aurore-c 37s ease-in-out infinite alternate; }
+@keyframes aurore-a { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(14vmax, 8vmax, 0) scale(1.14); } }
+@keyframes aurore-b { from { transform: translate3d(0, 0, 0) scale(1.05); } to { transform: translate3d(-12vmax, 11vmax, 0) scale(.92); } }
+@keyframes aurore-c { from { transform: translate3d(0, 0, 0) scale(.95); } to { transform: translate3d(-9vmax, -9vmax, 0) scale(1.12); } }
+
+html[data-season="noel"][data-motion="on"] .fete-etoiles::before { animation: scintille 4.2s ease-in-out infinite alternate; }
+html[data-season="noel"][data-motion="on"] .fete-etoiles::after { animation: scintille 5.6s ease-in-out -2.3s infinite alternate-reverse; }
+@keyframes scintille { from { opacity: .12; } to { opacity: .7; } }
+
+/* Les ampoules s'allument à tour de rôle, par groupes de quatre, et le halo
+   respire avec elles. */
+html[data-season="noel"][data-motion="on"] .guirlande li::after { animation: ampoule 2.8s ease-in-out infinite; }
+html[data-season="noel"][data-motion="on"] .guirlande li:nth-child(4n + 2)::after { animation-delay: -.7s; }
+html[data-season="noel"][data-motion="on"] .guirlande li:nth-child(4n + 3)::after { animation-delay: -1.4s; }
+html[data-season="noel"][data-motion="on"] .guirlande li:nth-child(4n + 4)::after { animation-delay: -2.1s; }
+@keyframes ampoule {
+  0%, 100% { opacity: .55; filter: saturate(.8); }
+  50% { opacity: 1; filter: saturate(1.25) brightness(1.15); }
+}
+
+/* Les boules se balancent, chacune à son rythme. */
+html[data-season="noel"][data-motion="on"] .hero-home::before { animation: balancer 5.5s ease-in-out infinite alternate; }
+html[data-season="noel"][data-motion="on"] .hero-home::after { animation: balancer 7.2s ease-in-out -2s infinite alternate; }
+@keyframes balancer { from { transform: rotate(-5deg); } to { transform: rotate(5deg); } }
+
+/* Le titre étincelle : le dégradé de la marque défile dans les lettres. */
+html[data-season="noel"][data-motion="on"] .hero h1 .g {
+  background-size: 220% 100%; animation: etincelle 7s ease-in-out infinite alternate;
+}
+@keyframes etincelle { from { background-position: 0% 0; } to { background-position: 100% 0; } }
+
+/* Un reflet glisse sur les boutons pleins, de loin en loin. */
+html[data-season="noel"][data-motion="on"] .btn:not(.btn-glass):not(.btn-ghost):not(.btn-light) { position: relative; overflow: hidden; isolation: isolate; }
+html[data-season="noel"][data-motion="on"] .btn:not(.btn-glass):not(.btn-ghost):not(.btn-light)::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(105deg, transparent 32%, rgb(255 255 255 / .42) 50%, transparent 68%);
+  transform: translateX(-130%); animation: glisse 6.5s ease-in-out 1.2s infinite;
+}
+@keyframes glisse { 0%, 62% { transform: translateX(-130%); } 100% { transform: translateX(130%); } }
+
+/* La formule mise en avant : un filet doré tourne autour d'elle. « @property »
+   rend l'angle animable ; sans lui — navigateurs plus anciens —, le filet reste
+   fixe, ce qui est déjà la tenue de fêtes. */
+@property --ang { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+html[data-season="noel"][data-motion="on"] .plan.is-featured {
+  background:
+    linear-gradient(var(--card-solid), var(--card-solid)) padding-box,
+    conic-gradient(from var(--ang), #0f5a43, #b3122f, #e2b64d, #b3122f, #0f5a43) border-box;
+  animation: tourne 9s linear infinite;
+}
+@keyframes tourne { to { --ang: 360deg; } }
+
+/* Les cartes se soulèvent d'un cran de plus, avec un halo d'or. */
+html[data-season="noel"][data-motion="on"] .card, html[data-season="noel"][data-motion="on"] .plan { transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fete-aurore i, .fete-etoiles::before, .fete-etoiles::after, .guirlande li::after,
+  .hero-home::before, .hero-home::after, .hero h1 .g, .btn::after, .plan.is-featured { animation: none !important; }
+}

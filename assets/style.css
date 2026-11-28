@@ -119,47 +119,6 @@ h3 { font-size: 1.16rem; }
 p { margin: 0; }
 ul { margin: 0; padding: 0; list-style: none; }
 
-/* ------------------------------------------------------- le fond qui vit
-
-   Quatre nappes de couleur, très floues, qui dérivent lentement derrière
-   toute la page, et une trame de points qui s'estompe vers le bas. Ce sont
-   des dégradés, pas des filtres : la carte graphique les déplace sans rien
-   recalculer, et la page reste fluide sur une machine modeste. */
-.ambiance { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
-.ambiance .orb { position: absolute; border-radius: 50%; opacity: .62; will-change: transform; }
-.ambiance .o1 {
-  inline-size: 62vmax; block-size: 62vmax; inset-block-start: -26vmax; inset-inline-start: -18vmax;
-  background: radial-gradient(circle, rgb(52 211 153 / .55), rgb(52 211 153 / 0) 66%);
-  animation: derive-1 34s ease-in-out infinite alternate;
-}
-.ambiance .o2 {
-  inline-size: 54vmax; block-size: 54vmax; inset-block-start: -14vmax; inset-inline-end: -20vmax;
-  background: radial-gradient(circle, rgb(56 189 248 / .5), rgb(56 189 248 / 0) 66%);
-  animation: derive-2 40s ease-in-out infinite alternate;
-}
-.ambiance .o3 {
-  inline-size: 50vmax; block-size: 50vmax; inset-block-end: -24vmax; inset-inline-start: 12vmax;
-  background: radial-gradient(circle, rgb(244 114 182 / .30), rgb(244 114 182 / 0) 66%);
-  animation: derive-3 46s ease-in-out infinite alternate;
-}
-.ambiance .o4 {
-  inline-size: 40vmax; block-size: 40vmax; inset-block-start: 38vh; inset-inline-end: -12vmax;
-  background: radial-gradient(circle, rgb(56 189 248 / .22), rgb(56 189 248 / 0) 66%);
-  animation: derive-2 52s ease-in-out infinite alternate-reverse;
-}
-.ambiance .trame {
-  position: absolute; inset: 0;
-  background-image: radial-gradient(rgb(0 113 140 / .16) 1px, transparent 1.2px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 20%, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 20%, transparent 75%);
-}
-[data-theme="dark"] .ambiance .orb { opacity: .42; }
-[data-theme="dark"] .ambiance .trame { background-image: radial-gradient(rgb(0 216 238 / .10) 1px, transparent 1.2px); }
-@keyframes derive-1 { to { transform: translate3d(14vmax, 10vmax, 0) scale(1.12); } }
-@keyframes derive-2 { to { transform: translate3d(-12vmax, 12vmax, 0) scale(1.08); } }
-@keyframes derive-3 { to { transform: translate3d(10vmax, -12vmax, 0) scale(1.15); } }
-
 /* ------------------------------------------------------------ mise en page */
 .wrap { inline-size: 100%; max-inline-size: var(--maxw); margin-inline: auto; padding-inline: 24px; }
 .section { padding-block: clamp(64px, 8vw, 116px); position: relative; }
@@ -1055,7 +1014,6 @@ pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; }
-  .ambiance .orb { animation: none; }
   .hero-window { transform: none; opacity: 1; transition: none; }
   .hero-window::before { opacity: 1; transition: none; }
   .hero-sheen, .hero-cursor, .hero-tap, .hero-glow { display: none; }
@@ -1067,6 +1025,30 @@ pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
   a.card:hover, .card:hover { transform: none; }
   @view-transition { navigation: none; }
 }
+
+/* Le mouvement est coupé par défaut : les mêmes règles que pour « moins
+   d'animation », posées sur l'attribut que theme-boot.js met sur <html>. Un
+   visiteur qui n'a rien demandé reçoit une page immobile ; celui qui allume
+   le mouvement — et dont le système ne l'interdit pas — la reçoit vivante.
+
+   Les animations finies sautent à leur état final plutôt que d'être
+   supprimées : une « animation: none » laisserait chaque élément qui apparaît
+   par animation dans son état de départ, invisible. */
+html:not([data-motion="on"]) *, html:not([data-motion="on"]) *::before, html:not([data-motion="on"]) *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+html:not([data-motion="on"]) { scroll-behavior: auto; }
+html:not([data-motion="on"]) .reveal { opacity: 1; transform: none; }
+html:not([data-motion="on"]) .hero-window { transform: none; opacity: 1; transition: none; }
+html:not([data-motion="on"]) .hero-window::before { opacity: 1; transition: none; }
+html:not([data-motion="on"]) .hero-sheen, html:not([data-motion="on"]) .hero-cursor, html:not([data-motion="on"]) .hero-tap, html:not([data-motion="on"]) .hero-glow { display: none; }
+html:not([data-motion="on"]) .hero-screen { transition: none; }
+html:not([data-motion="on"]) .hero-screen:not(.is-on) { transform: none; }
+html:not([data-motion="on"]) .cx-toasts, html:not([data-motion="on"]) .cx-pks, html:not([data-motion="on"]) .cx-pks-net, html:not([data-motion="on"]) .cx-pulse { display: none; }
+html:not([data-motion="on"]) .nav-shell::after { display: none; }
+html:not([data-motion="on"]) .card::before, html:not([data-motion="on"]) .plan::before { display: none; }
+html:not([data-motion="on"]) a.card:hover, html:not([data-motion="on"]) .card:hover { transform: none; }
+html:not([data-motion="on"]) ::view-transition-group(*),
+html:not([data-motion="on"]) ::view-transition-old(*),
+html:not([data-motion="on"]) ::view-transition-new(*) { animation: none; }
 
 /* La commande, depuis les cartes de formule. L'annuel est dit sous le prix
    mensuel, en petit : c'est le même prix, en une facture. Le devis est un
@@ -1114,3 +1096,17 @@ pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace
    veut, mais ce qu'on copie reste la ligne d'origine, sans retour inséré. */
 pre.wrap-code { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
 pre.wrap-code code { white-space: inherit; }
+
+/* Réglages du menu : mouvement et saison. Deux touches, ou trois, sur la même
+   grille que le thème ; la note ne se montre que si le système a demandé moins
+   d'animation — le réglage est alors verrouillé, et on dit pourquoi. */
+.prefs-two { grid-template-columns: repeat(2, 1fr); }
+.prefs-theme:disabled { opacity: .5; cursor: not-allowed; }
+.prefs-note { margin: 8px 0 0; font-size: .8rem; color: var(--ink-3); line-height: 1.4; }
+html[data-motion-locked] .prefs-note[data-motion-locked-note] { display: block; }
+.prefs-note[hidden] { display: none; }
+html[data-motion-locked] .prefs-note[data-motion-locked-note][hidden] { display: block; }
+.drawer-prefs { align-items: center; gap: 12px; flex-wrap: wrap; }
+.drawer-prefs-t { font-size: .84rem; font-weight: 650; color: var(--ink-2); min-inline-size: 7.5em; }
+.seg-txt .seg-btn { inline-size: auto; padding-inline: 10px; gap: 6px; font: inherit; font-size: .8rem; font-weight: 620; }
+.seg-btn:disabled { opacity: .5; cursor: not-allowed; }

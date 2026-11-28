@@ -348,7 +348,10 @@ const layout = fs.readFileSync(path.join(ROOT, 'layout.html'), 'utf8');
 const stamp = (file) => crypto.createHash('sha1')
   .update(fs.readFileSync(path.join(ROOT, 'assets', file)))
   .digest('hex').slice(0, 10);
-const VERSIONS = { css: stamp('style.css'), boot: stamp('theme-boot.js'), app: stamp('app.js') };
+const VERSIONS = {
+  css: stamp('style.css'), boot: stamp('theme-boot.js'), app: stamp('app.js'),
+  feteCss: stamp('fete.css'), feteJs: stamp('fete.js'),
+};
 const { DOMAINS } = require(path.join(ROOT, 'pages', '_shared.js'));
 
 /*
@@ -473,6 +476,15 @@ function navHtml(t, ctx) {
             <div class="prefs-themes">
               ${themes}
             </div>
+            <h4>${esc(t('nav.motion'))}</h4>
+            <div class="prefs-themes prefs-two">
+              ${reglagesButtons(t, 'prefs-theme', 'data-motion-choice', MOUVEMENT, 'nav.motion')}
+            </div>
+            <p class="prefs-note" data-motion-locked-note hidden>${esc(t('nav.motion.locked'))}</p>
+            <h4>${esc(t('nav.season'))}</h4>
+            <div class="prefs-themes">
+              ${reglagesButtons(t, 'prefs-theme', 'data-season-choice', SAISON, 'nav.season')}
+            </div>
           </div>
         </div>
         <a class="btn btn-sm btn-glass nav-client" href="${CLIENT_URL}" rel="noopener">${icon('user')}${esc(t('nav.client'))}</a>
@@ -482,6 +494,15 @@ function navHtml(t, ctx) {
     </div>
   </header>`;
 }
+
+/* Le mouvement et la saison : deux réglages de plus dans le menu, de même forme
+   que le thème. Les valeurs sont celles que lit theme-boot.js. */
+function reglagesButtons(t, classe, attribut, valeurs, cle) {
+  return valeurs.map(([valeur, ic, label]) =>
+    `<button class="${classe}" type="button" ${attribut}="${valeur}">${icon(ic)}<span>${esc(t(`${cle}.${label}`))}</span></button>`).join('\n              ');
+}
+const MOUVEMENT = [['off', 'close', 'off'], ['on', 'spark', 'on']];
+const SAISON = [['auto', 'sun', 'auto'], ['on', 'spark', 'on'], ['off', 'close', 'off']];
 
 function themeButtons(t) {
   return [['light', 'sun', t('nav.themeLight')], ['dark', 'moon', t('nav.themeDark')], ['system', 'monitor', t('nav.themeSystem')]]
@@ -562,6 +583,18 @@ function drawerHtml(t, ctx) {
     </div>
     <div class="drawer-body">
       <div class="drawer-theme">${segHtml(t)}</div>
+      <div class="drawer-theme drawer-prefs">
+        <span class="drawer-prefs-t">${esc(t('nav.motion'))}</span>
+        <div class="seg seg-txt" role="group" aria-label="${esc(t('nav.motion'))}">
+          ${reglagesButtons(t, 'seg-btn', 'data-motion-choice', MOUVEMENT, 'nav.motion')}
+        </div>
+      </div>
+      <div class="drawer-theme drawer-prefs">
+        <span class="drawer-prefs-t">${esc(t('nav.season'))}</span>
+        <div class="seg seg-txt" role="group" aria-label="${esc(t('nav.season'))}">
+          ${reglagesButtons(t, 'seg-btn', 'data-season-choice', SAISON, 'nav.season')}
+        </div>
+      </div>
       ${groups}
       <div class="drawer-ctas">
         <a class="btn drawer-cta" href="${ctx.href('contact')}">${esc(t('nav.demo'))}${icon('arrow')}</a>
@@ -636,7 +669,7 @@ function footHtml(t, ctx) {
         </div>
       </div>
       <div class="foot-bottom">
-        <span>© ${new Date().getFullYear()} ${esc(t('site.name'))}. ${esc(t('foot.rights'))}</span>
+        <span>© ${new Date().getFullYear()} ${esc(t('site.name'))}. ${esc(t('foot.rights'))} <span class="foot-greet">✦ ${esc(t('season.greet'))} ✦</span></span>
         <span class="foot-credit">${esc(t('foot.credit', { a: '\u0001A\u0001', b: '\u0001B\u0001', c: '\u0001C\u0001' }))
     .replace('\u0001A\u0001', '<a href="https://qu3ntin.com" rel="noopener">qu3ntin.com</a>')
     .replace('\u0001B\u0001', '<a href="https://quentin-creations.fr" rel="noopener">quentin-creations.fr</a>')
@@ -644,6 +677,25 @@ function footHtml(t, ctx) {
       </div>
     </div>
   </footer>`;
+}
+
+/*
+ * Le décor de la tenue de fêtes, posé dans chaque page et caché hors saison.
+ *
+ * Il est toujours dans le HTML : la saison se décide dans le navigateur, à la
+ * date du visiteur, et une page construite en novembre doit pouvoir s'habiller
+ * le 1er décembre sans être reconstruite. fete.css le masque tant que
+ * l'attribut de saison n'est pas là ; sans JavaScript ni feuille de style, il
+ * est vide de sens et caché aux lecteurs d'écran.
+ */
+function feteHtml() {
+  const ampoules = '<li></li>'.repeat(40);
+  return `<div class="fete" aria-hidden="true">
+  <div class="fete-aurore"><i></i><i></i><i></i></div>
+  <div class="fete-etoiles"></div>
+</div>
+<canvas class="fete-neige" aria-hidden="true"></canvas>
+<ul class="guirlande" aria-hidden="true">${ampoules}</ul>`;
 }
 
 /*
@@ -776,6 +828,9 @@ for (const locale of LOCALES) {
       .split('{{V_CSS}}').join(VERSIONS.css)
       .split('{{V_BOOT}}').join(VERSIONS.boot)
       .split('{{V_APP}}').join(VERSIONS.app)
+      .split('{{V_FETE_CSS}}').join(VERSIONS.feteCss)
+      .split('{{V_FETE_JS}}').join(VERSIONS.feteJs)
+      .split('{{FETE}}').join(feteHtml())
       .split('{{ALTERNATES}}').join(alternates)
       .split('{{CANONICAL}}').join(esc(canonical))
       .split('{{SITE_NAME}}').join(esc(t('site.name')))
