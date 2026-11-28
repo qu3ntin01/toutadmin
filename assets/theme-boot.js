@@ -7,7 +7,7 @@
    • le mouvement : coupé par défaut. Il s'allume par un choix, jamais de
      lui-même, et jamais du tout pour qui a demandé moins d'animation à son
      système — ce choix-là n'est pas à nous ;
-   • la saison : du 1er décembre au 6 janvier, la page prend sa tenue de fêtes,
+   • la saison : du 28 novembre au 6 janvier, la page prend sa tenue de fêtes,
      sauf si le visiteur l'a refusée. « ?saison=noel » la montre en tout temps,
      pour la voir avant l'heure. */
 (function () {
@@ -46,7 +46,9 @@
     var choix = voulue === 'noel' ? 'on' : voulue === 'off' ? 'off' : lire('ta-season', 'auto');
     if (choix !== 'on' && choix !== 'off') choix = 'auto';
     var d = new Date();
-    var enFetes = d.getMonth() === 11 || (d.getMonth() === 0 && d.getDate() <= 6);
+    // Du 28 novembre au 6 janvier. Le 1er décembre était la date d'origine ; la
+    // tenue est avancée au 28 novembre pour que cette année elle soit déjà là.
+    var enFetes = (d.getMonth() === 10 && d.getDate() >= 28) || d.getMonth() === 11 || (d.getMonth() === 0 && d.getDate() <= 6);
     racine.setAttribute('data-season-pref', choix);
     if (choix === 'on' || (choix === 'auto' && enFetes)) racine.setAttribute('data-season', 'noel');
   } catch (e) { /* pas de saison */ }

@@ -216,7 +216,7 @@ de la barre et dans le tiroir :
   choix, jamais de lui-même, et jamais pour qui a demandé moins d'animation à son
   système : le réglage est alors verrouillé, et le menu le dit. Changer le réglage
   recharge la page — il décide de ce qui se met en place au chargement ;
-- **la saison** (`data-season`) : du 1er décembre au 6 janvier, la page prend sa tenue
+- **la saison** (`data-season`) : du 28 novembre au 6 janvier, la page prend sa tenue
   de fêtes, sauf refus du visiteur. `?saison=noel` la montre en tout temps pour la voir
   avant l'heure, `?saison=off` la retire.
 
